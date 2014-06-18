@@ -10,6 +10,8 @@ import org.eclipse.ui.PlatformUI;
  * This class controls all aspects of the application's execution
  */
 public class SampleApplication implements IApplication {
+	
+	public static final String PLUGIN_ID = "SampleRCP";
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
