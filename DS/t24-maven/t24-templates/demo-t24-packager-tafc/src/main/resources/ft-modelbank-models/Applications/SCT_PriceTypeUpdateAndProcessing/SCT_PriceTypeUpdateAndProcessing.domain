@@ -1,0 +1,741 @@
+# UTF-8
+# UTF-8
+/* Price Types, update and consideration */
+Domain SCT_PriceTypeUpdateAndProcessing
+	@t24:i (module=SC)
+	@java:Package (value=com.temenos.t24.datamodel.sc.sct_pricetypeupdateandprocessing)
+namespace "http://www.temenos.com/t24/SCT_PriceTypeUpdateAndProcessing"
+metamodelVersion 1.30.6
+Classes {
+	MARKET_PRICE
+		@t24:i (t24Name=MARKET.PRICE, level=I, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Record key. Will be Company Code '.' Security Code plus an optional '.' and Date element. */
+		MKT_PRICE_KEY -> SCT_PriceTypeUpdateAndProcessing:MARKET_PRICE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=MKT.PRICE.KEY)
+		/* The element of the id that is the Company code */
+		COMPANY -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, businessType=COM, t24Name=COMPANY)
+		/* The element of the id that is the Security code */
+		SECURITY_CODE -> SCO_SecurityMasterMaintenance:SECURITY_MASTER
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates a valid Security")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=2.0, core=true, businessType=SEC, t24Name=SECURITY.CODE)
+		/* Not used at present */
+		PRICE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=3.0, core=true, t24Name=PRICE.DATE)
+		/* The latest updated price for the security. */
+		LAST_PRICE : T24BusinessTypes:PRICE
+			@i18n:Label (en="Last Price")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=4.0, core=true, t24Name=LAST.PRICE)
+		TK_CONTROL -> byValue SCT_PriceTypeUpdateAndProcessing:MARKET_PRICE__TK_CONTROL *
+		TEXT -> byValue SCT_PriceTypeUpdateAndProcessing:MARKET_PRICE__TEXT *
+		/* Not used at present */
+		PRICE_TWO : T24BusinessTypes:PRICE
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=7.0, core=true, t24Name=PRICE.TWO)
+		/* The latest updated price for the security, only present when the date element of the key is present. */
+		LAST_UP_PRICE : T24BusinessTypes:PRICE
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=8.0, core=true, t24Name=LAST.UP.PRICE)
+	}
+	MARKET_PRICE__TK_CONTROL
+	{
+		/* Not used at present */
+		TK_CONTROL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=TK.CONTROL)
+	}
+	MARKET_PRICE__TEXT
+	{
+		/* Not used at present */
+		TEXT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=TEXT)
+	}
+	/* PRICE.TYPE
+
+This table indicates to the system how a "Price Type" calculation is to be performed within any given transaction in the securities module.
+For example whether it is a percentage price and should be divided by 100 to obtain the correct gross amount, or where (as in the case of options) the nominal is a contract representing a given number of shares per unit (of nominal).  The user may indicate this by using the "MULTIPLY.FACTOR field" eg. Where each unit of the nominal amount represents an option on 1000 shares the "MULTIPLY.FACTOR" would be 1000. */
+	PRICE_TYPE
+		@t24:i (t24Name=PRICE.TYPE, level=I, type=H, additionalInfo="UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Unique reference which identifies the PRICE.TYPE.
+Validation Rules
+1-5 type S (uppercase alpha or numeric) characters. (Mandatory Input) */
+		PRICE_TYPE -> SCT_PriceTypeUpdateAndProcessing:PRICE_TYPE PK required
+			@i18n:Label (en="Price Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=0.0, core=true, businessType=S, t24Name=PRICE.TYPE)
+		DESCRIPTION -> byValue SCT_PriceTypeUpdateAndProcessing:PRICE_TYPE__DESCRIPTION *
+		SHORT_DESCR -> byValue SCT_PriceTypeUpdateAndProcessing:PRICE_TYPE__SHORT_DESCR *
+		/* Specifies whether the price quoted on a security with this PRICE.TYPE is expressed as a percentage or a multiple of the nominal value.
+Validation Rules
+Y = Yes (a percentage), or    N(O) = No (a multiple). (Mandatory Input) */
+		PERCENTAGE : SCT_PriceTypeUpdateAndProcessing:PRICE_TYPE__PERCENTAGE required
+			@i18n:Label (en="% Change")
+			@t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=3.0, core=true, t24Name=PERCENTAGE)
+		/* Specifies the weighting attached to the price quoted on a security with this PRICE.TYPE.
+Where (as in the case of options) the nominal is a contract representing a given number of shares per unit, (of nominal).  The user may use this field to indicate this value.
+Example:  Where each unit of the nominal amount represents an           option on 1000 shares the MULTIPLY.FACTOR would be           1000.
+Validation Rules
+1-9 numeric or "." characters. (Mandatory Input)
+The default value for this field is 1. */
+		MULTIPLY_FACTOR : T24BusinessTypes:R
+			@i18n:Label (en="Multiply Factor")
+			@i18n:Tooltip (en="Indicates the multiply factor for price type")
+			@t24:i (align=R, inputBehaviour=F, maxLength=9, sysNumber=4.0, core=true, t24Name=MULTIPLY.FACTOR)
+		/* Defines the formula used to calculate the consideration.
+This field is used to define the formula used to calculate the consideration.
+Examples: Where           C = Consideration           N = Nominal amount           P = Price           F = 1 or 100 (depending on the "PERCENTAGE" field)           T = Tenor in days           D = Number of interest days (360 or 365)
+(N * P * T) DISCOUNT  C =   N -  ---------------                          D * 100
+N * P PRICE     C =     -------                      F
+N YIELD     C =       ----------------------                              ( T x P )                      1 +  -------------                              (D x 100)
+Validation Rules
+DISCOUNT, PRICE, YIELD (Mandatory Input)
+If "CALCULATION.METHOD" is YIELD or DISCOUNT the "PERCENTAGE" field must be YES. */
+		CALCULATION_METHOD : SCT_PriceTypeUpdateAndProcessing:PRICE_TYPE__CALCULATION_METHOD
+			@i18n:Label (en="Calc Method")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=5.0, core=true, t24Name=CALCULATION.METHOD)
+		/* Specifies whether or not the securities are discount instruments.
+In order to accrue or amortise the discount amount when a security is traded this flag must be st to "Y". This process will only be carried out for the banks own portfolios.
+Validation Rules
+Values allowed are "Y" or "NO". (Mandatory Input)
+For "Y" to be entered the PERCENTAGE field must be set to "Y" and the CALCULATION.METHOD field cannot be set to "PRICE".
+For "NO" to be entered the CALCULATION.METHOD must be set to "PRICE". */
+		DISC_INSTRUMENT : SCT_PriceTypeUpdateAndProcessing:PRICE_TYPE__DISC_INSTRUMENT required
+			@i18n:Label (en="Disc Instrument")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=6.0, core=true, t24Name=DISC.INSTRUMENT)
+		/* Indicates which Price Basis is to be used.
+Indicates whether the price quoted for a Bond, includes or excludes interest accrued.
+Validation Rules
+I = INC.ACCR, E = EXC.ACCR. (Optional Input.)  If this field is null, the system assumes EXC.ACCR */
+		PRICE_BASIS : SCT_PriceTypeUpdateAndProcessing:PRICE_TYPE__PRICE_BASIS
+			@i18n:Label (en="Price Basis")
+			@i18n:Tooltip (en="Holds Price Basis")
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=7.0, core=true, t24Name=PRICE.BASIS)
+		/* Insert text here
+Validation Rules
+
+Rule 1
+Rule 2 */
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_PriceTypeUpdateAndProcessing:PRICE_TYPE__INPUTTER *
+		DATE_TIME -> byValue SCT_PriceTypeUpdateAndProcessing:PRICE_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=13.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=15.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=16.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PRICE_TYPE__DESCRIPTION
+	{
+		/* Describes the PRICE.TYPE.
+This field may be expanded to allow the user to enter the description of the PRICE.TYPE in various languages. Each expansion of the field will correspond to a new language as defined in the LANGUAGE table and will indicate to the user the language in which the description is to be entered.
+Validation Rules
+3 to 35 type AA (alphanumeric, first character must be alpha) characters. Multi language field (Mandatory Input) */
+		DESCRIPTION : T24BusinessTypes:AA required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	PRICE_TYPE__SHORT_DESCR
+	{
+		/* The abbreviated description of the PRICE.TYPE.
+This field may be expanded to allow the user to enter the description of the PRICE.TYPE in various languages. Each expansion of the field will correspond to a new language as defined in the LANGUAGE table and will indicate to the user the language in which the description is to be entered.
+Validation Rules
+3 to 15 type SS (uppercase alpha or numeric, first character must be alpha) characters Multi language field (Mandatory Input) */
+		SHORT_DESCR : T24BusinessTypes:SS required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.DESCR)
+	}
+	PRICE_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=INPUTTER)
+	}
+	PRICE_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=11.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* A user maintained static information table to indicate to the system how and from where the SECURITY MASTER file, LAST PRICE field is to be updated with the latest price.
+There has obviously to be a certain amount of interface work to be performed at this point to enable the system to identify the price service indicated, and to pick up the prices correctly. For example, a user may utilise Reuters or Telekurs pricing services. He would therefore give each of these a separate ID and T24 would know where and how to access these particular price feeds and consequently update the SECURITY MASTER record.
+Additionally there are indicators within the file to:
+1. Illustrate whether the price update is automatic or indeed whether it needs to be done manually.
+2. Control the update of past prices and income details on SECURITY.MASTER. */
+	PRICE_UPDATE
+		@t24:i (t24Name=PRICE.UPDATE, level=I, type=H, additionalInfo="UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Unique reference which identifies the PRICE.UPDATE record.
+Validation Rules
+1-5 type S (uppercase alpha or numeric) characters. (Mandatory Input) */
+		PRICE_UPDATE -> SCT_PriceTypeUpdateAndProcessing:PRICE_UPDATE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=0.0, core=true, businessType=S, t24Name=PRICE.UPDATE)
+		DESCRIPTION -> byValue SCT_PriceTypeUpdateAndProcessing:PRICE_UPDATE__DESCRIPTION *
+		SHORT_DESCR -> byValue SCT_PriceTypeUpdateAndProcessing:PRICE_UPDATE__SHORT_DESCR *
+		/* Specifies whether Price.Updates to the SECURITY.MASTER will be automatic or manual.
+Validation Rules
+Y = Yes (automatic), or    N(O) = No (manual). (Mandatory Input) */
+		AUTO_UPDATE_REQD : SCT_PriceTypeUpdateAndProcessing:PRICE_UPDATE__AUTO_UPDATE_REQD required
+			@i18n:Label (en="Auto Update Reqd")
+			@i18n:Tooltip (en="Auto Update Required")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=AUTO.UPDATE.REQD)
+		/* This field controls the input of historic prices in SECURITY.MASTER, the three inputs allowed are YES, NO or OVERRIDE, the default value is YES.
+If the field is YES then a user will be able to input a price in the past for any security that is linked to this PRICE.UPDATE code.
+If the field is NO then a user will not be able to input a price in the past for any security that is linked to this PRICE.UPDATE code.
+If the field is OVERRIDE then a user will be able to input a price in the past for any security that is linked to this PRICE.UPDATE code, but this will produce an override message. */
+		PAST_UPDATE_PRICE : SCT_PriceTypeUpdateAndProcessing:PRICE_UPDATE__PAST_UPDATE_PRICE
+			@i18n:Label (en="Past Update Price")
+			@i18n:Tooltip (en="Past Update Price")
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=4.0, core=true, t24Name=PAST.UPDATE.PRICE)
+		/* This field controls the input of historic income details in SECURITY.MASTER, the three inputs allowed are YES, NO or OVERRIDE, the default value is YES.
+If the field is YES then a user will be able to input income details in the past for any security that is linked to this PRICE.UPDATE code.
+If the field is NO then a user will not be able to input income details in the past for any security that is linked to this PRICE.UPDATE code.
+If the field is OVERRIDE then a user will be able to input income details in the past for any security that is linked to this PRICE.UPDATE code, but this will produce an override message. */
+		PAST_UPDATE_INCOME : SCT_PriceTypeUpdateAndProcessing:PRICE_UPDATE__PAST_UPDATE_INCOME
+			@i18n:Label (en="Past Update Income")
+			@i18n:Tooltip (en="Past Update Income")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=5.0, core=true, t24Name=PAST.UPDATE.INCOME)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_PriceTypeUpdateAndProcessing:PRICE_UPDATE__INPUTTER *
+		DATE_TIME -> byValue SCT_PriceTypeUpdateAndProcessing:PRICE_UPDATE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=17.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=19.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=20.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PRICE_UPDATE__DESCRIPTION
+	{
+		/* Describes the method of PRICE.UPDATE.
+This field may be expanded to allow the user to enter the description of the PRICE.UPDATE method in various languages. Each expansion of the field will correspond to a new language as defined in the LANGUAGE table and will indicate to the user the language in which the description is to be entered.
+Validation Rules
+3 to 35 type AA (alphanumeric, first character must be alpha) characters. Multi language field (Mandatory Input) */
+		DESCRIPTION : T24BusinessTypes:AA required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	PRICE_UPDATE__SHORT_DESCR
+	{
+		/* An abbreviated description of the PRICE.UPDATE
+This field may be expanded to allow the user to enter the description of the PRICE.UPDATE method in various languages. Each expansion of the field will correspond to a new language as defined in the LANGUAGE table and will indicate to the user the language in which the description is to be entered.
+Validation Rules
+3 to 15 type SS (uppercase alpha or numeric, first character must be alpha) characters Multi language field (Mandatory Input) */
+		SHORT_DESCR : T24BusinessTypes:SS required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.DESCR)
+	}
+	PRICE_UPDATE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=INPUTTER)
+	}
+	PRICE_UPDATE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=15.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_HIST_INDICES
+		@t24:i (t24Name=SC.HIST.INDICES, level=I, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		KEY -> SCT_PriceTypeUpdateAndProcessing:SC_HIST_INDICES PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=0.0, core=true, businessType=D, t24Name=KEY)
+		INDEX -> byValue SCT_PriceTypeUpdateAndProcessing:SC_HIST_INDICES__INDEX *
+	}
+	SC_HIST_INDICES__INDEX
+	{
+		/* Fields INDEX to RATE form a related multi value set. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 3 characters may be entered.
+Must be the key to a valid entry on the SC.INDICES file. */
+		INDEX -> SCT_PriceTypeUpdateAndProcessing:SC_INDICES
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=A, t24Name=INDEX)
+		/* Fields INDEX to RATE form a related multi value set. This is a sub valued language field.
+Validation Rules
+A maximum of 35 characters may be entered. */
+		DESCRIPTION : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=2.0, core=true, t24Name=DESCRIPTION)
+		/* Fields INDEX to RATE form a related multi value set. Standard T24 amount field.
+Validation Rules
+A maximum of 18 characters may be entered. */
+		RATE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, t24Name=RATE)
+	}
+	/* This application is used to store the value of any stock index, for example the FT 100 Index or the Nikkei Index.
+There is a history version of this file called SC.HIST.INDICES which will be updated at month end. These two files can be used for performance comparisons with portfolio performances. */
+	SC_INDICES
+		@t24:i (t24Name=SC.INDICES, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Key in Security Index.
+This is an identifier to the Security Index this record contains the value for. An example might be FTSE-100 for the Financial Times London 100 index.
+Validation Rules
+Up to 15 characters long. */
+		REC_ID -> SCT_PriceTypeUpdateAndProcessing:SC_INDICES PK required
+			@i18n:Label (en=ID)
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=A, t24Name=REC.ID)
+		DESCRIPTION -> byValue SCT_PriceTypeUpdateAndProcessing:SC_INDICES__DESCRIPTION *
+		/* Field holding a Security Number identifier which can be used in any automatic feed to update this file.
+Validation Rules
+Optional input. */
+		SECURITY_NO : T24BusinessTypes:A
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates the security code/number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=2.0, core=true, t24Name=SECURITY.NO)
+		/* Field holding the value of the Stock Index.
+Validation Rules
+Optional input amount field. */
+		RATE : T24BusinessTypes:R
+			@i18n:Label (en=Rate)
+			@i18n:Tooltip (en="Rate at which dividend/coupon is being paid")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, t24Name=RATE)
+		/* Field holding the date the value of the index was last updated.
+This together with the rate field give the value for the stock index as at a particular date.
+Validation Rules
+Optional input standard T24 date field. */
+		DATE : T24BusinessTypes:D
+			@i18n:Label (en=Date)
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=DATE)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=5.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=6.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_PriceTypeUpdateAndProcessing:SC_INDICES__INPUTTER *
+		DATE_TIME -> byValue SCT_PriceTypeUpdateAndProcessing:SC_INDICES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=9.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=10.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=11.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=12.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=13.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_INDICES__DESCRIPTION
+	{
+		/* Multi-valued free format field used to record a description of the index.
+Validation Rules
+Mandatory input.
+Free format index. */
+		DESCRIPTION : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	SC_INDICES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=7.0, core=true, t24Name=INPUTTER)
+	}
+	SC_INDICES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=8.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application stores information of all the Securities for which the Price/Yield is updated Manually. Information stored is New Price, Old Price, Bid Price, Offer Price, Income, Accumulated Income, Price change Date, User ID & Date & Time of changes done.
+The information in fields TIME.CHANGE, NEW.PRICE, OLD.PRICE, INCOME, ACCUM.INCOME is updated during the Authorisation of a modification to a Security master record. Records can also be created and amended manually, at which time all fields can be input.
+An archive facility is available to archive data in this file to SC.PRICE.CHANGE$ARC. This will be based on the date in ARCHIVE table, record 'SC.SEC.ARCHIVAL', field PURGE.DATE. Any information prior or equal to this date will be archived when Adhoc service SC.INT.ARCHIVAL is run. */
+	SC_PRICE_CHANGE
+		@t24:i (t24Name=SC.PRICE.CHANGE, level=I, type=U, additionalInfo="UNP OEU", allowedFunctions="A C D E I L P Q R S", localRefAllowed=true)
+	{
+		/* This is the Security Code & the value date for which the Price or Yield is changed on the Security.
+Format : a) Valid Security Number & b) '.' & c) Standard Date */
+		PRICE_CHANGE -> SCT_PriceTypeUpdateAndProcessing:SC_PRICE_CHANGE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=S, t24Name=PRICE.CHANGE)
+		/* This is the Security No. for which the Price/Yield/Income has been Changed by the User.
+Format : a) 1 - 6 numeric chars Security Number separated from 3 suffix numeric chars by '-'. b) Display Only. */
+		SECURITY_NO -> SCO_SecurityMasterMaintenance:SECURITY_MASTER
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates the security code/number")
+			@t24:i (align=L, inputBehaviour=N, maxLength=9, sysNumber=1.0, core=true, businessType=SEC, t24Name=SECURITY.NO)
+		/* This field contains the date of the price or income recorded on this record.
+Format : a) Standard Date Format b) Display Only */
+		DATE_CHANGE : T24BusinessTypes:D
+			@i18n:Label (en="Date Change")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=2.0, core=true, t24Name=DATE.CHANGE)
+		TIME_CHANGE -> byValue SCT_PriceTypeUpdateAndProcessing:SC_PRICE_CHANGE__TIME_CHANGE *
+		PRICE_QUAL_MARK -> byValue SCT_PriceTypeUpdateAndProcessing:SC_PRICE_CHANGE__PRICE_QUAL_MARK *
+		RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=13.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=14.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=15.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=16.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=17.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=18.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=19.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=20.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=21.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue SCT_PriceTypeUpdateAndProcessing:SC_PRICE_CHANGE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=24.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_PriceTypeUpdateAndProcessing:SC_PRICE_CHANGE__INPUTTER *
+		DATE_TIME -> byValue SCT_PriceTypeUpdateAndProcessing:SC_PRICE_CHANGE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=28.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=29.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=30.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=31.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=32.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_PRICE_CHANGE__TIME_CHANGE
+	{
+		/* This is the time of day when a change of price or income details was recorded.
+Part of multi-value set TIME.CHANGE to ACCUM.INCOME. */
+		TIME_CHANGE : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=TIME.CHANGE)
+		/* This is the New Price/Yield input by the user.
+Part of multi-value set TIME.CHANGE to ACCUM.INCOME. */
+		NEW_PRICE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=4.0, core=true, t24Name=NEW.PRICE)
+		/* This is the Old Price/Yield input by the User.
+Part of multi-value set TIME.CHANGE to ACCUM.INCOME */
+		OLD_PRICE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=5.0, core=true, t24Name=OLD.PRICE)
+		/* Standard T24 rate field.
+Part of multi-value set TIME.CHANGE to ACCUM.INCOME
+Validation Rules
+A maximum of 16 characters may be entered. */
+		BID_PRICE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=6.0, core=true, t24Name=BID.PRICE)
+		/* Standard T24 rate field.
+Part of multi-value set TIME.CHANGE to ACCUM.INCOME
+Validation Rules
+A maximum of 16 characters may be entered. */
+		OFFER_PRICE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=7.0, core=true, t24Name=OFFER.PRICE)
+		/* The new income amount recorded on the SECURITY.MASTER after a change to the INCOME field on the SECURITY.MASTER record
+Part of multi-value set TIME.CHANGE to ACCUM.INCOME */
+		INCOME : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=8.0, core=true, t24Name=INCOME)
+		/* This field captures the daily market capitalisation of the instrument. The market capitalisation is a product of the number of shares issued times the price. */
+		MARKET_CAP : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=9.0, core=true, t24Name=MARKET.CAP)
+		/* The Foreign Inclusion Factor (FIF) of an instrument is a weighting assigned to an instrument that represents the proportion of shares outstanding that are deemed to be available for purchase in the public equity markets by international investors. In practice limitations on availablity include:
+strategic and other shareholdings in an instrument
+limits on foreign ownership.
+The FIF is used by companies who compile indexes to provide a more accurate representation of company weighting in the index calculation.
+A value between 0 and 1 should be entered. */
+		FIF_WEIGHT : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=10.0, core=true, t24Name=FIF.WEIGHT)
+		/* The new accumulated income amount recorded on the SECURITY.MASTER in the ACCUM.INCOME field.
+Part of multi-value set TIME.CHANGE to ACCUM.INCOME */
+		ACCUM_INCOME : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=11.0, core=true, t24Name=ACCUM.INCOME)
+	}
+	SC_PRICE_CHANGE__PRICE_QUAL_MARK
+	{
+		/* This input for this field is determined in the application SM.PARAMETER, if the field PRICE.QUAL.FORMAT is not SWIFT then no input will be allowed, otherwise the list of valid entries will be determined from the fields CUM.INDICATE and EX.INDICATE in the same application.
+This field indicates the price condition, as specified by SWIFT, for example CDIV indicates the price is 'cum dividend', XWAR indicates the price is 'ex warrants'. The user should consult the SWIFT manual for a full list of price conditions.
+This field will be automatically updated if a price change is made to the SECURITY.MASTER record.
+Validation Rules
+
+
+Entry will be limited to values from CUM.INDICATE and EX.INDICATE
+Only inputtable if PRICE.QUAL.FORMAT is SWIFT */
+		PRICE_QUAL_MARK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=12.0, core=true, t24Name=PRICE.QUAL.MARK)
+	}
+	SC_PRICE_CHANGE__OVERRIDE
+	{
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=OVERRIDE)
+	}
+	SC_PRICE_CHANGE__INPUTTER
+	{
+		/* This is the User ID. who initiated the changes to the Current Price/Yield.
+Format : a) Standard User ID. format          b) Display Only */
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=26.0, core=true, t24Name=INPUTTER)
+	}
+	SC_PRICE_CHANGE__DATE_TIME
+	{
+		/* This is the Date & Time at which the User made changes to the Price/Yield field on SECURITY.MASTER.
+Format : a) Standard Date & Time format.          b) Display Only */
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=27.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* An archive facility is available to archive data in this file to SC.PRICE.CHANGE.CON$ARC. This will be based on the date in ARCHIVE table, record 'SC.SEC.ARCHIVAL', field PURGE.DATE. Any information prior or equal to this date will be archived when Adhoc service SC.INT.ARCHIVAL is run. */
+	SC_PRICE_CHANGE_CON
+		@t24:i (t24Name=SC.PRICE.CHANGE.CON, level=I, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Record key, consisting of a 2 part id, security number and year contatenated with a dot. */
+		SECURITY_YEAR -> SCT_PriceTypeUpdateAndProcessing:SC_PRICE_CHANGE_CON PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=A, t24Name=SECURITY.YEAR)
+		DATE_OF_CHANGE -> byValue SCT_PriceTypeUpdateAndProcessing:SC_PRICE_CHANGE_CON__DATE_OF_CHANGE *
+	}
+	SC_PRICE_CHANGE_CON__DATE_OF_CHANGE
+	{
+		/* Date on which the security price was changed */
+		DATE_OF_CHANGE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=DATE.OF.CHANGE)
+	}
+	/* This table contains information that will enable the bank to interface to the Telekurs price feed service, through a variety of commercially available packages.
+Seven different record types may be created viz.
+SYSTEM              Mandatory           HEADER.EXT          Optional           RECORD.EXT          Mandatory           FOOTER.EXT          Optional           HEADER.REC          Optional           RECORD.REC          Optional           FOOTER.REC          Optional
+SYSTEM contains the commands to extract and receive Telekurs information only.  These commands may be shell scripts, programs, or voc entries, so it is vitally important that the full command be entered in this field (e.g. "SH - c'unix command'")
+HEADER.EXT is used to provide a header for the data record(s) sent to the package to extract Telekurs data.
+RECORD.EXT is used to define the body of the data record(s) sent to the package to extract Telekurs data.
+FOOTER.EXT is used to define a footer for the data record(s) sent to the package to extract Telekurs data. HEADER.REC is used to provide header template for data record(s) received from the package.
+RECORD.REC is used to provide a record template for data records received from the package.
+FOOTER.REC is used to provide a footer template for data records received from the package. */
+	TELEK_PARAMETERS
+		@t24:i (t24Name=TELEK.PARAMETERS, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Specifies the type of record created.
+Validation Rules
+6 to 11 Alphanumeric characters. Only the following values will be accepted: Key         Description                        Status SYSTEM      Extract & Receive commands         Mandatory HEADER.EXT  Header information for the extract processOptional RECORD.EXT  Detail information for the extract processMandatory FOOTER.EXT  Footer information for the extract processOptional HEADER.REC  Header information for the receive processOptional RECORD.REC  Detail information for the receive processOptional FOOTER.REC  Footer information for the receive processOptional */
+		KEY -> SCT_PriceTypeUpdateAndProcessing:TELEK_PARAMETERS PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* Specifies the file to be used in creating the extract file. This file is used to define the data to be extracted from Telekurs and in most cases will probably be the SECURITY.MASTER file.
+Validation Rules
+0 to 35 Alphanumeric characters (Optional Input)
+The file must exist in the FILE.CONTROL file. */
+		FILE_NAME -> EB_SystemTables:FILE_CONTROL
+			@i18n:Label (en="File Name")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, businessType=A, t24Name=FILE.NAME)
+		FIELD -> byValue SCT_PriceTypeUpdateAndProcessing:TELEK_PARAMETERS__FIELD *
+		/* This field is used to separate the header, footer and detail records.
+If the Telekurs interface package used by the bank requires records to be separated by a specific character (e.g. "," or NUL or LF) then this is where that value is entered.  Non printable ASCII characters may be input by using their three digit ASCII ordinal value (e.g. 000 = NUL, 010 = LF etc,) printable characters may be entered literally, spaces must be enclosed in quotes.
+Validation Rules
+0 - 4 Alphanumeric characters. (Optional Input) */
+		RECORD_SEPERATOR : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=4.0, core=true, t24Name=RECORD.SEPERATOR)
+		TELEK_EXTRACT -> byValue SCT_PriceTypeUpdateAndProcessing:TELEK_PARAMETERS__TELEK_EXTRACT *
+		TELEK_RECEIVE -> byValue SCT_PriceTypeUpdateAndProcessing:TELEK_PARAMETERS__TELEK_RECEIVE *
+		/* Indicates if all reports are to be produced or not.
+
+Validation Rules
+Y - Will produce Reports N - Will not produce Reports */
+		ALL_REPORTS : SCT_PriceTypeUpdateAndProcessing:TELEK_PARAMETERS__ALL_REPORTS
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=7.0, core=true, t24Name=ALL.REPORTS)
+		/* Flag to indicate if the Report should contain details of every record that is written to the Output file.
+
+Validation Rules
+Y - Print "Written to T24 File " text. N - Do not print */
+		PRINT_WRITTEN : SCT_PriceTypeUpdateAndProcessing:TELEK_PARAMETERS__PRINT_WRITTEN
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=8.0, core=true, t24Name=PRINT.WRITTEN)
+		/* Indicates what type of Reports are required.
+
+Validation Rules
+Valid values are: DETAIL    Prints the full status Report ERROR     Prints only errors. */
+		REPORT_TYPE : SCT_PriceTypeUpdateAndProcessing:TELEK_PARAMETERS__REPORT_TYPE
+			@i18n:Label (en="Report Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=9.0, core=true, t24Name=REPORT.TYPE)
+		/* Indicates whether or not the complement error is reported.
+All errors identified when validating the data from the Telekurs tape will be reported except the error message for the complement code validation unless the flag in this field is set to 'Y'.
+Validation Rules
+Y or NO may be entered. (Optional input) */
+		PRNT_COMPLEMNT_ERR : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=10.0, core=true, t24Name=PRNT.COMPLEMNT.ERR)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		DATE_LAST_UPD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, t24Name=DATE.LAST.UPD)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 1 characters may be entered.
+This is a NOINPUT field. */
+		FEED_STATUS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=12.0, core=true, t24Name=FEED.STATUS)
+		/* This field is reserved for future use. */
+		RESERVE_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=14.0, core=true, t24Name=RESERVE.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_PriceTypeUpdateAndProcessing:TELEK_PARAMETERS__INPUTTER *
+		DATE_TIME -> byValue SCT_PriceTypeUpdateAndProcessing:TELEK_PARAMETERS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	TELEK_PARAMETERS__FIELD
+	{
+		/* This field contains either a string literal (enclosed in quotes) or a field from the "FILE.NAME" file.
+When this field contains a string literal then the quotes will be stripped out and the literal inserted into the extract file.  When this field contains another value it is assumed to be a field from the "FILE.NAME" file and is checked against the STANDARD.SELECTION for that file.  Any valid "D"ata type or "I" type is acceptable and the resultant value is inserted into the extract file.
+Validation Rules
+0 to 20 Alphanumeric characters (Optional Input)
+Non string literals must exist on the STANDARD.SELECTION file for the file in "FILE.NAME".
+Non string literals must be unique. */
+		FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=2.0, core=true, t24Name=FIELD)
+		/* This field contains the table used to convert data values from T24 format to Telekurs format.
+If a table name is entered in this field then the value returned from the "FIELD" field is converted from T24 format to Telekurs format using XT.TABLES.  (e.g. the T24 format for Australian dollars is AUD whereas the Telekurs format is 088).
+Validation Rules
+0 - 20 Alphanumeric characters (Optional Input)
+The table must exist in the XT.TABLES file in the format "TELEKURS".CONV.TABLE. */
+		CONV_TABLE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=3.0, core=true, t24Name=CONV.TABLE)
+	}
+	TELEK_PARAMETERS__TELEK_EXTRACT
+	{
+		/* UNIVERSE command to execute or program to call after having extracted the TELEKURS data.
+When the first character of this field is an @, it means that           it is a program name, and this program must be called           (instead of being executed like
+This field can contain a VOC entry, a shell script, a T24 program, a Unix command etc., which is used to extract the data           required from the banks Telekurs interface package.
+Note: If a Unix command or shell script is used from                 within UniVerse the command must be in the                 format SH -c "Unix command".
+Validation Rules
+0 to 40 Alphanumeric characters (Mandatory Input) */
+		TELEK_EXTRACT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=5.0, core=true, t24Name=TELEK.EXTRACT)
+	}
+	TELEK_PARAMETERS__TELEK_RECEIVE
+	{
+		/* This field contains the command used to receive data from the banks Telekurs interface package.
+This field can contain a VOC entry, a shell script, a           T24 program, a Unix command etc., which is used to           receive the data           required from the banks Telekurs interface package.
+Note: If a Unix command or shell script is used from                 within UniVerse the command must be in the                 format SH -c "Unix command".
+Validation Rules
+0 to 40 Alphanumeric characters (Mandatory Input) */
+		TELEK_RECEIVE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=6.0, core=true, t24Name=TELEK.RECEIVE)
+	}
+	TELEK_PARAMETERS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=INPUTTER)
+	}
+	TELEK_PARAMETERS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	PRICE_TYPE__PERCENTAGE : mml:string
+		Y=Y
+		NO=NO
+	PRICE_TYPE__CALCULATION_METHOD : mml:string
+		YIELD=YIELD
+		DISCOUNT=DISCOUNT
+		PRICE=PRICE
+		YPRICE=YPRICE
+		DPRICE=DPRICE
+		TYIELD=TYIELD
+		COL_YIELD=COL.YIELD
+	PRICE_TYPE__DISC_INSTRUMENT : mml:string
+		Y=Y
+		NO=NO
+	PRICE_TYPE__PRICE_BASIS : mml:string
+		INC_ACCR=INC.ACCR
+		EXC_ACCR=EXC.ACCR
+	PRICE_UPDATE__AUTO_UPDATE_REQD : mml:string
+		Y=Y
+		NO=NO
+	PRICE_UPDATE__PAST_UPDATE_PRICE : mml:string
+		YES=YES
+		NO=NO
+		OVERRIDE=OVERRIDE
+	PRICE_UPDATE__PAST_UPDATE_INCOME : mml:string
+		YES=YES
+		NO=NO
+		OVERRIDE=OVERRIDE
+	TELEK_PARAMETERS__ALL_REPORTS : mml:string
+		Y=Y
+		NO=NO
+	TELEK_PARAMETERS__PRINT_WRITTEN : mml:string
+		Y=Y
+		NO=NO
+	TELEK_PARAMETERS__REPORT_TYPE : mml:string
+		DETAIL=DETAIL
+		ERROR=ERROR
+	TELEK_PARAMETERS__PRNT_COMPLEMNT_ERR : mml:string
+		Y=Y
+		NO=NO
+}

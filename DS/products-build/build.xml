@@ -1,0 +1,78 @@
+<project name="building-all-products">
+
+	<property name="target" value="build"/>
+	<property name="ds.maven.extra.args" value=""/> <!-- allow to append extra args to the maven commands -->
+
+	<property name="ds.b2.profile" value="buildProducts"/> <!-- by default build all products -->
+	
+	<!-- When invoked directly, this script build all products for all OS -->
+	<property name="ds.localbuild.skip.win" value="false"/>
+	<property name="ds.localbuild.skip.linux" value="false"/>
+	<property name="ds.localbuild.skip.mac" value="true"/>
+
+	<echo message="Skipping attributes values"/>
+	<echo message="ds.localbuild.skip.win: ${ds.localbuild.skip.win}"/>
+	<echo message="ds.localbuild.skip.linux: ${ds.localbuild.skip.linux}"/>
+	<echo message="ds.localbuild.skip.mac: ${ds.localbuild.skip.mac}"/>
+	<echo message="ds.b2.profile: ${ds.b2.profile}"/>
+
+	<condition property="mvn.exec" value="mvn.bat" else="mvn">
+		<os family="windows"/>
+	</condition>
+	
+	<target name="checkos">
+	    <condition property="isWindows" value="true">
+	            <os family="windows" />
+	    </condition>
+	    <condition property="isLinux" value="true">
+	            <os family="unix" />
+	    </condition>
+	</target>
+
+	<target name="if_windows" depends="checkos" if="isWindows">
+	   <property name="mvn.used" value="mvn.bat" />
+		<echo message="${mvn.used}"/>
+	</target>
+	
+	<target name="if_unix" depends="checkos" if="isLinux">
+		<property name="mvn.used" value="mvn" />
+		<echo message="${mvn.used}"/>
+	</target>
+
+	<target name="all-products" depends="generators,ds-t24,ds-tap"/>
+	
+	<target name="generators" depends="if_windows, if_unix">
+		<echo message="Building TAP and T24 generators ..."/>
+		<ant dir="generator" target="${target}">
+			<property name="ds.maven" value="${mvn.used}"/>
+			<property name="ds.maven.extra.args" value="${ds.maven.extra.args}"/>
+			<property name="ds.p2cache.location" value="${ds.p2cache.location}"/>
+		</ant>
+	</target>
+	
+	<target name="ds-t24" depends="if_windows, if_unix">
+		<echo message="Building ds-t24 ..."/>
+		<ant dir="ds-t24" target="${target}">
+			<property name="ds.maven" value="${mvn.used}"/>
+			<property name="ds.p2cache.location" value="${ds.p2cache.location}"/>
+			<property name="ds.jre.location" value="${ds.jre.location}"/>
+		</ant>
+	</target>
+	
+	<target name="ds-tap" depends="if_windows, if_unix">
+		<echo message="Building ds-tap ..."/>
+		<ant dir="ds-tap" target="${target}">
+			<property name="ds.maven" value="${mvn.used}"/>
+			<property name="ds.p2cache.location" value="${ds.p2cache.location}"/>
+			<property name="ds.jre.location" value="${ds.jre.location}"/>
+		</ant>
+	</target>
+	
+	<target name="validate-products" depends="generators">
+		<echo message="Validating products..."/>
+		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" dir="product-validation" failonerror="true">
+			<arg line="clean install exec:java ${ds.maven.extra.args}"/>
+		</exec>
+	</target>
+	
+</project>

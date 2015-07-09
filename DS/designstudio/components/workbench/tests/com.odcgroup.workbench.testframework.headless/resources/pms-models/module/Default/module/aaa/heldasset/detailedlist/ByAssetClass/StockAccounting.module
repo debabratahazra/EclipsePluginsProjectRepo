@@ -1,0 +1,712 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	domainEntity = "AAADSValuation:ValuationDetailledList"
+	cssClass = nodeco
+	bean-define = DSBean.AAADSValuation.ValuationDetailledList
+	bean-name = ValuationDetailledList
+	id = CopyOfStockAccounting_Y____
+{
+	--- Box ---
+		boxType = vertical
+		width = 0
+	{
+		--- TableTree ---
+			display-checkbox = true
+			make-checkbox-exclusive = true
+			table-filter-layer = true
+			table-fixed-size = true
+			table-height = 700
+			table-page-size = 25
+			id = x6RtQ
+			table-column-count = 34 !
+			table-columns-width = "2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2" !
+		{
+			--- TableColumn ---
+				column-name = IO_BUY_RIGHT !
+				column-type = domain !
+				domainAttribute = IO_BUY_RIGHT !
+				type = text
+				column-visibility = never-visible
+				id = IO_BUY_RIGHT
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = IO_BUY_RIGHT
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = IO_SELL_RIGHT !
+				column-type = domain !
+				domainAttribute = IO_SELL_RIGHT !
+				type = text
+				column-visibility = never-visible
+				id = IO_SELL_RIGHT
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = IO_SELL_RIGHT
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = Buy, fr = Achat, de = Kauf
+				column-name = BUY
+				column-type = placeholder !
+				type = boolean
+				column-sortable = false !
+				id = q3U__
+				table-column-width = 2
+				tid = 88558258703963
+			{
+				--- CheckBox ---
+					column-checkbox-action = PCK_DS_IO_buy
+					column-checkbox-identifier = seqno
+					column-checkbox-security = IO_BUY_RIGHT
+					checkbox-group-names = "SECTOR_NAME, INSTR_CODE"
+					horizontalAlignment = center
+					horizontalTextPosition = trail
+					id = btn_BEsHZ
+			}
+			--- TableColumn ---
+				labels en = Sell, fr = Vente, de = Verkauf
+				column-name = SELL
+				column-type = placeholder !
+				type = boolean
+				column-sortable = false !
+				id = TT__U
+				table-column-width = 2
+				tid = 88558274311172
+			{
+				--- CheckBox ---
+					column-checkbox-action = PCK_DS_IO_sell
+					column-checkbox-identifier = seqno
+					column-checkbox-security = IO_SELL_RIGHT
+					checkbox-group-names = "SECTOR_NAME, INSTR_CODE"
+					horizontalAlignment = center
+					horizontalTextPosition = trail
+					id = btn_Z8a1w
+			}
+			--- TableColumn ---
+				column-display-grouping = true
+				column-name = PORTFOLIO_CODE !
+				column-type = domain !
+				domainAttribute = PORTFOLIO_CODE !
+				type = text
+				column-is-part-of-filter = false
+				id = PORTFOLIO_CODE
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = PORTFOLIO_CODE
+					previewValue = value
+				--- TableGroup ---
+					group-column-name = SECTOR_NAME
+					group-sorting-column-name = SECTOR_RANK
+					group-sorting-direction = ascending
+					group-rank = 1
+				--- TableGroup ---
+					aggregateData = false
+					group-column-name = INSTR_CODE
+					group-sorting-column-name = INSTR_CODE
+					group-sorting-direction = ascending
+					collapsed = true
+					group-rank = 2
+			}
+			--- TableColumn ---
+				column-name = INSTR_DENOM !
+				column-type = domain !
+				domainAttribute = INSTR_DENOM !
+				column-locked = true
+				id = INSTR_DENOM
+				table-column-width = 2
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						javaCode = "<udp:item column=\"INSTR_CODE\"/>!=null &amp;&amp; \r\n<udp:item column=\"PORTFOLIO_CODE\"/>==null"
+						technicalName = Instrument
+						isWidgetSelected = true
+					{
+						--- Icon ---
+							toolTips en = "View Instrument Details", fr = "Voir détails de l\'instrument", de = "Details des Instruments ansehen"
+							icon = application_form_magnify
+							id = P6J60
+							tid = 88558291888477
+						{
+							Event OnClick (submit) S
+							{
+								method = post
+								call-URI = "resource:///administration/instrument/InstrumentQuickView.pageflow"
+								target = popup
+								code = "<udp:item column=\"INSTR_CODE\"/>" ud
+								modal = false
+								only-changed = false
+								prevalidate = false
+							}
+						}
+						--- TableColumnItem ---
+							item-column = INSTR_DENOM
+							item-halign = lead
+							previewValue = value
+					}
+				}
+			}
+			--- TableColumn ---
+				column-name = QUANTITY !
+				column-type = domain !
+				domainAttribute = QUANTITY !
+				id = QUANTITY
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = QUANTITY
+					format = decimal.2-digits
+					previewValue = value
+				--- Spacer ---
+					height = 4
+					width = 10
+				--- Conditional ---
+					indexOfSelectedChild = 1
+				{
+					--- ConditionalBody ---
+						javaCode = "<udp:item column=\"PORTFOLIO_CODE\"/>!=null &amp;&amp; \r\n<udp:item column=\"INSTR_CODE\"/>!=null"
+						technicalName = PortAndInstr
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Icon ---
+							toolTips en = "View Position Details", fr = "Voir détails de la position", de = "Details der Position ansehen"
+							horizontalAlignment = trail
+							icon = application_form_magnify
+							id = V52_u
+							tid = 80537885105229
+						{
+							Event OnClick (submit) S
+							{
+								method = post
+								call-URI = "<pageflow:continuation/>"
+								target = popup
+								modal = false
+								only-changed = false
+								prevalidate = false
+								flow-action = positiondetails ud
+								pos_instrumentDimInstrument.code = "<udp:item column=\"INSTR_CODE\"/>" ud
+								pos_instrumentDimensionE = 1 ud
+								pos_portfolioDimPortfolio.code = "<udp:item column=\"PORTFOLIO_CODE\"/>" ud
+								pos_portfolioDimensionE = 1 ud
+								inputFieldPrefix = pos_ ud
+								Snippet FilterSet
+								id = fs_HX2
+								level = 1
+								targetDataset = "AAADSPositionDetails:PositionDetailsFromValuation"
+								{
+									Snippet Filter
+									attribute = id
+									filterValue = "<udp:item column=\"id\"/>"
+									operator = EQUAL
+								}
+							}
+						}
+					}
+					--- ConditionalBody ---
+						javaCode = true
+						technicalName = Default
+						boxType = vertical
+						isWidgetSelected = true
+				}
+			}
+			--- TableColumn ---
+				column-name = POS_CURRENCY !
+				column-type = domain !
+				domainAttribute = POS_CURRENCY !
+				type = text
+				id = POS_CURRENCY
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = POS_CURRENCY
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = ISIN !
+				column-type = domain !
+				domainAttribute = ISIN !
+				type = text
+				column-visibility = not-visible
+				id = ISIN
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = ISIN
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = INSTR_PRICE !
+				column-type = domain !
+				domainAttribute = INSTR_PRICE !
+				type = text
+				id = INSTR_PRICE
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = INSTR_PRICE
+					format = decimal.4-digits
+					previewValue = value
+				--- TableColumnItem ---
+					item-column = INSTR_PRICE_PERCENTAGE
+					previewValue = %
+				--- Spacer ---
+					height = 4
+					width = 3
+				--- TableColumnItem ---
+					item-column = INSTR_PRICE_CURRENCY
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = DATE_MARKET_PRICE !
+				column-type = domain !
+				domainAttribute = DATE_MARKET_PRICE !
+				type = text
+				column-visibility = not-visible
+				id = DATE_MARKET_PRICE
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = DATE_MARKET_PRICE
+					format = datetime.date-only
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "Market Value", fr = "Valeur d\'inventaire", de = Marktwert
+				column-name = MktVal
+				type = amount
+				id = q_6tB
+				documentation = "Market Value in Reference Currency by Stock\'s position."
+				column-computation = make-amount
+				column-computation-parameters = "MKT_VAL,REF_CURRENCY"
+				table-column-width = 2
+				tid = 88558309538494
+			{
+				--- TableColumnItem ---
+					item-column = MktVal
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = MKT_VAL_PERC_REL !
+				column-type = domain !
+				domainAttribute = MKT_VAL_PERC_REL !
+				type = text
+				id = MKT_VAL_PERC_REL
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = MKT_VAL_PERC_REL
+					format = percentTA
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = MKT_VAL_PERC !
+				column-type = domain !
+				domainAttribute = MKT_VAL_PERC !
+				type = text
+				column-visibility = not-visible
+				id = MKT_VAL_PERC
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = MKT_VAL_PERC
+					format = percentTA
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = COST_PRICE !
+				column-type = domain !
+				domainAttribute = COST_PRICE !
+				type = text
+				id = COST_PRICE
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = COST_PRICE
+					format = decimal.4-digits
+					previewValue = value
+				--- TableColumnItem ---
+					item-column = COST_PRICE_PERCENTAGE
+					previewValue = %
+				--- Spacer ---
+					height = 4
+					width = 3
+				--- TableColumnItem ---
+					item-column = COST_PRICE_CURRENCY
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = COST_EXCH_RATE !
+				column-type = domain !
+				domainAttribute = COST_EXCH_RATE !
+				type = text
+				id = COST_EXCH_RATE
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = COST_EXCH_RATE
+					format = decimal.detailed
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "Net Cost Value", fr = "Coût d\'achat", de = "Einstandswert Netto"
+				column-name = NetCostVal
+				type = amount
+				id = n2jeO
+				documentation = "Net Cost Value in Reference Currency by Stock\'s position."
+				column-computation = make-amount
+				column-computation-parameters = "NET_COST_VAL,REF_CURRENCY"
+				table-column-width = 2
+				tid = 88558310539795
+			{
+				--- TableColumnItem ---
+					item-column = NetCostVal
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = PL_PERC !
+				column-type = domain !
+				domainAttribute = PL_PERC !
+				type = text
+				id = PL_PERC
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = PL_PERC
+					format = percentTA
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = P&L, de = G/V
+				column-name = Pl
+				type = amount
+				column-visibility = not-visible
+				id = n1322
+				column-computation = make-amount
+				column-computation-parameters = "PL,REF_CURRENCY"
+				table-column-width = 2
+				tid = 88558311537675
+			{
+				--- TableColumnItem ---
+					item-column = Pl
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = CAP_PL_PERC !
+				column-type = domain !
+				domainAttribute = CAP_PL_PERC !
+				type = text
+				column-visibility = not-visible
+				id = CAP_PL_PERC
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = CAP_PL_PERC
+					format = percentTA
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "Cap P&L", de = "Kap G/V"
+				column-name = CapPl
+				type = amount
+				column-visibility = not-visible
+				id = G_h37
+				column-computation = make-amount
+				column-computation-parameters = "CAP_PL,REF_CURRENCY"
+				table-column-width = 2
+				tid = 88558312537693
+			{
+				--- TableColumnItem ---
+					item-column = CapPl
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = CURR_PL_PERC !
+				column-type = domain !
+				domainAttribute = CURR_PL_PERC !
+				type = text
+				column-visibility = not-visible
+				id = CURR_PL_PERC
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = CURR_PL_PERC
+					format = percentTA
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "Cur P&L", de = "Dev G/V"
+				column-name = CurrPl
+				type = amount
+				column-visibility = not-visible
+				id = C3898
+				column-computation = make-amount
+				column-computation-parameters = "CURR_PL,REF_CURRENCY"
+				table-column-width = 2
+				tid = 88558314472715
+			{
+				--- TableColumnItem ---
+					item-column = CurrPl
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = REGION_DENOM !
+				column-type = domain !
+				domainAttribute = REGION_DENOM !
+				type = text
+				id = REGION_DENOM
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = REGION_DENOM
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels de = Risiko-Land
+				column-name = RISK_GEO_DENOM !
+				column-type = domain !
+				domainAttribute = RISK_GEO_DENOM !
+				id = RISK_GEO_DENOM
+				table-column-width = 2
+				tid = 88558315538602
+			{
+				--- TableColumnItem ---
+					item-column = RISK_GEO_DENOM
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = RECOMMENDATION !
+				column-type = domain !
+				domainAttribute = RECOMMENDATION !
+				type = text
+				column-visibility = not-visible
+				id = RECOMMENDATION
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = RECOMMENDATION
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = FUND_SPLIT !
+				column-type = domain !
+				domainAttribute = FUND_SPLIT !
+				type = text
+				column-visibility = not-visible
+				id = FUND_SPLIT
+				documentation = "It shows if the position is the result of Fund Splitting function"
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = FUND_SPLIT
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = RISK_INSTR_NAME !
+				column-type = domain !
+				domainAttribute = RISK_INSTR_NAME !
+				type = text
+				column-visibility = not-visible
+				id = RISK_INSTR_NAME
+				documentation = "It displays the instrument name of the original fund instrument that has been split"
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = RISK_INSTR_NAME
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = STATUS !
+				column-type = domain !
+				domainAttribute = STATUS !
+				id = STATUS
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = STATUS
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = MKT_VAL !
+				column-type = domain !
+				domainAttribute = MKT_VAL !
+				type = text
+				column-sortable = false
+				column-visibility = never-visible
+				id = MKT_VAL
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = MKT_VAL
+					format = decimal
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = NET_COST_VAL !
+				column-type = domain !
+				domainAttribute = NET_COST_VAL !
+				type = text
+				column-sortable = false
+				column-visibility = never-visible
+				id = NET_COST_VAL
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = NET_COST_VAL
+					format = decimal
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = PL !
+				column-type = domain !
+				domainAttribute = PL !
+				type = text
+				column-sortable = false
+				column-visibility = never-visible
+				id = PL
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = PL
+					format = decimal
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = CAP_PL !
+				column-type = domain !
+				domainAttribute = CAP_PL !
+				type = text
+				column-sortable = false
+				column-visibility = never-visible
+				id = CAP_PL
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = CAP_PL
+					format = decimal
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = CURR_PL !
+				column-type = domain !
+				domainAttribute = CURR_PL !
+				type = text
+				column-sortable = false
+				column-visibility = never-visible
+				id = CURR_PL
+				table-column-width = 2
+			{
+				--- TableColumnItem ---
+					item-column = CURR_PL
+					format = decimal
+					previewValue = value
+			}
+			--- TableExtra ---
+				domainAttribute = INSTR_PRICE_CURRENCY
+			--- TableExtra ---
+				domainAttribute = INSTR_PRICE_PERCENTAGE
+			--- TableExtra ---
+				domainAttribute = COST_PRICE_CURRENCY
+			--- TableExtra ---
+				domainAttribute = COST_PRICE_PERCENTAGE
+			--- TableSort ---
+				sort-column-name = MKT_VAL
+				sort-direction = descending
+				sort-rank = 1
+			--- TableExtra ---
+				domainAttribute = seqno
+			--- TableAggregate ---
+				aggregate-column-name = NET_COST_VAL
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = Pl
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = PL
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = CapPl
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = CAP_PL
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = CurrPl
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = CURR_PL
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = MKT_VAL
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = REF_CURRENCY
+				aggregate-computation = max
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = INSTR_DENOM
+				aggregate-computation = max
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = QUANTITY
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = POS_CURRENCY
+				aggregate-computation = max
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = ISIN
+				aggregate-computation = max
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = INSTR_PRICE
+				aggregate-computation = max
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = INSTR_PRICE_CURRENCY
+				aggregate-computation = max
+				aggregate-group-names = INSTR_CODE
+			--- TableExtra ---
+				domainAttribute = id
+			--- TableAggregate ---
+				aggregate-column-name = MktVal
+				aggregate-computation = sum
+				aggregate-group-names = "INSTR_CODE,SECTOR_NAME"
+			--- TableAggregate ---
+				aggregate-column-name = NetCostVal
+				aggregate-computation = sum
+				aggregate-group-names = "INSTR_CODE,SECTOR_NAME"
+			--- TableAggregate ---
+				aggregate-column-name = MKT_VAL_PERC_REL
+				aggregate-computation = sum
+				aggregate-group-names = "INSTR_CODE,SECTOR_NAME"
+			--- TableAggregate ---
+				aggregate-column-name = MKT_VAL_PERC
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = SECTOR_RANK
+				aggregate-computation = max
+				aggregate-group-names = SECTOR_NAME
+			--- TableSort ---
+				sort-column-name = PORTFOLIO_CODE
+				sort-rank = 2
+		}
+	}
+}

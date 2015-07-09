@@ -1,0 +1,859 @@
+# UTF-8
+# UTF-8
+/* Holding Reconciliation of Securities */
+Domain SCT_StockReconciliation
+	@t24:i (module=SC)
+	@java:Package (value=com.temenos.t24.datamodel.sc.sct_stockreconciliation)
+namespace "http://www.temenos.com/t24/SCT_StockReconciliation"
+metamodelVersion 1.30.6
+Classes {
+	/* Used to initiate the automatic matching process. May be run for either a selected depository, group of depositories or all depositories. */
+	SR_AUTOMATCH_MT571
+		@t24:i (t24Name=SR.AUTOMATCH.MT571, level=I, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=true)
+	{
+		/* The key to the record, can be any value upto 15 characters as defined in the STANDARD.A table. */
+		KEY -> SCT_StockReconciliation:SR_AUTOMATCH_MT571 PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		DEPOSITORY -> byValue SCT_StockReconciliation:SR_AUTOMATCH_MT571__DEPOSITORY *
+		/* Either YES, NO or blank. Entering YES will run automatic matching for all depositories
+Validation Rules
+
+
+Either YES, NO or blank */
+		ALL_DEPOSITORIES : SCT_StockReconciliation:SR_AUTOMATCH_MT571__ALL_DEPOSITORIES
+			@i18n:Label (en="All Depositories")
+			@i18n:Tooltip (en="All Depositories")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=ALL.DEPOSITORIES)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=3.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue SCT_StockReconciliation:SR_AUTOMATCH_MT571__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_StockReconciliation:SR_AUTOMATCH_MT571__INPUTTER *
+		DATE_TIME -> byValue SCT_StockReconciliation:SR_AUTOMATCH_MT571__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SR_AUTOMATCH_MT571__DEPOSITORY
+	{
+		/* The list of depositories for whom the automatic matching process is to be run.
+Validation Rules
+
+
+0-10 numeric
+Must be a valid CUSTOMER
+Must have a CUSTOMER.TYPE of DEPOSITORY in the CUSTOMER.SECURITY         application.
+May not be used if ALL.DEPOSITORIES is selected. */
+		DEPOSITORY -> SC_Config:CUSTOMER_SECURITY
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, businessType=CUS, t24Name=DEPOSITORY)
+	}
+	SR_AUTOMATCH_MT571__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=OVERRIDE)
+	}
+	SR_AUTOMATCH_MT571__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=INPUTTER)
+	}
+	SR_AUTOMATCH_MT571__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Used to capture T24 SECURITY.POSITION's and SWIFT statement of holdings  for reconciliation against each other. Data will either be populated directly from an incoming SWIFT message or may be manually input. */
+	SR_HOLDINGS
+		@t24:i (t24Name=SR.HOLDINGS, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The key of the record. A multi-part id, seperated by dots, each part of which is repeated in fields 1 to 5. Consists of the depository code, sub account (if any), security code, indicator (P or S) and date. */
+		KEY -> SCT_StockReconciliation:SR_HOLDINGS PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=51, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* Defaulted from the key id of the SR.HOLDINGS record. Displays the ID and enrichment from the CUSTOMER.SECURITY file for the record.
+Validation Rules
+
+
+1-10 numeric characters
+
+
+A NOINPUT field. */
+		DEPOSITORY -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Depository)
+			@i18n:Tooltip (en="Depository the Security to be delivered from/to")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=1.0, core=true, businessType=CUS, t24Name=DEPOSITORY)
+		/* Defaulted from the key id of the SR.HOLDINGS record. Displays the sub account.
+Validation Rules
+
+
+1-16 numeric characters
+
+
+A NOINPUT field. */
+		SUB_ACCOUNT : T24BusinessTypes:A
+			@i18n:Label (en="Sub Account")
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=2.0, core=true, t24Name=SUB.ACCOUNT)
+		/* Defaulted from the key id of the SR.HOLDINGS record. This field displays the depositories reference for the sub account. Extracted from the CUSTOMER.SECURITY application.
+Validation Rules
+
+
+1-16 numeric characters
+
+
+A NOINPUT field. */
+		SUB_ACCOUNT_EXT_ID : T24BusinessTypes:A
+			@i18n:Label (en="Sub Account Extension Id")
+			@i18n:Tooltip (en="Indicates the sub account extension id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=3.0, core=true, t24Name=SUB.ACCOUNT.EXT.ID)
+		/* Defaulted from the key id of the SR.HOLDINGS record. Displays the security code and enrichment from the SECURITY.MASTER application.
+Validation Rules
+
+
+1-12 numeric characters
+
+
+A NOINPUT field. */
+		SECURITY_CODE -> SCO_SecurityMasterMaintenance:SECURITY_MASTER
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates a valid Security")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=4.0, core=true, businessType=SEC, t24Name=SECURITY.CODE)
+		/* Defaulted from the key id of the SR.HOLDINGS record. Extracted from the SECURITY.MASTER application.
+Validation Rules
+
+1-12 numeric characters
+
+
+A NOINPUT field. */
+		ISIN_CODE : T24BusinessTypes:A
+			@i18n:Label (en="ISIN Code")
+			@i18n:Tooltip (en="Indicates the ISIN code of the security")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=5.0, core=true, t24Name=ISIN.CODE)
+		/* Defaulted from the key id of the SR.HOLDINGS record. Used to identify the holding as a T24 position ('P') or a depository statement position ('S').
+Validation Rules
+
+
+1 Character, either P or S
+
+
+A NOINPUT field. */
+		INDICATOR : SCT_StockReconciliation:SR_HOLDINGS__INDICATOR
+			@i18n:Label (en=Indicator)
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=6.0, core=true, t24Name=INDICATOR)
+		/* The holding quantity. Will either be extracted from the SWIFT message or input manually.
+Validation Rules
+
+0-15 (Accepts upto 15 characters {numerics}.
+Standard T24 quantity field.
+A NOCHANGE field */
+		QUANTITY : T24BusinessTypes:DEC
+			@i18n:Label (en=Qty)
+			@t24:i (align=L, inputBehaviour=F, maxLength=15, sysNumber=7.0, core=true, t24Name=QUANTITY, typeModifiers="-90")
+		/* Further identification. Will either be extracted from the SWIFT message or input manually.
+Validation Rules
+
+
+0-16 alpha numeric characters.
+
+
+A NOCHANGE field */
+		FURTHER_IDENT : T24BusinessTypes:A
+			@i18n:Label (en="Further Indent")
+			@i18n:Tooltip (en="Further Identity")
+			@t24:i (align=L, inputBehaviour=F, maxLength=16, sysNumber=8.0, core=true, t24Name=FURTHER.IDENT)
+		/* The statement page number. Will either be extracted from the SWIFT message or input manually.
+Validation Rules
+
+
+0-8 alpha numeric characters
+
+
+A NOCHANGE field */
+		PAGE_NUMBER : T24BusinessTypes:A
+			@i18n:Label (en="Page Number")
+			@i18n:Tooltip (en="Page Number")
+			@t24:i (align=L, inputBehaviour=F, maxLength=8, sysNumber=9.0, core=true, t24Name=PAGE.NUMBER)
+		/* Defaulted from the key id of the SR.HOLDINGS record. Displays the statement period.
+Validation Rules
+
+
+Must be a valid T24 date.
+
+
+A NOINPUT field. */
+		STATEMENT_PERIOD : T24BusinessTypes:D
+			@i18n:Label (en="Statement Period")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=10.0, core=true, t24Name=STATEMENT.PERIOD)
+		/* The statement basis. Will either be extracted from the SWIFT message or input manually.
+Validation Rules
+
+
+0-16 alpha numeric characters
+
+
+A NOCHANGE field */
+		STATEMENT_BASIS : T24BusinessTypes:A
+			@i18n:Label (en="Stmt Basis")
+			@i18n:Tooltip (en="Statement Basis")
+			@t24:i (align=L, inputBehaviour=F, maxLength=16, sysNumber=11.0, core=true, t24Name=STATEMENT.BASIS)
+		/* The key to the matching record. Can be either automatically allocated by the automatic matching process or manually input.
+Validation Rules
+
+
+0-51 alpha numeric characters
+Once authorised it may not be changed. */
+		MATCHED_TO -> SCT_StockReconciliation:SR_HOLDINGS
+			@i18n:Label (en="Matched To")
+			@t24:i (align=L, inputBehaviour=I, maxLength=51, sysNumber=12.0, core=true, businessType=A, t24Name=MATCHED.TO)
+		/* Shows the date on which the record was authorised with the MATCHED.TO field was populated
+Validation Rules
+
+
+Standard T24 date
+A NOINPUT field. */
+		DATE_MATCHED : T24BusinessTypes:D
+			@i18n:Label (en="Date Matched")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=13.0, core=true, t24Name=DATE.MATCHED)
+		/* Shows as 'YES' when the record is authorised with the MATCHED.TO field was populated
+Validation Rules
+
+
+Either YES or blank
+A NOINPUT field. */
+		AUTHORISED_MATCH : SCT_StockReconciliation:SR_HOLDINGS__AUTHORISED_MATCH
+			@i18n:Label (en="Auth Match")
+			@i18n:Tooltip (en="Authorised Match")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=14.0, core=true, t24Name=AUTHORISED.MATCH)
+		MATCH_STATUS -> byValue SCT_StockReconciliation:SR_HOLDINGS__MATCH_STATUS *
+		/* This is the message type that was sent from the depository in response to our request.
+Validation Rules
+
+
+MT571 or MT535
+"NOINPUT" field */
+		INCOMING_MSG : T24BusinessTypes:A
+			@i18n:Label (en="Incoming Msg")
+			@i18n:Tooltip (en="Incoming Message")
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=16.0, core=true, t24Name=INCOMING.MSG)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=25.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue SCT_StockReconciliation:SR_HOLDINGS__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=28.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=29.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_StockReconciliation:SR_HOLDINGS__INPUTTER *
+		DATE_TIME -> byValue SCT_StockReconciliation:SR_HOLDINGS__DATE_TIME *
+		/* A non-input field which shows the authoriser id. This field is updated to 'SY_SR.AUTOMATCH.MT571' when the record is matched , after the SR.AUTOMATCH.MT571 is verified and matches a record on the SR.HOLDINGS file.
+
+
+
+
+No Input field. */
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=32.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=33.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=34.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=35.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=36.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SR_HOLDINGS__MATCH_STATUS
+	{
+		/* The status's of the record, will show all history of the matching process.
+Validation Rules
+
+
+Either NEW, MATCHED, MATCH REVOKED.
+A NOINPUT field. */
+		MATCH_STATUS : SCT_StockReconciliation:SR_HOLDINGS__MATCH_STATUS__MATCH_STATUS
+			@t24:i (align=L, inputBehaviour=N, maxLength=13, sysNumber=15.0, core=true, t24Name=MATCH.STATUS)
+	}
+	SR_HOLDINGS__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=27.0, core=true, t24Name=OVERRIDE)
+	}
+	SR_HOLDINGS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=30.0, core=true, t24Name=INPUTTER)
+	}
+	SR_HOLDINGS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=31.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Record retention and DELIVERY data interfaces for the Stock Reconciliation application. */
+	SR_PARAMETER
+		@t24:i (t24Name=SR.PARAMETER, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The key to the record, must be SYSTEM. */
+		KEY -> SCT_StockReconciliation:SR_PARAMETER PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, t24Name=KEY)
+		/* Defines the number of days that ad-hoc message data will be kept in the live file of SR.STATEMENT.REQUEST.
+Data will remain on the file until the number of days specified here have elapsed, after which it will be moved to history.
+The End of Day batch SC.BATCH.RECON will delete the data on a daily basis once the time for data to be held has been exceeded.
+If the field is blank then data will remain in the live file and will not be moved to the history file.
+Validation Rules
+
+Up to 3 numeric plus 1 alpha characters.
+The number of days may be suffixed with 'C' for Calendar         or 'W' for Working. */
+		RETAIN_ADHOC_MSGS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=1.0, core=true, t24Name=RETAIN.ADHOC.MSGS)
+		/* Defines the number of days that reconciliation data will be kept on the live file of SR.HOLDINGS.
+Data will remain on the file until the number of days specified here have elapsed, after which it will be moved to history.
+The End of Day batch SC.BATCH.RECON will delete the data on a daily basis once the time for data to be held has been exceeded.
+If the field is blank then data will remain in the live file and will not be moved to the history file.
+Validation Rules
+
+Up to 3 numeric plus 1 alpha characters.
+The number of days may be suffixed with 'C' for Calendar         or 'W' for Working. */
+		RETAIN_ON_FILE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=2.0, core=true, t24Name=RETAIN.ON.FILE)
+		/* This field contains the location (ie. file name) that outgoing statements will be routed to when generated. The F. prefix should be omitted.
+Validation Rules
+
+15character alphanumeric field name
+Must be an entry in the FILE.CONTROL application. */
+		GLOBUS_LOCATION -> EB_SystemTables:FILE_CONTROL
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, businessType=A, t24Name=GLOBUS.LOCATION)
+		/* This field contains the name of the record into which outgoing statements will be diverted. If the GLOBUS.TYPE field is set to MESSAGE, this field should be left blank.
+Validation Rules
+
+15 character alphanumeric field */
+		GLOBUS_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=4.0, core=true, t24Name=GLOBUS.NAME)
+		/* This field contains the type of record that will be generated for the GLOBUS.LOCATION file. This may be either DIVERT or MESSAGE
+Validation Rules
+
+7 character alphanumeric field. Must be either DIVERT or         MESSAGE */
+		GLOBUS_TYPE : SCT_StockReconciliation:SR_PARAMETER__GLOBUS_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=5.0, core=true, t24Name=GLOBUS.TYPE)
+		/* This field contains the location (ie. file name) that inward statements will be routed to when received.
+Validation Rules
+
+15character alphanumeric field name
+Must be an entry in the FILE.CONTROL application. */
+		EXTERNAL_LOCATION -> EB_SystemTables:FILE_CONTROL
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=6.0, core=true, businessType=A, t24Name=EXTERNAL.LOCATION)
+		/* This field contains the name of the record into which incoming statements will be diverted. If the EXTERNAL.TYPE field is set to MESSAGE, this field should be left blank.
+Validation Rules
+
+15 character alphanumeric field */
+		EXTERNAL_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=7.0, core=true, t24Name=EXTERNAL.NAME)
+		/* This field contains the type of record that will be generated for the EXTERNAL.LOCATION file. This may be either DIVERT or MESSAGE
+Validation Rules
+
+7 character alphanumeric field. Must be either DIVERT or         MESSAGE. */
+		EXTERNAL_TYPE : SCT_StockReconciliation:SR_PARAMETER__EXTERNAL_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=8.0, core=true, t24Name=EXTERNAL.TYPE)
+		/* Determines which pair of Swift Messages will get used for Security Stock Reconciliations.
+
+REQUEST.STATEMENT Setting#STMT.OF.HOLDINGS Setting##
+MT570#MT571##
+MT549#MT535##
+
+Validation Rules
+
+"MT570" or "MT549" */
+		REQUEST_STATEMENT : SCT_StockReconciliation:SR_PARAMETER__REQUEST_STATEMENT
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=9.0, core=true, t24Name=REQUEST.STATEMENT)
+		/* This is the the type of Statement requested from the Depository when initiating Security Stock Reconciliation.
+The data appearing in this field is controlled by the data entered in the REQUEST.STATEMENT field.
+Validation Rules
+
+"MT571" or "MT535"
+"NOINPUT" field */
+		STMT_OF_HOLDINGS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=STMT.OF.HOLDINGS)
+		/* This field is used in conjunction with the applications ALT.SEC.PARAMETER and SECURITY.MASTER to determine the ISIN code.
+When this field is populated the ISIN code used in the statement request message and in decoding the statement of holdings message will be obtained from the field specified in SECURITY.MASTER field ALT.SECURITY.NO, if not specified the ISIN code will be obtained from the field I.S.I.N. in SECURITY.MASTER
+Validation Rules
+
+Must be a record in ALT.SEC.PARAMETER
+Optional input. */
+		ALT_ISIN_FLD_NAME -> SCO_SecurityMasterMaintenance:ALT_SEC_PARAMETER
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, businessType=MNE, t24Name=ALT.ISIN.FLD.NAME)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue SCT_StockReconciliation:SR_PARAMETER__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_StockReconciliation:SR_PARAMETER__INPUTTER *
+		DATE_TIME -> byValue SCT_StockReconciliation:SR_PARAMETER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=25.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=26.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=27.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=28.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=29.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SR_PARAMETER__OVERRIDE
+	{
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=OVERRIDE)
+	}
+	SR_PARAMETER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, core=true, t24Name=INPUTTER)
+	}
+	SR_PARAMETER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=24.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Used to record the dates positions were sucessfully reconciled. A record will exist for each depository, sub-account and security code combination. The reconciliation method will also be recorded. */
+	SR_SECURITY_RECON
+		@t24:i (t24Name=SR.SECURITY.RECON, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Record id, up to 40 alpha numeric characters. */
+		KEY -> SCT_StockReconciliation:SR_SECURITY_RECON PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* Extracted from the key of the SR.SECURITY.RECON record. This field displays the id and enrichment from the CUSTOMER.SECURITY file for the records that are depository.
+Validation Rules
+
+
+0-10 numeric
+A NOINPUT field */
+		DEPOSITORY -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Depository)
+			@i18n:Tooltip (en="Depository the Security to be delivered from/to")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=1.0, core=true, businessType=CUS, t24Name=DEPOSITORY)
+		/* Extracted from the key of the SR.SECURITY.RECON record. This field displays the sub account.
+Validation Rules
+
+
+0-16 alpha numeric
+A NOINPUT field */
+		SUB_ACCOUNT : T24BusinessTypes:A
+			@i18n:Label (en="Sub Account")
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=2.0, core=true, t24Name=SUB.ACCOUNT)
+		/* Extracted from the key of the SR.SECURITY.RECON record. This field displays the id and enrichment from the SECURITY.MASTER file for the records that are depository.
+Validation Rules
+
+
+0-12 numeric
+A NOINPUT field */
+		SECURITY_CODE -> SCO_SecurityMasterMaintenance:SECURITY_MASTER
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates a valid Security")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=3.0, core=true, businessType=SEC, t24Name=SECURITY.CODE)
+		LAST_RECON_DATE -> byValue SCT_StockReconciliation:SR_SECURITY_RECON__LAST_RECON_DATE *
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue SCT_StockReconciliation:SR_SECURITY_RECON__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_StockReconciliation:SR_SECURITY_RECON__INPUTTER *
+		DATE_TIME -> byValue SCT_StockReconciliation:SR_SECURITY_RECON__DATE_TIME *
+		/* Insert text here
+Validation Rules
+
+
+Rule 1
+Rule 2 */
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=23.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=24.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=25.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=26.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SR_SECURITY_RECON__LAST_RECON_DATE
+	{
+		/* This field displays the statement date when the position was last reconciled successfully.
+Validation Rules
+
+
+Standard T24 date
+A NOINPUT field */
+		LAST_RECON_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=12, sysNumber=4.0, core=true, t24Name=LAST.RECON.DATE)
+		/* This field displays the reconciliation method when the position was last reconciled successfully.
+Validation Rules
+
+
+Will either be AUTOMATIC, if all items were reconciled by         the automatic matching process, or MANUAL, if the         reconciliation was completed manually.
+A NOINPUT field */
+		LAST_METHOD : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=12, sysNumber=5.0, core=true, t24Name=LAST.METHOD)
+	}
+	SR_SECURITY_RECON__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=OVERRIDE)
+	}
+	SR_SECURITY_RECON__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=INPUTTER)
+	}
+	SR_SECURITY_RECON__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=21.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Used to generate ad-hoc SWIFT MT570 messages requesting an MT571 from a depository. A statement detailing the entire holdings or a subset of them. The subset may either be for a specified sub-account, a specified sub-account and securities or specified sub-accounts and securities. Selected securities must have a valid ISIN code. */
+	SR_STATEMENT_REQUEST
+		@t24:i (t24Name=SR.STATEMENT.REQUEST, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The key to the record, can be up to 10 characters as defined in the STANDARD.A table. */
+		KEY -> SCT_StockReconciliation:SR_STATEMENT_REQUEST PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* The recipient of the SWIFT MT570 message requesting a statement of holdings. A valid Customer Code or Mnemonic.
+Validation Rules
+
+
+Upto 16 characters
+Must be a CUSTOMER.TYPE of DEPOSITORY within the CUSTOMER.SECURITY         application
+Mandatory Input */
+		DEPOSITORY -> SC_Config:CUSTOMER_SECURITY required
+			@i18n:Label (en=Depository)
+			@i18n:Tooltip (en="Depository the Security to be delivered from/to")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, core=true, businessType=CUS, t24Name=DEPOSITORY)
+		/* Insert either the Sub Account or the Sub Account Ext ID into this field. If a subset of the depositry holdings is required then the sub-account should be entered here.
+Validation Rules
+
+
+Upto 16 characters
+Either the Sub Account or the Sub Account Ext ID should         exist in the CUSTOMER.SECURITY application, if not an         override message will be generated.
+Default 'ALL' */
+		SUB_ACCOUNT : T24BusinessTypes:A
+			@i18n:Label (en="Sub Account")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=2.0, core=true, t24Name=SUB.ACCOUNT)
+		/* This field is populated from the Sub Account entered into the system and will contain the depositories reference for the sub account. Obtained from the CUSTOMER.SECURITY application.
+Validation Rules
+
+
+A NOINPUT field */
+		SUB_ACCOUNT_EXT_ID : T24BusinessTypes:A
+			@i18n:Label (en="Sub Account Extension Id")
+			@i18n:Tooltip (en="Indicates the sub account extension id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=3.0, core=true, t24Name=SUB.ACCOUNT.EXT.ID)
+		SECURITY_CODE -> byValue SCT_StockReconciliation:SR_STATEMENT_REQUEST__SECURITY_CODE *
+		/* The Statement Period is entered here as the date that the Statement Request is required for.
+Validation Rules
+
+
+The format must be either as (YYYYMMDD) or (DD MMM YYYY)
+If no date is entered the current date (Today) will be         defaulted. */
+		STATEMENT_PERIOD : T24BusinessTypes:D
+			@i18n:Label (en="Statement Period")
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=9.0, core=true, t24Name=STATEMENT.PERIOD)
+		/* The Swift Statement Period is defaulted from the Statement Period.
+Validation Rules
+
+
+A NOINPUT field */
+		SWIFT_STMT_PERIOD : T24BusinessTypes:A
+			@i18n:Label (en="SWIFT Stmt Period")
+			@i18n:Tooltip (en="SWIFT Statement Period")
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=10.0, core=true, t24Name=SWIFT.STMT.PERIOD)
+		DELIVERY_REFS -> byValue SCT_StockReconciliation:SR_STATEMENT_REQUEST__DELIVERY_REFS *
+		/* Date sent will be set to toadys date once the record has been Authorised and the Swift messages are produced.
+Validation Rules
+
+
+A NOINPUT field */
+		DATE_SENT : T24BusinessTypes:D
+			@i18n:Label (en="Date Sent")
+			@i18n:Tooltip (en="Date Sent")
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=DATE.SENT)
+		/* This is the message type that will be used to request a statement from the depository.
+Validation Rules
+
+
+MT570 or MT549
+"NOINPUT" field */
+		OUTGOING_MSG : T24BusinessTypes:A
+			@i18n:Label (en="Outgoing Msg")
+			@i18n:Tooltip (en="Outgoing Message")
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=13.0, core=true, t24Name=OUTGOING.MSG)
+		/* This is the account number that is used at the Depository.
+Validation Rules
+
+
+Valid Depository Account Number.
+"NOINPUT" field. */
+		DEPOSITORY_ACCT_NO : mml:Integer
+			@i18n:Label (en="Dep Acct No")
+			@i18n:Tooltip (en="Depository Account Number")
+			@t24:i (align=R, inputBehaviour=N, maxLength=34, sysNumber=14.0, core=true, t24Name=DEPOSITORY.ACCT.NO)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue SCT_StockReconciliation:SR_STATEMENT_REQUEST__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_StockReconciliation:SR_STATEMENT_REQUEST__INPUTTER *
+		DATE_TIME -> byValue SCT_StockReconciliation:SR_STATEMENT_REQUEST__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=29.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=30.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=31.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=32.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=33.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SR_STATEMENT_REQUEST__SECURITY_CODE
+	{
+		/* If a subset of securities is required then the Security Code should be entered here.
+Validation Rules
+
+
+Upto 12 characters
+The security must exist within the SECURITY.MASTER         application.
+The security must have an ISIN code. */
+		SECURITY_CODE -> SCO_SecurityMasterMaintenance:SECURITY_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=4.0, core=true, businessType=SEC, t24Name=SECURITY.CODE)
+		/* This field is populated from the security code entered into the system and will contain the short name for the security code. Obtained from the SECURITY.MASTER application.
+Validation Rules
+
+
+A NOINPUT field */
+		SECURITY_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=34, sysNumber=5.0, core=true, t24Name=SECURITY.NAME)
+		/* This field is populated from the security code entered into the system and will contain the ISIN code for the security code. Obtained from the SECURITY.MASTER application.
+Validation Rules
+
+
+A NOINPUT field */
+		ISIN_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=17, sysNumber=6.0, core=true, t24Name=ISIN.CODE)
+		/* This field is only available for MT570 messages.
+Insert either the Sub Account or the Sub Account Ext ID into this field. If a subset of the depositry holdings is required then the sub-account should be entered here.
+Validation Rules
+
+
+Upto 16 characters.
+Either the Sub Account or the Sub Account Ext ID should         exist in the CUSTOMER.SECURITY application, if not an         override message will be generated.
+Default 'ALL' if the SUB.ACCOUNT field is not used,         otherwise blank.
+Field may not be used if SUB.ACCOUNT is populated. */
+		SEC_SUB_ACCOUNT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=7.0, core=true, t24Name=SEC.SUB.ACCOUNT)
+		/* This field is only available for MT570 messages.
+This field is populated from the Sub Account entered into the system and will contain the depositories reference for the sub account. Obtained from the CUSTOMER.SECURITY application.
+Validation Rules
+
+
+A NOINPUT field */
+		SEC_SUB_ACC_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=SEC.SUB.ACC.ID)
+	}
+	SR_STATEMENT_REQUEST__DELIVERY_REFS
+	{
+		/* The Delivery Reference number iscaptuerd from the MT570 and MT571 messages that are generated when the record is authorised. Once populated the record may not be amended.
+Validation Rules
+
+
+A NOINPUT field */
+		DELIVERY_REFS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=DELIVERY.REFS)
+	}
+	SR_STATEMENT_REQUEST__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=OVERRIDE)
+	}
+	SR_STATEMENT_REQUEST__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=27.0, core=true, t24Name=INPUTTER)
+	}
+	SR_STATEMENT_REQUEST__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=28.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	SR_AUTOMATCH_MT571__ALL_DEPOSITORIES : mml:string
+		YES=YES
+		NO=NO
+	SR_HOLDINGS__INDICATOR : mml:string
+		P=P
+		S=S
+	SR_HOLDINGS__AUTHORISED_MATCH : mml:string
+		YES=YES
+	SR_HOLDINGS__MATCH_STATUS__MATCH_STATUS : mml:string
+		NEW=NEW
+		MATCHED=MATCHED
+		MATCH_REVOKED="MATCH REVOKED"
+	SR_PARAMETER__GLOBUS_TYPE : mml:string
+		MESSAGE=MESSAGE
+		DIVERT=DIVERT
+	SR_PARAMETER__EXTERNAL_TYPE : mml:string
+		MESSAGE=MESSAGE
+		DIVERT=DIVERT
+	SR_PARAMETER__REQUEST_STATEMENT : mml:string
+		MT570=MT570
+		MT549=MT549
+}

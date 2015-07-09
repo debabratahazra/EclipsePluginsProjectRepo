@@ -1,0 +1,81 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = "Order Session", fr = "Session d\'ordre", de = Auftrags-Sitzung
+	domainEntity = "AAADSDomain:DomainContext"
+	bean-define = DSActivityBean.AAADSDomain.DomainContext
+	bean-name = DomainContext
+	id = ContextValidateReject_tv__Q
+	tid = 133713784717610
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- Include ---
+			includeSrc = "" !
+			resource:///default/domain/SessionView.fragment
+		--- Conditional ---
+			indexOfSelectedChild = 0
+		{
+			--- ConditionalBody ---
+				javaCode = "Integer.toString(com.odcgroup.aaa.DomainAAASessionNatureE.OrderWithValidation).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionNatureE\"/>.toString())\r\n&amp;&amp;\r\n(null != <bean:get-property bean=\"DomainContext\" property=\"sessionEditMode\"/> &amp;&amp; \r\n\"1\".equals(<bean:get-property bean=\"DomainContext\" property=\"sessionEditMode\"/>.toString()))"
+				technicalName = Edit
+				boxType = vertical
+				isWidgetSelected = true
+			{
+				--- Grid ---
+					cssClass = blank
+					gridColumnCount = 2
+					gridColumnsWidth = "75,25" !
+					gridRowCount = 1
+				{
+					--- GridCell ---
+						gridColumnWidth = 75
+					{
+						--- Button ---
+							labels en = "Release Session for Trading", fr = "Envoyer la session pour exécution", de = "Sitzung zum Handel senden"
+							id = btn_ht_27
+							tid = 133783010128382
+						{
+							Event OnClick (submit) S
+							{
+								method = post
+								call-URI = "<pageflow:continuation/>"
+								target = self
+								flow-action = publish ud
+								funcResultCode = "valueOf(form.funcResultCode)" ud
+								modal = false
+								only-changed = false
+								prevalidate = false
+							}
+						}
+						--- Button ---
+							labels en = "Reject Session", fr = "Rejeter la session", de = "Sitzung ablehnen"
+							id = btn_rF__i
+							tid = 133794626890568
+						{
+							Event OnClick (submit) S
+							{
+								method = post
+								call-URI = "<pageflow:continuation/>"
+								target = self
+								flow-action = reject ud
+								modal = false
+								only-changed = false
+								prevalidate = false
+							}
+						}
+					}
+					--- GridCell ---
+						gridColumnWidth = 25
+				}
+			}
+			--- ConditionalBody ---
+				javaCode = true
+				technicalName = Default
+				boxType = vertical
+				isWidgetVisible = false
+		}
+	}
+}

@@ -1,0 +1,28 @@
+# UTF-8
+# UTF-8
+/* GenericAccountingInterest for Funds Transfer */
+Domain FT_GenericAccountingInterest
+	@t24:i (module=FT)
+	@java:Package (value=com.temenos.t24.datamodel.ft.ft_genericaccountinginterest)
+namespace "http://www.temenos.com/t24/FT_GenericAccountingInterest"
+metamodelVersion 1.30.6
+Classes {
+	/* This application holds all the BED transaction entries for a given account and bank date. Entries are held in the fixed format that they are received in on the PTT tape.
+This application is used to generate the BED diskette and journal from the FT.BED.DOWNLOAD application. */
+	FT_BED_TXNS
+		@t24:i (t24Name=FT.BED.TXNS, level=C, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Specifies the account number and system date on which the Bed entries were received from the PTT.
+Validation Rules
+2-14 numeric account number           or 3-10 alphanumeric characters account Mnemonic. followed by "-" and 1-8 digit system date.  (Mandatory input) */
+		ACCOUNT_NO_DATE -> FT_GenericAccountingInterest:FT_BED_TXNS PK required
+			@i18n:Label (en="Account Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=0.0, core=true, t24Name=ACCOUNT.NO.DATE, mask="R################ # DDDD DD  DD")
+		/* The BED DATA as received from the PTT.
+Validation Rules
+128 alpha numeric characters in the specified PTT format.
+This is a NOINPUT field. */
+		BED_DATA : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=128, sysNumber=1.0, core=true, t24Name=BED.DATA)
+	}
+}

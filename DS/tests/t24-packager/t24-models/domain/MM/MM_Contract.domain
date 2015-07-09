@@ -1,0 +1,1039 @@
+# UTF-8
+ /* Template Servicing of Money Market */ 
+ Domain MM_Contract 
+ @t24:i (module=MM) 
+ @java:Package (value=com.temenos.t24.datamodel.mm.mm_contract) 
+ namespace "http://www.temenos.com/t24/MM_Contract" 
+ metamodelVersion 4.3.0.20110527 
+ Classes { 
+ MM_REVERSED_DEALS 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* Standard T24 numeric field. Validation RulesA maximum of 11 characters may be entered. */ 
+ DATE_REVERSED : mml:string PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=0.0, t24Name="DATE REVERSED") 
+ 
+ /* Standard T24 alphanumeric field. Validation RulesA maximum of 18 characters may be entered. */ 
+ CONTRACT_ID : mml:string 
+ @i18n:Label (en="Contract Id") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=1.0, t24Name=CONTRACT.ID) 
+ } 
+ /* The Money Market Module processes all types of deposits and placements and has been designed to fulfil dealers and management requirements for the multicurrency assets and liabilities transactions of a commercial bank.  Administration, control and accounting of the various products covered by the Module are all fully automated.  The main deal types handled can be classified as follows:Placements/LoansA contract to lend a fixed amount of money in a specific currency.  The interest rate can be agreed for the complete period of the contract or can be dependent on any base rates such as prime rate, base rate, deposit rate, call rate etc..  The period of time can be fixed i.e. the contract is for an agreed length of time or can be on a 'call' or 'notice' basis.DepositsA contract to deposit with the bank a fixed amount of money in a specific currency.  The interest rate and the period of time can be agreed on the same basis as previously stated for Placements/Loans.Fiduciary Deposits/PlacementsA transaction whereby the bank acting as a fiduciary or agent receives a deposit and places the funds at the direction of the depositor.  The bank earns a commission for acting as the fiduciary agent.  These off-balance sheet transactions are handled in much the same way as the two previous products with some additional facilities such as:-          The user will only maintain one side of the transaction            (Deposit) i.e. the associated placement is automatically            generated and maintained by the System.-          Interest payment facilities are provided at the group            level, i.e. the Fiduciary Bank level within currency and            notice period.-          Fiduciary commission rates can be defined on tables or            specifically input at the contract level.Sundry Assets and LiabilitiesWhich will allow a record to be made at the customers level of miscellaneous items due to/from customers.The main features of this Module are:Various input stages for the recording of the deal data.  A first input level will allow primary deal information to be entered by the dealer while the settlement details can be entered at a second input level by the back-office.  Primary details will be restricted to a minimum enabling the dealer to enter the data in a matter of seconds but still providing sufficient information to allow real time updates of all the relevant positions (Limit Exposure, Cash Flow, Liquidity etc.).All deal types are handled in local and foreign currencies i.e. contracts can be denominated in any currency.  It must be noted however that all deal types will be 'non-positional' in the sense that all entries will be generated in the currency of the contract.Interest accruals can be performed on a daily, weekly, monthly or on a requested basis.Fixed, Libor, Prime, Base, Call and any other interest rate are handled.Fixed and Call/Notice maturity are allowed.  Upon the liquidation of a notice transaction, the Application will verify that the notice period has been duly respected and any shorter notice will require an override.Automatic production and delivery of confirmations, advices and payments.  Confirmation and Broker notices received may be matched to deal inputs and verified or unconfirmed deals extracted using a special confirmation enquiry facility.Multi-settlement conditions: Each contract contains the payment conditions applicable to both disbursement and receipt of funds. Different conditions between Principal and Interest may be recorded and Interest on Call and Notice transactions can be liquidated at various times during the life of the deal.Interest accrual adjustments, due to back value changes in the interest rate, are handled automatically by the Application up to the last interest due date.Tax on interest.  On deposit contracts, a tax rate or key can be specified to allow automatic deduction of the tax from the interest amount on payment date.  This tax amount will be kept in a liability account until its liquidation to the local Authorities.Interest payments will always be liquidated in arrears, i.e. on maturity date or on intermediary interest payment date (s) defined in the contract.  Discounted transactions will be handled by the Loans and Deposits Module.Detailed statistics, in respect of broker positions and brokerage are available on the number of transactions per broker.  Automated brokerage calculation and processing is controlled by the BROKER file. A rollover function is available which will enable the User to renew existing contracts at maturity when the new conditions that will apply to a contract are known in advance of the maturity date of that contract.The System provides automatic liquidation of all maturing contracts on the maturity date (regardless of whether or not funds are received on the due date in respect of placement contracts).The System also provides a Payment/Receipt function which enables the User to instruct the System to make a payment out of a contractor conversely, to inform the System that money has been received on a contract outside a normal due date e.g. a prepayment on a loan.The Money Market Module is an important source of detailed management information for the production of comprehensive general reports such as:.          Cash Flow .          Liquidity Position .          Nostro position .          Interest Rate Exposure .          Interest rate sensitivity ('what if' - situation)The System provides comprehensive on-line inquiry and reporting facilities such as:-          Activity Journal -          Limits -          Exception Report including deals for which settlement            details are incomplete -          Maturity Report -          Confirmations outstanding and Chasers. -          Broker Notices missing -          List of all deals by:            .    customer            .    currency            .    maturity date            .    amount            .    interest rate            .    account officer            .    department            .    country */ 
+ MM_MONEY_MARKET 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* Represents the reference number which uniquely identifies a particular contract.Every new deal must be automatically assigned a unique contract number which will identify only that deal and no other.  The system maintains a central indicator, on the Company record, which determines whether new Contract numbers are to be automatically generated by the system or whether it is to be input by the User.In the case of a Fiduciary Deposit, which automatically generates the corresponding Fiduciary Placement, each of the deals will have separate numbers.  The following is an example of how a Fiduciary Deposit and its corresponding Fiduciary Placement would be numbered:MM 85 043 0 0123  =  Fiduciary Deposit MM 85 043 9 0123  =  Fiduciary PlacementThus the second contract, which is system generated, is assigned a sequence number in the 90000 range to link it to its corresponding Fiduciary Deposit.Validation RulesThe contract number is a 10 digit number, prefixed with MM to represent Money Market, in the following format: MM YY DDD 99999 where: MM   = Money Market YY   = Current Year DDD  = Julian Day 9    = Fiduciary Assoc. Ref. 9999 = Sequence Number. */ 
+ CONTRACT_NO : mml:string PK required 
+ @i18n:Label (en="Contract No") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=14, sysNumber=0.0, t24Name=CONTRACT.NO) 
+ 
+ /* Validation Rules */ 
+ CUSTOMER_ID -> ST_Customer:CUSTOMER required 
+ @i18n:Label (en=Counterparty) 
+ @i18n:Tooltip (en="Customer number of the counter party Bank") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=1.0, t24Name=CUSTOMER.ID) 
+ 
+ /* Indicates the currency of the contract.This field indicates the currency of the contract and will be the same as the currency of the various accounts where the accounting movements in respect of the contract will be debited or credited.Validation Rules3 type SSS (uppercase alpha) characters. or     1-3 numeric character currency code. (Optional input; Default = local currency).The currency code must exist on the CURRENCY table.  Any existing currency code will be accepted and the name redisplayed for checking.Once the contract has been authorised this field cannot be changed. */ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=2.0, t24Name=CURRENCY) 
+ 
+ /* Principal amount of the contract which will always be expressed in the currency defined in the previous field.This field contains the principal amount of the contract expressed in the currency defined in the previous field.  In order to facilitate the efficient entry of the amount, an input feature has been provided which allows for the suppression of trailing zeros. In English Language text this is accomplished by using a 'T' to indicate the thousands and an 'M' to indicate the millions.  Other languages will require the provision of translation values.e.g.       INPUT              VALUE1T               1,000.00              2M               2,000,000.00Validation Rules1-14 type AMT (standard amount format) characters plus a decimal point. (Mandatory input) The amount must be greater than Zero. */ 
+ PRINCIPAL : mml:string required 
+ @i18n:Label (en=Principal) 
+ @i18n:Tooltip (en="Principal ") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=18, sysNumber=3.0, t24Name=PRINCIPAL) 
+ 
+ /* Represents the actual day that the transaction was agreed between all parties to the contract.Contains the actual date the deal was struck.  The User will input this date when it is different from the Run date (which is the default value).  Should the transaction be done on the same day as the Run date then input here is not necessary as the Run date will automatically be inserted.This date should not be confused with the value date of the transaction.Validation RulesType DD (standard Date Format in range 1000 - 2049). (Optional input; Default value = Run date).This date must be equal to or prior to Run date */ 
+ DEAL_DATE : mml:string 
+ @i18n:Label (en="Deal Date") 
+ @i18n:Tooltip (en="Actual date the transaction was agreed upon") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=4.0, t24Name=DEAL.DATE) 
+ 
+ /* Contains the value date of the contract and is therefore the date from which the system will start to accrue interest.  This date must be prior to the Maturity Date of the Contract such that the system may calculate interest.Validation RulesType DD (standard date format in range 1000 - 2049). (Optional input; Default value = Run date). ValuationThe system will automatically access the HOLIDAY table to ensure that the value date is a working day and not a holiday in the country associated to the currency of the contract.  Any Holiday will require an override.If the Value-Date exceeds 14 days prior to the Run date (i.e. a back-valued contract) then an override will be required before the transaction may be accepted.If the Value-Date exceeds 15 days forward from the Run date (ie. a forward-valued contract) then an override will be required before the transaction may be accepted.The value date cannot be greater than the RUN date for Sundries and Account Receivable. */ 
+ VALUE_DATE : mml:string 
+ @i18n:Label (en="Start Date") 
+ @i18n:Tooltip (en="Date from which interest starts on the contract") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=5.0, t24Name=VALUE.DATE) 
+ 
+ /* Identifies when the contract is due to mature.This field represents either the date when the total principal amount is due to be repaid together with all remaining interest accrued, or the number of days notice required before any funds may be repaid.The Maturity Date is the date on which the deal will be liquidated. At liquidation, all the corresponding amounts of principal and interest will be passed to the appropriate accounts as designated within the transaction.Validation RulesType DD (standard date format in range 1000 - 2049) or 3 numeric characters representing     a number of days: 000 for call contracts 001 - 999 for notice contracts. (Mandatory input)The date will be checked against the HOLIDAY table. Any non-working day will require an     override prior to acceptance.The maturity date must be greater than the value date.If the date is less than today (that is, if the contract matured before today),T24MATURED.ONLINEFor Sundries and Account Receivable only a call maturity (i.e. '000') will be accepted.This date cannot be changed after authorisation when INTEREST BASIS = 'S' (Special).After authorisation, the maturity date for fixed maturity date contracts can only be     changed in conjunction with the ROLLOVER MARKER (field 66). For example, if the maturity     date was originally Oct 31 2000 and 3D was input, the resulting maturity date would be Nov     3 2000.For Asset type contract, an override will be required when this date is smaller than the     EXPIRY DATE of the corresponding Credit line.When a Call/Notice contract is changed to a fixed maturity, the notice/call period must     be respected. If not an override wil be required. */ 
+ MATURITY_DATE : MM_Contract:MM_MONEY_MARKET__MATURITY_DATE 
+ @i18n:Label (en="Maturity Date") 
+ @i18n:Tooltip (en="Indicates the Maturity Date of the Transaction") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, t24Name=MATURITY.DATE) 
+ 
+ /* Contains the Category Code to which this deal will be accounted. This information will identify the type of contract processed by the user.When a category code is entered in the MONEY.MARKET contract, the value of field MATURE.MM.AT.SOD on LMM.ADVICES parameter file is taken and defaulted into a field named MATURE.AT.SOD on the MONEY.MARKET contract.Validation Rules5 numeric characters Category code. or 2 numeric characters i.e. last 2 digits of valid Category code. Mandatory input. No Default Value. The code must exist on the CATEGORY table with system ID of MM or LD. The Category Code must be within the following ranges for Money Market: Code Range Contract Type 21-001 to 21-039 MM Deposit 21-040 to 21-044 MM Fiduciary Deposit 21-045 to 21-049 MM Sundry 21-050 to 21-074 MM Loan 21-075 to 21-084 MM Placement 21-085 to 21-089 MM Fiduciary Placement 21-090 to 21-094 MM Account Receivable After authorisation of the contract, this field can be changed but not to a different contract type. i.e. it must remain in the same range of category codes. */ 
+ CATEGORY -> ST_Config:CATEGORY required 
+ @i18n:Label (en=Category) 
+ @i18n:Tooltip (en="Specifies the Category") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=7.0, t24Name=CATEGORY) 
+ 
+ /* Indicates the type of interest rate to be used for the contract.For Money Market operations, the following values are            defined for the interest rate type field:-1 = Fixed            3 = Floating            9 = NoneA) FIXED:  The fixed rate applies to those contracts            where the Interest Rate is normally predetermined (ie.            where the rate of interest to be charged over the life of            the contract is fixed at a specific percentage at the            inception of the contract which is often the case for            Money Market transactions).  The Fixed Rate will be            known to both the borrower and the lender at the            inception of the contract.            This type of rate will require the input of the interest            rate inclusive of any possible spread in the field            INTEREST RATE (field 10).Input in the INTEREST KEY and INTEREST SPREAD            (fields 11 and 12) will not be allowed for FIXED INT RATE            TYPE.B) FLOATING:  The interest rate on a contract            (Placement or Deposit) is considered as floating when the            rate is liable to change over the life of the contract on            other than a pre-determined schedule of dates.  The rate            of interest on a floating rate contract may be tied to the            Bank's own base rate or it might vary with market rates            or some other specified interest rate.Input in the INTEREST KEY is required since the            Interest Rate will be taken from the Rate table, and            accordingly, no input will be allowed in the INTEREST            RATE field.Input in the INTEREST SPREAD field is allowed and the            Interest Rate will change every time the is a change on            the interest rate table.C) NONE: The interest rate is not applicable for the            contract type defined.  This will be the case if the            contract type is Sundry or Account Receivable.Validation Rules1 numeric character. Only valid input is 1, 3 or 9. Input is optional; Default value = 1 (i.e. fixed) except for Sundries and Account Receivable where Default = 9. For Fixed Rate TypeInput in the INTEREST RATE field is mandatory.Input in the INTEREST KEY and INTEREST SPREAD fields will not be allowed.An INTEREST BASIS of Special (S) is allowed (see Interest Rate). For Floating Rate TypeInput in the INTEREST KEY field is mandatory.Input in the INTEREST SPREAD field is optional.Input in the INTEREST RATE field is not allowed.Interest calculation method of Special (S) will not be accepted. */ 
+ INT_RATE_TYPE : MM_Contract:MM_MONEY_MARKET__INT_RATE_TYPE 
+ @i18n:Label (en="Interest Rate Type") 
+ @i18n:Tooltip (en="Indicates the type of interest rate to be used") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=8.0, t24Name=INT.RATE.TYPE) 
+ 
+ /* Indicates the calculation method to be used to generate the interest amount for each interest schedule.The following values are defined:-------------------------------------------------------------------------------A = 360/360 -This is the method where each month is considered to have 30 days for the numerator and the denominator will also be 360.B = 366/360 -This is the method where the exact number of days will be considered in respect of the numerator while the denominator will be 360.E = 366/365 -This is the method where the exact number of days will be considered in respect of the numerator while the denominator will be 365.E1 = 365/365 -This is the method where the exact number of  days will be considered in respect of the numerator except the leap year while the denominator will be 365. In the leap year 29th of February month will be ignored.W = 252/252 -This is the method where the exact number of business days in a year will be considered in respect of the numerator (based on holiday record for LCY) while the denominator will be 252.W1 = 21/252 -This is the method where each month is considered to have 21 business days( based on holiday record for LCY) for the numerator and the denominator will be 252. ( For more details , refer help Text on System Tables)F = 360/365.-This is the method where each month is considered to have 30 days for the numerator while the denominator will be on a 365 basis.S = Special Interest Calculation. Interest calculation method S is applicable if the interest amount is negotiated and does not correspond to any of the other calculation methods e.g. interest for 182.5 days. For M.I.S. and accrual purposes transactions with interest rate calculation method S will be accrued as method B with a compensation in the last period of accruals.In the options A, B, E, E1, F, W and W1 specified above the number on the left represents the number of days basis for multiplying on the top line of the interest calculation (number of days for which the interest is to be calculated) and the number on the right is the basis for dividing on the bottom line of the interest calculation (number of days in the year).Where 366 is specified as the left factor, interest will be calculated for the actual number of days in the month.  Where 360 is specified as the left factor, each month will be treated as having 30 days when calculating interest. In months with 31 days, the 31st day is ignored and in February the last day is counted as 3 days, or 2 days in a leap year. Where 365 is specified as the left factor, interest will be calculated for the actual number of days in the month expect the leap year. In the leap year 29th of February month is ignored for interest calculations. Where 252 is specified as the left factor, interest will be calculated for the actual number of  business days in the month based on the holiday table for LCY. Where 21( in W1 basis) is specified as the left factor, each month will be treated as 21 business days while calculating the interest. In months with either less or more than 21 business days will be considered as 21 business days based on the holiday table for LCY.------------------------------------------------------------------------------To calculate the actual number of days between DATE1 and DATE2, the following rule will be followed when the 30-day basis has been selected:1) Split DATEn into YEARn, MONTHn and DAYn (where 'n' can vary from 1 to 2).2) If DAYn = 31, set it to 30 and then perform the following calculations:a) Subtract YEAR1 from YEAR2 and multiply result by 360. The result will be equal to 'X',b) Subtract MONTH1 from MONTH2 and multiply result by 30. The result will be equal to 'Y',c) Subtract DAY1 from DAY2. The result will be equal to 'Z'.3) Add 'X' + 'Y' + 'Z' together to find the number of days between the two dates.Example for 360 Method:a) 18 OCT 1986 TO 23 DEC 19871987 - 1986 = 1 X 360 = 36012 - 10 = 2 X 30 = 6023 - 18 = 5 = 5TOTAL NUMBER OF DAYS = 425b) 30 MAR 1987 TO 31 MAR 1987 (= 30 MAR 1987)1987 - 1987  = 0 X 360 = 03 - 3 = 0 X 30 = 030 - 30 = 0 = 0TOTAL NUMBER OF DAYS = 0c)25 FEB 1987 TO 1 APR 19871987 - 1987 = 0 X 360 = 04 - 2 = 2 X  30 = 601 - 25 = - 24 = -24TOTAL NUMBER OF DAYS = 36Validation Rules:------------------------------------------------------------------------------(1) 2 type A (alphanumeric) character. Valid input is A, B, E, E1, F, W, W1, S, or blank.Default Value = Interest Day Basis as specified on the Currency table for the currency of the contract.(2) The special (S) Interest calculation method is only allowed for fixed interest rate contracts.(3) The Special (S) Interest calculation method is not allowed for Call and Notice contracts.(4) The Special (S) Interest calculation method is not allowed for interim interest payment.------------------------------------------------------------------------------ */ 
+ INTEREST_BASIS -> ST_RateParameters:INTEREST_BASIS 
+ @i18n:Label (en="Interest Basis") 
+ @i18n:Tooltip (en="Indicates the interest day basis") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=9.0, t24Name=INTEREST.BASIS) 
+ 
+ /* Contains the annual interest rate applicable to the contract.For Fixed rate contracts, this is the rate used to calculate the interest accruals and the interest which will be credited to, or debited from, the customer.Fixed rate contracts can be amended. For fixed maturity contracts the rate will be valid from the original value date and will result in a re-calculation of the committed interest. For call/notice contracts the rate will be valid from the start of the current interest period.Rate changes for contracts being rolled are made in the NEW.INTEREST.RATE field.Where the contract has been rolled using the AUTO.ROLLOVER, AUTO.ROLL.TERM and ROLLOVER.INT.RATE the rate defined here may be inclusive of the spread contained in the field INTEREST.SPREAD.1.Validation RulesStandard rate format 6,9 (maximum 10 digits plus a         decimal point).Input in this field is not allowed for Sundries and         Account Receivables.Input is mandatory if the INT RATE TYPE is 1 (FIXED).Input is not allowed when INT RATE TYPE is 3 (FLOATING)         or 9 (NONE). */ 
+ INTEREST_RATE : mml:string 
+ @i18n:Label (en="Interest Rate") 
+ @i18n:Tooltip (en="Indicates interest rate") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=10.0, t24Name=INTEREST.RATE) 
+ 
+ /* Contains the key to the BASIC.INTEREST table. Use of this mechanism will avoid repetitive, individual rate updates to contracts with the same base rate.When there is a change in a basic rate, then this change will be inserted in the BASIC.INTEREST table. The new rate will then be accessed automatically via the INTEREST.KEY from the contract and the revised interest rate (in association with the Interest Spread) will become the effective Interest Rate for calculations. Thus for a large number of existing contracts, with the same basic rate, one rate change on the BASIC.INTEREST table will be sufficient to update, automatically, all those contracts using that Interest Rate key.Validation Rules1-4 numeric characters. Input is mandatory if the         interest rate type is floating; otherwise it is not         allowed. (Default value is blank.)The key entered in this field must be a valid key on the         BASIC.INTEREST table.Input in this field will only be allowed for contracts         with INT.RATE.TYPE = '3' i.e. Floating. */ 
+ INTEREST_KEY : mml:string 
+ @i18n:Label (en="Interest Key") 
+ @i18n:Tooltip (en="Indicates key to apply floating rate of interest") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=4, sysNumber=11.0, t24Name=INTEREST.KEY) 
+ 
+ /* The spread entered here is a modifier of the interest rate derived from either the value in INTEREST KEY, or for contracts that are being rolled over using the auto-rollover mechanism (using rates from tables). It is not used as a modifier for standard fixed rate contracts that have not been rolled over.Where the INT.RATE.TYPE is 3 (Floating) the Interest rate is derived from the relevant BASIC.INTEREST key. This rate can be modified at contract level by using a positive or negative spread to increase/reduce the derived rate.Contracts having the AUTO.ROLLOVER fields set, and requiring the interest rates for the subsequent periods to be derived from rate tables can also use this field to modify the interest rate. This is by using the field ROLLOVER.INT.RATE with a value such asThe derived interest rate (INTEREST KEY + OR - INTEREST SPREAD) must be greater than '0'. If, due to basic interest rate changes, the accrual process identifies a derived rate which is equal to or less than '0' a warning message is written to the exception report and no accrual is performed. Manual action is then required the following day to reset the rate to a positive value where upon previous accruals will be recovered at the next appropriate accrual run.Validation RulesOptional Input for INT.RATE.TYPE 3 (floating)Conditionally used with INT.RATE.TYPE 1 (fixed) for         rollovers onlyNegative spreads must be preceded with a minus sign i.e -1.5Input not allowed for INT.RATE.TYPE 9 (none) */ 
+ INTEREST_SPREAD_1 : mml:string 
+ @i18n:Label (en=Spread) 
+ @t24:i (align=R, inputBehaviour=F, maxLength=12, sysNumber=12.0, t24Name=INTEREST.SPREAD.1) 
+ 
+ /* This field is linked to EB.ACCRUAL.PARAM table. Interest Amount Calculation and Interest Accrual method can be chosen through appropriate record defined in EB.ACCRUAL.PARAM. For Example, First Day Accrual, Last Day Accrual or Both days Accrual. If this field is null it denotes First Day Accrual Method. */ 
+ ACCRUAL_PARAM -> AC_Fees:EB_ACCRUAL_PARAM 
+ @i18n:Label (en="Interest Accrual Method") 
+ @i18n:Tooltip (en="Method by which interest accrual is processed") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=13.0, t24Name=ACCRUAL.PARAM) 
+ 
+ /* Indicates the total amount of interest due or payable upon maturity of the contract, or up to the next interest due date if applicable.Note:      For other INTEREST BASIS, this field is not used during            the input stage as the interest amount will be calculated            by the system and stored in this field for subsequent            display.Validation Rules1-14 type AMT (standard amount format) characters plus a decimal point. Automatically generated by the system except when INTEREST BASIS = 'S' (Special). Input is not allowed except on contracts with INTEREST BASIS method Special (S), in which case the field becomes mandatory.Input in this field is mandatory for those contracts which are based upon INTEREST BASIS 'S'.The system will then check the amount input by the User by using the INTEREST BASIS 'B' (i.e. 366/360) and a difference of up to one percent will be accepted.  Any variance between 1 and 5 percent will require an override. A variance of more than 5 percent will not be accepted. */ 
+ TOT_INTEREST_AMT : mml:string 
+ @i18n:Label (en="Interest Amount") 
+ @i18n:Tooltip (en="Total amount of interest due/payable on maturity") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=18, sysNumber=14.0, t24Name=TOT.INTEREST.AMT) 
+ 
+ /* Identifies the interest due date and associated frequency code for Call or Notice contracts.  In Fixed maturity date contracts, the definition of interest due date other than the interest due on MATURITY DATE is handled in field INT.SCHEDULE.The interest due date will be changed automatically by the period indicated by the frequency code whenever the date equates to the end-of-day process date.Note:  This field is used in conjunction with the Liquidate Or Defer field, where it is further described.For special type of accruals, LMM.INSTALL.CONDS field MM.SPEC.INT.METHOD need to be setup. (Refer this field helptext).The following are examples of input to this field For Call and Notice contracts:a)   31 MAR 1986 M0131 - represents the date from which the frequency is initiated, where:                 M  = month                 01 = at one month intervals                 31 = the last day of the month.b)   31 MAR 1986 M0331 - represents a quarterly                 interest due date frequency payable at quarter end.Thus, in example a), interest will be liquidated on 31 MAR 1986 and then on 30 APRIL 1986 and so on.  In example b), interest will be liquidated on 31 MAR 1986 and then on 30 JUNE 1986 and so on.Validation RulesStandard date format plus 5 type AA (alphanumeric, first character must be alpha) characters. (Mandatory input for Call/Notice contracts otherwise not allowed).Input in this field is not allowed for Fixed maturity date contract.Where interest is to be paid via a nostro account, the frequency part of this field must be greater than the days delivery of the payment currency. For example, if DEM payments are sent two days prior to their value date (DAYS.DELIVERY field in CURRENCY record DEM has a value of 2), then a DAILY frequency will not be allowed for a DEM Call/Notice deposit that has a nostro account as the interest liquidation account.  For deposits, this is to ensure that payments are not made for future interest periods that have yet to begin. For placements, this is to ensure that 'advice to receives' are not sent for future interest periods that have yet to begin. */ 
+ INT_DUE_DATE : mml:string 
+ @i18n:Label (en="Interest Due Date") 
+ @i18n:Tooltip (en="Dates on which interest is paid or capitalised") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=15.0, t24Name=INT.DUE.DATE) 
+ 
+ /* Only allowed for Call/Notice contracts and states whether interest is to be liquidated or deferred at the interest due date.INT DUE DATE and LIQ.DEFER. INTEREST fields control when interest is due and whether the interest accrued is to be paid/received or not on this date. It is a system requirement that an interest due date is specified for all Call or Notice contracts. However, if the User does not require the interest to be liquidated on this date then the User should set this field (LIQ DEFER INTEREST) indicator to (D)efer. This will ensure that the system does not liquidate the interest on the due date but will simply create a new interest due date according to the frequency component of that field. The amount of interest will consequently be retained within the contract and liquidate on the next interest due date if this flag is set back to 'L'.If it is required to receive interest outside these due dates the User should use the MM.RECEIPT.ENTRY facility. This field may be amended at any time during the life of the contract.Validation Rules1 type AAA (alpha A-Z, a-z) character Only values are (L)iquidate or (D)efer (Mandatory input for Call/Notice contracts - default = Liquidate). */ 
+ LIQ_DEFER_INTEREST : MM_Contract:MM_MONEY_MARKET__LIQ_DEFER_INTEREST 
+ @i18n:Label (en="Liq or Defer int") 
+ @i18n:Tooltip (en="Whether to liquidate or defer the interest") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=16.0, t24Name=LIQ.DEFER.INTEREST) 
+ 
+ /* Contains a valid Broker Code or Deal Method that relates to an entry on a BROKER file or FX.DEAL.METHOD table.A Deal Method (FX.DEAL.METHOD Table - e.g. TX = telex; PH = telephone) is identified by being two alpha characters otherwise the field relates to the Broker file.When the field contains a Broker Code, the system will automatically enrich the code with the Brokers name.Validation Rules1 - 6 numeric charaters customer number or     3 to 10 characters Customer mnemonic (uppercase alphanumeric or '.') - Type MNE or     2 characters deal method code (Input is optional; Default Value = blank). Any input must relate to a valid entry on the BROKER file or FX.DEAL.METHOD table. */ 
+ BROKER_CODE : mml:string 
+ @i18n:Label (en="Broker Code") 
+ @i18n:Tooltip (en="Indicates the broker") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=17.0, t24Name=BROKER.CODE) 
+ 
+ /* Contains the amount of brokerage to be paid to the broker defined above.  Expressed in terms of the deal currency.If no value is entered here but a broker code is defined above, then the system will attempt to calculate a default brokeraeg amount based on the conditions set up on the BROKER file.  If an amount is calculated succesfully the it will be defaulted in this field, and will be expressed in the deal currency.Validation Rules1-19 Numeric characters. (Optional Input, Default calculated using the BROKER file.)  Only allowed if broker code entered above.Input only allowed when BROKER CODE field is entered. */ 
+ BROKERAGE : mml:string 
+ @i18n:Label (en="Brokerage (Deal Currency)") 
+ @i18n:Tooltip (en="Amount of brokerage to be paid to the broker") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=18.0, t24Name=BROKERAGE) 
+ 
+ /* The valid currency code of the Broker or the currency mnemonic.The system allows brokerage to be settled in any currency providing it has been set up in the brokerage conditions on the BROKER table.The operator may enter the currency as an alpha code or it's numeric equivalent.Validation Rules3 characters - type SSS (uppercase alpha) or     1 to 3 numeric characters currency code. (Input only allowed when brokerage has been entered.) Default as the first currency in the BROKER record field CCY FOR PAYMENT.The currency must appear on the CURRENCY table.The currency must be specified on the BROKER table.Input is not allowed in this field when the broker has not been specified.This field cannot be amended once the deal has been authorised. */ 
+ BROKER_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @i18n:Label (en="Brokerage Ccy") 
+ @i18n:Tooltip (en="Brokerage Currency") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=19.0, t24Name=BROKER.CCY) 
+ 
+ /* Contains the amount of brokerage to be credit to the broker account specified in the broker currency defined above.If a brokerage amount has been entered above, then this field will identify the amount to be credited to the broker account.  If no input is made a defualt will be calculated from the brokerage using the current mid market exchange rates.  If the brokerage is specified in the same currency as the broker currency then the brokeraeg will be copied to this field.Validation RulesStandard amount format for currency. (Optional Input. Default calculated from the brokerage at mid market rates.)Input is not allowed in this field when the broker code has not been entered.Input not allowed in this field if no BROKERAGE, or BROKERAGE.CCY has been specified.The amount must be in a valid format for the brokerage currency. */ 
+ BROKER_AMOUNT : mml:string 
+ @i18n:Label (en="Brokerage Amount") 
+ @i18n:Tooltip (en="Specifies the brokerage amount") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=20.0, t24Name=BROKER.AMOUNT) 
+ 
+ OUR_REMARKS -> byValue MM_Contract:MM_MONEY_MARKET__OUR_REMARKS * 
+ 
+ /* Identifies the account number (either the source or destination account) of the Drawdown Amount to be used on the Value Date.The customer may request delivery of funds either within the Bank (when the Customer actually maintains an account relationship with the Bank) or externally at another bank. Thus the User could need to enter appropriate information in the fields existing for this purpose (see Payment fields). The T24 System contains details within the SEC.ACC.MASTER file found through using the Portfolio number. If no default account is found the CUSTOMER.CCY.ACCT record is read for the customer. If no account is found, the details within the AGENCY file will be used to determine if there are specific auto-routing instructions to ensure delivery to the Beneficiary Customer in the specified currency. If this information does not exist, manual input will be requested.If the account, through which delivery is to be made, is not known the User can choose to enter one digit (from 1 to 9) which will identify a text (defined in text file with title LMM.TEXT) to be printed on the confirmation sent to the customer. This will also result in the funds being applied to a suspense account in the applicable currency.In case the underlying Contract Customer (eg. Customer.id in MONEYMARKET,Counterparty in FOREX, etc.) has a record in CUSTOMER.SSI application, then the account number in this field gets defaulted as per the definition for that Customer from CUSTOMER.SSI. For more information on the usage of this feature please refer to CUSTOMER.SSI application.Validation RulesStandard Account Format - relating to a Customer Account,         a Nostro Account or an Internal Account. Optional Input;         Default = Nostro account (except for Fiduciary Deposit)         from the NOSTRO.ACCOUNT table. The defaulting process         looks firstly at the SEC.ACC.MASTER record using the         portfolio no, If no default found uses the         CUSTOMER.CCY.ACCT record and finally if still no default         found takes details from the AGENCY record and         NOSTRO.ACCOUNT tableInput in this field will be mandatory when the default         nostro account has not been established for this         currency.Input of an account number in this field will always be         mandatory for Fiduciary Deposits.For Fiduciary Deposits, the account number input by the         user may not be a NOSTRO account.An account entered that is not equal to the default         account will require an override.Any inactive account will request an override.Any account with posting restrictions will request an         override.For Deposit contract type, the system will check if there         are sufficient funds when this is a Customer account. Any         lack of funds will require and override. */ 
+ DRAWDOWN_ACCOUNT -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Credit Account") 
+ @i18n:Tooltip (en="Account where funds are to be credited") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=36, sysNumber=22.0, t24Name=DRAWDOWN.ACCOUNT) 
+ 
+ /* Identifies the account number where entries are made for the reimbursement of the principal at liquidation or MATURITY DATE.If the account through which liquidation is to made is not known, then the User should enter a numeric code (from 1 to 9) which will identify the text (defined in text file with title LMM.TEXT) to be printed on the confirmation sent to the client.If the actual Principal liquidation account is not entered before the MATURITY DATE, the funds will be applied to a suspense account in the applicable currency and an exception list will be produced for manual handling of the liquidation of the account.Another example relating to the use of this suspense account will be the case where a customer requests a more complicated dispersement (separate amounts with different destinations).  Manual handling of the liquidation of the Principal must then be used.In case the underlying Contract Customer (eg. Customer.id in MONEYMARKET,Counterparty in FOREX, etc.) has a record in CUSTOMER.SSI application, then the account number in this field gets defaulted as per the definition for that Customer from CUSTOMER.SSI.For more information on the usage of this feature please refer to CUSTOMER.SSI application.If for neither of the accounts in PRIN.LIQ.ACCT and INT.LIQ.ACCT, a suitable holiday record is not available for the residence of the customer concerned, system would produce liquidation advice based on the holiday record of the contract currency.Validation RulesStandard Account Format (Optional input; Default value = drawdown account) The defaulting process looks firstly at the SEC.ACC.MASTER record using the portfolio no, If no default found uses the CUSTOMER.CCY.ACCT record and finally if still no default found takes details from the AGENCY record and NOSTRO.ACCOUNT tableIf the contract is a Fiduciary Deposit then the Account Number must not be a NOSTRO account.An account entered that is not equal to the default account will require an override.Any inactive account will request an override.Any account with posting restrictions will request an override. */ 
+ PRIN_LIQ_ACCT -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Principal Liq Acct") 
+ @i18n:Tooltip (en="Indicates principal liqudation account") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=36, sysNumber=23.0, t24Name=PRIN.LIQ.ACCT) 
+ 
+ /* Identifies the Beneficiary Bank which is to be used for the Principal Amount of Deposit contract types at maturity or for Placement contract types at drawdown when the customer has requested external delivery of the proceeds of the transaction.This field is used when the customer does not require the funds to be credited to his current account but instead requests an external delivery of the funds to a Bank different to the one where you maintain your Nostro account.If this Beneficiary Bank does not yet exist on the Database, the user may:a)         Create a new record in the CUSTOMER and AGENCY files            which will contain the information necessary to generate            automatically advices, confirmations etc... for this bank            or,b)         Use the PRIN ADDRESS (field 26.1) to directly input the            name and address of the Beneficiary Bank without having            to create a customer and/or an Agent record.  This            option is very useful if the transaction has to be            liquidated in favour of a Bank which is rarely dealt with.Note:      Once the contract has been authorised, any change to            this field will only have an effect on future principal            disbursements.Validation Rules3 to 10 Character Mnemonic (Uppercase alpha, numeric or ".") - Type MNE.  Input will be checked against the AGENCY file. or     1 to 6 Numeric character Agent code (Optional input; Default = Autorouting instructions defined on the AGENCY file.)For Placements, input in this file will only be allowed when the DRAWDOWN ACCOUNT is a Nostro account.For Deposits input in this field will only be allowed when the PRIN LIQ ACCT is a Nostro account.Input in this field will be checked against the AGENCY file.  When autorouting instructions have not been defined for the counterparty of the contract in the currency of the deal, input in this field or field 25 or field 26 will be mandatory if the DRAWDOWN account (Placements) or PRIN LIQ ACCT (Deposits) is a Nostro account.When used in conjunction with the PRIN BEN BANK 2 field, the two Customer references must differ.Input in this field will not be allowed at the same time with an input in PRIN BEN BANK 2 (field 25) and PRIN ADDRESS (field 26). */ 
+ PRIN_BEN_BANK_1 -> ST_Customer:CUSTOMER 
+ @i18n:Label (en="CounterParty Corrsp") 
+ @i18n:Tooltip (en="Bank from where the funds are to be received") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=24.0, t24Name=PRIN.BEN.BANK.1) 
+ 
+ /* Contains the Customer reference for the second Beneficiary Bank for the Principal Amount in the case of contracts involving four-party transfers of funds.If for example, at the maturity of a Deposit the customer requests the delivery of the funds to his account that he maintains with American Bank A, Detroit which has an account with American Bank B, New York, the User will then make the following input:-(i)  Default (or Enter) the standard Nostro account                 number in the PRIN LIQ ACCT (field 23).  This                 field is always used to indicate the account where                 the book-keeping entries must be recorded by the                 system.(ii) Enter the Agent code (Customer number) of the                 American Bank B, New York, in the PRIN BEN                 BANK 1 (field 24).  In case this Bank does not                 exist on the Database, the User can then enter the                 name and address of this Bank in the PRIN                 ADDRESS (field 26.1).(iii)Enter the Agent code (Customer number) of the                 Bank of Detroit in this field.  In case this Bank                 does not exist on the Database but there was a                 Customer reference for the Bank identified in the                 previous field, the User can enter the name and                 address of the Bank of Detroit in the PRIN                 ADDRESS (field 26.1).  This means that at least                 one of the two banks must have been defined on                 the CUSTOMER and AGENCY files.(iv) Enter the beneficiary account number in the                 BENEF PRIN ACCT (field 27.1).Once the contract has been authorised, any change to this field will only have an effect on future principal Disbursements.Validation Rules3 to 10 Character Mnemonic (Uppercase alpha, numeric or ".") - Type MNE.  Input will be checked against the AGENCY file. or     1 to 6 Numeric character Agent code (Optional input; default value = none.)Any input in this field must represent a valid Agent as defined on the AGENCY file.The Customer reference input in this field must be different from the Customer reference of PRIN BEN BANK1 (field 24).For Placements, the DRAWDOWN ACCOUNT must be a valid Nostro account.For Deposits, the PRIN LIQ ACCT must be a valid Nostro accountThe Customer reference input must be different from the Customer reference of the Nostro account used in the contract (ie. for Placements the system will check the Customer reference of the DRAWDOWN ACCOUNT, while for Deposits the system will check the Customer reference of PRIN LIQ ACCT).Input in this field will not be allowed if PRIN BEN BANK1 (field 24) and PRIN ADDRESS (field 26.1) were both entered. */ 
+ PRIN_BEN_BANK_2 -> ST_Customer:CUSTOMER 
+ @i18n:Label (en="Principal Bene Bank 2") 
+ @i18n:Tooltip (en="Customer reference for the second Beneficiary Bank") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=25.0, t24Name=PRIN.BEN.BANK.2) 
+ 
+ PRIN_ADDRESS -> byValue MM_Contract:MM_MONEY_MARKET__PRIN_ADDRESS * 
+ 
+ BENEF_PRIN_ACCT -> byValue MM_Contract:MM_MONEY_MARKET__BENEF_PRIN_ACCT * 
+ 
+ /* Identifies the account number where entries are made for the reimbursement of the Interest of Deposit type contracts.Input in this field will only be necessary when the disposal of the interest is different from the disposal of the principal.This field may be changed at any time during the life of the contract but the change will only have an effect on future Interest Disbursements.In case the underlying Contract Customer (eg. Customer.id in MONEYMARKET,Counterparty in FOREX, etc.) has a record in CUSTOMER.SSI application, then the account number in this field gets defaulted as per the definition for that Customer from CUSTOMER.SSI.For more information on the usage of this feature please refer to CUSTOMER.SSI application.If for neither of the accounts in PRIN.LIQ.ACCT and INT.LIQ.ACCT, a suitable holiday record is not available for the residence of the customer concerned, system would produce liquidation advice based on the holiday record of the contract currency.Validation RulesStandard Account Number format. (Optional input; Default value = PRIN LIQ ACCT) The defaulting process looks firstly at the SEC.ACC.MASTER record using the portfolio no, If no default found uses the CUSTOMER.CCY.ACCT record and finally if still no default found takes details from the AGENCY record and NOSTRO.ACCOUNT tableAn account entered that is not equal to the default account will require an override.If the contract is a Fiduciary Deposit then the Account Number must not be a Nostro Account.Any inactive (dormant) account will require an override.Any account with posting restrictions will require an override.The currency of the interest account should be the same as that of the Principle unless field 82 indicates a ZAR/ZAL currency situation. */ 
+ INT_LIQ_ACCT -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Interest Liq Acct") 
+ @i18n:Tooltip (en="Indicates Interest Liquidation Account") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=36, sysNumber=28.0, t24Name=INT.LIQ.ACCT) 
+ 
+ /* Identifies the Beneficiary Bank which is to be used for the payment of the Interest Amount of Deposit contract types when the customer has requested external delivery of the interest resulting from the transaction.This field is used when the customer does not require the funds to be credited to his current account but instead requests an external delivery of the funds to a Bank different to the one where you maintain your Nostro account.If this Beneficiary Bank does not yet exist on the Database, the user may:a)         Create a new record in the CUSTOMER and AGENCY file            which will contain the information necessary to generate            automatically advices, confirmations etc... for this bank            or,b)         Use the INT ADDRESS (field 29.1) to directly input the            name and address of the Beneficiary Bank without having            to create a Customer and/or an Agent record.  This            option is very useful if the Interest has to be paid to a            bank which is rarely dealt with.As this field indicates the disposal of the interest amount due on Deposits (which may be different from the disposal of the principal amount) it may only be used for Deposit contract types.Once the contract has been authorised any change to this field will only have an effect on future Interest Disbursements.Validation Rules3 to 10 Character Mnemonic (Uppercase alpha, numeric or ".") - Type MNE.  Input will be checked against the AGENCY file. or     1 to 6 Numeric character Agent code (Optional input when INT LIQ ACCT is a Nostro account; Default value is the PRIN BEN BANK1 when the INT LIQ ACCT is the same as the PRIN LIQ ACCT.Input is only allowed for Deposit contract types.Input in this field is only allowed when INT LIQ ACCT is a Nostro.Input in this field must correspond to a valid Agent on the AGENCY file.When used in conjunction with the INT BEN BANK2 field, the two Customer references must differ.Input in this field will not be allowed at the same time with an input in INT BEN BANK2 (field 30) and INT ADDRESS (field 31.1). */ 
+ INT_BEN_BANK_1 -> ST_Customer:CUSTOMER 
+ @i18n:Label (en="Beneficiary Bank") 
+ @i18n:Tooltip (en="Beneficiary Bank for the payment of the Interest") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=29.0, t24Name=INT.BEN.BANK.1) 
+ 
+ /* Contains the Customer reference for the second Beneficiary Bank for the Interest Amount.  Used where contracts involve four party transfers of funds and where disposal of interest on Deposits will be different from disposal of principal.If for example, at the maturity of a Deposit the customer requests the delivery of the interest to his account that he maintains with American Bank A, Detroit which has an account with American Bank B, New York, the User will then make the following input:-(i)  Default (or Enter) the standard Nostro account                 number in the INT LIQ ACCT (field 28).  This                 field is always used to indicate the account where                 the book-keeping entries must be recorded by the                 system.            (ii) Enter the Agent code (Customer number) of the                 American Bank B, New York, in the INT BEN                 BANK 1 (field 29).  In case this Bank does not                 exist on the Database, the User can then enter the                 name and address of this Bank in the INT                 ADDRESS (field 31.1).(iii)Enter the Agent code (Customer number) of the                 Bank of Detroit in this field.  In case this Bank                 does not exist on the Database but there was a                 Customer reference for the Bank identified in the                 previous field, the User can enter the name and                 address of this Bank in the INT ADDRESS (field                 31.1).  This means that at least one of the two                 banks must have been defined on the CUSTOMER                 and AGENCY files.(iv) Enter the beneficiary account number in the                 BENEF INT ACCT (field 30.1).Default value is the same as the PRIN BEN BANK2 field when:-(i)  The INT LIQ ACCT is the same as the PRIN LIQ                 ACCT(ii) The INT BEN BANK1 is the same as the PRIN BEN                 BANK1.Once the contract has been authorised, any change to this field will only have an effect on future interest Disbursements.Validation Rules3 to 10 Character Mnemonic (Uppercase alpha, numeric or ".")  Type MNE.  Input will be checked against the AGENCY file. or     1 to 6 Numeric character Agent code. (Optional input when INT LIQ ACCT is a Nostro account; Default value - see details below).Input is only allowed for Deposit contract types.Input in this field is only allowed when INT LIQ ACCT is a Nostro.Input in this field must correspond to a valid Agent on the AGENCY file.When used in conjunction with INT BEN BANK1, the two customer references must differ.Input in this field will not be allowed if INT BEN BANK1 (field 29) and INT ADDRESS (field 31.1) have both been entered.The customer reference input must be different from the Customer reference of the Nostro account used in INT LIQ ACCT. */ 
+ INT_BEN_BANK_2 -> ST_Customer:CUSTOMER 
+ @i18n:Label (en="Beneficiary Bank 2") 
+ @i18n:Tooltip (en="Beneficiary Bank for the payment of the Interest") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=30.0, t24Name=INT.BEN.BANK.2) 
+ 
+ INT_ADDRESS -> byValue MM_Contract:MM_MONEY_MARKET__INT_ADDRESS * 
+ 
+ BEN_INT_ACCT -> byValue MM_Contract:MM_MONEY_MARKET__BEN_INT_ACCT * 
+ 
+ TAX_INTEREST_KEY -> byValue MM_Contract:MM_MONEY_MARKET__TAX_INTEREST_KEY * 
+ 
+ /* Identifies the LIMIT REFERENCE number to be checked for Limit control on Placement or Loan transactions.Each Placement or Loan transaction will be checked against the LIMIT file to verify the availability of a Limit. If no input is made, the LIMIT System will provide a default according to the values defined in the LIMIT PARAMETER file.  It will look for the PRODUCT NO defined under the MM.MONEY. MARKET Application for which the fields DECIS.FIELD to DECISION TO have been left blank.  If required, more details can be found in the LIMIT user guide.For Deposit contracts a reference can be specified if required.  These limits are updated purely for information purposes.  If no specific deposit type has been defined, the DEFAULT DEPOSIT limit reference on LIMIT.PARAMETER will be used.  For fiduciary deposits the DEF.FIO.DEPOSIT on Limit Reference will be used if no specific product is defined.For Fiduciary Placements, a limit reference can be set for information or for actual limit updates - if no product is defined on LIMIT.PARAMETER, the DEFAULT.INFO limit reference will be used.Validation Rules3 to 7 numeric characters LIMIT REFERENCE code. (Optional Input; Default value:  see details below).Input in this field must be a valid LIMIT REFERENCE number.If no Limit exists for the counterparty a corresponding error message will be displayed by the system with an override facility.If the transaction amount exceeds the availability amount of the Limit, a corresponding error message will be displayed with an override facility. */ 
+ LIMIT_REFERENCE : mml:string 
+ @i18n:Label (en="Limit Reference") 
+ @i18n:Tooltip (en="Indicates the limit that will be updated") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=34.0, t24Name=LIMIT.REFERENCE) 
+ 
+ /* Used to input an external reference number which is to be passed to the Third Party.This field can be used to input any external reference number of a third party or any other contract reference number.  It has been developed for reporting, cross-reference and confirmation purposes.  In order to use this field on confirmations then the delivery mapping and formating tables must be set up accordingly.Validation Rules1 to 16 alpha-numeric characters, - Type  S. (Optional input;  Default value:  None). */ 
+ THIRD_PARTY_REF : mml:string 
+ @i18n:Label (en="Third Party Reference") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=35.0, t24Name=THIRD.PARTY.REF) 
+ 
+ /* This is the reference number that a Customer may have specified for the Placement or Deposit.The reference number input at this field can be printed on all Advices and Confirmations (along with the Bank's Contract Number) so long as the delivery mapping and formatting tables are set up to use this field.Validation Rules1 to 16 alpha-numeric characters (Optional input;  Default value: None). */ 
+ CUSTOMER_REF : mml:string 
+ @i18n:Label (en="Counterparty Reference") 
+ @i18n:Tooltip (en="Reference number a Customer may have specified") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=36.0, t24Name=CUSTOMER.REF) 
+ 
+ CUST_REMARKS -> byValue MM_Contract:MM_MONEY_MARKET__CUST_REMARKS * 
+ 
+ /* This field indicates whether the USD payment amounts are Federal Funds or not. This field is not used at present and input to it is not allowed.  After validation, 'N' will be displayed in this field if the contract is denominated in USD.Validation RulesAlways 'N' when a USD contract.  Always null when a non USD contract. System generated. */ 
+ FEDERAL_FUNDS : MM_Contract:MM_MONEY_MARKET__FEDERAL_FUNDS 
+ @i18n:Label (en="Federal Funds") 
+ @i18n:Tooltip (en="Indicates if the USD payment are Federal Funds") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=38.0, t24Name=FEDERAL.FUNDS) 
+ 
+ /* This field is used to override standard delivery conditions for the contract and is checked against a MESSAGE CONTROL table where the actual delivery conditions are stored.Any input at this field must be a valid code on the MESSAGE.CONTROL table.See documentation of MESSAGE.CONTROL for a more detailed explanation of this field and its function.Validation Rules1 to 3 Numeric characters. (Optional Input; Default = '1').On Sundries and Account Receivable the Delivery link must specify PRINT or TELEX device because SWIFT confirmations require interest conditions (MT320). */ 
+ DELIVERY_LINK -> EB_Delivery:MESSAGE_CONTROL 
+ @i18n:Label (en="Delivery Link") 
+ @i18n:Tooltip (en="Specifies the standard delivery condition") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=39.0, t24Name=DELIVERY.LINK) 
+ 
+ /* Identifies the number of the Account where  the debits are passed to collect charges at Drawdown Date.The charges must always be expressed in the currency of the contract, thus the Liquidation Account for the Interest must also be expressed in the currency of the contract.This field can be changed at any time during the life of the contract but the change will not affect any previous payments already booked.Validation RulesStandard Account format. (Optional input; Default value = Interest Liquidation account).The customer owner of this account must equate to the counterparty of the contract.  If this is not the case, an override will be required.Input is only allowed if there is an actual amount in the Charge Amount field.The system will check account posting restrictions and require an override if necessary.Any inactive account will require an override.If funds are not sufficient in the account to cover the charge amount an override will be requested. */ 
+ CHRG_LIQ_ACCT -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Charge Debit Acct") 
+ @i18n:Tooltip (en="Account from where charges are collected") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=36, sysNumber=40.0, t24Name=CHRG.LIQ.ACCT) 
+ 
+ CHARGE_CODE -> byValue MM_Contract:MM_MONEY_MARKET__CHARGE_CODE * 
+ 
+ /* Identifies which Currency Market is accessed for this transaction.The use of this field will only be applicable for those countries where the exchange authorities have defined different markets for foreign currency dealing.A typical example would be Belgium where foreign currencies are dealt with on the Regular Market and also on the Free Market.The default value of '1' means that, for the majority of countries, where only one exchange rate market exists, input in this field will not be necessary.Note:      In the present release, only one market can be defined on            the CURRENCY.MARKET table.  Consequently, for the            time being, only the value of '1' will be accepted in this            field.Validation RulesOne Numeric digit Currency Market code. (No input.  System value is 1.)Any input in this field must be a valid code on the CURRENCY.MARKET table. */ 
+ CURRENCY_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET 
+ @i18n:Label (en="Currency Market") 
+ @i18n:Tooltip (en="The Currency Market accessed for the transaction") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=43.0, t24Name=CURRENCY.MARKET) 
+ 
+ /* This field is not used at present and is reserved for future use.Validation Rules(No input.  System value is TR(ading)) */ 
+ POSITION_TYPE -> ST_Config:FX_POS_TYPE 
+ @i18n:Label (en="Position Type") 
+ @i18n:Tooltip (en="Position Type") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=44.0, t24Name=POSITION.TYPE) 
+ 
+ /* This field is not used at present and is reserved for future use.Validation Rules5 Numeric characters */ 
+ NEG_REF_NUMBER : mml:string 
+ @i18n:Label (en="Negotiation Reference Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=45.0, t24Name=NEG.REF.NUMBER) 
+ 
+ /* This field is not used at present and is reserved for future use.Validation Rules5 Numeric characters. */ 
+ INT_REF_NUMBER : mml:string 
+ @i18n:Label (en="Interest Reference Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=46.0, t24Name=INT.REF.NUMBER) 
+ 
+ /* Identifies the Interest key which will be used by the M.I.S as the Cost-of-Funds (i.e. the refinancing rate).When input this key will determine which cost of funds rate is to be used for customer profitability analysis.Validation Rules1 to 3 Numeric characters (Optional input; Default value = Blank).Input in this field will only be allowed if the M.I.S. interest rate field is blank.The key will be checked against the BASIC INTEREST table. */ 
+ MIS_INTEREST_KEY : mml:string 
+ @i18n:Label (en="MIS Interest Key") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=3, sysNumber=47.0, t24Name=MIS.INTEREST.KEY) 
+ 
+ /* Identifies the refinancing rate for the corresponding transaction.  It will be used to determine the Management Information System (M.I.S) Customer Profitability Analysis.When a rate is entered, the system will use this rate to determine the Management Information System (M.I.S) Customer Profitability Analysis instead of using the default Pool Rate.Thus the User should input the rate at the contract level when the individual refinancing rate is available.This would be the case, for example, for contracts which have been MATCHED or for contracts where the Marketing Department has agreed with the Treasury Department on a particular Cost-of-Funds Rate.The rate will be entered as a FIXED Interest Rate Type.  It should normally be greater than the contract interest rate for Deposits and smaller than the contract interest rate for Placements. The system will use the Pool Rate when this field and the M.I.S. INTEREST KEY field are not present.Note:      Default means that no input was made in the M.I.S.            INTEREST KEY nor in the M.I.S. Interest Rate.The input will be entered in the M.I.S. Interest Key or in            the M.I.S. Interest Rate depending on whether the User            wants to input an interest key or a rate.This field may be changed at any time during the life of the contract but will take effect from the current month unless accruals had not yet been performed on the particular contract (back-value initiation).Validation Rules1 to 10 Numeric characters plus a decimal point (Standard rate format 6.9). (Optional input; Default value = None).Input in this field will only be accepted if the M.I.S. Interest key was left blank.Input will also be accepted for the account receivable and sundry contract types. */ 
+ MIS_INTEREST_RATE : mml:string 
+ @i18n:Label (en="MIS Interest Rate") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=48.0, t24Name=MIS.INTEREST.RATE) 
+ 
+ /* Identifies the Country Code of the country responsible for the Credit Risk.  It will only be used for reporting purposes.Validation Rules2 character COUNTRY CODE. (Optional input; default value is the country of the borrower as defined on the CUSTOMER file).Input in this field will only be allowed for Asset Type transactions.Must be a valid Country code. */ 
+ COUNTRY_RISK -> ST_Config:COUNTRY 
+ @i18n:Label (en="Country Risk") 
+ @i18n:Tooltip (en="The country risk involved in contract") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=49.0, t24Name=COUNTRY.RISK) 
+ 
+ /* Identifies which country will take the transaction into its cross-border exposure.  This information will be used to produce the Country exposure report.This field will be used to produce the User's country exposure report, and its use is only allowed for placement contracts. If no input is made at this field then the system will default to the country of the counterparty receiving the funds.  However, the situation frequently arises where the counterparty in receipt of placement funds is fully guaranteed in respect of his ability to repay those funds by a different entity (e.g. a parent company) whose residence is in a different country.  Under these circumstances the ultimate risk would be considered to be in the country of the guarantor and the User would therefore wish to insert the code of that country into this field rather than the code of the country of the primary borrower.Validation Rules2 Character Country Code. (Optional input; default value is COUNTRY RISK)Input in this field will only be allowed for Asset Type transactions.Must be a valid COUNTRY Code. */ 
+ COUNTRY_EXPOSURE -> ST_Config:COUNTRY 
+ @i18n:Label (en="Country Exposure") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=50.0, t24Name=COUNTRY.EXPOSURE) 
+ 
+ /* This field will be used to override the default Profit centre of the Customer of the transaction.  It will be used during the determination of the Management Information System (M.I.S) Customer Profitability Analysis.This field has been provided so that a contract created for a specific Customer may be reported under the profitability of a different Profit centre than the one defined on the customer record.It will be used by the M.I.S programs during the determination of Customer Profitability Analysis.Validation Rules1 - 4 Digit numeric field (Optional input;  Default value = Account Officer defined on CUSTOMER file for the counterparty of the transaction). Will accept any valid key held on the DEPT.ACCT.OFFICER table. */ 
+ MIS_ACCT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Acct Officer") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=51.0, t24Name=MIS.ACCT.OFFICER) 
+ 
+ /* Identifies the annual Commission percentage Rate applicable to the Fiduciary Deposit.The percentage rate inserted at this field will be the amount per annum payable in commission and the commission amount itself will be calculated using this rate for the actual number of days elapsed on the face value of the contract.  The system will calculate the commission amount due for the life of the contract (using the same interest basis as for interest) and this amount will then be displayed in the next field upon validation of the contract.In the absence of manual input by the user at this field, the system will refer to the MM.FID.COMMISSION table and pick up the rate applicable to the customer and currency of the contract.  If no rate is specified on the table for the customer in question then the system will simply default to the standard fiduciary commission rate for the currency.Validation Rules1 - 10 Numeric characters plus a decimal point (Standard rate format 6,9) - Type R. (Optional input for Fiduciary Deposits, othewise not allowed.  Default value taken from MM.FID.COMMISSION table.) Input is only allowed for Fiduciary Deposit contract types. */ 
+ FID_COMM_RATE : mml:string 
+ @i18n:Label (en="Fiduciary Commission Rate") 
+ @i18n:Tooltip (en="Annual Commission percentage for Fiduciary Deposit") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=52.0, t24Name=FID.COMM.RATE) 
+ 
+ /* Indicates the Total Commission Amount (either input or generated by the system) from Drawdown Date to the Final Maturity Date.If no amount is actually entered in this field, then the rate input to the FID COMM RATE field (or the default rate taken from the MM.FID.COMMISSION Table), will be used by the system to automatically calculate the Total Commission Amount on validation of the contract using that rate.Note: If neither the Commission Rate nor the Commission Amount is input then the default Commission Rate or Minimum/Maximum Amount is retrieved from the MM.FID.COMMISSION Table.  This table is able to hold specific Commission Rates for individual Currencies and/or Customers.Validation Rules1 to 14 Characters plus a decimal point (standard amount format) - Type AMT. (Optional input for Fiduciary Deposits; Otherwise not allowed). Input is only allowed for Fiduciary Deposit contract types. */ 
+ FID_TOT_COMM_AMNT : mml:string 
+ @i18n:Label (en="Fiduciary Total Commission Amount") 
+ @i18n:Tooltip (en="Commission Amount from Drawdown to Final Maturity") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=18, sysNumber=53.0, t24Name=FID.TOT.COMM.AMNT) 
+ 
+ /* Identifies the Counterparty (Our correspondent) with who the Placement, which is automatically generated from a Fiduciary Deposit, is placed.This field, together with the following seven fields, form the basis of the associated Fiduciary Placement contract which is automatically generated after this input.  Each Fiduciary field has a matched relationship with fields described earlier in this record, with the exception of the associated reference field.Validation Rules3 to 10 Character Mnemonic for the Customer file (Uppercase alpha, numeric or ".") - Type MNE. or     1 to 6 Numeric character Customer code (Mandatory input if contract is a Fiduciary, otherwise not allowed.)Input in this field must represnet a valid customer on the CUSTOMER file.The Fiduciary Bank ID cannot be the same as the customer ID of the Fiduciary deposit. */ 
+ FIDUCIARY_BANK -> ST_Customer:CUSTOMER 
+ @i18n:Label (en="Fiduciary Bank") 
+ @i18n:Tooltip (en="Identifies the fiduciary bank") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=54.0, t24Name=FIDUCIARY.BANK) 
+ 
+ /* Identifies the ID of the associated Fiduciary Placement which is automatically generated by the System on input of a new Fiduciary Deposit record.When a Money Market Fiduciary Deposit is loaded, the system will automatically generate a corresponding Fiduciary Placement contract to match the Fiduciary Deposit.  It will assign a reference number to this Placement contract as follows:The User is allowed to identify contracts with the number range 1 to 9999 but the system will always insert an extra digit in front of this User-defined number.  This extra digit is always a 0 for all Money Market contracts other than the automatically generated Fiduciary Placements.  The extra digit for the Fiduciary Placement is always a 9. Thus:-MM Fid. Deposit    (User loaded)    - MM/85296/08888MM Fid. Placement  (system created) - MM/85296/98888where 08888 is the number the User has assigned to identify the Fiduciary Deposit contract and 98888 is the number the system automatically assigns to the corresponding Fiduciary Placement.Validation RulesInternal Field - 12 digit alpha-numeric field (refer to Contract Number for format). (Automatic input supplied by the system). */ 
+ FID_ASSOC_LD_REF : mml:string 
+ @i18n:Label (en="Fiduciary Associated LD Reference") 
+ @i18n:Tooltip (en="Identifies the fiduciary associate LD reference") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=14, sysNumber=55.0, t24Name=FID.ASSOC.LD.REF) 
+ 
+ /* Identifies the Account where the Fiduciary Placement funds are to be credited.When the system automatically creates a Fiduciary Placement, it needs to know the destination of the Placement funds.  For this reason a complete set of fields have been included to allow the User, where necessary, to enter manually this information.  The T24 system contains details within the AGENCY file that will be used to determine if there are specific autorouting instructions to ensure delivery to the Beneficiary bank in the specified currency.  If this information does not exist, manual input will be requested.  In the absence of input in this field, the corresponding currency Nostro account will be defaulted.If the account through which delivery is to be made is not known, the User can choose to enter one digit (from 1 to 9) which will identify a text (defined in the LMM.TEXT table) to be printed on the confirmation sent to the customer.  This will also result in the funds being applied to a suspense account in the applicable currency.Validation RulesStandard numeric Account Number or     3-10 Character Account Mnemonic (uppercase alpha or numeric) - type MNE. or     6-12 Character Internal Account Number (uppercase alpha or numeric) - type SS. (Optional input; for Fiduciary Deposits; Otherwise not allowed.  Default is the Nostro Account of the corresponding currency).Input in this field will be mandatory for Fiduciary Deposits, when the default Nostro account has not been established for the currency of the contract.Any inactive account will request an override.Any account with posting restrictions will require an override. */ 
+ FID_DRAWDOWN_ACCT : mml:string 
+ @i18n:Label (en="Fiduciary Drawdown Account") 
+ @i18n:Tooltip (en="Account- Fiduciary Placement funds to be credited") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=36, sysNumber=56.0, t24Name=FID.DRAWDOWN.ACCT) 
+ 
+ /* Identifies the account number where entries are made for the reimbursement of principal at any principal liquidation in respect of a Fiduciary Placement.If the account through which the liquidation is to made is not known then the User should input a one digit numeric code (from 1 to 9) which will identify a text (defined on LMM.TEXT Table) to be printed on the confirmation sent to the client.If the actual FID PRIN LIQ ACCT is not entered before the MATURITY DATE, the funds will be applied to a suspense account in the applicable currency and an exception report informing the User department that the Liquidation of the Account is to be handled manually, will be produced.Validation RulesStandard Account Format (Optional input for Fiduciary Deposits; Otherwise allowed.  Default value = FID DRAWDOWN ACCT.)Any inactive account will require an override.Any account with posting restrictions will request and override. */ 
+ FID_PRIN_LIQ_ACCT : mml:string 
+ @i18n:Label (en="Fiduciary Principal Liquidation Account") 
+ @i18n:Tooltip (en="Account number- entry for principal reimbursement") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=36, sysNumber=57.0, t24Name=FID.PRIN.LIQ.ACCT) 
+ 
+ /* Identifies the name of the Beneficiary Bank which is only to be used for Fiduciary Placements at drawdown when it involves external delivery of funds.Input will only be allowed, if the FID DRAWDOWN ACCT field is a Nostro account.  It will be used if the Bank where the Fiduciary Placement is placed does not require the funds to be credited to any account with Our Correspondent, but instead requests the delivery of the funds to a different Bank.If this beneficiary bank does not yet exist on the Database, the user may: a)         Create a new record in the CUSTOMER and AGENCY file            which will contain the information necessary to generate            automatically advices, confirmations etc... for this bank            or,b)         Use the FID PRIN ADD (field 60.1) to directly input the            name and address of the Beneficiary bank without having            to create a Customer and/or an Agent record.  This            option is very useful if the transaction has to be            liquidated in favour of a bank which is rarely dealt with.Once the contract has been authorised any change to this field will only have an effect on future principal disbursements.Validation Rules3 to 10 Character Mnemonic (Uppercase alpha, numeric or ".") - Type MNE.  Input will be checked against the AGENCY file. or     1 to 6 Numeric character Customer code (Optional input for Fiduciary Deposits; Otherwise not allowed;  Default value = autorouting instructions defined on the AGENCY file.)Input in this field will be checked against the AGENCY file.  Input of delivery details will be mandatory if no autorouting details exist on the AGENCY file.When used in conjunction with the FID PRIN BEN BK2 the two Customer references must be different. */ 
+ FID_PRIN_BEN_BK_1 -> ST_Customer:CUSTOMER 
+ @i18n:Label (en="Fiduciary Beneficiary Bank") 
+ @i18n:Tooltip (en="Name of the Beneficiary Bank- Fiduciary Placements") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=58.0, t24Name=FID.PRIN.BEN.BK.1) 
+ 
+ /* Identifies the Customer reference for the second Beneficiary Bank for the Principal Amount in the case of Fiduciary contracts involving four-party transfers of funds.If, at the initiation of a Fiduciary Deposit, the Bank accepting the Placement requests the delivery of the funds to its Account with the American Bank of Detroit which, in turn, has an account with another American Bank in New York; then the User will make the following input:i)         Default (or Enter the standard Nostro account number in            the FID DRAWDOWN ACCT.  This field is always used to            indicate the account where the book-keeping entries must            be recorded by the system at the initiation of the            Fiduciary Placement. ii)        Enter the Agent code (Customer number) of the New York            American Bank in FID PRIN BEN BK1 field.  In case this            Bank does not exist on the Database, the User can then            enter the Name and Address of this Bank in the FID PRIN            ADD (Field 60.1).iii)       Enter the Agent code (Customer number) of the American            Bank of Detroit in this field.  In case this Bank does not            exist on the Database, but there was a Customer            reference for the Bank identified in the previous field,            the User can enter the Name and Address of this Bank in            the FID PRIN ADD.  This means that at least one of the            two Banks must have been defined on the CUSTOMER and            AGENCY files.iv)        Enter the Beneficiary Account details in the FID BEN            PRIN AC (Field 61.1).Once the contract has been authorised, any change to this field will only have an effect on future principal disbursements.Validation Rules3 to 10 Character Customer Mnemonic (Uppercase alpha, numeric or ".") - Type MNE.  Input will be checked against the AGENCY file. or     1 to 6 Numeric character Customer code (Optional input for Fiduciary Deposits; Otherwise not allowed.  Default value is blank.)Input will be checked against the AGENCY file. Any valid Agent will be accepted.The Customer reference input in this field must be different from the Customer reference of FID PRIN BEN BK1.Input in this field will only be allowed when the FID DRAWDOWN ACCT is a valid Nostro account.Input will not be allowed when the FID PRIN BEN BK1 and FID BEN PRIN AC have both been entered.The Customer reference input must be different from the Customer reference of the FID DRAWDOWN ACCT. */ 
+ FID_PRIN_BEN_BK_2 -> ST_Customer:CUSTOMER 
+ @i18n:Label (en="Fiduciary Beneficiary Bank 2") 
+ @i18n:Tooltip (en="Name of the Beneficiary Bank- Fiduciary Placements") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=59.0, t24Name=FID.PRIN.BEN.BK.2) 
+ 
+ FID_PRIN_ADD -> byValue MM_Contract:MM_MONEY_MARKET__FID_PRIN_ADD * 
+ 
+ FID_BEN_PRIN_AC -> byValue MM_Contract:MM_MONEY_MARKET__FID_BEN_PRIN_AC * 
+ 
+ ACTIVITY_CODE -> byValue MM_Contract:MM_MONEY_MARKET__ACTIVITY_CODE * 
+ 
+ /* Contains the amount of an increase or decrease in the Principal Amount during the lifetime of a contract.If it is required to increase the principal amount, during the lifetime of the contract under the exact same terms and conditions as the existing contract, then the User may enter the amount of the increase in this field.This field may only be used in conjunction with the INCR EFF DATE field.  When this date is reached, the system will automatically handle all necessary procedures for the increase of principal on the existing contract, together with appropriate re-calculation of the total interest amount due on the contract.In addition, it is also possible to enter a back-valued increase or decrease should the need arise.Validation Rules1 to 14 Characters plus a decimal point (standard amount format) - Type AMT. (Optional input) Input is only allowed in conjunction with the INCR EFF DATE field.Cannot be input on the same day as the initial entry of the Money Market Contract. */ 
+ PRIN_INCREASE : mml:string 
+ @i18n:Label (en="Principal Inc /Dec") 
+ @i18n:Tooltip (en="Any increase or decrease in the principal") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=64.0, t24Name=PRIN.INCREASE) 
+ 
+ /* This is the Date when an increase or decrease in Principal Amount is to become or became effective.This field may only be used if there was a decrease or an increase in the principal amount recorded in the previous field.Any date is permissable but must be at least one day greater than the commencement value date of the original contract or one day less than the contract maturity date or may co-incide with the start date of the current interest period.For a back-valued or value today increase or decrease, the System will perform all re-calculations on-line of interest amounts on final authorisation of the changes to be made.For a forward value increase/decrease,  when this effective date is reached there will be an automatic increase in the Principal Amount of the contract by the sum specified in the previous field, together with an automatic re-calculation of the total interest amount due on the contract.Validation Rules1 to 9 date characters (Standard date format in the range 1950 to 2049) - Type D. (Mandatory input when the PRIN INCREASE field is entered, otherwise not allowed.)Input allowed only if the PRIN INCREASE field has been entered.Date cannot be prior than already entered or defaulted Rollover date. */ 
+ INCR_EFF_DATE : mml:string 
+ @i18n:Label (en="Effective Date") 
+ @i18n:Tooltip (en="Effective Date of increase/decrease in principal") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=65.0, t24Name=INCR.EFF.DATE) 
+ 
+ /* Contains an indicator which relates to specific processing required in respect of a FIXED MATURITY contract which is either being extended at some point during its life or rolled over at its maturity date.This field must be used when the original maturity date on a contract is to be extended at some point during the life of that contract OR when a contract is approaching maturity and the User has been instructed by his counterparty to renew it automatically.Input is only allowed for fixed maturity contracts (i.e. where the final maturity date is an actual date and not simply a number of days as with Call/Notice Contracts). The following values have been defined:-1 - Maturity Extension A value of 1 indicates that the maturity date of the contract is to be extended.  No further input is necessary at subsequent fields because the system will simply default the current contract values, should you wish to change the interest rate/spread as well you may do so by inserting the new interest rate and/or at the fields provided. Extending the maturity also extends the interest settlement date, and therefore capitalisation cannot be made.2 - Rollover A value of 2 indicates that the contract is to be rolled over at maturity, and such a rollover may be executed in conjunction with AUTO.CAPITALISATION where capitalisation of interest can be made/or not as you require.Where the AUTO.CAPITALISATION is set to Yes, the interest amount will be added to the principal. Interest will then be calculated on the Principal plus interest for the next period.If set to No, the interest amount will be paid to,or debited from the counterparty (according to the contract type) and rolled Principal only.(Optional Input for Fixed maturing date contracts, but NOT ALLOWED for new contracts.)Validation RulesInput in this field is only allowed on contracts with a Fixed Maturity date.The following values will be accepted:  1 - Maturity Date Extension 2 - Maturity Date Extension with interest settlement or Null.Not allowed for new contracts at first input. */ 
+ ROLLOVER_MARKER : MM_Contract:MM_MONEY_MARKET__ROLLOVER_MARKER 
+ @i18n:Label (en="Rollover Marker") 
+ @i18n:Tooltip (en="Indication that Contract is to be Rolled over") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=66.0, t24Name=ROLLOVER.MARKER) 
+ 
+ /* Defines the effective date for an extension or rollover of a contract is to take place. Or change to Call/Notice interest rate and/or spread.For Fixed Maturity contracts input will only be allowed in this field if the ROLLOVER.MARKER has an input of 1 or 2, in which case this date will be defaulted to the original maturity date on the contract being modified.The new maturity date is inserted at the field MATURITY DATE - and a new interest rate (if Rollover Marker = 2) may also be inserted at the field NEW INTEREST RATE. A new margin may also be input in the field NEW INTRST SPREAD, if the contract has an interest key present.For Call/Notice contracts this field will be employed to change the interest rate (or the interest spread if the contract has an interest key) during the life of the contract, and that change is to take effect from a specific date other than the original value date of the contract.  For Call/Notice contracts therefore, input will only be allowed in conjunction with a new interest rate or spread, and the new date input at this field is equal to the next interest due date on the contract.Validation Rules1 to 9 date characters (Standard date format in the range 1950 to 2049) - Type D. Optional input for fixed maturity contracts when the Rollover Marker field is entered.  Default Value = Existing MATURITY DATE. Rules;     (i)  On call and notice contracts input in this field will only be allowed in conjunction with a new interest rate or spread.On call and notice contracts the date input in this field must be Equal to the next interest due date of the contract as defined in INT DUE DATE.On Fixed maturity date contracts, the date input in this field must be equal to the original maturity date of the contract. */ 
+ ROLLOVER_DATE : mml:string 
+ @i18n:Label (en="Rollover Date") 
+ @i18n:Tooltip (en="Rollever Date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=67.0, t24Name=ROLLOVER.DATE) 
+ 
+ /* This is the new interest rate which is to be effective from the rollover date.When the User wishes to roll a Fixed Maturity contract they can use this field to specify the new interest rate to apply to that contract to take effect from the rollover date.Similarly, if the User wishes to change the interest rate on a Call/Notice contract, to take effect from a date other than the original value date of the contract, then they would use this field to specify the new interest rate and the ROLLOVER DATE to specify the effective date.Standard interest rate format.Validation RulesMandatory Input for CALL/NOTICE contracts when ROLLOVER DATE input and INT RATE TYPE = 'Fixed'.Input in this field is mandatory for fixed maturity date contracts when ROLLOVER MARKER = '2' and INT RATE TYPE = 'Fixed'Mandatory Input for fixed rate contracts when ROLLOVER MARKER = 2.Optional input for fixed rate contracts when ROLLOVER MARKER = 1.Input in this field is not allowed on contracts where INT RATE TYPE - FLOATING or NONE. */ 
+ NEW_INTEREST_RATE : mml:string 
+ @i18n:Label (en="New Interest Rate") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=68.0, t24Name=NEW.INTEREST.RATE) 
+ 
+ /* This is the new interest spread which is to be effective from the rollover date.When the User wishes to roll a Fixed Maturity contract they can use this field to specify the new interest spread that they wish to apply to the contract to take effect from the rollover date.Similarly, if the User wishes to change the interest spread on a Call/Notice contract, to take effect from a date other than the original value date of the contract, then they would use this field to specify the new interest spread.10 digit numeric field plus the decimal point.  A - sign is placed in front if the spread is to be deducted.Validation Rules(Input is optional; Default Value = existing spread at rollover and change of rate dates). */ 
+ NEW_INTRST_SPREAD : mml:string 
+ @i18n:Label (en="New Intt Spread") 
+ @i18n:Tooltip (en="Spread on the new interest rate") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=69.0, t24Name=NEW.INTRST.SPREAD) 
+ 
+ /* Use of this field indicates the requirement for automatic capitalisation of Interest on interest due dates.This field has been defined to permit the automatic capitalisation of interest at each liquidation of interest on all Deposit/Placement transactions (Call, Notice and Fixed Maturities.)The system will update automatically the principal amount with the full amount of interest and the capitalisation will continue until the final maturity date is reached.However, if the interest of the Deposit transaction is subject to local taxes, only the net amount of the interest will be capitalised and the amount of taxes will be credited to the corresponding tax sundry account.The following values have been defined:i) N = do not capitalise            ii) Y = capitalise.Validation Rules1 digit alpha field Y or N (Optional input; default value is NO - No Capitalisation). */ 
+ CAPITALISATION : MM_Contract:MM_MONEY_MARKET__CAPITALISATION 
+ @i18n:Label (en="Capitalise Interest?") 
+ @i18n:Tooltip (en="If interest is to be capitalised on int due dates") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=70.0, t24Name=CAPITALISATION) 
+ 
+ /* This field will contain counterparty confirmation details on a contract which the User will confirm via the Verify Function.  The field may be updated internally or by the User.When the User receives confirmation from his counterparty to a deal that they have agreed, then the User can log the fact that he has received such confirmation by use of the T24 verify Function.The Verify Function allows the User to select those deals for which he has received confirmation from the counterparties involved and to log that confirmation on the contract itself.  Once this has been done the content of this field will be automatically generated by the system in the following manner:NN OPERATOR 12:30 29 JAN 1986where NN is the terminal number followed by the operator's name followed by the time and finally by the date.This field may contain the value ONESIDED defaulted or input by the user, this then indicates no confirmation is expected. ONESIDED cannot be input if the field is already occupied.Validation RulesConsists of a dated time stamp concatenated with the terminal operator number and name or may take the value 'ONESIDED'. */ 
+ CONF_BY_CUST : mml:string 
+ @i18n:Label (en="Counterparty Confirmation") 
+ @i18n:Tooltip (en="Indicates counterparty confirmation") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=71.0, t24Name=CONF.BY.CUST) 
+ 
+ /* This field will contain broker confirmation details on a contract which the User will confirm via the Verify Function.  The field may be updated internaly or by the User.When the User receives confirmation from his broker on a deal that they have agreed, then the User can log the fact that he has received such confirmation by use of the T24 Verify Function.The Verify Function allows the User to select those deals for which he has received confirmation from the brokers involved and to log that confirmation on the contract itself.  Once this has been done the content of this field will be automatically generated by the system in the following manner:NN OPERATOR 12:30 29 JAN 1986where NN is the terminal number followed by the operator's name followed by the time and finally by the date.This field may contain the value ONESIDED defaulted or input by the user, this then indicates no confirmation is expected. ONESIDED cannot be input if the field is already occupied.Validation RulesConsists of a dated time stamp concatenated with the terminal operator number and name. */ 
+ CONF_BY_BROKER : mml:string 
+ @i18n:Label (en="Confirmation By Broker") 
+ @i18n:Tooltip (en="Records broker confirmation details") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=72.0, t24Name=CONF.BY.BROKER) 
+ 
+ /* This is an internal field which is automatically generated by the system when the counterparty has a SWIFT address defined on the Agency file.  This common reference will be used on all messages transmitted through SWIFT.The common reference consists of the SWIFT confirmation address codes of the two counterparties, i.e. ourselves and the counterparty of the transaction.  These codes will appear in alphabetical order.  From the counterparty SWIFT confirmation address specified in the Agency file, the system will automatically select the first four digits plus the seventh and eighth digit.The two codes are separated by the four least significant figures from the interest rate on the contract and these are right justified with leading zeros added, if needed, to ensure that four figures are shown.Rate               Shown as            2.4560             2456            0.2450             0245            0.2400             0024            24.000             0024            24.125             4125Thus for a Money Market deal between ourselves with SWIFT confirmation address ABCDEF and a counterparty with SWIFT address STUVWXYZ at an agreed interest rate of, say, 15.75% then the Swift Common Reference would be constructed as follows:-ABCDEF1575STUVYZThe system will then display the above reference at this field and it would be used on all SWIFT message types relating to this contract and on all the entries generated by Accounting.It should be noted that if the deal has no interest rate (a Sundry deposit or an account receivable) then '0000' is used as the interest portion of this field.If the counterparty of the deal does not have a SWIFT address on its Agency record (or indeed does not have an Agency record) then no reference is computed and this field is completed with the word 'NONE'.Validation RulesA six digit code followed by an interest rate followed by another six digit code. */ 
+ SWIFT_COMMON_REF : mml:string 
+ @i18n:Label (en="Swift Commom Reference") 
+ @i18n:Tooltip (en="Indicate the swift message reference") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=73.0, t24Name=SWIFT.COMMON.REF) 
+ 
+ /* This field indicates the status of the contract.  It is an internal field and input here is automatically generated by the system.Having a status defined for each contract will facilitate the production of End of Day reports.The following values have been defined:-i)   FWD  =  forward value            ii)  CUR  =  current            iii) REV  =  reversed            iv)  LIQ  =  liquidatedValidation Rules3 digit alpha field */ 
+ STATUS : mml:string 
+ @i18n:Label (en=Status) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=74.0, t24Name=STATUS) 
+ 
+ /* Contains the total amount of tax due to be paid on the interest amount on a deposit contract.When a tax key is included on a new deposit contract record at the field TAX.INTEREST.KEY, the system will then refer to the tax table where it will find the tax rate which corresponds to that key.  The system will then calculate tax due at a FLAT RATE on the amount of interest on the contract and will display the resulting amount at this field.  For tax keys with multiple tax rates, only the first tax rate of the key will be taken into consideration for the tax amount calculation.When the interest amount is liquidated, the proportion due in tax is automatically deducted and the counterparty to the contract will only be paid the net amount.Validation RulesStandard amount format which is calculated and inserted by the system. */ 
+ TOT_INT_TAX : mml:string 
+ @i18n:Label (en="Total Interest Tax") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=75.0, t24Name=TOT.INT.TAX) 
+ 
+ /* Identifies the dealer desk relating to the transaction.Validation Rules2 alphanumeric characters in the range A-Z, a-z, plus 0-9 Mandatdory field. Default taken from user profile (Field 41), Input Optional.Must be an existing code on the DEALER.DESK table. */ 
+ DEALER_DESK -> ST_Config:DEALER_DESK required 
+ @i18n:Label (en="Dealer Desk") 
+ @i18n:Tooltip (en="Specifies the Dealer Desk handling the transaction") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=76.0, t24Name=DEALER.DESK) 
+ 
+ /* This element identifies whether or not the deal was input by first level.On first level input, the system updates this element with the value 'T' and this identifies that the contract has been input through first level.Validation Rules1 alphabetic character. (No input field). */ 
+ ORIGINAL_FUNCTION : mml:string 
+ @i18n:Label (en="Original Function") 
+ @i18n:Tooltip (en="if or not the deal was input by first level") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=1, sysNumber=77.0, t24Name=ORIGINAL.FUNCTION) 
+ 
+ COMM_RATE_FLAG : mml:string 
+ @i18n:Label (en="Commission Rate Flag") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=78.0, t24Name=COMM.RATE.FLAG) 
+ 
+ COMM_AMT_FLAG : mml:string 
+ @i18n:Label (en="Commission Amount Flag") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=79.0, t24Name=COMM.AMT.FLAG) 
+ 
+ /* Identifies the customer portfolio number to which this MM deal will be associated with. This will be used for the portfolio valuation for that CPARTY. No input will result in this deal to be excluded from the portfolio valuation.Validation RulesUp to 3 characters numeric. (Optional input ) */ 
+ PORTFOLIO_NUMBER : mml:string 
+ @i18n:Label (en="Portfolio Number") 
+ @i18n:Tooltip (en="Portfolio Number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=80.0, t24Name=PORTFOLIO.NUMBER) 
+ 
+ BK_TO_BK_INFO -> byValue MM_Contract:MM_MONEY_MARKET__BK_TO_BK_INFO * 
+ 
+ /* Identifies the currency in which interest is to be paid/accrued.If no input is made to this field then it will default to the value in field 2 CURRENCY.Validation Rules3 type SSS (uppercase alpha) characters or       1-3 numeric character currency code. (Optional input. For default value see Details.)Input must exist on the CURRENCY table.Input must be the same as field 2 CURRENCY if the deal is either a FID.DEPOSIT or a FID.PLACEMENT.Input must be the same as field 2 CURRENCY if field 70 CAPITALISATION is set to 'Y'.Input must be defined as an equivalent currency to the currency in field 2 CURRENCY on the CURRENCY table and vice-versa. */ 
+ INT_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @i18n:Label (en="Interest Currency") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=82.0, t24Name=INT.CCY) 
+ 
+ /* Identifies which Currency Market is accessed for the interest payments/accruals for this transaction.If no input is made to this field then it will default to the value in field 43 CURRENCY.MARKET.Validation Rules1 numeric digit Currency Market code. (Optional input. For default value see Details.)Input must be a valid code on the CURRENCY.MARKET table.Input must be the same as field 43 CURRENCY.MARKET if the two currencies in field 2 CURRENCY and field 82 INT.CCY are the same. */ 
+ INT_CCY_MKT -> FIN_CurrencyConfig:CURRENCY_MARKET 
+ @i18n:Label (en="Interest Currency Market") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=1, sysNumber=83.0, t24Name=INT.CCY.MKT) 
+ 
+ CHG_TAX_CODE -> byValue MM_Contract:MM_MONEY_MARKET__CHG_TAX_CODE * 
+ 
+ /* Specifies the Total Charge amount applicable on the contract.This field contains the Total of all the Charges and the Tax applicable on the charges in the currency of the charge.Validation RulesStandard amount format. System generated. No Input allowed. */ 
+ TOTAL_CHARGE : mml:string 
+ @i18n:Label (en=Charge) 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=87.0, t24Name=TOTAL.CHARGE) 
+ 
+ /* This field contains the total tax amount applicable on the charges.All the tax amounts applicable on the charges on this contract are totalled and held on this field.Validation RulesStandard amount format. System generated. No input allowed. */ 
+ TOTAL_TAX_ON_CHG : mml:string 
+ @i18n:Label (en="Total Tax on Charge") 
+ @i18n:Tooltip (en="The total tax amount applicable on the charges") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=88.0, t24Name=TOTAL.TAX.ON.CHG) 
+ 
+ /* The value date of the charges entry is held in this field.The date held on this field is the date on which the charges are given value. This date is normally the Value date of the contract if it is a new contract or the date on which additional charges are entered, if the contract is a live one and more charges are being added to it.Validation RulesStandard date format. System generated. No Input allowed. */ 
+ CHG_VALUE_DATE : mml:string 
+ @i18n:Label (en="Charge Start Date") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=89.0, t24Name=CHG.VALUE.DATE) 
+ 
+ /* Flags this contract to be rolled automatically on its Maturity Date.Inputting a 'Y' in this field will cause this contract to be rolled over automatically. The contract will be Rolled over on either the Maturity date or the the number of Days Delivery for the Currency (as defined in the CURRENCY file) prior to the Maturity Date.The contract will roll indefinitely unless the rollover details are cleared to allow the contract to mature normally. Or if a date is entered in field FINAL.MATURITY which controls the last rollover period.See also the associated fields:AUTO.CAPITALISE       AUTO.ROLL.TERM       ROLLOVER.INT.RATE       FINAL.MATURITYValidation RulesOnly the values 'Y' or 'N' can be input in this field.Not allowed for Call/Notice contracts. */ 
+ AUTO_ROLLOVER : MM_Contract:MM_MONEY_MARKET__AUTO_ROLLOVER 
+ @i18n:Label (en="Auto Rollover?") 
+ @i18n:Tooltip (en="If contract to be rolled over automatically") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=90.0, t24Name=AUTO.ROLLOVER) 
+ 
+ /* Flags the contract to Capitalise the interest every time it is rolled.If set to 'Y' the interest will be capitalised (added to the Principal) when the contract is rolled automatically.Validation RulesOnly the values 'Y' or 'N' are allowed in this field.AUTO.ROLLOVER must be set to 'Y' for this field to accept a value. */ 
+ AUTO_CAPITALISE : MM_Contract:MM_MONEY_MARKET__AUTO_CAPITALISE 
+ @i18n:Label (en="Auto Capitalise?") 
+ @i18n:Tooltip (en="Capitalise the interest every time it is rolled") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=91.0, t24Name=AUTO.CAPITALISE) 
+ 
+ /* The period for which the contract will be rolled for is defined in this field.The Term can be expressed as a Number of Days, Weeks or Months. Validation is the same as for Maturity Date in that the date returned will be a working day.Input in this field has to be in the format nnD, nnM or nnW where:nn is any Number D  signifies Days (working days) M  signifies Months W  signifies Weeks.Validation RulesMandatory input if AUTO.ROLLOVER is 'Y' otherwise no inpu allowed. */ 
+ AUTO_ROLL_TERM : mml:string 
+ @i18n:Label (en="Auto Rollover Term") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=92.0, t24Name=AUTO.ROLL.TERM) 
+ 
+ /* The new Interest Rate when the Contract is Rolled over is specified here.The default New Interest Rate, if nothing is defined in this field, is the Interest Rate on the existing Contract.A rate can be entered in this field in which case the new Interest Rate on the Rolled Contract will be set to the rate in this field.Input can also be made in the format 'Pnn',  'PnnB', 'PnnO' or 'PnnS' where:P - signifies that the Periodic Interest Table has to accessed to get the new Interest rate on the Rolled Contract for the New Maturity Date.nn - Signifies the Sequence Number on the Periodic Interest Table.B - Signifies that the 'Bid' Rate must be used from the Periodic Interest table.O - Signifies that the 'Offer' Rate must be used from the Periodic Interest Table.It is to be noted that if the Input is in the format Pnn only (with 'B' or 'O' at the end), the Bid Rate will be taken for Deposit Contracts and the Offer rate will be taken for Loan contractsS - Signifies that the INT.SPREAD.1 value will be applied to the Periodic interest rate for fixed rate contracts.If a local subroutine is defined in the relevant Periodic Interest record then it will be called when the rollover details are setup for type P rates.The routine is passed the derived Periodic interest rate and the INT.SPREAD.1 value from the contract. This routine can be used to  derive spreads  from locally developed tables and to determine a new rate and/or spread.The new Rate and spread are then passed back to the system. If type S is defined then the returned spread will be applied to the returned rate by the system. The other types require that the local routine applies the spread to the rate.The NEW.INTEREST.RATE and NEW.INTERST.SPREAD fields will be updated by the returned values.Validation RulesOptional Input.  Input in this field can be in one of the following formats:  nn.nn - Standard Rate type field.  Pnn    or PnnB   or PnnO   or PnnS  Use the Periodic Interest  Table to get the new Interest rate. See DETAIL for more details. */ 
+ ROLLOVER_INT_RATE : mml:string 
+ @i18n:Label (en="Rollver Interest Rate") 
+ @i18n:Tooltip (en="New Interest Rate when the Contract is Rolled") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=93.0, t24Name=ROLLOVER.INT.RATE) 
+ 
+ /* Used to store the Contract ID of any Contract that is LINKED to this Money Market Contract.Validation RulesNo Validation is currently done on this field. */ 
+ LINKED_CONTRACT : mml:string 
+ @i18n:Label (en="Linked Contract") 
+ @i18n:Tooltip (en="Contract ID of a Contract, LINKED to this MM Deal") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=94.0, t24Name=LINKED.CONTRACT) 
+ 
+ /* Enables transactions to be linked together for reporting purposes.Validation Rules1 to 12 alpha-numeric characters. (Optional Input) */ 
+ LINK_REFERENCE : mml:string 
+ @i18n:Label (en="Link Reference") 
+ @i18n:Tooltip (en="Transaction link reference of the contract") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=95.0, t24Name=LINK.REFERENCE) 
+ 
+ /* This field identifies the manner in which overdue payments are handled. The default for all contracts is AUTOMATIC.There are three options available:           AUTOMATIC           SEMI-AUTOMATIC           MANUALAUTOMATIC will liquidate across the settlement accounts on the contract.MANUAL will create a PD contract instead.SEMI-AUTOMATIC will only raise a PD contract if insufficient funds exist on the settlement account. For further details see the helptext in PD.PARAMETER where these settings are controlled from.Validation RulesIf the PD product is not defined for the current company then the only allowed setting is AUTOMATIC. */ 
+ LIQUIDATION_MODE : MM_Contract:MM_MONEY_MARKET__LIQUIDATION_MODE 
+ @i18n:Label (en="Liquidation Mode") 
+ @i18n:Tooltip (en="Indicates how overdue payments are handled.") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=96.0, t24Name=LIQUIDATION.MODE) 
+ 
+ /* If the contract is overdue, then this field identifies the status of the underlying PAYMENT.DUE contract.Validation RulesNo input allowed. */ 
+ OVERDUE_STATUS : mml:string 
+ @i18n:Label (en="Overdue Status") 
+ @i18n:Tooltip (en="Overdue or aging status of the contract") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=3, sysNumber=97.0, t24Name=OVERDUE.STATUS) 
+ 
+ /* Contains the start date of the current interest period. This field will contain the VALUE.DATE or the last interest settlement This date may be used as the start date for the Initial Term calculation in CONSOLIDATE.COND as an alternative to the VALUE.DATE.Validation RulesStandard Date field No input allowed */ 
+ INT_PERIOD_START : mml:string 
+ @i18n:Label (en="Interest Start") 
+ @i18n:Tooltip (en="Start date of the current interest period") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=98.0, t24Name=INT.PERIOD.START) 
+ 
+ /* Contains the end date of the current interest period.For FIXED term contracts this will be either - The Maturity Date - The Rollover Date if the contract is rolled over with interest settlement (ROLLOVER.MARKER = 2)In the case of maturity date extension (ROLLOVER.MARKER=1), this will holdthe original maturity date till the time it is crossed, and the new maturity date thereafter.For Call / Notice Contracts this will contain the INT.DUE.DATE.This date may be used as an alternative to MATURITY.DATE if required for the initial term calculation in the CONSOLIDATE.COND application.Validation RulesStandard Date field Noinput allowed */ 
+ INT_PERIOD_END : mml:string 
+ @i18n:Label (en="Interest End") 
+ @i18n:Tooltip (en="End date of the current interest period") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=99.0, t24Name=INT.PERIOD.END) 
+ 
+ /* Contains the interest amount for the next interest period for rolled over FIXED term contracts with interest settlement (Rollover Marker = 2), or the interest amount for the current period when the maturity date of a Fixed term contract is extended (ROLLOVEr.MARKER = 1).The interest amount is calculated as follows:ROLLOVER.MARKER = 2 (Interest Settled)    Interest = NEXT.PRIN.AMOUNT * Next period * NEW.RATE               -----------------------------------------                           100 * Day basis days in yearROLLOVER.MARKER = 1 (Maturity Date Extension)    Interest = NEXT.PRIN.AMOUNT * Next Period * NEW.RATE               -----------------------------------------                           100 * Day Basis in Year    Plus TOT.INTEREST.AMTWhere:    Next Period = number of days between ROLLOVER.DATE and MATURITY.DATE    NEW.RATE = NEW.INTEREST.RATE field (INT.RATE.TYPE = 1)               Interest Rate from BASIC.INTEREST for the ROLLOVER.DATE as               as defined in INTEREST.KEY PLUS the NEW.INTRST.SPREAD valueValidation RulesStandard Amount Field No input allowed */ 
+ NEXT_INT_AMOUNT : mml:string 
+ @i18n:Label (en="Next Interest Amount") 
+ @i18n:Tooltip (en="Interest for next period for rolled over contracts") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=100.0, t24Name=NEXT.INT.AMOUNT) 
+ 
+ /* Contains the amount of tax payable based on the NEXT.INT.AMOUNT. Tax will be calculated if TAX.INTEREST.KEY is definedValidation RulesStandard Amount Field Noinput Allowed */ 
+ NEXT_INT_TAX_AMT : mml:string 
+ @i18n:Label (en="Next Interest Tax Amount") 
+ @i18n:Tooltip (en="Amount of tax payable based on NEXT.INT.AMOUNT") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=101.0, t24Name=NEXT.INT.TAX.AMT) 
+ 
+ /* Contains the new Principal Amount when a Fixed term contract is rolled over. The amount is calculated as follows:ROLLOVER.MARKER = 1 (Maturity Date extension) Next Prin Amt = PRINCIPALROLLOVER.MARKER = 2, CAPITALISATION = Y Next Prin Amt = PRINCIPAL + TOT.INTEREST.AMT - TOT.INT.TAX (Note TOT.INT.TAX is only present for DEPOSITS)ROLLOVER.MARKER = 2, CAPITALISATION = N Next Prin Amt = PRINCIPALValidation RulesStandard amount field No Input Allowed */ 
+ NEXT_PRIN_AMOUNT : mml:string 
+ @i18n:Label (en="Next Principal Amount") 
+ @i18n:Tooltip (en="New Principal Amount while roll over of a contract") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=102.0, t24Name=NEXT.PRIN.AMOUNT) 
+ 
+ /* Contains the original Start date of the contract.This will usually be the contract VALUE.DATE, however this field may be defined as an earlier date. This is likely to be the case if a contract is 'taken over' from another system, when the original start date may be required.This date can be used to determine the Initial Term of the contract when setting up CONSOLIDATE.COND as an alternative to VALUE.DATE if required.Validation RulesStandard Date Format.Date must be less than or equal to the VALUE.DATE if entered. */ 
+ ORIG_START_DATE : mml:string 
+ @i18n:Label (en="Original Start Date") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=103.0, t24Name=ORIG.START.DATE) 
+ 
+ /* Contains the original Maturity Date when the contract was first entered.Usually this will be the MATURITY.DATE, but may be a different value if required.This date may be used to define the intial term as an alternative to MATURITY.DATE in the application CONSOLIDATE.COND.Validation RulesStandard Date Field */ 
+ ORIG_MAT_DATE : MM_Contract:MM_MONEY_MARKET__ORIG_MAT_DATE 
+ @i18n:Label (en="Original Maturity Date") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=104.0, t24Name=ORIG.MAT.DATE) 
+ 
+ /* Contains the maturity date held in the contract prior to a Rollover instruction being entered. This date is held for validation purposes and is used to ensure that the Maturity Date is less than or equal to this date if a rollover instruction is removed from the contract.Validation RulesStandard Date Format No input allowed */ 
+ PREV_MAT_DATE : mml:string 
+ @i18n:Label (en="Previous Maturity Date") 
+ @i18n:Tooltip (en="Maturity date of the contract prior to Rollover") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=105.0, t24Name=PREV.MAT.DATE) 
+ 
+ /* This field is used within the Management Information     module to define the Department which funded this Contract.  It is used     in the generation of cost of funds  entries when either the     MIS.INTEREST.KEY or MIS.INTEREST.RATE field is used.Validation RulesMust be a  key to a valid record on the DEPT.ACCT.OFFICER file.Mandatory.If not defined, value would be defaulted  from the value of        the field  DEFLT.FUND.DEPT  associated with the appropriate       COMPANY field  in MI.PARAMETER. */ 
+ MI_FUNDING_DEPT -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="MI Funding Department") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=106.0, t24Name=MI.FUNDING.DEPT) 
+ 
+ TAX_INTEREST_TYPE -> byValue MM_Contract:MM_MONEY_MARKET__TAX_INTEREST_TYPE * 
+ 
+ /* Allows particular groups of contracts to be identified.For example all fixed term deposits over a certain equivalent value in a particular currency.The conditions which determine a particular CONTRACT.GRP code are defined in the MM.MONEY.MARKET record of the APPL.GEN.CONDITION application.Each time the contract is changed the conditions will be re-evaluated which can result in a new CONTRACT.GRP code.This code can be defined in the TAX.TYPE.CONDITION application to refer to a particular tax code, in conjuction with the relevant customer group conditon.If the CONTRACT.GRP value changes then this can result in a new TAX.INTEREST.KEY code being allocated depending on the set up of the relevant TAX.TYPE.CONDITION record.Validation Rules5 character alphanumeric. */ 
+ CONTRACT_GRP : mml:string 
+ @i18n:Label (en="Contract Group") 
+ @i18n:Tooltip (en="Contract group based on a set of conditions") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=108.0, t24Name=CONTRACT.GRP) 
+ 
+ /* The field will be used to indicate which Periodic Interest record to use to return the derived interest rate for a contract.Enter a valid Sequence Number of the Periodic Interest record to use.Eg. 01USD19980812 - the 01 indicates the Sequence Number part of the Periodic Interest key.The rate returned will be defaulted into the INTEREST.RATE field if the INTEREST.RATE field is NULL or if the ROLLOVER.DATE field is set and the NEW.INTEREST.RATE field is NULL then the returned value will be defaulted into the NEW.INTEREST.RATE field.The enrichment will contain the derived rate, end date and the amount used to derive the rate.To obtain the correct rate it is important to make sure that the relevant dates and amounts are input before the PI.INT.KEY is input. This is particularly relevant when contracts are merged and when auto rollover is set with a final maturity date.To refresh the INTEREST.RATE or the NEW.INTEREST.RATE, first blank out the relevant rate then key in the PI.INT.KEY.Validation RulesOnly a valid Sequence Nuber can be entered.Input only allowed when INT.RATE.TYPE equals 1. */ 
+ PI_INT_KEY : mml:string 
+ @i18n:Label (en="Periodic Interest Key") 
+ @i18n:Tooltip (en="Indicates the periodic interest key number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=109.0, t24Name=PI.INT.KEY) 
+ 
+ MERGE_CONTRACT -> byValue MM_Contract:MM_MONEY_MARKET__MERGE_CONTRACT * 
+ 
+ /* Used in association with AUTO.ROLLOVER this field can be used to define a final maturity date for a fixed term contract subject to Auto Rollover.The final maturity date can only be greater than the maturity date if the contract is set for auto rollover.When the final maturity date is reached the contract will stop rolling over automatically and will mature.This allows, for example, a fixed term deposit to pay interest every month for 12 months and then mature.The contract would be set up initially as follows.MATURITY DATE       1M (1 month) AUTO.ROLLOVER       Y AUTO.ROLL.TERM      1M (1 month) FINAL.MATURITY      12M (12 months).The rollover advice will be inhibited for the monthly payments, i.e when the maturity date is less than the final maturity date.The final maturity date can be extended at any time if for example the contract needs to be rolled over for a further 12 months.Validation RulesType DD (standard date format) */ 
+ FINAL_MATURITY : MM_Contract:MM_MONEY_MARKET__FINAL_MATURITY 
+ @i18n:Label (en="Final Maturity Date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=112.0, t24Name=FINAL.MATURITY) 
+ 
+ /* The field is the Fair Value rate key used to provide the fair user rate on LD and MM contracts.Entering a value here provides a default for the field of same name on the LD and MM applications. Where the CATEGORY used on the MM & LD contract matches the id the value here will be defaulted. It can be over ridden at the contract level.This field is a link to the PERIODIC.INTEREST table and the record to use depends on the currency of the contract so if a value of 01 is entered here then a USD contract will look for a record such as 01USD20010731.Validation Rules1-4 numeric ID code although at present use of 2 digits is required to utilise PERIODIC.INTEREST records. */ 
+ FV_RATE_KEY : mml:string 
+ @i18n:Label (en="Fair Value Rate Key") 
+ @i18n:Tooltip (en="Provides the fair user rate on LD and MM contracts") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=113.0, t24Name=FV.RATE.KEY) 
+ 
+ /* The field is the Fair Value margin rate key used to provide the fair margin rate on LD and MM contracts.Entering a value here provides a default for the field of same name on the LD and MM applications. Where the CATEGORY used on the MM & LD contract matches the id the value here will be defaulted. It can be overridden at the contract level.This field is a link to the PERIODIC.INTEREST table and the record to use depends on the currency of the contract so if a value of 01 is entered here then a USD contract will look for a record such as 01USD20010731.Validation Rules1-4 numeric ID code although at present use of 2 digits is required to utilise PERIODIC.INTEREST records. */ 
+ FV_MARGIN_KEY : mml:string 
+ @i18n:Label (en="Fair Value Margin Key") 
+ @i18n:Tooltip (en="The fair margin rate on LD and MM contracts") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=114.0, t24Name=FV.MARGIN.KEY) 
+ 
+ /* This field is the MATURE.AT.SOD, which stands for mature at the Start of Day.Validation RulesWhen a category code is entered in the MONEY.MARKET contract, the value of field MATURE.MM.AT.SOD on LMM.ADVICES parameter file is taken and defaulted into this field MATURE.AT.SOD on the MONEY.MARKET contract. This value can manually be overridden.3 alphanumeric characters YES or NO. Mandatory input.Must be YES or NO.Defaulting occurs on an entry of a valid category code that may or may not have a corresponding LMM.ADVICES parameter record set-up. If a record is present with a value in MATURE.MM.AT.SOD, then thats taken, if this record is not present at all, then the default is NO. */ 
+ MATURE_AT_SOD : MM_Contract:MM_MONEY_MARKET__MATURE_AT_SOD 
+ @i18n:Label (en="Mature at Start Of Day") 
+ @i18n:Tooltip (en="Whether to mature at Start Of Day or not") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=115.0, t24Name=MATURE.AT.SOD) 
+ 
+ /* This is an amount field that specifies the maximum amount of MONEY.MARKET that can be used for an item(s) of COLLATERAL. If a principal decrease is going to take the MONEY.MARKET balance below this value then raise an override.Validation RulesUp to 19 AMT type characters (standard amount format).Optional input. */ 
+ MAX_LEGAL_BAL : mml:string 
+ @i18n:Label (en="Maximum Legal Balance") 
+ @i18n:Tooltip (en="Maximum amount of MM can be used for a COLLATERAL") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=116.0, t24Name=MAX.LEGAL.BAL) 
+ 
+ GR_INT_TAX_LCY -> byValue MM_Contract:MM_MONEY_MARKET__GR_INT_TAX_LCY * 
+ 
+ INT_TAX_LCY -> byValue MM_Contract:MM_MONEY_MARKET__INT_TAX_LCY * 
+ 
+ GR_INT_TAX_FCY -> byValue MM_Contract:MM_MONEY_MARKET__GR_INT_TAX_FCY * 
+ 
+ INT_TAX_FCY -> byValue MM_Contract:MM_MONEY_MARKET__INT_TAX_FCY * 
+ 
+ /* This field is automatically updated by system and applicable only for MM contracts created through REPO with REPO TYPE having EFFECTIVE RATE set to YES.This rate is passed from REPO to MM and is used for non linear accruals.If this field is populated with value, then system raises accruals in an exponential methodology.Input not allowed for normal MM contracts, system triggers a validation error if any input is specified for normal contracts. */ 
+ EFF_INT_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=121.0, t24Name=EFF.INT.RATE) 
+ 
+ /* Used to determine if the contract should be processed online.This field is for internal use. If the user inputs a deal with aMATURITY.DATEMATURITY.DATEMATURED.ONLINEIf this field is set to YES, the deal is processed online within day.Note that appropriate phantom must be running. To start the phantom, use the applicationEB.PHANTOMMM.ONLINE.MATURITYThe online process raises final accruals, interest payments and accounting entries. This ensures that funds from maturing deals to be credited/debited from customer or nostro accounts are available online.At the end of day movements to the Central Reporting Base (CRBValidation RulesThis is a NOINPUT fieldThe value can be YES or null */ 
+ MATURED_ONLINE : mml:string 
+ @i18n:Label (en="Matured Online") 
+ @i18n:Tooltip (en="If the contract should be processed online") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=122.0, t24Name=MATURED.ONLINE) 
+ 
+ MIS_COF_TYPE -> byValue MM_Contract:MM_MONEY_MARKET__MIS_COF_TYPE * 
+ 
+ FUND_ID : mml:string 
+ @i18n:Label (en="Fund Id") 
+ @i18n:Tooltip (en="Indicates Id of the fund to be subscribed.") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=126.0, t24Name=FUND.ID) 
+ 
+ /* Used to determine if the interest rate can be negative.Validation RulesThe value can be 'YES', 'NO' or Null.This field will not be inputtable field after first authorisation.'YES' is not permitted if INTEREST.BASIS set to 'S', CAPITALISATION set to 'Y' and contract with a value in TAX.INTEREST.KEY field i.e. contracts with interest tax. */ 
+ NEGATIVE_RATE : MM_Contract:MM_MONEY_MARKET__NEGATIVE_RATE 
+ @i18n:Label (en="Negative Interest?") 
+ @i18n:Tooltip (en="If the interest rate can be negative or not") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=127.0, t24Name=NEGATIVE.RATE) 
+ 
+ /* This field will control if Swift messages MT202 & MT210 are sent when the MM.MONEY.MARKET application is authorised. If set to YES then the Swift messages will be generated & if set to NO then Swift messages will be suppressed.Validation Rules */ 
+ SEND_PAYMENT : MM_Contract:MM_MONEY_MARKET__SEND_PAYMENT 
+ @i18n:Label (en="Send SWIFT message?") 
+ @i18n:Tooltip (en="If MT202 & 210 are sent when the MM is authorised") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=128.0, t24Name=SEND.PAYMENT) 
+ 
+ /* Identifies the interim interest payment date and associated frequency code for fixed maturity contracts.The date will be changed automatically by the period indicated by the frequency code whenever the date equates to the end-of-day process date.Note:This field is not allowed when the Captalisation or Auto.Captalise is set to 'Y'.This field is also not allowed for 'S' interest basis method.For special type of accruals Install.Conds field MM.SPEC.INT.METHOD need to be setup.(Refer this field helptext).The following are examples of input to this field :a)   31 MAR 2005 M0131 - represents the date from which the frequency is initiated, where:M  = month01 = at one month intervals31 = the last day of the month.b)   31 MAR 2005 M0331 - represents a quarterly interest due date frequency payable at quarter end.Thus, in example a), interest will be liquidated on 31 MAR 2005 and then on 30 APRIL 2005 and so on.  In example b), interest will be liquidated on 31 MAR 2005 and then on 30 JUNE 2005 and so on.__________________________________________________(1) Standard date format plus 5 type AA (alphanumeric, first character must be alpha) characters.(Optional field).(2) Input in this field is not allowed for the CALL/Notice contracts.(3) Where interest is to be paid via a nostro account, the frequency part of this field must be greater than the days delivery of the payment currency.For example, if DEM payments are sent two days prior to their value date (DAYS.DELIVERY field in CURRENCY record DEM has a value of 2), then a DAILY frequency will not be allowed for a DEM deposit that has a nostro account as the interest liquidation account.  For deposits, this is to  ensure that payments are not made for future interest periods that have yet to begin.For Loans, this is to ensure that 'advice to receives' are not sent for future interest periods that have yet to begin. */ 
+ INT_SCHEDULE : mml:string 
+ @i18n:Label (en="Interest Schedule Date") 
+ @i18n:Tooltip (en="Interest due date and associated frequency code") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=129.0, t24Name=INT.SCHEDULE) 
+ 
+ /* Contains the interest amount for the next interest period for the rolled over FIXED term contracts, if the field INT.SCHEDULE date falls before the Rollover.Date.The interest amount is calculated as follows:Interest = (PRINCIPAL.AMOUNT * Next period * RATE) / (100 * Day basis days in year)Where:Next Period = number of days between INT.SCHEDULE and ROLLOVER.DATERATE = INTEREST.RATE field (INT.RATE.TYPE = 1)Interest Rate from BASIC.INTEREST for the ROLLOVER.DATE asdefined in INTEREST.KEY plus the INTRST.SPREAD.1 value__________________________________________________(1) Standard Amount FieldNo input.(2) Used in conjunction with the INT.SCHEDULE field.(3) Updated only when the INT.SCHEDULE date falls before the ROLLOVER.DATE. */ 
+ NEXT_INT_SCH_AMT : mml:string 
+ @i18n:Label (en="Next Interest Schedule Amount") 
+ @i18n:Tooltip (en="Interest amount for next period for rolled overs") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=130.0, t24Name=NEXT.INT.SCH.AMT) 
+ 
+ /* This field will hold contract level rounding rule for interest, commission, charge and fee calculations.Validation RulesShould be a valid EB.ROUNDING.RULE id.No change permitted after first authorizationDefault value is taken from the field ROUNDING.RULE in LMM.INSTALL.CONDSFor detailed options on different rounding types help text on EB.ROUNDING.RULE file can be referred. */ 
+ ROUNDING_RULE -> EB_SystemTables:EB_ROUNDING_RULE 
+ @i18n:Label (en="Rounding Rule") 
+ @i18n:Tooltip (en="Indicates the rounding rule") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=20, sysNumber=131.0, t24Name=ROUNDING.RULE) 
+ 
+ SPEC_INT_METHOD : MM_Contract:MM_MONEY_MARKET__SPEC_INT_METHOD 
+ @i18n:Label (en="Special Interest Method") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=132.0, t24Name=SPEC.INT.METHOD) 
+ 
+ IAS_CLASSIFICATION -> IA_Config:IAS_CLASSIFICATION 
+ @i18n:Label (en="IFRS Classification") 
+ @i18n:Tooltip (en="Indicates the IFRS category") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=133.0, t24Name=IAS.CLASSIFICATION) 
+ 
+ SUB_TYPE -> IA_Config:IFRS_SUB_TYPE 
+ @i18n:Label (en="Sub Type") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=134.0, t24Name=SUB.TYPE) 
+ 
+ MARKET_RATE : mml:string 
+ @i18n:Label (en="Market Rate") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=135.0, t24Name=MARKET.RATE) 
+ 
+ MARKET_MARGIN : mml:string 
+ @i18n:Label (en="Market Margin") 
+ @i18n:Tooltip (en="Indicates the margin on the market rate") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=136.0, t24Name=MARKET.MARGIN) 
+ 
+ /* Frequency field which is used to determine the number of compounding periods per year.The compounding periods can be expressed as daily, weeks or Months.Validation Rules:------------------------------------------------------------------------------(1) 5 type A (alphanumeric) character. Valid input is DAILY, WEEKn, Mnn, Nnn, or blank.(2) Optional field.(3) Can be defaulted from the LMM.ADVICES file as per the category code to which the deal will be accounted. */ 
+ COMPOUND_TYPE : mml:string 
+ @i18n:Label (en=Compounding) 
+ @i18n:Tooltip (en="It supports both debit and credit interest") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=5, sysNumber=137.0, t24Name=COMPOUND.TYPE) 
+ 
+ /* Field which is used to determine the method of compounding.Validation Rules:------------------------------------------------------------------------------(1) 8 type A (alphanumeric) character. Valid input is YIELD, or blank.(2) Can be allowed to input, if there is a value in COMPOUND.TYPE field.(3) YIELD can be set, only when the field COMPOUND.TYPE set to DAILY.(4) Optional field.(5) Can be defaulted from the LMM.ADVICES file as per the category code to which the deal will be accounted. */ 
+ COMPOUND_YLD_MTHD : MM_Contract:MM_MONEY_MARKET__COMPOUND_YLD_MTHD 
+ @t24:i (align=L, inputBehaviour=F, maxLength=8, sysNumber=138.0, t24Name=COMPOUND.YLD.MTHD) 
+ 
+ RESERVED10 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=139.0, t24Name=RESERVED10) 
+ 
+ RESERVED9 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=140.0, t24Name=RESERVED9) 
+ 
+ RESERVED8 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=141.0, t24Name=RESERVED8) 
+ 
+ RESERVED7 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=142.0, t24Name=RESERVED7) 
+ 
+ RESERVED6 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=143.0, t24Name=RESERVED6) 
+ 
+ RESERVED5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=144.0, t24Name=RESERVED5) 
+ 
+ RESERVED4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=145.0, t24Name=RESERVED4) 
+ 
+ RESERVED3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=146.0, t24Name=RESERVED3) 
+ 
+ RESERVED2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=147.0, t24Name=RESERVED2) 
+ 
+ RESERVED1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=148.0, t24Name=RESERVED1) 
+ 
+ STMT_NO -> byValue MM_Contract:MM_MONEY_MARKET__STMT_NO * 
+ 
+ OVERRIDE -> byValue MM_Contract:MM_MONEY_MARKET__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=152.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=153.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue MM_Contract:MM_MONEY_MARKET__INPUTTER * 
+ 
+ DATE_TIME -> byValue MM_Contract:MM_MONEY_MARKET__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=156.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=157.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=158.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=159.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=160.0, t24Name=AUDIT.DATE.TIME) 
+ 
+ CHK_REC_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=149.1, t24Name=CHK.REC.RTN.FLD) 
+ 
+ INP_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=149.2, t24Name=INP.RTN.FLD) 
+ 
+ AUTH_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=149.3, t24Name=AUTH.RTN.FLD) 
+ 
+ BEF_AUT_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=149.4, t24Name=BEF.AUT.RTN.FLD) 
+ 
+ VAL_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=149.5, t24Name=VAL.RTN.FLD) 
+ 
+ SY_Local_field : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=149.6, t24Name=SY.Local.field) 
+ 
+ SY_UNIT_field : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=52, sysNumber=149.7, t24Name=SY.UNIT.field) 
+ 
+ Exclude_Val : MM_Contract:MM_MONEY_MARKET__Exclude_Val 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=149.8, t24Name=Exclude.Val) 
+ } 
+ MM_MONEY_MARKET__OUR_REMARKS 
+ { 
+ /* This field is for in-house User information purposes only and will only contain relevant comments about the contract or customer.  Such remarks will not be printed on any external document.These remarks are purely for internal use and WILL NOT be the subject of any output despatched by the bank, either as telegraphic or printed matter.The main purpose of the field is to maintain a record of special instructions or restrictions which apply to this contract such as the name or telephone extension number of the person dealing with the subject, etc...Validation RulesUp to 35  Characters for free format text - Type A. Multivalue field (maximum of 15 lines) Optional input; Default value: None */ 
+ OUR_REMARKS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=21.0, t24Name=OUR.REMARKS) 
+ } 
+ MM_MONEY_MARKET__PRIN_ADDRESS 
+ { 
+ /* Identifies the full name and address of a Beneficiary Bank, in respect of the Principal Amount, where no Agent details are maintained.This field provides flexibility during input of transactions where external movement of funds are involved.  When you do not currently maintain a Customer reference for a third or fourth party bank, you can use this field to enter the full details of the name and address of the Beneficiary Bank directly.However, it is important to note that only one address for the principal, as free format, has been included in this module.  This means that in the case of a four party transfer at least one of the two customer's banks involved in the transfer of funds must have a Customer reference and the Agency details defined.Once the contract has been authorised, any change to this field will only have an effect on future principal Disbursements. for external delivery of Principal ----------             ----------- |  GLOBUS  |           |   GLOBUS  | CUSTOMER OF |          |==========>|           | NOSTRO ACCOUNT |  BANK    |           |   NOSTRO  | e.g. DRAWDOWN |          |           |           | ACCOUNT ----------             ----------- | | ----------- May be PRIN BEN BANK1->|  INTER-   | or PRIN ADDRESS -->|  MEDIARY  | OPTIONAL |           | |   BANK    | ----------- | ----------- May be PRIN BEN BANK1->|  ACCOUNT  | MANDATORY IF or PRIN BEN BANK2->|   WITH    | PAYMENT THRU or PRIN ADDRESS -->|           | NOSTRO and no |   BANK    | Agency details -----------  exist. The following summarises the rules concerning the use of the 3 fields PRIN BEN BANK1, PRIN BEN BANK2 and PRIN ADDRESS: (i)  PRIN BEN BANK1 may be an ACCOUNT WITH Bank (i.e. the final destination of the funds) or an INTERMEDIARY Bank which will pass the funds on to a second bank. (ii) PRIN BEN BANK2 may be an ACCOUNT WITH Bank (ie. the final destination of the funds) but may NOT be an INTERMEDIARY bank. (iii)PRIN ADDRESS may be an ACCOUNT WITH Bank (i.e. the final destination of the funds) or it may be an INTERMEDIARY Bank which will pass the funds on to a second bank.  It is only used if no customer ID is available. At contract loading, if the INTERMEDIARY Bank is identified in PRIN BEN BANK1, then the ACCOUNT WITH Bank must be input either directly at PRIN BEN BANK2 or within PRIN ADDRESS in which case the system will automatically apply it to PRIN BEN BANK2. Otherwise, when the INTERMEDIARY Bank is identified within PRIN ADDRESS - (and is thus automatically applied to PRIN BEN BANK 1) then the ACCOUNT WITH Bank must be identified in PRIN BEN BANK2.Validation Rules1 to 4 lines of 35 Alpha-numeric characters. - Type AAA. Multi-value field. (Optional input; Default value: None).Input will not be allowed in this field when PRIN BEN BANK 1 (field 24) and PRIN BEN BANK 2 (field 25) have both been entered.For Placements, the DRAWDOWN ACCOUNT must be a valid Nostro account.For Deposits, the PRIN LIQ ACCT must be a valid Nostro account. */ 
+ PRIN_ADDRESS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=26.0, t24Name=PRIN.ADDRESS) 
+ } 
+ MM_MONEY_MARKET__BENEF_PRIN_ACCT 
+ { 
+ /* Contains the Account details (number or name) of the Beneficiary to be credited with the Principal Amount.This field concerns third party transfers where the customer is requesting an external delivery of funds.  In the case where the customer provides such information, it may then be entered in this field.Any amendment to this field after contract authorisation will only have an effect on future Principal Disbursements.Validation Rules1 to 35 Characters - Type SSS. Multi-value field (Maximum of four lines). (Optional input; Default value = Counterpart (i.e. CUSTOMER ID)  himself.For placements, input in this field will only be allowed when the DRAWDOWN ACCOUNT is a Nostro account.For Deposits, input in this field will only be allowed when the PRIN LIQ ACCT is a Nostro account. */ 
+ BENEF_PRIN_ACCT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=27.0, t24Name=BENEF.PRIN.ACCT) 
+ } 
+ MM_MONEY_MARKET__INT_ADDRESS 
+ { 
+ /* Identifies the full name and address of a Beneficiary Bank, in respect of the Interest Amount, when the disposal of the interest is different from the disposal of the principal and where no Agent details are maintained.This field provides flexibility during input of transactions where external movements of funds are involved.  When you do not currently maintain a Customer reference for a third or fourth party bank, you can use this field to enter the full details of the name and address of the Beneficiary Bank directly.It is important to note that only one address for the Interest, as free format, has been included in the module.  This means that, in the case of a four party transfer, at least one of the two customer's banks involved in the transfer of funds must have a Customer reference and the AGENCY details defined.Once the contract has been authorised, any change to this field will only have an effect on future interest Disbursements.Default value will be the same as the PRIN ADDRESS when:(i)  The INT LIQ ACCT is the same as the PRIN LIQ                 ACCTAND(ii) The INT BEN BANK1 is the same as the PRIN BEN                 BANK1OR(iii)The INT BEN BANK2 is the same as the PRIN BEN                 BANK 2for external delivery of Interest ----------              ---------- |  GLOBUS  |            |  GLOBUS  | CUSTOMER OF |          |==========> |  NOSTRO  | NOSTRO ACCOUNT |  BANK    |            |          | e.g. DRAWDOWN |          |            |          | ACCOUNT ----------              ---------- | | | ----------- May be INT BEN BANK1 ->|  INTER-   | or INT ADDRESS --->|  MEDIARY  |  OPTIONAL |           | |   BANK    | ----------- | | | ----------- May be INT BEN BANK1 ->|  ACCOUNT  | MANDATORY IF or INT BEN BANK2 ->|   WITH    | PAYMENT THRU or INT ADDRESS --->|           | NOSTRO and no |   BANK    | Agency details -----------  exist. The following summarises the rules concerning the use of the 3 fields INT BEN BANK1, INT BEN BANK2 and INT ADDRESS: (i)  INT BEN BANK1 may be an ACCOUNT WITH Bank (i.e. the final destination of the funds) or an INTERMEDIARY Bank which will pass the funds on to a second bank. (ii) INT BEN BANK2 may be an ACCOUNT WITH Bank (ie. the final destination of the funds) but may NOT be an INTERMEDIARY bank. (iii)INT ADDRESS may be an ACCOUNT WITH Bank (i.e. the final destination of the funds) or it may be an INTERMEDIARY Bank which will pass the funds on to a second bank.  It is only used if no customer ID is available. At contract loading, if the INTERMEDIARY Bank is identified in INT BEN BANK1, then the ACCOUNT WITH Bank must be input either directly at INT BEN BANK2 or within INT ADDRESS in which case the system will automatically apply it to INT BEN BANK2. Otherwise, when the INTERMEDIARY Bank is identified within INT ADDRESS - (and is thus automatically applied to INT BEN BANK 1) then the ACCOUNT WITH Bank must be identified in INT BEN BANK2.Validation Rules1 to 4 lines of 35 Alpha-numeric characters. - Type AAA. Multi-value field. (Optional input when INT LIQ ACCT is a Nostro account; for default value see details below ).Input in this field is only allowed for Deposit contract types.Input in this field is only allowed when INT LIQ ACCT is a Nostro.Input in this field will not be allowed if INT BEN BANK1 (Field 29) and INT BEN BANK2 (Field 30) have both been entered. */ 
+ INT_ADDRESS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=31.0, t24Name=INT.ADDRESS) 
+ } 
+ MM_MONEY_MARKET__BEN_INT_ACCT 
+ { 
+ /* Identifies the Account details (number or name) of the Beneficiary to be credited with the Interest Amount (only for a Deposit contract).This field concerns the interest on Deposits for third party transfers where the customer is requesting an external delivery of funds and for which you have received Account Details corresponding to the final Beneficiary account in respect of the interest.Any amendment to this field after contract authorisation will only have an effect on future interest disbusements.Validation Rules1 to 35 Characters - Type SSS. Multi-value field (Maximum of four lines). (Optional input when INT LIQ ACCT is a Nostro account; Default value = counterpart (i.e. CUSTOMER ID) himself.Input in this field will only be allowed for Deposit transaction types when the INT LIQ ACCT is a Nostro account. */ 
+ BEN_INT_ACCT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=32.0, t24Name=BEN.INT.ACCT) 
+ } 
+ MM_MONEY_MARKET__TAX_INTEREST_KEY 
+ { 
+ /* Indentifies the Code from the Tax Table when the Interest on a Deposit transaction is subject to Taxes.Local taxes may be applicable in the case of Deposits as defined within the Money Market Module.  Such taxes will be withheld by the Bank from the total interest amount and only the net amount of interest will be paid to the customer.  For this reason the Payment Function (see later in this documentation) will always show the net amount of interest to be paid.A special Tax Table has been included in the T24 system where the User may define the tax conditions (local and withholding tax) applicable to his country.  This table is described elsewhere in this documentation and provides a better understanding of the tax routine.Any tax applicable to a Deposit will be entered here in the form of a tax key by means of which the system will refer to the tax table where the User will have already set up his range of tax classifications.  All tax codes and conditions for taxes will therefore be defined in the tax table.In the case of interest due on a Deposit transaction taxes will be deducted from the total interest amount on the actual payment date and the customer will thus receive the net amount due.Reference to the Tax Table documentation will provide a more detailed description of the Tax Table facilities.This field can be defaulted if the TAX.INTEREST.TYPE field is used. See the helptext for CONTRACT.GRP and TAX.INTEREST.TYPE for further information.Note:      It is always the TAX rate applicable as of the interest            payment date which will be taken to calculate the Tax            amount.Validation Rules2 Numeric characters. (Optional input)This code must exist on the Tax Table.The system will check that the Tax Code is present on the Tax Table and also that it refers to local taxes (01).  Any valid existing key will be accepted but for key(s) with multiple tax rates, only the first tax rate of the key will be taken into consideration for the tax amount calculation.Input in this field is only allowed for Deposits and Fiduciary Deposits. */ 
+ TAX_INTEREST_KEY : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=33.0, t24Name=TAX.INTEREST.KEY) 
+ } 
+ MM_MONEY_MARKET__CUST_REMARKS 
+ { 
+ /* This is a multi-value field where the User can input free-form narrative which will be used on any output confirmations and advices sent to the customer.These remarks, unlike those held in the field Our Remarks, are for the benefit of the Customer and as such will be output on documents used either by the counterparty or Customer himself.If this field is needed on any advice or confirmation then the delivery mapping and formatting tables should be set up accordingly.Validation Rules1 to four lines with up to 35 characters in each line. */ 
+ CUST_REMARKS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=37.0, t24Name=CUST.REMARKS) 
+ } 
+ MM_MONEY_MARKET__CHARGE_CODE 
+ { 
+ /* Identifies the entry in the either the FT.CHARGE.TYPE or the FT.COMMISSION.TYPE table which holds the Profit and Loss Category Code where the Charges Amount, collected at drawdown, will be credited.Input in this field must relate to an entry on the either the FT.CHARGE.TYPE or the FT.COMMISSION.TYPE table which specified the profit and loss category code or the Internal Account to be credited with the Charge Amount.Within each Money Market transaction, the User can define charges which will be collected from the client directly at drawdown date.  These charges may be such items as Handling Fees, Documentary Tax Stamps, Drawdown Fees, Legal Fees etc...Validation Rules1 to eleven Alphanumeric characters. (Optional input when CHARGE AMOUNT entered; Otherwise not allowed.)The input in this field will be checked against the FT.CHARGE.TYPE and the FT.COMMISSION.TYPE tables.Input in this field will only be allowed when CHARGE AMOUNT (Field 42) is input. */ 
+ CHARGE_CODE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=41.0, t24Name=CHARGE.CODE) 
+ 
+ /* Identifies the flat Amount of charges to be debited to the Customer at the drawdown of the contract or when the Principal is increased.The charges amount will always be defined in the currency of the contract.Once the value date has become effective this field cannot be changed unless the Principal Amount is increased.Validation Rules1 to 14 Characters plus a decimal point (standard amount format) - type AMT. (Mandatory input when CHARGE CODE entered; Otherwise not allowed).The charges amount may not exceed 5% of the net proceeds of the contract, though an override facility is available should it be necessary to input a deal where charges exceed the 5% limit.Similarly the charges amount may not exceed 5% of any principal increase amount when using the principal increase function.  Again an override facility is available. */ 
+ CHARGE_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=42.0, t24Name=CHARGE.AMOUNT) 
+ } 
+ MM_MONEY_MARKET__FID_PRIN_ADD 
+ { 
+ /* Indentifies the full Name and Address of a Beneficiary Bank, in respect of the Principal Amount of a Fiduciary Placement, where no Agent details are maintained.This field provides flexibility during the processing of Fiduciary Placements where external movements of funds are involved.When a Customer requests the transfer of funds outside the Bank, you do not always have a Customer reference open for the Beneficiary Bank. In this case, and if you do not want to open a Customer reference, you can take advantage of this field by entering directly the Name and Address of the Beneficiary Bank.However, it is important to note that only one principal address freeValidation Rules1 to 4 lines of 35 Alpha-numeric characters. - Type AAA. Multi-value field. (Optional input for Fiduciary Deposits;  Otherwise not allowed;  Default value = None.) has been included in this module.  This means that in the case of a four party transfer at least one of the two customer's Banks involved in the transfer of funds must have a Customer reference and the Agency details defined. Once a contract has been authorised, any change to this field will only have an effect on future principal disbursements.Input will not be allowed when the FID PRIN BEN BK1 field and the FID PRIN BEN BK2 field have both been entered.Input in this field will only be allowed when the FID DRAWDOWN ACCT is a valid Nostro account. */ 
+ FID_PRIN_ADD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=60.0, t24Name=FID.PRIN.ADD) 
+ } 
+ MM_MONEY_MARKET__FID_BEN_PRIN_AC 
+ { 
+ /* Identifies the Account details (number or name) of the Beneficiary to be credited with the Fiduciary Principal Amount.This field concerns third party transfers where the customer is requesting an external delivery of funds.  In the case where the customer provides such information, it may then be entered in this field.Any amendment to this field after contract authorisation will only have an effect on future Principal Disbursements.Validation Rules1 to 35 Characters - Type SSS. Multi-value field (Maximum of four lines). (Optional input for Fiduciary Deposits; Otherwise not allowed;  Default value = None.)Input in this field will only be allowed when the FID DRAWDOWN ACCT is a valid Nostro account. */ 
+ FID_BEN_PRIN_AC : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=61.0, t24Name=FID.BEN.PRIN.AC) 
+ } 
+ MM_MONEY_MARKET__ACTIVITY_CODE 
+ { 
+ /* An activity within the Money Market Module is identified by a numeric code which is hard-coded within the program.  The appropriate code is automatically inserted at this field by the system.  User input is not allowed.This field is linked to the LMM.ACTIVITY file which is a list of advice related activities used by the Money Market System.Each activity has been assigned a numeric code all of which are themselves hard-coded in the program.  The codes/activities used by the Money Market System must be loaded in the LMM.ACTIVITY file and are as follows:CODE       ACTIVITY1010       New contract (Fixed Maturity date) 1011       New contract (Call/Notice Maturity date) 1020       Change contract (Fixed Maturity date) 1021       Change contract (Call/Notice Maturity date) 1030       Reversal of contract (Fixed Maturity date) 1031       Reversal of contract (Call/Notice Maturity date) 1050       Early liquidation of a contract 1070       Rollover of a contract These codes are transparent to the user except in the LMM.ACTIVITY and the LMM.ADVICES tables, i.e. the system recognises when an event occurs, for example a new contract input, and then assigns a number in this field (in this case a 1010). The field is multi-value to allow for multiple entries, for example, in respect of a number of changes to a contract during its life.Note:      The 'Change contract' activity codes (1020 and 1021) do            not include the Change of the MATURITY DATE field            which is covered by the activity code 1070 (Rollover of a            contract).Validation Rules4 digit numeric code. */ 
+ ACTIVITY_CODE -> LM_Delivery:LMM_ACTIVITY 
+ @t24:i (align=L, inputBehaviour=N, maxLength=8, sysNumber=62.0, t24Name=ACTIVITY.CODE) 
+ 
+ /* Confirmation that contract details have been passed over to the T24 Delivery Module for onward communication to the counterparty.he Money Market's call to the T24 Delivery Module is acknowledged by the latter's sending back the ID that it has generated for the message.  This ID takes the following form:D19860409-00015392201where D means a message is to be delivered (as opposed to R for a message received), 1986 is the year, 04 is the month, 09 is the day. 000015 is the system user number of the inputter 3922 is the number of seconds since Midnight on that day. 01 is a sequence number incremented per user transaction. The combination of user, time and sequence number provide a unique reference key.Validation RulesInternal field.  Input is automatically generated by the system and consists of a delivered or received marker in conjunction with a date and time stamp. */ 
+ ADVICE_SENT : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=63.0, t24Name=ADVICE.SENT) 
+ } 
+ MM_MONEY_MARKET__BK_TO_BK_INFO 
+ { 
+ /* Provides instructions or additional information from the sending bank for the receiver, intermediary account with institution or beneficiary institution.Any details input by the user will be relayed to the receiver.Whenever this field is used in a message transmitted between countries with different languages, it is recommended that English is used.This field corresponds to field 72 on SWIFT messages, and must never be used for information for which another field is intended, or for instructions not required in a message.This field can still be input or amended after the deal has been authorised. This information will be used on future confirmations and payments. It will not cause payments already sent to be re-generated. If payments have already been sent, a warning will display when the field is changed.Validation RulesUp to 35 characters (uppercase alpha or numeric) - Type S. Multivalue field. A maximum     of 6 lines of 35 characters each will be allowed.If this field is used, the first multivalue must contain a code word followed by further     information.All code words must be present on the SWIFT.CODE.WORDS files, and must be enclosed     between slashes '/' at the beginning of the line.Further code words and information can be entered in subsequent multivalues, but     additional information continued on a new line must be preceded by double slashes '//'. */ 
+ BK_TO_BK_INFO : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=81.0, t24Name=BK.TO.BK.INFO) 
+ } 
+ MM_MONEY_MARKET__CHG_TAX_CODE 
+ { 
+ /* Specifies the TAX.CODE applicable on the Charges that have been applied to thie MM contract.The Tax codes defined on this field will be defaulted by the system depending on the charge codes entered on the contract. The Tax codes are held on the FT.CHARGE.TYPE or the FT.COMMISSION.TYPE table for the charge code applicable.Validation Rules2 numeric characters. System generated. No input allowed. */ 
+ CHG_TAX_CODE -> ST_ChargeConfig:TAX 
+ @t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=84.0, t24Name=CHG.TAX.CODE) 
+ 
+ /* Specifies the amount of tax applicable to the tax code in the earlier field.Part of the Mutivalue set associated with the earlier field. This amount is held in the currency of the Charges.Validation RulesStandard amount format. System generated field. No input allowed. */ 
+ CHG_TAX_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=85.0, t24Name=CHG.TAX.AMT) 
+ 
+ /* Specifies the amount of tax applicable in Local Currency.Part of the Multivalue set associated with fields CHG.TAX.CODE and CHG.TAX.AMT. This field contains the tax applicavble on the cjharges in the Local Currency.Validation RulesStandard amount format. No Input allowed. */ 
+ CHG_TAX_AMT_LCY : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=86.0, t24Name=CHG.TAX.AMT.LCY) 
+ } 
+ MM_MONEY_MARKET__TAX_INTEREST_TYPE 
+ { 
+ /* Using this field together with the CONTRACT.GRP field it is possible to determine a particular tax code from conditions based on ;   General tax type as defined in the TAX.TYPE.CONDITION application   Type of customer as defined in the CUSTOMER.CHARGES application   Type of contract as defined in the CONTRACT.GRP field.The value in this field must equate to a record in the TAX.TYPE.CONDITION application which contains tax codes related to customer tax group and contract group.Whenever interest tax is recalculated the correct tax code will be determined and the TAX.INTEREST.KEY and TOT.INT.TAX fields updated accordingly.If the calculated tax amount changes between sending a payment and the end of the relvant tax period then an exception will be raised during the end of day indicating the different amounts. It will be stored in EXCEPTION.LOG.HIST.If this field is not used then the relevant tax code can be entered via the TAX.INTEREST.KEY field.Validation RulesOptional input, must be present as a record on TAX.TYPE.CONDITION. The actual TAX.TYPE.CONDITION key value will be prefixed by the "*" character (asterisk). */ 
+ TAX_INTEREST_TYPE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=107.0, t24Name=TAX.INTEREST.TYPE) 
+ } 
+ MM_MONEY_MARKET__MERGE_CONTRACT 
+ { 
+ /* This field caters for customers who wish to merge several contracts of the same type with the same maturity into one contract by having one contract roll over (the primary contract) at maturity and applying a  principal increase for the total of the principal and/or  interest to be transferred from the maturing (secondary) contracts.It is also possible to perform a normal principal increase on rollover on the primary contract in this case the actual increase applied will be the total of the principal increase, the merged amounts plus any interest to be capitalised from the primary contract.Additional principal increase accounting entries will be generated for the total of the merged amounts.Merging will take place via a Suspense account which should be set up via the ACCOUNT.CLASS record MERGEMM.For example in the case merged deposits the secondary contracts will have the principal and/or interest liquidation accounts set to the merge suspense account for the relevant currency. When the contract matures the suspense account will be credited. When the amounts are merged into the primary contract the suspense account will be debited.Validation RulesTo merge contracts the following conditions must apply.  Fields which should have the same values :-  COUNTERPARTY  CURRENCY  CATEGORY  Conditions which must apply to this (Primary) contract. ==========================================  Must be set for either manual or auto rollover.  Cannot be set to merge to another contract.  The PRIN.LIQ.ACCT and INT.LIQ.ACCT cannot be set to the merge suspense account.  If AUTO.ROLLOVER is set with a FINAL.MATURITY  to indicate that multiple interest payments take place, then this  contract must be within the final interest period.  Conditions which must apply to the merge (secondary) contracts ==================================================  Cannot be set to Manually rollover.  The PRIN.LIQ.ACCT and/or  INT.LIQ.ACCT fields must be set to the merge suspense account.  If AUTO.ROLLOVER is set with a FINAL.MATURITY  to indicate that multiple interest payments take place, then the merge contract must be within the final interest period, in this case the FINAL.MATURITY date of the secondary contract must be equal to the INT.PERIOD.END date of the primary contract.  If the merge (secondary) contract is set for a single interest period then the MATURITY.DATE of the secondary contract  must be equal to the INT.PERIOD.END date of the primary contract.  If both the secondary and the primary contracts are set for a single interest payment then the MATURITY.DATE of the secondary contract must be equal to the MATURITY.DATE of the primary contract. */ 
+ MERGE_CONTRACT -> MM_Contract:MM_MONEY_MARKET 
+ @t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=110.0, t24Name=MERGE.CONTRACT) 
+ 
+ /* Contains the amount to be merged from a secondary contract.This may be principal only, interest only, or principal plus interest (minus any interest tax).Validation RulesNo input multi-valued field. Associated with MERGE.CONTRACT. */ 
+ MERGE_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=111.0, t24Name=MERGE.AMOUNT) 
+ } 
+ MM_MONEY_MARKET__GR_INT_TAX_LCY 
+ { 
+ /* GR.INT.TAX.LCYThis field details the amount of tax on interest regardless of any exemptions or allowances defined on theValidation RulesNO INPUT */ 
+ GR_INT_TAX_LCY : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=117.0, t24Name=GR.INT.TAX.LCY) 
+ } 
+ MM_MONEY_MARKET__INT_TAX_LCY 
+ { 
+ INT_TAX_LCY : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=118.0, t24Name=INT.TAX.LCY) 
+ } 
+ MM_MONEY_MARKET__GR_INT_TAX_FCY 
+ { 
+ /* GR.INT.TAX.FCYThis field details the amount of tax on interest regardless of any exemptions or allowances defined on theValidation RulesNO INPUT */ 
+ GR_INT_TAX_FCY : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=119.0, t24Name=GR.INT.TAX.FCY) 
+ } 
+ MM_MONEY_MARKET__INT_TAX_FCY 
+ { 
+ INT_TAX_FCY : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=120.0, t24Name=INT.TAX.FCY) 
+ } 
+ MM_MONEY_MARKET__MIS_COF_TYPE 
+ { 
+ /* Specifies the type of  Additional Cost of Funds    that needs  to be calculated,  in addition to the refinancing amount    using  MIS.INTEREST.KEY/RATE.For example Liquidity cost  might be calculated in   addition to the refinancing amount.This field is a multivalue field associated with   MIS.COF.RATE, MIS.COF.DEPT .If  both   refinancing rates   (MIS.INTEREST.KEY/RATE) and type of  Additional cost of funds (MIS.COF.TYPE)   are not specified in the contract, then the Pool rates if  specified for   the Contract Group in MI.PARAMETER would be used for calculating both   refinancing amount  and additonal Cost of Funds.If  only   refinancing rates (MIS.INTEREST.KEY/RATE) are specified in the Contract and type of  Additional cost of funds (MIS.COF.TYPE) are not specified in the contract, then the additonal Cost of Funds would not be calculated..Validation RulesMust be the ID of  a valid record on the     MI.COF.TYPE file.Optional. */ 
+ MIS_COF_TYPE -> MI_Entries:MI_COF_TYPE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=123.0, t24Name=MIS.COF.TYPE) 
+ 
+ /* Represents the financing rate for the Type of Additional   Cost of Funds.This is a multivalue field associated with MIS.COF.TYPE.Validation Rules1-10 Numeric characters plus a decimal point.Mandatory  if MIS.COF.TYPE is specified. */ 
+ MIS_COF_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=124.0, t24Name=MIS.COF.RATE) 
+ 
+ /* This field is used within the Management Information   module to define the Department which funded the Type of Additional Cost of   Funds for the Contract.This is a multivalue field associated with MIS.COF.TYPE.Validation RulesMust be a  key to a valid record on the DEPT.ACCT.OFFICER file.Mandatory  if MIS.COF.TYPE and MIS.COF.RATE are specified. */ 
+ MIS_COF_DEPT -> ST_Config:DEPT_ACCT_OFFICER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=125.0, t24Name=MIS.COF.DEPT) 
+ } 
+ MM_MONEY_MARKET__STMT_NO 
+ { 
+ /* A number generated automatically by the system which identifies either a statement entry or a category entry in respect of a contract.The system will automatically insert a number into this field and this number may refer to a statement entry or a category entry depending on the value contained in the corresponding multivalue fields.illustrate the use of this field.Example 1:On the value date of a contract the following type of number will be generated at this field:100.1  STMT.NO ............ 673732684.48            100.2  STMT.NO ............ 1The number automatically generated in Field 100.1 is unique to the contract in question and is built in the following way:1.         The first four digits '6737' indicate the number of            days since the 1st of January 1968.  In our example,            it corresponds to the 11th of June 1986.2.         The next five digits '32684' indicate the number of            seconds since midnight.  In our example, it            corresponds to an entry generated on line at            09:04:44 AM.3.         The last two digits '48' indicate the number of            hundreds of seconds.The value assigned (again automatically) to Field 100.2 identifies the number in 100.1 as a statement entry number.  If the user wishes to call this statement entry record on to the screen the user will invoke the STMT.ENTRY Application and then type the following at 'AWAITING ID':-            673732684.480001where the suffix '0001' identifies it as the first statement entry (there may be more than one)Validation RulesInternal multivalue field. */ 
+ STMT_NO : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=29, sysNumber=150.0, t24Name=STMT.NO) 
+ } 
+ MM_MONEY_MARKET__OVERRIDE 
+ { 
+ /* Contains all the Override messages which the user agreed to during Input.During the validation stage of a Money Market contract, the system may provide the user with a series of screen override messages to indicate an anomaly, for instance, that the interest payable account does not match the drawdown account.In the event that the user confirms the Override, the full text of the actual Override Message will be stored, for reference purposes only, in this multivalue field.Validation RulesInternal field. Multivalue field. */ 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=151.0, t24Name=OVERRIDE) 
+ } 
+ MM_MONEY_MARKET__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=154.0, t24Name=INPUTTER) 
+ } 
+ MM_MONEY_MARKET__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=155.0, t24Name=DATE.TIME) 
+ } 
+ MM_MERGE_CONTRACT 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* Standard T24 alphanumeric field. Validation RulesMandatory input.A maximum of 14 characters may be entered. */ 
+ SECONDARY_CONTRACT : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, t24Name=SECONDARY.CONTRACT) 
+ 
+ /* Standard T24 alphanumeric field. Validation RulesMandatory input.A maximum of 14 characters may be entered. */ 
+ PRIMARY_CONTRACT : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=1.0, t24Name=PRIMARY.CONTRACT) 
+ } 
+ } 
+ Enumerations { 
+ MM_MONEY_MARKET__MATURITY_DATE : mml:string 
+ DAYS=DAYS 
+ 
+ MM_MONEY_MARKET__INT_RATE_TYPE : mml:string 
+ n1=1 
+ n3=3 
+ n9=9 
+ 
+ MM_MONEY_MARKET__LIQ_DEFER_INTEREST : mml:string 
+ L=L 
+ D=D 
+ 
+ MM_MONEY_MARKET__FEDERAL_FUNDS : mml:string 
+ Y=Y 
+ N=N 
+ 
+ MM_MONEY_MARKET__ROLLOVER_MARKER : mml:string 
+ n1=1 
+ n2=2 
+ 
+ MM_MONEY_MARKET__CAPITALISATION : mml:string 
+ Y=Y 
+ N=N 
+ 
+ MM_MONEY_MARKET__AUTO_ROLLOVER : mml:string 
+ Y=Y 
+ N=N 
+ 
+ MM_MONEY_MARKET__AUTO_CAPITALISE : mml:string 
+ Y=Y 
+ N=N 
+ 
+ MM_MONEY_MARKET__LIQUIDATION_MODE : mml:string 
+ AUTOMATIC=AUTOMATIC 
+ MANUAL=MANUAL 
+ SEMI__AUTOMATIC=SEMI-AUTOMATIC 
+ 
+ MM_MONEY_MARKET__ORIG_MAT_DATE : mml:string 
+ DAYS=DAYS 
+ 
+ MM_MONEY_MARKET__FINAL_MATURITY : mml:string 
+ DAYS=DAYS 
+ 
+ MM_MONEY_MARKET__MATURE_AT_SOD : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ MM_MONEY_MARKET__NEGATIVE_RATE : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ MM_MONEY_MARKET__SEND_PAYMENT : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ MM_MONEY_MARKET__SPEC_INT_METHOD : mml:string 
+ YES=YES 
+ NO=NO 
+ NULL=NULL 
+ 
+ MM_MONEY_MARKET__COMPOUND_YLD_MTHD : mml:string 
+ YIELD=YIELD 
+ NULL=NULL 
+ 
+ MM_MONEY_MARKET__Exclude_Val : mml:string 
+ YES=YES 
+ 
+ } 

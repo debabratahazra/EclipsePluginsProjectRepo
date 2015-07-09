@@ -1,0 +1,897 @@
+# UTF-8
+# UTF-8
+/* Delivery Definition and Processing for Loans and Deposits */
+Domain LD_Delivery
+	@t24:i (module=LD)
+	@java:Package (value=com.temenos.t24.datamodel.ld.ld_delivery)
+namespace "http://www.temenos.com/t24/LD_Delivery"
+metamodelVersion 1.30.6
+Classes {
+	/* The LD.PAYMENT.ENTRY system provides the user with the ability to obtain details of all disbursements on loan contracts.
+
+PAYMENT ENTRY RULES
+Input of manual payments via LD PAYMENT ENTRY is prohibited.
+The update functions (e.g. INPUT) are not permitted for automatic payments.
+One automatic payment entry may result in one, two or no physical payment messages.
+1 physical payment message is produced if all payment instructions           of all components are the same.
+2 physical payment messages are produced if the principal payment           instructions differ from the interest payment instruction.
+No physical payment messages are produced if the customer of the Nostro account being credited is the same as the beneficiary customer.  In this case the confirmation suffices. */
+	LD_PAYMENT_ENTRY
+		@t24:i (t24Name=LD.PAYMENT.ENTRY, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		CONTRACT_NO -> LD_Delivery:LD_PAYMENT_ENTRY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=0.0, core=true, businessType=A, t24Name="CONTRACT NO", mask="R##/#####/#####/##")
+		/* Indicates the currency of the contract.
+This field indicates the currency of the contract for which a payment is being entered.
+Validation Rules
+3 type SSS (uppercase alpha) characters.  (System generated. Single value.)
+This is a NOINPUT field. */
+		CURRENCY_CODE : T24BusinessTypes:CCY
+			@i18n:Label (en="Currency Code")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=1.0, core=true, t24Name=CURRENCY.CODE)
+		/* Contains the value date applicable to the payment entry.
+This field indicates the value date of the payment amount entered.
+Validation Rules
+1-9 type D (date format in the range 1950 - 2049) characters.  (System generated. Single value.)
+This is a NOINPUT field. */
+		VALUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=VALUE.DATE)
+		/* Contains the total amount of all disbursements to be executed on the value date identified in the previous field VALUE.DATE.
+The amount in this field will be construed to be denominated in the same currency as the contract ie equal to the value in the field CURRENCY.CODE.
+This field is associated with the following fields:
+SCH.TYPE.PRINCIPAL           PRINCIPAL.AMT.DUE           PRINC.PAY.DEDUCT           PRINC.AMT.TO.PAY           PRINC.DISB.ACC
+This field is the net of the following amount fields:
+PRINC.AMT.TO.PAY           INT.AMT.TO.PAY           COMM.AMT.TO.PAY           CHRG.AMT.TO.PAY           TAX.AMOUNT.TO.PAY           FEES.AMT.TO.PAY           PEN.INT.AMT.TO.PAY           PEN.COMM.AMT.TO.PAY           GEN.CHG.AMT.TO.PAY
+Validation Rules
+1-14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		TOT_AMT_TO_PAY : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Amount Of All Disbursements")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=TOT.AMT.TO.PAY, typeModifiers="-1")
+		/* Customer id and short name of customer contract.
+The customer id of the contract customer and its associated short name provided for information purposes only.
+If a PAYING.AGENT is used this field will contain the customer number of the paying AGENT rather than the CUSTOMER of the contract.
+Validation Rules
+1-10 numeric character.  (System generated.  Single value.)
+This is a NOINPUT field. */
+		CUSTOMER_ID : T24BusinessTypes:CUS required
+			@i18n:Label (en="Customer Id")
+			@t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=4.0, core=true, t24Name=CUSTOMER.ID)
+		/* Currency code of payment currency.
+This indicates the currency of the payment made which may differ from the contract currency.
+Validation Rules
+3 type SSS (uppercase alpha) characters.  (System generated.  Single value.)
+This is a NOINPUT field. */
+		PRIN_ACCT_CCY : T24BusinessTypes:CCY
+			@i18n:Label (en="Currency Code")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=5.0, core=true, t24Name=PRIN.ACCT.CCY)
+		/* Amount of payment made in payment currency.
+The amount (denominated in payment currency) of payment that has been made.
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated.  Single value.)
+This is a NOINPUT field. */
+		PRIN_ACCT_CCY_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Amount Of Payment Made In Payment Currency")
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=6.0, core=true, t24Name=PRIN.ACCT.CCY.AMT, typeModifiers="-1")
+		PRIN_INTER_BANK -> byValue LD_Delivery:LD_PAYMENT_ENTRY__PRIN_INTER_BANK *
+		PRIN_AC_WITH_BK -> byValue LD_Delivery:LD_PAYMENT_ENTRY__PRIN_AC_WITH_BK *
+		/* Beneficiary account details given on the main contract.
+The account number or alpha code of the beneficiary's account with the receiving bank.
+Validation Rules
+Free form text.  (System generated.  Single value.)
+This is a NOINPUT field. */
+		PRIN_BEN_BANK_ACCT : T24BusinessTypes:S
+			@i18n:Label (en="Beneficiary Account Details")
+			@t24:i (align=L, inputBehaviour=F, maxLength=16, sysNumber=9.0, core=true, t24Name=PRIN.BEN.BANK.ACCT)
+		/* Currency code of payment currency.
+This indicates the currency of the payment made which may differ from the contract currency.
+Validation Rules
+3 type SSS (uppercase alpha) characters.  (System generated.  Single value.)
+This is a NOINPUT field. */
+		INT_ACCT_CCY : T24BusinessTypes:CCY
+			@i18n:Label (en="Currency Code")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=10.0, core=true, t24Name=INT.ACCT.CCY)
+		/* Amount of payment made in payment currency.
+The amount (denominated in payment currency) of payment that has been made.
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated.  Single value.)
+This is a NOINPUT field. */
+		INT_ACCT_CCY_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Payment Currency")
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=11.0, core=true, t24Name=INT.ACCT.CCY.AMT, typeModifiers="-1")
+		INT_INTER_BANK -> byValue LD_Delivery:LD_PAYMENT_ENTRY__INT_INTER_BANK *
+		INT_AC_WITH_BK -> byValue LD_Delivery:LD_PAYMENT_ENTRY__INT_AC_WITH_BK *
+		/* Beneficiary account details given on the main contract.
+The account number or alpha code of the beneficiary's account with the receiving bank.
+Validation Rules
+Free form text.  (System generated.  Single value.)
+This is a NOINPUT field. */
+		INT_BEN_BANK_ACCT : T24BusinessTypes:S
+			@i18n:Label (en="Beneficiary Account Details")
+			@t24:i (align=L, inputBehaviour=F, maxLength=16, sysNumber=14.0, core=true, t24Name=INT.BEN.BANK.ACCT)
+		/* Override carrier requested by user.
+This field highlights that the user has overridden the automatic selection routine of the Delivery System and has requested that the message is sent, if possible, via the specified carrier method.
+Validation Rules
+PRINT.1 - Printed message  TELEX.1 - Telex message  SWIFT   - Standard Swift payment  (System generated.  Single value.)
+This is a NOINPUT field. */
+		OVERRIDE_CARRIER : T24BusinessTypes:S required
+			@i18n:Label (en="Ovr Carrier")
+			@i18n:Tooltip (en="Indicates the Carrier to be used for a message.")
+			@t24:i (align=L, inputBehaviour=F, maxLength=5, sysNumber=15.0, core=true, t24Name=OVERRIDE.CARRIER)
+		/* This field indicates whether a principal component is to be processed.
+This field is associated with the following fields:
+SCH.TYPE.PRINCIPAL                 PRINCIPAL.AMT.DUE                 PRINC.PAY.DEDUCT                 PRINC.AMT.TO.PAY                 PRINC.DISB.ACC
+Validation Rules
+1 character of the form:             P  or             blank  (System generated. Single value.)
+This is a NOINPUT field. */
+		SCH_TYPE_PRINCIPAL : T24BusinessTypes:AAA
+			@i18n:Label (en="Principal To Be Processed")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=16.0, core=true, t24Name=SCH.TYPE.PRINCIPAL)
+		/* The principal amount due on the contract.
+This field is associated with the following fields:
+SCH.TYPE.PRINCIPAL                 PRINCIPAL.AMT.DUE                 PRINC.PAY.DEDUCT                 PRINC.AMT.TO.PAY                 PRINC.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		PRINCIPAL_AMT_DUE : T24BusinessTypes:AMT
+			@i18n:Label (en="Principal Amount Due")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=17.0, core=true, t24Name=PRINCIPAL.AMT.DUE, typeModifiers="-1")
+		/* Indicates whether the component specified in the field PRINC.AMT.TO.PAY will be deducted from or added to the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.PRINCIPAL                 PRINCIPAL.AMT.DUE                 PRINC.PAY.DEDUCT                 PRINC.AMT.TO.PAY                 PRINC.DISB.ACC
+Validation Rules
+1 character of the form:             P    pay  or             D    deduct  (System generated. Single value.)
+This is a NOINPUT field. */
+		PRINC_PAY_DEDUCT : LD_Delivery:LD_PAYMENT_ENTRY__PRINC_PAY_DEDUCT
+			@i18n:Label (en="Amount To Be Added To Or Deducted")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=18.0, core=true, t24Name=PRINC.PAY.DEDUCT)
+		/* The value in this field represents the amount to be added to or deducted from the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.PRINCIPAL                 PRINCIPAL.AMT.DUE                 PRINC.PAY.DEDUCT                 PRINC.AMT.TO.PAY                 PRINC.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		PRINC_AMT_TO_PAY : T24BusinessTypes:AMT
+			@i18n:Label (en="Amount To Be Added To Or Deducted")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=PRINC.AMT.TO.PAY, typeModifiers="-1")
+		/* This field indicates the disbursement account to be used for principal payments.
+The value in this field is obtained from field DRAWDOWN.ACCOUNT or PRIN.LIQ.ACCT on LD.LOANS.AND.DEPOSITS.
+This field is associated with the following fields:
+SCH.TYPE.PRINCIPAL                 PRINCIPAL.AMT.DUE                 PRINC.PAY.DEDUCT                 PRINC.AMT.TO.PAY                 PRINC.DISB.ACC
+Validation Rules
+1-14 numeric characters relating to a Customer Account or a Nostro Account.  (System generated. Single value.)
+This is a NOINPUT field. */
+		PRINC_DISB_ACC : mml:Integer
+			@i18n:Label (en="Disbursement Account To Be Used For Principal Payments")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=20.0, core=true, t24Name=PRINC.DISB.ACC)
+		/* This field indicates whether an interest component is to be processed.
+This field is associated with the following fields:
+SCH.TYPE.INTEREST           INTEREST.AMT.DUE           INT.PAY.DEDUCT           INT.AMT.TO.PAY           INT.DISB.ACC
+Validation Rules
+1 character of the form:             I  or             blank  (System generated. Single value.)
+This is a NOINPUT field. */
+		SCH_TYPE_INTEREST : T24BusinessTypes:AAA
+			@i18n:Label (en="Interest Component To Be Processed")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=21.0, core=true, t24Name=SCH.TYPE.INTEREST)
+		/* The interest amount due on the contract.
+This field is associated with the following fields:
+SCH.TYPE.INTEREST                 INTEREST.AMT.DUE                 INT.PAY.DEDUCT                 INT.AMT.TO.PAY                 INT.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		INTEREST_AMT_DUE : T24BusinessTypes:AMT
+			@i18n:Label (en="Interest Amount Due")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=22.0, core=true, t24Name=INTEREST.AMT.DUE, typeModifiers="-1")
+		/* Indicates whether the component specified in the field INT.AMT.TO.PAY will be deducted from or added to the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.INTEREST           INTEREST.AMT.DUE           INT.PAY.DEDUCT           INT.AMT.TO.PAY           INT.DISB.ACC
+Validation Rules
+1 character of the form:         P    pay  or         D    deduct  (System generated. Single value.)
+This is a NOINPUT field. */
+		INT_PAY_DEDUCT : LD_Delivery:LD_PAYMENT_ENTRY__INT_PAY_DEDUCT
+			@i18n:Label (en="Amount To Be Paid Or Deducted")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=23.0, core=true, t24Name=INT.PAY.DEDUCT)
+		/* The value in this field represents the amount to be added to or deducted from the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.INTEREST           INTEREST.AMT.DUE           INT.PAY.DEDUCT           INT.AMT.TO.PAY           INT.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		INT_AMT_TO_PAY : T24BusinessTypes:AMT
+			@i18n:Label (en="Amount To Be Paid")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=24.0, core=true, t24Name=INT.AMT.TO.PAY, typeModifiers="-1")
+		/* This field indicates the disbursement account to be used for interest payments.
+The value in this field is obtained from field INT.LIQ.ACCT on LD.LOANS.AND.DEPOSITS.
+This field is associated with the following fields:
+SCH.TYPE.INTEREST           INTEREST.AMT.DUE           INT.PAY.DEDUCT           INT.AMT.TO.PAY           INT.DISB.ACC
+Validation Rules
+1-14 numeric characters relating to a Customer Account or a Nostro Account.  (System generated. Single value.)
+This is a NOINPUT field. */
+		INT_DISB_ACC : mml:Integer
+			@i18n:Label (en="Disbursement Account For Interest Payments")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=25.0, core=true, t24Name=INT.DISB.ACC)
+		/* This field indicates whether a commission component is to be processed.
+This field is associated with the following fields:
+SCH.TYPE.COMM           COMM.AMT.DUE           COMM.PAY.DEDUCT           COMM.AMT.TO.PAY           COMM.DISB.ACC
+Validation Rules
+1 character of the form:             C  or             blank  (System generated. Single value.)
+This is a NOINPUT field. */
+		SCH_TYPE_COMM : T24BusinessTypes:AAA
+			@i18n:Label (en="Commission Component To Be Processed")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=26.0, core=true, t24Name=SCH.TYPE.COMM)
+		/* The commission amount due on the contract.
+This field is associated with the following fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point. (System generated. Single value.)
+This is a NOINPUT field. */
+		COMM_AMT_DUE : T24BusinessTypes:AMT
+			@i18n:Label (en="Commission Amount Due")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=27.0, core=true, t24Name=COMM.AMT.DUE, typeModifiers="-1")
+		/* Indicates whether the component specified in the field COMM.AMT.TO.PAY will be deducted from or added to the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+Validation Rules
+1 character of the form:          P    pay  or          D    deduct  (System generated. Single value.)
+This is a NOINPUT field. */
+		COMM_PAY_DEDUCT : LD_Delivery:LD_PAYMENT_ENTRY__COMM_PAY_DEDUCT
+			@i18n:Label (en="Commission To Be Paid Or Deducted")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=28.0, core=true, t24Name=COMM.PAY.DEDUCT)
+		/* The value in this field represents the amount to be added to or deducted from the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point. (System generated. Single value.)
+This is a NOINPUT field. */
+		COMM_AMT_TO_PAY : T24BusinessTypes:AMT
+			@i18n:Label (en="Commission Amount To Be Paid")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=29.0, core=true, t24Name=COMM.AMT.TO.PAY, typeModifiers="-1")
+		/* This field indicates the disbursement account to be used for commission payments.
+The value in this field is obtained from field COM.LIQ.ACCT or COM.DISB.ACCT on LD.LOANS.AND.DEPOSITS.
+This field is associated with the following fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+Validation Rules
+1-14 numeric characters relating to a Customer Account or a Nostro Account. ( System generated. Single value.)
+This is a NOINPUT field. */
+		COMM_DISB_ACC : mml:Integer
+			@i18n:Label (en="Account For Commission Payments")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=30.0, core=true, t24Name=COMM.DISB.ACC)
+		/* This field indicates whether a charge component is to be processed.
+This field is associated with the following fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+Validation Rules
+1 character of the form:             H  or             blank  (System generated. Single value.)
+This is a NOINPUT field. */
+		SCH_TYPE_CHRG : T24BusinessTypes:AAA
+			@i18n:Label (en="Charge Component To Be Processed")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=31.0, core=true, t24Name=SCH.TYPE.CHRG)
+		CHRG_AMT_DUE -> byValue LD_Delivery:LD_PAYMENT_ENTRY__CHRG_AMT_DUE *
+		/* This field indicates whether a tax component is to be processed.
+This field is associated with the following fields:
+SCH.TYPE.TAX           TAX.AMT.DUE           TAX.PAY.DEDUCT           TAX.AMT.TO.PAY           TAX.DISB.ACC
+Validation Rules
+1 character of the form:             T  or             blank  ( System generated. Single value)
+This is a NOINPUT field. */
+		SCH_TYPE_TAX : T24BusinessTypes:AAA
+			@i18n:Label (en="Tax To Be Processed")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=36.0, core=true, t24Name=SCH.TYPE.TAX)
+		/* The tax amount due on the contract.
+This field is associated with the following fields:
+SCH.TYPE.TAX           TAX.AMT.DUE           TAX.PAY.DEDUCT           TAX.AMT.TO.PAY           TAX.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		TAX_AMT_DUE : T24BusinessTypes:AMT
+			@i18n:Label (en="Tax Amount Due")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=37.0, core=true, t24Name=TAX.AMT.DUE, typeModifiers="-1")
+		/* Indicates whether the component specified in the field TAX.AMT.TO.PAY will be deducted from or added to the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.TAX           TAX.AMT.DUE           TAX.PAY.DEDUCT           TAX.AMT.TO.PAY           TAX.DISB.ACC
+Validation Rules
+1 character of the form:             P    pay  or              D    deduct  (System generated. Single value.)
+This is a NOINPUT field. */
+		TAX_PAY_DEDUCT : LD_Delivery:LD_PAYMENT_ENTRY__TAX_PAY_DEDUCT
+			@i18n:Label (en="Amount To Be Added To Or Deducted")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=38.0, core=true, t24Name=TAX.PAY.DEDUCT)
+		/* The value in this field represents the amount to be added to or deducted from the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.TAX           TAX.AMT.DUE           TAX.PAY.DEDUCT           TAX.AMT.TO.PAY           TAX.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		TAX_AMT_TO_PAY : T24BusinessTypes:AMT
+			@i18n:Label (en="Tax Amount To Be Paid")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=39.0, core=true, t24Name=TAX.AMT.TO.PAY, typeModifiers="-1")
+		/* This field indicates the disbursement account to be used for tax payments.
+This field is associated with the following fields:
+SCH.TYPE.TAX           TAX.AMT.DUE           TAX.PAY.DEDUCT           TAX.AMT.TO.PAY           TAX.DISB.ACC
+Validation Rules
+1-14 numeric characters relating to a Customer Account or a Nostro Account.  (System generated. Single value.)
+This is a NOINPUT field. */
+		TAX_DISB_ACC : mml:Integer
+			@i18n:Label (en="Disbursement Account To Be Used For Tax Payments")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=40.0, core=true, t24Name=TAX.DISB.ACC)
+		/* This field indicates whether a fee payment component is to be processed.
+This field is associated with the following fields:
+SCH.TYPE.FEES           FEES.AMT.DUE           FEES.PAY.DEDUCT           FEES.AMT.TO.PAY           FEES.DISB.ACC
+Validation Rules
+1 character of the form:             F  or             blank  (System generated. Single value.)
+This is a NOINPUT field. */
+		SCH_TYPE_FEES : T24BusinessTypes:AAA
+			@i18n:Label (en="Fee Payment To Be Processed")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=41.0, core=true, t24Name=SCH.TYPE.FEES)
+		FEES_AMT_DUE -> byValue LD_Delivery:LD_PAYMENT_ENTRY__FEES_AMT_DUE *
+		/* This field indicates whether a penalty interest component is to be processed.
+This field is associated with the following fields:
+SCH.TYPE.PEN.INT           PEN.INT.AMT.DUE           PEN.INT.PAY.DEDUCT           PEN.INT.AMT.TO.PAY           PEN.INT.DISB.ACC
+Validation Rules
+1 character of the form:             I  or             blank  (System generated. Single value.)
+This is a NOINPUT field. */
+		SCH_TYPE_PEN_INT : T24BusinessTypes:AAA
+			@i18n:Label (en="Penalty Interest To Be Processed")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=46.0, core=true, t24Name=SCH.TYPE.PEN.INT)
+		/* The penalty interest amount due on the contract.
+This field is associated with the following fields:
+SCH.TYPE.PEN.INT           PEN.INT.AMT.DUE           PEN.INT.PAY.DEDUCT           PEN.INT.AMT.TO.PAY           PEN.INT.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		PEN_INT_AMT_DUE : T24BusinessTypes:AMT
+			@i18n:Label (en="Penalty Interest Amount Due")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=47.0, core=true, t24Name=PEN.INT.AMT.DUE, typeModifiers="-1")
+		/* Indicates whether the component specified in the field PEN.INT.AMT.TO.PAY will be deducted from or added to the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.PEN.INT           PEN.INT.AMT.DUE           PEN.INT.PAY.DEDUCT           PEN.INT.AMT.TO.PAY           PEN.INT.DISB.ACC
+Validation Rules
+1 character of the form:             P    pay  or             D    deduct  (System generated. Single value.)
+This is a NOINPUT field. */
+		PEN_INT_PAY_DEDUCT : LD_Delivery:LD_PAYMENT_ENTRY__PEN_INT_PAY_DEDUCT
+			@i18n:Label (en="Amount To Be Deducted Or Added")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=48.0, core=true, t24Name=PEN.INT.PAY.DEDUCT)
+		/* The value in this field represents the amount to be added to or deducted from the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.PEN.INT           PEN.INT.AMT.DUE           PEN.INT.PAY.DEDUCT           PEN.INT.AMT.TO.PAY           PEN.INT.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		PEN_INT_AMT_TO_PAY : T24BusinessTypes:AMT
+			@i18n:Label (en="Penalty Interest Amount To Be Paid")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=49.0, core=true, t24Name=PEN.INT.AMT.TO.PAY, typeModifiers="-1")
+		/* This field indicates the disbursement account to be used for penalty interest payments.
+The value in this field is obtained from field INT.DISB.ACCT on LD.LOANS.AND.DEPOSITS.
+This field is associated with the following fields:
+SCH.TYPE.PEN.INT           PEN.INT.AMT.DUE           PEN.INT.PAY.DEDUCT           PEN.INT.AMT.TO.PAY           PEN.INT.DISB.ACC
+Validation Rules
+1-14 numeric characters relating to a Customer Account or a Nostro Account.  (System generated. Single value.)
+This is a NOINPUT field. */
+		PEN_INT_DISB_ACC : mml:Integer
+			@i18n:Label (en="Disbursement Account To Be Used For Penalty Interest Payments")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=50.0, core=true, t24Name=PEN.INT.DISB.ACC)
+		/* This field indicates whether a penalty commission component is to be processed.
+This field is associated with the following fields:
+SCH.TYPE.PEN.COMM           PEN.COMM.AMT.DUE           PEN.COMM.PAY.DEDUCT           PEN.COMM.AMT.TO.PAY           PEN.COMM.DISB.ACC
+Validation Rules
+1 character of the form:             I  or             blank  ( System generated. Single value)
+This is a NOINPUT field. */
+		SCH_TYPE_PEN_COMM : T24BusinessTypes:AAA
+			@i18n:Label (en="Penalty Commission To Be Processed")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=51.0, core=true, t24Name=SCH.TYPE.PEN.COMM)
+		/* The penalty commission amount due on the contract.
+This field is associated with the following fields:
+SCH.TYPE.PEN.COMM           PEN.COMM.AMT.DUE           PEN.COMM.PAY.DEDUCT           PEN.COMM.AMT.TO.PAY           PEN.COMM.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		PEN_COM_AMT_DUE : T24BusinessTypes:AMT
+			@i18n:Label (en="Penalty Commission Amount Due")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=52.0, core=true, t24Name=PEN.COM.AMT.DUE, typeModifiers="-1")
+		/* Indicates whether the component specified in the field PEN.COMM.AMT.TO.PAY will be deducted from or added to the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.PEN.COMM           PEN.COMM.AMT.DUE           PEN.COMM.PAY.DEDUCT           PEN.COMM.AMT.TO.PAY           PEN.COMM.DISB.ACC
+Validation Rules
+1 character of the form:             P    pay  or             D    deduct  (System generated. Single value.)
+This is a NOINPUT field. */
+		PEN_COM_PAY_DEDUCT : LD_Delivery:LD_PAYMENT_ENTRY__PEN_COM_PAY_DEDUCT
+			@i18n:Label (en="Amount To Be Deducted Or Added")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=53.0, core=true, t24Name=PEN.COM.PAY.DEDUCT)
+		/* The value in this field represents the amount to be added to or deducted from the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.PEN.COMM           PEN.COMM.AMT.DUE           PEN.COMM.PAY.DEDUCT           PEN.COMM.AMT.TO.PAY           PEN.COMM.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		PEN_COM_AMT_TO_PAY : T24BusinessTypes:AMT
+			@i18n:Label (en="Amount To Be Added To Or Deducted")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=54.0, core=true, t24Name=PEN.COM.AMT.TO.PAY, typeModifiers="-1")
+		/* This field indicates the disbursement account to be used for penalty commission payments.
+The value in this field is obtained from field COM.DISB.ACCT on LD.LOANS.AND.DEPOSITS.
+This field is associated with the following fields:
+SCH.TYPE.PEN.COMM           PEN.COMM.AMT.DUE           PEN.COMM.PAY.DEDUCT           PEN.COMM.AMT.TO.PAY           PEN.COMM.DISB.ACC
+Validation Rules
+1-14 numeric characters relating to a Customer Account or a Nostro Account.  (System generated. Single value.)
+This is a NOINPUT field. */
+		PEN_COM_DISB_ACC : mml:Integer
+			@i18n:Label (en="Disbursement Account For Penalty Commission Payments")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=55.0, core=true, t24Name=PEN.COM.DISB.ACC)
+		/* Reserved for future use. */
+		SCH_TYPE_GEN_CHG : T24BusinessTypes:AAA
+			@i18n:Label (en=Sch.Type.Gen.Chg)
+			@i18n:Tooltip (en="Field For Future Use")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=56.0, core=true, t24Name=SCH.TYPE.GEN.CHG)
+		/* Reserved for future use. */
+		GEN_CHG_AMT_DUE : T24BusinessTypes:AMT
+			@i18n:Label (en=Gen.Chg.Amt.Due)
+			@i18n:Tooltip (en="Field For Future Use")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=57.0, core=true, t24Name=GEN.CHG.AMT.DUE, typeModifiers="-1")
+		/* Reserved for future use. */
+		GEN_CHG_PAY_DEDUCT : LD_Delivery:LD_PAYMENT_ENTRY__GEN_CHG_PAY_DEDUCT
+			@i18n:Label (en=Gen.Chg.Pay.Deduct)
+			@i18n:Tooltip (en="Field For Future Use")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=58.0, core=true, t24Name=GEN.CHG.PAY.DEDUCT)
+		/* Reserved for future use. */
+		GEN_CHG_AMT_TO_PAY : T24BusinessTypes:AMT
+			@i18n:Label (en=Gen.Chg.Amt.To.Pay)
+			@i18n:Tooltip (en="Field For Future Use")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=59.0, core=true, t24Name=GEN.CHG.AMT.TO.PAY, typeModifiers="-1")
+		/* Reserved for future use. */
+		GEN_CHG_DISB_ACC : mml:Integer
+			@i18n:Label (en=Gen.Chg.Disb.Acc)
+			@i18n:Tooltip (en="Field For Future Use")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=60.0, core=true, t24Name=GEN.CHG.DISB.ACC)
+		CHARGE_CODE -> byValue LD_Delivery:LD_PAYMENT_ENTRY__CHARGE_CODE *
+		TAX_TYPE -> byValue LD_Delivery:LD_PAYMENT_ENTRY__TAX_TYPE *
+		/* Contains the total amount of all disbursements to be executed on the value date identified in the field VALUE.DATE.
+This field is the net of the following amount fields:
+PRINC.AMT.TO.PAY           INT.AMT.TO.PAY           COMM.AMT.TO.PAY           CHRG.AMT.TO.PAY           TAX.AMOUNT.TO.PAY           FEES.AMT.TO.PAY           PEN.INT.AMT.TO.PAY           PEN.COMM.AMT.TO.PAY           GEN.CHG.AMT.TO.PAY
+This field is associated with the following fields:
+GRAND.TOTAL.DUE           GRAND.TOTAL.P.OR.D           GRAND.TOTAL.TO.PAY
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point. (System generated. Single value.)
+This is a NOINPUT field. */
+		GRAND_TOTAL_DUE : T24BusinessTypes:AMT
+			@i18n:Label (en=Grand.Total.Due)
+			@i18n:Tooltip (en="Field For Future Use")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=70.0, core=true, t24Name=GRAND.TOTAL.DUE, typeModifiers="-1")
+		/* Indicates whether the amount specified in the previous field refers to payment or a deduction.
+This field is associated with the following fields:
+GRAND.TOTAL.DUE           GRAND.TOTAL.P.OR.D           GRAND.TOTAL.TO.PAY
+Validation Rules
+1 character of the form:          P    pay  or          D    deduct  (System generated. Single value.)
+This is a NOINPUT field. */
+		GRAND_TOTAL_P_OR_D : LD_Delivery:LD_PAYMENT_ENTRY__GRAND_TOTAL_P_OR_D
+			@i18n:Label (en=Grand.Total.P.Or.D)
+			@i18n:Tooltip (en="Field For Future Use")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=71.0, core=true, t24Name=GRAND.TOTAL.P.OR.D)
+		/* Contains the total amount of all disbursements to be executed on the value date identified in the field VALUE.DATE.
+This field is associated with the following fields:
+GRAND.TOTAL.DUE           GRAND.TOTAL.P.OR.D           GRAND.TOTAL.TO.PAY
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		GRAND_TOTAL_TO_PAY : T24BusinessTypes:AMT
+			@i18n:Label (en=Grand.Total.To.Pay)
+			@i18n:Tooltip (en="Field For Future Use")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=72.0, core=true, t24Name=GRAND.TOTAL.TO.PAY, typeModifiers="-1")
+		/* Indicates the exchange rate on the Contract used for principal conversions.
+This field is associated with the following fields:
+XRATE           MIS.XRATE           OTHER.XRATE           MIS.OTHER.XRATE
+Validation Rules
+1-10 numeric characters plus a decimal point of the form:               999999.9999  (System generated. Single value.)
+This is a NOINPUT field. */
+		XRATE : T24BusinessTypes:R
+			@i18n:Label (en="Exchange Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=73.0, core=true, t24Name=XRATE)
+		/* Indicates the MIS spread used in the XRATE conversion.
+This field is associated with the following fields:
+XRATE           MIS.XRATE           OTHER.XRATE           MIS.OTHER.XRATE
+Validation Rules
+1-9 numeric characters plus a decimal point of the form:              999999.999  (System generated. Single value.)
+This is a NOINPUT field. */
+		MIS_XRATE : T24BusinessTypes:R
+			@i18n:Label (en="Mis Spread Used In The Xrate Conversion")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=74.0, core=true, t24Name=MIS.XRATE)
+		/* Indicates the exchange rate on the contract used for conversions.
+This field is associated with the following fields:
+XRATE           MIS.XRATE           OTHER.XRATE           MIS.OTHER.XRATE
+Validation Rules
+1-10 numeric characters plus a decimal point of the form:               999999.9999  (System generated. Single value.)
+This is a NOINPUT field. */
+		OTHER_XRATE : T24BusinessTypes:R
+			@i18n:Label (en="Exchange Rate On The Contract")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=75.0, core=true, t24Name=OTHER.XRATE)
+		/* Indicates the MIS spread used in the OTHER.XRATE conversion.
+This field is associated with the following fields:
+XRATE           MIS.XRATE           OTHER.XRATE           MIS.OTHER.XRATE
+Validation Rules
+1-9 numeric characters plus a decimal point of the form:              999999.999  (System generated. Single value.)
+This is a NOINPUT field. */
+		MIS_OTHER_XRATE : T24BusinessTypes:R
+			@i18n:Label (en="Mis Spread Used In The Other.Xrate Conversion")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=76.0, core=true, t24Name=MIS.OTHER.XRATE)
+		/* Indicates whether the payment entry was created manually or automatically.
+This field specifies whether the payment entry was input by a user or automatically generated by the system.
+Validation Rules
+1 type A (alphanumeric) character.  Only values are:           A (automatic)           M (manual).  (System generated. Single value.)
+This is a NOINPUT field. */
+		MANUAL_AUTO : LD_Delivery:LD_PAYMENT_ENTRY__MANUAL_AUTO
+			@i18n:Label (en="Payment Entry Calculated Manually Or Automatically")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=77.0, core=true, t24Name=MANUAL.AUTO)
+		CUST_REMARKS -> byValue LD_Delivery:LD_PAYMENT_ENTRY__CUST_REMARKS *
+		/* This field specifies whether the customer remarks will be sent on a separate advice.
+The value in this field is obtained from the field ALONE.MERGE.IND specified on LD.LOANS.AND.DEPOSITS.
+Validation Rules
+System generated. Multi value.
+This is a NOINPUT field. */
+		ALONE_MERGE_IND : LD_Delivery:LD_PAYMENT_ENTRY__ALONE_MERGE_IND
+			@i18n:Label (en="Merge Customer Remarks")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=79.0, core=true, t24Name=ALONE.MERGE.IND)
+		OUR_REMARKS -> byValue LD_Delivery:LD_PAYMENT_ENTRY__OUR_REMARKS *
+		ACTIVITY -> byValue LD_Delivery:LD_PAYMENT_ENTRY__ACTIVITY *
+		STMT_NO -> byValue LD_Delivery:LD_PAYMENT_ENTRY__STMT_NO *
+		OVERRIDES -> byValue LD_Delivery:LD_PAYMENT_ENTRY__OVERRIDES *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=85.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=86.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue LD_Delivery:LD_PAYMENT_ENTRY__INPUTTER *
+		DATE_TIME -> byValue LD_Delivery:LD_PAYMENT_ENTRY__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=89.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=90.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=91.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=92.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=93.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LD_PAYMENT_ENTRY__PRIN_INTER_BANK
+	{
+		/* Name and address of the Intermediary Bank specified on the main contract.
+If an Intermediary Bank has been specified on the main contract, either as a customer number or as free form text, this field will contain the details.  Customer numbers will be translated into the current name and address available at time payment is effected.
+Validation Rules
+Enrichment text.  (System generated.  Multivalue.)
+This is a NOINPUT field. */
+		PRIN_INTER_BANK : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=7.0, core=true, t24Name=PRIN.INTER.BANK)
+	}
+	LD_PAYMENT_ENTRY__PRIN_AC_WITH_BK
+	{
+		/* Name and address of the Account with Bank specified on the main contract.
+If an Account with Bank has been specified on the main contract, either as a customer number or as free form text, this field will contain the details.  Customer numbers will be translated into the current name and address available at time payment is effected.
+Validation Rules
+Enrichment text.  (System generated.  Multivalue.)
+This is a NOINPUT field. */
+		PRIN_AC_WITH_BK : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=8.0, core=true, t24Name=PRIN.AC.WITH.BK)
+	}
+	LD_PAYMENT_ENTRY__INT_INTER_BANK
+	{
+		/* Name and address of the Intermediary Bank specified on the main contract.
+If an Intermediary Bank has been specified on the main contract, either as a customer number or as free form text, this field will contain the details.  Customer numbers will be translated into the current name and address available at time payment is effected.
+Validation Rules
+Enrichment text.  (System generated.  Multivalue.)
+This is a NOINPUT field. */
+		INT_INTER_BANK : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=12.0, core=true, t24Name=INT.INTER.BANK)
+	}
+	LD_PAYMENT_ENTRY__INT_AC_WITH_BK
+	{
+		/* Name and address of the Account with Bank specified on the main contract.
+If an Account with Bank has been specified on the main contract, either as a customer number or as free form text, this field will contain the details.  Customer numbers will be translated into the current name and address available at time payment is effected.
+Validation Rules
+Enrichment text. (System generated.  Multivalue.)
+This is a NOINPUT field. */
+		INT_AC_WITH_BK : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=13.0, core=true, t24Name=INT.AC.WITH.BK)
+	}
+	LD_PAYMENT_ENTRY__CHRG_AMT_DUE
+	{
+		/* The charge amount due on the contract.
+This field is associated with the following fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point. (System generated. Single value.)
+This is a NOINPUT field. */
+		CHRG_AMT_DUE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=32.0, core=true, t24Name=CHRG.AMT.DUE, typeModifiers="-1")
+		/* Indicates whether the component specified in the field CHRG.AMT.TO.PAY will be deducted from or added to the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+Validation Rules
+1 character of the form:           P    pay or           D    deduct  (System generated. Single value.)
+This is a NOINPUT field. */
+		CHRG_PAY_DEDUCT : LD_Delivery:LD_PAYMENT_ENTRY__CHRG_AMT_DUE__CHRG_PAY_DEDUCT
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=33.0, core=true, t24Name=CHRG.PAY.DEDUCT)
+		/* The value in this field represents the amount to be added to or deducted from the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point. (System generated. Single value.)
+This is a NOINPUT field. */
+		CHRG_AMT_TO_PAY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=34.0, core=true, t24Name=CHRG.AMT.TO.PAY, typeModifiers="-1")
+		/* This field indicates the disbursement account to be used for charge payments.
+The value in this field is obtained from field CHRG.LIQ.ACCT or CHRG.DISB.ACCT on LD.LOANS.AND.DEPOSITS.
+This field is associated with the following fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+Validation Rules
+1-14 numeric characters relating to a Customer Account or a Nostro Account. (System generated. Single value.)
+This is a NOINPUT field. */
+		CHRG_DISB_ACC : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=35.0, core=true, t24Name=CHRG.DISB.ACC)
+	}
+	LD_PAYMENT_ENTRY__FEES_AMT_DUE
+	{
+		/* The fee amount due on the contract.
+This field is associated with the following fields:
+SCH.TYPE.FEES           FEES.AMT.DUE           FEES.PAY.DEDUCT           FEES.AMT.TO.PAY           FEES.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point. (System generated. Single value.)
+This is a NOINPUT field. */
+		FEES_AMT_DUE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=42.0, core=true, t24Name=FEES.AMT.DUE, typeModifiers="-1")
+		/* Indicates whether the component specified in the field FEES.AMT.TO.PAY will be deducted from or added to the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.FEES           FEES.AMT.DUE           FEES.PAY.DEDUCT           FEES.AMT.TO.PAY           FEES.DISB.ACC
+Validation Rules
+1 character of the form:           P    pay  or           D    deduct  (System generated. Single value.)
+This is a NOINPUT field. */
+		FEES_PAY_DEDUCT : LD_Delivery:LD_PAYMENT_ENTRY__FEES_AMT_DUE__FEES_PAY_DEDUCT
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=43.0, core=true, t24Name=FEES.PAY.DEDUCT)
+		/* The value in this field represents the amount to be added to or deducted from the disbursement amount.
+This field is associated with the following fields:
+SCH.TYPE.FEES           FEES.AMT.DUE           FEES.PAY.DEDUCT           FEES.AMT.TO.PAY           FEES.DISB.ACC
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Single value.)
+This is a NOINPUT field. */
+		FEES_AMT_TO_PAY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=44.0, core=true, t24Name=FEES.AMT.TO.PAY, typeModifiers="-1")
+		/* This field indicates the disbursement account to be used for fee payments.
+The value in this field is obtained from field FEE.DISB.ACCT on LD.LOANS.AND.DEPOSITS.
+This field is associated with the following fields:
+SCH.TYPE.FEES           FEES.AMT.DUE           FEES.PAY.DEDUCT           FEES.AMT.TO.PAY           FEES.DISB.ACC
+Validation Rules
+1-14 numeric characters relating to a Customer Account or a Nostro Account.  (System generated. Single value.)
+This is a NOINPUT field. */
+		FEES_DISB_ACC : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=45.0, core=true, t24Name=FEES.DISB.ACC)
+	}
+	LD_PAYMENT_ENTRY__CHARGE_CODE
+	{
+		/* The charge code applicable to all/part of the amount specified earlier in this record.
+The charge applicable. This refers to all or part of the charges specified earlier in this record, in the following range of fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+This field is associated with the following fields:
+CHARGE.CODE           AMT.DUE           PAY.OR.DEDUCT           AMT.TO.PAY
+Validation Rules
+3 numeric characters. (System generated. Multi value.)
+This is a NOINPUT field. */
+		CHARGE_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=61.0, core=true, t24Name=CHARGE.CODE)
+		/* The amount of charges due.
+The amount of the charge applicable. This equates to all or part of the charges specified earlier in this record, in the following range of fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+This field is associated with the following fields:
+CHARGE.CODE           AMT.DUE           PAY.OR.DEDUCT           AMT.TO.PAY
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Multi value.)
+This is a NOINPUT field. */
+		AMT_DUE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=62.0, core=true, t24Name=AMT.DUE, typeModifiers="-1")
+		/* Indicates whether the charge specified in the previous field has been added to or deducted from the disbursement amount.
+This equates to all or part of the charges specified earlier in this record, in the following range of fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+This field is associated with the following fields:
+CHARGE.CODE           AMT.DUE           PAY.OR.DEDUCT           AMT.TO.PAY
+Validation Rules
+1 character of the form:             P    pay  or             D    deduct  (System generated. Multivalue. )
+This is a NOINPUT field. */
+		PAY_OR_DEDUCT : LD_Delivery:LD_PAYMENT_ENTRY__CHARGE_CODE__PAY_OR_DEDUCT
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=63.0, core=true, t24Name=PAY.OR.DEDUCT)
+		/* The amount of charges to be added to or deducted from the disbursement amount.
+This equates to all or part of the charges specified earlier in this record, in the following range of fields:
+SCH.TYPE.CHRG           CHRG.AMT.DUE           CHRG.PAY.DEDUCT           CHRG.AMT.TO.PAY           CHRG.DISB.ACC
+This field is associated with the following fields:
+CHARGE.CODE           AMT.DUE           PAY.OR.DEDUCT           AMT.TO.PAY
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point. (System generated. Multivalue.)
+This is a NOINPUT field. */
+		AMT_TO_PAY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=64.0, core=true, t24Name=AMT.TO.PAY, typeModifiers="-1")
+	}
+	LD_PAYMENT_ENTRY__TAX_TYPE
+	{
+		/* The tax type applicable.
+This equates to all or part of the tax specified earlier in this record, in the following range of fields:
+SCH.TYPE.TAX           TAX.AMT.DUE           TAX.PAY.DEDUCT           TAX.AMT.TO.PAY           TAX.DISB.ACC
+This field is associated with the following fields:
+TAX.TYPE           TAX.CODE           TAX.TYPE.DUE           TAX.TYPE.P.OR.D           TAX.TYPE.TO.PAY
+Validation Rules
+System generated. Multi value.
+This is a NOINPUT field. */
+		TAX_TYPE : LD_Delivery:LD_PAYMENT_ENTRY__TAX_TYPE__TAX_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=65.0, core=true, t24Name=TAX.TYPE)
+		TAX_CODE -> byValue LD_Delivery:LD_PAYMENT_ENTRY__TAX_TYPE__TAX_CODE *
+		/* The amount of tax due.
+This relates to all or part of the tax specified earlier in this record, in the following range of fields:
+SCH.TYPE.TAX           TAX.AMT.DUE           TAX.PAY.DEDUCT           TAX.AMT.TO.PAY           TAX.DISB.ACC
+This field is associated with the following fields:
+TAX.TYPE           TAX.CODE           TAX.TYPE.DUE           TAX.TYPE.P.OR.D           TAX.TYPE.TO.PAY
+Validation Rules
+1 to 14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Multi value.)
+This is a NOINPUT field. */
+		TAX_TYPE_DUE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=67.0, core=true, t24Name=TAX.TYPE.DUE, typeModifiers="-1")
+		/* Indicates whether the tax specified in the previous field has been added to or deducted from the disbursement amount.
+This equates to all or part of the tax specified earlier in this record, in the following range of fields:
+SCH.TYPE.TAX           TAX.AMT.DUE           TAX.PAY.DEDUCT           TAX.AMT.TO.PAY           TAX.DISB.ACC
+This field is associated with the following fields:
+TAX.TYPE           TAX.CODE           TAX.TYPE.DUE           TAX.TYPE.P.OR.D           TAX.TYPE.TO.PAY
+Validation Rules
+1 character of the form:             P    pay  or             D    deduct  (System generated. Multivalue.)
+This is a NOINPUT field. */
+		TAX_TYPE_P_OR_D : LD_Delivery:LD_PAYMENT_ENTRY__TAX_TYPE__TAX_TYPE_P_OR_D
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=68.0, core=true, t24Name=TAX.TYPE.P.OR.D)
+		/* The amount of tax to be added to or deducted from the disbursement amount.
+This equates to all or part of the tax specified earlier in this record, in the following range of fields:
+SCH.TYPE.TAX           TAX.AMT.DUE           TAX.PAY.DEDUCT           TAX.AMT.TO.PAY           TAX.DISB.ACC
+This field is associated with the following fields:
+TAX.TYPE           TAX.CODE           TAX.TYPE.DUE           TAX.TYPE.P.OR.D           TAX.TYPE.TO.PAY
+Validation Rules
+1-14 type AMT (standard amount format) characters plus a decimal point.  (System generated. Multivalue.)
+This is a NOINPUT field. */
+		TAX_TYPE_TO_PAY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=69.0, core=true, t24Name=TAX.TYPE.TO.PAY, typeModifiers="-1")
+	}
+	LD_PAYMENT_ENTRY__TAX_TYPE__TAX_CODE
+	{
+		/* The tax code applicable to all/part of the amount specified earlier in this record.
+This relates to all or part of the tax specified earlier in this record, in the following range of fields:
+SCH.TYPE.TAX           TAX.AMT.DUE           TAX.PAY.DEDUCT           TAX.AMT.TO.PAY           TAX.DISB.ACC
+This field is associated with the following fields:
+TAX.TYPE           TAX.CODE           TAX.TYPE.DUE           TAX.TYPE.P.OR.D           TAX.TYPE.TO.PAY
+Validation Rules
+System generated. Multivalue.
+This is a NOINPUT field. */
+		TAX_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=66.0, core=true, t24Name=TAX.CODE)
+	}
+	LD_PAYMENT_ENTRY__CUST_REMARKS
+	{
+		/* This field contains the customer remarks specified on the main contract.
+The value in this field is obtained from the field CUST.REMARKS specified on LD.LOANS.AND.DEPOSITS.
+Validation Rules
+System generated. Multi value.
+This is a NOINPUT field. */
+		CUST_REMARKS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=78.0, core=true, t24Name=CUST.REMARKS)
+	}
+	LD_PAYMENT_ENTRY__OUR_REMARKS
+	{
+		/* This field contains our remarks as specified on the main contract.
+The value in this field is obtained from the field OUR.REMARKS specified on LD.LOANS.AND.DEPOSITS.
+Validation Rules
+System generated. Multi value.
+This is a NOINPUT field. */
+		OUR_REMARKS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=80.0, core=true, t24Name=OUR.REMARKS)
+	}
+	LD_PAYMENT_ENTRY__ACTIVITY
+	{
+		/* The activity code to describe each successive event which produces an advice during the life of the contract.
+The codes found in this field are specified on the table LMM ACTIVITY.
+Validation Rules
+4-digit code. (System generated. Multi value.)
+This is a NOINPUT field. */
+		ACTIVITY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, sysNumber=81.0, core=true, t24Name=ACTIVITY)
+		/* Confirmation that payment entry details have been passed over (where necessary) to the T24 Delivery Module for onward communication to the counterparty.
+The call to the T24 Delivery Module is acknowledged by the latter sending back the ID that it has generated for the message. This ID takes the following form:
+D19860409-392226
+where D means a message is to be delivered, 1986 is the year, 04 is the month, 09 is the day and then the code 392226 is the number of hundred of seconds since Midnight on that day.
+Validation Rules
+Internal field.  Input is automatically generated by the system and consists of delivered marker in conjunction with a date and time stamp.  (System generated. Multivalue.)
+This is a NOINPUT field. */
+		TIME_DATE_STAMP : T24BusinessTypes:AA
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=82.0, core=true, t24Name=TIME.DATE.STAMP)
+	}
+	LD_PAYMENT_ENTRY__STMT_NO
+	{
+		/* A number generated automatically by the system which identifies a statement entry in respect of the payment being processed.
+The system will automatically insert a number into this field which will correspond to the statement entry generated by the payment being processed.
+Validation Rules
+Internal multivalue field.  (System generated. Multivalue.)
+This is a NOINPUT field. */
+		STMT_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=29, sysNumber=83.0, core=true, t24Name=STMT.NO)
+	}
+	LD_PAYMENT_ENTRY__OVERRIDES
+	{
+		/* Reserved for future use. */
+		OVERRIDES : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=84.0, core=true, t24Name=OVERRIDES)
+	}
+	LD_PAYMENT_ENTRY__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=87.0, core=true, t24Name=INPUTTER)
+	}
+	LD_PAYMENT_ENTRY__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=88.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	LD_PAYMENT_ENTRY__PRINC_PAY_DEDUCT : mml:string
+		P=P
+		N=N
+	LD_PAYMENT_ENTRY__INT_PAY_DEDUCT : mml:string
+		P=P
+		N=N
+		R=R
+	LD_PAYMENT_ENTRY__COMM_PAY_DEDUCT : mml:string
+		P=P
+		D=D
+		N=N
+		R=R
+	LD_PAYMENT_ENTRY__CHRG_AMT_DUE__CHRG_PAY_DEDUCT : mml:string
+		P=P
+		D=D
+		N=N
+	LD_PAYMENT_ENTRY__TAX_PAY_DEDUCT : mml:string
+		P=P
+		D=D
+		N=N
+	LD_PAYMENT_ENTRY__FEES_AMT_DUE__FEES_PAY_DEDUCT : mml:string
+		P=P
+		D=D
+		N=N
+	LD_PAYMENT_ENTRY__PEN_INT_PAY_DEDUCT : mml:string
+		P=P
+		D=D
+		N=N
+	LD_PAYMENT_ENTRY__PEN_COM_PAY_DEDUCT : mml:string
+		P=P
+		D=D
+		N=N
+	LD_PAYMENT_ENTRY__GEN_CHG_PAY_DEDUCT : mml:string
+		P=P
+		D=D
+		N=N
+	LD_PAYMENT_ENTRY__CHARGE_CODE__PAY_OR_DEDUCT : mml:string
+		P=P
+		D=D
+		N=N
+	LD_PAYMENT_ENTRY__TAX_TYPE__TAX_TYPE : mml:string
+		P=P
+		I=I
+		C=C
+	LD_PAYMENT_ENTRY__TAX_TYPE__TAX_TYPE_P_OR_D : mml:string
+		P=P
+		D=D
+		N=N
+	LD_PAYMENT_ENTRY__GRAND_TOTAL_P_OR_D : mml:string
+		P=P
+		D=D
+		N=N
+	LD_PAYMENT_ENTRY__MANUAL_AUTO : mml:string
+		A=A
+		M=M
+	LD_PAYMENT_ENTRY__ALONE_MERGE_IND : mml:string
+		A=A
+		M=M
+}

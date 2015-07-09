@@ -1,0 +1,104 @@
+
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            
+//   File Name:   Setup.rul                                                   
+//                                                                            
+//   Description: InstallShield script                                        
+//                                                                            
+//   Comments:    This script was generated based on the selections you made in
+//                the Project Wizard.  Refer to the help topic entitled "Modify      
+//                the script that the Project Wizard generates" for information
+//                on possible next steps.
+//
+////////////////////////////////////////////////////////////////////////////////
+// Include header files
+#include "ifx.h"
+////////////////////// string defines ////////////////////////////
+//////////////////// installation declarations ///////////////////
+// ----- DLL function prototypes -----
+    // your DLL function prototypes
+// ---- script function prototypes -----
+    // your script function prototypes
+    // your global variables  
+
+function OnMaintUIBefore()
+begin
+	ComponentRemoveAllInMediaAndLog();
+end;
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//                                                                           
+//  FUNCTION:   OnFirstUIBefore                                            
+//                                                                           
+//  EVENT:      The OnFirstUIBefore event is called by OnShowUI when the setup is
+//              running in first install mode. By default this event displays UI allowing
+//              the end user to specify installation parameters.
+//              
+//              Note: This event will not be called automatically in a
+//              program...endprogram style setup.                                                             
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+function OnFirstUIBefore()
+	number nResult, nLocation, nId;
+	string svDir, szTitle, szMsg, szString, szFindMe;
+begin
+	Disable(BACKGROUND);
+	if (MaintenanceStart() < 0) then
+		MessageBox ("Unable to create Unistall registry information", SEVERE);
+	endif;
+	svDir = "@destinationdir@";
+	// Beginning of UI Sequence
+	Dlg_Start:
+	Dlg_SdWelcome:
+		szTitle = "";
+		szMsg = "";
+		nResult = SdWelcome(szTitle, szMsg);
+		if (nResult = BACK) goto Dlg_Start;
+	Dlg_SdAskDestPath2:
+		szTitle = "";
+		szMsg = "";
+		nResult = SdAskDestPath2(szTitle, szMsg, svDir);
+		TARGETDIR = svDir;
+		szFindMe = " ";
+		// Find the substring specified by szFindMe.
+		nLocation = StrFind (svDir, szFindMe);
+		// Display the location of the text if it was found.
+		if (nLocation > 0) then
+			MessageBox ("Space character is not allowed in destination folder...", WARNING);
+			goto Dlg_SdAskDestPath2;
+		endif;
+		if (nResult = BACK) goto Dlg_SdWelcome;
+		nResult = nResult + AddFolderIcon(
+			"Design Studio TAP @marketingversion@ BETA",
+			"UnInstall Design Studio",
+			UNINSTALL_STRING + " /uninst",
+			svDir,
+			svDir + "\\Temenos_cube.ico",
+			0,
+			"",
+			REPLACE);
+		if (nResult < 0) then
+			MessageBox ("Unable to create Uninstall program folder", SEVERE);
+		endif;
+		nResult = nResult + AddFolderIcon(
+			"Design Studio TAP @marketingversion@ BETA",
+			"Design Studio TAP",
+			svDir + "\\DesignStudioTAP.exe",
+			svDir,
+			svDir + "\\Temenos_cube.ico",
+			0,
+			"",
+			REPLACE);
+		if (nResult < 0) then
+			MessageBox ("Unable to create Application program folder", SEVERE);
+		endif;
+		LogWriteCustomString ("p2" , svDir^"p2");
+		LogWriteCustomString ("configuration" , svDir^"configuration");
+	Dlg_ObjDialogs:
+		nResult = ShowObjWizardPages(nResult);
+		if (nResult = BACK) goto Dlg_SdAskDestPath2;
+		return 0;
+end;
+// --- include script file section ---
+
+

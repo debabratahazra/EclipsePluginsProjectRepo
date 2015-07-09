@@ -1,0 +1,110 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = "Investment Profile", de = Investitionsprofil, fr = "Profile d\'investissement"
+	containment = container
+	domainEntity = "AAADSDomain:DomainContext"
+	bean-define = DSActivityBean.AAADSDomain.DomainContext
+	bean-name = DomainContext
+	id = InvestmentProfilePGContainer_TY_sK
+	tid = 26567117706027
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- Include ---
+			includeSrc = "" !
+			resource:///Default/module/aaa/orderproposal/context/InvestmentProfilePG.module
+		--- Conditional ---
+			indexOfSelectedChild = 0
+		{
+			--- ConditionalBody ---
+				javaCode = "null != <bean:get-property bean=\"DomainContext\" property=\"strategyDimStrategy\"/>"
+				technicalName = InvestmentProfile
+				boxType = vertical
+				isWidgetSelected = true
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/orderproposal/compliance/InvestmentStrategy.module
+			}
+			--- ConditionalBody ---
+				javaCode = true
+				technicalName = Default
+				boxType = vertical
+				isWidgetVisible = false
+		}
+		--- Grid ---
+			cssClass = blank
+			gridColumnCount = 2
+			gridColumnsWidth = "25,25" !
+			gridRowCount = 1
+		{
+			--- GridCell ---
+				gridColumnWidth = 25
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						javaCode = "null != <bean:get-property bean=\"DomainContext\" property=\"isIPChanged\"/> &amp;&amp; \r\n\"1\".equals(<bean:get-property bean=\"DomainContext\" property=\"isIPChanged\"/>.toString())"
+						technicalName = IpChanged
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Button ---
+							labels en = Save, de = Speichern, fr = Sauver
+							id = btn_v4_t_
+							tid = 88932165974716
+						{
+							Event OnClick (submit)
+							tid = 268683549332546
+							messages en = "Changing the Investment Profile will delete all orders in your proposal. Do you want to continue?", de = "Diese Veränderung des Investment Profiles löscht alle Aufträge. Wollen Sie wirklich fortfahren?", fr = "La modification du Profile d\'Investissement va supprimer tous les ordres dans votre proposition. Voulez-vous continuer?"
+							{
+								method = post
+								call-URI = "<pageflow:continuation/>"
+								widget-group-ref = form
+								target = self
+								param = "flow-action=save"
+								only-changed = true
+								modal = false
+								prevalidate = false
+							}
+						}
+					}
+					--- ConditionalBody ---
+						javaCode = true
+						technicalName = Default
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Button ---
+							labels en = Save, de = Speichern, fr = Sauver
+							enabled = false
+							id = btn_U_gk_
+							tid = 88980461218161
+					}
+				}
+				--- Button ---
+					labels en = Cancel, de = Abbrechen, fr = Annuler
+					id = btn_n319_
+					tid = 88955741610063
+				{
+					Event OnClick (submit) S
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						target = self
+						flow-action = cancel ud
+						modal = false
+						only-changed = false
+						prevalidate = false
+					}
+				}
+			}
+			--- GridCell ---
+				gridColumnWidth = 25
+		}
+	}
+}

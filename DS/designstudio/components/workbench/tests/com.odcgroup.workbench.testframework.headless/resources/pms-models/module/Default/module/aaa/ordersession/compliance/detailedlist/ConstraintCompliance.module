@@ -1,0 +1,570 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels fr = "Conformité des contraintes du portefeuille", de = Beschränkungs-Konformität, en = "Portfolio Constraints Compliance"
+	domainEntity = "AAADSOrderSession:OrderSessionPtccDetailledConstraintCheck"
+	cssClass = nodeco
+	bean-define = DSBean.AAADSOrderSession.OrderSessionPtccDetailledConstraintCheck
+	bean-name = OrderSessionPtccDetailledConstraintCheck
+	id = OSConstraintCompliance_j32vP
+	documentation = "This module displays compliance details on the selected Portfolio. The compliance details are based only on constraints.\r\n\r\nThis module is used in the module <DetailedList> for the tab \"Constraints Compliance\""
+	tid = 6229738128867
+{
+	--- Box ---
+		boxType = vertical
+		width = 0
+	{
+		--- Box ---
+			labels en = Constraints, fr = Contraintes, de = Beschränkungen
+			boxType = vertical
+			tid = 108334428062999
+		{
+			--- TableTree ---
+				table-fixed-size = true
+				table-height = 300
+				id = N51t0
+				documentation = "This table is used to display the constraints compliance details of the selected Portfolio regarding its defined Security In and Allocation constraints."
+				table-column-count = 9 !
+				table-columns-width = "11,11,11,11,11,11,11,11,11" !
+				table-keep-filter-logic = OR
+			{
+				--- TableColumn ---
+					column-name = PORTFOLIO_NAME !
+					column-type = domain !
+					domainAttribute = PORTFOLIO_NAME !
+					type = text
+					column-locked = true
+					id = PORTFOLIO_NAME
+					documentation = "It is the name of the Portfolio on which the constraint is related.\r\n\r\nThe display of the Portfolio name is based on the following rules:\r\n\r\n1) the Portfolio name is used"
+					table-column-width = 11
+				{
+					--- TableColumnItem ---
+						item-column = PORTFOLIO_NAME
+						previewValue = AOU-1-DS
+				}
+				--- TableColumn ---
+					labels de = "Beschreibung der Beschränkung"
+					column-name = CONSTR_LABEL_PART_1 !
+					column-type = domain !
+					domainAttribute = CONSTR_LABEL_PART_1 !
+					type = text
+					id = CONSTR_LABEL_PART_1
+					documentation = "It is the description of the Allocation or Security In constraint.\r\n\r\nFor an Allocation constraint, the display of that description is the following:\r\n\r\n- On market segment [<market segment name>]\r\n\r\nThe display of the market segment name is based on the following rules:\r\n\r\n1) If the market segment translated denomination exists, then this value is used\r\n\r\n2) Else if the market segment denomination exists, then this value is used\r\n\r\n3) At least, the market segment name is used\r\n\r\n\r\nFor a Security In constraint, the display of that description is the following:\r\n\r\n- On instrument [<instrument label>]\r\n\r\nThe display of the instrument label depends of the instrument nature as follow:\r\n\r\n- For a FORWARD:\r\n\r\n[instrument type translated denomination] [operation nature translated denomination] [instrument reference currency code] / [instrument underlying currency translated denomination OR instrument underlying currency denomination OR instrument underlying currency name] [instrument cost price] [instrument start date in dd/mm/yyyy] - [instrument expiration date in dd/mm/yyyy]\r\n\r\n- For a FIXED INCOME, a DISCOUNT INSTRUMENT or an OPTION BOND:\r\n\r\n[instrument issuer translated denomination OR instrument issuer denomination OR instrument name] [instrument reference currency code] @ [instrument rate in %] [instrument start year in yyyy] - [instrument expiration date in dd/mm/yyyy]\r\n\r\n- For a CONVERTIBLE BOND:\r\n\r\n[instrument issuer translated denomination OR instrument issuer denomination OR instrument name] [instrument reference currency code] @ [instrument rate in %] [instrument start year in yyyy] - [instrument expiration date in dd/mm/yyyy]\r\n\r\n- For an OPTION:\r\n\r\n[option style translated label] [option type translated label] [option underlying instrument translated denomination OR option underlying instrument denomination OR option underlying instrument name] @ [option strike] [option strike currency] - [option expiration date in dd/mm/yyyy]\r\n\r\n- For a CASH ACCOUNT:\r\n\r\n[cash account currency code] [instrument type translated denomination]\r\n\r\n- For a MONEY MARKET:\r\n\r\n[instrument issuer translated denomination OR instrument issuer denomination OR instrument name] [instrument type translated denomination] [money market reference currency code] @ [rate in %] [money market start date in dd/mm/yyyy] - [money market expiration date in dd/mm/yyyy]\r\n\r\n- For a FUTURE:\r\n\r\n[instrument type translated denomination] [future underlying instrument translated denomination OR future underlying instrument denomination OR future underlying instrument name] @ [instrument cost price] [position currency code] - [future expiration in dd/mm/yyyy]\r\n\r\n- For other natures (STOCK, FUND SHARE, ...):\r\n\r\n[instrument denomination OR instrument name]"
+					table-column-width = 11
+					tid = 27600076903349
+				{
+					--- TableColumnItem ---
+						item-column = CONSTRAINTS_SET
+					--- TableColumnItem ---
+						item-column = CONSTR_LABEL_PART_1
+						previewValue = "On market segment ["
+					--- TableColumnItem ---
+						item-column = MARKET_STRUCTURE
+						previewValue = en_Bond/CHF
+					--- TableColumnItem ---
+						item-column = INSTR_DENOM
+					--- Conditional ---
+						technicalName = Instrument
+						indexOfSelectedChild = 0
+					{
+						--- ConditionalBody ---
+							javaCode = "<udp:item column=\"INSTR_CODE\"/>!=null"
+							technicalName = Instrument
+							boxType = vertical
+							isWidgetSelected = true
+						{
+							--- Spacer ---
+								height = 4
+								width = 3
+						}
+					}
+					--- Conditional ---
+						technicalName = Instrument
+						indexOfSelectedChild = 0
+					{
+						--- ConditionalBody ---
+							javaCode = "<udp:item column=\"INSTR_CODE\"/>!=null"
+							technicalName = Instrument
+							boxType = vertical
+							isWidgetSelected = true
+						{
+							--- Icon ---
+								toolTips en = "View Instrument Details", fr = "Voir les détails de l\'instrument", de = "Details des Instruments ansehen"
+								horizontalAlignment = "${corporatehalign}"
+								icon = application_form_magnify
+								id = J_821
+								tid = 6726322966805
+							{
+								Event OnClick (submit) S
+								{
+									method = post
+									call-URI = "resource:///administration/instrument/InstrumentQuickView.pageflow"
+									target = popup
+									code = "<udp:item column=\"INSTR_CODE\"/>" ud
+									modal = false
+									only-changed = false
+									prevalidate = false
+								}
+							}
+						}
+					}
+					--- TableColumnItem ---
+						item-column = INSTR_LIST_DENOM
+					--- TableColumnItem ---
+						item-column = CONSTR_LABEL_PART_2
+						previewValue = "]"
+				}
+				--- TableColumn ---
+					labels en = "Constraint Compliance", fr = "Conformité de la contrainte", de = "Konformität der Beschränkung"
+					column-name = ConstraintCompliance
+					column-type = placeholder !
+					type = boolean
+					id = S474_
+					documentation = "It indicates, for each constraint if it is breached or not\r\n\r\nThe indication will depend if the Case Management component is activated or not. The Case Management is active if the system parameter CASE_ACTIVATION_FLAG equal 1 and inactive if the same system parameter equal 0.\r\n\r\n--------------------------------\r\n\r\nIf the Case Management is inactive, the following values are available:\r\n\r\n- icon \"lightbulb\" if the constraint is not defined or evaluated\r\n- icon \"green ok\" if the constraint is not breached.\r\n- icon \"red cross\" if the constraint is breached.\r\n\r\n--------------------------------\r\n\r\nIf the Case Management is active, the following values are available:\r\n\r\n- icon \"lightbulb\" if the constraint is not defined or evaluated\r\n- icon \"green ok\" if the constraint is not breached\r\n- icon \"warning\"  if the constraint is breached, but the associated severity will not generate a case to clarify or block the saving of an order session.\r\n- icon \"exclamation mark\"  if the constraint is breached, but the associated severity will generate a case to clarify but not block the saving of an order session.\r\n- icon \"red cross\" if the constraint is breached, but the associated severity will block the saving of an order session.\r\n\r\nThe severity minimum value to generate a case to clarify is given by the system parameter STRAT_BLOCKCONSTR_CRITICALNESS. The severity minimum value to block the saving of an order session is given by the system parameter SESSION_BLOCK_CRITICALNESS."
+					table-column-width = 11
+					tid = 6438311457138
+				{
+					--- Conditional ---
+						indexOfSelectedChild = 4
+					{
+						--- ConditionalBody ---
+							javaCode = "\"Constraint Not Compliant\".equals(<udp:item column=\"CONSTR_COMPLIANCE_INDICATOR\"/>)"
+							technicalName = "Constraint Not Compliant"
+							boxType = vertical
+							documentation = "This condition is true if:\r\n\r\n1) The format element <CONSTR_COMPLIANCE_INDICATOR> is equal to \"Constraint Not Compliant\""
+							isWidgetVisible = false
+						{
+							--- Icon ---
+								toolTips en = "Constraint not compliant", fr = "Contrainte non conforme", de = "Beschränkung nicht konform"
+								horizontalAlignment = center
+								icon = cross
+								id = d_A__
+								tid = 521391173304962
+						}
+						--- ConditionalBody ---
+							javaCode = "\"RED\".equals(<udp:item column=\"CONSTR_COMPLIANCE_INDICATOR\"/>)"
+							technicalName = RED
+							boxType = vertical
+							documentation = "This condition is true if:\r\n\r\n1) The format element <CONSTR_COMPLIANCE_INDICATOR> is equal to \"RED\""
+							isWidgetVisible = false
+						{
+							--- Icon ---
+								toolTips en = "Constraint not compliant with high severity\'s level", fr = "Contrainte non conforme avec un niveau de sévérité élevé", de = "Beschränkung nicht konform mit hohem Schweregrad"
+								horizontalAlignment = center
+								icon = cross
+								id = j_U5F
+								tid = 98030189265282
+						}
+						--- ConditionalBody ---
+							javaCode = "\"ORANGE\".equals(<udp:item column=\"CONSTR_COMPLIANCE_INDICATOR\"/>)"
+							technicalName = ORANGE
+							boxType = vertical
+							documentation = "This condition is true if:\r\n\r\n1) The format element <CONSTR_COMPLIANCE_INDICATOR> is equal to \"ORANGE\""
+							isWidgetVisible = false
+						{
+							--- Icon ---
+								toolTips en = "Constraint not compliant, but medium severity\'s level", fr = "Contrainte non conforme, mais niveau de sévérité moyen", de = "Beschränkung nicht konform, aber mittlerer Schweregrad"
+								horizontalAlignment = center
+								icon = exclamation
+								id = JA_C8
+								tid = 98050693206000
+						}
+						--- ConditionalBody ---
+							javaCode = "\"YELLOW\".equals(<udp:item column=\"CONSTR_COMPLIANCE_INDICATOR\"/>)"
+							technicalName = YELLOW
+							boxType = vertical
+							documentation = "This condition is true if:\r\n\r\n1) The format element <CONSTR_COMPLIANCE_INDICATOR> is equal to \"YELLOW\""
+							isWidgetVisible = false
+						{
+							--- Icon ---
+								toolTips en = "Constraint not compliant, but low severity\'s level", fr = "Contrainte non conforme, mais niveau de sévérité bas", de = "Beschränkung nicht konform, aber niedriger Schweregrad"
+								horizontalAlignment = center
+								icon = error
+								id = sfo_5
+								tid = 98074292770723
+						}
+						--- ConditionalBody ---
+							javaCode = "(\"GREEN\".equals(<udp:item column=\"CONSTR_COMPLIANCE_INDICATOR\"/>) || \"Constraint Compliant\".equals(<udp:item column=\"CONSTR_COMPLIANCE_INDICATOR\"/>))"
+							technicalName = GREEN
+							boxType = vertical
+							documentation = "This condition is true if:\r\n\r\n1.a) The format element <CONSTR_COMPLIANCE_INDICATOR> is equal to \"Constraint Compliant\"\r\n\r\nOR\r\n\r\n1.b) The format element <CONSTR_COMPLIANCE_INDICATOR> is equal to \"GREEN\""
+							isWidgetSelected = true
+						{
+							--- Icon ---
+								toolTips en = "Constraint compliant", fr = "Contrainte conforme", de = "Beschränkung konform"
+								horizontalAlignment = center
+								icon = tick
+								id = H2_7W
+								tid = 98097196501055
+						}
+						--- ConditionalBody ---
+							javaCode = true
+							technicalName = Default
+							boxType = vertical
+							documentation = "If no others conditions are matching, that one will be used by default."
+							isWidgetVisible = false
+						{
+							--- Icon ---
+								toolTips en = "Constraint not defined or not evaluated", fr = "Contrainte non définie ou pas évaluée", de = "Beschränkung nicht bestimmt oder nicht bewertet"
+								horizontalAlignment = center
+								icon = lightbulb_off
+								id = ewE6p
+								tid = 98120452340283
+						}
+					}
+				}
+				--- TableColumn ---
+					column-name = CONSTR_POSITION_BEFORE !
+					column-type = domain !
+					domainAttribute = CONSTR_POSITION_BEFORE !
+					format = decimal.detailed
+					type = text
+					id = CONSTR_POSITION_BEFORE
+					documentation = "It is the weight before orders of the constrained market segment in the selected Portfolio. The weight for an Allocation constraint is in percentage. The weight for a Security In constraint is in percentage or in quantity.\r\n\r\nFor an Allocation constraint, the number is followed by the symbol:\r\n\r\n- %\r\n\r\nFor a Security In constraint, it is the symbols:\r\n\r\n- % (if in percentage)\r\n- Qty (if in quantity)\r\n\r\nRemark:\r\nThe Triple\'A format element behind the computation of that column is already able to calculate the weight in amount when the financial function will take into account Security In constraint in amount."
+					table-column-width = 11
+				{
+					--- TableColumnItem ---
+						item-column = CONSTR_POSITION_BEFORE
+						format = decimal
+						previewValue = 23.40
+					--- TableColumnItem ---
+						item-column = POSITION_TYPE_PERCENT
+						previewValue = %
+					--- Spacer ---
+						height = 4
+						width = 3
+					--- TableColumnItem ---
+						item-column = POSITION_TYPE_OTHER
+				}
+				--- TableColumn ---
+					column-name = CONSTR_POSITION_AFTER !
+					column-type = domain !
+					domainAttribute = CONSTR_POSITION_AFTER !
+					format = decimal.detailed
+					type = text
+					id = CONSTR_POSITION_AFTER
+					documentation = "It is the weight after orders of the constrained market segment in the selected Portfolio. The weight for an Allocation constraint is in percentage. The weight for a Security In constraint is in percentage or in quantity.\r\n\r\nFor an Allocation constraint, the number is followed by the symbol:\r\n\r\n- %\r\n\r\nFor a Security In constraint, it is the symbols:\r\n\r\n- % (if in percentage)\r\n- Qty (if in quantity)\r\n\r\nRemark:\r\nThe Triple\'A format element behind the computation of that column is already able to calculate the weight in amount when the financial function will take into account Security In constraint in amount."
+					table-column-width = 11
+				{
+					--- TableColumnItem ---
+						item-column = CONSTR_POSITION_AFTER
+						format = decimal
+						previewValue = 18.78
+					--- TableColumnItem ---
+						item-column = POSITION_TYPE_PERCENT
+						previewValue = %
+					--- Spacer ---
+						height = 4
+						width = 3
+					--- TableColumnItem ---
+						item-column = POSITION_TYPE_OTHER
+				}
+				--- TableColumn ---
+					column-name = FIXED_WEIGHT !
+					column-type = domain !
+					domainAttribute = FIXED_WEIGHT !
+					id = FIXED_WEIGHT
+					documentation = "It indicates whether the minimum and maximum objective weights of the Allocation constraint must be equal to the actual weight or not. The possible values are:\r\n\r\n- \"(blank = empty)\" if minimum and maximum objective weights don\'t have to be equal to actual weight\r\n\r\n- \"Yes\" if minimum and maximum objective weight have to be equal to actual weight"
+					table-column-width = 11
+				{
+					--- TableColumnItem ---
+						item-column = FIXED_WEIGHT
+				}
+				--- TableColumn ---
+					column-name = MIN_OBJ !
+					column-type = domain !
+					domainAttribute = MIN_OBJ !
+					id = MIN_OBJ
+					documentation = "It is the constraint minimum objective. For an Allocation constraint, this value is in percentage. For a Security In constraint, this value is in percentage or in quantity.\r\n\r\nFor an Allocation constraint, the number is followed by the symbol:\r\n\r\n- %\r\n\r\nFor a Security In constraint, it is the symbols:\r\n\r\n- % (if in percentage)\r\n- Qty (if in quantity)\r\n\r\nRemark:\r\nThe Triple\'A format element behind the computation of that column is already able to calculate the actual weight in amount when the financial function will take into account Security In constraint in amount."
+					table-column-width = 11
+				{
+					--- TableColumnItem ---
+						item-column = MIN_OBJ
+						format = decimal
+						previewValue = 22.00
+					--- TableColumnItem ---
+						item-column = MIN_OBJ_TYPE_PERCENT
+						previewValue = %
+					--- Spacer ---
+						height = 4
+						width = 3
+					--- TableColumnItem ---
+						item-column = MIN_OBJ_TYPE_OTHER
+				}
+				--- TableColumn ---
+					column-name = MAX_OBJ !
+					column-type = domain !
+					domainAttribute = MAX_OBJ !
+					id = MAX_OBJ
+					documentation = "It is the constraint maximum objective. For an Allocation constraint, this value is in percentage. For a Security In constraint, this value is in percentage or in quantity.\r\n\r\nFor an Allocation constraint, the number is followed by the symbol:\r\n\r\n- %\r\n\r\nFor a Security In constraint, it is the symbols:\r\n\r\n- % (if in percentage)\r\n- Qty (if in quantity)\r\n\r\nRemark:\r\nThe Triple\'A format element behind the computation of that column is already able to calculate the actual weight in amount when the financial function will take into account Security In constraint in amount."
+					table-column-width = 11
+				{
+					--- TableColumnItem ---
+						item-column = MAX_OBJ
+						format = decimal
+					--- TableColumnItem ---
+						item-column = MAX_OBJ_TYPE_PERCENT
+					--- Spacer ---
+						height = 4
+						width = 3
+					--- TableColumnItem ---
+						item-column = MAX_OBJ_TYPE_OTHER
+				}
+				--- TableColumn ---
+					column-name = CONSTR_SEVERITY_LABEL !
+					column-type = domain !
+					domainAttribute = CONSTR_SEVERITY_LABEL !
+					type = text
+					column-visibility = not-visible
+					id = CONSTR_SEVERITY_LABEL
+					documentation = "It indicates the constraint\'s severity. The 5 following values are allowed:\r\n- Empty (blank), if value <None>\r\n- Not Critical\r\n- Low\r\n- Medium\r\n- High"
+					table-column-width = 11
+				{
+					--- TableColumnItem ---
+						item-column = CONSTR_SEVERITY_LABEL
+						previewValue = Low
+				}
+				--- TableSort ---
+					sort-column-name = MIN_OBJ
+					sort-rank = 14
+				--- TableSort ---
+					sort-column-name = MAX_OBJ
+					sort-direction = descending
+					sort-rank = 19
+				--- TableKeepFilter ---
+					keep-filter-column-name = MODELL_CONSTR_FILTER
+					keep-filter-operand = 1
+				--- TableExtra ---
+					domainAttribute = portfolio_id
+				--- TableExtra ---
+					domainAttribute = CONSTR_COMPLIANCE_INDICATOR
+				--- TableExtra ---
+					domainAttribute = MAX_OBJ_TYPE_OTHER
+				--- TableExtra ---
+					domainAttribute = MAX_OBJ_TYPE_PERCENT
+				--- TableExtra ---
+					domainAttribute = MIN_OBJ_TYPE_OTHER
+				--- TableExtra ---
+					domainAttribute = MIN_OBJ_TYPE_PERCENT
+				--- TableKeepFilter ---
+					keep-filter-column-name = CONSTR_SET_FILTER
+					keep-filter-operand = 1
+				--- TableExtra ---
+					domainAttribute = instr_id
+				--- TableSort ---
+					sort-column-name = CONSTR_LABEL_PART_1
+					sort-rank = 9
+				--- TableSort ---
+					sort-column-name = CONSTRAINTS_SET
+					sort-rank = 5
+				--- TableSort ---
+					sort-column-name = MARKET_STRUCTURE
+					sort-rank = 11
+				--- TableSort ---
+					sort-column-name = INSTR_DENOM
+					sort-rank = 12
+				--- TableSort ---
+					sort-column-name = INSTR_LIST_DENOM
+					sort-rank = 13
+				--- TableExtra ---
+					domainAttribute = MARKET_STRUCTURE
+				--- TableExtra ---
+					domainAttribute = INSTR_DENOM
+				--- TableExtra ---
+					domainAttribute = INSTR_LIST_DENOM
+				--- TableExtra ---
+					domainAttribute = CONSTR_LABEL_PART_2
+				--- TableExtra ---
+					domainAttribute = INSTR_CODE
+				--- TableExtra ---
+					domainAttribute = POSITION_TYPE_OTHER
+				--- TableExtra ---
+					domainAttribute = POSITION_TYPE_PERCENT
+				--- TableSort ---
+					sort-column-name = CONSTR_POSITION_AFTER
+					sort-rank = 18
+				--- TableSort ---
+					sort-column-name = CONSTR_POSITION_BEFORE
+					sort-rank = 17
+			}
+		}
+		--- Box ---
+			labels en = "Positions Excluded from Management Mandate", fr = "Positions exclues du mandat de gestion", de = "Positionen ausgenommte von der Verwaltungsvollmacht"
+			boxType = vertical
+			tid = 108355963681489
+		{
+			--- TableTree ---
+				table-fixed-size = true
+				table-height = 300
+				id = T_36q
+				documentation = "This table is used to display the constraints compliance details of the selected Portfolio regarding its defined Security Out constraints."
+				table-column-count = 5 !
+				table-columns-width = "20,20,20,20,20" !
+			{
+				--- TableColumn ---
+					column-name = PORTFOLIO_NAME !
+					column-type = domain !
+					domainAttribute = PORTFOLIO_NAME !
+					type = text
+					column-locked = true
+					id = PORTFOLIO_NAME
+					table-column-width = 20
+				{
+					--- TableColumnItem ---
+						item-column = PORTFOLIO_NAME
+						previewValue = AOU-1-DS
+				}
+				--- TableColumn ---
+					column-name = CONSTR_LABEL_PART_1 !
+					column-type = domain !
+					domainAttribute = CONSTR_LABEL_PART_1 !
+					type = text
+					id = CONSTR_LABEL_PART_1
+					documentation = "It is the description of the Security Out constraint. The display of that description is the following:\r\n\r\n- Exclude <quantity to exclude> [<instrument label>] from mandate\r\n\r\nThe display of the instrument label depends of the instrument nature as follow:\r\n\r\n- For a FORWARD:\r\n\r\n[instrument type translated denomination] [operation nature translated denomination] [instrument reference currency code] / [instrument underlying currency translated denomination OR instrument underlying currency denomination OR instrument underlying currency name] [instrument cost price] [instrument start date in dd/mm/yyyy] - [instrument expiration date in dd/mm/yyyy]\r\n\r\n- For a FIXED INCOME, a DISCOUNT INSTRUMENT or an OPTION BOND:\r\n\r\n[instrument issuer translated denomination OR instrument issuer denomination OR instrument name] [instrument reference currency code] @ [instrument rate in %] [instrument start year in yyyy] - [instrument expiration date in dd/mm/yyyy]\r\n\r\n- For a CONVERTIBLE BOND:\r\n\r\n[instrument issuer translated denomination OR instrument issuer denomination OR instrument name] [instrument reference currency code] @ [instrument rate in %] [instrument start year in yyyy] - [instrument expiration date in dd/mm/yyyy]\r\n\r\n- For an OPTION:\r\n\r\n[option style translated label] [option type translated label] [option underlying instrument translated denomination OR option underlying instrument denomination OR option underlying instrument name] @ [option strike] [option strike currency] - [option expiration date in dd/mm/yyyy]\r\n\r\n- For a CASH ACCOUNT:\r\n\r\n[cash account currency code] [instrument type translated denomination]\r\n\r\n- For a MONEY MARKET:\r\n\r\n[instrument issuer translated denomination OR instrument issuer denomination OR instrument name] [instrument type translated denomination] [money market reference currency code] @ [rate in %] [money market start date in dd/mm/yyyy] - [money market expiration date in dd/mm/yyyy]\r\n\r\n- For a FUTURE:\r\n\r\n[instrument type translated denomination] [future underlying instrument translated denomination OR future underlying instrument denomination OR future underlying instrument name] @ [instrument cost price] [position currency code] - [future expiration in dd/mm/yyyy]\r\n\r\n- For other natures (STOCK, FUND SHARE, ...):\r\n\r\n[instrument denomination OR instrument name]"
+					table-column-width = 20
+				{
+					--- TableColumnItem ---
+						item-column = CONSTR_LABEL_PART_1
+						previewValue = "Exclude 290.00 ["
+					--- TableColumnItem ---
+						item-column = INSTR_DENOM
+						previewValue = en_T_AI_CHF_BAER
+					--- Conditional ---
+						indexOfSelectedChild = 0
+					{
+						--- ConditionalBody ---
+							javaCode = "<udp:item column=\"INSTR_CODE\"/>!=null"
+							technicalName = Instrument
+							boxType = vertical
+							isWidgetSelected = true
+						{
+							--- Spacer ---
+								height = 4
+								width = 3
+						}
+					}
+					--- Conditional ---
+						indexOfSelectedChild = 0
+					{
+						--- ConditionalBody ---
+							javaCode = "<udp:item column=\"INSTR_CODE\"/>!=null"
+							technicalName = Instrument
+							boxType = vertical
+							isWidgetSelected = true
+						{
+							--- Icon ---
+								toolTips en = "View Instrument Details", fr = "Voir les détails de l\'instrument", de = "Details des Instruments ansehen"
+								horizontalAlignment = "${corporatehalign}"
+								icon = application_form_magnify
+								id = O__Wa
+								tid = 6646388427111
+							{
+								Event OnClick (submit) S
+								{
+									method = post
+									call-URI = "resource:///administration/instrument/InstrumentQuickView.pageflow"
+									target = popup
+									code = "<udp:item column=\"INSTR_CODE\"/>" ud
+									modal = false
+									only-changed = false
+									prevalidate = false
+								}
+							}
+						}
+					}
+					--- TableColumnItem ---
+						item-column = INSTR_LIST_DENOM
+					--- TableColumnItem ---
+						item-column = CONSTR_LABEL_PART_2
+						previewValue = "] from mandate"
+				}
+				--- TableColumn ---
+					column-name = REMAINING_POSITION !
+					column-type = domain !
+					domainAttribute = REMAINING_POSITION !
+					format = decimal.detailed
+					type = text
+					id = REMAINING_POSITION
+					documentation = "It is the remaining weight of the constrained instrument in the selected Portfolio. It is only available for Security Out Constraints defined on instruments. The remaining weight is in percentage or in quantity.\r\n\r\nThe number is followed by the symbols:\r\n\r\n- % (if in percentage)\r\n- Qty (if in quantity)"
+					table-column-width = 20
+				{
+					--- TableColumnItem ---
+						item-column = REMAINING_POSITION
+						format = decimal.detailed
+						previewValue = 56.00
+					--- TableColumnItem ---
+						item-column = REMAINING_POS_TYPE_PERCENT
+					--- Spacer ---
+						height = 4
+						width = 3
+					--- TableColumnItem ---
+						item-column = REMAINING_POS_TYPE_OTHER
+						previewValue = Qty
+				}
+				--- TableColumn ---
+					column-name = CONSTR_TREAT !
+					column-type = domain !
+					domainAttribute = CONSTR_TREAT !
+					id = CONSTR_TREAT
+					documentation = "It is the constraint treatment for a Security Out constraint. The possible values are:\r\n\r\n- \"(blank = empty)\" if constraint treatment is not defined or equal to \"None\"\r\n\r\n- \"Mandatory\"\r\n\r\n- \"Optional\"\r\n\r\n- \"Check Only\""
+					table-column-width = 20
+				{
+					--- TableColumnItem ---
+						item-column = CONSTR_TREAT
+						previewValue = Optional
+				}
+				--- TableColumn ---
+					column-name = CONSTR_SEVERITY_LABEL !
+					column-type = domain !
+					domainAttribute = CONSTR_SEVERITY_LABEL !
+					type = text
+					column-visibility = not-visible
+					id = CONSTR_SEVERITY_LABEL
+					documentation = "It indicates the constraint\'s severity. The 5 following values are allowed:\r\n- Empty (blank), if value <None>\r\n- Not Critical\r\n- Low\r\n- Medium\r\n- High"
+					table-column-width = 20
+				{
+					--- TableColumnItem ---
+						item-column = CONSTR_SEVERITY_LABEL
+						previewValue = Medium
+				}
+				--- TableSort ---
+					sort-column-name = CONSTR_TREAT
+					sort-rank = 10
+				--- TableKeepFilter ---
+					keep-filter-column-name = SECU_OUT_CONSTR_FILTER
+					keep-filter-operand = 1
+				--- TableExtra ---
+					domainAttribute = portfolio_id
+				--- TableExtra ---
+					domainAttribute = CONSTR_COMPLIANCE_INDICATOR
+				--- TableSort ---
+					sort-column-name = CONSTR_LABEL_PART_1
+					sort-rank = 3
+				--- TableSort ---
+					sort-column-name = INSTR_DENOM
+					sort-rank = 6
+				--- TableSort ---
+					sort-column-name = INSTR_LIST_DENOM
+					sort-rank = 7
+				--- TableExtra ---
+					domainAttribute = instr_id
+				--- TableExtra ---
+					domainAttribute = INSTR_DENOM
+				--- TableExtra ---
+					domainAttribute = INSTR_LIST_DENOM
+				--- TableExtra ---
+					domainAttribute = CONSTR_LABEL_PART_2
+				--- TableExtra ---
+					domainAttribute = INSTR_CODE
+				--- TableSort ---
+					sort-column-name = REMAINING_POSITION
+					sort-rank = 9
+				--- TableExtra ---
+					domainAttribute = REMAINING_POS_TYPE_OTHER
+				--- TableExtra ---
+					domainAttribute = REMAINING_POS_TYPE_PERCENT
+			}
+		}
+	}
+}

@@ -1,0 +1,438 @@
+# UTF-8
+# UTF-8
+/* Repayment Processing for Syndicated Loans */
+Domain SL_Repayment
+	@t24:i (module=SL)
+	@java:Package (value=com.temenos.t24.datamodel.sl.sl_repayment)
+namespace "http://www.temenos.com/t24/SL_Repayment"
+metamodelVersion 1.30.6
+Classes {
+	SL_FACI_REPAY_SCHED_LIST
+		@t24:i (t24Name=SL.FACI.REPAY.SCHED.LIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key field and holds the id of the Facility to which this record is created */
+		ID -> SL_Repayment:SL_FACI_REPAY_SCHED_LIST PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=ID, mask="##/#####/#####/##")
+		REPAY_DATE -> byValue SL_Repayment:SL_FACI_REPAY_SCHED_LIST__REPAY_DATE *
+	}
+	SL_FACI_REPAY_SCHED_LIST__REPAY_DATE
+	{
+		/* This field holds the dates on which a phased reduction of facility amounts is defined in the facility. When a revolving facility is issued, the phased reduction of facility amounts would happen on the dates available in this field */
+		REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=REPAY.DATE)
+	}
+	/* SL.REPAYMENT.SCHEDULES is
+permitted only if the Facility is Non Revolving type. It would be possible to define repayment schedules either at the Loan (SLL) level or at the Facility level.
+This application would have the following structure;
+FLD
+          FIELD
+          COMMENTS
+          
+        1
+          @ID
+          The Facility or Loan for which the user desires to       define schedules is input
+          
+        2.1
+          RPT START DATE
+          Indicates the date on which redemption of principal       is to commence for the above blockMulti value field to facilitate definition of several       time periods and amount blocks.
+          
+        3.1
+          RPT END DATE
+          Indicates the date within which the principal       specified in the forthcoming field is to be redeemed. In other words the       end date for the time blockAssociated multi value field with RPT START DATE
+          
+        4.1
+          RPT FQY
+          Indicates the frequency at which principal redemption       is to take place for the above blockRPT FQY for two blocks may be different to suit       actual cash flows. Eg. For the first block it could be M03 and for the       next M01Associated multi value field with RPT START DATE
+          
+        5.1
+          RPT AMOUNT
+          The principal that is expected to be redeemed within       the period defined in REDEM START DATE & REDEM END DATE. The user may       either define the principal that is expected to be redeemed in absolute       value or as a percentage in the next field.Associated multi value field with RPT START DATEAggregate RPT.AMOUNT should be equal to the net       outstanding under the Facility (in BCCY equivalent) or SL.Loan (in       Deal.Currency)
+          
+        6.1
+          RPT PERC
+          Amount in above field expressed as a percentage.       Input of either absolute amount in above field or percentage in this field       is allowed.If percentage is input, RPT.AMOUNT should be system       written by applying the percentage on the net outstanding under the       Facility (in BCCY equivalent) or SL.LOAN (expressed in Deal.Currency)
+          
+        7
+          ANNUITY.TYPE
+          YES would mean that repayment amount comprises       principal and interest (annuity type). NO would mean repayment amount is       only towards principal. If this field contains a value YES, INT.EFF.DATE       may not be greater than RPT.START.DATE.Value YES is allowed only if repayment schedules are       defined at SL.LOAN level and not Facility level.Effective the RPT.START.DATE, the contract would have       Annuity schedules and interest and principal would be scheduled on the       same date as cycled for principal.
+          
+        8.1
+          INT EFF DATE
+          Effective date for commencement of repayment of       interestInput allowed only if schedules are defined at SLL       levelMulti value field to allow definition of several       effective dates and frequencies.Date input in this field may not exceed the       RPT.START.DATE if ANNUITY.TYPE is flagged as Yes.
+          
+        9.1
+          INT DUE FQY
+          Indicates the frequency of payment of interest.Associated multi value with INT EFF DATEInput allowed only if schedules are defined at SLL       level
+          
+        10
+          BASE DATE
+          This field provides the user options to specify the       basis under which subsequent event dates will be derived. The options are;BASE  System would use the first scheduled date       entered to compute the subsequent event date.PREV  System will use the last computed scheduled       date to compute subsequent event date
+          
+        11
+          FWD.BKD.KEY
+          This field indicates the method that will be followed       for the generation of schedules and the action that will be taken if the       derived date is a non-working day.FWD  The system will go forward to the next       working dayBWD  System will go backward to the last working       dayFSM  System will go forward to the next working       day if within the same month. Else it will go backward to the last working       dayCAL  The system will use the derived date without       change, irrespective of the fact whether it is a working day or not
+SL.EXPOSURE.LEVEL file would be built where SL.REPAYMENT.SCHEDULES is defined at Facility level. Updation would happen as follows;
+Exposure Date  Whould start with RPT.START.DATE and have one value for every cycled date.
+Exposure Level  This would contain the projected exposure. First updation would be for amount equal to Facility amount less principal amount expected to be repaid on the scheduled date. This updation would go on till the repayment end date when the Exposure level would become zero.
+
+When a fresh loan is drawn or while handling SL.ROLLOVER, error would be produced when Exposure level is exceeded.
+
+Example - If the build is SL.EXPOSURE.LEVEL is as follows (based on definition in SL.REPAYMENT.SCHEDULES)
+Exposure Date  01 Jan 05
+Exposure Level  75,000
+Exposure Date  01 Jan 06
+Exposure Level  60,000
+Exposure Date  01 Jan 07
+Exposure Level  10,000
+Exposure Date  01 Jan 08
+Exposure Level  0
+
+Assume that two loans exist under the Facility  L1 for 40,000 and L2 for 60,000, both amounts expressed in BCCY equivalent (The loans could exist in any currency). The current maturity date in L1 and L2 are 31 Oct 04. When an attempt is made to rollover L1 for a further period of 6 months (till 31 Mar 05), this would go through. If L2 is rolled over for a similar period, error message is to be produced as the projected exposure level on 01 Jan 05 is exceeded. The borrower could in this case split L2 into two loans, one for 25,000 each, with maturity date as 31 Dec 05 and 31 Mar 05. */
+	SL_REPAYMENT_SCHEDULES
+		@t24:i (t24Name=SL.REPAYMENT.SCHEDULES, level=F, type=H, additionalInfo="NOH UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		CONTRACT_NO -> SL_Repayment:SL_REPAYMENT_SCHEDULES PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO)
+		RPT_START_DATE -> byValue SL_Repayment:SL_REPAYMENT_SCHEDULES__RPT_START_DATE *
+		/* Field to indicate whether the repayment schedule is ANNUITY type or not.
+Annuity type schedules are permitted only for loan level schedules.
+YES would mean that repayment amount comprises principal and interest (annuity type). NO would mean repayment amount is only towards principal. If this field contains a value YES, INT.EFF.DATE may not be greater than RPT.START.DATE.
+
+Value YES is allowed only if repayment schedules are defined at SL.LOAN level and not Facility level.
+Effective the RPT.START.DATE the contract would have Annuity schedules and interest and principal would be scheduled on the same date as cycled for principal.
+
+
+Validation Rules
+
+Only allowed values are YES and NO
+If this field contains a value YES, INT.EFF.DATE may not be greater than       RPT.START.DATE. */
+		ANNUITY_TYPE : SL_Repayment:SL_REPAYMENT_SCHEDULES__ANNUITY_TYPE
+			@i18n:Label (en="Annunity Type")
+			@i18n:Tooltip (en="Annunity Type")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=8.0, core=true, t24Name=ANNUITY.TYPE)
+		INT_EFF_DATE -> byValue SL_Repayment:SL_REPAYMENT_SCHEDULES__INT_EFF_DATE *
+		/* This field provides the user options to specify the basis under which subsequent event dates will be derived. The options are;
+BASE  System would use the first scheduled date entered to compute the subsequent event date.
+PREV  System will use the last computed scheduled date to compute subsequent event date
+Validation Rules
+
+
+Only       allowed values are BASE and PREV
+. */
+		BASE_DATE : SL_Repayment:SL_REPAYMENT_SCHEDULES__BASE_DATE
+			@i18n:Label (en="Base Date")
+			@i18n:Tooltip (en="Start Date of the instalment")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=12.0, core=true, t24Name=BASE.DATE)
+		/* This field indicates the method that will be followed for the generation of schedules and the action that will be taken if the derived date is a non-working day.
+
+FWD  The system will go forward to the next working day
+BWD  System will go backward to the last working day
+FSM  System will go forward to the next working day if within the same month. Else it will go backward to the last working day
+CAL  The system will use the derived date without change, irrespective of the fact whether it is a working day or not
+
+Validation Rules
+
+Allowed values are FWD, BWD, FSM & CAL */
+		FWD_BWD_KEY : SL_Repayment:SL_REPAYMENT_SCHEDULES__FWD_BWD_KEY
+			@i18n:Label (en="Forward Backward Key")
+			@i18n:Tooltip (en="Indicates the forward backward key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=13.0, core=true, t24Name=FWD.BWD.KEY)
+		/* Frequency at which the rate revision, if any, needs to be applied.
+Validation Rules
+
+Input allowed to this field only with interest type as periodic automatic (3)" */
+		R_SCH_FQY : T24BusinessTypes:FQU
+			@i18n:Label (en=Frequency)
+			@i18n:Tooltip (en="Repayment Schedule Frequency")
+			@t24:i (align=L, inputBehaviour=N, maxLength=13, sysNumber=14.0, core=true, t24Name=R.SCH.FQY, mask="RDDDD DD  DD #####")
+		REPAY_TYPE -> byValue SL_Repayment:SL_REPAYMENT_SCHEDULES__REPAY_TYPE *
+		DELIVERY_CUST -> byValue SL_Repayment:SL_REPAYMENT_SCHEDULES__DELIVERY_CUST *
+		DELIVERY_REF -> byValue SL_Repayment:SL_REPAYMENT_SCHEDULES__DELIVERY_REF *
+		/* This field is used to define the Total term on which the interest repayment has to be calculated irrespective of the contract LIFE.
+It can accept values of 'nnM' or 'nnY'
+Validation Rules
+The field should accept either monthly or yearly term definition.
+Allowed only for Annuity type of Contracts. */
+		AMORT_TERM : T24BusinessTypes:A
+			@i18n:Label (en="Amortized Term")
+			@i18n:Tooltip (en="Specify Amortized Term")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=29.0, core=true, t24Name=AMORT.TERM)
+		ANNUITY_REPAY_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Annuity Repayment Amt")
+			@i18n:Tooltip (en="Annunity Repayment Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=30.0, core=true, t24Name=ANNUITY.REPAY.AMT)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=31.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=32.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=33.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=34.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=35.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=36.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=37.0, core=true, t24Name=RESERVED2)
+		OVERRIDE -> byValue SL_Repayment:SL_REPAYMENT_SCHEDULES__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=40.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=41.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SL_Repayment:SL_REPAYMENT_SCHEDULES__INPUTTER *
+		DATE_TIME -> byValue SL_Repayment:SL_REPAYMENT_SCHEDULES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=44.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=45.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=46.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=47.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=48.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SL_REPAYMENT_SCHEDULES__RPT_START_DATE
+	{
+		/* Indicates the date on which the redemption of principal is to commence.
+Associated multi-value field to facilitate definition of several time periods and amount blocks.
+Input can be in the standard date format of YYYYMMDD which will be stored as DD MMM YYYY.
+Validation Rules
+
+Can not be less than the process date
+Must be greater than draw maturity date of the facility */
+		RPT_START_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=RPT.START.DATE)
+		/* Indicates the date within which the principal specified has to be redeemed.
+Associated multi-value field to facilitate definition of several time periods and amount blocks.
+Input can be in the standard date format of YYYYMMDD which will be stored as DD MMM YYYY.
+Validation Rules
+
+Can not be greater than the maturity date of the facility or loan.
+If another multi-value set is defined, the date in this field should be       less than the start date defined in the next multi-value set. */
+		RPT_END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=RPT.END.DATE)
+		/* Indicates the frequency at which principal redemption is to take place for the above block
+RPT FQY for two blocks may be different to suit actual cash flows. Eg. For the first block it could be M03 and for the next M01
+Associated multi value field with RPT START DATE
+
+Only monthly (and above) frequencies allowed
+Validation Rules
+
+3 alpha numeric character in the format M01 to M12 */
+		RPT_FQY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=3.0, core=true, t24Name=RPT.FQY)
+		/* The principal that is expected to be redeemed within the period defined in REDEM START DATE & REDEM END DATE. The user may either define the principal that is expected to be redeemed in absolute value or as a percentage in the next field.
+Associated multi value field with RPT START DATE
+Aggregate RPT.AMOUNT should be equal to the net outstanding (net amount drawn) under the Facility (in BCCY equivalent) or SL.Loan (in Deal.Currency)
+
+Value in this field is expressed in Facility currency for facility level schedules and in deal currency for loan schedules
+
+Validation Rules
+
+1-14 numeric characters plus decimal point
+
+Aggregate RPT.AMOUNT should be equal to the net outstanding under the Facility (in BCCY equivalent) or SL.Loan (in Deal.Currency) */
+		RPT_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=RPT.AMOUNT)
+		/* Value in RPT.AMOUNT expressed as a percentage. Input of either absolute amount in above field or percentage in this field is allowed.
+If percentage is input, RPT.AMOUNT should be system written by applying the percentage on the net outstanding under the Facility (in BCCY equivalent) or SL.LOAN (expressed in Deal.Currency)
+
+Validation Rules
+
+Standard percentage field. */
+		RPT_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, t24Name=RPT.PERC)
+		/* Next repayment date for the block as cycled by the system and the associated frequency.
+Ex - 01 OCT 2002 M0301 where 01OCT2002 stands for the next cycled payment date and M0301 for every quarter on the first day.
+System generated. No input
+Validation Rules
+
+Upto 9 type A alphanumeric plus frequency. Format is 01 OCT 2002 M0301 */
+		NXT_RPT_DATE : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=N, maxLength=13, sysNumber=6.0, core=true, t24Name=NXT.RPT.DATE, mask="RDDDD DD  DD #####")
+		/* The system calculated amount that is to be redeemed on the next scheduled date.
+Validation Rules
+
+System written. No input */
+		NXT_RPT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=7.0, core=true, t24Name=NXT.RPT.AMT)
+	}
+	SL_REPAYMENT_SCHEDULES__INT_EFF_DATE
+	{
+		/* Effective date for commencement of repayment of interest
+Input allowed only if schedules are defined at SL.Loan level
+Multi value field to allow definition of more than one effective date and frequency
+Date input in this field may not exceed the RPT.START.DATE if ANNUITY.TYPE is flagged as Yes.
+
+Validation Rules
+
+Allowed only for loan level schedules.
+
+Date input in this field may not exceed the     RPT.START.DATE if ANNUITY.TYPE is flagged as Yes. */
+		INT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=INT.EFF.DATE)
+		/* Indicates the frequency of payment of interest.
+Associated multi value with INT EFF DATE
+Input allowed only if schedules are defined at SL.LOAN level
+
+
+Validation Rules
+
+Allowed only  if repayment schedule is defined for loans and not       for facility
+If this field contains a value YES, INT.EFF.DATE may not be greater than       RPT.START.DATE. */
+		INT_DUE_FQY : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=10.0, core=true, t24Name=INT.DUE.FQY, mask="RDDDD DD  DD #####")
+		/* Holds the user defined interest amount for frequency based schedules
+Validation Rules
+
+Special interest basis is not allowed for Annuity type */
+		INT_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=11.0, core=true, t24Name=INT.AMOUNT)
+	}
+	SL_REPAYMENT_SCHEDULES__REPAY_TYPE
+	{
+		/* This field indicates the adhoc schedule type for loan and facility.
+
+The user can input a single schedule (P- principal and I  Interest) or a valid combination of schedules (PI  Principal and Interest).
+
+For facility level it will be taken as reduction amount for facility exposure level.
+
+
+Validation Rules
+
+Accepts P, PI and I schedule types for Loan level repayment schedules       and only P type schedules for Facility level.
+User can input either repayment frequency set of field or Adhoc       repayments, not both. */
+		REPAY_TYPE : SL_Repayment:SL_REPAYMENT_SCHEDULES__REPAY_TYPE__REPAY_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=15.0, core=true, t24Name=REPAY.TYPE)
+		/* This field indicates the date of the event.
+
+
+If a multiple period contract is involved and the date inserted in this field does not represent the maturity date, this field will represent the starting date for the next period.
+
+
+For facility level repayment schedules it indicates phase reduction date and based on this date SL.EXPOSURE.LEVEL file will be built.
+
+
+Validation Rules
+
+Standard  Date format
+A valid date is mandatory for each schedule type.
+For Loan level repayment, this date should be greater than the Value       date and Less than or Equal to maturity date.
+For Facility level repayment, the date should be greater than the Draw       down maturity date and equal to Facility maturity date.
+"P" schedule mandatory for the date indicated in the field       MATURITY.DATE on SL.LOANS / FACILITY. */
+		REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=REPAY.DATE)
+		/* The amount of Loan schedule or phase reduction amount of Facility.
+Validation Rules
+
+Standard amount format
+Input mandatory for P and PI  schedules. Amount input against a PI       schedule would be towards "P" schedule only.
+"P" schedules total must be equal to Principal        outstanding; Prepayment  will  not be included in the       Principal  outstanding. */
+		REPAY_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=REPAY.AMOUNT)
+		/* The scheduled amount expressed in percentage  format.
+When input, system calculates and updates REPAY.AMOUNT.
+Validation Rules
+
+Optional  input.
+Input may be through REPAY.AMOUNT or REPAY.PERC. */
+		REPAY_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=REPAY.PERC)
+	}
+	SL_REPAYMENT_SCHEDULES__DELIVERY_CUST
+	{
+		/* Please refer help text section of SL.LOANS. */
+		DELIVERY_CUST -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=19.0, core=true, businessType=CUS, t24Name=DELIVERY.CUST)
+		/* Please refer help text section of SL.LOANS. */
+		ACTIVITY_CODE -> EB_Delivery:EB_ACTIVITY
+			@t24:i (align=L, inputBehaviour=N, maxLength=7, sysNumber=20.0, core=true, businessType=A, t24Name=ACTIVITY.CODE)
+		/* Please refer help text section of SL.LOANS. */
+		ACTIVITY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=21.0, core=true, t24Name=ACTIVITY.DATE)
+		/* Please refer help text section of SL.LOANS. */
+		PRIOR_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=22.0, core=true, t24Name=PRIOR.DAYS)
+		MSG_TYPE -> byValue SL_Repayment:SL_REPAYMENT_SCHEDULES__DELIVERY_CUST__MSG_TYPE *
+	}
+	SL_REPAYMENT_SCHEDULES__DELIVERY_CUST__MSG_TYPE
+	{
+		/* Please refer help text section of SL.LOANS. */
+		MSG_TYPE -> DE_Config:DE_MESSAGE
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=23.0, core=true, businessType=A, t24Name=MSG.TYPE)
+		/* Please refer help text section of SL.LOANS. */
+		MSG_CLASS -> EB_Delivery:EB_MESSAGE_CLASS
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=24.0, core=true, businessType=A, t24Name=MSG.CLASS)
+		/* Please refer help text section of SL.LOANS. */
+		OVR_CARRIER -> DE_Config:DE_CARRIER
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, sysNumber=25.0, core=true, businessType=A, t24Name=OVR.CARRIER)
+		/* Please refer help text section of SL.LOANS. */
+		SEND_MSG : SL_Repayment:SL_REPAYMENT_SCHEDULES__DELIVERY_CUST__MSG_TYPE__SEND_MSG
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=26.0, core=true, t24Name=SEND.MSG)
+		/* Please refer help text section of SL.LOANS. */
+		MSG_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=27.0, core=true, t24Name=MSG.DATE)
+	}
+	SL_REPAYMENT_SCHEDULES__DELIVERY_REF
+	{
+		/* Please refer help text section of SL.LOANS. */
+		DELIVERY_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=46, sysNumber=28.0, core=true, t24Name=DELIVERY.REF)
+	}
+	SL_REPAYMENT_SCHEDULES__OVERRIDE
+	{
+		/* Insert text here
+Validation Rules
+
+Rule 1
+Rule 2 */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=39.0, core=true, t24Name=OVERRIDE)
+	}
+	SL_REPAYMENT_SCHEDULES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=42.0, core=true, t24Name=INPUTTER)
+	}
+	SL_REPAYMENT_SCHEDULES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=43.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	SL_REPAYMENT_SCHEDULES__ANNUITY_TYPE : mml:string
+		YES=YES
+		NO=NO
+	SL_REPAYMENT_SCHEDULES__BASE_DATE : mml:string
+		BASE=BASE
+		PREV=PREV
+	SL_REPAYMENT_SCHEDULES__FWD_BWD_KEY : mml:string
+		FWD=FWD
+		BWD=BWD
+		FSM=FSM
+		CAL=CAL
+	SL_REPAYMENT_SCHEDULES__REPAY_TYPE__REPAY_TYPE : mml:string
+		P=P
+		I=I
+		PI=PI
+		R=R
+	SL_REPAYMENT_SCHEDULES__DELIVERY_CUST__MSG_TYPE__SEND_MSG : mml:string
+		NO=NO
+		NULL=NULL
+}

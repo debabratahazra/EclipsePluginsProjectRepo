@@ -1,0 +1,226 @@
+# UTF-8
+ /* Rate Change Processing for Mortgages */ 
+ Domain MG_RateChange 
+ @t24:i (module=MG) 
+ @java:Package (value=com.temenos.t24.datamodel.mg.mg_ratechange) 
+ namespace "http://www.temenos.com/t24/MG_RateChange" 
+ metamodelVersion 4.3.0.20110527 
+ Classes { 
+ MG_RATE_EXCEPTION 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* Standard T24 alphanumeric field. Validation RulesA maximum of 17 characters may be entered. */ 
+ CONTRACT_NO : mml:string PK required 
+ @i18n:Label (en="Contract No") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=0.0, t24Name=CONTRACT.NO) 
+ 
+ MESSAGE -> byValue MG_RateChange:MG_RATE_EXCEPTION__MESSAGE * 
+ } 
+ MG_RATE_EXCEPTION__MESSAGE 
+ { 
+ /* Fields MESSAGE to INTEREST.KEY form a related multi value set. Standard T24 alphanumeric field. Validation RulesA maximum of 35 characters may be entered. */ 
+ MESSAGE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, t24Name=MESSAGE) 
+ 
+ /* Fields MESSAGE to INTEREST.KEY form a related multi value set. Standard T24 numeric field. Validation RulesA maximum of 4 characters may be entered. */ 
+ INTEREST_KEY : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=2.0, t24Name=INTEREST.KEY) 
+ } 
+ /* This file will control the automatic change of variable rates on mortgage contracts.  It will record any change in interest rates and the date on which the change is to be applied to existing contracts. Additionally, a date may be entered on which the user wishes customer advices for the rate change to be produced. All mortgage contracts that are linked to a variable interest key will take the interest rates defined on this table. This file will be updated overnight whenever a rate change for an interest key defined on the file is entered on the BASIC.INTEREST table. The new rate would be effective (EFFECTIVE.DATE and APPLICATION.DATE) the rate change date by default. And the default values for CONTRACT.UPD.DATE and ADVICE.DATE would be the processing date. */ 
+ MG_RATE_CONTROL 
+ @t24:i (level=I, type=H, localRefAllowed=false) 
+ { 
+ /* The Interest key number and currency code identifying the record. The key to the record is made up of a 1-4 digit number followed by a currency code. Validation Rules4-7 Alphanumeric characters.The number part of the key must be a key defined on the BASIC.RATE.TEXT table.The currency part of the key must be a valid currency on the CURRENCY file. */ 
+ INTEREST_KEY : mml:string PK required 
+ @i18n:Label (en="Interest Key") 
+ @i18n:Tooltip (en="Indicates key to apply floating rate of interest") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=0.0, t24Name=INTEREST.KEY) 
+ 
+ DESCRIPTION -> byValue MG_RateChange:MG_RATE_CONTROL__DESCRIPTION * 
+ 
+ TIME_BAND -> byValue MG_RateChange:MG_RATE_CONTROL__TIME_BAND * 
+ 
+ /* Defines the new rate to be applied for this key. The new rate can come from either a user input or the overnight automatic updates of the file whenever the rate for this key changes on the BASIC.INTEREST file. Example : The interest key 01 represents a banks base mortgage rate.  It is announced on the 12 December 1993 that this rate is to be changed from 10.5% to 11% with effect from 1st January 1994.  This information is loaded on the BASIC.INTEREST table as follows:            ID       01GBP19940101            RATE     11% The record on this file after the overnight update will be: NEW.RATE            11% EFFECTIVE.DATE      12 DEC 1993 APPLICATION.DATE ADVICE.DATE CONTRACT.UPD.DATE OLD.RATE            10.5%     10% OLD.EFF.DATE        15 MAY 92 01 JAN 92 OLD.APPL.DATE       01 JUN 92 01 FEB 92 The history of prior changes for this key is shown in the multivalued history fields.  The first multivalue of these history fields show the current interest rates. From now on the new rate of 11% will be defaulted for any new contracts entered with a value date on or after 12 December 1993. However existing contracts linked to this rate will not be updated with the new rate as the application date has not yet been entered. The user can then input the remaining date fields as follows: NEW.RATE            11% EFFECTIVE.DATE      12 DEC 93 APPLICATION.DATE    01 JAN 94 ADVICE.DATE         20 DEC 93 CONTRACT.UPD.DATE   15 DEC 93 OLD.RATE            10.5%     10% OLD.EFF.DATE        15 MAY 92 01 JAN 92 OLD.APPL.DATE       01 JUN 92 01 FEB 92 This means that on the 15 December 1993 the contracts will be updated with the new rate details.  Advices will be sent on the 20th December 93 and from 1st January 94 all contracts linked to this interest key will accrue interest at 11%. Note: At the end of day processing on the 1st January 1994, the new rate     fields will be cleared out and moved to the first multivalue set in       the old rate fields. Validation Rules1-8 numeric characters. */ 
+ NEW_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=5.0, t24Name=NEW.RATE) 
+ 
+ /* Defines the effective date of the rate change. The effective date can come from either a user input or the overnight automatic updates of the file whenever the rate for this key changes on the BASIC.INTEREST file. Validation RulesStandard Date format. */ 
+ EFFECTIVE_DATE : mml:string 
+ @i18n:Label (en="Effective Date") 
+ @i18n:Tooltip (en="Effective date of the transaction") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, t24Name=EFFECTIVE.DATE) 
+ 
+ /* Defines when existing contract linked to this record will take on the new interest rate. All existing contracts linked to this interest key will start to accrue the new interest rate on the date specified here.  See the example for the NEW.RATE help. Validation RulesStandard date format.The date cannot precede the EFFECTIVE.DATE. */ 
+ APPLICATION_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, t24Name=APPLICATION.DATE) 
+ 
+ /* Specifies the date that advices are to be sent to customers informing them of the rate change. For mortgages linked to this interest key, this date specifies when advices are to be generated for the rate change.  See the example for the NEW.RATE help. Validation RulesStandard Date format.Must be prior or equal to application date. */ 
+ ADVICE_DATE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=8.0, t24Name=ADVICE.DATE) 
+ 
+ /* Specifies the date on which contracts linked to this interest key are to be updated, i.e. the rate fields changed. On the overnight processing on the date entered here, all contracts linked to this interest key will have their rate fields updated with the new rates.  See the example for the NEW.RATE help. Validation RulesStandard Date Format.Must be greater than or equal to today. */ 
+ CONTRACT_UPD_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, t24Name=CONTRACT.UPD.DATE) 
+ 
+ OLD_EFF_DATE -> byValue MG_RateChange:MG_RATE_CONTROL__OLD_EFF_DATE * 
+ 
+ /* This field is reserved for future expansion. Validation RulesThis is a NOINPUT field. */ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, t24Name=RESERVED.3) 
+ 
+ /* This field is reserved for future expansion. Validation RulesThis is a NOINPUT field. */ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, t24Name=RESERVED.2) 
+ 
+ /* This field is reserved for future expansion. Validation RulesThis is a NOINPUT field. */ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, t24Name=RESERVED.1) 
+ 
+ OVERRIDE -> byValue MG_RateChange:MG_RATE_CONTROL__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue MG_RateChange:MG_RATE_CONTROL__INPUTTER * 
+ 
+ DATE_TIME -> byValue MG_RateChange:MG_RATE_CONTROL__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ MG_RATE_CONTROL__DESCRIPTION 
+ { 
+ /* Free format description narrative. Validation Rules1-35 Alphanumeric characters. */ 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, t24Name=DESCRIPTION) 
+ } 
+ MG_RATE_CONTROL__TIME_BAND 
+ { 
+ /* This field signifies a period of time that is to be used when deciding an appropriate rate for the underlying contract using this key. The rate used will come from the correct match in this time bucket for the length of the mortgage contract. Example : 2.1 TIME.BAND 10Y (Signifies 0 to 10 years period) 3.1.1 AMT.BAND 10,000 (Sigifies >= 0 <= 10,000) 4.1.1 BAND.RATE 6.1 3.1.2 AMT.BAND 20,000 (Signifies > 10,000 <= 20,000) 4.1.2 BAND.RATE 6.2 3.1.3 AMT.BAND (Signifies > 20,000) 4.1.3 BAND.RATE 6.25 2.2 TIME.BAND 20Y (Sigifies > 10 Years <= 20 Years) 3.2.1 AMT.BAND 10,000 (Signifies >= 0 <= 10,000) 4.2.1 BAND.RATE 6.3 3.2.2 AMT.BAND 20,000 (Signifies > 10,000 <= 20,000) 4.2.2 BAND.RATE 6.4 2.3 TIME.BAND (Signifies > 20 Years) 3.3.1 AMT.BAND (Signifies > 0) 3.4.1 BAND.RATE 6.4If a mortgage were to be entered with the following details : PRINCIPAL.AMOUNT = 12,000 TERM = 12Y CHOSEN RATE IS FROM 4.2.2 i.e. 6.4% PRINCIPAL.AMOUNT = 21,000 TERM = 12Y CHOSEN RATE HAS NOT BEEN ESTABLISHED. PRINCIPAL.AMOUNT = 21,000.00 TERM = 21Y CHOSEN RATE IS FROM 3.4.1 6.4% Validation RulesOptional InputIf the field is not entered the rate chosen will be from         NEW.RATE field.If this field is populated then the band rate will be         chosen from the BAND.RATE field in the appropriate         bucket. */ 
+ TIME_BAND : MG_RateChange:MG_RATE_CONTROL__TIME_BAND__TIME_BAND 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=2.0, t24Name=TIME.BAND) 
+ 
+ AMT_BAND -> byValue MG_RateChange:MG_RATE_CONTROL__TIME_BAND__AMT_BAND * 
+ } 
+ MG_RATE_CONTROL__TIME_BAND__AMT_BAND 
+ { 
+ /* This field signifies principal amount that is to be used when deciding an appropriate rate for the underlying contract using this key. The rate used will come from the correct match in this amount bucket for the principal amount on the mortgage contract. Example : 2.1 TIME.BAND 10Y (Signifies 0 to 10 years period) 3.1.1 AMT.BAND 10,000 (Sigifies >= 0 <= 10,000) 4.1.1 BAND.RATE 6.1 3.1.2 AMT.BAND 20,000 (Signifies > 10,000 <= 20,000) 4.1.2 BAND.RATE 6.2 3.1.3 AMT.BAND (Signifies > 20,000) 4.1.3 BAND.RATE 6.25 2.2 TIME.BAND 20Y (Sigifies > 10 Years <= 20 Years) 3.2.1 AMT.BAND 10,000 (Signifies >= 0 <= 10,000) 4.2.1 BAND.RATE 6.3 3.2.2 AMT.BAND 20,000 (Signifies > 10,000 <= 20,000) 4.2.2 BAND.RATE 6.4 2.3 TIME.BAND (Signifies > 20 Years) 3.3.1 AMT.BAND (Signifies > 0) 3.4.1 BAND.RATE 6.4If a mortgage were to be entered with the following details : PRINCIPAL.AMOUNT = 12,000 TERM = 12Y CHOSEN RATE IS FROM 4.2.2 i.e. 6.4% PRINCIPAL.AMOUNT = 21,000 TERM = 12Y CHOSEN RATE HAS NOT BEEN ESTABLISHED. PRINCIPAL.AMOUNT = 21,000.00 TERM = 21Y CHOSEN RATE IS FROM 3.4.1 6.4% Validation RulesOptional InputIf the field is not entered the rate chosen will be from         NEW.RATE field.If this field is populated then the rate will be chosen         from the BAND.RATE field in the appropriate bucket. */ 
+ AMT_BAND : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, t24Name=AMT.BAND) 
+ 
+ /* This field signifies the band rate defined for the time band and amount band associated to it. If this is the bucket chosen then this rate will be used by the underlying contract. Example : 2.1 TIME.BAND 10Y (Signifies 0 to 10 years period) 3.1.1 AMT.BAND 10,000 (Sigifies >= 0 <= 10,000) 4.1.1 BAND.RATE 6.1 3.1.2 AMT.BAND 20,000 (Signifies > 10,000 <= 20,000) 4.1.2 BAND.RATE 6.2 3.1.3 AMT.BAND (Signifies > 20,000) 4.1.3 BAND.RATE 6.25 2.2 TIME.BAND 20Y (Sigifies > 10 Years <= 20 Years) 3.2.1 AMT.BAND 10,000 (Signifies >= 0 <= 10,000) 4.2.1 BAND.RATE 6.3 3.2.2 AMT.BAND 20,000 (Signifies > 10,000 <= 20,000) 4.2.2 BAND.RATE 6.4 2.3 TIME.BAND (Signifies > 20 Years) 3.3.1 AMT.BAND (Signifies > 0) 3.4.1 BAND.RATE 6.4If a mortgage were to be entered with the following details : PRINCIPAL.AMOUNT = 12,000 TERM = 12Y CHOSEN RATE IS FROM 4.2.2 i.e. 6.4% PRINCIPAL.AMOUNT = 21,000 TERM = 12Y CHOSEN RATE HAS NOT BEEN ESTABLISHED. PRINCIPAL.AMOUNT = 21,000.00 TERM = 21Y CHOSEN RATE IS FROM 3.4.1 6.4% Validation RulesOptional InputIf the field is not entered the rate chosen will be from         NEW.RATE field.If this field is populated then the rate will be chosen         from the BAND.RATE field in the appropriate bucket. */ 
+ BAND_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=4.0, t24Name=BAND.RATE) 
+ } 
+ MG_RATE_CONTROL__OLD_EFF_DATE 
+ { 
+ /* Field contains the effective date of the interest rate specified in MG.RATE.CONTROL.HIST file. This date corresponds to a record in the MG.RATE.CONTROL.HIST file with an id containing the id on this file concatenated to this date. Validation RulesStandard Date Format.This is a NOINPUT field.Automatically updated. */ 
+ OLD_EFF_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=10.0, t24Name=OLD.EFF.DATE) 
+ } 
+ MG_RATE_CONTROL__OVERRIDE 
+ { 
+ /* Contains all the Override messages which the user agreed to during Input. During the validation of a contract, the system may provide the user with a series of screen override messages to indicate an anomaly, for instance, the repayment amount entered differs from that calculated by the system. In the event that the user confirms the Override, the full text of the actual Override Message will be stored, for reference purposes only, in this multivalue field. Validation RulesInternal field.Multivalue field. */ 
+ OVERRIDE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, t24Name=OVERRIDE) 
+ } 
+ MG_RATE_CONTROL__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, t24Name=INPUTTER) 
+ } 
+ MG_RATE_CONTROL__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, t24Name=DATE.TIME) 
+ } 
+ /* MG.RATE.CONTROL.HIST */ 
+ MG_RATE_CONTROL_HIST 
+ @t24:i (level=I, type=L, localRefAllowed=false) 
+ { 
+ /* The key to the mortgage rate control history file. The key consists of three components as shown under : 1. The sequence numner 1-99 as in the case of the ID on the MG.RATE.CONTROL file. 2. The currency code. 3. An effective date in the YYYYMMDD format. Validation RulesMust enter as in e.g. 99USD.19970822 */ 
+ INTEREST_KEY : mml:string PK required 
+ @i18n:Label (en="Interest Key") 
+ @i18n:Tooltip (en="Indicates key to apply floating rate of interest") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, t24Name=INTEREST.KEY) 
+ 
+ /* This field signifies the mortgage interest rate that is application at the time defined by the effective date in the key field. Validation RulesThis is a NOINPUT field. */ 
+ OLD_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=9, sysNumber=1.0, t24Name=OLD.RATE) 
+ 
+ OLD_TIME_BAND -> byValue MG_RateChange:MG_RATE_CONTROL_HIST__OLD_TIME_BAND * 
+ 
+ /* Contains the application dates for the rate specified in field OLD.RATE above. Validation RulesThis is a NOINPUT field. */ 
+ OLD_APPL_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, t24Name=OLD.APPL.DATE) 
+ } 
+ MG_RATE_CONTROL_HIST__OLD_TIME_BAND 
+ { 
+ /* This field will contain a time period defining the time band to which the underlying rate will apply. The field will be in the form 'nnnD', 'nnW', 'nnM' or 'nnY'. Validation RulesThis is a NOINPUT field. */ 
+ OLD_TIME_BAND : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=2.0, t24Name=OLD.TIME.BAND) 
+ 
+ OLD_AMT_BAND -> byValue MG_RateChange:MG_RATE_CONTROL_HIST__OLD_TIME_BAND__OLD_AMT_BAND * 
+ } 
+ MG_RATE_CONTROL_HIST__OLD_TIME_BAND__OLD_AMT_BAND 
+ { 
+ /* This field specifies an amount defining the principal amount to which the underlying rate applies. Validation RulesThis is a NOINPUT field. */ 
+ OLD_AMT_BAND : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, t24Name=OLD.AMT.BAND) 
+ 
+ /* This field signifies the band rate defined for the time band and amount band associated to it. If this bucket is chosen the this rate will be used by the underlying contract. Validation RulesThis is a NOINPUT field.Automatically updated.If this field exists then it is used as the rate. */ 
+ OLD_BAND_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=9, sysNumber=4.0, t24Name=OLD.BAND.RATE) 
+ } 
+ MG_RATE_CONTROL_EX 
+ @t24:i (level=I, type=L, localRefAllowed=false) 
+ { 
+ /* Standard T24 alphanumeric field. Validation RulesA maximum of 7 characters may be entered. */ 
+ INTEREST_KEY : mml:string PK required 
+ @i18n:Label (en="Interest Key") 
+ @i18n:Tooltip (en="Indicates key to apply floating rate of interest") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=0.0, t24Name=INTEREST.KEY) 
+ 
+ MESSAGE -> byValue MG_RateChange:MG_RATE_CONTROL_EX__MESSAGE * 
+ 
+ /* Standard T24 alphanumeric field. Validation RulesA maximum of 1 characters may be entered. */ 
+ RATE_UPDATED : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=2.0, t24Name=RATE.UPDATED) 
+ } 
+ MG_RATE_CONTROL_EX__MESSAGE 
+ { 
+ /* This is a multi valued field. Standard T24 alphanumeric field. Validation RulesA maximum of 35 characters may be entered. */ 
+ MESSAGE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, t24Name=MESSAGE) 
+ } 
+ } 
+ Enumerations { 
+ MG_RATE_CONTROL__TIME_BAND__TIME_BAND : mml:string 
+ D=D 
+ 
+ } 

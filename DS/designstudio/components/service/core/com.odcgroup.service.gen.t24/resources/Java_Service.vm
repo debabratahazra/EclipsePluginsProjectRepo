@@ -1,0 +1,36 @@
+## Java_Service.vm
+package ${service.getPackageName()};
+
+// Complex Classes
+#foreach($class in $service.getClassDefDescriptors())
+import ${service.getPackageName()}.data.${class.getName()};
+#end
+
+// T24 ResponseDetails
+import ${genericDataPackage}.ResponseDetails;
+
+// Java Utils
+#set( $listImported = 0)
+#foreach($operation in $service.getGenOperations())
+#set( $paramList = $operation.getParameters() )
+#foreach($param in $paramList)
+#if($param.getCardinality() == "MULTIPLE" && $listImported == 0)
+import java.util.List;
+#set( $listImported = 1)
+#break
+#end
+#end
+#end 
+
+/** This interface will define core T24 Business operation and will be extended by all other
+ *  implementation say Java API, Java Proxy etc to make sure we have common interface.
+ */
+public interface ${service.getName()} {
+
+	// Operations from service model
+#foreach($operation in $service.getGenOperations())
+#set( $paramList = $operation.getParameters() )
+    ${operation.getReturnParameter().getTypeName()} ${operation.getLowerName()}(#foreach($param in $paramList)#if($param.getCardinality() == "SINGLE")$param.getTypeName()#{else}List<$param.getTypeName()>#end ${param.getName()}, #{end}ResponseDetails responseDetails);		
+#end
+
+}

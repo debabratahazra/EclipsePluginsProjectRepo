@@ -1,0 +1,656 @@
+/* Rollover Processing for Syndicated Loans */ 
+ Domain SL_Rollover 
+ @t24:i (module=SL) 
+ @java:Package (value=com.temenos.t24.datamodel.sl.sl_rollover) 
+ namespace "http://www.temenos.com/t24/SL_Rollover" 
+ metamodelVersion 4.3.0.20110527 
+ Classes { 
+ /* The template caters to rollover, merger (consolidation) or splitting of existing draw down/s under the same facility and with same maturity dates. The resultant loans can be in different currency, for a different tenor and with different interest rate/spread.
+      Rollover
+      Rollover option may be chosen if one existing drawing is to be rolled over for a further period in the same or different currency. That is there would be one underlying drawing and the resultant drawing would also be one, though the currency may be different.
+      Merger
+      Merger option may be chosen if more than one existing drawing are to be merged into one or more drawing. The resultant drawing/s could be in any allowed currency. The maturity date of all the existing drawing to be merged must be the same.
+      Split
+      Split option may be chosen of one existing drawing is to be split into many drawings. The resultant drawings could be in any allowed currency.
+      For each of the above options further flexibility is available to cater to the following
+      a)Different term for the resultant drawing/s
+      b)Different rate of interest (based on the new term)
+      c)
+      
+      Rollover with principal increase
+      d)
+      
+      Rollover with principal decrease (net of repayment of the existing drawing)
+      e)
+      
+      Netting of payment for each currency
+      f) Exchange variance check for a rollover from one optional currency to the same optional currency 
+      g) Automatic creation of new loans subsequent to rollover */ 
+ SL_ROLLOVER 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* The @ID of the record is Pre-Syndication ID-TR-Tranche code-4 digit sequence number.It is sufficient if the user input the Pre-Syndication ID and the tranche code. The system would generate the ID as explained below:Example - Pre-Syndication ID        -    SL/01088/00001Facility ID                     - SL/01088/00001/01  Tranche Code                - 001If the user inputs SL0108800001001, the system would generate the ID SL/01088/00001-TR-001-0001 */ 
+ IDNAME : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=26, sysNumber=0.0, t24Name=IDNAME) 
+ 
+ /* Defines the kind of activity to be performed on the drawings under a facility on the maturity date. The allowed options are ROLLOVER or MERGER or SPLIT. The drawings under a facility may be done in any of the allowed currencies. On the maturity date a drawing could be rolled over for a further period in any of the allowed currencies. Few drawings could be merged into one or more drawings in any of the allowed currencies. Similarly a drawing could be split into more than one drawing in any of the allowed currencies.Validation Rules
+        For option ROLLOVER only one drawing under the facility can be selected       for further rollover.For option ROLLOVER the resultant deal would be only one i.e a GBP       drawing can be rolled over into one drawing only in any of the allowed       currency.For option MERGER one or more drawings can be selected. If more than one       drawing is selected then the these drawings could be merged into one or       more drawings. For example a GBP drawing and a USD drawing can be merged       into one GBP/USD drawing or into one GBP and EUR drawing.For option SPLIT only one drawing under the facility may be selected and       split into more than one drawing in any of the allowed currencies. */ 
+ OPERATION : SL_Rollover:SL_ROLLOVER__OPERATION required 
+ @i18n:Label (en=Operation) 
+ @t24:i (align=L, inputBehaviour=F, maxLength=8, sysNumber=1.0, t24Name=OPERATION) 
+ 
+ /* Indicates the type of settlement for the transaction. The only allowed option is PAY & RECEIVE. For a ROLLOVER/MERGER/SPLIT transaction the settlement for the principal amount would take place as follows;i) the borrower would repay the old drawings in their respective currencies. If T24 BANK is the Agent bank then the funds received would be distributed to the participants to the extent of their share in the drawing/s.ii) the participants would disburse funds in respective currencies for the new drawings (as a result of rollover/merger/split).iii) However, for any currency there would only be a PAY or RECEIVE situation i.e for any particular currency involved in the transaction the borrower would either receive or pay funds. The net effect of the transaction ((PAY or RECEIVE from the bank's perspective) currency-wise is stored in SL.ROLLOVER.BALANCES file. This file would also hold information with respect to Particpant shares for each of the currency involved.Validation Rules
+        Mandatory field.Only allowed option is PAY & RECEIVE */ 
+ SETT_TYPE : SL_Rollover:SL_ROLLOVER__SETT_TYPE required 
+ @i18n:Label (en="Settlement Type") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=2.0, t24Name=SETT.TYPE) 
+ 
+ DEAL_REF -> byValue SL_Rollover:SL_ROLLOVER__DEAL_REF * 
+ 
+ /* The value is populated only for MERGER operation. When more than one drawing is selected for merger operation, for each of the drawing RO.BASE.CCY.AMT is arrived by the system taking into account principal decrease if any. The aggregate of RO.BASE.CCY.AMT for all the drawings is written in this field. This is the amount in base currency for which one or more drawings would be created.Validation Rules
+        System written.No input allowed. */ 
+ MERGE_BASE_CCY_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=11.0, t24Name=MERGE.BASE.CCY.AMT) 
+ 
+ RMS_CURRENCY -> byValue SL_Rollover:SL_ROLLOVER__RMS_CURRENCY * 
+ 
+ /* Reserved for future use */ 
+ CAPITALISATION : SL_Rollover:SL_ROLLOVER__CAPITALISATION 
+ @i18n:Label (en="Capitalise Interest") 
+ @i18n:Tooltip (en="To Capitalise the interest or not") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=50.0, t24Name=CAPITALISATION) 
+ 
+ DELIVERY_CUST -> byValue SL_Rollover:SL_ROLLOVER__DELIVERY_CUST * 
+ 
+ DELIVERY_REF -> byValue SL_Rollover:SL_ROLLOVER__DELIVERY_REF * 
+ 
+ SLL_LOC_NAME -> byValue SL_Rollover:SL_ROLLOVER__SLL_LOC_NAME * 
+ 
+ RESERVED_08 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=63.0, t24Name=RESERVED.08) 
+ 
+ RESERVED_07 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=64.0, t24Name=RESERVED.07) 
+ 
+ RESERVED_06 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=65.0, t24Name=RESERVED.06) 
+ 
+ RESERVED_05 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=66.0, t24Name=RESERVED.05) 
+ 
+ RESERVED_04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=67.0, t24Name=RESERVED.04) 
+ 
+ RESERVED_03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=68.0, t24Name=RESERVED.03) 
+ 
+ RESERVED_02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=69.0, t24Name=RESERVED.02) 
+ 
+ RESERVED_01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=70.0, t24Name=RESERVED.01) 
+ 
+ OVERRIDE -> byValue SL_Rollover:SL_ROLLOVER__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=73.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=74.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue SL_Rollover:SL_ROLLOVER__INPUTTER * 
+ 
+ DATE_TIME -> byValue SL_Rollover:SL_ROLLOVER__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=77.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=78.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=79.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=80.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=81.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ SL_ROLLOVER__DEAL_REF 
+ { 
+ /* The reference number of the drawing under the facility being considered for ROLLOVER/MERGER/SPLIT.Validation Rules
+        The drawing must be under the facility for which the transaction is       input.Multivalue only for MERGER operation.Mandatory input. */ 
+ DEAL_REF -> SL_Loans:SL_LOANS required 
+ @t24:i (align=L, inputBehaviour=F, maxLength=20, sysNumber=3.0, t24Name=DEAL.REF) 
+ 
+ /* Indicates the currency of the deal selected.Validation Rules
+        System writtenNo input allowed */ 
+ DEAL_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=4.0, t24Name=DEAL.CCY) 
+ 
+ /* Indicates the amount of drawing for the deal selected in the drawing currency.Validation Rules
+        System writtenNo input allowed */ 
+ DEAL_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=5.0, t24Name=DEAL.AMT) 
+ 
+ /* When a drawing is being considered for ROLLOVER, MERGER or SPLIT operation, the amount of the drawing to be considered for such operation could be net of any repayment. In such situation the repayment amount required for the deal selected may be input here. The repayment amount entered here is expressed in the currency of the existing drawing.  Validation Rules
+        The amount entered must be less than the outstanding amount. */ 
+ PRN_DEC : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=6.0, t24Name=PRN.DEC) 
+ 
+ /* This field indicates the base/facility currency equivalent of the amount of drawing being considered for ROLLOVER, MERGER or SPLIT operation. If a drawing in a currency other than the base currency is selected, then the base currency equivalent of the drawing as updated at the time of input of the drawing is updated in this field. If a value is entered in the Prn Dec field, the net amount being considered for ROLLOVER, MERGER or SPLIT operation is converted into base currency equivalent. The exchange rate used for conversion is the same as the rate used for conversion when the drawing was input. When a drawing in base currency is selected the drawing amount is written in this field.Validation Rules
+        System WrittenNo input allowed */ 
+ RO_BASE_CCY_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=7.0, t24Name=RO.BASE.CCY.AMT) 
+ 
+ /* The exchange rate used at the time of drawing for conversion into base currency equivalent This rate is used for arriving at the RO.BASE.CCY.AMT. The rate is obtained from the relevant SL.LOAN template.Validation Rules
+        System writtenNo input allowed */ 
+ DEAL_BCCY_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=8.0, t24Name=DEAL.BCCY.RATE) 
+ 
+ /* Reserved for future use. */ 
+ MERGE_NET_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, t24Name=MERGE.NET.RATE) 
+ 
+ /* Reserved for future use. */ 
+ DEAL_NET_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=10.0, t24Name=DEAL.NET.AMT) 
+ } 
+ SL_ROLLOVER__RMS_CURRENCY 
+ { 
+ /* Indicates the currency of new drawing as a result of ROLLOVER, MERGER or SPLIT operation.Validation Rules
+        Mandatory Input.Multivalue only for MERGER or SPLIT operation.The currency selected should be the base currency or allowed currency       under the tranche. */ 
+ RMS_CURRENCY -> FIN_CurrencyConfig:CURRENCY required 
+ @t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=12.0, t24Name=RMS.CURRENCY) 
+ 
+ /* The customer of the new drawing. System written to facilitate creation of live drawing. Validation Rules
+        System writtenNo input allowed */ 
+ SLL_CUSTOMER -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=13.0, t24Name=SLL.CUSTOMER) 
+ 
+ /* Indicates the base currency equivalent of the new drawing. This amount is then converted into RMS currency equivalent to determine the amount of new drawing using the value in Base Ccy Rate field. In situations such as merger or split into more than one drawing the base currency equivalent of the new drawing must be input in this field.Validation Rules
+        If RMS Currency is multivalued the sum of values in this field must be       equal to the value in Merge Base Ccy Amt field.Input allowed only for MERGER or SPLIT operation. */ 
+ NEW_BASE_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=14.0, t24Name=NEW.BASE.AMT) 
+ 
+ /* The exchange rate to be used to convert the value in New Base Amt into RMS currency equivalent. If no rate is input then the mid rate from the currency table would be used by the system. Validation Rules
+        Standard T24 exchange rate field.Default is mid rate. */ 
+ BASE_CCY_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=15.0, t24Name=BASE.CCY.RATE) 
+ 
+ /* Applicable when an existing drawing denominated in one of the optional currency (any allowed currency other than the base currency) is rolled over into the same optional currency. If the RMS amount (new deal amount) exceeds the original drawing amount by a percentage greater than the value mentioned in this field, then RMS amount is retained as the new drawing amount. If the variance is less than the value in this field the old drawing amount is retained as the RMS amount. During Rollover if any Increase or Decrease of Principal if effected, then this variance will not be checked and the Transactions will occur at current rate only.Validation Rules
+        Default from facility file.Applicable for rollover operation only.Applicable when a drawing in an optional currency is rolled over in the       same optional currency. */ 
+ EXCH_VARIANCE : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=16.0, t24Name=EXCH.VARIANCE) 
+ 
+ /* This is the value of the new drawing expressed in RMS currency. The value is arrived by converting the New Base Amt using the Base Ccy Rate. Validation Rules
+        System writtenNo input allowed */ 
+ RMS_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=17.0, t24Name=RMS.AMOUNT) 
+ 
+ /* Reserved for future use. */ 
+ RO_SPL_NET_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, t24Name=RO.SPL.NET.RATE) 
+ 
+ /* At the time of ROLLOVER, MERGER or SPLIT operation, if any principal increase is contemplated, the amount of principal increase may be recorded in this field. The amount is expressed in RMS currency.Validation Rules
+        Standard T24 Amount fieldThe value input cannot be greater than the available amount under the       tranche in the facility.Input not permitted for split operation. */ 
+ AMT_INCREASE : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=19.0, t24Name=AMT.INCREASE) 
+ 
+ /* Reserved for future use. */ 
+ RMS_NET_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=20.0, t24Name=RMS.NET.AMT) 
+ 
+ /* The field is updated with the RMS amount plus the value in Amount Increase field. The new deal is created for the value in this field. If no principal increase in recorded the value in this field would be the same as RMS amount.Validation Rules
+        System writtenNo input allowed */ 
+ NEW_DEAL_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=21.0, t24Name=NEW.DEAL.AMT) 
+ 
+ /* The New deal Amt expressed in base currency is written in this field using the exchange rate in Base Ccy rate field.Validation Rules
+        System writtenNo input allowed */ 
+ RMS_BAS_CCY_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=22.0, t24Name=RMS.BAS.CCY.AMT) 
+ 
+ PART_DISB_ID -> byValue SL_Rollover:SL_ROLLOVER__RMS_CURRENCY__PART_DISB_ID * 
+ 
+ PRT_SHARE_ID -> byValue SL_Rollover:SL_ROLLOVER__RMS_CURRENCY__PRT_SHARE_ID * 
+ } 
+ SL_ROLLOVER__RMS_CURRENCY__PART_DISB_ID 
+ { 
+ /* ID of the participant contributing in the Principal increase. Multi Value field to record multiple paticipants. The system would default the ID of the participants from the tranche multivalue set in facility file. The IDValidation Rules
+        The participant ID entered here must be a participant in the tranche       under the facility. */ 
+ PART_DISB_ID -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=23.0, t24Name=PART.DISB.ID) 
+ 
+ /* The amount the participant is contributing towards the principal increase. The system would default the amounts based on the particpant's share in the tranche. There is an option to change the amounts.Validation Rules
+        The amount for a participant cannot be greater than the amount available       under the tranche for the participant.If multivalued, the aggregate of values in Part Disb Amt field should be       equal to the value in Amount Increase field. */ 
+ PRT_DISB_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=24.0, t24Name=PRT.DISB.AMT) 
+ } 
+ SL_ROLLOVER__RMS_CURRENCY__PRT_SHARE_ID 
+ { 
+ /* The customer ID of the participant in the rolled over drawing.Validation Rules
+        No input field. */ 
+ PRT_SHARE_ID -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=25.0, t24Name=PRT.SHARE.ID) 
+ 
+ /* Indicates the share of the participant in the rolled over drawing. The default by the system would be in proportion to the original contribution of the participant in the existing drawing(s) selected for rollover plus contribution in principal increase, if any.The values defaulted by the system may be modified by the user within the overall available amount for the participant.The amounts in these fields are expressed in the rollover currency (RMS.Currency).Validation Rules
+        Aggregate value in this field must be equal to value in New.Deal.Amt       field. */ 
+ PT_SH_RMS_CY : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=26.0, t24Name=PT.SH.RMS.CY) 
+ 
+ /* Indicates the share of the participant in the rolled over drawing. The default by the system would be in proportion to the original contribution of the participant in the existing drawing(s) selected for rollover plus contribution in principal increase, if any.The values defaulted by the system may be modified by the user within the overall available amount for the participant.The amounts in these fields are expressed in the facility currency.Validation Rules
+        Aggregate value in this field must be equal to value in Rms.Base.Ccy.Amt */ 
+ PT_SH_BAS_CY : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=27.0, t24Name=PT.SH.BAS.CY) 
+ 
+ /* Please refer help text section of SL.LOANS */ 
+ PART_INT_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=28.0, t24Name=PART.INT.AMT) 
+ 
+ /* This field may be used to specify additional information to the Receiver, catering to Tag 72. Permits input up to 6 lines of 35 characters.Validation Rules
+        Optional Input. */ 
+ SEND_RECE_INFO : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=29.0, t24Name=SEND.RECE.INFO) 
+ 
+ /* Indicates the value date of the rolled over drawing. System maintained field. The date would always be the maturity date of existing drawing(s).Validation Rules
+        System maintained. No input allowed. */ 
+ SLL_VALUE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=30.0, t24Name=SLL.VALUE.DATE) 
+ 
+ /* The date when the rolled over drawing is to mature. This field represents the date on which principal amount (or the final installment) is due.  Validation Rules
+        1-9 type A alphanumeric characters Mandatory input */ 
+ MAT_DATE : mml:string required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=31.0, t24Name=MAT.DATE) 
+ 
+ /* Refer helptext in SL.LOANS */ 
+ INT_PAY_METHOD : SL_Rollover:SL_ROLLOVER__RMS_CURRENCY__PRT_SHARE_ID__INT_PAY_METHOD 
+ @t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=32.0, t24Name=INT.PAY.METHOD) 
+ 
+ /* Refer helptext in SL.LOANS */ 
+ INT_RATE_TYPE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=33.0, t24Name=INT.RATE.TYPE) 
+ 
+ /* Refer helptext in SL.LOANS */ 
+ INT_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, t24Name=INT.RATE) 
+ 
+ /* Refer helptext in SL.LOANS */ 
+ INT_KEY : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=35.0, t24Name=INT.KEY) 
+ 
+ /* Refer helptext in SL.LOANS */ 
+ INT_SPREAD : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=36.0, t24Name=INT.SPREAD) 
+ 
+ /* Refer helptext in SL.LOANS */ 
+ HOLDING_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=37.0, t24Name=HOLDING.RATE) 
+ 
+ /* Refer helptext in SL.LOANS */ 
+ INT_PAY_FQY : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=38.0, t24Name=INT.PAY.FQY) 
+ 
+ /* System maintained field. The reference number of rolled over (new) drawing .Validation Rules
+        No input allowed */ 
+ SLL_IDS : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=39.0, t24Name=SLL.IDS) 
+ 
+ /* Defines the key to EB.ACCRUAL.PARAM record which could be used  when it needs to be referred. */ 
+ ACCRUAL_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=40.0, t24Name=ACCRUAL.ID) 
+ 
+ /* Holds contract level rounding rule for interest calculations */ 
+ ROUNDING_RULE -> EB_SystemTables:EB_ROUNDING_RULE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=41.0, t24Name=ROUNDING.RULE) 
+ 
+ /* This field determines whether skimming is allowed or notValidation Rules
+         can be Null/NO */ 
+ ALLOW_SKIMMING : SL_Rollover:SL_ROLLOVER__RMS_CURRENCY__PRT_SHARE_ID__ALLOW_SKIMMING 
+ @t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=42.0, t24Name=ALLOW.SKIMMING) 
+ 
+ /* Please refer help text section of SL.LOANS */ 
+ TOTAL_INT_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=43.0, t24Name=TOTAL.INT.AMT) 
+ 
+ /* Please refer help text section of SL.LOANS
+. */ 
+ INTEREST_BASIS -> ST_RateParameters:INTEREST_BASIS 
+ @t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=44.0, t24Name=INTEREST.BASIS) 
+ 
+ /* Please refer help text section of SL.LOANS */ 
+ R_SCHED_DT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=45.0, t24Name=R.SCHED.DT) 
+ 
+ RESERVED_12 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=46.0, t24Name=RESERVED.12) 
+ 
+ RESERVED_11 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=47.0, t24Name=RESERVED.11) 
+ 
+ RESERVED_10 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=48.0, t24Name=RESERVED.10) 
+ 
+ RESERVED_09 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=49.0, t24Name=RESERVED.09) 
+ } 
+ SL_ROLLOVER__DELIVERY_CUST 
+ { 
+ /* The ID of the customer who is the addressee of the message is system written in this field. This field is the first of the set of multi-value fields which contain the delivery related information.Validation Rules
+        System written. */ 
+ DELIVERY_CUST -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=51.0, t24Name=DELIVERY.CUST) 
+ 
+ /* System written field.  Forms part of the multi-value set of delivery related fields.This field holds the 4 digit activity code generated by the system and written in the form SL-....Each of the 4 digits are arrived at as below :The first digit indicates the application for which the activity has been generated. Presently it has three values  viz. 1 -  PRE    2 - FACILITY and  3 - SL.LOANThe second digit indicates the operation done under each application.  Presently it has six values viz.       0 - OTHERS     1 - INPUT     2 - AMENDMENT     3 - NOTICE      4 - CONFIRMATION           5 - REVERSALThe third digit indicates the component for which the message is being generated viz. Principal or Interest or commitment fee etc.  Presently it has five values viz.   0 - OTHERS   1 - PRINCIPAL                         2 - COMMITMENT FEE     3 - INTEREST     4 - CHARGESThe fourth digit indicates to whom the message is being generated, whether to the participant or to the borrower  or  to both.  Presently it has three values viz.  1 -  PARTICIPANT ONLY                             2 - PARTICIPANT AND BORROWER    3 - BORROWER ONLYFor example when a new loan is drawn down and message to be sent to borrower,  the activity generated would be SL-3103 meaning 3-LOAN, 1-INPUT, 0-OTHERS(since it involves all components) and 3-BORROWER.Validation Rules
+        System generated   Four digits will be prefixed by SL- */ 
+ ACTIVITY_CODE -> EB_Delivery:EB_ACTIVITY 
+ @t24:i (align=L, inputBehaviour=N, maxLength=7, sysNumber=52.0, t24Name=ACTIVITY.CODE) 
+ 
+ /* The date on which the activity is generated is system written in this field.Validation Rules
+        System Written. */ 
+ ACTIVITY_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=53.0, t24Name=ACTIVITY.DATE) 
+ 
+ /* Reserved for future use.Validation Rules
+        Rule 1Rule 2 */ 
+ PRIOR_DAYS : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=54.0, t24Name=PRIOR.DAYS) 
+ 
+ MSG_TYPE -> byValue SL_Rollover:SL_ROLLOVER__DELIVERY_CUST__MSG_TYPE * 
+ } 
+ SL_ROLLOVER__DELIVERY_CUST__MSG_TYPE 
+ { 
+ /* The type of the message produced for this activity is system written in this field. Forms a part of the multi-value set of delivery related fields. Validation Rules
+        System Written   Will be a valid record in the DE.MESSAGE file. */ 
+ MSG_TYPE -> DE_Config:DE_MESSAGE 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=55.0, t24Name=MSG.TYPE) 
+ 
+ /* Forms a part of the multi-value set of delivery related fields.  This field is system written and is used to determine whether message is to be sent to BORROWER or PARTICIPANT.  At present the values allowed are ADVICEBORR  and  ADVICEPART, which are defined in the EB.MESSAGE.CLASS file.Validation Rules
+        Values now used are ADVICEBORR and ADVICEPART */ 
+ MSG_CLASS -> EB_Delivery:EB_MESSAGE_CLASS 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=56.0, t24Name=MSG.CLASS) 
+ 
+ /* An integral part of the 'Delivery' multi-value set, this field enables the user to override the defaulted carrier for a particular message type and select a new carrier.For example : If a specific message is generated by SWIFT, the user is able to override this by choosing other available options from the CARRIER table, eg TELEX or PRINT.Validation Rules
+        Must be a valid record in the DE.CARRIER application. */ 
+ OVR_CARRIER -> DE_Config:DE_CARRIER 
+ @t24:i (align=L, inputBehaviour=N, maxLength=8, sysNumber=57.0, t24Name=OVR.CARRIER) 
+ 
+ /* Acting as part of the delivery multivale set, this field provides the user with the ability to decide whether to send or withhold sending the delivery of any message produced under the contract.Validation Rules
+        Options available are (Y)es - Send Message or (N)o - Do Not Send Message     Default is YES. */ 
+ SEND_MSG : SL_Rollover:SL_ROLLOVER__DELIVERY_CUST__MSG_TYPE__SEND_MSG 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=58.0, t24Name=SEND.MSG) 
+ 
+ /* The date on which the message will be generated is system written in this field. Validation Rules
+        System written. */ 
+ MSG_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=59.0, t24Name=MSG.DATE) 
+ } 
+ SL_ROLLOVER__DELIVERY_REF 
+ { 
+ MSG_TYPE -> byValue SL_Rollover:SL_ROLLOVER__DELIVERY_REF__MSG_TYPE * 
+ } 
+ SL_ROLLOVER__DELIVERY_REF__MSG_TYPE 
+ { 
+ /* System written and maintained field.Contains the delivery keys used for the generation of the advices.Validation Rules
+        System written.   User input not allowed */ 
+ DELIVERY_REF : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=46, sysNumber=60.0, t24Name=DELIVERY.REF) 
+ } 
+ SL_ROLLOVER__SLL_LOC_NAME 
+ { 
+ SLL_LOC_NAME -> byValue SL_Rollover:SL_ROLLOVER__SLL_LOC_NAME__SLL_LOC_NAME * 
+ } 
+ SL_ROLLOVER__SLL_LOC_NAME__SLL_LOC_NAME 
+ { 
+ /* This field is used to carry the local reference fields from the old loan contract  to the new loan contract
+Validation Rules
+        Standard T24 text type field.
+Noinput field */ 
+ SLL_LOC_NAME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=61.0, t24Name=SLL.LOC.NAME) 
+ 
+ /* This field is used to carry the data available in the local reference fields from the old loan contract to the new loan contract Validation Rules
+        Standard T24 alphanumeric type field */ 
+ SLL_LOC_DATA : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=62.0, t24Name=SLL.LOC.DATA) 
+ } 
+ SL_ROLLOVER__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=72.0, t24Name=OVERRIDE) 
+ } 
+ SL_ROLLOVER__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=75.0, t24Name=INPUTTER) 
+ } 
+ SL_ROLLOVER__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=76.0, t24Name=DATE.TIME) 
+ } 
+ SL_ROLLOVER_LOANS 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This is the key field which holds the ID of the rollover record */ 
+ ID : mml:string PK required 
+ @i18n:Label (en="Transaction Ref") 
+ @i18n:Tooltip (en="Transaction Reference") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=26, sysNumber=0.0, t24Name=ID) 
+ 
+ /* This field defines the operation performed on the loan contracts for
+which this record is created. The operations could be ROLLOVER, MERGER or SPLIT */ 
+ OPERATION : mml:string 
+ @i18n:Label (en=Operation) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=1.0, t24Name=OPERATION) 
+ 
+ OLD_SLL_ID -> byValue SL_Rollover:SL_ROLLOVER_LOANS__OLD_SLL_ID * 
+ 
+ NEW_SLL_ID -> byValue SL_Rollover:SL_ROLLOVER_LOANS__NEW_SLL_ID * 
+ 
+ /* This field determines the process stage. If this field is defined as YES, system would process the event during SOD of the event date. This field is updated from SL.LOANS record */ 
+ PROCESS_AT_SOD : SL_Rollover:SL_ROLLOVER_LOANS__PROCESS_AT_SOD 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, t24Name=PROCESS.AT.SOD) 
+ } 
+ SL_ROLLOVER_LOANS__OLD_SLL_ID 
+ { 
+ /* Hold the ID of the SL.LOANS contract which the rollover operation is performed upon. For example, after a ROLLOVER operation, this field holds the original SL.LOANS ID which is rolled over. */ 
+ OLD_SLL_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=2.0, t24Name=OLD.SLL.ID) 
+ 
+ /* This field holds the currency of the loan contract which the operation is performed upon. The corresponding contract id is available in the field OLD.SLL.ID */ 
+ OLD_SLL_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, t24Name=OLD.SLL.CCY) 
+ 
+ /* Holds the balance amount of the SL.LOANS contract defined in the associated field OLD.SLL.ID */ 
+ OLD_SLL_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, t24Name=OLD.SLL.AMT) 
+ } 
+ SL_ROLLOVER_LOANS__NEW_SLL_ID 
+ { 
+ /* Hold the ID of the SL.LOANS contract which is created after the operation performed. For example, after a ROLLOVER operation, this field holds the new SL.LOANS ID which is created after rollover . */ 
+ NEW_SLL_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=5.0, t24Name=NEW.SLL.ID) 
+ 
+ /* Holds the currency of the loan contract which is created after the operation is performed. The corresponding contract id is available in the field OLD.SLL.ID */ 
+ NEW_SLL_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, t24Name=NEW.SLL.CCY) 
+ 
+ /* Holds the balance amount of the SL.LOANS contract defined in the associated field NEW.SLL.ID */ 
+ NEW_SLL_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, t24Name=NEW.SLL.AMT) 
+ } 
+ SL_ROLLOVER_BALANCES 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This is the key field which holds the ID of the rollover record
+. */ 
+ IDNAME : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=26, sysNumber=0.0, t24Name=IDNAME) 
+ 
+ /* Defines the operation performed on the loan contracts which resulted in creating this balance. The operations could be ROLLOVER, MERGER or SPLIT */ 
+ OPERATION : mml:string 
+ @i18n:Label (en=Operation) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=1.0, t24Name=OPERATION) 
+ 
+ PAY_CURRENCY -> byValue SL_Rollover:SL_ROLLOVER_BALANCES__PAY_CURRENCY * 
+ 
+ REC_CURRENCY -> byValue SL_Rollover:SL_ROLLOVER_BALANCES__REC_CURRENCY * 
+ } 
+ SL_ROLLOVER_BALANCES__PAY_CURRENCY 
+ { 
+ /* The currency in which amount paid out during the operation defined in the field OPERATION is expressed */ 
+ PAY_CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, t24Name=PAY.CURRENCY) 
+ 
+ /* The amount scheduled to be paid out from the loan contract during the operation specified in the field OPERATION. */ 
+ PAY_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, t24Name=PAY.AMOUNT) 
+ 
+ PAY_PART_ID -> byValue SL_Rollover:SL_ROLLOVER_BALANCES__PAY_CURRENCY__PAY_PART_ID * 
+ } 
+ SL_ROLLOVER_BALANCES__PAY_CURRENCY__PAY_PART_ID 
+ { 
+ /* This field holds the ID of the participant to be paid */ 
+ PAY_PART_ID -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=4.0, t24Name=PAY.PART.ID) 
+ 
+ /* The share amount of the participant in the total pay amount is expressed in this field. This field is associated with the PAY.PART.ID field which holds the corresponding participant */ 
+ PAY_PART_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, t24Name=PAY.PART.AMT) 
+ } 
+ SL_ROLLOVER_BALANCES__REC_CURRENCY 
+ { 
+ PAY_PART_ID -> byValue SL_Rollover:SL_ROLLOVER_BALANCES__REC_CURRENCY__PAY_PART_ID * 
+ 
+ REC_PART_ID -> byValue SL_Rollover:SL_ROLLOVER_BALANCES__REC_CURRENCY__REC_PART_ID * 
+ } 
+ SL_ROLLOVER_BALANCES__REC_CURRENCY__PAY_PART_ID 
+ { 
+ /* The currency in which amount is received during the operation defined in the field OPERATION is expressed */ 
+ REC_CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, t24Name=REC.CURRENCY) 
+ 
+ /* The amount to be received by the loan contract during this operation. */ 
+ REC_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, t24Name=REC.AMOUNT) 
+ } 
+ SL_ROLLOVER_BALANCES__REC_CURRENCY__REC_PART_ID 
+ { 
+ /* This field holds the ID of the participant who receives the amount
+. */ 
+ REC_PART_ID -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=8.0, t24Name=REC.PART.ID) 
+ 
+ /* The share amount of the participant in the total amount  to be received is expressed  in this field. This field is associated with the REC.PART.ID field which holds the corresponding participant
+. */ 
+ REC_PART_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, t24Name=REC.PART.AMT) 
+ } 
+ SL_ROLLOVER_BALANCES_HIST 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* Refer to helptext of SL.ROLLOVER.BALANCES */ 
+ IDNAME : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=26, sysNumber=0.0, t24Name=IDNAME) 
+ 
+ /* Refer to helptext of SL.ROLLOVER.BALANCES */ 
+ OPERATION : mml:string 
+ @i18n:Label (en=Operation) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=1.0, t24Name=OPERATION) 
+ 
+ PAY_CURRENCY -> byValue SL_Rollover:SL_ROLLOVER_BALANCES_HIST__PAY_CURRENCY * 
+ 
+ REC_CURRENCY -> byValue SL_Rollover:SL_ROLLOVER_BALANCES_HIST__REC_CURRENCY * 
+ } 
+ SL_ROLLOVER_BALANCES_HIST__PAY_CURRENCY 
+ { 
+ /* Refer to helptext of SL.ROLLOVER.BALANCES */ 
+ PAY_CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, t24Name=PAY.CURRENCY) 
+ 
+ /* Refer to helptext of SL.ROLLOVER.BALANCES */ 
+ PAY_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, t24Name=PAY.AMOUNT) 
+ 
+ PAY_PART_ID -> byValue SL_Rollover:SL_ROLLOVER_BALANCES_HIST__PAY_CURRENCY__PAY_PART_ID * 
+ } 
+ SL_ROLLOVER_BALANCES_HIST__PAY_CURRENCY__PAY_PART_ID 
+ { 
+ /* Refer to helptext of SL.ROLLOVER.BALANCES */ 
+ PAY_PART_ID -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=4.0, t24Name=PAY.PART.ID) 
+ 
+ /* Refer to helptext of SL.ROLLOVER.BALANCES */ 
+ PAY_PART_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, t24Name=PAY.PART.AMT) 
+ } 
+ SL_ROLLOVER_BALANCES_HIST__REC_CURRENCY 
+ { 
+ PAY_PART_ID -> byValue SL_Rollover:SL_ROLLOVER_BALANCES_HIST__REC_CURRENCY__PAY_PART_ID * 
+ 
+ REC_PART_ID -> byValue SL_Rollover:SL_ROLLOVER_BALANCES_HIST__REC_CURRENCY__REC_PART_ID * 
+ } 
+ SL_ROLLOVER_BALANCES_HIST__REC_CURRENCY__PAY_PART_ID 
+ { 
+ /* Refer to helptext of SL.ROLLOVER.BALANCES */ 
+ REC_CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, t24Name=REC.CURRENCY) 
+ 
+ /* Refer to helptext of SL.ROLLOVER.BALANCES */ 
+ REC_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, t24Name=REC.AMOUNT) 
+ } 
+ SL_ROLLOVER_BALANCES_HIST__REC_CURRENCY__REC_PART_ID 
+ { 
+ /* Refer to helptext of SL.ROLLOVER.BALANCES */ 
+ REC_PART_ID -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=8.0, t24Name=REC.PART.ID) 
+ 
+ /* Refer to helptext of SL.ROLLOVER.BALANCES */ 
+ REC_PART_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, t24Name=REC.PART.AMT) 
+ } 
+ } 
+ Enumerations { 
+ SL_ROLLOVER__OPERATION : mml:string 
+ ROLLOVER=ROLLOVER 
+ MERGER=MERGER 
+ SPLIT=SPLIT 
+ 
+ SL_ROLLOVER__SETT_TYPE : mml:string 
+ PAY_AND_RECEIVE=PAY.AND.RECEIVE 
+ 
+ SL_ROLLOVER__RMS_CURRENCY__PRT_SHARE_ID__INT_PAY_METHOD : mml:string 
+ n1=1 
+ n2=2 
+ NULL=NULL 
+ 
+ SL_ROLLOVER__RMS_CURRENCY__PRT_SHARE_ID__ALLOW_SKIMMING : mml:string 
+ NO=NO 
+ NULL=NULL 
+ 
+ SL_ROLLOVER__CAPITALISATION : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ SL_ROLLOVER__DELIVERY_CUST__MSG_TYPE__SEND_MSG : mml:string 
+ NO=NO 
+ NULL=NULL 
+ 
+ SL_ROLLOVER_LOANS__PROCESS_AT_SOD : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ } 

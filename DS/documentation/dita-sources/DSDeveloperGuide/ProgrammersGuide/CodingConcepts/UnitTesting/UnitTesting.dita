@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "http://docs.oasis-open.org/dita/v1.1/OS/dtd/concept.dtd">
+<concept id="devguide_programmersguide_codingconcepts_unittesting">
+	<title>Unit testing</title>
+	<conbody> 
+		<section>
+			<title>Overview</title>
+			<p>
+				The unit tests written for Design Studio must comply with certain rules. 
+				Firstly we will give general guidelines for the granularity and independence of the unit tests. 
+				Then we will discuss the recommended naming conventions to help figuring out easily which feature is broken. 
+				Finally, we will describe the unit test architecture and frameworks such as the usage of junit plug-in test vs SWTBot, 
+				or the way test projects should be added to Design Studio.
+			</p>
+		</section>
+		<section>
+			<title>Granularity</title>
+			<p>
+				We consider three levels of granularities:
+			</p>
+			<p>
+				<image href="images/GoogleTestClassification.png"/>
+				<ul>
+					<li>
+						<b>System Tests</b> which validate the core functionalities of 
+						Design Studio. Those are located in 
+						<codeph>com.odcgroup.workbench.integration.tests</codeph> and 
+						should validate that Design Studio main functions are usable from 
+						the UI (i.e. opening a diagram editor, create some element and 
+						save it).
+					</li>
+					<li>
+						<b>Functional Tests</b> should validate the feature main scenario(s) 
+						(i.e. the synchronize dataset feature copies attribute from a class 
+						to a dataset). These test could include UI logic execution (create 
+						an editor, load a model and execute the action similarly as the 
+						action triggered by the UI).
+					</li>
+					<li>
+						<b>Unit Tests</b> can be a test on one specific method of the 
+						code, or a low level functional test. <i>Those tests should 
+						be as independent as possible.</i>
+					</li>
+				</ul>
+				(The naming convention has been taken from a Google Testing Blog 
+				entry which can be found here: 
+				<xref href="http://googletesting.blogspot.com/2010/04/googles-innovation-factory-and-how.html" scope="external">
+					Google Testing Blog > Google's Innovation Factory (slide 26)
+				</xref>)
+			</p>
+			<p>As a rule of thumb, it is expected
+				<ul>
+					<li>for a small regression: one low level test is broken.</li>
+					<li>
+						for a compromised functionality: the functionality level unit test 
+						as well as one or more low level test are broken.
+					</li> 
+					<li>for a major problem: a smoke test is broken</li>
+				</ul>
+			</p>
+		</section>
+		<section>
+			<title>Naming conventions</title>
+			<p>
+				When a build fails, the level of information given should allow to roughly 
+				understanding which feature is broken and possibly a JIRA reference. 
+				Therefore the guidelines are:
+			</p>
+			<p>
+				For System Tests
+				<ul>
+					<li>
+						The method name describes roughly the purpose of the test 
+						(i.e. <codeph>testCreateDomainModel</codeph>)
+					</li>
+				</ul>
+			</p>
+			<p>
+				For Functional Tests:
+				<ul>
+					<li>
+						The class name describes the functionality 
+						(i.e. <codeph>SynchronizeDatasetTest</codeph>)
+					</li>
+				</ul>
+			</p>
+			<p>For Functionality:
+				<ul>
+					<li>
+						The method name describes roughly the purpose of the test 
+						(i.e. <codeph>testSynchronizeDataset</codeph>). It might 
+						include a JIRA reference if available.
+					</li>
+				</ul>
+			</p>
+			<p>Unit Tests:
+				<ul>
+					<li>
+						The method name can be either the same as the tested method 
+						prefixed by "test", or include a JIRA reference as well as a 
+						short description 
+						(i.e. <codeph>testDS3053_SynchronizeDatasetsRemovesCustomAnnotations</codeph>)
+					</li>
+				</ul>
+			</p>
+		</section>
+		<section>
+			<title>Architecture and frameworks</title>
+			<p>
+				For Smoke tests
+				<ul>
+					<li>
+						A dedicated plugin contains all smoke tests:  
+						<codeph>com.odcgroup.workbench.integration.tests</codeph>
+					</li>
+					<li>
+						Those tests are made by piloting the Design Studio UI with SWTBot. 
+						It is recommended to use SWT Bot only if no other means are know.
+					</li>
+				</ul>
+			</p>
+			<p>
+				For Functionality and Low level tests:
+				<ul>
+					<li>The tests must be placed in a fragment.</li>
+					<li>
+						The name of the fragment must be name of the host plugin with  
+						<codeph>.tests</codeph> postfix
+					</li>
+					<li>
+						The fragment must be part of the <codeph>com.odcgroup.tests</codeph> 
+						feature.
+					</li>
+					<li>
+						No new dependency to the one defined in the host plugin should be 
+						used (except <codeph>org.junit</codeph>).
+					</li>
+					<li>
+						A class named <codeph>AllXxxTests</codeph> should create a test 
+						suite (i.e. 
+						<codeph>com.odcgroup.mdf.editor.tests.AllMdfEditorTests</codeph>).
+					</li>
+					<li>
+						The AllTests class from <codeph>com.odcgroup.workbench.tests</codeph> 
+						plugin should reference the <codeph>AllXxxTests</codeph> test suite. 
+						This is the starting point to run all the Design Studio functionality 
+						and low level tests.
+					</li>
+				</ul>
+				<note>
+					In <codeph>com.odcgroup.workbench.tests</codeph> the dependency 
+					mechanism used is the <codeph>imported packages</codeph>. In order to 
+					compile in the workspace, it is required to manually add the project 
+					in the Java Build Path.
+				</note>
+				<note>
+					Be careful to make the project working from Eclipse as well 
+					as from the build. For instance the resources (like models) used by 
+					a test shouldn't be in a source folder as they will not be available 
+					during run time.
+				</note>
+			</p>
+		</section>
+	</conbody>
+</concept>

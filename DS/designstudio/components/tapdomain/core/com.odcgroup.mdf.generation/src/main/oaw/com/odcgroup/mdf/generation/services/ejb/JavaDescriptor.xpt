@@ -1,0 +1,111 @@
+«IMPORT mdf»
+«EXTENSION com::odcgroup::mdf::generation::java»
+
+«DEFINE JavaDescriptor FOR Collection[MdfDomain]»
+	«FILE "META-INF/ejb-jar.xml" DESCRIPTORS-»
+<?xml version="1.0" encoding="UTF-8"?>
+		<!DOCTYPE ejb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN" "http://java.sun.com/dtd/ejb-jar_2_0.dtd">
+		<ejb-jar id="«projectName()»">
+			<display-name>«projectName()»</display-name>
+			<enterprise-beans>
+			«FOREACH this AS domain»
+				«FOREACH domain.datasets AS dataset»
+					«EXPAND BeanDescriptor FOR dataset»
+				«ENDFOREACH»
+			«ENDFOREACH»
+			</enterprise-beans>
+			<assembly-descriptor>
+				<security-role>
+					<description>Any authenticated user</description>
+					<role-name>authenticated</role-name>
+				</security-role>
+				«FOREACH this AS domain-»
+					«FOREACH domain.datasets AS dataset-»
+						«EXPAND MethodPermission FOR dataset»
+					«ENDFOREACH-»
+				«ENDFOREACH-»
+		    	<container-transaction>
+		    	    <!-- Transaction level: Supports -->				
+					«FOREACH this AS domain-»
+						«FOREACH domain.datasets AS dataset-»
+							«EXPAND SupportsTransaction FOR dataset»
+						«ENDFOREACH-»
+					«ENDFOREACH-»
+    				<trans-attribute>Supports</trans-attribute>
+		    	</container-transaction>
+		    	<container-transaction>
+		            <!-- Transaction level: Required -->	
+		            <!-- Default transaction level, if nothing else is specified below -->				
+					«FOREACH this AS domain-»
+						«FOREACH domain.datasets AS dataset-»
+							«EXPAND RequiresTransaction FOR dataset»
+						«ENDFOREACH-»
+					«ENDFOREACH-»
+    				<trans-attribute>Required</trans-attribute>
+		    	</container-transaction>
+		    	<container-transaction>
+		            <!-- Transaction level: Support -->	
+		            <!-- Defines transaction for all read-only methods -->				
+					«FOREACH this AS domain-»
+						«FOREACH domain.datasets AS dataset-»
+							«EXPAND MethodSpecificTransaction FOR dataset»
+						«ENDFOREACH-»
+					«ENDFOREACH-»
+					<trans-attribute>Supports</trans-attribute>
+    			</container-transaction>
+			</assembly-descriptor>
+		</ejb-jar>
+
+	«ENDFILE»
+«ENDDEFINE»
+
+«DEFINE BeanDescriptor FOR MdfEntity»
+	<session id="«getParentDomain().name»_«name»Service">
+		<ejb-name>«getParentDomain().name»_«name»Service</ejb-name>
+		<home>«getPackage()».services.ejb.«name»ServiceHome</home>
+		<remote>«getPackage()».services.ejb.«name»Service</remote>
+		<ejb-class>«getPackage()».services.ejb.«name»ServiceBean</ejb-class>
+		<session-type>Stateless</session-type>
+		<transaction-type>Container</transaction-type>
+	</session>
+«ENDDEFINE»
+
+«DEFINE MethodPermission FOR MdfEntity-»
+	<method-permission>
+		<role-name>authenticated</role-name>
+		<method>
+			<ejb-name>«getParentDomain().name»_«name»Service</ejb-name>
+			<method-name>*</method-name>
+		</method>
+	</method-permission>
+«ENDDEFINE»
+
+«DEFINE SupportsTransaction FOR MdfEntity-»
+					<method>
+						<ejb-name>«getParentDomain().name»_«name»Service</ejb-name>
+						<method-intf>Home</method-intf>
+						<method-name>*</method-name>
+					</method>
+«ENDDEFINE»
+
+«DEFINE RequiresTransaction FOR MdfEntity-»
+					<method>
+						<ejb-name>«getParentDomain().name»_«name»Service</ejb-name>
+						<method-intf>Remote</method-intf>
+						<method-name>*</method-name>
+					</method>
+«ENDDEFINE»
+
+«DEFINE MethodSpecificTransaction FOR MdfEntity-»
+	«FOREACH {'findByIds', 'findAll', 'findByQuery', 'validate', 'validateAll'} AS methodName-»
+		«EXPAND MethodTemplate(methodName) FOR this-»
+	«ENDFOREACH-»
+«ENDDEFINE»
+
+«DEFINE MethodTemplate(String methodName) FOR MdfEntity-»
+					<method>
+						<ejb-name>«getParentDomain().name»_«name»Service</ejb-name>
+						<method-intf>Remote</method-intf>
+						<method-name>«methodName»</method-name>
+					</method>
+«ENDDEFINE»

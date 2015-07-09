@@ -1,0 +1,73 @@
+## JavaComponentSpringContext
+package ${service.getPackageName()};
+
+// Spring imports
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+/** This class will be responsible to load and hold the application context for ${serviceName}.
+ *  This class can be called by ${serviceName} standalone as well as WS clients to load the 
+ *  bean definitions for use.
+ */
+  
+public class ${serviceName}SpringContext {
+       
+	// Application context will be loaded here
+	private static ClassPathXmlApplicationContext appContext = null;
+	
+	// Default constructor
+	public ${serviceName}SpringContext() {}
+	
+	/** This method will load the application context xml file using provided context class loader.
+	 *  This method will load the '${service.getLowerCamelCaseName()}Context.xml' from classpath
+	 *
+	 * @param classLoader		- Generic ClassLoader type object which can be of following context;
+	 *								Thread 		- For an standalone clients
+	 *								AxisService	- For WS clients
+	 */
+	public static void loadServiceContext(ClassLoader classLoader) throws Exception {
+        appContext = new ClassPathXmlApplicationContext(new String[] {"${service.getLowerCamelCaseName()}Context.xml"}, false);
+        appContext.setClassLoader(classLoader);
+        appContext.refresh();
+    }
+
+	/** This method will load the custom application context xml file using provided context class loader
+	 *
+	 * @param classLoader		- Generic ClassLoader type object which can be of following context;
+	 *								Thread 		- For an standalone clients
+	 *								AxisService	- For WS clients
+	 * @param customContextFile	- Customer Spring context to be loaded from classpath.
+	 */
+	public static void loadServiceContext(ClassLoader classLoader, String customContextFile) throws Exception {
+        appContext = new ClassPathXmlApplicationContext(new String[] {customContextFile}, false);
+        appContext.setClassLoader(classLoader);
+        appContext.refresh();
+    }
+
+	/** This method will be called to retrieve the application context.
+	 *  
+	 * @return ClassPathXmlApplicationContext	- Valid object if exist otherwise return 'null'
+	 * @throws Exception						- Throws generic Exception to let user know that we have no context
+	 */
+	public static ClassPathXmlApplicationContext getContext() throws Exception {
+		if (appContext != null) {
+			return appContext;
+		} else {
+			// Now let calling class know that we have failed to load the context earlier
+			throw new Exception("T24 ${serviceName} Component initialisation failed.");
+		}
+    }
+	
+	/** This method will be called to overwrite/pass the custom context.
+	 *  
+	 * @context ClassPathXmlApplicationContext  - Valid application context to overwrite default one
+	 * @throws Exception						- Throws generic Exception to let user know that context passed is invalid
+	 */
+	public static void setContext(ClassPathXmlApplicationContext context) throws Exception {
+		if (context != null) {
+			appContext = context;
+		} else {
+			// Now let calling class know that context provided was null
+			throw new Exception("Application context provided is null");
+		}
+    }
+}

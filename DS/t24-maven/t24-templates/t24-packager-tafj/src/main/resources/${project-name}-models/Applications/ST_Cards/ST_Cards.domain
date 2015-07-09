@@ -1,0 +1,972 @@
+# UTF-8
+# UTF-8
+/* Card Processing */
+Domain ST_Cards
+	@t24:i (module=ST)
+	@java:Package (value=com.temenos.t24.datamodel.st.st_cards)
+namespace "http://www.temenos.com/t24/ST_Cards"
+metamodelVersion 1.30.6
+Classes {
+	CARD_BILL_CLOSE_DATE
+		@t24:i (t24Name=CARD.BILL.CLOSE.DATE, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		BILLING_DATE_ID -> ST_Cards:CARD_BILL_CLOSE_DATE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=BILLING.DATE.ID)
+		ACCOUNT_NO : T24BusinessTypes:A
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Indicates Customer Account Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=ACCOUNT.NO)
+	}
+	CARD_BILL_CLOSE_DATE_WORK
+		@t24:i (t24Name=CARD.BILL.CLOSE.DATE.WORK, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		REPAY_DATE_ID -> ST_Cards:CARD_BILL_CLOSE_DATE_WORK PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=A, t24Name=REPAY.DATE.ID)
+		ACCOUNT_NO : T24BusinessTypes:ACC
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Indicates Customer Account Number")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, core=true, t24Name=ACCOUNT.NO)
+	}
+	/* This table holds details of the charging structure to be applied to all CARD types for issues and periodic charges.
+For each CARD type it is possible to define individual transaction codes for debit and credit and a profit/loss category for charges. Issue and periodic charges can then be set up or defined as zero to effectively waive charges if required.
+Issue charges are raised online at the time of issue. Periodic charges are raised by an end of day process based on a cycle and frequency.
+This may be related to a specific date for all cards of a particular type or be based on the issue date of individual cards.
+Issue charges for cards are raised on authorisation of the issue instruction once only. The default charge for a card issue is taken from this table or it may be overwritten by the user in the issue transaction itself.
+All charges are in local currency. The value date of the charge entry will be taken as the CHARGE.DATE defined on the issue instruction. */
+	CARD_CHARGE
+		@t24:i (t24Name=CARD.CHARGE, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Specifies the CARD type to which the charges refer.
+Defines the type of CARDs for which the charging structure is to apply. The id should be one of the four letter CARD types defined on CARD.TYPE such as:
+"AMEX"   American Express CARDs "VISA"   VisaCARDs
+Validation Rules
+1-4 alphanumeric characters.
+CARD type entered must exist on the CARD.TYPE table. */
+		CARD_TYPE -> ST_Cards:CARD_CHARGE PK required
+			@i18n:Label (en="Card Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=0.0, core=true, businessType=A, t24Name=CARD.TYPE)
+		/* Specifies the profit and loss category code to which the charges raised by the CARD control system for this type of CARDs will be booked.
+Validation Rules
+1-5 numeric characters.  Mandatory input.  Category entered must exist on the CATEGORY table. */
+		PL_CATEGORY -> ST_Config:CATEGORY required
+			@i18n:Label (en="PL Category")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=1.0, core=true, t24Name=PL.CATEGORY, mask="R##-###")
+		/* Specifies the transaction code for debit entries produced by the charging process.
+Validation Rules
+1-3 numeric characters.  Mandatory input.  Transaction code entered must exist on the TRANSACTION table. */
+		TRANSACTION_DR -> ST_Config:TRANSACTION required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, businessType=A, t24Name=TRANSACTION.DR)
+		/* Specifies the transaction code for credit entries produced by the charging process.
+Validation Rules
+1-3 numeric characters.  Mandatory input.  Transaction code entered must exist on the TRANSACTION table. */
+		TRANSACTION_CR -> ST_Config:TRANSACTION required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, businessType=A, t24Name=TRANSACTION.CR)
+		/* Specifies an issue charge amount to be applied to each CARD issue.
+This amount will be used as the default charge amount for issue of cards of this type by the CARD.ISSUE application if the user makes no input to the CHARGES field during issue. The amount is always expressed in local currency.
+Validation Rules
+1-19 numeric characters.  Optional input. */
+		ISSUE_CHARGE : T24BusinessTypes:AMT
+			@i18n:Label (en="Issue Charge")
+			@i18n:Tooltip (en="Indicates the charge to be applied ")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=ISSUE.CHARGE, typeModifiers="USD")
+		/* Defines a periodic charge for use of the card.
+A periodic charge to be applied for the usage or possession of the card. The charge will be raised by an end of day process at the date and frequency defined by the CHARGE.CYCLE and CHARGE.FQU fields for all current cards (no CANCELLATION.DATE).
+It is important to note that periodic charging is disabled (for a particular card) by the entry of a cancellation date on the original card issue transaction record. The card issue record should not be reversed since this would reverse the original issue charges.
+Validation Rules
+1-19 numeric characters.  Optional input. */
+		PERIODIC_CHARGE : T24BusinessTypes:AMT
+			@i18n:Label (en="Periodic Charge")
+			@i18n:Tooltip (en="Defines the periodic charge ")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=PERIODIC.CHARGE, typeModifiers="USD")
+		/* Defines the frequency at which periodic charges will be raised.
+The charge cycle defines when the end of day routine will raise periodic card charges. Charges will be activated when the date portion of this field is less than the next working day.
+Periodic charges will be raised on this date for all current cards of this type. A card is said to be current when:
+(a) The expiry date of the card is greater than the charge date, and
+(b) There is no cancellation date on the card issue record.
+The exception to the above rule depends on the CHARGE.FQU field and allows periodic charges to be raised at a frequency based on the original issue date of the card rather than the same date/frequency for all cards. This is explained with examples in the CHARGE.FQU field.
+
+Example (a):
+All holders of Eurocheque cards are charged GBP 8.00 per year, in advance, for the use of their card. This charge is for the calendar year (i.e. from 1st January to 31st December) but is actually applied around the middle of January to minimise end of year processing.
+Fields on the CARD.CHARGE table are set as follows:
+5 PERIODIC.CHARGE... 8.00 6 CHARGE.CYCLE...... 15 JAN 1992 M1215 7 CHARGE.FQU........
+On 15th January 1992, the card issue file is selected for records with an expiry date later than this date (which selects only the current records) and with no cancellation date (which excludes any exceptions). Charges of GBP 8.00 are applied to each and the charge date is cycled forward to 15 JAN 1993.
+Because these cards may be issued at any time during the year, the period between issue and the first periodic charges is charged by entering an issue charge of GBP 8.00 as follows:
+4 ISSUE.CHARGE...... 8.00
+This is applied online when the card is issued and is effectively an advance charge for the remainder of the year.
+Consequently the bank may choose to reduce this at times during the year in order to discount the first years charges as the date approaches the end of the year. When a card is issued in the first two weeks of January this issue charge should be removed altogether, the correct charges will be applied for the year on the 15th.
+Example (b):
+The situation is similar to example (a) except there is an additional flat charge of GBP 5.00 for the issue of the card along with the GBP 8.00 for periodic usage.
+Fields are entered as follows:
+4 ISSUE.CHARGE...... 13.00 5 PERIODIC.CHARGE... 8.00 6 CHARGE.CYCLE...... 15 JAN 1992 M1215 7 CHARGE.FQU........
+On 15th January 1992 the identical selection to example (a) is made, i.e. all cards current at this date. They are each charged GBP 8.00 for the period 1st January 1992 to 31st December 1992.
+Cards issued during the year will each be charged online at GBP 13.00. This consists of the advance GBP 8.00 usage charge for the year ahead (which can be reduced as the year approaches its end) plus the GBP 5.00 issue charge. Thus during the first two weeks of January the issue charge would have been reduced to GBP 5.00.
+Validation Rules
+17 alphanumeric characters.  Standard date frequency field. */
+		CHARGE_CYCLE : T24BusinessTypes:FQU
+			@i18n:Label (en="Charge Cycle")
+			@i18n:Tooltip (en="Frequency at which periodic charges will be raised")
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=6.0, core=true, t24Name=CHARGE.CYCLE, mask="RDD DDD DDDD #####")
+		/* Specifies that the chargeable period for usage of cards is not the same as the periodic frequency on which charges are applied. This is intended to permit annual charging based on the anniversary of the issue of the card.
+This field allows charges to be raised periodically at a given frequency but based on the issue date of the card rather than a fixed date for all cards of this type. The best example is annual charging based on the date of issue of the card.
+
+Example:
+Unlike Eurocheque cards which may all be charged on the same date yearly the bank may choose to issue its own credit card which expires at the end of the month two years after its issue date. Furthermore this card carries an annual usage charge of GBP 10.00 which is raised at the end of the month each year after issue. Thus this annual charge is applied once a month charging only those card holders whose cards were issued in the same month one year previously:
+4 ISSUE.CHARGE...... 8.00 5 PERIODIC.CHARGE... 10.00 6 CHARGE.CYCLE...... 30 SEP 1991 M0131 7 CHARGE.FQU........ M1231
+The CHARGE.FQU field in this case defines the period over which the charge will apply, ie yearly. On the 30th September 1991, the card issue file is selected for records with an expiry date later than this date and no cancellation date. The charging routine now makes an additional check based on the CHARGE.CYCLE frequency (monthly).
+Thus for the period from 30 SEP 1991 to 31 OCT 1991 charges will be raised at GBP 10.00 if:
+(a) If the anniversary of the issue date (or the issue date itself falls     within the charging period).
+(b) The expiry date falls later than this period.
+The anniversary is obtained by cycling forward the issue date according to the CHARGE.FQU (in this case 12 months).
+Validation Rules
+5 alphanumeric characters.  Standard frequency field. */
+		CHARGE_FQU : T24BusinessTypes:A
+			@i18n:Label (en="Charge Fqy")
+			@i18n:Tooltip (en="Indicates chargeable period for usage ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=7.0, core=true, t24Name=CHARGE.FQU)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_Cards:CARD_CHARGE__INPUTTER *
+		DATE_TIME -> byValue ST_Cards:CARD_CHARGE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=13.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=15.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=16.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CARD_CHARGE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=INPUTTER)
+	}
+	CARD_CHARGE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=11.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* CARD.ISSUE is one of the two central applications of the cheque and card control system.
+The issue of cards to an account is controlled by the entry of records on this table. Entry to this table is similar to entering a transaction within other T24 modules. The most significant information entered on a CARD.ISSUE record is contained in the record ID. This defines the card type being issued and the card number involved.
+Contained in each record is the account number to which the card is being issued, the date of issue, any charges incurred at issue time and expiry date of the card.
+A charge entry may be raised for the issue depending on the charging structure defined for the card type on the CARD.CHARGE table. The system checks against account conditions and limits and will require overrides when appropriate. Only accounts with a category defined as allowed in the CARD.TYPE table may be entered for the card type being processed. */
+	CARD_ISSUE
+		@t24:i (t24Name=CARD.ISSUE, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Card issues are defined with an ID consisting of three elements. The card type, a full stop and the card number. The card type must be a valid card defined on the CARD.TYPE table. The card number may be any alphanumeric construction, commonly a 16 numeric number is used.
+Example
+VISA.5332870296579001
+Validation Rules
+The id must be in the form of:  CCCC.AAAAAAAAAAAAAAAA  Where CCCC is a valid CARD.TYPE record.  A full stop seperator  And where AAAAAAAAAAAAAAAA is a unique identifier.  Examples:   VISA.1234567887654321   GC.1111222233334444   AB21.1111111122222222 */
+		CARD_TYPE_NO -> ST_Cards:CARD_ISSUE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=24, sysNumber=0.0, core=true, businessType=A, t24Name=CARD.TYPE.NO)
+		/* CARD.ISSUE
+
+
+CARD.STATUS
+
+
+The field has a drop down menu and values are hard cored. The field can take any of the following 4 values
+
+
+
+
+
+VALIDATIONS
+At present available inputs are  90,91,92 and 93 and the values are hard cored.
+
+
+S
+tatus 92 and 93 cant be input directly- as it stands to reason that a card that is not issued cant be scrapped or     cancelled. */
+		CARD_STATUS -> ST_Cards:CARD_STATUS
+			@i18n:Label (en="Card Status (Input 90)")
+			@i18n:Tooltip (en="Card Status (Input 90)")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=CARD.STATUS)
+		ACCOUNT -> byValue ST_Cards:CARD_ISSUE__ACCOUNT *
+		/* Standard T24 currency field.
+Validation Rules
+A maximum of 3 characters may be entered.
+This is a NOINPUT field. */
+		CURRENCY : T24BusinessTypes:CCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=3.0, core=true, t24Name=CURRENCY)
+		/* Defines the date of issue of cards.
+Defaults to today if omitted.
+Validation Rules
+8 numeric characters.  Mandatory input. */
+		ISSUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Issue Date")
+			@i18n:Tooltip (en="Indicates the date of issue ")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=ISSUE.DATE)
+		/* Specifies the expiry date of the card being issued.
+Validation Rules
+8 numeric characters.  Optional input.
+Defaults to the default renewal date held on CARD.TYPE for this card type if blank.
+If entered may not be less than the issue date of the card. */
+		EXPIRY_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Expiry Date")
+			@i18n:Tooltip (en="Indicates the Expiry Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, t24Name=EXPIRY.DATE)
+		NAME -> byValue ST_Cards:CARD_ISSUE__NAME *
+		/* Specifies the date of issue of a PIN code for the card (Personal Identification Number).
+Validation Rules
+8 numeric characters.  Optional input.
+If entered may not be less than the issue date.
+If entered may not be greater than the expiry date. */
+		PIN_ISSUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Pin Issue Date")
+			@i18n:Tooltip (en="Pin Issue Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=PIN.ISSUE.DATE)
+		/* Specifies the the card spending limit.
+An optional card limit may be recorded for information and reporting purposes only. The period of this limit is not specified but may be indicated by addition of a local reference field.
+Validation Rules
+1-19 numeric characters.  Optional input. */
+		LIMIT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=LIMIT, typeModifiers="USD")
+		/* If a card is no longer valid this field will contain the date on which the card was cancelled.
+Validation Rules
+8 numeric characters.
+If entered may not be less than the issue date.
+If entered may not be greater than the expiry date. */
+		CANCELLATION_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Cancellation Date")
+			@i18n:Tooltip (en="Value date for cancellation")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=CANCELLATION.DATE)
+		/* This gives the reason for the cancellation of the card(s). */
+		CAN_REASON -> CHQ_PaymentStop:PAYMENT_STOP_TYPE
+			@i18n:Label (en="Cancellation Reason")
+			@i18n:Tooltip (en="Cancellation Reason")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=10.0, core=true, t24Name=CAN.REASON)
+		/* Defines the charges due for the issue of the card. This may be overidden with any required amount but will default if not entered.
+Charges for the card type concerned are defined on the CARD.CHARGE table. The charges will default to the issue charge for the card type if this field is left blank. Alternatively any other amount may be entered as required. If zero is entered this effectively waives charges for the issue.
+Charges in card control are always raised in local currency.
+Validation Rules
+19 numeric amount characters.  Optional input.  No-change field. */
+		CHARGES : T24BusinessTypes:AMT
+			@i18n:Label (en="Charge Amt")
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=11.0, core=true, t24Name=CHARGES, typeModifiers="3")
+		/* Specifies the value date for online charges raised by the issue (if any).
+Defaults to the issue date if not entered.
+Validation Rules
+8 numeric characters.  Optional input.  No-change field.  Standard date field.
+If the charge date is entered and exceeds the forward value minimum as defined on the DATES table, an override will be required on input.
+If the charge date is entered and exceeds the back value minimum as defined on the DATES table, an override will be required on input.
+If the charge date is entered and is not a working day as defined on the HOLIDAY table, an override will be required on input.
+If the charge date is entered it must be greater than the ISSUE.START.DATE ie issues back valued to the previous charging period are not permitted. */
+		CHARGE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Charge Date")
+			@i18n:Tooltip (en="Indicates value date for online charges raised")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=12.0, core=true, t24Name=CHARGE.DATE)
+		NOTES -> byValue ST_Cards:CARD_ISSUE__NOTES *
+		/* CARD. ISSUE
+
+
+STOCK.REG.ID
+
+
+The input in the field is must be a valid ID in the
+live
+file
+STOCK.
+.
+
+
+
+The live file is formed by
+STOCK.PARAMETER ID * STOCK. REG.ID.
+
+
+
+VALIDATIONS: -
+
+
+
+The input in the field must be a valid     KEY/ID in Stock. Register
+concat
+file. */
+		STOCK_REG_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=15.0, core=true, t24Name=STOCK.REG.ID)
+		/* CARD. ISSUE
+
+
+STOCK. SERIES. ID
+
+
+The stock series id may be BLANK or may contain a value. It should be read along with
+Stock.Regd
+. Id field to know the stock taken into the system
+
+
+In card issue if, for a Stock
+Regd
+. Id the series ID attached contains BLANK stock then this field will be filled with **
+
+If it contains any input then it has to be entered manually enclosed between the * * for ex: - in stock. Entry (the application through which stock is taken) the stock series id is say VISA then while entering it in this field it should be entered as *VISA*-if not the system will give an error.
+
+
+VALIDATIONS: -
+
+
+
+
+If stock series ID is blank then this field will be appended automatically with ** */
+		STOCK_SERIERS_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=16.0, core=true, t24Name=STOCK.SERIERS.ID)
+		/* CARD. ISSUE
+
+
+Lst
+Repay date
+
+
+This is the Repay date before the current repay date was cycled.
+
+
+
+VALIDATIONS:
+
+
+
+
+NO input field. The system writes the last Repay date to this field automatically. */
+		LST_REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=17.0, core=true, t24Name=LST.REPAY.DATE)
+		/* CARD.ISSUE
+
+
+Lst
+Billing close
+
+
+Billing close is the date on which different drawings of a customer are bunched together to raise schedules of repayment for the drawdowns made.
+
+
+Based on the frequency appended to the Billing close, the billing close date is cycled to a new date while the existing billing close is written to this field.
+
+
+VALIDATIONS
+
+
+
+
+Manual Input is not permitted. The system writes the last billing close date to this field automatically. */
+		LST_BILLING_CLOSE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=18.0, core=true, t24Name=LST.BILLING.CLOSE)
+		/* CARD. ISSUE
+
+
+Repay Date
+
+
+Repay date is the date on which the customer is expected to make payment for the drawdowns made.
+
+
+
+The date specified in this field assumes the following format - 25 NOV 2002 WEEK1 i.e. date followed by frequency
+
+
+When the schedule date input above is reached- based on the frequency the date is cycled to a new date.
+
+On 25
+Lst
+Repay date and this date will be cycled to say 02.12.2002 WEEK1.
+
+
+VALIDATIONS
+
+
+
+Input allowed-date followed by frequency */
+		REPAY_DATE : T24BusinessTypes:FQU
+			@i18n:Label (en="Repay Date")
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=19.0, core=true, t24Name=REPAY.DATE, mask="RDDDD DD  DD #####")
+		/* CARD. ISSUE
+
+
+Billing Close
+
+
+Billing close is the date on which the entire drawls of a customer is bunched together to raise a schedule for repayment.
+
+
+When the Schedule date input in this field is reached  based on frequency the date in the field is cycled to a new date.
+
+VALIDATIONS
+
+Input allowed-date followed by frequency */
+		BILLING_CLOSE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=20.0, core=true, t24Name=BILLING.CLOSE, mask="RDDDD DD  DD #####")
+		/* This is a new field.
+If a customer desires to make a change IN EXISTING REPAY DATE -then, input in this field is mandatory.
+
+When input  the effective repay date will be the ONE input in this field which will overwrite the existing repay date.
+However, this is subject to whether billing close date has past or not.
+
+(1) If the billing close date has past: - then repay date changed through this field will be effective from the NEXT repay date cycle.
+(2) If the billing close date has not past  then the change in date will be effective immediately and the new repay date will be written to the repay date field ONLINE.
+
+
+VALIDATIONS:
+- Valid date format can be entered
+- When new repay date is less than the repay date then the error message NEW REPAY DATE GRT REPAY DATE is thrown.
+- When new repay date is greater than the repay date then the error message SHOULD BE >= CYCLED REPAY DATE is thrown.
+- This field will only accept a date, which falls after the next frequency.
+
+Example:
+
+Repay date:  10 April 2003WEEK1
+Bill close date:  05 April 2003WEEK1
+
+Today:  04 April 2003
+
+This field would accept date, which is after 17th since the next frequency would fall on 17th. This holds even if today is on 7th i.e. after bill close date. */
+		NEW_REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=17, sysNumber=21.0, core=true, t24Name=NEW.REPAY.DATE)
+		/* Like the New Repay date, if the customer wishes for a change in BILLING close date- then it is facilitated through this field.
+
+The date entered in this field will be effective immediately ONLINE- if the bill close has not past and if past the date entered in this field will be effective from the next cycled bill close date.
+
+
+VALIDATIONS:
+- Valid date format can be entered
+- This field would accept any date, which is between today and the repay date. */
+		NEW_BILLING_CLOSE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=17, sysNumber=22.0, core=true, t24Name=NEW.BILLING.CLOSE)
+		/* CARD.ISSUE
+
+
+Orig. Repay Date
+
+
+
+When a repay date is entered, the system automatically populates the date in this field.
+If the repay date entered is a holiday then the system writes such date in this field and picks up and writes the immediate working day in REPAY date field. Picking up the next working day or previous one depends on the input in Forward/backward key of Card Type.
+
+To Illustrate: - Repay date entered is 26.10.2003, which, is a holiday.
+The Forward/Backward key is 1 (one day forward). The system will write the date 26.10.2003 in Orig. Repay. Date and generates a fresh date say 27.10.2003 and writes it in Repay date. The next CYCLING of dates will be done based on the date input here and not on the repay date. To continue the above example (if the frequency is monthly)- then the next repay. Date will be 26.11.2003 and not 27.11.2003 unless the date falls on a holiday in which case it will be forwarded by a day as per Forward/Backward key.
+
+VALIDATIONS:
+
+
+
+Manual input not allowed.
+
+
+Values to the field automatically populated from the repay date field */
+		ORIG_REPAY_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=17, sysNumber=23.0, core=true, t24Name=ORIG.REPAY.DATE, mask="RDDDD DD  DD #####")
+		/* CARD.ISSUE
+
+
+Orig.Billing.Close
+
+
+Like repay date if the date entered in billing close is a holiday the system will automatically write such a date in this field and will generate and write a new date in the billing close field.
+
+
+Like in Orig. Repayment. Date- the next CYCLING of dates will be done based on the date input here and not on the BILLING close date.
+
+
+VALIDATIONS: -
+
+
+
+
+Manual input not allowed.
+
+
+Values to the field automatically populated by     the system */
+		ORIG_BILLING_CLOSE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=17, sysNumber=24.0, core=true, t24Name=ORIG.BILLING.CLOSE, mask="RDDDD DD  DD #####")
+		/* CARD.ISSUE
+
+
+Card Start No.
+
+
+While making card issue stock register id and stock series id should be input.
+
+Whenever INPUTthe system will automatically populate the FIRST available series ID or card number in this field.
+
+
+If the stock register id input has blank stock series id (The series id will be updated as **) this field would be blank.
+
+
+VALIDATIONS: -
+
+
+
+
+
+When stock series id has numbered stock the minute the series id is entered, this field will be input with the first available stock number or id.
+
+
+
+
+If the series id is, blank-this field will also be blank. */
+		CARD_START_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=F, maxLength=20, sysNumber=25.0, core=true, t24Name=CARD.START.NO)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=26.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=27.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=28.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=29.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=30.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=31.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=32.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=33.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=34.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=35.0, core=true, t24Name=RESERVED1)
+		STMT_NO -> byValue ST_Cards:CARD_ISSUE__STMT_NO *
+		OVERRIDE -> byValue ST_Cards:CARD_ISSUE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=38.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=39.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_Cards:CARD_ISSUE__INPUTTER *
+		DATE_TIME -> byValue ST_Cards:CARD_ISSUE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=42.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=43.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=44.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=45.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=46.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CARD_ISSUE__ACCOUNT
+	{
+		/* Specifies the account(s) which hold the card.
+A card must be linked to at least one account, but may be issued to several accounts. The first account specified will be charged when charges are made for issuing a card.
+Validation Rules
+Standard Account Number format.  No duplicates allowed.  Mandatory input. */
+		ACCOUNT -> ACM_AccountOpening:ACCOUNT required
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=2.0, core=true, businessType=ACC, t24Name=ACCOUNT)
+	}
+	CARD_ISSUE__NAME
+	{
+		/* The name of the account. */
+		NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=NAME)
+	}
+	CARD_ISSUE__NOTES
+	{
+		/* Notes about the issue. */
+		NOTES : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=NOTES)
+	}
+	CARD_ISSUE__STMT_NO
+	{
+		/* Contains the STMT.ENTRY references for any charges made at authorisation of the issue.
+Validation Rules
+System updated field. */
+		STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=36.0, core=true, t24Name=STMT.NO)
+	}
+	CARD_ISSUE__OVERRIDE
+	{
+		/* This field contains overrides.
+Validation Rules
+System updated field.
+This is a NOINPUT field. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=37.0, core=true, t24Name=OVERRIDE)
+	}
+	CARD_ISSUE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=40.0, core=true, t24Name=INPUTTER)
+	}
+	CARD_ISSUE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=41.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This table holds details of all accounts to which CARDs of any type have been issued. It is a live type file which allows no user input or functions except to 'S'ee records or 'L'ist or 'P'rint the contents of the file. The table is maintained for reporting and enquiry purposes.
+Keys to the file are the account numbers concerned. Each record holds a list of the CARD issue ids associated with the account. */
+	CARD_ISSUE_ACCOUNT
+		@t24:i (t24Name=CARD.ISSUE.ACCOUNT, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The account number.
+Validation Rules
+14 numeric characters. */
+		ACCOUNT -> ST_Cards:CARD_ISSUE_ACCOUNT PK required
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Identifies the customer account")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=ACC, t24Name=ACCOUNT)
+		/* This field contains a list of all CARD issue ids associated with the account.
+Validation Rules
+14 numeric characters.
+This is a NOINPUT field. */
+		CARD_ISSUE_ID : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=24, sysNumber=1.0, core=true, t24Name=CARD.ISSUE.ID)
+	}
+	CARD_REPAYMENT_DATE
+		@t24:i (t24Name=CARD.REPAYMENT.DATE, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		REPAY_DATE_ID -> ST_Cards:CARD_REPAYMENT_DATE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=REPAY.DATE.ID)
+		ACCOUNT_NO : T24BusinessTypes:A
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Indicates Customer Account Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=ACCOUNT.NO)
+	}
+	CARD_REPAYMENT_DATE_WORK
+		@t24:i (t24Name=CARD.REPAYMENT.DATE.WORK, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		REPAY_DATE_ID -> ST_Cards:CARD_REPAYMENT_DATE_WORK PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=A, t24Name=REPAY.DATE.ID)
+		ACCOUNT_NO : T24BusinessTypes:ACC
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Indicates Customer Account Number")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, core=true, t24Name=ACCOUNT.NO)
+	}
+	CARD_STATUS
+		@t24:i (t24Name=CARD.STATUS, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		STATUS_ID -> ST_Cards:CARD_STATUS PK required
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, t24Name=STATUS.ID)
+		CRD_STS_DES -> byValue ST_Cards:CARD_STATUS__CRD_STS_DES *
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=2.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=3.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_Cards:CARD_STATUS__INPUTTER *
+		DATE_TIME -> byValue ST_Cards:CARD_STATUS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=18.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=20.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=21.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CARD_STATUS__CRD_STS_DES
+	{
+		CRD_STS_DES : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=CRD.STS.DES)
+	}
+	CARD_STATUS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=15.0, core=true, t24Name=INPUTTER)
+	}
+	CARD_STATUS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=16.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This file holds the details for each type of CARD supported by the card control system.
+A card type is defined by a four letter code for example:
+"AMEX" - American Express cards          "VISA" - VISA cards
+Each card would normally be valid for a set length of time. The renewal date of cards is calculated from two fields, the renewal date and the renewal frequency. These are seperate fields so that cards may be renewed based on a standard frequency field if all cards expire on a given date or on a frequency period based on their date of issue. This is best illustrated with the following examples.
+
+Example (a):
+Eurocheque cards are required to expire at the end of the year every second year. In this case both fields must be input as follows:
+2 RENEWAL.DATE....... 31 DEC 1991 3 RENEWAL.FQU........ M2431
+The default issue date for new eurocheque cards is taken as 19911231 and the system will cycle this renewal date forward by two years at the end of every second year according to the frequency field M2431.
+
+Example (b):
+In the case of cards which expire at the end of the month two years following their issue, only the frequency code is required:
+2 RENEWAL.DATE....... 3 RENEWAL.FQU........ M2431
+This means the default date is taken by cycling the date if issue forward according to the frequency M2431. For example the default renewal date for a card issued on 5 SEP 1991 would become 31 AUG 1993. */
+	CARD_TYPE
+		@t24:i (t24Name=CARD.TYPE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Card types are defined to the system as one to four letter alphanumeric codes with a meaningful name for example:
+"AMEX" - American Express cards "VISA" - VISA cards
+Validation Rules
+1-4 alphanumeric characters. */
+		CARD_TYPE -> ST_Cards:CARD_TYPE PK required
+			@i18n:Label (en="Card Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=0.0, core=true, businessType=A, t24Name=CARD.TYPE)
+		DESCRIPTION -> byValue ST_Cards:CARD_TYPE__DESCRIPTION *
+		/* Defines the default renewal date for new cards issued of this type. The default date is arrived at by calculations based on both this field and the RENEWAL.FQU field.
+Each card issued must have an expiry date. It is possible to enter an expiry date at the time the card is issued in the actual issue record. If this is not entered the expiry date will be calculated from this field and the following field for the card type. This calculation is best illustrated with the following examples:
+
+Example (a):
+Eurocheque cards are required to expire at the end of the year every second year. In this case both fields must be input as follows:
+2 RENEWAL.DATE....... 31 DEC 1991 3 RENEWAL.FQU........ M2431
+The default issue date for new eurocheque cards is taken as 19911231 and the system will cycle this renewal date forward by two years at the end of every second year according to the frequency field M2431.
+
+Example (b):
+In the case of cards which expire at the end of the month two years following their issue, only the frequency code is required:
+2 RENEWAL.DATE....... 3 RENEWAL.FQU........ M2431
+This means the default date is taken by cycling the date if issue forward according to the frequency M2431. For example the default renewal date for a card issued on 5 SEP 1991 would become 31 AUG 1993.
+Validation Rules
+8 numeric date characters.  Mandatory input. */
+		RENEWAL_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Renewal Date")
+			@i18n:Tooltip (en="Defines default renewal date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=RENEWAL.DATE)
+		/* Defines the renewal frequency for cards of this type.
+Each card issued must have an expiry date. It is possible to enter an expiry date at the time the card is issued in the actual issue record. If this is not entered the expiry date will be calculated from this field and the following field for the card type. This calculation is best illustrated with the following examples:
+
+Example (a):
+Eurocheque cards are required to expire at the end of the year every second year. In this case both fields must be input as follows:
+2 RENEWAL.DATE....... 31 DEC 1991 3 RENEWAL.FQU........ M2431
+The default issue date for new eurocheque cards is taken as 19911231 and the system will cycle this renewal date forward by two years at the end of every second year according to the frequency field M2431.
+
+Example (b):
+In the case of cards which expire at the end of the month two years following their issue, only the frequency code is required:
+2 RENEWAL.DATE....... 3 RENEWAL.FQU........ M2431
+This means the default date is taken by cycling the date if issue forward according to the frequency M2431. For example the default renewal date for a card issued on 5 SEP 1991 would become 31 AUG 1993.
+Validation Rules
+5 alphanumeric characters.  Standard frequency field.  Optional input. */
+		RENEWAL_FQU : T24BusinessTypes:A
+			@i18n:Label (en="Renewal Fqy")
+			@i18n:Tooltip (en="Default renewal frequency ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=RENEWAL.FQU)
+		CATEGORY -> byValue ST_Cards:CARD_TYPE__CATEGORY *
+		/* Validation Rules
+A maximum of 3 characters may be entered.
+The following values are permitted:       YES      NO */
+		ALLOW_FCY_ACCT : ST_Cards:CARD_TYPE__ALLOW_FCY_ACCT
+			@i18n:Label (en="Allow Fcy Acct")
+			@i18n:Tooltip (en="Indicates issuance to foreign currency account")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=ALLOW.FCY.ACCT)
+		/* CARD.TYPE
+
+
+BILLING DAY
+
+
+The input here will determine when the card billing close should happen. The input in this field would be D-nn (to be read as D minus
+nn
+) where
+nn
+is a numeric.
+
+The inference is when repay date is entered based on the input in this field the billing close will be automatically populated in the card. Issue application.
+
+
+To illustrate: -
+
+REPAY.       DATE(Application       Card. issue)#BILLING       DAY(Application       Card. Type)#BILL.       CLOSE DATE(Application       Card. Issue)#
+(A)#(B)#(C)[C = (A)  (B)#
+25.10.2003#D-05#20.10.2003#
+28.10.2003#D-05#23.10.2003#
+In card type application, the billing day is input as D-05.
+
+
+In
+CARD.ISSUE
+
+application
+when the repay date is entered as 25.10.2003, the system based on the input in billing day will populate the date 20.10.2003 in the BILL.CLOSE.DATE automatically.
+
+
+
+VALIDATIONS
+
+
+
+The input is numeric and should in the format     D-nn. */
+		BILLING_DAY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=7.0, core=true, t24Name=BILLING.DAY)
+		/* CARD.TYPE
+
+
+FORWARD BACKWARD
+
+
+Permitted values are 1- Forward 2-Backward 3-Forward Month and 4-Calendar.
+
+
+When repay date entered in
+CARD. ISSUE
+
+application is a holiday- the value input in this field acts as the TRIGGER for cycling the dates to a working date.
+
+
+
+For ex: - Case (1) Value input here is 1-Forward
+
+
+
+
+Case- (2) Value input here is 2- Backward
+
+If in
+CARD.ISSUE
+
+application in repay date field if say 08.12.2002 is entered (and if it is a holiday) the system
+
+
+In case (1) will cycle the date to 09.12.2002 (if this is also a holiday) then it will be 10.12.2002
+
+
+In case (2) will cycle the date to 07.12.2002 because the input is 2-backward here.
+
+
+VALIDATIONS
+
+
+
+
+Permitted values 1- forward, 2-backward, 3 forward month 4-calendar
+
+
+
+
+If 1- the date will be carried forward by a day
+
+
+
+
+If 2 the date will be carried backward by a day
+
+
+
+
+If 3 then the date entered if holiday will be forward to the next working day if within the month if not within the same month then it picks the last working day.
+
+
+
+
+
+If     it is calendar the system will use the same date irrespective of whether     it is a holiday or not. */
+		FORWARD_BACKWARD : ST_Cards:CARD_TYPE__FORWARD_BACKWARD
+			@i18n:Label (en="Forward Backward Key")
+			@i18n:Tooltip (en="Indicates the forward backward key")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=8.0, core=true, t24Name=FORWARD.BACKWARD)
+		OVERRIDE -> byValue ST_Cards:CARD_TYPE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=11.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_Cards:CARD_TYPE__INPUTTER *
+		DATE_TIME -> byValue ST_Cards:CARD_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=15.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=16.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=18.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=19.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CARD_TYPE__DESCRIPTION
+	{
+		/* Description of the card type.
+Descriptions may be entered in each of the languages defined in the LANGUAGE table.
+Validation Rules
+3-35 type A (alphanumeric) characters.  Multilanguage field.  Mandatory input. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	CARD_TYPE__CATEGORY
+	{
+		/* Defines the permitted Customer account categories to which cards of this type may be issued. Customer Account categories can be of only 4 numeric characters.
+Specifies the particular categories of accounts to which cards of this type may be issued. Account numbers entered in card issue records are checked against this field to ensure they are of one of the allowed customer categories.
+Validation Rules
+4 numeric characters.  Optional input.  Multivalue field.  Entry must exist on the category table. */
+		CATEGORY -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=4.0, core=true, t24Name=CATEGORY)
+	}
+	CARD_TYPE__OVERRIDE
+	{
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=OVERRIDE)
+	}
+	CARD_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=13.0, core=true, t24Name=INPUTTER)
+	}
+	CARD_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=14.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	CARD_TYPE__ALLOW_FCY_ACCT : mml:string
+		YES=YES
+		NO=NO
+	CARD_TYPE__FORWARD_BACKWARD : mml:string
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+}

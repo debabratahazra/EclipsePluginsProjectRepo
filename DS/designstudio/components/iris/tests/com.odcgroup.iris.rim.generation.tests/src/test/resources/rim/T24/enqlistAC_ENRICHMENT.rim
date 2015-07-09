@@ -1,0 +1,52 @@
+domain T24 {
+	use common.CoreCommands.*
+	use common.HTTPEvents.*
+	use common.ODataCommands.*
+	use common.T24Commands.*
+	use common.T24Events.*
+	rim enqlistAcEnrichment {
+		command GETEntities
+		command GETEntity
+		basepath: "/{companyid}"
+	
+		resource enqlistAcEnrichments {
+			type: collection
+			entity: enqlistAcEnrichment
+			view: GETEntities {
+				properties [ filter = "{filter}" ]
+			}
+			path: "/enqlistAcEnrichments()"
+			GET *-> enqlistAcEnrichment {
+				parameters [ id = "{PrimaryKey}" ]
+			}
+		}
+	
+		resource enqlistAcEnrichment {
+			type: item
+			entity: enqlistAcEnrichment
+			view: GETEntity
+			path: "/enqlistAcEnrichments('{id}')"
+		}
+	
+		resource enqlistAcEnrichmentsUnauth {
+			type: collection
+			entity: enqlistAcEnrichment
+			view: GetIauthEntities {
+				properties [ filter = "{filter}" ]
+			}
+			path: "/enqlistAcEnrichmentsUnauth()"
+			GET *-> enqlistAcEnrichmentUnauth {
+				parameters [ id = "{PrimaryKey}" ]
+			}
+		}
+	
+		resource enqlistAcEnrichmentUnauth {
+			type: item
+			entity: enqlistAcEnrichment
+			view: GetIauthEntity
+			path: "/enqlistAcEnrichmentsUnauth('{id}')"
+		}
+	
+	}
+	
+}

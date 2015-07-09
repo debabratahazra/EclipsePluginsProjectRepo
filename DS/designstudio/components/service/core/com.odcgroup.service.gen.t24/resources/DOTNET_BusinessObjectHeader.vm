@@ -1,0 +1,38 @@
+#ifndef SOA_${umlClass.getDotNetClassName().toUpperCase()}_H
+\#define SOA_${umlClass.getDotNetClassName().toUpperCase()}_H
+
+#set($dotNetStdClassRefList = ${umlClass.getDotNetStdClsRefListInBO()})
+#foreach($dotNetStdClassRef in $dotNetStdClassRefList)
+using ${dotNetStdClassRef};
+#end
+
+namespace temenos {${formatter.indent()}
+  namespace soa {${formatter.indent()}
+    namespace ${namespace} {${formatter.indent()}
+#set($dotNetUserClassRefList = ${umlClass.getDotNetUserClsRefListInBO()})
+#foreach($dotNetUserClassRef in $dotNetUserClassRefList)
+    ref class ${dotNetUserClassRef};
+#end
+    public ref class ${umlClass.getDotNetClassName()} sealed {${formatter.indent()}
+    public:
+${umlClass.declareDotNetDefaultConstrutor()}
+${umlClass.declareDotNetConstructor()}
+${umlClass.declareDotNetDestructor()}
+
+#set($members = ${umlClass.getMembers()})
+#foreach($member in $members)
+${member.declareDotNetProperty()}
+#end
+
+      private:
+#set($members = ${umlClass.getMembers()})
+#foreach($member in $members)
+${member.declareDotNetMember()}
+#end
+      };${formatter.outdent()}
+    }${formatter.outdent()}
+  }${formatter.outdent()}
+}${formatter.outdent()}
+
+
+#endif

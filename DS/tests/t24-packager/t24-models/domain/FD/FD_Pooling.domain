@@ -1,0 +1,258 @@
+# UTF-8
+ /* Grouping and Approval of Fiduciary Orders */ 
+ Domain FD_Pooling 
+ @t24:i (module=FD) 
+ @java:Package (value=com.temenos.t24.datamodel.fd.fd_pooling) 
+ namespace "http://www.temenos.com/t24/FD_Pooling" 
+ metamodelVersion 4.3.0.20110527 
+ Classes { 
+ /* This concat file holds information regarding the pooling of fiduciary orders and refers to the FD.POOL.GROUP file. When a group is open for pooling the key of the FD.POOL.GROUP record is held on this concat file for ease of reference. Each pool group record which is not created from an order which is set no pooling (POOLING field on the FD.FID.ORDER record set to NONE) will be referenced on this table when the status of the group is OPEN. However, once the placement has been created the reference to the relevant pool group is removed. For notice contracts, when the FD.PARAMETER record specifies this, the reference to the pool group is replaced on this file to allow orders to be pooled into an existing placement. Hence there are three types of record which will be on this table: 1) FIXED groups    These records are for FIXED orders and have a key of                CCY - VALUE DATE - MAT DATE    in the form                CCC - YYYYMMDD - YYYYMMDD 2) Open NOTICE groups    For NOTICE contracts which have not yet had the placement authorised    records on this table will have a key of                CCY - VALUE DATE - DAYS NOTICE    in the form of                CCC - YYYYMMDD - DD 3) Existing NOTICE groups    This group is used to pool notice orders onto an existing placement.    This type of group is checked in preference to any open groups during    the automatic pooling process and has a key of                CCY - - DAYS NOTICE    in the form                CCC -- DD */ 
+ FD_POOL_GROUP_XREF 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* This is the key to the records on this concat file and is used to uniquely identify each record. The layout of the key is the currency of the fiduciary followed by the value date of the currency and finally the maturity date of the contract. For notice contracts the number of days notice is held in the maturity date part of this key. When it is possible to pool orders onto existing placements, as specified on the FD.PARAMETER system record the corresponding record on this file will have a null value date. Each part of the key is separated by a '-' character. */ 
+ CCY_VALUE_MAT : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, t24Name=CCY.VALUE.MAT) 
+ 
+ /* Standard T24 numeric field. Validation RulesA maximum of 11 characters may be entered.Must be the key to a valid entry on the FD.POOL.GROUP file. */ 
+ GROUP_ID -> FD_Pooling:FD_POOL_GROUP 
+ @i18n:Label (en="Group Id") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, t24Name=GROUP.ID) 
+ } 
+ /* This file holds the details of the fiduciary pooling groups, and there is one record for each pooling group. This record holds details such as the currency, value date and maturity date of the group as well as the total amount and the group status. For each order in the group, details of the amount of the order and that orders status are held. The placement transaction reference number (when this is relevant) is also held on this record. Refer to helptext for the FD.FID.ORDER application for details on the pooling process. */ 
+ FD_POOL_GROUP 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This is the key to the records on this file and is used to uniquely identify each record on the file. The group number consists of a five numeric digit Julian date followed by a five digit sequence number. This group number is automatically assigned by the FIDUCIARY application and is referenced on both the FD.FID.ORDER records and on the FD.FIDUCIARY records. Validation Rules10 numeric characters. Five character Julian date followed by a five character sequence number. */ 
+ GROUP_NO : mml:string PK required 
+ @i18n:Label (en="Group Id") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=GROUP.NO) 
+ 
+ /* The currency of the fiduciary pool group is held in this field. Validation RulesStandard T24 currency field. */ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, t24Name=CURRENCY) 
+ 
+ /* The value date of the pool group is held in this field and corresponds to the value date of the placement. In the case of NOTICE contracts where it is possible to pool orders into an existing placement contract this field holds the value date of the original orders which made the placement - i.e. the value date of the original placement. Validation RulesStandard T24 date field. 11 numeric characters. */ 
+ VALUE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @i18n:Tooltip (en="Indicates the date the Portfolios will be updated by the event") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, t24Name=VALUE.DATE) 
+ 
+ /* The maturity date of the pool group is held in this field. In the case of notice contracts the number of days notice is held in this field. Validation RulesStandard T24 date field, 11 numeric characters  OR  Number of days notice. */ 
+ MATURITY_DATE : FD_Pooling:FD_POOL_GROUP__MATURITY_DATE 
+ @i18n:Label (en="Maturity Date") 
+ @i18n:Tooltip (en="Indicates the Maturity Date of the Transaction") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, t24Name=MATURITY.DATE) 
+ 
+ /* The total amount of the pool group is held in this field. Validation RulesStandard T24 amount field. */ 
+ AMOUNT : mml:string 
+ @i18n:Label (en=Amount) 
+ @i18n:Tooltip (en="Indicates the Amount") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, t24Name=AMOUNT) 
+ 
+ /* This field details whether or not further orders can be pooled into this pool group or not. When this field is set to YES this group record will be referenced on the FD.POOL.GROUP.XREF file and as such further orders may be pooled into the group. When this field is set to NO then this group is not referenced on the FD.POOL.GROUP.XREF file and as such will not be available to the pooling process. Validation RulesMust be either YES or NO. */ 
+ FURTHER_POOLING : FD_Pooling:FD_POOL_GROUP__FURTHER_POOLING 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=5.0, t24Name=FURTHER.POOLING) 
+ 
+ /* The status of the pooling group is held in this field and will hold one of the following values: OPEN ==== When all the orders in the pool group are open (i.e. they have not yet been approved) the GROUP.STATUS is set to OPEN. At this stage further orders may be pooled into this group. APPROVED ======== When at least one, but not all, orders have been approved the GROUP.STATUS is set to APPROVED. At this stage further orders may NOT be pooled into this group. CLOSED ====== When all the orders in the group have been approved and the placement record created the GROUP.STATUS is set to CLOSED, and no further orders may be pooled in to this group. EXIST ===== For notice contracts, where it is possible to pool orders into an existing placement (as set in FD.PARAMETER), the GROUP.STATUS is set to EXIST and further orders may be pooled into the group providing the order is not backvalued and that the value date of the order is greater than, or equal to, the value date of the group. Validation RulesMust be one of OPEN, APPROVED, CLOSED or EXIST. */ 
+ GROUP_STATUS : FD_Pooling:FD_POOL_GROUP__GROUP_STATUS 
+ @i18n:Label (en="Group Status") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=6.0, t24Name=GROUP.STATUS) 
+ 
+ /* If the pooling group was created as a MANUAL pool group this field will contain the value YES, otherwise this field will be set to NO. When this field is set to YES the pool group will not be included in the automatic pooling process. */ 
+ MANUAL : FD_Pooling:FD_POOL_GROUP__MANUAL 
+ @t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=7.0, t24Name=MANUAL) 
+ 
+ ORDER_NO -> byValue FD_Pooling:FD_POOL_GROUP__ORDER_NO * 
+ 
+ /* When all of the orders in the pool group have been approved the placement contract will be created. The key to the placement contract is held in this record. */ 
+ FIDUCIARY_NO : mml:string 
+ @i18n:Label (en="Fiduciary No") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=12.0, t24Name=FIDUCIARY.NO) 
+ 
+ POOLING_FIELDS -> byValue FD_Pooling:FD_POOL_GROUP__POOLING_FIELDS * 
+ } 
+ FD_POOL_GROUP__ORDER_NO 
+ { 
+ /* This fields holds the transaction reference of the FD.FID.ORDER contract to which the fields ORDER.AMT and ORDER.STATUS refer. Fields ORDER.NO to DEALER.NOTES form a related multi value set. */ 
+ ORDER_NO -> FD_Contract:FD_FID_ORDER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=8.0, t24Name=ORDER.NO) 
+ 
+ /* This fields holds the principal of the FD.FID.ORDER record which is referenced in the related field ORDER.NO Fields ORDER.NO to DEALER.NOTES form a related multi value set. */ 
+ ORDER_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, t24Name=ORDER.AMT) 
+ 
+ /* The status of the related FD.FID.ORDER contract referenced in the related field ORDER.NO is held in this field. The following values will be used: OPEN ==== The order is currently open and awaiting approval by the dealer. APPROVED ======== The order has been approved by the dealer. EXIST APPROVED ============== When an order has this status, the order has been added to this pool group after the placement has been created and the order has been approved by the dealer. However, only when the order is approved on the fiduciary placement will the status of the order be set to APPROVED. Fields ORDER.NO to DEALER.NOTES form a related multi value set. */ 
+ ORDER_STATUS : FD_Pooling:FD_POOL_GROUP__ORDER_NO__ORDER_STATUS 
+ @t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=10.0, t24Name=ORDER.STATUS) 
+ 
+ /* This field holds any special instructions from the dealer for the FD.FID.ORDER detailed in the related field ORDER.NO. Fields ORDER.NO to DEALER.NOTES form a related multi value set. */ 
+ DEALER_NOTES : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, t24Name=DEALER.NOTES) 
+ } 
+ FD_POOL_GROUP__POOLING_FIELDS 
+ { 
+ /* Fields POOLING.FIELDS to EVAL.POOL.FLDS form a related multi value set. Standard T24 alphanumeric field. Validation RulesA maximum of 25 characters may be entered. */ 
+ POOLING_FIELDS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=13.0, t24Name=POOLING.FIELDS) 
+ 
+ /* Fields POOLING.FIELDS to EVAL.POOL.FLDS form a related multi value set. Standard T24 alphanumeric field. Validation RulesA maximum of 25 characters may be entered. */ 
+ EVAL_POOL_FLDS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=14.0, t24Name=EVAL.POOL.FLDS) 
+ } 
+ FD_APPROVE_POOLING 
+ @t24:i (level=F, type=W, localRefAllowed=false) 
+ { 
+ POOLING_ORDER_KEY : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=60, sysNumber=0.0, t24Name=POOLING.ORDER.KEY) 
+ 
+ GL_POOLED_GROUP : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=1.0, t24Name=GL.POOLED.GROUP) 
+ 
+ GL_POOLING_STATUS : FD_Pooling:FD_APPROVE_POOLING__GL_POOLING_STATUS 
+ @t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=2.0, t24Name=GL.POOLING.STATUS) 
+ 
+ ORDER_NO -> byValue FD_Pooling:FD_APPROVE_POOLING__ORDER_NO * 
+ 
+ DEALER_INSTR -> byValue FD_Pooling:FD_APPROVE_POOLING__DEALER_INSTR * 
+ 
+ OVERRIDE -> byValue FD_Pooling:FD_APPROVE_POOLING__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=17.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue FD_Pooling:FD_APPROVE_POOLING__INPUTTER * 
+ 
+ DATE_TIME -> byValue FD_Pooling:FD_APPROVE_POOLING__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=22.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=23.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=24.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=25.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ FD_APPROVE_POOLING__ORDER_NO 
+ { 
+ ORDER_NO : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=18, sysNumber=3.0, t24Name=ORDER.NO) 
+ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=4.0, t24Name=CURRENCY) 
+ 
+ VALUE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=5.0, t24Name=VALUE.DATE) 
+ 
+ MATURITY_DATE : FD_Pooling:FD_APPROVE_POOLING__ORDER_NO__MATURITY_DATE 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=6.0, t24Name=MATURITY.DATE) 
+ 
+ AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=7.0, t24Name=AMOUNT) 
+ 
+ POOLED_GROUP : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=8.0, t24Name=POOLED.GROUP) 
+ 
+ POOLING_STATUS : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=9.0, t24Name=POOLING.STATUS) 
+ 
+ DEALER_INSTR -> byValue FD_Pooling:FD_APPROVE_POOLING__ORDER_NO__DEALER_INSTR * 
+ } 
+ FD_APPROVE_POOLING__ORDER_NO__DEALER_INSTR 
+ { 
+ DEALER_INSTR : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, t24Name=DEALER.INSTR) 
+ 
+ FID_TYPE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=40, sysNumber=11.0, t24Name=FID.TYPE) 
+ } 
+ FD_APPROVE_POOLING__DEALER_INSTR 
+ { 
+ DEALER_INSTR -> byValue FD_Pooling:FD_APPROVE_POOLING__DEALER_INSTR__DEALER_INSTR * 
+ } 
+ FD_APPROVE_POOLING__DEALER_INSTR__DEALER_INSTR 
+ { 
+ RESERVED3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=12.0, t24Name=RESERVED3) 
+ 
+ RESERVED2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=13.0, t24Name=RESERVED2) 
+ 
+ RESERVED1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=14.0, t24Name=RESERVED1) 
+ 
+ RESERVED0 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=15.0, t24Name=RESERVED0) 
+ } 
+ FD_APPROVE_POOLING__OVERRIDE 
+ { 
+ DEALER_INSTR -> byValue FD_Pooling:FD_APPROVE_POOLING__OVERRIDE__DEALER_INSTR * 
+ } 
+ FD_APPROVE_POOLING__OVERRIDE__DEALER_INSTR 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, t24Name=OVERRIDE) 
+ } 
+ FD_APPROVE_POOLING__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, t24Name=INPUTTER) 
+ } 
+ FD_APPROVE_POOLING__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=20.0, t24Name=DATE.TIME) 
+ } 
+ } 
+ Enumerations { 
+ FD_POOL_GROUP__MATURITY_DATE : mml:string 
+ DAYS=DAYS 
+ 
+ FD_POOL_GROUP__FURTHER_POOLING : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ FD_POOL_GROUP__GROUP_STATUS : mml:string 
+ OPEN=OPEN 
+ APPROVED=APPROVED 
+ CLOSED=CLOSED 
+ 
+ FD_POOL_GROUP__MANUAL : mml:string 
+ Y=Y 
+ NO=NO 
+ 
+ FD_POOL_GROUP__ORDER_NO__ORDER_STATUS : mml:string 
+ OPEN=OPEN 
+ APPROVED=APPROVED 
+ CLOSED=CLOSED 
+ 
+ FD_APPROVE_POOLING__GL_POOLING_STATUS : mml:string 
+ APPROVED=APPROVED 
+ CANCEL=CANCEL 
+ ACCEPTED=ACCEPTED 
+ 
+ FD_APPROVE_POOLING__ORDER_NO__MATURITY_DATE : mml:string 
+ DAYS=DAYS 
+ 
+ } 

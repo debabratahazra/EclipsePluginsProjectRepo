@@ -1,0 +1,111 @@
+## BasicImplementation.vm
+*------------------------------------------------------------------------------
+* 
+*------------------------------------------------------------------------------
+#set($routineName = "Adaptor")
+    SUBROUTINE T24${service.getName()}Impl.$operation.getLowerName()(#set( $paramList = $operation.getParameters() )#foreach($param in $paramList)$param.getLowerCamelCaseName(), #{end}responseDetails)
+*------------------------------------------------------------------------------
+** Generated Service Adaptor 
+* @author youremail@temenos.com
+* @stereotype subroutine
+* @package infra.eb
+*!
+* In/out parameters:  
+#foreach($param in $paramList)
+* $param.getLowerCamelCaseName() - $param.getTypeName()#if($param.getComplexity() == "COMPLEX") #if ($param.getCardinality() == "MULTIPLE")(List)#{else}(Single)#end#end, $param.getDirection()
+#end
+* responseDetails - ResponseDetails, OUT
+*
+*------------------------------------------------------------------------------
+    $INSERT I_COMMON
+    $INSERT I_EQUATE
+    $INSERT I_responseDetails
+#set($classesList = $operation.getComplexClassNames())
+#foreach($class in $classesList)
+    $INSERT I_${service.getName()}_$class
+#end
+
+*------------------------------------------------------------------------------
+    GOSUB initialise
+    IF ETEXT = '' THEN
+    	GOSUB process
+    END
+    GOSUB finalise
+
+    RETURN
+*------------------------------------------------------------------------------
+process:
+
+******************* FILL IN YOUR CODE HERE ***********************************
+#foreach($param in $paramList)
+#if (($param.getDirection() =="OUT") || ($param.getDirection() =="INOUT") )
+#if ($param.getComplexity() == "COMPLEX")
+#set ($className = $param.getTypeName() )
+    * Attributes in the outward class $className:
+#foreach($classDefDescriptor in $service.getClassDefDescriptors())
+#if ($classDefDescriptor.getName() == $className)
+#if ($param.getCardinality() == "MULTIPLE")
+	* cnt = 1
+	* LOOP
+	*     [do something]
+	* WHILE [there is something to do] DO
+        *     this.$param.getLowerCamelCaseName() = ''
+#foreach( $attribute in $classDefDescriptor.getAttributes() )
+        *     this.$param.getLowerCamelCaseName()<$className.$attribute.getName()> = 
+#end
+        *     $param.getLowerCamelCaseName()<cnt> = LOWER(this.$param.getLowerCamelCaseName())
+
+	* cnt += 1
+	* REPEAT
+#else
+#foreach( $attribute in $classDefDescriptor.getAttributes() )
+    *   $param.getLowerCamelCaseName()<$className.$attribute.getName()> = 
+#end
+#end
+
+#end
+#end
+#{else}
+    * $param.getLowerCamelCaseName() =
+#end
+#end
+#end
+*
+    RETURN
+
+*------------------------------------------------------------------------------
+initialise:
+*
+#foreach($param in $paramList)
+#if ($param.getDirection() =="OUT")    $param.getLowerCamelCaseName() = ''
+#end
+#end
+
+    CALL SetServiceCommon
+    response = ''
+    responseDetails = '' 
+    responseDetails.serviceName = "T24${service.getName()}Impl.$operation.getLowerName()"
+
+	ETEXT = ''
+    
+#foreach($param in $paramList)
+#if ($param.isMandatory() =="true")
+    IF $param.getLowerCamelCaseName() = '' THEN
+        ETEXT = 'EB-MANDATORY.INPUT':FM:'$param.getLowerCamelCaseName()'
+    END
+#end
+#end  
+    
+*
+    RETURN
+
+*------------------------------------------------------------------------------
+finalise:
+*
+    CALL SetServiceResponse(responseDetails)  
+*
+    RETURN
+    
+*------------------------------------------------------------------------------
+
+    END

@@ -1,0 +1,74 @@
+grammar com.odcgroup.page.Page with com.odcgroup.workbench.dsl.Common hidden(WS, ML_COMMENT, SL_COMMENT) 
+
+import "platform:/resource/page-model/model/PageModel.ecore" 
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
+import "platform:/resource/page-metamodel/model/PageMetaModel.ecore" as metamodel
+
+Model returns Model:
+	{Model}
+	'metamodelVersion' '=' metamodelVersion=String_Value 
+	widget=Widget
+;
+
+Widget returns Widget:
+	{Widget}
+	'---' (libraryName=LibraryName ':')? typeName=ID '---'
+	('labels' labels+=Translation ( "," labels+=Translation)*)?
+	('toolTips' toolTips+=Translation ( "," toolTips+=Translation)*)?
+	(properties+=Property)*
+	('{'
+		(events+=Event (events+=Event)*)?
+		(snippets+=Snippet (snippets+=Snippet)*)?
+		(contents+=Widget (contents+=Widget)*)?
+    '}')?;
+
+Timestamp returns ecore::EDate:
+	String_Value;
+
+Property returns Property:
+	{Property}
+	(libraryName=ID ':')? typeName=ID '=' value=String_Value (readonly?='!')? ('!' model=[Model|URI])?;
+
+Event returns Event:
+	'Event' eventName=String_Value '(' functionName=String_Value ')' (nature=EventNature)?
+	('//' description=String_Value)?
+	(properties+=Property)*
+	('messages' messages+=Translation ( "," messages+=Translation)*)?
+	('{'
+		(parameters+=Parameter (parameters+=Parameter)*)?
+		(snippets+=Snippet (snippets+=Snippet)*)?
+    '}')?;
+
+Snippet returns Snippet:
+	{Snippet}
+	'Snippet' (typeName=String_Value)?
+	(properties+=Property)*
+	('{'
+		(contents+=Snippet (contents+=Snippet)*)?
+    '}')?;
+
+Translation returns Translation:
+	language=ID '=' message=String_Value
+;
+
+enum EventNature returns EventNature:
+	ADVANCED = 'A' | SIMPLIFIED = 'S';
+
+Parameter returns Parameter:
+	name=ID '=' value=String_Value (userDefined?='ud')?
+;
+
+// Data type rules
+
+LibraryName : 
+	ID;
+
+// Terminal rules
+
+terminal ML_COMMENT	: '/*' -> '*/';
+terminal SL_COMMENT 	: '#' !('\n'|'\r')* ('\r'? '\n')?;
+
+terminal WS			: (' '|'\t'|'\r'|'\n')+;
+

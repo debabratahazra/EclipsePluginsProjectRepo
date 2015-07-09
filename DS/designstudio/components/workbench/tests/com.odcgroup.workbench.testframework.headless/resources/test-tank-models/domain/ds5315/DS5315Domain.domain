@@ -1,0 +1,445 @@
+# UTF-8
+Domain DS5315Domain 
+	@java:Package (value=ds5315) 
+namespace "http://www.odcgroup.com/d-s5315-domain" 
+metamodelVersion 4.3.0.20110527 
+Classes { 
+	/* Currency */ 
+	Currency5315 
+		@i18n:Label (de="Währung", en=Currency, fr=Devise) 
+		@aaa:EntityDictID (value=101) 
+		@sql:SQLName (value=currency_vw) 
+		@aaa:TripleA (EntityDictID=101, EntityName=Currency, EntitySQLName=currency) 
+		@sql:VersionOptimisticLocking (value=NONE) 
+		@aaa:aaaSQLName (value=currency) 
+	{ 
+		/* Code */ 
+		code : AAABusinessTypes:Code BK required 
+			@i18n:Label (de=Code, en=Code, fr=Code) 
+			@aaa:AttDictID (value=101002) 
+			@sql:SQLName (value=code) 
+			@sql:SQLRequired (value=true) 
+			@svc:Services (LoadPermittedValues=true) 
+			@aaa:TripleA (AttrDefaultDisplayLength=20, AttrDictID=101002, AttrMaxDbLength=20, AttrName=Code, AttrSQLName=code) 
+			@aaa:aaa-param (param=Code, type=code_t) 
+			@aaa:aaaSQLName (value=code) 
+		
+		/* Identifier */ 
+		id : AAABusinessTypes:Id PK required 
+			@i18n:Label (de=Bezeichner, en=Identifier, fr=Identifiant) 
+			@aaa:AttDictID (value=101001) 
+			@sql:SQLName (value=id) 
+			@sql:SQLRequired (value=true) 
+			@aaa:TripleA (AttrDictID=101001, AttrName=Identifier, AttrSQLName=id) 
+			@aaa:aaa-param (param=Identifier, type=id_t) 
+			@aaa:aaaSQLName (value=id) 
+	} 
+	/* PCK_DS_ORD_ENTRY_LST */ 
+	PCK_DS_ORD_ENTRY_LST5315 
+		@aaa:FormatColumnFilter (value=SERVER_FILTER) 
+		@aaa:FormatFunction (value="Order Entry") 
+		@sql:SQLName (value=PCK_DS_ORD_ENTRY_LST) 
+		@aaa:TripleA (ColumnFilter=SERVER_FILTER, EntitySQLName=ext_operation, FinFuncName="Order Entry", FinFuncProcName=order_entry, FormatName=PCK_DS_ORD_ENTRY_LST) 
+	{ 
+		/* CATEGORY_LABEL */ 
+		CATEGORY_LABEL : AAABusinessTypes:UniInfo 
+			@i18n:Label (de=Kategorie, en=Category, fr="Catégorie") 
+			@sql:SQLName (value=CATEGORY_LABEL) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=CATEGORY_LABEL, Rank=50, ScriptDef="{PNO UPDATE 11 MAY 2012 Translated label of order category} {Security, Derivatives and Other} IF(@CATEGORY=\"SEC\", DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_SEC\", TSL_CURRENT_LANGUAGE(), NULL), {Forex Spot} IF(@CATEGORY=\"FXSPOT\", DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_FXS\", DOMAIN().language_dict_id, NULL), {Forex Forward} IF(@CATEGORY=\"FXFWD\", DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_FXF\", DOMAIN().language_dict_id, NULL), {Deposit, Loan} IF(@CATEGORY=\"MM\",DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_MM\", TSL_CURRENT_LANGUAGE(), NULL) ))))") 
+			@aaa:scpt (value="{PNO UPDATE 11 MAY 2012 Translated label of order category} {Security, Derivatives and Other} IF(@CATEGORY=\"SEC\", DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_SEC\", TSL_CURRENT_LANGUAGE(), NULL), {Forex Spot} IF(@CATEGORY=\"FXSPOT\", DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_FXS\", DOMAIN().language_dict_id, NULL), {Forex Forward} IF(@CATEGORY=\"FXFWD\", DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_FXF\", DOMAIN().language_dict_id, NULL), {Deposit, Loan} IF(@CATEGORY=\"MM\",DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_MM\", TSL_CURRENT_LANGUAGE(), NULL) ))))") 
+		
+		/* CREATION_DATE */ 
+		CREATION_DATE : AAABusinessTypes:Datetime 
+			@i18n:Label (de=Erstellungsdatum, en="Creation Date", fr="Date de création") 
+			@sql:SQLName (value=CREATION_DATE) 
+			@aaa:TripleA (FormatEltName=CREATION_DATE, Rank=90, ScriptDef=creation_time_d) 
+			@aaa:scpt (value=creation_time_d) 
+		
+		/* INSTR_NAME */ 
+		INSTR_NAME : AAABusinessTypes:UniName 
+			@i18n:Label (de=Instrument, en="Instrument Name", fr="Nom Instrument") 
+			@sql:SQLName (value=INSTR_NAME) 
+			@aaa:TripleA (FormatEltName=INSTR_NAME, Rank=210, ScriptDef=instr_id.name) 
+			@aaa:scpt (value=instr_id.name) 
+		
+		/* ORDER_CURRENCY */ 
+		ORDER_CURRENCY : AAABusinessTypes:UniCode 
+			@i18n:Label (de="Währung", en=Currency, fr=Devise) 
+			@sql:SQLName (value=ORDER_CURRENCY) 
+			@aaa:TripleA (FormatEltName=ORDER_CURRENCY, Rank=130, ScriptDef="{Display the currency synonym as set in the \"DS_CURRENCY_CODE\" system parameter. If the synonym does not exist, display the code} IF( op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code <> NULL, op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, op_currency_id.code )") 
+			@aaa:scpt (value="{Display the currency synonym as set in the \"DS_CURRENCY_CODE\" system parameter. If the synonym does not exist, display the code} IF( op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code <> NULL, op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, op_currency_id.code )") 
+		
+		/* ORDER_DATE */ 
+		ORDER_DATE : AAABusinessTypes:Datetime 
+			@i18n:Label (de=Auftragsdatum, en="Order Date", fr="Date de l\'ordre") 
+			@sql:SQLName (value=ORDER_DATE) 
+			@aaa:TripleA (FormatEltName=ORDER_DATE, Rank=100, ScriptDef=operation_d) 
+			@aaa:scpt (value=operation_d) 
+		
+		/* ORDER_HIER_STR */ 
+		ORDER_HIER_STR : AAABusinessTypes:UniNote 
+			@sql:SQLName (value=ORDER_HIER_STR) 
+			@aaa:TripleA (FormatEltName=ORDER_HIER_STR, Rank=600, ScriptDef="IF( parent_oper_nat_e = 3 {Child Order}, PRINTF(\"%s[HIERLEV%d]%s[HIERLEV%d]\", instr_id.code,parent_ext_op_id, instr_id.code,draft_order_id ), {ELSE} PRINTF(\"%s[HIERLEV%d]\", instr_id.code,draft_order_id ) )") 
+			@aaa:scpt (value="IF( parent_oper_nat_e = 3 {Child Order}, PRINTF(\"%s[HIERLEV%d]%s[HIERLEV%d]\", instr_id.code,parent_ext_op_id, instr_id.code,draft_order_id ), {ELSE} PRINTF(\"%s[HIERLEV%d]\", instr_id.code,draft_order_id ) )") 
+		
+		/* order_id */ 
+		order_id : AAABusinessTypes:Id 
+			@i18n:Label (de=Auftragsnr., en="Order ID", fr="Order ID") 
+			@sql:SQLName (value=order_id) 
+			@aaa:TripleA (FormatEltName=order_id, Rank=500, ScriptDef=draft_order_id) 
+			@aaa:scpt (value=draft_order_id) 
+		
+		/* ORDER_NATURE */ 
+		ORDER_NATURE : AAABusinessTypes:UniName 
+			@i18n:Label (de=Kauf/Verkauf, en=Buy/Sell, fr=Achat/Vente) 
+			@sql:SQLName (value=ORDER_NATURE) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=ORDER_NATURE, Rank=80, ScriptDef="nature_e.LABEL[TSL_CURRENT_LANGUAGE()]") 
+			@aaa:scpt (value="nature_e.LABEL[TSL_CURRENT_LANGUAGE()]") 
+		
+		/* ORDER_SUMMARY */ 
+		ORDER_SUMMARY : AAABusinessTypes:UniNote 
+			@i18n:Label (de=Auftragszusammenfassung, en="Order Summary", fr="Résumé de l\'ordre") 
+			@sql:SQLName (value=ORDER_SUMMARY) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=ORDER_SUMMARY, Rank=590, ScriptDef="{PNO UPDATE 11 MAY 2012} {Order Summary per order category} {SECURITY & OTHER} IF(@CATEGORY = \"SEC\", PRINTF(\"%s %s %s %s\", {Client + Sense} IF(nature_e = 1, {Buy} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_BUYS\", TSL_CURRENT_LANGUAGE(), NULL), {Sell} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_SELLS\", TSL_CURRENT_LANGUAGE(), NULL) ), {Quantity} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Instrument name} instr_id.name, {Order mode} IF(order_nat_e=1{Market}, PRINTF(\"(%s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_MARKET\", TSL_CURRENT_LANGUAGE(), NULL)), IF(order_nat_e=2{Limit}, PRINTF(\"(%s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_LIMIT\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(limit_quote_n,\"999,999.000000000\"))), IF(order_nat_e=3{Stop}, PRINTF(\"(%s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_STOP\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(stop_quote_n,\"999,999.000000000\"))), IF(order_nat_e=4{Stop-Limit}, PRINTF(\"(%s %s, %s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_STOP\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(stop_quote_n,\"999,999,999,999.000000000\")), DISP_MSG(2{User Message},\"PCK_DS_AT_LIMIT\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(limit_quote_n,\"999,999.000000000\"))))))) ), {FOREX} IF(@CATEGORY IN (\"FXSPOT\",\"FXFWD\"), {Transfer same ccy} IF(order_type_id.code = \"PCK_DS_ACCT_SAME_CCY\", DISP_MSG(2{User Message},\"PCK_DS_TRANSFER_CCY\", TSL_CURRENT_LANGUAGE(), NULL, {Transfer amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Transfer currency} @ORDER_CURRENCY, {Debit account} @DEBITED_ACCOUNT, {Credit account} @CREDITED_ACCOUNT), {Other FX orders} PRINTF(\"%s %s %s %s %s %s %s %5.5f %s\", {Client + Sense} IF(nature_e = 1, {Buy} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_BUYS\", TSL_CURRENT_LANGUAGE(), NULL), {Sell} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_SELLS\", TSL_CURRENT_LANGUAGE(), NULL) ), {Base amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Base currency} @ORDER_CURRENCY, {Against} DISP_MSG(2{User Message},\"PCK_DS_AGAINST\", TSL_CURRENT_LANGUAGE(), NULL), {Counterparty amount} TRIMSTR(NUMSTR(acc_net_amount_m,\"999,999,999,999.000000000\")), {Counterparty currency} @ACCOUNT_CURRENCY, {At the rate of} DISP_MSG(2{User Message},\"PCK_DS_AT_RATE\", TSL_CURRENT_LANGUAGE(), NULL), {Exchange rate} @CLIENT_RATE, @CURR_PAIR) ), {MM} IF(@CATEGORY = \"MM\", PRINTF(\"%s of %s %s %s\", {Contract type} @CONTRACT_TYPE, {Currency} @ORDER_CURRENCY, {Amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Expiration date for term contract only} IF(order_type_id.code IN (\"PCK_DS_TERM_DEP_NEW\",\"PCK_DS_LOAN\"), CONCAT(DISP_MSG(2{User Message},\"PCK_DS_UNTIL\", TSL_CURRENT_LANGUAGE(), NULL),DATESTR(expiration_d),1)) ))))") 
+			@aaa:scpt (value="{PNO UPDATE 11 MAY 2012} {Order Summary per order category} {SECURITY & OTHER} IF(@CATEGORY = \"SEC\", PRINTF(\"%s %s %s %s\", {Client + Sense} IF(nature_e = 1, {Buy} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_BUYS\", TSL_CURRENT_LANGUAGE(), NULL), {Sell} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_SELLS\", TSL_CURRENT_LANGUAGE(), NULL) ), {Quantity} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Instrument name} instr_id.name, {Order mode} IF(order_nat_e=1{Market}, PRINTF(\"(%s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_MARKET\", TSL_CURRENT_LANGUAGE(), NULL)), IF(order_nat_e=2{Limit}, PRINTF(\"(%s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_LIMIT\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(limit_quote_n,\"999,999.000000000\"))), IF(order_nat_e=3{Stop}, PRINTF(\"(%s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_STOP\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(stop_quote_n,\"999,999.000000000\"))), IF(order_nat_e=4{Stop-Limit}, PRINTF(\"(%s %s, %s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_STOP\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(stop_quote_n,\"999,999,999,999.000000000\")), DISP_MSG(2{User Message},\"PCK_DS_AT_LIMIT\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(limit_quote_n,\"999,999.000000000\"))))))) ), {FOREX} IF(@CATEGORY IN (\"FXSPOT\",\"FXFWD\"), {Transfer same ccy} IF(order_type_id.code = \"PCK_DS_ACCT_SAME_CCY\", DISP_MSG(2{User Message},\"PCK_DS_TRANSFER_CCY\", TSL_CURRENT_LANGUAGE(), NULL, {Transfer amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Transfer currency} @ORDER_CURRENCY, {Debit account} @DEBITED_ACCOUNT, {Credit account} @CREDITED_ACCOUNT), {Other FX orders} PRINTF(\"%s %s %s %s %s %s %s %5.5f %s\", {Client + Sense} IF(nature_e = 1, {Buy} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_BUYS\", TSL_CURRENT_LANGUAGE(), NULL), {Sell} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_SELLS\", TSL_CURRENT_LANGUAGE(), NULL) ), {Base amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Base currency} @ORDER_CURRENCY, {Against} DISP_MSG(2{User Message},\"PCK_DS_AGAINST\", TSL_CURRENT_LANGUAGE(), NULL), {Counterparty amount} TRIMSTR(NUMSTR(acc_net_amount_m,\"999,999,999,999.000000000\")), {Counterparty currency} @ACCOUNT_CURRENCY, {At the rate of} DISP_MSG(2{User Message},\"PCK_DS_AT_RATE\", TSL_CURRENT_LANGUAGE(), NULL), {Exchange rate} @CLIENT_RATE, @CURR_PAIR) ), {MM} IF(@CATEGORY = \"MM\", PRINTF(\"%s of %s %s %s\", {Contract type} @CONTRACT_TYPE, {Currency} @ORDER_CURRENCY, {Amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Expiration date for term contract only} IF(order_type_id.code IN (\"PCK_DS_TERM_DEP_NEW\",\"PCK_DS_LOAN\"), CONCAT(DISP_MSG(2{User Message},\"PCK_DS_UNTIL\", TSL_CURRENT_LANGUAGE(), NULL),DATESTR(expiration_d),1)) ))))") 
+		
+		/* PARENT_OPER_NATURE */ 
+		PARENT_OPER_NATURE : AAABusinessTypes:UniName 
+			@sql:SQLName (value=PARENT_OPER_NATURE) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=PARENT_OPER_NATURE, Rank=520, ScriptDef="parent_oper_nat_e.LABEL[TSL_CURRENT_LANGUAGE()]") 
+			@aaa:scpt (value="parent_oper_nat_e.LABEL[TSL_CURRENT_LANGUAGE()]") 
+		
+		/* PORTFOLIO_NAME */ 
+		PORTFOLIO_NAME : AAABusinessTypes:UniCode 
+			@i18n:Label (de=Portfolio, en=Portfolio, fr=Portfeuille) 
+			@sql:SQLName (value=PORTFOLIO_NAME) 
+			@aaa:TripleA (FormatEltName=PORTFOLIO_NAME, Rank=190, ScriptDef=portfolio_id.name) 
+			@aaa:scpt (value=portfolio_id.name) 
+		
+		/* QUANTITY */ 
+		QUANTITY : AAABusinessTypes:Amount 
+			@i18n:Label (de=Anzahl, en=Quantity, fr="Quantité") 
+			@sql:SQLName (value=QUANTITY) 
+			@aaa:TripleA (FormatEltName=QUANTITY, Rank=150, ScriptDef=quantity_n) 
+			@aaa:scpt (value=quantity_n) 
+		
+		/* seqno */ 
+		seqno : AAABusinessTypes:LongInt PK required 
+			@sql:SQLName (value=seqno) 
+			@aaa:TripleA (FormatEltName=seqno, Rank=0, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* UPDATE_RIGHT */ 
+		UPDATE_RIGHT : AAABusinessTypes:Flag 
+			@i18n:Label (de=Aktualisieren, en=Modify, fr=Modifier) 
+			@sql:SQLName (value=UPDATE_RIGHT) 
+			@aaa:TripleA (FormatEltName=UPDATE_RIGHT, Rank=460, ScriptDef="GET_ADMIN_RIGHTS(\"portfolio\", portfolio_id, UPDATE, TRUE, FALSE)") 
+			@aaa:scpt (value="GET_ADMIN_RIGHTS(\"portfolio\", portfolio_id, UPDATE, TRUE, FALSE)") 
+		
+		/* VALUE_DATE */ 
+		VALUE_DATE : AAABusinessTypes:Date 
+			@i18n:Label (de=Valutadatum, en="Value Date", fr="Date valeur") 
+			@sql:SQLName (value=VALUE_DATE) 
+			@aaa:TripleA (FormatEltName=VALUE_DATE, Rank=170, ScriptDef=value_d) 
+			@aaa:scpt (value=value_d) 
+	} 
+	/* Extended Operation */ 
+	ExtOperation5315 
+		@i18n:Label (de="Erweiterter Auftrag", en="Extended Operation", fr="Opération étendue") 
+		@aaa:EntityDictID (value=1022) 
+		@sql:SQLName (value=ext_operation_vw) 
+		@aaa:TripleA (EntityDictID=1022, EntityName="Extended Operation", EntitySQLName=ext_operation) 
+		@sql:VersionOptimisticLocking (value=NONE) 
+		@aaa:aaaSQLName (value=ext_operation) 
+	{ 
+		/* Id */ 
+		id : AAABusinessTypes:Id PK required 
+			@i18n:Label (de=ID, en=Id, fr=Identifiant) 
+			@aaa:AttDictID (value=1022001) 
+			@sql:SQLName (value=id) 
+			@sql:SQLRequired (value=true) 
+			@aaa:TripleA (AttrDictID=1022001, AttrName=Id, AttrSQLName=id) 
+			@aaa:aaa-param (param=Id, type=id_t) 
+			@aaa:aaaSQLName (value=id) 
+		
+		/* Instrument */ 
+		instr -> DS5315Domain:Instrument5315 
+			@i18n:Label (de=Instrument, en=Instrument, fr=Instrument) 
+			@sql:SQLName (value=instr_id) 
+			@aaa:TripleA (AttrName=Instrument, AttrSQLName=instr_id) 
+			@aaa:aaa-param (param=Instrument, type=id_t) 
+			@aaa:aaaSQLName (value=instr_id) 
+		
+		/* Parent Operation Nature */ 
+		parentOperNatE : DS5315Domain:OperationParentOperNatE5315 required 
+			@i18n:Label (de="Art übergeordneten Auftrags", en="Parent Operation Nature", fr="Nature de l\'op. parent") 
+			@sql:SQLName (value=parent_oper_nat_e) 
+			@sql:SQLRequired (value=true) 
+			@aaa:TripleA (AttrName="Parent Operation Nature", AttrSQLName=parent_oper_nat_e) 
+			@aaa:aaa-param (param="Parent Operation Nature", type=enum_t) 
+			@aaa:aaaSQLName (value=parent_oper_nat_e) 
+		
+		/* Portfolio */ 
+		portfolio -> DS5315Domain:Portfolio5315 
+			@i18n:Label (de=Portfolio, en=Portfolio, fr=Portefeuille) 
+			@sql:SQLName (value=portfolio_id) 
+			@aaa:TripleA (AttrName=Portfolio, AttrSQLName=portfolio_id) 
+			@aaa:aaa-param (param=Portfolio, type=id_t) 
+			@aaa:aaaSQLName (value=portfolio_id) 
+		
+		/* Quantity */ 
+		quantityN : AAABusinessTypes:Number 
+			@i18n:Label (de=Menge, en=Quantity, fr="Quantité") 
+			@sql:SQLName (value=quantity_n) 
+			@aaa:TripleA (AttrName=Quantity, AttrSQLName=quantity_n) 
+			@aaa:aaa-param (param=Quantity, type=number_t) 
+			@aaa:aaaSQLName (value=quantity_n) 
+		
+		/* Summary */ 
+		summaryC : AAABusinessTypes:String1000 
+			@i18n:Label (de=Zusammenfassung, en=Summary, fr=Sommaire) 
+			@aaa:AttDictID (value=1022263) 
+			@sql:Ignore (value=true) 
+			@sql:SQLName (value=summary_c) 
+			@aaa:TripleA (AttrDictID=1022263, AttrName=Summary, AttrSQLName=summary_c) 
+			@aaa:aaa-param (param=Summary, type=string1000_t) 
+			@aaa:aaaSQLName (value=summary_c) 
+		
+		/* Trade Currency */ 
+		tradeCurrency -> DS5315Domain:Currency5315 
+			@i18n:Label (de="Handelswährung", en="Trade Currency", fr="Devise transac.") 
+			@aaa:AttDictID (value=1022076) 
+			@sql:SQLName (value=trade_currency_id) 
+			@svc:Services (LoadPermittedValues=true) 
+			@aaa:TripleA (AttrDictID=1022076, AttrName="Trade Currency", AttrSQLName=trade_currency_id) 
+			@aaa:aaa-param (param="Trade Currency", type=id_t) 
+			@aaa:aaaSQLName (value=trade_currency_id) 
+	} 
+	/* Portfolio */ 
+	Portfolio5315 
+		@i18n:Label (de=Portfolio, en=Portfolio, fr=Portefeuille) 
+		@sql:SQLName (value=portfolio_vw) 
+		@aaa:TripleA (EntityName=Portfolio, EntitySQLName=portfolio) 
+		@sql:VersionOptimisticLocking (value=NONE) 
+		@aaa:aaaSQLName (value=portfolio) 
+	{ 
+		/* Code */ 
+		code : AAABusinessTypes:Code BK required 
+			@i18n:Label (de=Code, en=Code, fr=Code) 
+			@sql:SQLName (value=code) 
+			@sql:SQLRequired (value=true) 
+			@aaa:TripleA (AttrDefaultDisplayLength=20, AttrMaxDbLength=20, AttrName=Code, AttrSQLName=code) 
+			@aaa:aaa-param (param=Code, type=code_t) 
+			@aaa:aaaSQLName (value=code) 
+		
+		/* Identifier */ 
+		id : AAABusinessTypes:Id PK required 
+			@i18n:Label (de=Bezeichner, en=Identifier, fr=Identifiant) 
+			@sql:SQLName (value=id) 
+			@sql:SQLRequired (value=true) 
+			@aaa:TripleA (AttrName=Identifier, AttrSQLName=id) 
+			@aaa:aaa-param (param=Identifier, type=id_t) 
+			@aaa:aaaSQLName (value=id) 
+		
+		/* Name */ 
+		name : AAABusinessTypes:Name required 
+			@i18n:Label (de=Name, en=Name, fr=Nom) 
+			@sql:SQLName (value=name) 
+			@sql:SQLRequired (value=true) 
+			@aaa:TripleA (AttrDefaultDisplayLength=20, AttrMaxDbLength=20, AttrName=Name, AttrSQLName=name) 
+			@aaa:aaa-param (param=Name, type=name_t) 
+			@aaa:aaaSQLName (value=name) 
+	} 
+	/* Financial Instrument */ 
+	Instrument5315 
+		@i18n:Label (de=Instrument, en=Instrument, fr=Instrument) 
+		@sql:SQLName (value=instrument_vw) 
+		@aaa:TripleA (EntityName="Financial Instrument", EntitySQLName=instrument) 
+		@sql:VersionOptimisticLocking (value=NONE) 
+		@aaa:aaaSQLName (value=instrument) 
+	{ 
+		/* Code */ 
+		code : AAABusinessTypes:Code BK required 
+			@i18n:Label (de=Code, en=Code, fr=Code) 
+			@sql:SQLName (value=code) 
+			@sql:SQLRequired (value=true) 
+			@aaa:TripleA (AttrDefaultDisplayLength=20, AttrName=Code, AttrSQLName=code) 
+			@aaa:aaa-param (param=Code, type=code_t) 
+			@aaa:aaaSQLName (value=code) 
+		
+		/* Identifier */ 
+		id : AAABusinessTypes:Id PK required 
+			@i18n:Label (de=Bezeichner, en=Identifier, fr=Identifiant) 
+			@sql:SQLName (value=id) 
+			@sql:SQLRequired (value=true) 
+			@aaa:TripleA (AttrName=Identifier, AttrSQLName=id) 
+			@aaa:aaa-param (param=Identifier, type=id_t) 
+			@aaa:aaaSQLName (value=id) 
+		
+		/* Name */ 
+		name : AAABusinessTypes:Name required 
+			@i18n:Label (de=Name, en=Name, fr=Nom) 
+			@sql:SQLName (value=name) 
+			@sql:SQLRequired (value=true) 
+			@aaa:TripleA (AttrDefaultDisplayLength=20, AttrName=Name, AttrSQLName=name) 
+			@aaa:aaa-param (param=Name, type=name_t) 
+			@aaa:aaaSQLName (value=name) 
+	} 
+} 
+Datasets { 
+	CurrencyIdentifier5315 basedOn DS5315Domain:Currency5315 default 
+	{ 
+		code -> code 
+			@svc:Services (LoadPermittedValues=true) 
+		id -> id 
+	} 
+	OrderSessionDetailedList5315 basedOn DS5315Domain:PCK_DS_ORD_ENTRY_LST5315 synchronized 
+	{ 
+		CATEGORY_LABEL -> CATEGORY_LABEL 
+		CREATION_DATE -> CREATION_DATE 
+		INSTR_NAME -> INSTR_NAME 
+		ORDER_CURRENCY -> ORDER_CURRENCY 
+		ORDER_DATE -> ORDER_DATE 
+		ORDER_HIER_STR -> ORDER_HIER_STR 
+		order_id -> order_id 
+		ORDER_NATURE -> ORDER_NATURE 
+		ORDER_SUMMARY -> ORDER_SUMMARY 
+		PARENT_OPER_NATURE -> PARENT_OPER_NATURE 
+		PORTFOLIO_NAME -> PORTFOLIO_NAME 
+		QUANTITY -> QUANTITY 
+		seqno -> seqno 
+		UPDATE_RIGHT -> UPDATE_RIGHT 
+		VALUE_DATE -> VALUE_DATE 
+	} 
+	ExtOperationAll5315 basedOn DS5315Domain:ExtOperation5315 synchronized 
+	{ 
+		id -> id 
+		instr -> instr [DS5315Domain:InstrumentIdentifier5315]
+			@svc:Services (LoadPermittedValues=true) 
+		parentOperNatE -> parentOperNatE 
+		portfolio -> portfolio [DS5315Domain:PortfolioIdentifier5315]
+		quantityN -> quantityN 
+		summaryC -> summaryC 
+		tradeCurrency -> tradeCurrency [DS5315Domain:CurrencyIdentifier5315] 
+			@svc:Services (LoadPermittedValues=true) 
+	} 
+	PortfolioIdentifier5315 basedOn DS5315Domain:Portfolio5315 default 
+	{ 
+		code -> code 
+		id -> id 
+		name -> name 
+			@svc:Services (LoadPermittedValues=true) 
+	} 
+	InstrumentIdentifier5315 basedOn DS5315Domain:Instrument5315 default 
+	{ 
+		code -> code 
+		id -> id 
+		name -> name 
+			@svc:Services (LoadPermittedValues=true) 
+	} 
+	PortfolioSearchCriteria5315 basedOn DS5315Domain:Portfolio5315 
+	{ 
+		/* It is the code of the Portfolio */ 
+		code -> code 
+			@i18n:Label (de=Kode) 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=2) 
+		daysSinceLastContact : AAABusinessTypes:Int 
+			@i18n:Label (en="Number of days since last contact", fr="Nombre de jours depuis le dernier contacte", de="Anzahl der Tage seit dem letzten Kontakt") 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuery="(select datediff(dd, date_d, current_date()) from cdmq_contact_report_vw where id = dbo.last_contact_id_ptf(t0.id)) @operator @value\r\n", DisplayRank=38) 
+		/* It is the identifier of the Portfolio */ 
+		id -> id 
+		linkedToPepPerson : AAABusinessTypes:Flag 
+			@i18n:Label (en="Linked to PEP Person", fr="Lié à une personne PEP", de="Angebunden an eine PEP Person") 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuery="exists(select 1 from cdmq_clientrelationship_vw cr, cdmq_participation_vw part, cdmq_participant_role_vw partrole, third_party_vw tpc, cdmq_party_vw party\r\n            where tpc.id = t0.third_id AND tpc.code = cr.root_id_c \r\n                AND part.client_relationship_id = cr.id \r\n                AND part.party_id = party.id\r\n                AND partrole.participation_id = part.id\r\n                AND partrole.role_type_e = 1\r\n                AND party.pep_e = @value)", DisplayRank=36) 
+		/* It is the name of the Portfolio */ 
+		name -> name 
+			@i18n:Label 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=3) 
+		/* It is a logical structure grouping several attributes allowing to identify a business object (Instrument, Portfolio, &hellip;) used as framework of search when a user enter a value into a search field.
+According to the attributes in that structure, the records with one of those attributes with a value starting by the value set by the user are loaded.
+For Portfolio, the structure includes:
+- Code
+- Name
+- Denomination */ 
+		searchCode : mml:string 
+			@i18n:Label (de=Suchmuster, en="Search Pattern", fr="Modèle de recherche") 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuery="exists (select 1 from vs_portfolio v where v.id = t0.id and v.pattern @operator @valueToUpper and (v.language_code = @language or v.language_code=\'\'))", DisplayRank=1) 
+		/* It is a logical structure used as framework of search when a user enter a value into a search field or when the system requires it.
+According to that structure, the records obeying to one of the rules below are loaded.
+
+Rule 1: Portfolios whose commercial manager's code (Advisor's code) starts by the value set by the user or the system
+Rule 2: Portfolios whose administrative manager's code (Manager's code) starts by the value set by the user or the system */ 
+		SearchManagerCode : mml:string 
+			@i18n:Label (de="Suche Verwalter/Berater", en="Search Manager/Advisor", fr="Recherche gestionnaire/conseiller") 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuery="exists (select 1 from  manager_vw m where (t0.comm_mgr_id = m.id or t0.admin_mgr_id = m.id) and m.code @operator @value) ", cDATA Lookup="Query.autoCompleteURI=/wui/ajax-xml/autocompleteoutput/Manager\r\nQuery.autoCompletePostValue=code\r\nQuery.autoCompleteTextValue=code\r\nQuery.maxRowCount=12\r\nQuery.maxRowCountForLookup=500\r\nQuery.DSOutput=AAADSManager:ManagerList\r\nQuery.fs.TargetDS=AAADSManager:ManagerSearchCriteria\r\nQuery.fs.level=1\r\nQuery.fs.f1.attribute=searchCode\r\nQuery.fs.f1.Op=BEGINS_WITH\r\nQuery.fs.f1.value1=valueOf(@value)", DisplayRank=999) 
+		/* It is a logical structure used as framework of search when a user enter a value into a search field or when the system requires it.
+According to that structure, the records obeying to one of the rules below are loaded.
+
+Rule 1: Portfolios whose commercial manager's id (Advisor's id) starts by the value set by the user or the system
+Rule 2: Portfolios whose administrative manager's id (Manager's id) starts by the value set by the user or the system */ 
+		searchManagerId : AAABusinessTypes:Id 
+			@i18n:Label (de="Suche Verwalter/Berater Id", en="Search Manager/Advisor Id", fr="Recherche Id du gestionnaire/conseiller") 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuery="(comm_mgr_id = @value or admin_mgr_id = @value)") 
+	} 
+	InstrumentSearchCriteriaAll5315 basedOn DS5315Domain:Instrument5315 
+		@i18n:Label (de="11 - US-Instrument (1=Ja, 2=Nein)", en="11 - US-Instrument (1=Yes, 2=No)", fr="11 - Instrument US (1=Oui, 2=Non)") 
+	{ 
+		/* It is the code of the Instrument */ 
+		code -> code 
+			@i18n:Label 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=2) 
+		/* It is the date when the Instrument is not anymore valid. It is not forseen as a &quot;magic date&quot;. It means that a value 31/12/9999 in the database will not be taken as a null value from a business point of view but as a real date.
+If the value 31/12/9999 must be taken as a null value, then the attribute [maturityDate] must be used instead. */ 
+		endD : AAABusinessTypes:Date 
+			@i18n:Label (de="Fälligkeitstermin", en="Maturity Date", fr="Date d\'échéance") 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuery="datediff(day,@value,t0.end_d) @operator 0", DisplayRank=10) 
+		/* It is the identifier of the Instrument */ 
+		id -> id 
+			@i18n:Label (de=Bezeichner, en=Identifier, fr=Identifiant) 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=999) 
+		/* It is the code of the Instrument */ 
+		name -> name 
+			@i18n:Label 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=3) 
+		/* It is a logical structure grouping several attributes allowing to identify a business object (Instrument, Portfolio, &hellip;) used as framework of search when a user enter a value into a search field.
+According to the attributes in that structure, the records with one of those attributes with a value starting by the value set by the user are loaded.
+For Instrument, the structure includes:
+- Code
+- Name
+- Denomination
+- ISIN (extended attribute ext_isin_syn_c)
+- Telekurs (extended attribute ext_telekurs_syn_c) */ 
+		searchCode : mml:string 
+			@i18n:Label (de=Suchmuster, en="Search Pattern", fr="Modèle de recherche") 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuery="exists (select 1 from vs_instrument v where v.id = t0.id and v.pattern @operator @valueToUpper and (v.language_code = @language or v.language_code=\'\'))", DisplayRank=1) 
+	} 
+} 
+Enumerations { 
+	OperationParentOperNatE5315 : mml:integer 
+		@aaa:TripleA (AttrSQLName=parent_oper_nat_e, EntitySQLName=operation) 
+		None=0 
+			@i18n:Label (de="<Keine>", en="<None>", fr="<Aucune>") 
+			@aaa:TripleA (PermValName="<None>", PermValRank=0) 
+		UnallocatedBlockOrder=1 
+			@i18n:Label (de="Nicht zugeteilter Sperrauftrag", en="Unallocated Block Order", fr="Blc.non alloué") 
+			@aaa:TripleA (PermValName="Unallocated Block Order", PermValRank=1) 
+		BlockOrder=2 
+			@i18n:Label (de=Sperrauftrag, en="Block Order", fr="Bloc d\'ordres") 
+			@aaa:TripleA (PermValName="Block Order", PermValRank=2) 
+		ChildOrder=3 
+			@i18n:Label (de="Untergeordneter Auftrag", en="Child Order", fr="Ordre enfant") 
+			@aaa:TripleA (PermValName="Child Order", PermValRank=3) 
+		DetachedBlockOrder=4 
+			@i18n:Label (de="Aufgetrennter Blockauftrag", en="Detached Block Order", fr="Ordre global détaché") 
+			@aaa:TripleA (PermValName="Detached Block Order", PermValRank=4) 
+		CombinedOrder=5 
+			@i18n:Label (de="Kombinierter Auftrag", en="Combined Order", fr="Ordre Combiné") 
+			@aaa:TripleA (PermValName="Combined Order", PermValRank=5) 
+		ChildCombinedOrder=6 
+			@i18n:Label (de="Kombinierter Auftrag unterg.", en="Child Combined Order", fr="Ordre Combiné Enfant") 
+			@aaa:TripleA (PermValName="Child Combined Order", PermValRank=6) 
+		NoGrouping=7 
+			@i18n:Label (de="Keine Gruppierung", en="No Grouping", fr="Pas de Groupage") 
+			@aaa:TripleA (PermValName="No Grouping", PermValRank=7) 
+	
+} 

@@ -1,0 +1,22 @@
+Launch Detailed Enquiry
+JAVASCRIPT
+Detail
+
+records
+docommand("%%ACTION")
+YES
+
+
+
+
+IMAGE
+
+
+
+
+3
+1_DIM
+1102220521ý1102211135
+8985_RAJESH.N
+GB0010001
+1

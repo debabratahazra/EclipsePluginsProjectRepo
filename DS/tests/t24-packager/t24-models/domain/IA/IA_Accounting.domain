@@ -1,0 +1,719 @@
+# UTF-8
+ /* Accounting Process for International Accounting */ 
+ Domain IA_Accounting 
+ @t24:i (module=IA) 
+ @java:Package (value=com.temenos.t24.datamodel.ia.ia_accounting) 
+ namespace "http://www.temenos.com/t24/IA_Accounting" 
+ metamodelVersion 4.3.0.20110527 
+ Classes { 
+ /* IFRS.ACCOUNTING.DETAILS holds the details of the various components used for the calculation of IFRS entries. */ 
+ IFRS_ACCOUNTING_DETAILS 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* The key to IFRS.ACCOUNTING.DETAILS contains two components.The first component is the contract id.The second component is the date on which the record was created.The two components are separated by -.Example:LD0033500001-20001130 */ 
+ ACCT_DTLS_ID : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, t24Name=ACCT.DTLS.ID) 
+ 
+ ACCT_HEAD_TYPE -> byValue IA_Accounting:IFRS_ACCOUNTING_DETAILS__ACCT_HEAD_TYPE * 
+ 
+ /* This field contains the total EB.CONTRACT.BALANCES till PERIOD.END excluding IF entries. Once a contract is impaired, this field will also contain the balance of the past due record in ECB related to the contract. */ 
+ CONTRACT_BALANCE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=4.0, t24Name=CONTRACT.BALANCE) 
+ 
+ /* To hold the NPV of the contractual cash flow under Amortised cost method, i.e at  EIR */ 
+ NPV_CON_CF_AMORT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=5.0, t24Name=NPV.CON.CF.AMORT) 
+ 
+ /* To hold the NPV of the contractual cash flow under FairValue method, i.e. at Market Rate */ 
+ NPV_CON_CF_FV : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=6.0, t24Name=NPV.CON.CF.FV) 
+ 
+ /* To hold the NPV of the expected cash flow  under Amortised cost, i.e. at EIR */ 
+ NPV_EXP_CF_AMORT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=7.0, t24Name=NPV.EXP.CF.AMORT) 
+ 
+ /* To hold the total value of the collateral under Amortised cost method. */ 
+ VAL_EXP_COLL_AMORT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=8.0, t24Name=VAL.EXP.COLL.AMORT) 
+ 
+ /* To hold the NPV of expected cash flow under fairvalue method, i.e. Market Rate */ 
+ NPV_EXP_CF_FV : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=9.0, t24Name=NPV.EXP.CF.FV) 
+ 
+ /* To hold the total value of the collateral under fair value method */ 
+ VAL_EXP_COLL_FV : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=10.0, t24Name=VAL.EXP.COLL.FV) 
+ 
+ /* This field denotes the version of the EB.CASHFLOW record used for the calculation of the entries or IFRS.BALANCE */ 
+ CASHFLOW_VERSION : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=11.0, t24Name=CASHFLOW.VERSION) 
+ 
+ /* This is the current number of this record. */ 
+ CURR_NUM : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=12.0, t24Name=CURR.NUM) 
+ } 
+ IFRS_ACCOUNTING_DETAILS__ACCT_HEAD_TYPE 
+ { 
+ /* This field denotes the Asset types namely AMORTISED, FAIRVALUE or DISCLOSURE. */ 
+ ACCT_HEAD_TYPE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=1.0, t24Name=ACCT.HEAD.TYPE) 
+ 
+ /* This is the balance of the corresponding ACCT.HEAD on the date this record was created. */ 
+ IFRS_BALANCE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=2.0, t24Name=IFRS.BALANCE) 
+ 
+ /* Local equivalent for the field IFRS.BALANCE */ 
+ IFRS_LCY_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=3.0, t24Name=IFRS.LCY.BAL) 
+ } 
+ IAS_CONTRACTS_PENDING 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ IAS_CONT_PEND_ID : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, t24Name=IAS.CONT.PEND.ID) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=1.0, t24Name=CURR.NO) 
+ 
+ UPDATE_DATE : mml:string 
+ @i18n:Label (en="Update Date") 
+ @i18n:Tooltip (en="Indicates the date of update of relationship") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, t24Name=UPDATE.DATE) 
+ 
+ UPDATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=3.0, t24Name=UPDATE.TIME) 
+ 
+ STATUS : mml:string 
+ @i18n:Label (en=Status) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=4.0, t24Name=STATUS) 
+ } 
+ IAS_CONTRACT_BALANCES 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ CONTRACT_ID : mml:string PK required 
+ @i18n:Label (en="Contract Id") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=0.0, t24Name=CONTRACT.ID) 
+ 
+ /* The underlying Application for the contract. e.g LD , MM , FX.Validation RulesShould be a valid Application (present in the PGM.FILE) */ 
+ APPLICATION -> EB_SystemTables:PGM_FILE 
+ @i18n:Label (en=Application) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=1.0, t24Name=APPLICATION) 
+ 
+ /* Currency of the contract.Validation RulesValid Currency (should be present in CURRENCY table) */ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=2.0, t24Name=CURRENCY) 
+ 
+ /* The currency market of the underlying Application.Validation RulesShould be a valid currency market id  (present CURRECNY.MARKET table) */ 
+ CURRENCY_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET 
+ @i18n:Label (en=Market) 
+ @t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=3.0, t24Name=CURRENCY.MARKET) 
+ 
+ /* Value Date of the contract.Validation RulesValid T24 Date - format YYYY/ MM / DD */ 
+ VALUE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @i18n:Tooltip (en="Indicates the date the Portfolios will be updated by the event") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=4.0, t24Name=VALUE.DATE) 
+ 
+ /* Maturity date of the contract.Validation RulesValid T24 Date - format YYYY/ MM / DD */ 
+ MATURITY_DATE : IA_Accounting:IAS_CONTRACT_BALANCES__MATURITY_DATE 
+ @i18n:Label (en="Maturity Date") 
+ @i18n:Tooltip (en="Indicates the Maturity Date of the Transaction") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=5.0, t24Name=MATURITY.DATE) 
+ 
+ /* Classification of the contractValidation RulesValid IAS.CLASSIFICATION */ 
+ CLASSIFICATION -> IA_Config:IAS_CLASSIFICATION 
+ @i18n:Label (en=Classification) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=6.0, t24Name=CLASSIFICATION) 
+ 
+ /* Asset / Liability Indicator */ 
+ ASSET_LIAB : IA_Accounting:IAS_CONTRACT_BALANCES__ASSET_LIAB 
+ @t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=7.0, t24Name=ASSET.LIAB) 
+ 
+ /* The Product Category of the underlying contract. This is important for the allocation of the consolidated P&L Information.Validation RulesValid CATEGORY. */ 
+ PRODUCT_CATEGORY -> ST_Config:CATEGORY 
+ @i18n:Label (en="Product Category") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=5, sysNumber=8.0, t24Name=PRODUCT.CATEGORY) 
+ 
+ /* The account officer of the underlying contract. Used for correct P&L allocation.Validation RulesValid ACCOUNT.OFFICER. */ 
+ ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Account Officer") 
+ @i18n:Tooltip (en="Indicates Account Officer responsible") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=9.0, t24Name=ACCOUNT.OFFICER) 
+ 
+ /* The customer of the underlying contract.Validation RulesValid CUSTOMER. */ 
+ CUSTOMER -> ST_Customer:CUSTOMER 
+ @i18n:Label (en=Customer) 
+ @i18n:Tooltip (en="Customer Liability") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=10.0, t24Name=CUSTOMER) 
+ 
+ /* The IAS.PRODUCT.GROUP that the contract falls into. This controls the accounting application for the related Amount Types. This would be the original group calculated at Input.Validation RulesValid IAS.PRODUCT.GROUP. */ 
+ ACTUAL_GROUP -> IA_Config:IAS_PRODUCT_GROUP 
+ @t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=11.0, t24Name=ACTUAL.GROUP) 
+ 
+ /* This PRODUCT.GROUP would be calculated each time the contract is modified.Validation RulesValid IAS.PRODUCT.GROUP */ 
+ CALCULATED_GROUP -> IA_Config:IAS_PRODUCT_GROUP 
+ @t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=12.0, t24Name=CALCULATED.GROUP) 
+ 
+ /* Department */ 
+ DEPARTMENT_CODE : mml:string 
+ @i18n:Label (en="Department Code") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=13.0, t24Name=DEPARTMENT.CODE) 
+ 
+ /* System id of the contract.Validation RulesA valid system id. (ex LD for LD.LOANS.AND.DEPOSITS contract. ) */ 
+ SYSTEM_ID -> EB_SystemTables:EB_SYSTEM_ID 
+ @i18n:Label (en="System id") 
+ @i18n:Tooltip (en="Shows the system id") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=14.0, t24Name=SYSTEM.ID) 
+ 
+ AMOUNT_TYPE -> byValue IA_Accounting:IAS_CONTRACT_BALANCES__AMOUNT_TYPE * 
+ 
+ RATE_TYPE -> byValue IA_Accounting:IAS_CONTRACT_BALANCES__RATE_TYPE * 
+ 
+ /* This field contains the consol key formed from the contract with application replaced by IA.ex  IA.1.TR.GBP.21050.... */ 
+ CONSOL_KEY : mml:string 
+ @i18n:Label (en="Consol Key") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=60, sysNumber=44.0, t24Name=CONSOL.KEY) 
+ 
+ HEDGE_GROUP : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=45.0, t24Name=HEDGE.GROUP) 
+ 
+ /* This field contains the HEDGE.TYPE being applied.Validation RulesShould be a valid entry in IAS.HEDGE.TYPE. */ 
+ HEDGE_TYPE -> IA_Config:IAS_HEDGE_TYPE 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=46.0, t24Name=HEDGE.TYPE) 
+ 
+ /* This field contains the status of the IAS.CONTRACT.BALANCES  record.This can contain the following values CUR (current contract )MAT (matured)REV (reversed) */ 
+ STATUS : mml:string 
+ @i18n:Label (en=Status) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=47.0, t24Name=STATUS) 
+ 
+ LINK_APP_ID -> byValue IA_Accounting:IAS_CONTRACT_BALANCES__LINK_APP_ID * 
+ 
+ RESERVED8 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=51.0, t24Name=RESERVED8) 
+ 
+ RESERVED7 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=52.0, t24Name=RESERVED7) 
+ 
+ RESERVED6 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=53.0, t24Name=RESERVED6) 
+ 
+ RESERVED5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=54.0, t24Name=RESERVED5) 
+ 
+ RESERVED4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=55.0, t24Name=RESERVED4) 
+ 
+ RESERVED3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=56.0, t24Name=RESERVED3) 
+ 
+ RESERVED2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=57.0, t24Name=RESERVED2) 
+ 
+ RESERVED1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=58.0, t24Name=RESERVED1) 
+ 
+ STMT_NOS -> byValue IA_Accounting:IAS_CONTRACT_BALANCES__STMT_NOS * 
+ 
+ OVERRIDE -> byValue IA_Accounting:IAS_CONTRACT_BALANCES__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=61.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=62.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue IA_Accounting:IAS_CONTRACT_BALANCES__INPUTTER * 
+ 
+ DATE_TIME -> byValue IA_Accounting:IAS_CONTRACT_BALANCES__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=65.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=66.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=67.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=68.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=69.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ IAS_CONTRACT_BALANCES__AMOUNT_TYPE 
+ { 
+ /* This field contains the IAS.AMOUNT.TYPE  for  the associated balances defined.Validation RulesShould be a valid IAS.AMOUNT.TYPE */ 
+ AMOUNT_TYPE -> IA_Config:IAS_AMOUNT_TYPE 
+ @t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=15.0, t24Name=AMOUNT.TYPE) 
+ 
+ /* This field contains the original balances in the currency of the contract  for the associated AMOUNT.TYPE */ 
+ TYPE_ORIG_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=16.0, t24Name=TYPE.ORIG.BAL) 
+ 
+ /* This field contains the original balance of  the amount in local currency for the associated AMOUNT.TYPE. */ 
+ TYP_ORG_LCY_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=17.0, t24Name=TYP.ORG.LCY.BAL) 
+ 
+ /* This field contains the last balance  in the currency of the contract  for the associated AMOUNT.TYPE */ 
+ TYPE_LAST_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=18.0, t24Name=TYPE.LAST.BAL) 
+ 
+ /* This field contains the local equivalent of the TYPE.LAST BALANACE calcuated in MID.RATE of thelocal currency for the associated AMOUNT.TYPE */ 
+ TYP_LAST_LCL_BL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=19.0, t24Name=TYP.LAST.LCL.BL) 
+ 
+ /* This field contains the last change/movement in the value of TYPE.ORIG.BAL  of the associated AMTOUNT.TYPE  in the currency of the contract. */ 
+ LAST_VALUE_MVMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=20.0, t24Name=LAST.VALUE.MVMT) 
+ 
+ /* This field contains the last movement of amounts (TYPE.ORIG.BAL) of the associated AMOUNT.TYPE  in local currency equivalent. */ 
+ LST_VAL_MVT_LCL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=21.0, t24Name=LST.VAL.MVT.LCL) 
+ 
+ /* This field contains date on which  the last movement of amounts (TYPE.ORIG.BAL) of the associated AMOUNT.TYPE  took place. */ 
+ LAST_MVMT_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=22.0, t24Name=LAST.MVMT.DATE) 
+ 
+ /* This field indicates the postings for the associated AMOUNT.TYPE is profit or loss. */ 
+ PRFT_LOSS_FLAG : IA_Accounting:IAS_CONTRACT_BALANCES__AMOUNT_TYPE__PRFT_LOSS_FLAG 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=23.0, t24Name=PRFT.LOSS.FLAG) 
+ 
+ ACCOUNTING_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=24.0, t24Name=ACCOUNTING.BAL) 
+ 
+ ACCOUNTING_LCL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=25.0, t24Name=ACCOUNTING.LCL) 
+ 
+ LAST_ACTG_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=26.0, t24Name=LAST.ACTG.BAL) 
+ 
+ LAST_ACTG_LCL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=27.0, t24Name=LAST.ACTG.LCL) 
+ 
+ ACTG_MVMT_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=28.0, t24Name=ACTG.MVMT.BAL) 
+ 
+ ACTG_MVMT_LCL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=29.0, t24Name=ACTG.MVMT.LCL) 
+ 
+ ACCOUNTING_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=30.0, t24Name=ACCOUNTING.DATE) 
+ 
+ /* This field is set to 'Y' if CALC.LCY.EQUIV is set to 'YES' in the AMOUNT.TYPE. */ 
+ LOCAL_CURRENCY : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=31.0, t24Name=LOCAL.CURRENCY) 
+ 
+ MRESERVED9 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=32.0, t24Name=MRESERVED9) 
+ 
+ MRESERVED8 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=33.0, t24Name=MRESERVED8) 
+ 
+ MRESERVED7 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=34.0, t24Name=MRESERVED7) 
+ 
+ MRESERVED6 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=35.0, t24Name=MRESERVED6) 
+ 
+ MRESERVED5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=36.0, t24Name=MRESERVED5) 
+ 
+ MRESERVED4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=37.0, t24Name=MRESERVED4) 
+ 
+ MRESERVED3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=38.0, t24Name=MRESERVED3) 
+ 
+ MRESERVED2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=39.0, t24Name=MRESERVED2) 
+ 
+ MRESERVED1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=40.0, t24Name=MRESERVED1) 
+ } 
+ IAS_CONTRACT_BALANCES__RATE_TYPE 
+ { 
+ /* This field contains the type of rate required for IAS calcucation for the associated AMOUNT.TYPEValidation RulesShould be a valid RATE.TYPE. */ 
+ RATE_TYPE -> IA_Config:IAS_RATE_TYPE 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=41.0, t24Name=RATE.TYPE) 
+ 
+ /* This field contains the key to the reference rate file in PERIODIC.INTEREST table for the associatedAMOUNT.TYPE */ 
+ TYPE_REF_RT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=42.0, t24Name=TYPE.REF.RT) 
+ 
+ /* This field contains the last reference rate used for calculation of amount types for the associated AMOUNT.TYPE */ 
+ TYP_LAST_REF_RT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=43.0, t24Name=TYP.LAST.REF.RT) 
+ } 
+ IAS_CONTRACT_BALANCES__LINK_APP_ID 
+ { 
+ /* This field will be updated only for applications with MULTIKEYS.This field is a associated multi value field with LINK.REC.IDThese  associated fields are the only fields updated for Applications with IAS.APPLICATION.REOCRDS  for the main application.Consider the set up : Application FOREX has FOREX-BUY , FOREX-SEL , FOREX-NET defined in IAS.APPLICATION.PARAM . When an FOREX contract is input , then IAS.CONTRACT.BALANCES with id as the contract  id is updated with values of  FOREX-BUY  , FOREX-SEL , FOREX-NET as  multi values  in this field which will be used while revaluation at the batch.Also individual records for each of the sub types defined in IAS.APPLICATION.PARAM is created with all the amount fields updated  as usual for a normal contract (ie -applications  without multikeys) */ 
+ LINK_APP_ID -> IA_Config:IAS_APPLICATION_PARAM 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=49.0, t24Name=LINK.APP.ID) 
+ 
+ /* This field is updated only for applications with MultikeysThis is a sub value field associated with LINK.APP.ID.These  associated fields are the only fields updated for Multikeys Applications for  IAS.APPLICATION.REOCRDS  for the main application.Consider the set up : Application FOREX has FOREX-BUY , FOREX-SEL , FOREX-NET defined in IAS.APPLICATION.PARAM . When an FOREX contract is input , then IAS.CONTRACT.BALANCES with id as the contract  id is updated with values of  FOREX-BUY  , FOREX-SEL , FOREX-NET as  multi values  in  field  LINK.APP.ID which will be used while revaluation at the batch.Also Individual records for each of the sub types defined in IAS.APPLICATION.PARAM is created with all the amount fields updated  as usual for a normal contract (ie -applications  without multikeys)And this field will hold the corresponding IAS.CONTRACT.BALANCES records created for the subtypes indicating a link with the main IAS.CONTRACT.BALANCES record. ex49. 1 LINK.APP.ID.... FOREX-BUY50. 1. 1 LINK.REC.ID. FX0307200061-BUY49. 2 LINK.APP.ID.... FOREX-SEL50. 2. 1 LINK.REC.ID. FX0307200061-SEL49. 3 LINK.APP.ID.... FOREX-NET50. 3. 1 LINK.REC.ID. FX0307200061-NET */ 
+ LINK_REC_ID : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=50.0, t24Name=LINK.REC.ID) 
+ } 
+ IAS_CONTRACT_BALANCES__STMT_NOS 
+ { 
+ STMT_NOS : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=59.0, t24Name=STMT.NOS) 
+ } 
+ IAS_CONTRACT_BALANCES__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=60.0, t24Name=OVERRIDE) 
+ } 
+ IAS_CONTRACT_BALANCES__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=63.0, t24Name=INPUTTER) 
+ } 
+ IAS_CONTRACT_BALANCES__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=64.0, t24Name=DATE.TIME) 
+ } 
+ IAS_CONTRACT_BALANCES_HIST 
+ @t24:i (level=F, type=L, localRefAllowed=true) 
+ { 
+ CONTRACT_ID_DATE : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, t24Name=CONTRACT.ID.DATE) 
+ 
+ APPLICATION -> EB_SystemTables:PGM_FILE 
+ @i18n:Label (en=Application) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=1.0, t24Name=APPLICATION) 
+ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, t24Name=CURRENCY) 
+ 
+ CCY_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET 
+ @i18n:Label (en="Ccy Market") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=3.0, t24Name=CCY.MARKET) 
+ 
+ VALUE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @i18n:Tooltip (en="Indicates the date the Portfolios will be updated by the event") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, t24Name=VALUE.DATE) 
+ 
+ MATURITY_DATE : IA_Accounting:IAS_CONTRACT_BALANCES_HIST__MATURITY_DATE 
+ @i18n:Label (en="Maturity Date") 
+ @i18n:Tooltip (en="Indicates the Maturity Date of the Transaction") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, t24Name=MATURITY.DATE) 
+ 
+ CLASSIFICATION -> IA_Config:IAS_CLASSIFICATION 
+ @i18n:Label (en=Classification) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=6.0, t24Name=CLASSIFICATION) 
+ 
+ ASSET_LIAB : IA_Accounting:IAS_CONTRACT_BALANCES_HIST__ASSET_LIAB 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=7.0, t24Name=ASSET.LIAB) 
+ 
+ PRODUCT_CATEGORY -> ST_Config:CATEGORY 
+ @i18n:Label (en="Product Category") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=8.0, t24Name=PRODUCT.CATEGORY) 
+ 
+ ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Account Officer") 
+ @i18n:Tooltip (en="Indicates Account Officer responsible") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=9.0, t24Name=ACCOUNT.OFFICER) 
+ 
+ CUSTOMER -> ST_Customer:CUSTOMER 
+ @i18n:Label (en=Customer) 
+ @i18n:Tooltip (en="Customer Liability") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=10.0, t24Name=CUSTOMER) 
+ 
+ ACTUAL_GROUP -> IA_Config:IAS_PRODUCT_GROUP 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=11.0, t24Name=ACTUAL.GROUP) 
+ 
+ CALCULATED_GROUP -> IA_Config:IAS_PRODUCT_GROUP 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=12.0, t24Name=CALCULATED.GROUP) 
+ 
+ DEPARTMENT_CODE : mml:string 
+ @i18n:Label (en="Department Code") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=13.0, t24Name=DEPARTMENT.CODE) 
+ 
+ SYSTEM_ID -> EB_SystemTables:EB_SYSTEM_ID 
+ @i18n:Label (en="System id") 
+ @i18n:Tooltip (en="Shows the system id") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=14.0, t24Name=SYSTEM.ID) 
+ 
+ AMOUNT_TYPE -> byValue IA_Accounting:IAS_CONTRACT_BALANCES_HIST__AMOUNT_TYPE * 
+ 
+ RATE_TYPE -> byValue IA_Accounting:IAS_CONTRACT_BALANCES_HIST__RATE_TYPE * 
+ 
+ CONSOL_KEY : mml:string 
+ @i18n:Label (en="Consol Key") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=60, sysNumber=44.0, t24Name=CONSOL.KEY) 
+ 
+ HEDGE_GROUP -> IA_Config:IAS_HEDGE_GROUP 
+ @t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=45.0, t24Name=HEDGE.GROUP) 
+ 
+ HEDGE_TYPE -> IA_Config:IAS_HEDGE_TYPE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=46.0, t24Name=HEDGE.TYPE) 
+ 
+ STATUS : mml:string 
+ @i18n:Label (en=Status) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=47.0, t24Name=STATUS) 
+ 
+ LINK_APP_ID -> byValue IA_Accounting:IAS_CONTRACT_BALANCES_HIST__LINK_APP_ID * 
+ 
+ RESERVED8 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=51.0, t24Name=RESERVED8) 
+ 
+ RESERVED7 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=52.0, t24Name=RESERVED7) 
+ 
+ RESERVED6 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=53.0, t24Name=RESERVED6) 
+ 
+ RESERVED5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=54.0, t24Name=RESERVED5) 
+ 
+ RESERVED4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=55.0, t24Name=RESERVED4) 
+ 
+ RESERVED3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=56.0, t24Name=RESERVED3) 
+ 
+ RESERVED2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=57.0, t24Name=RESERVED2) 
+ 
+ RESERVED1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=58.0, t24Name=RESERVED1) 
+ 
+ STMT_NOS -> byValue IA_Accounting:IAS_CONTRACT_BALANCES_HIST__STMT_NOS * 
+ 
+ OVERRIDE -> byValue IA_Accounting:IAS_CONTRACT_BALANCES_HIST__OVERRIDE * 
+ } 
+ IAS_CONTRACT_BALANCES_HIST__AMOUNT_TYPE 
+ { 
+ AMOUNT_TYPE -> IA_Config:IAS_AMOUNT_TYPE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=15.0, t24Name=AMOUNT.TYPE) 
+ 
+ TYPE_ORIG_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=16.0, t24Name=TYPE.ORIG.BAL) 
+ 
+ TYP_ORG_LCY_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, t24Name=TYP.ORG.LCY.BAL) 
+ 
+ TYPE_LAST_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, t24Name=TYPE.LAST.BAL) 
+ 
+ TYP_LAST_LCL_BL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, t24Name=TYP.LAST.LCL.BL) 
+ 
+ LAST_VALUE_MVMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=20.0, t24Name=LAST.VALUE.MVMT) 
+ 
+ LST_VAL_MVT_LCL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, t24Name=LST.VAL.MVT.LCL) 
+ 
+ LAST_MVMT_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, t24Name=LAST.MVMT.DATE) 
+ 
+ PRFT_LOSS_FLAG : IA_Accounting:IAS_CONTRACT_BALANCES_HIST__AMOUNT_TYPE__PRFT_LOSS_FLAG 
+ @t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=23.0, t24Name=PRFT.LOSS.FLAG) 
+ 
+ ACCOUNTING_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=24.0, t24Name=ACCOUNTING.BAL) 
+ 
+ ACCOUNTING_LCL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, t24Name=ACCOUNTING.LCL) 
+ 
+ LAST_ACTG_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, t24Name=LAST.ACTG.BAL) 
+ 
+ LAST_ACTG_LCL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=27.0, t24Name=LAST.ACTG.LCL) 
+ 
+ ACTG_MVMT_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, t24Name=ACTG.MVMT.BAL) 
+ 
+ ACTG_MVMT_LCL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=29.0, t24Name=ACTG.MVMT.LCL) 
+ 
+ ACCOUNTING_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=30.0, t24Name=ACCOUNTING.DATE) 
+ 
+ LOCAL_CURRENCY : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=31.0, t24Name=LOCAL.CURRENCY) 
+ 
+ MRESERVED9 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=32.0, t24Name=MRESERVED9) 
+ 
+ MRESERVED8 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=33.0, t24Name=MRESERVED8) 
+ 
+ MRESERVED7 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=34.0, t24Name=MRESERVED7) 
+ 
+ MRESERVED6 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=35.0, t24Name=MRESERVED6) 
+ 
+ MRESERVED5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=36.0, t24Name=MRESERVED5) 
+ 
+ MRESERVED4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=37.0, t24Name=MRESERVED4) 
+ 
+ MRESERVED3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=38.0, t24Name=MRESERVED3) 
+ 
+ MRESERVED2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=39.0, t24Name=MRESERVED2) 
+ 
+ MRESERVED1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=40.0, t24Name=MRESERVED1) 
+ } 
+ IAS_CONTRACT_BALANCES_HIST__RATE_TYPE 
+ { 
+ RATE_TYPE -> IA_Config:IAS_RATE_TYPE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=41.0, t24Name=RATE.TYPE) 
+ 
+ TYPE_REF_RT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=42.0, t24Name=TYPE.REF.RT) 
+ 
+ TYP_LAST_REF_RT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=43.0, t24Name=TYP.LAST.REF.RT) 
+ } 
+ IAS_CONTRACT_BALANCES_HIST__LINK_APP_ID 
+ { 
+ LINK_APP_ID -> IA_Config:IAS_APPLICATION_PARAM 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=49.0, t24Name=LINK.APP.ID) 
+ 
+ LINK_REC_ID : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=50.0, t24Name=LINK.REC.ID) 
+ } 
+ IAS_CONTRACT_BALANCES_HIST__STMT_NOS 
+ { 
+ STMT_NOS : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=59.0, t24Name=STMT.NOS) 
+ } 
+ IAS_CONTRACT_BALANCES_HIST__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=60.0, t24Name=OVERRIDE) 
+ } 
+ IAS_BUILD_CONT_BALANCES 
+ @t24:i (level=F, type=W, localRefAllowed=false) 
+ { 
+ BLD_CONT_BAL_ID : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, t24Name=BLD.CONT.BAL.ID) 
+ 
+ APPLICATION -> byValue IA_Accounting:IAS_BUILD_CONT_BALANCES__APPLICATION * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=5.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=6.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue IA_Accounting:IAS_BUILD_CONT_BALANCES__INPUTTER * 
+ 
+ DATE_TIME -> byValue IA_Accounting:IAS_BUILD_CONT_BALANCES__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=9.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=10.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=11.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=12.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=13.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ IAS_BUILD_CONT_BALANCES__APPLICATION 
+ { 
+ /* This field contains a valid application whose contracts are to be processed for building IAS.CONTRACT.BALANCES  reocrds This is a associated multi value field.Validation RulesShould be a valid Application id (Should have a entry in PGM.FILE)Should be a  IA complaint Application (Should have a entry in IAS.APPLICATION.PARAM ) Mandatory */ 
+ APPLICATION -> IA_Config:IAS_APPLICATION_PARAM required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, t24Name=APPLICATION) 
+ 
+ CONTRACT -> byValue IA_Accounting:IAS_BUILD_CONT_BALANCES__APPLICATION__CONTRACT * 
+ } 
+ IAS_BUILD_CONT_BALANCES__APPLICATION__CONTRACT 
+ { 
+ /* This field contains the contract id for which IAS.CONTRACT.BALANCES are to be build whileverifying this template.This field is a sub value field associated with field APPLICATION.Validation RulesMandatory field. */ 
+ CONTRACT : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=2.0, t24Name=CONTRACT) 
+ 
+ /* This field contains the function to be performed on the contracts specified in the associated field when this template is verified.Validation RulesValid entries are MODIFY , BUILD , REVERSE.Mandatory field. */ 
+ FUNCTION : IA_Accounting:IAS_BUILD_CONT_BALANCES__APPLICATION__CONTRACT__FUNCTION required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=3.0, t24Name=FUNCTION) 
+ 
+ /* This field determines whether Hedge group needs to be calculated or not.This field is a associated sub value field.Validation RulesValid values are Y or N. */ 
+ CAL_HEDG_GRP : IA_Accounting:IAS_BUILD_CONT_BALANCES__APPLICATION__CONTRACT__CAL_HEDG_GRP 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, t24Name=CAL.HEDG.GRP) 
+ } 
+ IAS_BUILD_CONT_BALANCES__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=7.0, t24Name=INPUTTER) 
+ } 
+ IAS_BUILD_CONT_BALANCES__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=8.0, t24Name=DATE.TIME) 
+ } 
+ } 
+ Enumerations { 
+ IAS_CONTRACT_BALANCES__MATURITY_DATE : mml:string 
+ DAYS=DAYS 
+ 
+ IAS_CONTRACT_BALANCES__ASSET_LIAB : mml:string 
+ A=A 
+ L=L 
+ 
+ IAS_CONTRACT_BALANCES__AMOUNT_TYPE__PRFT_LOSS_FLAG : mml:string 
+ PROFIT=PROFIT 
+ LOSS=LOSS 
+ 
+ IAS_CONTRACT_BALANCES_HIST__MATURITY_DATE : mml:string 
+ DAYS=DAYS 
+ 
+ IAS_CONTRACT_BALANCES_HIST__ASSET_LIAB : mml:string 
+ A=A 
+ L=L 
+ 
+ IAS_CONTRACT_BALANCES_HIST__AMOUNT_TYPE__PRFT_LOSS_FLAG : mml:string 
+ PROFIT=PROFIT 
+ LOSS=LOSS 
+ 
+ IAS_BUILD_CONT_BALANCES__APPLICATION__CONTRACT__FUNCTION : mml:string 
+ BUILD=BUILD 
+ MODIFY=MODIFY 
+ REVERSE=REVERSE 
+ 
+ IAS_BUILD_CONT_BALANCES__APPLICATION__CONTRACT__CAL_HEDG_GRP : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ } 

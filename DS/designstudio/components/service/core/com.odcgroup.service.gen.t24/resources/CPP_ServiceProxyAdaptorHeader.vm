@@ -1,0 +1,58 @@
+#ifndef ${service.getServiceProxyAdaptorName().toUpperCase()}_H
+\#define ${service.getServiceProxyAdaptorName().toUpperCase()}_H
+
+#set($stdClassRefList = ${service.getStdClsRefListInAdaptorHeader()})
+#foreach($stdClassRef in $stdClassRefList)
+\#include <${stdClassRef}>
+#end
+
+#set($temenosClassRefList = ${service.getTemenosClsRefListInAdaptorHeader()})
+#foreach($temenosClassRef in $temenosClassRefList)
+\#include <${temenosClassRef}.h>
+#end
+
+#set($userClassRefList = ${service.getUserClsRefListInAdaptorHeader()})
+#foreach($userClassRef in $userClassRefList)
+\#include "${userClassRef}.h"
+#end
+
+#undef DLLEXPORT
+#undef DLLIMPORT
+#undef DLLDECL
+
+#ifdef WIN32
+\#define DLLEXPORT __declspec(dllexport)
+\#define DLLIMPORT __declspec(dllimport)
+\#else
+\#define DLLEXPORT
+\#define DLLIMPORT
+#endif
+
+#ifdef ${service.getComponentName().toUpperCase()}PROXYADAPTOR_LIB /*building ${service.getComponentName()} proxy adaptor library*/ 
+\#define DLLDECL DLLEXPORT
+\#else
+\#define DLLDECL DLLIMPORT
+#endif
+
+namespace temenos {${formatter.indent()}
+  namespace soa {${formatter.indent()}
+    namespace ${service.getNamespace()} {${formatter.indent()}
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+#set($umlOperationList = ${service.getGenOperations()})
+#foreach($umlOperation in $umlOperationList)
+${umlOperation.declareCppProxyAdaptor()}
+#end
+
+#ifdef __cplusplus
+}
+#endif
+
+	}${formatter.outdent()}
+  }${formatter.outdent()}
+}${formatter.outdent()}
+
+#endif

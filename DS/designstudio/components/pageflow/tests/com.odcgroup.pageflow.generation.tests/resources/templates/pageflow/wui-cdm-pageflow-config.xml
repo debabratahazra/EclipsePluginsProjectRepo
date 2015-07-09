@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<wf:config xmlns:wf="http://www.odcgroup.com/wui-workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.odcgroup.com/wui-workflow wui-workflow.xsd">
+	<!-- 
+		*************************************************************************************
+																DO NOT MODIFY THIS FILE!
+
+		This file has been generated automatically by Design Studio. 
+		Any change will be lost when regenerated.
+		*************************************************************************************
+										Design Studio information of  pageflow file
+										
+		Project name     : pms-models
+		Package          : //ds5406
+		Generation user  : atr
+		Generation date  : Fri Aug 17 15:41:51 CEST 2012
+		DS version       :  
+		*************************************************************************************
+	 -->
+	
+		
+	<!-- 
+		*****************************************************
+		Design Studio information of pageflow model
+		Model name       : addCrFlow
+		Description      : 
+		******************************************************
+    -->	
+    
+	<!-- 
+		*************************************
+		addCrFlow workflow
+		*************************************
+    -->
+
+	<wf:workflow name="addCrFlow" graph="addCrFlowGraph">
+	    <!-- declaration of the used panels -->
+		<wf:abort-view url="/redirect/activity/cdm/overview/clientrelationship/standing"/>
+		<wf:error-view url="/page/common/OneModule?module=cdm/pgfw/common/exception"/>
+		<wf:view state-key="addcr-confirm" url="/page/common/OneModule?module=cdm/pgfw/common/confirm"/>		
+		<wf:view state-key="addcr-edit" url="/page/common/OneModule?module=cdm/pgfw/clientrelationship/edit"/>		
+		<wf:view state-key="addcr-edit-user-search" url="/page/common/OneModule?module=enduser/pgfw/common/GenericQueryOrga"/>		
+		<wf:view state-key="addcr-manager" url="/page/common/OneModule?module=cdm/manage/clientrelationship/managers"/>		
+		<wf:view state-key="addcr-exit" url="/redirect/activity/cdm/generic/wui-cdm-pgfw-all-search/searchAllFlow?flow-action=init"/>
+		<wf:view state-key="addcr-save-exit" url="/redirect/activity/cdm/pageflow/wui-cdm-pgfw-cr-overview/overviewFlow?SOURCE_KEY=cdmClientRelationship"/>
+		<wf:view state-key="no-createCorrespondent-exit" url="/redirect/activity/cdm/pageflow/wui-cdm-pgfw-cr-overview/overviewFlow?SOURCE_KEY=cdmClientRelationship"/>
+	</wf:workflow>
+
+	    
+	<!--
+		*************************************
+		addCrFlow graph
+		*************************************
+	-->
+	
+	<wf:graph name="addCrFlowGraph">
+		<!-- ============================== -->	
+	    <!-- declaration of the used states -->
+	    <!-- ============================== -->
+	    <wf:state key="addcr-exit" is-terminal="true"/>
+	    <wf:state key="addcr-save-exit" is-terminal="true"/>
+	    <wf:state key="no-createCorrespondent-exit" is-terminal="true"/>
+	    <wf:state key="addcr-confirm"/>
+	    <wf:state key="addcr-edit"/>
+	    <wf:state key="addcr-edit-user-search"/>
+	    <wf:state key="addcr-manager"/>
+    
+    	<!-- ============================== -->
+        <!-- declaration of init transition -->
+        <!-- ============================== -->
+        <wf:init-transition name="init" to-state="addcr-edit">        
+	      	<wf:process class-name="com.odcgroup.uif.workflow.SetConfigurableURLProcess"/>
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.wui.processes.WorkKey">
+		      	<wf:property name="KEY" value="cdmClientRelationship.edit"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.wui.processes.ModeEditable">
+		      	<wf:property name="EDITABLE" value="TRUE"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.clientrelation.processes.NewClientRelation"/>
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.wui.processes.WorkKeyToKey">
+		      	<wf:property name="FROM" value="cdmClientRelationship.edit"/>
+		      	<wf:property name="TARGET" value="cdmBO"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.orga.processes.OrgaSearch">
+		      	<wf:property name="QUERYBEAN_KEY" value="cdmBO.orga"/>
+		      	<wf:property name="QUERY_TYPE" value="com.odcgroup.orga.QueryEmployees"/>
+		      	<wf:property name="COLUMNS_RESULT" value="customProperties(cdm.person.view.Name),customProperties(cdm.person.view.FirstName),businessKey"/>
+	      	</wf:process>
+        </wf:init-transition>
+        <!-- ============================== -->
+        <!-- declaration of the transitions -->
+        <!-- ============================== -->
+        <wf:transition name="assign" from-state="addcr-manager" to-state="addcr-manager">
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.managers.processes.Assign"/>
+        </wf:transition>
+        <wf:transition name="back" from-state="addcr-confirm" to-state="addcr-manager"/>        
+        <wf:transition name="back" from-state="addcr-manager" to-state="addcr-edit"/>        
+        <wf:transition name="cancel" from-state="addcr-confirm" to-state="addcr-exit">
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.wui.processes.WorkKeyClean">
+		      	<wf:property name="KEYS" value="cdmClientRelationship.assign;cdmClientRelationship.edit;cdmClientRelationship"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="cancel" from-state="addcr-edit" to-state="addcr-exit">
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.wui.processes.WorkKeyClean">
+		      	<wf:property name="KEYS" value="cdmClientRelationship.assign;cdmClientRelationship.edit;cdmClientRelationship"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="cancel" from-state="addcr-manager" to-state="addcr-exit">
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.wui.processes.WorkKeyClean">
+		      	<wf:property name="KEYS" value="cdmClientRelationship.assign;cdmClientRelationship.edit;cdmClientRelationship"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="clear" from-state="addcr-manager" to-state="addcr-manager">
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.managers.processes.ClearManager"/>
+        </wf:transition>
+        <wf:transition name="findGroup" from-state="addcr-manager" to-state="addcr-manager">
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.managers.processes.SearchGroup"/>
+        </wf:transition>
+        <wf:transition name="findManager" from-state="addcr-manager" to-state="addcr-manager">
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.managers.processes.SearchManager"/>
+        </wf:transition>
+        <wf:transition name="next" from-state="addcr-edit" to-state="addcr-manager">
+        	<wf:validation/>
+	      	<wf:validation class-name="com.odcgroup.wui.module.cdm.logicsheet.error.DetailValidationProcess"/>
+	      	<wf:validation class-name="com.odcgroup.wui.module.cdm.logicsheet.clientrelation.processes.validation.NameMandatory"/>
+	      	<wf:validation class-name="com.odcgroup.wui.module.cdm.logicsheet.clientrelation.processes.validation.RootIdExist"/>
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.wui.processes.WorkKey">
+		      	<wf:property name="KEY" value="cdmClientRelationship.assign"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.wui.processes.ModeEditable">
+		      	<wf:property name="EDITABLE" value="TRUE"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.managers.processes.SetupAssign">
+		      	<wf:property name="CLIENTRELATION_KEY" value="cdmClientRelationship.edit"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="next" from-state="addcr-manager" to-state="addcr-confirm"/>        
+        <wf:transition name="prev" from-state="addcr-manager" to-state="addcr-edit">
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.wui.processes.WorkKey">
+		      	<wf:property name="KEY" value="cdmClientRelationship.edit"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="reset-openedBy" from-state="addcr-edit" to-state="addcr-edit">
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.bean.processes.ClearProperty"/>
+        </wf:transition>
+        <wf:transition name="save" from-state="addcr-confirm" to-redirector="true">        
+        	<wf:validation/>
+	      	<wf:validation class-name="com.odcgroup.wui.module.cdm.logicsheet.error.DetailValidationProcess"/>
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.managers.processes.SaveManagers">
+		      	<wf:property name="CLIENTRELATION_KEY" value="cdmClientRelationship.edit"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.managers.processes.SaveManagerRoles"/>
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.clientrelation.processes.LoadClientRelation">
+		      	<wf:property name="SOURCE_PROPERTY" value="UUId"/>
+		      	<wf:property name="SOURCE_KEY" value="cdmClientRelationship.edit"/>
+		      	<wf:property name="CLIENTRELATION_KEY" value="cdmClientRelationship"/>
+	      	</wf:process>
+  			<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.mms.IsMmsDeployed"/>
+			<wf:redirector>
+ 				<wf:result value="0">
+ 					<wf:transition to-state="no-createCorrespondent-exit" name="0">
+					      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.clientrelation.processes.LoadClientRelation">
+						      	<wf:property name="SOURCE_PROPERTY" value="UUId"/>
+						      	<wf:property name="SOURCE_KEY" value="cdmClientRelationship.edit"/>
+						      	<wf:property name="CLIENTRELATION_KEY" value="cdmClientRelationship"/>
+					      	</wf:process>
+					      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.wui.processes.WorkKeyClean">
+						      	<wf:property name="KEYS" value="cdmClientRelationship.assign;cdmClientRelationship.edit"/>
+					      	</wf:process>
+ 					</wf:transition>
+ 				</wf:result>
+ 				<wf:result value="1">
+ 					<wf:transition to-state="addcr-save-exit" name="1">
+					      	<wf:process class-name="com.odcgroup.wui.module.mms.logicsheets.distributionrule.processes.CreateCorrespondent">
+						      	<wf:property name="CLIENTRELATION_KEY" value="cdmClientRelationship.edit"/>
+					      	</wf:process>
+					      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.clientrelation.processes.LoadClientRelation">
+						      	<wf:property name="SOURCE_PROPERTY" value="UUId"/>
+						      	<wf:property name="SOURCE_KEY" value="cdmClientRelationship.edit"/>
+						      	<wf:property name="CLIENTRELATION_KEY" value="cdmClientRelationship"/>
+					      	</wf:process>
+					      	<wf:process class-name="com.odcgroup.wui.module.cdm.components.wui.processes.WorkKeyClean">
+						      	<wf:property name="KEYS" value="cdmClientRelationship.assign;cdmClientRelationship.edit"/>
+					      	</wf:process>
+ 					</wf:transition>
+ 				</wf:result>
+			</wf:redirector>
+        </wf:transition>
+        <wf:transition name="search-openedBy-exit" from-state="addcr-edit-user-search" to-state="addcr-edit"/>        
+        <wf:transition name="search-openedBy" from-state="addcr-edit-user-search" to-state="addcr-edit-user-search">
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.orga.processes.OrgaQueryProcess">
+		      	<wf:property name="QUERYBEAN_KEY" value="cdmBO.orga"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="search-openedBy" from-state="addcr-edit" to-state="addcr-edit-user-search">
+	      	<wf:process class-name="com.odcgroup.wui.module.cdm.logicsheet.orga.processes.OrgaQueryProcess">
+		      	<wf:property name="QUERYBEAN_KEY" value="cdmBO.orga"/>
+	      	</wf:process>
+        </wf:transition>
+	</wf:graph>
+
+
+	</wf:config>
+	

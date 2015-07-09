@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN"
+"http://docs.oasis-open.org/dita/v1.1/OS/dtd/topic.dtd">
+<topic id="SdlcFdsTdsVersion_4_3_f2b006">
+	<title>Manage several check boxes in trees</title>
+	<body>
+		<section>
+			<title>Description</title>
+			<p>
+				The table/tree widget must provide multiple columns containing checkboxe on each row, each checkbox having a different business meaning.
+			</p>
+		</section>
+		<section>
+			<title>FDS Link</title>
+			<p>
+				<xref
+					href="https://lausvn/svn/devel/projects/doc/active/triplea_plus/R11/03.%20Construction%20(Design)/TECHNOLOGY/DS/FDS_DSR11_F2B006_MultipleCheckboxesInTrees.doc"
+					scope="external">FDS_DSR11_F2B006_MultipleCheckboxesInTrees.doc</xref>
+			</p>
+		</section>
+		<section>
+			<title>JIRA Issue(s)</title>
+			<p>
+				<xref href="http://rd.oams.com/browse/DS-4413" scope="external">DS-4413</xref>
+			</p>
+		</section>
+		<section>
+			<title>TDS</title>
+			<p>
+				<i> Note: FDS references are in parenthesis	</i>
+			</p>
+			<b>1. Checkbox widget, Placeholder Column properties (FDS 3.2.1, 3.2.2)</b>
+			<p>
+				The checkbox widget needs three additional properties in the context of this requirement:
+				<ul>
+					<li>Identifier Column (column-checkbox-identifier)</li>
+					<li>Security Column (column-checkbox-security)</li>
+					<li>Action</li>
+				</ul>
+				The first two properties already exists for the placeholder column widget, 
+				which needs to be removed from the placeholder column and to be added to the checkbox widget
+			</p>
+			<p>
+				<codeph>xgui-widget-library.metamodel</codeph> is adapted for the necessary changes, which include removing
+				the column-checkbox-identifier, column-checkbox-security, column-checkbox-header properties from
+				the table column widget.  The column-checkbox-header property type is removed from the metamodel.								
+			</p>
+			<p>
+				Property types column-checkbox-identifier and column-checkbox-security are added to the checkbox widget, 
+				which are enabled only in the context of a placeholder column.	A new property type column-checkbox-action (of datatype String)
+				is created and is added to the checkbox widget						
+			</p>
+			<p>
+				The
+				<codeph>com.odcgroup.page.ui.properties.sections.GeneralSectionFilter</codeph>
+				class is adapted to display the newly added properties to the checkbox appear only in context of a placeholder column.
+			</p>
+			<b>2. Table/Tree widget properties (FDS 3.2.3)</b>
+			<p>Two new property types,<ul>
+					<li>Display Checkbox on Tree Nodes (display-checkbox) - boolean type</li>
+					<li>Make Multiple Checkboxes Exclusive (exclusive-multiple-checkbox) - boolean type </li>
+				</ul>
+				are added to the Table/Tree widget
+			</p>
+			<p></p>
+			<b>3. Code Generation (FDS 3.3)</b>
+			<p>
+				The <codeph>com.odcgroup.page.transformmodel.table.TableWidgetTransformer</codeph> class will be adapted to
+				accomodate the newly added properties to the Table/Tree widget.
+			</p>
+			<p>
+				<b>
+					<i>3.1 Declarative part (FDS 3.3.1)</i>
+				</b>
+			</p>
+			<p>
+				<codeph>renderTableDeclareModel(..)</codeph>method is adapted to include the generation specific to the identifier column's of the check-boxes in the
+				placeholder column of the table/tree.  
+			</p>
+			<p>
+				<b>
+					<i>3.2 Rendering part (FDS 3.3.2)</i>
+				</b>
+			</p>
+			<p><u>Row detail</u></p>
+			<p>
+				<codeph>renderTableNonEmptyContent(..) </codeph> method is adapted to render the checkboxes in the placeholder column, when the exclusive property
+				is set to true, an event is generated for each of these checkboxes.
+			</p>
+			<p><u>Node (Group/Hierarchy)</u></p>			
+			<p>
+				<codeph>renderTreeNonLeafNodes(..)</codeph>method is adapted to generate the checkboxes if the display-checkboxes property is set to true, no
+				checkboxes are generated if set to false.
+			</p>
+			<p><u>Placeholder column positioning</u></p>			
+			<p>
+				<codeph>renderColumnHeader(..)</codeph>method is adapted to include a new attribute 'tec' for placeholder columns of type grouping
+			</p>			
+			<p>
+				<i>The generation details (what needs to be generated) are specified in the FDS</i>
+			</p>
+			<p></p>
+			<b>4. Validation (FDS 3.4)</b>
+			<p>
+				The class <codeph>com.odcgroup.page.validation.internal.constraint.PageWidgetValidator</codeph> requires
+				the following methods :
+			</p>
+			<p><codeph>checkDisplayGroupingCheckBoxExclusive()</codeph> - the properties Display grouping and display checkboxes are exclusive, both cannot be set to true</p>
+			<p><codeph>checkFilterOnTableWithCheckbox()</codeph> - the property filter cannot be set to true if checkboxes are found in the table</p>
+			<p><codeph>checkHierarchyOrGroupWithCheckboxDisplay()</codeph> - Atleast one group or hierarcy must be defined if display checkbox is true</p>
+			<p><codeph>checkCheckboxInPlaceholder()</codeph> - A checkbox needs to be defined in a placeholder if the one of the table properties, display checkbox or exclusive selection set to true</p>
+			<p><codeph>checkMultipleCheckboxes()</codeph> - if the property exclusive selection is true, multiple checkboxes need to be defined on the placeholder</p>
+			<p><codeph>checkSelectDeselectProperty()</codeph> - The property select/deselect on table cannot be true, if multiple checkboxes found</p>		
+			
+			<b>5. Migration (FDS 3.5)</b>	
+			<p>No migration logic is required as the impacted modules is low</p>	
+			<b>6. Search Output Module Palette contents (FDS 3.6)</b>
+			<p>The palette of the module designer for modules of type "search-output" will include checkbox and radio-button widgets, this requires changes to the
+			<codeph>page-designer.uimodel</codeph></p>	
+		</section>
+	</body>
+</topic>
+ 

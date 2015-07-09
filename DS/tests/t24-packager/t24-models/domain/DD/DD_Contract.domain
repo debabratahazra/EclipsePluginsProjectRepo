@@ -1,0 +1,2212 @@
+# UTF-8
+ /* Direct Debits processing */ 
+ Domain DD_Contract 
+ @t24:i (module=DD) 
+ @java:Package (value=com.temenos.t24.datamodel.dd.dd_contract) 
+ namespace "http://www.temenos.com/t24/DD_Contract" 
+ metamodelVersion 4.3.0.20110527 
+ Classes { 
+ FT_DD_TAPE_DATA 
+ @t24:i (level=C, type=L, localRefAllowed=false) 
+ { 
+ DATA_ID : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, t24Name=DATA.ID) 
+ 
+ PROCESSING_DATE : mml:string 
+ @i18n:Label (en="Processing Date") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=1.0, t24Name=PROCESSING.DATE) 
+ 
+ ACCOUNT_NAME : mml:string 
+ @i18n:Label (en="Portfolio Name") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=20, sysNumber=2.0, t24Name=ACCOUNT.NAME) 
+ 
+ ACCOUNT_NUMBER -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=16, sysNumber=3.0, t24Name=ACCOUNT.NUMBER) 
+ 
+ AMOUNT_DEBITED : mml:string 
+ @i18n:Label (en="Amount Debited") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=14, sysNumber=4.0, t24Name=AMOUNT.DEBITED) 
+ 
+ DEST_SORT_CODE : mml:string 
+ @t24:i (align=L, inputBehaviour=E, maxLength=8, sysNumber=5.0, t24Name=DEST.SORT.CODE) 
+ 
+ DEST_ACCT_NO : mml:string 
+ @i18n:Label (en="Destination Acct") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=8, sysNumber=6.0, t24Name=DEST.ACCT.NO) 
+ 
+ REFERENCE : mml:string 
+ @i18n:Label (en="Search by Referece") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=18, sysNumber=7.0, t24Name=REFERENCE) 
+ 
+ OUR_REFERENCE : mml:string 
+ @i18n:Label (en="Transaction Ref") 
+ @i18n:Tooltip (en="Our Reference") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=35, sysNumber=8.0, t24Name=OUR.REFERENCE) 
+ 
+ ERROR_TEXT -> byValue DD_Contract:FT_DD_TAPE_DATA__ERROR_TEXT * 
+ 
+ TAPE_DATA -> byValue DD_Contract:FT_DD_TAPE_DATA__TAPE_DATA * 
+ } 
+ FT_DD_TAPE_DATA__ERROR_TEXT 
+ { 
+ ERROR_TEXT : mml:string 
+ @t24:i (align=L, inputBehaviour=E, maxLength=35, sysNumber=9.0, t24Name=ERROR.TEXT) 
+ } 
+ FT_DD_TAPE_DATA__TAPE_DATA 
+ { 
+ TAPE_DATA : mml:string 
+ @t24:i (align=L, inputBehaviour=E, maxLength=35, sysNumber=10.0, t24Name=TAPE.DATA) 
+ } 
+ /* This application is for specifying the transaction codes that has to be used while generating accounting entries from DD Module for various events. */ 
+ DD_TXN_CODES 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* The id to this application is "SYSTEM" and it contains the transaction codes which is to be used while raising STMT.ENTRY for various DD events.  The Transaction code given for NEW.ITEM.DR /NEW.ITEM.CR is used while generating Forward Statement entries from DD.STANDALONE application. Other transaction codes are used when an Outward ITEM is returned, resubmitted and during claim accounting process for all DD.ITEMs.  The transaction code given here is applicable for all clearing system. Validation Rules Valid value allowed "SYSTEM" */ 
+ ID : DD_Contract:DD_TXN_CODES__ID PK required 
+ @i18n:Label (en="Transaction Ref") 
+ @i18n:Tooltip (en="Transaction Reference") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=ID) 
+ 
+ /* Specify the Transaction code that has to be used in STMT.ENTRY for Debit entry while creating a new item from DD module. Validation Rules Mandatory field Should be a valid record in TRANSACTION Application */ 
+ NEW_ITEM_DR -> ST_Config:TRANSACTION required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, t24Name=NEW.ITEM.DR) 
+ 
+ /* Specify the Transaction code that has to be used in STMT.ENTRY for credit entry while creating a new item from DD module. Validation Rules Mandatory field Should be a valid record in TRANSACTION Application */ 
+ NEW_ITEM_CR -> ST_Config:TRANSACTION required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, t24Name=NEW.ITEM.CR) 
+ 
+ /* Specify the Transaction code that has to be used in STMT.ENTRY for debit entry while returning an item from DD module. Validation Rules Mandatory field Should be a valid record in TRANSACTION Application */ 
+ RETURN_ITEM_DR -> ST_Config:TRANSACTION required 
+ @i18n:Label (en="Return Item Dr") 
+ @i18n:Tooltip (en="Return Item Dr") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, t24Name=RETURN.ITEM.DR) 
+ 
+ /* Specify the Transaction code that has to be used in STMT.ENTRY for credit entry while returning an item from DD module. Validation Rules Mandatory field Should be a valid record in TRANSACTION Application */ 
+ RETURN_ITEM_CR -> ST_Config:TRANSACTION required 
+ @i18n:Label (en="Return Item Cr") 
+ @i18n:Tooltip (en="Return Item Cr") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, t24Name=RETURN.ITEM.CR) 
+ 
+ /* Specify the Transaction code that has to be used in STMT.ENTRY for debit entries while resubmitting an item from DD module. Validation Rules Mandatory field Should be a valid record in TRANSACTION Application */ 
+ RESUBMIT_ITEM_DR -> ST_Config:TRANSACTION required 
+ @i18n:Label (en="Resubmit Item Dr") 
+ @i18n:Tooltip (en="Resubmit Item Dr") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=5.0, t24Name=RESUBMIT.ITEM.DR) 
+ 
+ /* Specify the Transaction code that has to be used in STMT.ENTRY for credit entry while resubmit an item from DD module. Validation Rules Mandatory field Should be a valid record in TRANSACTION Application */ 
+ RESUBMIT_ITEM_CR -> ST_Config:TRANSACTION required 
+ @i18n:Label (en="Resubmit Item cr") 
+ @i18n:Tooltip (en="Resubmit Item cr") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, t24Name=RESUBMIT.ITEM.CR) 
+ 
+ /* Specify the Transaction code that has to be used in STMT.ENTRY while creating claim debit entries from DD module. Validation Rules Mandatory field Should be a valid record in TRANSACTION Application */ 
+ CLAIM_ITEM_DR -> ST_Config:TRANSACTION required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, t24Name=CLAIM.ITEM.DR) 
+ 
+ /* Specify the Transaction code that has to be used in STMT.ENTRY while claim credit entries is raised from DD module. Validation Rules Mandatory field Should be a valid record in TRANSACTION Application */ 
+ CLAIM_ITEM_CR -> ST_Config:TRANSACTION required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, t24Name=CLAIM.ITEM.CR) 
+ 
+ /* Specify the Transaction code that has to be used in STMT.ENTRY while rejecting an item debit from DD module. Validation Rules Mandatory field Should be a valid record in TRANSACTION Application */ 
+ REJECT_ITEM_DR -> ST_Config:TRANSACTION required 
+ @i18n:Label (en="Reject Item Dr") 
+ @i18n:Tooltip (en="Reject Item Dr") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, t24Name=REJECT.ITEM.DR) 
+ 
+ /* Specify the Transaction code that has to be used in STMT.ENTRY while credit entries for rejection from DD module. Validation Rules Mandatory field Should be a valid record in TRANSACTION Application */ 
+ REJECT_ITEM_CR -> ST_Config:TRANSACTION required 
+ @i18n:Label (en="Reject Item Cr") 
+ @i18n:Tooltip (en="Reject Item Cr") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=10.0, t24Name=REJECT.ITEM.CR) 
+ 
+ /* Specifies TRANSACTION code that should be used for REFUSAL DEBITS in DD. Validation rules: • Mandatory Input. • It should be a valid key in TRANSACTION. */ 
+ REFUSE_ITEM_DR -> ST_Config:TRANSACTION required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=11.0, t24Name=REFUSE.ITEM.DR) 
+ 
+ /* Specifies TRANSACTION code that should be used for REFUSAL CREDITS in DD. Validation rules: • Mandatory Input. • It should be a valid key in TRANSACTION. */ 
+ REFUSE_ITEM_CR -> ST_Config:TRANSACTION required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=12.0, t24Name=REFUSE.ITEM.CR) 
+ 
+ RESERVED08 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, t24Name=RESERVED08) 
+ 
+ RESERVED07 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, t24Name=RESERVED07) 
+ 
+ RESERVED06 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, t24Name=RESERVED06) 
+ 
+ RESERVED05 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, t24Name=RESERVED05) 
+ 
+ RESERVED04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, t24Name=RESERVED04) 
+ 
+ RESERVED03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, t24Name=RESERVED03) 
+ 
+ RESERVED02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=19.0, t24Name=RESERVED02) 
+ 
+ RESERVED01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=20.0, t24Name=RESERVED01) 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_TXN_CODES__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=23.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=24.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_TXN_CODES__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_TXN_CODES__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=27.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=28.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=29.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=30.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=31.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_TXN_CODES__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=22.0, t24Name=OVERRIDE) 
+ } 
+ DD_TXN_CODES__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=25.0, t24Name=INPUTTER) 
+ } 
+ DD_TXN_CODES__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=26.0, t24Name=DATE.TIME) 
+ } 
+ /* This file  contains the list of Standalone DD's that are scheduled for a date for each DD.PARAMETER ID. This file is updated when a DD.STANDALONE is added or modified and this file is referred to create DD.ITEM & STMT.ENTRY on the scheduled date.All updates to this file are effected automatically by the system and the only functions users are allowed to perform are (L)IST, (S)EE and (P)RINT. */ 
+ DD_STANDALONE_FQU_LIST 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This contains the ID of the DD.STANDALONE.FQU.LIST entry.Validation RulesThe format is DD.PARAMETER id "-" Value Date of DD.ITEM */ 
+ PARAM_FQU_DATE : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, t24Name=PARAM.FQU.DATE) 
+ 
+ STANDALONE_ID -> byValue DD_Contract:DD_STANDALONE_FQU_LIST__STANDALONE_ID * 
+ } 
+ DD_STANDALONE_FQU_LIST__STANDALONE_ID 
+ { 
+ /* Contains the Id of the DD.STANDALONE record which is to be processed on the Value date for the given Parameter id. */ 
+ STANDALONE_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, t24Name=STANDALONE.ID) 
+ } 
+ /* The DD.RETURN application is used to process the returns received for outward claims and to do resubmissions if required.An item can be returned by giving in DD.RETURN only when its status is 'CLAIMED.ITEM' (ie. Claim accounting has already been raised on the value date of the DD.ITEM).Records can be created in this application for return either manually or using local OFS routines. */ 
+ DD_RETURN 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* Contains the Id of the DD.RETURN record.STMT.ENTRY created for resubmit will be having this id as its reference.Validation RulesIt is of the form DDR/Julian date/sequence noThe sequence number can be from 0-99999 */ 
+ DD_RETURN_ID : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, t24Name=DD.RETURN.ID) 
+ 
+ /* Give the DD.ITEM id which should be Returned / Resubmitted. It must be an Item for which the funds have already been received.The STMT.ENTRY will be raised with the details as applicable for this ITEM.Validation RulesMust be a record in DD.ITEM  with status as 'CLAIMED.ITEM'Mandatory FieldThis is a No change field */ 
+ DD_ITEM_ID -> DD_Contract:DD_ITEM required 
+ @i18n:Label (en="DD item id") 
+ @i18n:Tooltip (en="DD item id") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=25, sysNumber=1.0, t24Name=DD.ITEM.ID) 
+ 
+ RET_REASON -> byValue DD_Contract:DD_RETURN__RET_REASON * 
+ 
+ CLAIM_CONTENT -> byValue DD_Contract:DD_RETURN__CLAIM_CONTENT * 
+ 
+ /* Specify the  value date on which the DD.ITEM has to be resubmitted and same is used as the value date for the resubmit accounting. If the STATUS is blank , then the value of this field will default to Current Date + RESUB.DATE.PRD + CLAIM.DATE.PRD (both from DD.PARAMETER)The above defaulting will happen only when the RESUB.DATE.PRD field in DD.PARAMETER is input with valid value. To stop above defaulting mechanism even when RESUB.DATE.PRD is specified- set the DD.RESUBMIT as 'N'In case a user wishes to input his own value date for resubmission then he may do so after considering the setup of the clearing cycle in DD.PARAMETER. Ideally, the date given here must be greater than the current date + CLAIM.DATE.PRD field in DD.PARAMETER.Validation RulesIf DD.RESUBMIT is blank, this field is mandatory otherwise OptionalIf entered it must be greater than the current date. Up to 9 date characters (standard Date format) - type D */ 
+ RESUB_VAL_DATE : mml:string 
+ @i18n:Label (en="Resub val date") 
+ @i18n:Tooltip (en="Resub val date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, t24Name=RESUB.VAL.DATE) 
+ 
+ /* Date of creation of the DD.RETURN record is stored here Validation RulesNo input allowedUpdated by System. */ 
+ CREATE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=5.0, t24Name=CREATE.DATE) 
+ 
+ /* Contains the status of the DD.RETURN record.When a DD.ITEM is returned without  specifying the resubmission value date then the status is updated as "RETURNED.ITEM'. This record can be modified again for resubmission by giving the Resubmit value date.In case DD.ITEM is given along with resubmission value date, then the status is updated as "PROCESSED.ITEM".When status is set to "PROCESSED.ITEM", then changes are not allowed for this record.Validation RulesNo input field. Updated by the System either "RETURNED.ITEM' or 'PROCESSED.ITEM' */ 
+ STATUS : mml:string 
+ @i18n:Label (en=Status) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, t24Name=STATUS) 
+ 
+ STATUS_HIST -> byValue DD_Contract:DD_RETURN__STATUS_HIST * 
+ 
+ /* To stop defaulting RESUB.VAL.DATE field even when RESUB.DATE.PRD is specified in DD.PARAMEMTER- set this field as N.If the user does not wish to resubmit the item irrespective of presence or absence of the field RESUB.VAL.DATE, then this field should be set to ‘N’. In such cases. STATUS of DD.RETURN shall be RETURNED.ITEM only.If blank, resubmission entries shall be raised and the DD.RETURN status will be updated to PROCESSED.ITEM.Validation RulesOptional field- Valid values N or Null If blank, then resubmission entries will be raised and hence RESUB.VAL.DATE is mandatory.If the value is ‘N’ , then RESUB.VAL.DATE is Optional. */ 
+ DD_RESUBMIT : DD_Contract:DD_RETURN__DD_RESUBMIT 
+ @i18n:Label (en="DD resubmit") 
+ @i18n:Tooltip (en="DD resubmit") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=9.0, t24Name=DD.RESUBMIT) 
+ 
+ /* The actual reason code for the direct debit system rejection.Validation RulesOptional Field */ 
+ REASON_CODE : mml:string 
+ @i18n:Label (en="Reason code") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, t24Name=REASON.CODE) 
+ 
+ RESERVED07 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, t24Name=RESERVED07) 
+ 
+ RESERVED06 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, t24Name=RESERVED06) 
+ 
+ RESERVED05 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, t24Name=RESERVED05) 
+ 
+ RESERVED04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, t24Name=RESERVED04) 
+ 
+ RESERVED03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, t24Name=RESERVED03) 
+ 
+ RESERVED02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, t24Name=RESERVED02) 
+ 
+ RESERVED01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, t24Name=RESERVED01) 
+ 
+ STMT_NOS -> byValue DD_Contract:DD_RETURN__STMT_NOS * 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_RETURN__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=21.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_RETURN__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_RETURN__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=25.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=26.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=27.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=28.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=29.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_RETURN__RET_REASON 
+ { 
+ /* The actual reason code for the direct debit system rejection.Validation RulesOptional FieldMust be a valid code for a RETURNED.ITEM event on DD.CODES. If not entered the first match on the DD.CODES record for the RETURNED.ITEM event will be used. */ 
+ RET_REASON : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=2.0, t24Name=RET.REASON) 
+ } 
+ DD_RETURN__CLAIM_CONTENT 
+ { 
+ /* This is the text field to hold the claim message content. To be managed locally (if required).Validation RulesOptional Field */ 
+ CLAIM_CONTENT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=3.0, t24Name=CLAIM.CONTENT) 
+ } 
+ DD_RETURN__STATUS_HIST 
+ { 
+ /* Contains the Status History of the DD.RETURN record.Whenever the status is changed in the previous field, this field is updated with the old status and status changed date on the next field.Validation RulesNo Input fieldUpdated by the System */ 
+ STATUS_HIST : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, t24Name=STATUS.HIST) 
+ 
+ /* Contains the Status History date of the DD.RETURN recordValidation RulesNo input field.Updated by the System */ 
+ STATUS_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=8.0, t24Name=STATUS.DATE) 
+ } 
+ DD_RETURN__STMT_NOS 
+ { 
+ /* This field holds the statement nos created during return accounting. NOINPUT field */ 
+ STMT_NOS : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=19.0, t24Name=STMT.NOS) 
+ } 
+ DD_RETURN__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=20.0, t24Name=OVERRIDE) 
+ } 
+ DD_RETURN__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, t24Name=INPUTTER) 
+ } 
+ DD_RETURN__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=24.0, t24Name=DATE.TIME) 
+ } 
+ /* This application is used to define the reason codes as applicable for the clearing module and linked through DD.CODES with the various possible events.This application is used to default the various clearing codes in outward claim file based on the underlying events in DD.ITEM or DD.DDI. */ 
+ DD_REASON_CODES 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* Specify the reason codes as applicable for a direct debit clearing module here.The same id should be used while creating DD.PARAMETER details.Validation RulesFree text format */ 
+ CLEARING_SYSTEM : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=CLEARING.SYSTEM) 
+ 
+ DESCRIPTION -> byValue DD_Contract:DD_REASON_CODES__DESCRIPTION * 
+ 
+ REASON_CODE -> byValue DD_Contract:DD_REASON_CODES__REASON_CODE * 
+ 
+ RESERVED10 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, t24Name=RESERVED10) 
+ 
+ RESERVED09 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, t24Name=RESERVED09) 
+ 
+ RESERVED08 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, t24Name=RESERVED08) 
+ 
+ RESERVED07 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, t24Name=RESERVED07) 
+ 
+ RESERVED06 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, t24Name=RESERVED06) 
+ 
+ RESERVED05 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, t24Name=RESERVED05) 
+ 
+ RESERVED04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, t24Name=RESERVED04) 
+ 
+ RESERVED03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, t24Name=RESERVED03) 
+ 
+ RESERVED02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, t24Name=RESERVED02) 
+ 
+ RESERVED01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, t24Name=RESERVED01) 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_REASON_CODES__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=16.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=17.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_REASON_CODES__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_REASON_CODES__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=21.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=23.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=24.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_REASON_CODES__DESCRIPTION 
+ { 
+ /* Specify the description pertaining to the reason codeValidation RulesFree text - Mandatory */ 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, t24Name=DESCRIPTION) 
+ } 
+ DD_REASON_CODES__REASON_CODE 
+ { 
+ /* Specify the reason code as applicable for the direct debit clearing.The reason code entered here is mapped with the events in DD.CODES application and based on the event, the reason code is defaulted while generating the outward claim file.Validation RulesMandatory1-3 alpha numeric character/s */ 
+ REASON_CODE : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, t24Name=REASON.CODE) 
+ 
+ /* Validation Rules */ 
+ ENRICH : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=3.0, t24Name=ENRICH) 
+ } 
+ DD_REASON_CODES__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, t24Name=OVERRIDE) 
+ } 
+ DD_REASON_CODES__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, t24Name=INPUTTER) 
+ } 
+ DD_REASON_CODES__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=19.0, t24Name=DATE.TIME) 
+ } 
+ /* This application is used to purge the records in DD.DDI, DD.STANDALONE, DD.ITEM, DD.LINKS,  DD.PROCESS.LIST, DD.ACTIVITY DD.STANDALONE.FQU.LIST AND DD.HEADER by specifying criteria, which can accept a valid field name from the respective application along with a value.Records in the application can be purged on line by using "V" function or during End of day activities (by use of batch job DD.PURGE.FILES) */ 
+ DD_PURGE_FILES 
+ @t24:i (level=F, type=W, localRefAllowed=true) 
+ { 
+ /* Defines the name of the main record on the file.The single record on this file must always be named 'SYSTEM'.Validation RulesCan only be 'SYSTEM'. (Mandatory Input) */ 
+ DD_PURGE_ID : DD_Contract:DD_PURGE_FILES__DD_PURGE_ID PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=DD.PURGE.ID) 
+ 
+ APPL_NAME -> byValue DD_Contract:DD_PURGE_FILES__APPL_NAME * 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=5.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=6.0, t24Name=RESERVED.4) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=7.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=8.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=9.0, t24Name=RESERVED.1) 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_PURGE_FILES__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=12.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_PURGE_FILES__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_PURGE_FILES__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=17.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=19.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=20.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_PURGE_FILES__APPL_NAME 
+ { 
+ /* This holds the name of the Application for which purging is requiredValidation RulesCan only hold one of the following valuesDD.DDI, DD.STANDALONE, DD.ITEM, DD.LINKS,  DD.PROCESS.LIST, DD.ACTIVITY DD.STANDALONE.FQU.LIST AND DD.HEADERAssociated Multi-value field with fields from Appl.Name to Appl.Value */ 
+ APPL_NAME : DD_Contract:DD_PURGE_FILES__APPL_NAME__APPL_NAME required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, t24Name=APPL.NAME) 
+ 
+ APPL_FIELD -> byValue DD_Contract:DD_PURGE_FILES__APPL_NAME__APPL_FIELD * 
+ } 
+ DD_PURGE_FILES__APPL_NAME__APPL_FIELD 
+ { 
+ /* This contains the name of the Field used for selecting the records to be purged. To be used in combination with fields Appl opr and Appl Value for the purpose of selecting records for purging.Validation RulesAssociated sub value field till Appl. ValueMust hold valid field name from Application mentioned in Appl.Name. */ 
+ APPL_FIELD : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, t24Name=APPL.FIELD) 
+ 
+ /* It is the operand  used to decide the selection criteria for purging records of the Application mentioned in Appl.Name in combination with the value specified in Appl.Value field.Validation RulesIt can hold any of the following values : EQ, GE, GT, LE, LK, LT, NEMandatory Input FieldIt is an Associated Sub-value Field. */ 
+ APPL_OPR : DD_Contract:DD_PURGE_FILES__APPL_NAME__APPL_FIELD__APPL_OPR required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=3.0, t24Name=APPL.OPR) 
+ 
+ /* This is used to specify the value of the field specified in Appl. Name in combination with field Appl.Opr.  based on which the records will be selected for purging.For example.To purge records of DD.DDI for mandates which are cancelled  the following can be the set of values :1. 1 APPL.NAME...... DD.DDI2. 1. 1 APPL.FIELD.. STATUS3. 1. 1 APPL.OPR.... EQ4. 1. 1 APPL.VALUE.. CANCELLEDTo purge records of DD.STANDALONE  for records which were created before 1st Jan 2003 which are matured the following can be the set of values :1. 1 APPL.NAME...... DD.STANDALONE2. 1. 1 APPL.FIELD.. STATUS3. 1. 1 APPL.OPR.... EQ4. 1. 1 APPL.VALUE.. MATURED2. 1. 2 APPL.FIELD.. CREATE.DATE3. 1. 2 APPL.OPR.... LT4. 1. 2 APPL.VALUE.. 20030101Validation RulesIt is an Associated Sub-Value Field */ 
+ APPL_VALUE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, t24Name=APPL.VALUE) 
+ } 
+ DD_PURGE_FILES__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, t24Name=OVERRIDE) 
+ } 
+ DD_PURGE_FILES__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, t24Name=INPUTTER) 
+ } 
+ DD_PURGE_FILES__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=15.0, t24Name=DATE.TIME) 
+ } 
+ /* This file is updated during creation of DD.ITEM and contains the list of DD.ITEM & D.DDI  that are scheduled for a value date for each DD.PARAMETER. This is deleted once the claim file is generated for the value date & same is updated in DD.HEADER.All updates to this file are effected automatically by the system and the only functions users are allowed to perform are (L)IST, (S)EE and (P)RINT. */ 
+ DD_PROCESS_LIST 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This contains the id of the DD.PROCESS.LIST record.The format is DD.PARAMETER Id "-" value date "-" Mandate "-" Currency of DD.ITEMs stored in the file.e.g 1000-20050629-19038.1-USD */ 
+ PARAM_VAL_DATE : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, t24Name=PARAM.VAL.DATE) 
+ 
+ DD_ITEM -> byValue DD_Contract:DD_PROCESS_LIST__DD_ITEM * 
+ 
+ /* This field stores the sum amount of items processed during the file generation phase. The field will be cleared once the file is actually generated. */ 
+ TOT_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, t24Name=TOT.AMOUNT) 
+ 
+ /* This field stores the number of items processed during the file generation phase. The field will be cleared once the file is actually generated. */ 
+ NO_OF_RECS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=3.0, t24Name=NO.OF.RECS) 
+ 
+ /* This field stores the details of items processed during the file generation phase. The field will be cleared once the file is actually generated. */ 
+ OUTPUT_REC : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=38, sysNumber=4.0, t24Name=OUTPUT.REC) 
+ 
+ BULK_PROCESS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=5.0, t24Name=BULK.PROCESS) 
+ } 
+ DD_PROCESS_LIST__DD_ITEM 
+ { 
+ /* This contains the reference number of the DD.ITEM created for the DD.PARAMETER & value date as per the ID of this application. */ 
+ DD_ITEM : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=38, sysNumber=1.0, t24Name=DD.ITEM) 
+ } 
+ /* The main parameter record which contains details relating to the Direct Debit system the record is configured for. It contains details such as the Clearing Account category, Suspense Account category & Standalone mandate category. It is also used to specify the number of days before the value date that the claim file is to be submitted/resubmitted; the number of days after which a file is moved to history; whether standalone mandates are allowed and the currencies and holiday regions to be checked. One parameter record is used for each Direct Debit system or sub-system. Each can have their own set of records which configure the formats of the inward & outward claim files, reason codes and claim cycles. This may be where several sort codes are used in the same clearing system and which are submitted individually; or where claims are made in different currency systems. */ 
+ DD_PARAMETER 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* The id can accept up to 4 numeric character. This id is linked to DD.DDI and the details given here is used during processing of DD.Items. Validation Rules Mandatory field 1-4 Numeric Character's. */ 
+ DD_PARAM_ID : mml:string PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=0.0, t24Name=DD.PARAM.ID) 
+ 
+ DESCRIPTION -> byValue DD_Contract:DD_PARAMETER__DESCRIPTION * 
+ 
+ /* Specify the Account class which should be used while generating STMT.ENTRY related to DD.DDI item. This account is debited during claim accounting, Resubmission process & credited when an Item is returned. Validation Rules Mandatory Must be the key to a valid record on the ACCOUNT.CLASS with record type as ACCOUNT. Override is given when ACCOUNT record not available for the combination of Local currency, ACCOUNT.CLASS & ACCOUNT.OFFICER as given in this parameter. */ 
+ DDI_ACCT_CLASS -> ACM_AccountOpening:ACCOUNT_CLASS required 
+ @i18n:Label (en="DDI Account Class") 
+ @i18n:Tooltip (en="DDI Account Class") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=2.0, t24Name=DDI.ACCT.CLASS) 
+ 
+ /* The Account class which should be used while generating STMT.ENTRY related to standalone mandates This account is debited during claim accounting, Resubmission process & credited when an Item is returned. Validation Rules Mandatory Must be the key to a valid record on the ACCOUNT.CLASS with record type as ACCOUNT. An error is given when the ACCOUNT record not available for the combination of Currency, ACCOUNT.CLASS & ACCOUNT.OFFICER as input in this parameter. */ 
+ STD_ACCT_CLASS -> ACM_AccountOpening:ACCOUNT_CLASS required 
+ @i18n:Label (en="Std acct class") 
+ @i18n:Tooltip (en="Std acct class") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=3.0, t24Name=STD.ACCT.CLASS) 
+ 
+ /* The Account class which should be used while generating STMT.ENTRY when an incoming Claim account is not a valid account in T24. Validation Rules Mandatory Must be the key to a valid record on the ACCOUNT.CLASS with record type as ACCOUNT. An error is given when the ACCOUNT record not available for the combination of Currency, ACCOUNT.CLASS & ACCOUNT.OFFICER as input in this parameter. */ 
+ SUSP_ACCT_CLASS -> ACM_AccountOpening:ACCOUNT_CLASS required 
+ @i18n:Label (en="Susp acct class") 
+ @i18n:Tooltip (en="Susp acct class") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=4.0, t24Name=SUSP.ACCT.CLASS) 
+ 
+ /* Defines the directory wherein the generated outward claim file to be stored. Validation Rules Optional field.Becomes mandatory for EXTERNAL DD processing. Must be a type 1 or 19 file. */ 
+ OUTWARD_FILE_LOC : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=5.0, t24Name=OUTWARD.FILE.LOC) 
+ 
+ /* The format of the record id of the claim file. To generate the record name along with the processing date-specify the  name suffixed with "<DATE>". For example:  DDOUT<DATE> which will generate file DDOUT20030101; the record will be in the location specified in the OUTWARD.FILE.LOC field. The claim file is generated using the format given in DD.OUT.FORMAT field. Validation Rules Optional field.Optional field. Becomes mandatory for EXTERNAL DD processing. 1-11 Alpha Numeric Character's */ 
+ OUTWARD_RECORD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=6.0, t24Name=OUTWARD.RECORD) 
+ 
+ /* Defines the directory where the inward claim file received from clearing agency is available. Currently the inward file location & file is given for information purpose and the local interface has to be written to create the DD.ITEM and Inward claim processing Accounting entries using the details given here. Validation Rules Optional field. Must be a type 1 or 19 file. */ 
+ INWARD_FILE_LOC : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=7.0, t24Name=INWARD.FILE.LOC) 
+ 
+ /* Specify name of the inward file which is available in the directory specified in the previous field. Validation Rules Optional field. 1-11 Alpha numeric Character */ 
+ INWARD_RECORD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=8.0, t24Name=INWARD.RECORD) 
+ 
+ /* Specify the directory where in a copy of the generated Claim file will be stored. During Claim file generation process, system creates a backup of the generated file in this directory with the name given in OUTWARD.RECORD suffixed with System.Date. Validation Rules Optional field 1-11 Alpha Numeric Character's */ 
+ HIST_FILE_LOC : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=9.0, t24Name=HIST.FILE.LOC) 
+ 
+ /* Specify the number of days after the date of creation of history files to be deleted from HIST.FILE.LOC. This is handled during SOD batch process. Validation Rules Optional field Valid value -3 Numeric character's denotes the calendar days. */ 
+ HIST_FILE_DAYS : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=10.0, t24Name=HIST.FILE.DAYS) 
+ 
+ /* Specify the format based on which the outward claim file to be generated. This is the link to the clearing system and based on the clearing system, the reason codes as applicable for various events like first claim after DDI lodgment, Direct Debit claim, return , reject etc are populated. Validation Rules Optional field.Becomes mandatory for EXTERNAL DD processing.  Must be a valid record in DD.OUT.FORMAT. */ 
+ DD_OUT_FORMAT -> DD_Contract:DD_OUT_FORMAT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, t24Name=DD.OUT.FORMAT) 
+ 
+ /* Specify the file format for inward claim file. This format can be used to decode the incoming claim file details & Accounting entries can be raised using local accounting interface. Validation Rules Optional field. Must be a valid record in DD.IN.FORMAT */ 
+ DD_IN_FORMAT -> DD_Contract:DD_IN_FORMAT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, t24Name=DD.IN.FORMAT) 
+ 
+ /* The status of the mandate which is sent to the Customer's Bank can be updated to  AVILABLE (ie. "Ready for use") manually after receiving the confirmation or after the elapse of number of days as specified here. Incase the status is not changed manually, after the lapse of the period specified here, during end of day process, the DD.DDI status is automatically changes to " AVAILABLE " from its old Status "ADVISED". Validation Rules Optional field Valid values - nnC/W ( ie. 02W or 02C where W/C means Working or Calendar days) or NULL */ 
+ DDI_AVAIL_PRD : mml:string 
+ @i18n:Label (en="DDI avail prd") 
+ @i18n:Tooltip (en="DDI avail prd") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=13.0, t24Name=DDI.AVAIL.PRD) 
+ 
+ /* Here you can specify the Number of days before a value date of a claim, the outward claim file is to be generated. This is the date on which file will be generated and as on this value date claim accounting entries are raised.  Hence while giving the  frequency date in MORTGAGE contract or DD.DDI application, claim date period has to be taken into account. For example When this field is given as 02C (2 Calendar days) & System date is 01 Jan then all claim which have the value date between 01 Jan to 03 Jan are picked for file generation process on 01Jan with the Value date & file date as 03 Jan. The Claim Accounting entries are raised on the value date i.e. 03 Jan. If this field is blank then it means that the outward file will be generated only on the respective value date. Validation Rules Optional field Valid values nnW/C (ie 02W or 02 C -where W-Working days & C-Calender days) or Null. */ 
+ CLAIM_DATE_PRD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=14.0, t24Name=CLAIM.DATE.PRD) 
+ 
+ /* Specify when the Forward entries to be generated in case the scheduled date is a holiday. When this field is set to "Yes"  & Claim is scheduled on a holiday, in such case the file generation, claim accounting and cycling of frequency (For Standalone DDI's) is done on the previous working day before the scheduled date. When this field is set to NULL, then the Claim entry, Claim accounting and cycling of frequency for Standalone DDI's is raised only on next working day incase the scheduled date is a holiday. Hence based on the Clearing practice (to claim before or after the scheduled date)  this field can be set. Validation Rules Optional field Valid values "Y" or Null. */ 
+ CLAIM_HOL_IND : DD_Contract:DD_PARAMETER__CLAIM_HOL_IND 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=15.0, t24Name=CLAIM.HOL.IND) 
+ 
+ /* The number of days after which the DD.ITEM which is returned can be resubmitted & funds can be received automatically. In other words it is the value date on which the resubmitted DD item will be claimed through Clearing Agency. In case this field is left null then during DD return processing the resubmit value date can be given manually in DD.RETURN Application. Otherwise when the resubmit value date is not given, then based on the number of days specified here & days given in CLAIM.DATE.PRD, the resubmit value date is defaulted in DD.RETURN application automatically. For example In this field 02C specified with system date-01 Jan and CLAIM.DATE.PRD is given as 02C. In such case when an item is returned on 01 Jan, the resubmit Value date is defaulted as 05 Jan.(ie 01 Jan + 02 C + 02C). Validation Rules Optional field Valid values nnW/c (ie. 02W or 02C where C-Calender days or W-Working days) or NULL */ 
+ RESUB_DATE_PRD : mml:string 
+ @i18n:Label (en="Resub date prd") 
+ @i18n:Tooltip (en="Resub date prd") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=16.0, t24Name=RESUB.DATE.PRD) 
+ 
+ /* The usage of DD.DDI can be contract driven or standalone. The extra processing and fields used for standalone processing in DD.DDI are allowed according to this setting. A value of Yes means that standalone processing can be used and key fields on the DD.DDI will be permitted and validated. Validation Rules Optional field. Valid values "Yes" or Null */ 
+ ALLOW_DD_STD : DD_Contract:DD_PARAMETER__ALLOW_DD_STD 
+ @i18n:Label (en="Allow dd std") 
+ @i18n:Tooltip (en="Allow dd std") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=17.0, t24Name=ALLOW.DD.STD) 
+ 
+ /* The DEPT.ACCT.OFFICER which is to be used to build the Account(s) related to the DD Module & also the Dept Code to be used in STMT.ENTRY. The Account that is used for Claim Accounting is is based on the Currency, Account.Class and the Account.Officer given in this parameter. If a valid ACCOUNT is not available a system error message will be given as the Account is mandatory for correct operation of the Direct Debit system. Validation Rules Mandatory Must be the key to a valid record on the DEPT.ACCT.OFFICER file. */ 
+ ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER required 
+ @i18n:Label (en="Account Officer") 
+ @i18n:Tooltip (en="Indicates Account Officer responsible") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=18.0, t24Name=ACCOUNT.OFFICER) 
+ 
+ /* States whether to send (or not) advices related to this parameter. This field is not currently used and is reserved for future amendments. Validation Rules Optional field-Default to "Yes" Value values "Yes" or "No" or Null */ 
+ SEND_ADVICE : DD_Contract:DD_PARAMETER__SEND_ADVICE 
+ @i18n:Label (en="Send Advice") 
+ @i18n:Tooltip (en="Transmission of the advice") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=19.0, t24Name=SEND.ADVICE) 
+ 
+ CURRENCY -> byValue DD_Contract:DD_PARAMETER__CURRENCY * 
+ 
+ /* If “YES” then the mandate (DD.DDI) should be created automatically from the inbound message and if set to “NO” then, the DD.DDI mandate should be created manually before inbound message received. Validation rules: Optional Input.  If it is not inputted then it will be defaulted to “NO”. */ 
+ UPDATE_MANDATE : DD_Contract:DD_PARAMETER__UPDATE_MANDATE 
+ @i18n:Label (en="Update Mandate") 
+ @i18n:Tooltip (en="Update Mandate") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=22.0, t24Name=UPDATE.MANDATE) 
+ 
+ /* Description: Specifies the API that  will be used to construct the DD.DDI record.   Validation rules:  It is mandatory when UPDATE.MANDATE is set to YES and No input when UPDATE.MANDATE is set to NO.  If inputted it should be a valid routine defined in PGM of “S” type. */ 
+ UPDATE_MANDATE_RTN : mml:string 
+ @i18n:Label (en="Update Mandate Rtn") 
+ @i18n:Tooltip (en="Update Mandate Rtn") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, t24Name=UPDATE.MANDATE.RTN) 
+ 
+ /* This field can have any one of the values SAO, SNP or SSS. This MODE will be used in ACCOUNTING process, when CLAIM processing happens for an INTERNAL DD on CLAIM date. System defaults it to SAO. */ 
+ ACCOUNTING_MODE : DD_Contract:DD_PARAMETER__ACCOUNTING_MODE 
+ @i18n:Label (en="Accounting Mode") 
+ @i18n:Tooltip (en="Accounting Mode") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=24.0, t24Name=ACCOUNTING.MODE) 
+ 
+ /* This field can have the value as YES or NO. When processing an INTERNAL DD.ITEM on CLAIM date, if this is set to YES, INWARD DD.DDI and DD.ITEM will be created by the system automatically when processing an INTERNAL DD.ITEM on CLAIM date and if set to NO it will not be created. System defaults it to NO. */ 
+ UPDATE_INT_MANDATE : DD_Contract:DD_PARAMETER__UPDATE_INT_MANDATE 
+ @i18n:Label (en="Update Int Mandate") 
+ @i18n:Tooltip (en="Update Int Mandate") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=25.0, t24Name=UPDATE.INT.MANDATE) 
+ 
+ RESERVED04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=26.0, t24Name=RESERVED04) 
+ 
+ RESERVED03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=27.0, t24Name=RESERVED03) 
+ 
+ RESERVED02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, t24Name=RESERVED02) 
+ 
+ RESERVED01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, t24Name=RESERVED01) 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_PARAMETER__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=32.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=33.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_PARAMETER__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_PARAMETER__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=36.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=37.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=38.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=39.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=40.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_PARAMETER__DESCRIPTION 
+ { 
+ /* Give the description related to the ID. The details given here appears as an enrichment when this id is used in other DD applications. Validation Rules 1-35 type A (alphanumeric) characters. Multilanguage field. (Mandatory input). */ 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, t24Name=DESCRIPTION) 
+ } 
+ DD_PARAMETER__CURRENCY 
+ { 
+ /* The currency of the Direct Debit system this parameter relates to. It can be set to any valid currency. This field enables the processing of mandates and accounts in the specified currencies. Validation Rules 3 characters (uppercase alpha) - type SSS, or 1-3 numeric character Currency Code. Mandatory field Must be the key to a valid entry on the CURRENCY file. Multi-value field associated with BUS.CENTRE */ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=20.0, t24Name=CURRENCY) 
+ 
+ /* The countries/regions whose calendars will be checked for holidays for the currencies associated.  Where the direct debit system is based in another country/region then this field allows the holidays to be checked against their calendar in addition to the system holidays so claims can be sent in a timely manner. Validation Rules 2-4 type A (alphanumeric) characters The code must have a valid entry on the REGION and HOLIDAY tables. Mandatory field associated with CURRENCY */ 
+ BUS_CENTRE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=21.0, t24Name=BUS.CENTRE) 
+ } 
+ DD_PARAMETER__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, t24Name=OVERRIDE) 
+ } 
+ DD_PARAMETER__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=34.0, t24Name=INPUTTER) 
+ } 
+ DD_PARAMETER__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=35.0, t24Name=DATE.TIME) 
+ } 
+ DD_OUT_FORMAT 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ CLR_SYSTEM_SEQ : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, t24Name=CLR.SYSTEM.SEQ) 
+ 
+ DESCRIPTION -> byValue DD_Contract:DD_OUT_FORMAT__DESCRIPTION * 
+ 
+ HDR_FIELD_NAME -> byValue DD_Contract:DD_OUT_FORMAT__HDR_FIELD_NAME * 
+ 
+ DATA_FIELD_NAME -> byValue DD_Contract:DD_OUT_FORMAT__DATA_FIELD_NAME * 
+ 
+ FTR_FIELD_NAME -> byValue DD_Contract:DD_OUT_FORMAT__FTR_FIELD_NAME * 
+ 
+ RESERVED10 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=22.0, t24Name=RESERVED10) 
+ 
+ RESERVED09 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=23.0, t24Name=RESERVED09) 
+ 
+ RESERVED08 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=24.0, t24Name=RESERVED08) 
+ 
+ RESERVED07 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=25.0, t24Name=RESERVED07) 
+ 
+ RESERVED06 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=26.0, t24Name=RESERVED06) 
+ 
+ RESERVED05 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=27.0, t24Name=RESERVED05) 
+ 
+ RESERVED04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, t24Name=RESERVED04) 
+ 
+ RESERVED03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, t24Name=RESERVED03) 
+ 
+ RESERVED02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=30.0, t24Name=RESERVED02) 
+ 
+ RESERVED01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, t24Name=RESERVED01) 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_OUT_FORMAT__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=34.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=35.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_OUT_FORMAT__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_OUT_FORMAT__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=38.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=39.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=40.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=41.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=42.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_OUT_FORMAT__DESCRIPTION 
+ { 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, t24Name=DESCRIPTION) 
+ } 
+ DD_OUT_FORMAT__HDR_FIELD_NAME 
+ { 
+ HDR_FIELD_NAME : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, t24Name=HDR.FIELD.NAME) 
+ 
+ HDR_FIELD_LINK : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=3.0, t24Name=HDR.FIELD.LINK) 
+ 
+ HDR_SPL_TEXT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, t24Name=HDR.SPL.TEXT) 
+ 
+ HDR_LEN_MASK : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, t24Name=HDR.LEN.MASK) 
+ 
+ HDR_FIELD_RTN : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, t24Name=HDR.FIELD.RTN) 
+ 
+ HDR_INCL_FIELD : DD_Contract:DD_OUT_FORMAT__HDR_FIELD_NAME__HDR_INCL_FIELD 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=7.0, t24Name=HDR.INCL.FIELD) 
+ 
+ HDR_RESERVED : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, t24Name=HDR.RESERVED) 
+ } 
+ DD_OUT_FORMAT__DATA_FIELD_NAME 
+ { 
+ DATA_FIELD_NAME : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, t24Name=DATA.FIELD.NAME) 
+ 
+ DATA_FIELD_LINK : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=10.0, t24Name=DATA.FIELD.LINK) 
+ 
+ DATA_SPL_TEXT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, t24Name=DATA.SPL.TEXT) 
+ 
+ DATA_LEN_MASK : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, t24Name=DATA.LEN.MASK) 
+ 
+ DATA_FIELD_RTN : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=13.0, t24Name=DATA.FIELD.RTN) 
+ 
+ DATA_INCL_FIELD : DD_Contract:DD_OUT_FORMAT__DATA_FIELD_NAME__DATA_INCL_FIELD 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=14.0, t24Name=DATA.INCL.FIELD) 
+ } 
+ DD_OUT_FORMAT__FTR_FIELD_NAME 
+ { 
+ FTR_FIELD_NAME : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=15.0, t24Name=FTR.FIELD.NAME) 
+ 
+ FTR_FIELD_LINK : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=16.0, t24Name=FTR.FIELD.LINK) 
+ 
+ FTR_SPL_TEXT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=17.0, t24Name=FTR.SPL.TEXT) 
+ 
+ FTR_LEN_MASK : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=18.0, t24Name=FTR.LEN.MASK) 
+ 
+ FTR_FIELD_RTN : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, t24Name=FTR.FIELD.RTN) 
+ 
+ FTR_INCL_FIELD : DD_Contract:DD_OUT_FORMAT__FTR_FIELD_NAME__FTR_INCL_FIELD 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=20.0, t24Name=FTR.INCL.FIELD) 
+ 
+ FTR_RESERVED : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, t24Name=FTR.RESERVED) 
+ } 
+ DD_OUT_FORMAT__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=33.0, t24Name=OVERRIDE) 
+ } 
+ DD_OUT_FORMAT__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=36.0, t24Name=INPUTTER) 
+ } 
+ DD_OUT_FORMAT__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=37.0, t24Name=DATE.TIME) 
+ } 
+ /* This file serves as a link between the mandate & the underlying contract id's and the contract ids can be MG contracts/Standalone DDI's / Resubmitted DDI's, which use this mandate. All updates to this file are effected automatically by the system and the only functions users are allowed to perform are (L)IST, (S)EE and (P)RINT. */ 
+ DD_LINKS 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* The id of this file is a mandate id (as defined in DD.DDI) */ 
+ MANDATE_REF : mml:string PK required 
+ @i18n:Label (en="Mandate Ref") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, t24Name=MANDATE.REF) 
+ 
+ CONTRACT_REF -> byValue DD_Contract:DD_LINKS__CONTRACT_REF * 
+ } 
+ DD_LINKS__CONTRACT_REF 
+ { 
+ /* This contains the MG contract id  / Standalone DDI reference / Resubmitted DDI reference- which is using this mandate. */ 
+ CONTRACT_REF : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=1.0, t24Name=CONTRACT.REF) 
+ } 
+ DD_ITEM 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ DD_ID : mml:string PK required 
+ @i18n:Label (en="DD Id") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, t24Name=DD.ID) 
+ 
+ DIRECTION : DD_Contract:DD_ITEM__DIRECTION required 
+ @i18n:Label (en=Direction) 
+ @i18n:Tooltip (en="In or Out") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=1.0, t24Name=DIRECTION) 
+ 
+ MANDATE_REF : mml:string 
+ @i18n:Label (en="Mandate Ref") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=2.0, t24Name=MANDATE.REF) 
+ 
+ ORIG_ENTRY_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, t24Name=ORIG.ENTRY.ID) 
+ 
+ CREATE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, t24Name=CREATE.DATE) 
+ 
+ CONTRACT_REF : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, t24Name=CONTRACT.REF) 
+ 
+ ACCOUNT_NO -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en=Account) 
+ @i18n:Tooltip (en="Indicates Customer Account Number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=6.0, t24Name=ACCOUNT.NO) 
+ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, t24Name=CURRENCY) 
+ 
+ AMOUNT : mml:string 
+ @i18n:Label (en=Amount) 
+ @i18n:Tooltip (en="Indicates the Amount") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, t24Name=AMOUNT) 
+ 
+ THEIR_REFERENCE : mml:string 
+ @i18n:Label (en="Their Ref") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, t24Name=THEIR.REFERENCE) 
+ 
+ OUR_REFERENCE : mml:string 
+ @i18n:Label (en="Transaction Ref") 
+ @i18n:Tooltip (en="Our Reference") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, t24Name=OUR.REFERENCE) 
+ 
+ ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Account Officer") 
+ @i18n:Tooltip (en="Indicates Account Officer responsible") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, t24Name=ACCOUNT.OFFICER) 
+ 
+ VALUE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @i18n:Tooltip (en="Indicates the date the Portfolios will be updated by the event") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, t24Name=VALUE.DATE) 
+ 
+ BOOKING_DATE : mml:string 
+ @i18n:Label (en="Booking Date") 
+ @i18n:Tooltip (en="Booking Date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, t24Name=BOOKING.DATE) 
+ 
+ CLAIM_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=14.0, t24Name=CLAIM.DATE) 
+ 
+ CURRENCY_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET 
+ @i18n:Label (en=Market) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=15.0, t24Name=CURRENCY.MARKET) 
+ 
+ ORIG_DD_ITEM_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=16.0, t24Name=ORIG.DD.ITEM.ID) 
+ 
+ RESUB_DD_ID -> byValue DD_Contract:DD_ITEM__RESUB_DD_ID * 
+ 
+ REASON_CODE : mml:string 
+ @i18n:Label (en="Reason code") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=18.0, t24Name=REASON.CODE) 
+ 
+ STATUS : mml:string 
+ @i18n:Label (en=Status) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, t24Name=STATUS) 
+ 
+ STATUS_HIST -> byValue DD_Contract:DD_ITEM__STATUS_HIST * 
+ 
+ MATURE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, t24Name=MATURE.DATE) 
+ 
+ OUTPUT_REC_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=23.0, t24Name=OUTPUT.REC.ID) 
+ 
+ PARAM_ID -> DD_Contract:DD_PARAMETER 
+ @i18n:Label (en="Parameter Id") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=24.0, t24Name=PARAM.ID) 
+ 
+ REASON_CODE_ID -> DD_Contract:DD_REASON_CODES 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=25.0, t24Name=REASON.CODE.ID) 
+ 
+ REQUEST_TYPE : mml:string 
+ @i18n:Label (en="Request Type") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=26.0, t24Name=REQUEST.TYPE) 
+ 
+ SUSP_FT_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=27.0, t24Name=SUSP.FT.ID) 
+ 
+ RESERVED04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, t24Name=RESERVED04) 
+ 
+ RESERVED03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, t24Name=RESERVED03) 
+ 
+ RESERVED02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=30.0, t24Name=RESERVED02) 
+ 
+ RESERVED01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, t24Name=RESERVED01) 
+ 
+ STMT_NOS -> byValue DD_Contract:DD_ITEM__STMT_NOS * 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_ITEM__OVERRIDE * 
+ } 
+ DD_ITEM__RESUB_DD_ID 
+ { 
+ RESUB_DD_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=17.0, t24Name=RESUB.DD.ID) 
+ } 
+ DD_ITEM__STATUS_HIST 
+ { 
+ STATUS_HIST : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, t24Name=STATUS.HIST) 
+ 
+ STATUS_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, t24Name=STATUS.DATE) 
+ } 
+ DD_ITEM__STMT_NOS 
+ { 
+ STMT_NOS : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, t24Name=STMT.NOS) 
+ } 
+ DD_ITEM__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=33.0, t24Name=OVERRIDE) 
+ } 
+ /* The DD.ITEM.REJECT application is used to reject inward claims which are received.  In this application the mandate reference, Currency, Amount, Inward account etc can be given, which in turn can create a DD.ITEM with direction as "INWARD". These details can be sent to the bank that originally sent the Claim along with return reason. However the file generation as per the required file format and rejection accounting has to be handled through local interface.Records can be created manually or can be populated using local OFS routines. Since the record creation conditions are handled locally there is no validation performed for any of the fields other than those mentioned in the respective field level help. */ 
+ DD_ITEM_REJECT 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* Contains the Id of the DD.ITEM.REJECT record.Validation RulesIt is of the form DDJ/Julian date/sequence noThe sequence number can be from 0-99999 */ 
+ DD_REJECT_ID : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, t24Name=DD.REJECT.ID) 
+ 
+ /* Specify the DD.PARAMETER ID for which the inward item has been rejected.Validation Rules1 to 4 characters alphanumeric Mandatory field */ 
+ DD_PARAMETER_ID : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=1.0, t24Name=DD.PARAMETER.ID) 
+ 
+ /* The Inward mandate reference of the item to be returned can be entered here.Validation Rules1-35 characters, alphanumericoptional field */ 
+ MANDATE_REF -> DD_Contract:DD_DDI 
+ @i18n:Label (en="Mandate Ref") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, t24Name=MANDATE.REF) 
+ 
+ /* The account for which the claim received is being rejected. Validation RulesMandatory Input field1-25 Alphanumeric Characters */ 
+ INWARD_ACCOUNT : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=3.0, t24Name=INWARD.ACCOUNT) 
+ 
+ /* Defines the Currency of the DD.ITEM  being rejected.Validation RulesIf input, it must be equal to the local Currency3 characters (uppercase alpha) - type SSS or 1-3 numeric character Currency Code. (Optional input.)Optional field */ 
+ CURRENCY : mml:string 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, t24Name=CURRENCY) 
+ 
+ /* Amount of return/ rejectionValidation RulesOptional field  1-14 digits including  a decimal point (Standard Amount format) */ 
+ AMOUNT : mml:string required 
+ @i18n:Label (en=Amount) 
+ @i18n:Tooltip (en="Indicates the Amount") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, t24Name=AMOUNT) 
+ 
+ /* Customer number of the account for which the Item is being rejectedValidation Rulesoptional input field1-10 alphanumeric characters */ 
+ CUSTOMER_NO : mml:string 
+ @i18n:Label (en="Customer No") 
+ @i18n:Tooltip (en="Identifies the Customer for the transaction.") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=6.0, t24Name=CUSTOMER.NO) 
+ 
+ /* The date on which the Item is to be rejected is mentioned here.Validation RulesUp to 9 date characters (standard Date format) - type D.Optional Field */ 
+ REJECT_VAL_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, t24Name=REJECT.VAL.DATE) 
+ 
+ /* The date on which the Item to be rejected gets created can be populated hereValidation RulesUp to 9 date characters (standard Date format) - type D.Optional Field */ 
+ CREATE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, t24Name=CREATE.DATE) 
+ 
+ /* This field to hold the reason for the item rejection. */ 
+ REJECT_REASON : mml:string 
+ @i18n:Label (en="Reject Reason") 
+ @i18n:Tooltip (en="Indicates the reason for rejection") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=9.0, t24Name=REJECT.REASON) 
+ 
+ /* This field to hold the inward claim that we have received, that lead to the rejection of the claim and is responsible for the creation of DD.ITEM.REJECT. */ 
+ REJECT_MSG_CONT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=10.0, t24Name=REJECT.MSG.CONT) 
+ 
+ /* The clearing system reference which can be used for populating in the Inward rejects file.Validation RulesOptional Input Field1-35 Alphanumeric Characters */ 
+ CLEAR_SYS_REF : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, t24Name=CLEAR.SYS.REF) 
+ 
+ /* The account from which the claim was received and is being rejected. Validation RulesOptional Input field1-35 Alphanumeric Characters */ 
+ BEN_ACCOUNT_NO : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, t24Name=BEN.ACCOUNT.NO) 
+ 
+ /* For controlling the creation of DD.ITEM. If Y then a  new DD.ITEM will be created-However the accounting related to rejection has to be handled using local interface.Validation RulesOptional input field Y, N & blank are allowed */ 
+ CREATE_DD_ITEM : DD_Contract:DD_ITEM_REJECT__CREATE_DD_ITEM 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=13.0, t24Name=CREATE.DD.ITEM) 
+ 
+ /* This can hold the status of the Item being rejected.Validation RulesOptional input field1-35 Alphanumeric Characters */ 
+ STATUS : mml:string 
+ @i18n:Label (en=Status) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=14.0, t24Name=STATUS) 
+ 
+ STATUS_HIST -> byValue DD_Contract:DD_ITEM_REJECT__STATUS_HIST * 
+ 
+ RESERVED10 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, t24Name=RESERVED10) 
+ 
+ RESERVED09 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=19.0, t24Name=RESERVED09) 
+ 
+ RESERVED08 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=20.0, t24Name=RESERVED08) 
+ 
+ RESERVED07 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, t24Name=RESERVED07) 
+ 
+ RESERVED06 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=22.0, t24Name=RESERVED06) 
+ 
+ RESERVED05 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=23.0, t24Name=RESERVED05) 
+ 
+ RESERVED04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=24.0, t24Name=RESERVED04) 
+ 
+ RESERVED03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=25.0, t24Name=RESERVED03) 
+ 
+ RESERVED02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=26.0, t24Name=RESERVED02) 
+ 
+ RESERVED01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=27.0, t24Name=RESERVED01) 
+ 
+ STMT_NOS -> byValue DD_Contract:DD_ITEM_REJECT__STMT_NOS * 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_ITEM_REJECT__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=30.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=31.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_ITEM_REJECT__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_ITEM_REJECT__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=34.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=35.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=36.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=37.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=38.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_ITEM_REJECT__STATUS_HIST 
+ { 
+ /* The previous status can be stored here. Validation RulesNo Input Field, 1-35 Alphanumeric Characters. */ 
+ STATUS_HIST : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, t24Name=STATUS.HIST) 
+ 
+ /* The date of the previous status can be stored here.    Validation RulesNo Input Field */ 
+ STATUS_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=16.0, t24Name=STATUS.DATE) 
+ } 
+ DD_ITEM_REJECT__STMT_NOS 
+ { 
+ /* This field holds the statement nos created during rejection accounting. NOINPUT field. */ 
+ STMT_NOS : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, t24Name=STMT.NOS) 
+ } 
+ DD_ITEM_REJECT__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, t24Name=OVERRIDE) 
+ } 
+ DD_ITEM_REJECT__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=32.0, t24Name=INPUTTER) 
+ } 
+ DD_ITEM_REJECT__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=33.0, t24Name=DATE.TIME) 
+ } 
+ /* Each clearing system has their prescribed file format for Outward & Inward claim submission and return.  Incoming claims can be processed directly using a local Accounting interface without creating DD.ITEM.However for future reference, claim details are required then the using a local interface, which should deconstruct the incoming file with the details as given in DD.IN.FORMAT and map the same to DD.ITEM.Hence in this application, the field name related to DD.ITEM along with the field position in incoming file from which the details to be taken can be given . Also routine can be attached to populate the values which is not available in the incoming claim file. */ 
+ DD_IN_FORMAT 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* The id to this application is a clearing system which is defined in DD.REASON.CODES application.This can be linked to DD.PARAMETER in inward file format field. However local interface has to be used to deconstruct the incoming claim file details.Validation RulesMandatory fieldMust be a valid record in DD.REASON.CODES. */ 
+ CLEARING_SYSTEM_ : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=CLEARING.SYSTEM.) 
+ 
+ DESCRIPTION -> byValue DD_Contract:DD_IN_FORMAT__DESCRIPTION * 
+ 
+ /* The delimiter used to deconstruct the data from the inward file contents. If the field is blank, then the DATA.LENGTH becomes mandatory. If the delimiter is repesent as <NNN>, then it indicates that the delimiter is specified in ASCII character and the given value inside the bracket is used as CHARX(NNN) during decoding of data.Validation RulesOptional field1-5 characters */ 
+ FIELD_DELIMITER : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=2.0, t24Name=FIELD.DELIMITER) 
+ 
+ DATA_FIELD -> byValue DD_Contract:DD_IN_FORMAT__DATA_FIELD * 
+ 
+ RESERVED10 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, t24Name=RESERVED10) 
+ 
+ RESERVED09 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, t24Name=RESERVED09) 
+ 
+ RESERVED08 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, t24Name=RESERVED08) 
+ 
+ RESERVED07 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, t24Name=RESERVED07) 
+ 
+ RESERVED06 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, t24Name=RESERVED06) 
+ 
+ RESERVED05 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, t24Name=RESERVED05) 
+ 
+ RESERVED04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, t24Name=RESERVED04) 
+ 
+ RESERVED03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, t24Name=RESERVED03) 
+ 
+ RESERVED02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, t24Name=RESERVED02) 
+ 
+ RESERVED01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, t24Name=RESERVED01) 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_IN_FORMAT__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=21.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_IN_FORMAT__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_IN_FORMAT__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=25.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=26.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=27.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=28.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=29.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_IN_FORMAT__DESCRIPTION 
+ { 
+ /* Describes a DD Inward  format file and same is used as an enrichment when it is referred in other application.Descriptions may be entered in each of the languages defined in the LANGUAGE table.Validation Rules3-35 type A (alphanumeric) characters. Multilanguage field. (Mandatory input) */ 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, t24Name=DESCRIPTION) 
+ } 
+ DD_IN_FORMAT__DATA_FIELD 
+ { 
+ /* Specify the field name to which this data to be mapped. Currently the details can be mapped to DD.ITEM hence it should contain a valid field name from DD.ITEM.Validation RulesMandatory fieldShould be a valid field name in DD.ITEM. */ 
+ DATA_FIELD : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, t24Name=DATA.FIELD) 
+ 
+ /* If FIELD.DELIMITER is blank then this field indicates the starting position for the data to be extracted.If FIELD.DELIMITER is set then this field indicates the field number for the delimiter.Validation RulesMandatory field1-5 Numeric characters */ 
+ DATA_START : mml:string required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=4.0, t24Name=DATA.START) 
+ 
+ /* If FIELD.DELIMITER is blank, then this field indicates the length of the data to be mapped to DD.ITEM.If FIELD.DELIMITER is present, then this field is insignificant.Validation RulesOptional field1-5 Numeric character */ 
+ DATA_LENGTH : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=5.0, t24Name=DATA.LENGTH) 
+ 
+ /* When the incoming file has multi values and this field can be used to specify the multi value no to which the data can be mapped.Validation RulesOptional field1-5 Alphanumeric Characters */ 
+ MULTI_VAL_NO : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=6.0, t24Name=MULTI.VAL.NO) 
+ 
+ /* When the incoming file has Sub values and this field can be used to specify the Sub value numer to which the data can be mapped.Validation RulesOptional field1-5 Alphanumeric Characters */ 
+ SUB_VAL_NO : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=7.0, t24Name=SUB.VAL.NO) 
+ 
+ /* Specify the routine which should be used to populate the field value in DD.ITEMThe routine given here should be prefixed with "@".Validation RulesOptional fieldShould be a valid record in PGM.FILERoutine should be cataloged and VOC pointer should be available. */ 
+ DATA_MAP_RTN : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, t24Name=DATA.MAP.RTN) 
+ } 
+ DD_IN_FORMAT__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=20.0, t24Name=OVERRIDE) 
+ } 
+ DD_IN_FORMAT__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, t24Name=INPUTTER) 
+ } 
+ DD_IN_FORMAT__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=24.0, t24Name=DATE.TIME) 
+ } 
+ /* This file contains records for each claim file processed and provides summary information on the production time, item total and amount total for the file. */ 
+ DD_HEADER 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* The key to the file is comprised of:DD.PARAMETER id - Claim Date - CurrencyExample 1000-20050626-USDValidation RulesSystem created record */ 
+ PARAM_DATE : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, t24Name=PARAM.DATE) 
+ 
+ DIRECTION -> byValue DD_Contract:DD_HEADER__DIRECTION * 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=8.0, t24Name=RESERVED.1) 
+ } 
+ DD_HEADER__DIRECTION 
+ { 
+ /* This field indicates the firect of the claim file. Since the DD.HEADER is normally produced for outgoing files this would normally be OUTWARD. However, if local devlopments update the file for incoming then the direction would be INWARD.Validation RulesSystem created valueEither a value of OUTWARD or INWARD */ 
+ DIRECTION : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, t24Name=DIRECTION) 
+ 
+ /* Each clearing system is usually based on a Sort Code and will have a unique DD.PARAMETER id to identify it and it's component files. This is the record id of the DD.PARAMETER file which controls the options and settings of this claim file. */ 
+ CLEARING_SYSTEM : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, t24Name=CLEARING.SYSTEM) 
+ 
+ /* The system date and time when the process created the claim file and this record. */ 
+ SYS_DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, t24Name=SYS.DATE.TIME) 
+ 
+ /* The T24 User id of the person who ran the process which created the file. */ 
+ OPERATOR : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, t24Name=OPERATOR) 
+ 
+ /* This is the id of the claim record written to the location specified in the DD.PARAMETER record. */ 
+ RECORD_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, t24Name=RECORD.ID) 
+ 
+ /* The number or DD.ITEM records included in the claim file. */ 
+ NO_RECORDS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, t24Name=NO.RECORDS) 
+ 
+ /* The sum total of the amounts for all the DD.ITEM records passed for inclusion in the claim file. Note that where the DD.DDI record has the field COMBINE.DD.ITEMS set to Yes then the amounts of records being combined will be in this total and will reflect on the first DD.ITEM. */ 
+ TOT_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, t24Name=TOT.AMOUNT) 
+ } 
+ /* This application holds temporary files for building the final claim file to be generated for Direct Debit clearing Processing. It contains details of the records to be claimed for a particular mandate reference, under a specific DD.PARAMETER id for a particular Claim value date.While generating the file online using DD.GENERATE.FILES application, in case the 'UPDATE.FILES' field is given as 'N' then the DD.GENERATE.FILES.XREF record is not cleared and if the field is entered as 'Y' then the  final file gets created and the corresponding DD.GENERATE.FILES.XREF  record is immediately cleared. If the final file is generated as an EOD batch process then the DD.GENERATE.FILES.XREF record created , is cleared as soon as the final file gets generated.All updates to this file are effected automatically by the system and the only functions users are allowed to perform are (L)IST, (S)EE and (P)RINT. */ 
+ DD_GENERATE_FILES_XREF 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This holds the ID of the DD.GENERATE.FILES.XREF record and is of the formDD.PARAMETER id "-" Value date of underlying  DD.ITEMs"-" DD.DDI mandate reference */ 
+ PARAM_DATE_MANDATE : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, t24Name=PARAM.DATE.MANDATE) 
+ 
+ DD_ITEM_LIST -> byValue DD_Contract:DD_GENERATE_FILES_XREF__DD_ITEM_LIST * 
+ 
+ /* Contains the total amount of all the records  which are to be included in the final file. */ 
+ TOTAL_AMOUNT : mml:string 
+ @i18n:Label (en="Total Amount") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, t24Name=TOTAL.AMOUNT) 
+ 
+ /* Contains the total number  records which are to be included in the final  file. */ 
+ NO_RECORDS : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=3.0, t24Name=NO.RECORDS) 
+ 
+ OUTPUT_RECORD -> byValue DD_Contract:DD_GENERATE_FILES_XREF__OUTPUT_RECORD * 
+ } 
+ DD_GENERATE_FILES_XREF__DD_ITEM_LIST 
+ { 
+ /* Contains the list of DD.ITEMS included in this particular file. */ 
+ DD_ITEM_LIST : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, t24Name=DD.ITEM.LIST) 
+ } 
+ DD_GENERATE_FILES_XREF__OUTPUT_RECORD 
+ { 
+ /* Contains the records as per the format specified in the DD.OUT.FORMAT application for DATA section, which are to to be included in the final Claim file. */ 
+ OUTPUT_RECORD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=4.0, t24Name=OUTPUT.RECORD) 
+ } 
+ /* This Application is used to generate outward claim files online, by Verifying an appropriate DD.PARAMETER Id.It has the option of not updating the file which allows a sample view of the contents of the file without actually updating related DD applications.The list of DD.ITEM which has the status as "NEW.ITEM" or "RESUBMITTED.ITEM" & their underlying DDI's status as "ACTIVE" are picked up during file generation process. After the file is generated with Update files set to "Y", the individual DD.ITEM record status is set to "CLAIM.SENT" and DD.HEADER is updated with Item details.Once the Items are  included in the File, these items are skipped during the next file generation process.In case file is not generated during Online process then the claim file gets generated as an End of Day batch process based on the CLAIM.DATE.PRD set in DD.PARAMETER. */ 
+ DD_GENERATE_FILES 
+ @t24:i (level=F, type=W, localRefAllowed=true) 
+ { 
+ /* Specifies the Id of the DD.GENERATE.FILES  record to be verified.Validation Rulesnumeric values from 1 to 9999999999 */ 
+ KEY : mml:string PK required 
+ @i18n:Label (en=Key) 
+ @i18n:Tooltip (en="Indicates th transaction key") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=KEY) 
+ 
+ /* Identifies the Parameter id for which the file is to be generated online.Validation RulesMandatory Input FieldMust be a record in DD.PARAMETER Application */ 
+ DD_PARAMETER_ID -> DD_Contract:DD_PARAMETER required 
+ @i18n:Label (en="DD parameter id") 
+ @i18n:Tooltip (en="DD parameter id") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=1.0, t24Name=DD.PARAMETER.ID) 
+ 
+ /* Specifies whether the file generated should be updated and written in the location specified in DD.PARAMETER.. To view a sample file before sending it to the Clearing agency, give the UPDATE.FILESfield as "No". Then a sample file is generated without updating the Item & Header and this can be viewed from Hold control Report.Validation RulesMandatory Input FieldOnly values allowed are 'Y' or 'N' */ 
+ UPDATE_FILES : DD_Contract:DD_GENERATE_FILES__UPDATE_FILES required 
+ @i18n:Label (en="Update files") 
+ @i18n:Tooltip (en="Update files") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=2.0, t24Name=UPDATE.FILES) 
+ 
+ RESERVED_10 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=3.0, t24Name=RESERVED.10) 
+ 
+ RESERVED_9 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=4.0, t24Name=RESERVED.9) 
+ 
+ RESERVED_8 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=5.0, t24Name=RESERVED.8) 
+ 
+ RESERVED_7 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=6.0, t24Name=RESERVED.7) 
+ 
+ RESERVED_6 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=7.0, t24Name=RESERVED.6) 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=8.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=9.0, t24Name=RESERVED.4) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=10.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=11.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=12.0, t24Name=RESERVED.1) 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_GENERATE_FILES__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_GENERATE_FILES__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_GENERATE_FILES__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_GENERATE_FILES__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, t24Name=OVERRIDE) 
+ } 
+ DD_GENERATE_FILES__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, t24Name=INPUTTER) 
+ } 
+ DD_GENERATE_FILES__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, t24Name=DATE.TIME) 
+ } 
+ DD_GENERATE_FILES_SEQ 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This field holds the valid DD.PARAMETER record id, for which we need to find the next sequence no to generate the report. */ 
+ DD_PARAM_ID : mml:string PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=0.0, t24Name=DD.PARAM.ID) 
+ 
+ VALUE_DATE -> byValue DD_Contract:DD_GENERATE_FILES_SEQ__VALUE_DATE * 
+ } 
+ DD_GENERATE_FILES_SEQ__VALUE_DATE 
+ { 
+ /* value date on which reports will be generated. */ 
+ VALUE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, t24Name=VALUE.DATE) 
+ 
+ /* sequence no to be used for creating outgoing files. */ 
+ SEQUENCE_NO : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=2.0, t24Name=SEQUENCE.NO) 
+ } 
+ /* This application sets the list of events which are allowed in DD module & only these events can be given in Status field of DD modules such as DD.DDI, DD.STANDALONE, DD.ITEM. */ 
+ DD_EVENTS 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* The id to this application is an event which is recognized by other Direct Debit applications.The description given for the event appears as an enrichment when an event is referred in other DD applications.Following are the list of events which are allowed in DD.EVENTS.Please refer to the Status field help text of DD.DDI & DD.ITEM wherein the allowed status for the application is given along with description.ADVISEDAVAILABLECANCELLEDCANCELLED.ITEMCLAIMED.ITEMCLAIMSENT.ITEMDELETED.ITEMEXTERNAL.ITEMFIRST.ITEMHOLDHOLD.ITEMLAST.ITEMMATUREDNEWNEW.ITEMPASTDUE.ITEMPROCESSED.ITEMREJECTEDREJECTED.ITEMRESUBMITTEDRESUBMITTED.ITEMRETURNEDRETURNED.ITEMValidation RulesID should have any one of the above value. */ 
+ EVENT : mml:string PK required 
+ @i18n:Label (en=Event) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, t24Name=EVENT) 
+ 
+ DESCRIPTION -> byValue DD_Contract:DD_EVENTS__DESCRIPTION * 
+ 
+ /* For future use Validation Rules */ 
+ EVENT_VAL_RTN : mml:string 
+ @i18n:Label (en="Event val rtn") 
+ @i18n:Tooltip (en="Event val rtn") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=2.0, t24Name=EVENT.VAL.RTN) 
+ 
+ /* For future use Validation Rules */ 
+ EVENT_DELIV_RTN : mml:string 
+ @i18n:Label (en="Event deliv rtn") 
+ @i18n:Tooltip (en="Event deliv rtn") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=3.0, t24Name=EVENT.DELIV.RTN) 
+ 
+ RESERVED10 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, t24Name=RESERVED10) 
+ 
+ RESERVED09 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, t24Name=RESERVED09) 
+ 
+ RESERVED08 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, t24Name=RESERVED08) 
+ 
+ RESERVED07 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, t24Name=RESERVED07) 
+ 
+ RESERVED06 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, t24Name=RESERVED06) 
+ 
+ RESERVED05 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, t24Name=RESERVED05) 
+ 
+ RESERVED04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, t24Name=RESERVED04) 
+ 
+ RESERVED03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, t24Name=RESERVED03) 
+ 
+ RESERVED02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, t24Name=RESERVED02) 
+ 
+ RESERVED01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, t24Name=RESERVED01) 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_EVENTS__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=16.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=17.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_EVENTS__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_EVENTS__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=21.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=23.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=24.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_EVENTS__DESCRIPTION 
+ { 
+ /* Defines the description for the event which is added here. This appears as an enrichment wherever this Activity is used.Validation Rules1-35 type A (alphanumeric) characters. Multilanguage field. (Mandatory input). */ 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, t24Name=DESCRIPTION) 
+ } 
+ DD_EVENTS__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, t24Name=OVERRIDE) 
+ } 
+ DD_EVENTS__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, t24Name=INPUTTER) 
+ } 
+ DD_EVENTS__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=19.0, t24Name=DATE.TIME) 
+ } 
+ DD_DDI 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ DD_DDI : mml:string PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=25, sysNumber=0.0, t24Name=DD.DDI) 
+ 
+ DESCRIPTION -> byValue DD_Contract:DD_DDI__DESCRIPTION * 
+ 
+ DIRECTION : DD_Contract:DD_DDI__DIRECTION required 
+ @i18n:Label (en=Direction) 
+ @i18n:Tooltip (en="In or Out") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=2.0, t24Name=DIRECTION) 
+ 
+ PARAM_ID -> DD_Contract:DD_PARAMETER required 
+ @i18n:Label (en="Param id") 
+ @i18n:Tooltip (en="Param id") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=4, sysNumber=3.0, t24Name=PARAM.ID) 
+ 
+ CUSTOMER_NO -> ST_Customer:CUSTOMER 
+ @i18n:Label (en="Customer No") 
+ @i18n:Tooltip (en="Identifies the Customer for the transaction.") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=4.0, t24Name=CUSTOMER.NO) 
+ 
+ CLEAR_SYS_REF : mml:string 
+ @i18n:Label (en="Clear sys ref") 
+ @i18n:Tooltip (en="Clear sys ref") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, t24Name=CLEAR.SYS.REF) 
+ 
+ DEST_ACCT_NO : mml:string 
+ @i18n:Label (en="Dest acct no") 
+ @i18n:Tooltip (en="Dest acct no") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, t24Name=DEST.ACCT.NO) 
+ 
+ DEST_ACCT_NAME : mml:string 
+ @i18n:Label (en="Dest acct name") 
+ @i18n:Tooltip (en="Dest acct name") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, t24Name=DEST.ACCT.NAME) 
+ 
+ BC_SORT_CODE -> FT_LocalClearing:BC_SORT_CODE 
+ @i18n:Label (en="BC Sort code") 
+ @i18n:Tooltip (en="Bc sort code") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, t24Name=BC.SORT.CODE) 
+ 
+ CURRENCY : mml:string 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=9.0, t24Name=CURRENCY) 
+ 
+ INWARD_ACCOUNT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=10.0, t24Name=INWARD.ACCOUNT) 
+ 
+ ORIGIN : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, t24Name=ORIGIN) 
+ 
+ COMBINE_DD_ITEMS : DD_Contract:DD_DDI__COMBINE_DD_ITEMS 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=12.0, t24Name=COMBINE.DD.ITEMS) 
+ 
+ STATUS -> DD_Contract:DD_EVENTS 
+ @i18n:Label (en=Status) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=13.0, t24Name=STATUS) 
+ 
+ STATUS_HIST -> byValue DD_Contract:DD_DDI__STATUS_HIST * 
+ 
+ RETURN_CODE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=16.0, t24Name=RETURN.CODE) 
+ 
+ RET_REASON : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=17.0, t24Name=RET.REASON) 
+ 
+ CREATE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=18.0, t24Name=CREATE.DATE) 
+ 
+ ACTIVITY_CODE -> EB_Delivery:EB_ACTIVITY 
+ @i18n:Label (en="Activity Code") 
+ @i18n:Tooltip (en="Indicates activity code") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=7, sysNumber=19.0, t24Name=ACTIVITY.CODE) 
+ 
+ MESSAGE_TYPE -> byValue DD_Contract:DD_DDI__MESSAGE_TYPE * 
+ 
+ DELIVERY_REF -> byValue DD_Contract:DD_DDI__DELIVERY_REF * 
+ 
+ STAND_ALONE_DDI : DD_Contract:DD_DDI__STAND_ALONE_DDI 
+ @i18n:Label (en="Stand alone DDI") 
+ @i18n:Tooltip (en="Stand alone DDI") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=1, sysNumber=26.0, t24Name=STAND.ALONE.DDI) 
+ 
+ CYCLE_FREQUENCY : mml:string 
+ @i18n:Label (en="Cycle frequency") 
+ @i18n:Tooltip (en="Cycle frequency") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=27.0, t24Name=CYCLE.FREQUENCY) 
+ 
+ TERMINATION_DATE : mml:string 
+ @i18n:Label (en="Termination date") 
+ @i18n:Tooltip (en="Termination date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, t24Name=TERMINATION.DATE) 
+ 
+ STAND_ALONE_AMT : mml:string 
+ @i18n:Label (en="Stand alone Amount") 
+ @i18n:Tooltip (en="Stand alone Amount") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=29.0, t24Name=STAND.ALONE.AMT) 
+ 
+ CURRENCY_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET required 
+ @i18n:Label (en=Market) 
+ @t24:i (align=R, inputBehaviour=F, maxLength=2, sysNumber=30.0, t24Name=CURRENCY.MARKET) 
+ 
+ SIGNATORY -> byValue DD_Contract:DD_DDI__SIGNATORY * 
+ 
+ FUTURE_FREQUENCY -> byValue DD_Contract:DD_DDI__FUTURE_FREQUENCY * 
+ 
+ REQUEST_TYPE : mml:string 
+ @i18n:Label (en="Request Type") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=35.0, t24Name=REQUEST.TYPE) 
+ 
+ ACCT_FOR_INT_REQ -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Inward Acct") 
+ @i18n:Tooltip (en="Inward Acct") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=36.0, t24Name=ACCT.FOR.INT.REQ) 
+ 
+ INWARD_CREATED : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=37.0, t24Name=INWARD.CREATED) 
+ 
+ RESERVED05 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=38.0, t24Name=RESERVED05) 
+ 
+ RESERVED04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=39.0, t24Name=RESERVED04) 
+ 
+ RESERVED03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=40.0, t24Name=RESERVED03) 
+ 
+ RESERVED02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=41.0, t24Name=RESERVED02) 
+ 
+ RESERVED01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=42.0, t24Name=RESERVED01) 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_DDI__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=45.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=46.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_DDI__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_DDI__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=49.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=50.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=51.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=52.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=53.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_DDI__DESCRIPTION 
+ { 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, t24Name=DESCRIPTION) 
+ } 
+ DD_DDI__STATUS_HIST 
+ { 
+ STATUS_HIST : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, t24Name=STATUS.HIST) 
+ 
+ STATUS_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=15.0, t24Name=STATUS.DATE) 
+ } 
+ DD_DDI__MESSAGE_TYPE 
+ { 
+ MESSAGE_TYPE -> DE_Config:DE_MESSAGE 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, t24Name=MESSAGE.TYPE) 
+ 
+ MSG_CLASS_NO -> EB_Delivery:EB_MESSAGE_CLASS 
+ @t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=21.0, t24Name=MSG.CLASS.NO) 
+ 
+ OVR_CARRIER : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=22.0, t24Name=OVR.CARRIER) 
+ 
+ OVR_DEL_ADDR : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=50, sysNumber=23.0, t24Name=OVR.DEL.ADDR) 
+ 
+ SEND_MESSAGE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=24.0, t24Name=SEND.MESSAGE) 
+ } 
+ DD_DDI__DELIVERY_REF 
+ { 
+ DELIVERY_REF : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=25.0, t24Name=DELIVERY.REF) 
+ } 
+ DD_DDI__SIGNATORY 
+ { 
+ SIGNATORY -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=31.0, t24Name=SIGNATORY) 
+ } 
+ DD_DDI__FUTURE_FREQUENCY 
+ { 
+ FUTURE_FREQUENCY : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=32.0, t24Name=FUTURE.FREQUENCY) 
+ 
+ FUTURE_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=33.0, t24Name=FUTURE.AMOUNT) 
+ 
+ FUTURE_END_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, t24Name=FUTURE.END.DATE) 
+ } 
+ DD_DDI__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=44.0, t24Name=OVERRIDE) 
+ } 
+ DD_DDI__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=47.0, t24Name=INPUTTER) 
+ } 
+ DD_DDI__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=48.0, t24Name=DATE.TIME) 
+ } 
+ /* Define the various reason codes along with event as applicable for a clearing system.For example in Direct Debit, when a claim is sent after the Mandate lodgment can have different reason code compare to the regular direct debit claim. Similarly return or resubmission of an item can have different code.In this application the various codes as applicable for the Event can be defined here and it is defaulted during DD.ITEM creation based on the event. These codes can mapped to the outward file format when the Reason.Code field in DD.ITEM is given in DD.OUT.FORMAT. */ 
+ DD_CODES 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* The id is a clearing system for which the clearing codes are defined here for various events.The Events as defined in DD.EVENTS & Codes as defined in DD.REASON.CODES are linked here for a clearing system and based on the events appropriate codes are defaulted in DD.ITEM.Validation RulesId is 1-10 Alpha Character/s */ 
+ CLEARING_SYSTEM : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=CLEARING.SYSTEM) 
+ 
+ DD_EVENT -> byValue DD_Contract:DD_CODES__DD_EVENT * 
+ 
+ RESERVED10 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=3.0, t24Name=RESERVED10) 
+ 
+ RESERVED09 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, t24Name=RESERVED09) 
+ 
+ RESERVED08 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, t24Name=RESERVED08) 
+ 
+ RESERVED07 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, t24Name=RESERVED07) 
+ 
+ RESERVED06 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, t24Name=RESERVED06) 
+ 
+ RESERVED05 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, t24Name=RESERVED05) 
+ 
+ RESERVED04 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, t24Name=RESERVED04) 
+ 
+ RESERVED03 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, t24Name=RESERVED03) 
+ 
+ RESERVED02 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, t24Name=RESERVED02) 
+ 
+ RESERVED01 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, t24Name=RESERVED01) 
+ 
+ OVERRIDE -> byValue DD_Contract:DD_CODES__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue DD_Contract:DD_CODES__INPUTTER * 
+ 
+ DATE_TIME -> byValue DD_Contract:DD_CODES__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ DD_CODES__DD_EVENT 
+ { 
+ /* Define the event along with the appropriate reason code, which will be defaulted in DD.ITEM based on the event.Validation RulesMandatory -Multivalue fieldShould be a valid record in DD.EVENTDuplicate events or Null value -Not allowed */ 
+ DD_EVENT -> DD_Contract:DD_EVENTS required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, t24Name=DD.EVENT) 
+ 
+ /* Give the reason code as applicable for the given event.In case more than one reason code is given for an activity, then the reason code given in the first sub- value is populated in DD.ITEM.Validation RulesMandatory -Associated Sub Value fieldReason code given should be a valid record in DD.REASON.CODES for the clearing system as given in the ID.Null value not allowed */ 
+ REASON_CODES : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=2.0, t24Name=REASON.CODES) 
+ } 
+ DD_CODES__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, t24Name=OVERRIDE) 
+ } 
+ DD_CODES__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, t24Name=INPUTTER) 
+ } 
+ DD_CODES__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, t24Name=DATE.TIME) 
+ } 
+ DD_ACTIVITY 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This field holds the contract ID that creates the DD.ITEM. For example, if the MG contract creates the DD.ITEMS, then this field will contain the MG id.  If DD.ITEM is created by the stand alone DD.DDI, Then this field will contain the id of DD.DDI itself. */ 
+ CONTRACT_REF : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, t24Name=CONTRACT.REF) 
+ 
+ MANDATE_REF -> byValue DD_Contract:DD_ACTIVITY__MANDATE_REF * 
+ } 
+ DD_ACTIVITY__MANDATE_REF 
+ { 
+ /* This field holds the mandates for this contract. */ 
+ MANDATE_REF -> DD_Contract:DD_DDI 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, t24Name=MANDATE.REF) 
+ 
+ /* This field holds the valid DD.ITEMS record id. */ 
+ DD_ITEMS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, t24Name=DD.ITEMS) 
+ } 
+ } 
+ Enumerations { 
+ DD_TXN_CODES__ID : mml:string 
+ SYSTEM=SYSTEM 
+ 
+ DD_RETURN__DD_RESUBMIT : mml:string 
+ N=N 
+ 
+ DD_PURGE_FILES__DD_PURGE_ID : mml:string 
+ SYSTEM=SYSTEM 
+ 
+ DD_PURGE_FILES__APPL_NAME__APPL_NAME : mml:string 
+ DD_DDI=DD.DDI 
+ DD_ITEM=DD.ITEM 
+ DD_HEADER=DD.HEADER 
+ DD_PROCESS_LIST=DD.PROCESS.LIST 
+ DD_LINKS=DD.LINKS 
+ DD_ACTIVITY=DD.ACTIVITY 
+ DD_STANDALONE_FQU_LIST=DD.STANDALONE.FQU.LIST 
+ 
+ DD_PURGE_FILES__APPL_NAME__APPL_FIELD__APPL_OPR : mml:string 
+ EQ=EQ 
+ NE=NE 
+ LK=LK 
+ GT=GT 
+ LT=LT 
+ GE=GE 
+ LE=LE 
+ 
+ DD_PARAMETER__CLAIM_HOL_IND : mml:string 
+ Y=Y 
+ NULL=NULL 
+ 
+ DD_PARAMETER__ALLOW_DD_STD : mml:string 
+ Y=Y 
+ NULL=NULL 
+ 
+ DD_PARAMETER__SEND_ADVICE : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ DD_PARAMETER__UPDATE_MANDATE : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ DD_PARAMETER__ACCOUNTING_MODE : mml:string 
+ SAO=SAO 
+ SSS=SSS 
+ SNP=SNP 
+ 
+ DD_PARAMETER__UPDATE_INT_MANDATE : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ DD_OUT_FORMAT__HDR_FIELD_NAME__HDR_INCL_FIELD : mml:string 
+ Y=Y 
+ N=N 
+ 
+ DD_OUT_FORMAT__DATA_FIELD_NAME__DATA_INCL_FIELD : mml:string 
+ Y=Y 
+ N=N 
+ 
+ DD_OUT_FORMAT__FTR_FIELD_NAME__FTR_INCL_FIELD : mml:string 
+ Y=Y 
+ N=N 
+ 
+ DD_ITEM__DIRECTION : mml:string 
+ OUTWARD=OUTWARD 
+ INWARD=INWARD 
+ 
+ DD_ITEM_REJECT__CREATE_DD_ITEM : mml:string 
+ Y=Y 
+ N=N 
+ 
+ DD_GENERATE_FILES__UPDATE_FILES : mml:string 
+ Y=Y 
+ N=N 
+ 
+ DD_DDI__DIRECTION : mml:string 
+ OUTWARD=OUTWARD 
+ INWARD=INWARD 
+ 
+ DD_DDI__COMBINE_DD_ITEMS : mml:string 
+ Y=Y 
+ NULL=NULL 
+ 
+ DD_DDI__STAND_ALONE_DDI : mml:string 
+ Y=Y 
+ NULL=NULL 
+ 
+ } 

@@ -1,0 +1,268 @@
+«IMPORT mdf»
+«EXTENSION com::odcgroup::mdf::generation::java»
+
+«DEFINE SessionBean FOR List[MdfDomain]»
+	«EXPAND SessionBean FOREACH this»
+	«EXPAND JavaDescriptor::JavaDescriptor»
+	«EXPAND IBMDescriptor::IBMDescriptor»
+	«EXPAND BEADescriptor::BEADescriptor»
+	«EXPAND JBossDescriptor::JBossDescriptor»
+	«EXPAND OpenEJBDescriptor::OpenEJBDescriptor»
+«ENDDEFINE»
+
+«DEFINE SessionBean FOR MdfDomain»
+	«EXPAND SessionBean FOREACH datasets»
+«ENDDEFINE»
+
+«DEFINE SessionBean FOR MdfDataset»
+	«EXPAND Home»
+	«EXPAND Remote»
+	«EXPAND Bean»
+«ENDDEFINE»
+
+«DEFINE Home FOR MdfEntity»
+	«FILE (getPackage().toPath() + "/services/ejb/" + name + "ServiceHome.java")»
+		package «getPackage()».services.ejb;
+
+		import java.rmi.RemoteException;
+		import javax.ejb.CreateException;
+		import javax.ejb.EJBHome;
+
+		/**
+		 * Home interface for Enterprise Bean: «name»Service
+		 */
+		public interface «name»ServiceHome extends EJBHome {
+
+			public static final String SERVICE_NAME = "ejb/«getParentDomain().name»/«name»Service";
+
+			/**
+			 * Creates a default instance of Session Bean: «name»Service
+			 */
+			public «name»Service create()
+					throws CreateException, RemoteException;
+		}
+	«ENDFILE»
+«ENDDEFINE»
+
+«DEFINE Remote FOR MdfDataset»
+	«FILE (getPackage().toPath() + "/services/ejb/" + name + "Service.java")»
+		package «getPackage()».services.ejb;
+
+		import java.rmi.RemoteException;
+		import java.util.List;
+
+		import javax.ejb.EJBObject;
+
+		import com.odcgroup.mdf.core.services.*;
+		import «getPackage()».*;
+
+		/**
+		 * Remote interface for Enterprise Bean: «name»Service
+		 */
+		public interface «name»Service extends EJBObject {
+
+				/**
+				 * @see «getPackage()».services.«name»Provider#findById(«getPackage()».«baseClass.name»Ref)
+				 */
+				public «name» findById(«baseClass.name»Ref id) throws RemoteException, ObjectNotFoundException;
+
+				/**
+				 * @see «getPackage()».services.«name»Provider#findByIds(List<«getPackage()».«baseClass.name»Ref>)
+				 */
+				public List/*<«name»>*/ findByIds(List/*<«baseClass.name»Ref>*/ ids) throws RemoteException, ObjectNotFoundException;
+
+				/**
+				 * @see «getPackage()».services.«name»Provider#findAll()
+				 */
+				public List/*<«name»>*/ findAll() throws RemoteException;
+
+				/**
+				 * @see «getPackage()».services.«name»Provider#findByQuery(Object)
+				 */
+				public List/*<«name»>*/ findByQuery(Object query) throws RemoteException, UnsupportedOperationException;
+
+				/**
+				 * @see «getPackage()».services.«name»Manager#create()
+				 */
+				public «name» create() throws RemoteException;
+
+				/**
+				 * @see «getPackage()».services.«name»Manager#validate(«getPackage()».«name», com.odcgroup.mdf.core.services.MessageHandler)
+				 */
+				public MessageHandler validate(«name» «name.uncapitalise()») throws RemoteException;
+
+				/**
+				 * @see «getPackage()».services.«name»Manager#save(«getPackage()».«name»)
+				 */
+				public «name» save(«name» «name.uncapitalise()») throws RemoteException, ValidationException;
+
+				/**
+				 * @see «getPackage()».services.«name»Manager#remove(«getPackage()».«baseClass.name»Ref)
+				 */
+				public void remove(«baseClass.name»Ref id) throws RemoteException, ObjectNotFoundException;
+
+				/**
+				 * @see «getPackage()».services.«name»Manager#validateAll(List<«getPackage()».«name»>)
+				 */
+				public MessageHandler validateAll(List/*<«name»>*/ «name.uncapitalise().toPlural()») throws RemoteException;
+
+				/**
+				 * @see «getPackage()».services.«name»Manager#saveAll(List<«getPackage()».«name»>)
+				 */
+				public List/*<«name»>*/ saveAll(List/*<«name»>*/ «name.uncapitalise().toPlural()») throws RemoteException, ValidationException;
+
+				/**
+				 * @see «getPackage()».services.«name»Manager#removeAll(List<«getPackage()».«baseClass.name»Ref>)
+				 */
+				public void removeAll(List/*<«baseClass.name»Ref>*/ ids) throws RemoteException, ObjectNotFoundException;
+		}
+	«ENDFILE»
+«ENDDEFINE»
+
+«DEFINE Bean FOR MdfDataset»
+	«FILE (getPackage().toPath() + "/services/ejb/" + name + "ServiceBean.java")»
+		package «getPackage()».services.ejb;
+
+		import java.util.List;
+
+		import javax.ejb.CreateException;
+		import javax.ejb.SessionBean;
+		import javax.ejb.SessionContext;
+
+		import com.odcgroup.otf.services.*;
+		import com.odcgroup.otf.services.exceptions.*;
+		import com.odcgroup.mdf.core.services.*;
+		import «getPackage()».*;
+		import «getPackage()».services.*;
+
+		/**
+		 * Bean implementation class for Enterprise Bean: «name»Service
+		 */
+		public class «name»ServiceBean implements SessionBean {
+
+			private static final long serialVersionUID = 1L;
+
+			private «name»Provider _provider = null;
+			private «name»Manager _manager = null;
+
+			/**
+			 * setSessionContext
+			 */
+			public void setSessionContext(SessionContext ctx) {
+			}
+
+			/**
+			 * ejbCreate
+			 */
+			public void ejbCreate() throws CreateException {
+	            OtfServiceLocator svc = OtfServiceLocator.getInstance();
+
+	            try {
+                    _provider = («name»Provider) svc.lookup(«name»Provider.SERVICE_NAME, «name»Provider.class);
+                    _manager = («name»Manager) svc.lookup(«name»Manager.SERVICE_NAME, «name»Manager.class);
+				} catch (ServiceRepositoryException _exception) {
+					throw (CreateException) new CreateException(_exception.getMessage()).initCause(_exception);
+				} catch (ServiceLocatorException _exception) {
+					throw (CreateException) new CreateException(_exception.getMessage()).initCause(_exception);
+				}
+			}
+
+			/**
+			 * ejbActivate
+			 */
+			public void ejbActivate() {
+			}
+
+			/**
+			 * ejbPassivate
+			 */
+			public void ejbPassivate() {
+			}
+
+			/**
+			 * ejbRemove
+			 */
+			public void ejbRemove() {
+				_provider = null;
+				_manager = null;
+			}
+
+			/**
+			 * @see «getPackage()».services.«name»Provider#findById(«getPackage()».«baseClass.name»Ref)
+			 */
+			public «name» findById(«baseClass.name»Ref id) throws ObjectNotFoundException {
+				return _provider.findById(id);
+			}
+
+			/**
+			 * @see «getPackage()».services.«name»Provider#findByIds(List<«getPackage()».«baseClass.name»Ref>)
+			 */
+			public List<«name»> findByIds(List<«baseClass.name»Ref> ids) throws ObjectNotFoundException {
+				return _provider.findByIds(ids);
+			}
+
+			/**
+			 * @see «getPackage()».services.«name»Provider#findAll()
+			 */
+			public List<«name»> findAll() {
+				return _provider.findAll();
+			}
+
+			/**
+			 * @see «getPackage()».services.«name»Provider#findByQuery(Object)
+			 */
+			public List<«name»> findByQuery(Object query) throws UnsupportedOperationException {
+				return _provider.findByQuery(query);
+			}
+
+			/**
+			 * @see «getPackage()».services.«name»Manager#create()
+			 */
+			public «name» create() {
+				return _manager.create();
+			}
+
+			/**
+			 * @see «getPackage()».services.«name»Manager#validate(«getPackage()».«name»)
+			 */
+			public MessageHandler validate(«name» «name.uncapitalise()») {
+				return _manager.validate(«name.uncapitalise()»);
+			}
+
+			/**
+			 * @see «getPackage()».services.«name»Manager#save(«getPackage()».«name»)
+			 */
+			public «name» save(«name» «name.uncapitalise()») throws ValidationException {
+				return _manager.save(«name.uncapitalise()»);
+			}
+
+			/**
+			 * @see «getPackage()».services.«name»Manager#remove(«getPackage()».«baseClass.name»Ref)
+			 */
+			public void remove(«baseClass.name»Ref id) throws ObjectNotFoundException {
+				_manager.remove(id);
+			}
+
+			/**
+			 * @see «getPackage()».services.«name»Manager#validateAll(List<«getPackage()».«name»>)
+			 */
+			public MessageHandler validateAll(List<«name»> «name.uncapitalise().toPlural()») {
+				return _manager.validateAll(«name.uncapitalise().toPlural()»);
+			}
+
+			/**
+			 * @see «getPackage()».services.«name»Manager#saveAll(List<«getPackage()».«name»>)
+			 */
+			public List<«name»> saveAll(List<«name»> «name.uncapitalise().toPlural()») throws ValidationException {
+				return _manager.saveAll(«name.uncapitalise().toPlural()»);
+			}
+
+			/**
+			 * @see «getPackage()».services.«name»Manager#removeAll(List<«getPackage()».«baseClass.name»Ref>)
+			 */
+			public void removeAll(List<«baseClass.name»Ref> ids) throws ObjectNotFoundException {
+				_manager.removeAll(ids);
+			}
+		}
+	«ENDFILE»
+«ENDDEFINE»

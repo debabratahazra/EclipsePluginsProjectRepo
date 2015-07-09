@@ -1,0 +1,166 @@
+Enquiry "CUSTOMER.NAU" for "name:/ST_Customer:CUSTOMER$NAU#" {
+	metamodelVersion: "9.0.0.20130126"
+	description {
+		en = "Unauthorised Customer"
+	}
+
+	zero-records-display: true
+	no-selection: true
+	show-all-books: false
+	start-line: 4
+	end-line: 99
+
+	field "CUSTOMERID" {
+		label {
+			en = "Customer No"
+		}
+
+		length: 10
+		alignment: Right
+		comma-separator: false
+		position {
+			column: 1
+		}
+
+		processing-mode: Single
+		operation: application-field-name "@ID"
+	}
+
+	field "HDR" {
+		display-type: "CLASS-ENQ.H.TITLE"
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 1
+			line: 0
+		}
+
+		operation: constant "\"Unauthorised Customer\""
+	}
+
+	field "CUST.SHORT.NAME" {
+		label {
+			en = "Name"
+		}
+
+		format: User
+		length: 35
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 2
+		}
+
+		operation: application-field-name "SHORT.NAME"
+	}
+
+	field "ACCT.OFFICER" {
+		length: 4
+		alignment: Right
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "ACCOUNT.OFFICER"
+	}
+
+	field "ACCT.OFF.NAME" {
+		alignment: Left
+		comma-separator: false
+		operation: field-extract "ACCT.OFFICER"
+		conversion: getFrom "DEPT.ACCT.OFFICER" "NAME" false
+	}
+
+	field "HYPHEN" {
+		alignment: Left
+		comma-separator: false
+		operation: constant "\" - \""
+	}
+
+	field "DAO.HYPHEN" {
+		alignment: Left
+		comma-separator: false
+		operation: calc "ACCT.OFFICER":"HYPHEN"
+	}
+
+	field "DISP.DAO" {
+		label {
+			en = "Relationship Officer"
+		}
+
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 3
+		}
+
+		operation: calc "DAO.HYPHEN":"ACCT.OFF.NAME"
+	}
+
+	field "RECORD.STATUS" {
+		label {
+			en = "Status"
+		}
+
+		length: 4
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 4
+		}
+
+		operation: application-field-name "RECORD.STATUS"
+	}
+
+	field "INPUTTER" {
+		label {
+			en = "Inputter"
+		}
+
+		length: 35
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 5
+		}
+
+		operation: application-field-name "INPUTTER"
+		conversion: extract from 2 to 1 delimited by "_"
+	}
+
+	field "ZERORECORDS" {
+		display-type: "CLASS-ENQ.NORECS" break-condition {
+			break: None
+		}
+
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 1
+		}
+
+		operation: constant "\"No Unauthorised Customers \""
+	}
+
+	drilldown {
+		description {
+			en = "Authorise"
+		}
+
+		image: "txnauthorise.gif"
+		label-field: "CUSTOMERID"
+		screen: "CUSTOMER,NAU" //Authorise
+	}
+
+	drilldown {
+		description {
+			en = "Delete"
+		}
+
+		label-field: "CUSTOMERID"
+		image: "txndelete.gif"
+		screen: "CUSTOMER,NAU" //Delete
+		
+	}
+
+}

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.propertyPages">
+      <page
+            category="com.odcgroup.workbench.properties.ofs"
+            class="com.odcgroup.documentation.generation.ui.properties.DocumentationGenerationPropertyPage"
+            icon="icons/pdf.gif"
+            id="com.odcgroup.documentation.generation.properties.cartridges"
+            name="Documentation Generation">
+            <filter
+               name="nature"
+               value="com.odcgroup.workbench.core.OfsNature"/>
+            <enabledWhen>
+                 <adapt type="org.eclipse.core.resources.IProject"/> 
+            </enabledWhen>
+      </page>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <actionProvider
+            class="com.odcgroup.documentation.generation.ui.actions.DocumentationGenerationActionProvider"
+            id="com.odcgroup.workbench.ui.navigator.action.docGeneration">
+         <enablement>
+            <or>
+               <adapt
+                     type="com.odcgroup.workbench.core.IOfsProject">
+               </adapt>
+               <and>
+                  <adapt
+                        type="com.odcgroup.workbench.core.IOfsElement">
+                  </adapt>
+                  <or>
+                     <and>
+                        <adapt
+                              type="com.odcgroup.workbench.core.IOfsModelPackage">
+                        </adapt>
+                     </and>
+                     <and>
+                        <adapt
+                              type="com.odcgroup.workbench.core.IOfsModelFolder">
+                        </adapt>
+                     </and>
+                     <and>
+                        <adapt
+                              type="com.odcgroup.workbench.core.IOfsModelResource">
+                        </adapt>
+                     </and>
+                  </or>
+               </and>
+               <and>
+                  <instanceof
+                        value="org.eclipse.core.resources.IFolder">
+                  </instanceof>
+                  <test
+                        property="org.eclipse.core.resources.name"
+                        value="rules">
+                  </test>
+               </and>
+               <and>
+                  <instanceof
+                        value="org.eclipse.core.resources.IFile">
+                  </instanceof>
+                  <test
+                        property="org.eclipse.core.resources.extension"
+                        value="translation">
+                  </test>
+               </and>
+               <and>
+                  <instanceof
+                        value="IResourceProvider">
+                  </instanceof>
+               </and>
+            </or>
+         </enablement>
+      </actionProvider>
+   </extension>
+   
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.odcgroup.documentation.generation.ui.properties.PreferenceInitializer"/>
+   </extension>
+   
+   <extension point="org.eclipse.ui.popupMenus">
+		<objectContribution 
+           id="com.odcgroup.documentation.action.contribution.popup"
+           objectClass="org.eclipse.core.resources.IProject"
+           adaptable="true"
+           nameFilter="*"> 
+        <filter name="nature" 
+             value="com.odcgroup.workbench.core.OfsNature"/>
+             <!-- menu id="com.odcgroup.ocs"
+                         label="Odyssey"
+                         path="additions">
+                      <separator name="generation"/>
+              </menu -->        
+			 <action
+          class="com.odcgroup.documentation.generation.ui.actions.DocumentationGenerationAction"
+          enablesFor="*"
+          icon="icons/pdf.gif"
+          id="com.odcgroup.documentation.action.contribution.navigator.docGeneration"
+          label="Generate Documentation"
+          menubarPath="com.odcgroup.ocs/documentation"
+          overrideActionId="com.odcgroup.documentation.action.contribution.navigator.docGeneration1">
+          </action> 
+	   </objectContribution>
+  <objectContribution
+        adaptable="true"
+        id="com.odcgroup.workbench.action.contribution.popup"
+        nameFilter="*"
+        objectClass="org.eclipse.core.resources.IResource">
+     <filter
+           name="projectNature"
+           value="com.odcgroup.workbench.core.OfsNature">
+     </filter>
+     <action
+           class="com.odcgroup.documentation.generation.ui.actions.DocumentationGenerationAction"
+           enablesFor="*"
+           icon="icons/pdf.gif"
+           id="com.odcgroup.documentation.action.contribution.navigator.docGeneration1"
+           label="Generate Documentation"
+           menubarPath="com.odcgroup.ocs/documentation">
+     </action>
+  </objectContribution> 
+    </extension>
+
+</plugin>

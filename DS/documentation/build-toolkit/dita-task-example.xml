@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dita-task-example" default="generate" basedir=".">
+    <!-- include antcontrib tasks -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+    		<pathelement location="./lib/ant-contrib-1.0b3.jar"/>
+		</classpath>
+	</taskdef>    
+    
+	<property name="task.example.template" location="./BookTemplate/tasks/task-example.dita"/>
+	    
+	<target name="generate">
+	    <!--
+	      - Required properties :
+	      - ${task} : should be set to the file path of the task the code example must be linked to
+	      - ${task.example.code} : contains a multine string with the code example
+	      - ${task.example} : should be set to the file path of the code example source file
+	      -->
+		<echo message="$${task}=${task}"/>
+	    
+	    <basename property="task.name" file="${task}" suffix="dita"/>
+	    <echo message="$${task.name}=${task.name}"/>
+		
+	    <dirname property="dest" file="${task}"/>
+	    <echo message="$${dest}=${dest}"/>
+	    
+	    <echo message="$${task.example.code}=${task.example.code}"/>
+		<echo message="$${task.example}=${task.example}"/>
+	    
+	    <!-- extracts task id -->
+		<loadfile srcfile="${task}" property="task.id">
+  			<filterchain>
+    			<tokenfilter>      				
+      				<containsregex pattern="^\s*&lt;task[\s]+id=&quot;(\w[^&quot;]*)&quot;.*"
+                    	flags="gi"
+                    	replace="\1" />
+				</tokenfilter>
+  			</filterchain>
+		</loadfile>		
+		<propertyregex property="task.id"
+			input="${task.id}"
+			override="true"
+			regexp="\s*(\w+)\s*"
+			replace="\1"
+			global="true"
+			defaultValue="${task.id}"
+			/>		
+		<echo message="$${task.id}=${task.id}"/>
+		
+	    
+	    <!-- extracts example number -->
+		<property name="task.example.includePattern" value="^(\s*)&lt;!--@example(\d+)@--&gt;.*$$"/>
+		<loadfile srcfile="${task}" property="task.example.number.new">
+  			<filterchain>
+    			<tokenfilter>      				
+      				<containsregex pattern="${task.example.includePattern}"
+                    	flags="gi"
+                    	replace="\2" />
+				</tokenfilter>				
+  			</filterchain>
+		</loadfile>
+		<propertyregex property="task.example.number.new"
+			input="${task.example.number.new}"
+			override="true"
+			regexp="\s*(\d+)\s*"
+			replace="\1"
+			global="true"
+			defaultValue="${task.example.number.new}"
+			/>					
+		<echo message="$${task.example.number.new}=${task.example.number.new}"/>
+		
+		
+	    
+	    
+	    
+	    
+	    <!-- EXAMPLE CODE PROCESSING -->
+	    
+	    
+	    
+	    <!-- change smaller character -->
+		<propertyregex property="task.example.code.processed"
+			input="${task.example.code}"
+			regexp="&lt;"
+			replace="&amp;lt;"
+			global="true"
+			defaultValue="${task.example.code}"
+			/>
+	    <!-- change greater character -->
+		<propertyregex property="task.example.code.processed"
+			input="${task.example.code.processed}"
+			override="true"
+			regexp="&gt;"
+			replace="&amp;gt;"
+			global="true"
+			defaultValue="${task.example.code.processed}"
+			/>	
+	    <!-- reformat leading spaces/tabs -->
+	    <propertyregex property="task.example.code.spaces"
+	    			input="${task.example.code.processed}"	    			
+	    			regexp="[^  \t]([ \t]+)(&amp;lt;(/|!--|\w+).*&amp;gt;)[ \t]*\z"
+	    			select="\1"
+	    			global="false"
+	    			defaultValue=""
+	    			/>
+	    <echo message="$${task.example.code.spaces}='${task.example.code.spaces}'"/>
+	    <propertyregex property="task.example.code.processed"
+	    	    			input="${task.example.code.processed}"
+	    	    			override="true"
+	    	    			regexp="([^ \t])(${task.example.code.spaces})([ \t]*&amp;lt;(/|!--|\w+).*&amp;gt;)"
+	    	    			replace="\1\3"
+	    	    			global="true"
+	    	    			defaultValue="${task.example.code.processed}"
+	    	    			/>	
+	    <!-- puts quotes arrounde attributes -->	    
+	    <propertyregex property="task.example.code.processed"
+	    	    			input="${task.example.code.processed}"
+	    	    			override="true"
+	    	    			regexp="(\w+=)([./\\]*\w+([:/\\\.-]+\w+)*[\\]?)(\s|&amp;gt;|/&amp;gt;)"
+	        				replace="\1&amp;quot;\2&amp;quot;\4"
+	    	    			global="true"
+	    	    			defaultValue="${task.example.code.processed}"
+	    	    			/>
+	    <!-- adjust quotes for special schema location -->
+	    <propertyregex property="task.example.code.processed"
+	    	    	    			input="${task.example.code.processed}"
+	    	    	    			override="true"
+	    	    	    			regexp="xsi:schemaLocation=&amp;quot;(.*)&amp;quot;[ ]+(.*)\.xsd"
+	    	        				replace="xsi:schemaLocation=&amp;quot;\1 \2.xsd&amp;quot;"
+	    	    	    			global="true"
+	    	    	    			defaultValue="${task.example.code.processed}"
+	    	    	    			/>
+		<echo message="$${task.example.code.processed}=${task.example.code.processed}"/>	  
+	    
+	    
+	    
+	    <!-- DITA EXAMPLE CREATION AND LINKING -->
+	    
+	    
+	    <!-- computes task relative path to workspace -->
+		<propertyregex property="basedir-uri"
+	    	    			input="${basedir}"
+	    	    			regexp="\\"
+	    	    			replace="/"
+	    	    			global="true"
+	    	    			defaultValue="${basedir}"
+	    	    			/>
+	    <propertyregex property="basedir-uri"
+	    	    	input="${basedir-uri}"
+	        		override="true"
+	    			regexp="(.*)/toolkit"
+	       	    	replace="\1"
+	       	    	global="true"
+	       	    	defaultValue="${basedir-uri}"
+	    	    	/>	    
+	    <propertyregex property="dest-uri"
+	    	    	    			input="${dest}"
+	    	    	    			regexp="\\"
+	    	    	    			replace="/"
+	    	    	    			global="true"
+	    	    	    			defaultValue="${dest}"
+	    	    	    			/>
+	    <echo message="$${basedir}=${basedir-uri}"/>	
+	    <propertyregex property="task.relativePath2Workspace"
+	    			input="${dest-uri}"
+	    			regexp="(${basedir-uri})/(.*)"
+	    			select="\2"
+	    			global="true"
+	    			defaultValue="${task.relativePath2Workspace}"
+	    			/>	  	    
+	    <propertyregex property="task.relativePath2Workspace"
+	    	    	input="${task.relativePath2Workspace}"
+	        		override="true"
+	        		regexp="[^/]+"
+	    	    	replace=".."
+	    	    	global="true"
+	    	    	defaultValue="${task.relativePath2Workspace}"
+	   	/>	    
+	    <echo message="$${task.relativePath2Workspace}=${task.relativePath2Workspace}"/>	   
+	    
+	    <!-- creates dita task example from template -->
+	    <propertyregex property="task.example"
+	    			input="${task.example}"
+	    			override="true"
+	    			regexp="\\"
+	    			replace="/"
+	    			global="true"
+	    			defaultValue="${task.example}"
+	    			/>		
+	    <copy file="${task.example.template}" toFile="${dest}/${task.name}-example${task.example.number.new}.dita">
+			<filterset>							
+				<filter token="task.example.number" value="${task.example.number.new}"/>
+				<filter token="task.name" value="${task.id}"/>				
+				<filter token="task.example.code" value="${task.example.code.processed}"/>
+			    <filter token="task.relativePath2Workspace" value="${task.relativePath2Workspace}"/>
+			    <filter token="task.example.sourcePath" value="${task.example}"/>
+			</filterset>
+		</copy>
+		
+	    <!-- inserts link to example into task -->
+		<math result="task.example.number.new2" datatype="int" operation="+" operand1="1" operand2="${task.example.number.new}"/>		
+		<echo message="$${task.example.number.new2}=${task.example.number.new2}"/>
+		<replaceregexp file="${task}"
+			match="(${task.example.includePattern})"
+		    replace="\2&lt;p id=&quot;example${task.example.number.new}&quot; outputclass=&quot;example-title&quot;&gt;Example ${task.example.number.new}&lt;/p&gt;${line.separator}\2&lt;p conref=&quot;${task.name}-example${task.example.number.new}.dita#content&quot;/&gt;${line.separator}\2&lt;!--@example${task.example.number.new2}@--&gt;"		    
+			byline="true"
+		/>			
+	</target>
+</project>

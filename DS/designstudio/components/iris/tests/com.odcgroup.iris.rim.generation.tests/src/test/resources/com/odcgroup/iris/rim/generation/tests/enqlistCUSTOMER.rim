@@ -1,0 +1,33 @@
+domain T24 {
+	use common.CoreCommands.*
+	use common.HTTPEvents.*
+	use common.ODataCommands.*
+	use common.T24Commands.*
+	use common.T24Events.*
+	rim enqlistCustomer {
+		command GETEntities
+		command GETEntity
+		basepath: "/{companyid}"
+	
+		resource enqlistCustomers {
+			type: collection
+			entity: enqlistCustomer
+			view: GETEntities {
+				properties [ filter = "{filter}" ]
+			}
+			path: "/enqlistCustomers()"
+			GET *-> enqlistCustomer {
+				parameters [ id = "{PrimaryKey}" ]
+			}
+		}
+	
+		resource enqlistCustomer {
+			type: item
+			entity: enqlistCustomer
+			view: GETEntity
+			path: "/enqlistCustomers('{id}')"
+		}
+	
+	}
+	
+}

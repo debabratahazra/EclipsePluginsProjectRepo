@@ -1,0 +1,505 @@
+# UTF-8
+ /* Foundation for Miscellaneous Deals */ 
+ Domain MD_Foundation 
+ @t24:i (module=MD) 
+ @java:Package (value=com.temenos.t24.datamodel.md.md_foundation) 
+ namespace "http://www.temenos.com/t24/MD_Foundation" 
+ metamodelVersion 4.3.0.20110527 
+ Classes { 
+ MD_SCHED_DATES 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* The record id which will be taken up for processing. */ 
+ DEAL_ID : mml:string PK required 
+ @i18n:Label (en="Deal Ref") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=17, sysNumber=0.0, t24Name=DEAL.ID) 
+ 
+ /* The date on which the record will be taken up for processing. */ 
+ DATE : mml:string 
+ @i18n:Label (en=Date) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=1.0, t24Name=DATE) 
+ } 
+ /* MD.PROV.BALANCESAs Cash Margin (Provision) can be taken for a MD.DEAL, the details regarding the same are stored in this file. When Cash Margin is taken the transactions are online. The release or additional provision may be taken either as an online activity or as an End of Day activity.When Provision is taken, it may be parked into an account of a different currency and the although the release of Provision will default to the Debit Provision account, yet it can be changed.The Provision taken is stored along with the details of the Provision debit account, Provision credit account, Provision account currency, Outstanding Provision amount, Provision release account and Provision release amount.On every release of Provision the release details are displayed as multi-value sets. */ 
+ MD_PROV_BALANCES 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This file has the details relating to Provision taken in the Deal, such as Debit Provision account, Credit Provision account, Currency in which Provision is held, Outstanding Provision amount and that in Local currency. In case of release of Provision, the release date, account and amount.The ID is a valid authorized MD.DEAL reference.Validation Rules
+        System maintained.Built only if Provision is taken for the Deal. */ 
+ DEAL_ID : mml:string PK required 
+ @i18n:Label (en="Deal Ref") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, t24Name=DEAL.ID) 
+ 
+ /* Represents the account from which Provision was taken.Validation Rules
+        System maintained. */ 
+ PROV_DR_ACCOUNT -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=1.0, t24Name=PROV.DR.ACCOUNT) 
+ 
+ /* Represents the account into which the Provision is credited.Validation Rules
+        System maintained. */ 
+ PROV_CR_ACCOUNT -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=2.0, t24Name=PROV.CR.ACCOUNT) 
+ 
+ /* Represents the currency in which Provision is stored.Validation Rules
+        System maintained. */ 
+ OUTS_PROV_CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=3.0, t24Name=OUTS.PROV.CURRENCY) 
+ 
+ /* Represents outstanding Provision in terms of Credit Provision account currency.Validation Rules
+        System maintained. */ 
+ OUTS_PROV_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=4.0, t24Name=OUTS.PROV.AMOUNT) 
+ 
+ /* This field mention the outstanding provision amount interms of LCCY */ 
+ OUTS_PROV_AMT_LCY : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=5.0, t24Name=OUTS.PROV.AMT.LCY) 
+ 
+ PROV_REL_ACCT -> byValue MD_Foundation:MD_PROV_BALANCES__PROV_REL_ACCT * 
+ } 
+ MD_PROV_BALANCES__PROV_REL_ACCT 
+ { 
+ /* This represents the account into which the Provision (Cash Margin) is released.Validation Rules
+        System Maintained. */ 
+ PROV_REL_ACCT -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=6.0, t24Name=PROV.REL.ACCT) 
+ 
+ /* This is a part of the Release multi-value set, representing the Date on which the Cash Margin was released.Validation Rules
+        System Maintained. */ 
+ RELEASE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=7.0, t24Name=RELEASE.DATE) 
+ 
+ /* This represents  the amount of Provision released on the RELEASE.DATE into PROV.REL.ACCT forming a part of the Release Multi-value set.Validation Rules
+        System Maintained. */ 
+ RELEASE_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=8.0, t24Name=RELEASE.AMT) 
+ } 
+ /* MD.PART.CSN.BALANCESWhen a Deal is input with Participation and Commission is recovered as END type, this file gets built. The details held are the Deal reference, Deal currency and commission break-up participant-wise. For each of the Participant a multi-value set is built showing the accrual with details such as Start commission period, End commission Period, Commission amount and Tax amount if any.  On completion of a schedule the details get written as Past start date, Past end date, Past commission and Past tax if any for each Participant. */ 
+ MD_PART_CSN_BALANCES 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This file is updated when a Deal is input with participation whose commission is split and has an End type commission.ID is that of a Valid Deal.This file holds the commission relating to each of the Participant of the Deal and their proportionate commission.Validation Rules
+        System maintained. */ 
+ DEAL_NO : mml:string PK required 
+ @i18n:Label (en="Deal Number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=0.0, t24Name=DEAL.NO) 
+ 
+ /* Currency in which commission is calculated.Validation Rules
+        System maintained. */ 
+ CURRENCY : mml:string 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, t24Name=CURRENCY) 
+ 
+ PRIN_EFF_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, t24Name=PRIN.EFF.DATE) 
+ 
+ PRIN_BALANCE : mml:string 
+ @i18n:Label (en="Principal Amt") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, t24Name=PRIN.BALANCE) 
+ 
+ TOTAL_COMM_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, t24Name=TOTAL.COMM.AMT) 
+ 
+ CSN_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, t24Name=CSN.RATE) 
+ 
+ PART_CUST -> byValue MD_Foundation:MD_PART_CSN_BALANCES__PART_CUST * 
+ } 
+ MD_PART_CSN_BALANCES__PART_CUST 
+ { 
+ /* Participant in the Deal.Validation Rules
+        System maintained. */ 
+ PART_CUST : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=6.0, t24Name=PART.CUST) 
+ 
+ /* This indicates the start of the commission schedule for which the same is calculated.Validation Rules
+        System maintained. */ 
+ CSN_START : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, t24Name=CSN.START) 
+ 
+ /* Indicates the End date of the commission schedule for which the same is calculated.Validation Rules
+        System maintained. */ 
+ CSN_END : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, t24Name=CSN.END) 
+ 
+ /* Represents the participant's commission for the current schedule.Validation Rules
+        System Maintained. */ 
+ PART_CSN_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, t24Name=PART.CSN.AMT) 
+ 
+ /* This field holds the accrued commission amount relating to the participant mentioned, for the said commission period.Validation Rules
+        System maintained. */ 
+ CSN_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, t24Name=CSN.AMT) 
+ 
+ /* The amount of tax on the Charge amount. Part of the Charge multi-value set */ 
+ TAX_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=11.0, t24Name=TAX.AMT) 
+ 
+ PAST_CSN_ST -> byValue MD_Foundation:MD_PART_CSN_BALANCES__PART_CUST__PAST_CSN_ST * 
+ } 
+ MD_PART_CSN_BALANCES__PART_CUST__PAST_CSN_ST 
+ { 
+ /* Represents the past commission schedule's start date.Validation Rules
+        System Maintained. */ 
+ PAST_CSN_ST : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, t24Name=PAST.CSN.ST) 
+ 
+ /* Represents the past commission schedule's end date.Validation Rules
+        System Maintained. */ 
+ PAST_CSN_END : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, t24Name=PAST.CSN.END) 
+ 
+ /* This represents the commission amount of the Participant for the past commission schedule.
+        Validation Rules
+        System Maintained. */ 
+ PAST_CSN_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, t24Name=PAST.CSN.AMT) 
+ 
+ /* This represents the tax component of the PAST.CSN.AMT of the corresponding commission schedule.Validation Rules
+        System Maintained. */ 
+ PAST_CSN_TAX : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, t24Name=PAST.CSN.TAX) 
+ } 
+ MD_INVOCATION_HIST 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ DEAL_NO : mml:string PK required 
+ @i18n:Label (en="Deal Number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=0.0, t24Name=DEAL.NO) 
+ 
+ AMOUNT -> byValue MD_Foundation:MD_INVOCATION_HIST__AMOUNT * 
+ } 
+ MD_INVOCATION_HIST__AMOUNT 
+ { 
+ AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, t24Name=AMOUNT) 
+ 
+ DR_ACCOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=2.0, t24Name=DR.ACCOUNT) 
+ 
+ DR_VALUE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=3.0, t24Name=DR.VALUE.DATE) 
+ 
+ SETTLE_ACCOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=4.0, t24Name=SETTLE.ACCOUNT) 
+ 
+ EXCH_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=5.0, t24Name=EXCH.RATE) 
+ 
+ PAY_VALUE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=6.0, t24Name=PAY.VALUE.DATE) 
+ 
+ BNK_OP_CODE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=7.0, t24Name=BNK.OP.CODE) 
+ 
+ OUR_COR_BNK -> byValue MD_Foundation:MD_INVOCATION_HIST__AMOUNT__OUR_COR_BNK * 
+ 
+ RE_COR_BNK -> byValue MD_Foundation:MD_INVOCATION_HIST__AMOUNT__RE_COR_BNK * 
+ 
+ INT_BNK -> byValue MD_Foundation:MD_INVOCATION_HIST__AMOUNT__INT_BNK * 
+ 
+ AC_WITH_BNK -> byValue MD_Foundation:MD_INVOCATION_HIST__AMOUNT__AC_WITH_BNK * 
+ 
+ REC_BNK -> byValue MD_Foundation:MD_INVOCATION_HIST__AMOUNT__REC_BNK * 
+ 
+ BENEFICIARY -> byValue MD_Foundation:MD_INVOCATION_HIST__AMOUNT__BENEFICIARY * 
+ } 
+ MD_INVOCATION_HIST__AMOUNT__OUR_COR_BNK 
+ { 
+ OUR_COR_BNK : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=8.0, t24Name=OUR.COR.BNK) 
+ } 
+ MD_INVOCATION_HIST__AMOUNT__RE_COR_BNK 
+ { 
+ RE_COR_BNK : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=9.0, t24Name=RE.COR.BNK) 
+ } 
+ MD_INVOCATION_HIST__AMOUNT__INT_BNK 
+ { 
+ INT_BNK : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=10.0, t24Name=INT.BNK) 
+ } 
+ MD_INVOCATION_HIST__AMOUNT__AC_WITH_BNK 
+ { 
+ AC_WITH_BNK : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=11.0, t24Name=AC.WITH.BNK) 
+ } 
+ MD_INVOCATION_HIST__AMOUNT__REC_BNK 
+ { 
+ REC_BNK : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=12.0, t24Name=REC.BNK) 
+ } 
+ MD_INVOCATION_HIST__AMOUNT__BENEFICIARY 
+ { 
+ BENEFICIARY : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=13.0, t24Name=BENEFICIARY) 
+ 
+ CHRG_DET : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=14.0, t24Name=CHRG.DET) 
+ } 
+ MD_CUSTOMER 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* Standard T24 customer field. Validation RulesA maximum of 10 characters may be entered.Must be the key to a valid entry on the CUSTOMER file. */ 
+ CUSTOMER : mml:string PK required 
+ @i18n:Label (en=Customer) 
+ @i18n:Tooltip (en="Customer Liability") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=CUSTOMER) 
+ 
+ /* Standard T24 alphanumeric field. Validation RulesA maximum of 65 characters may be entered. */ 
+ DEAL_ID : mml:string 
+ @i18n:Label (en="Deal Ref") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=1.0, t24Name=DEAL.ID) 
+ } 
+ /* MD BALANCES The MD.BALANCES file records all the principal movements of a particular MD.DEAL together with future charges to be deducted, and a summary of those charges that are associated with the MD.DEAL. A MD.BALANCES record is created whenever an MD.DEAL is entered into the system and remains there as long as the deal remains 'live' on the MD.DEAL file. It is updated automatically by any of the routines which modify the principal or charge fields on the deal. There is no facility for direct input to this file. The information retained on this file can be grouped into the following sections: 1.         PRINCIPAL DETAILS (Fields 1-2) These two fields correspond to the principal amount of the MD.DEAL and the date that the amount became effective. 2.         FUTURE CHARGES (Fields 3-6) These four fields contain details of the charges that have not yet been debited from the customer account. They consist of the date the charges are due to be applied, the currency the charges will be applied in together with both the charge code and amounts which will be debited on the actual date. 3.         CHARGE SUMMARY (Fields 7-8) The last two fields make up a multi-value set of currency and total charges (past and future) that will or have been debited to the customer in respect to the deal. */ 
+ MD_BALANCES 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* The deal identifier. Equates to the DEAL.NO of the MD.DEAL to which this MD.BALANCES record corresponds. It is uniquely assigned to the deal at the initial input of the MD.DEAL record. Validation Rules'MD' followed by 10 digits :-. YY   - Year DDD  - Julian day. 99999- Sequence number. (No input allowed)Must reference a valid contract on the MD.DEAL file. */ 
+ DEAL_NO : mml:string PK required 
+ @i18n:Label (en="Deal Number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=0.0, t24Name=DEAL.NO) 
+ 
+ PRIN_BALANCE -> byValue MD_Foundation:MD_BALANCES__PRIN_BALANCE * 
+ 
+ CHARGE_DATE -> byValue MD_Foundation:MD_BALANCES__CHARGE_DATE * 
+ 
+ TOT_CHARGE_CCY -> byValue MD_Foundation:MD_BALANCES__TOT_CHARGE_CCY * 
+ 
+ /* Currency in which the Commission is collected, this is invariably the Deal currency.Validation Rules
+        Deal currency.System maintained. */ 
+ CURRENCY : mml:string 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=14.0, t24Name=CURRENCY) 
+ 
+ /* This denotes the date from which the commission is calculated for the current cycle.Validation Rules
+        System Maintained. */ 
+ START_CSN_PERIOD : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, t24Name=START.CSN.PERIOD) 
+ 
+ /* This field denotes the start date of the next commission cycle.Validation Rules
+        System maintained. */ 
+ END_CSN_PERIOD : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, t24Name=END.CSN.PERIOD) 
+ 
+ /* principal amount on which commission is calculated Incase commission rate is defined. If In case of fixed commission fixed amount is defined. */ 
+ COMM_BASE_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, t24Name=COMM.BASE.AMT) 
+ 
+ /* COMM.BASE.DATEThis field represents the date from which the next cycle should commence when the  commission is scheduled with a frequency. This ensures apt roll over of the commission periodValidation Rules
+        System Maintained. */ 
+ COMM_BASE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, t24Name=COMM.BASE.DATE) 
+ 
+ /* COMMISSION.AMOUNTThis field holds the total amount of commission for the current commission schedule, i.e. from the START.CSN.PERIOD to END.CSN.PERIOD.Validation Rules
+        System Maintained. */ 
+ COMMISSION_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, t24Name=COMMISSION.AMOUNT) 
+ 
+ /* CSN.ACCRUED.TODATEThe amount of commission that has been accrued (END Type) or the balance amount of commission to be amortized (BEGIN Type).Validation Rules
+        System Maintained. */ 
+ CSN_ACCRUED_TODATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=20.0, t24Name=CSN.ACCRUED.TODATE) 
+ 
+ ACCR_FROM_DATE -> byValue MD_Foundation:MD_BALANCES__ACCR_FROM_DATE * 
+ 
+ PAST_SCHED_DATE -> byValue MD_Foundation:MD_BALANCES__PAST_SCHED_DATE * 
+ 
+ /* PART.COMM.AMTHolds the total amount of commission relating to the Participants' for the Deal.Validation Rules
+        System Maintained. */ 
+ PART_COMM_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=37.0, t24Name=PART.COMM.AMT) 
+ 
+ /* COMM.TAX.AMTRepresents the total amount of Tax on Commission relating to the Leader on the Deal.Validation Rules
+        System Maintained. */ 
+ COMM_TAX_AMT : mml:string 
+ @i18n:Label (en="Commission Tax Amount") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=38.0, t24Name=COMM.TAX.AMT) 
+ 
+ /* PART.TAX.AMTRepresents the Tax on commission relating to the Participants' on the Deal.Validation Rules
+        System Maintained. */ 
+ PART_TAX_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=39.0, t24Name=PART.TAX.AMT) 
+ 
+ /* This field is set to YES, if commission amount is less than MIN.COMM.AMT of MD.TXN.TYPE.CONDITION and MIN.DAYS of MD.TXN.TYPE.CONDITION less than contract period. */ 
+ RECALC_COMM_FLG : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=40.0, t24Name=RECALC.COMM.FLG) 
+ 
+ /* whenever we change the rate through MD.CSN.RATE.CHANGE, this will get updated with new commission rate. */ 
+ NEW_CSN_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=41.0, t24Name=NEW.CSN.RATE) 
+ 
+ /* represents the participant amount. */ 
+ PART_AMT_CHG : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=42.0, t24Name=PART.AMT.CHG) 
+ 
+ RATE_REVISION_DATE -> byValue MD_Foundation:MD_BALANCES__RATE_REVISION_DATE * 
+ 
+ EXCESS_COMMISSION : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=45.0, t24Name=EXCESS.COMMISSION) 
+ } 
+ MD_BALANCES__PRIN_BALANCE 
+ { 
+ /* PRIN.BALANCE Records the principal balance on the deal at each stage throughout the life of the deal. Records each principal balance of the deal over it's lifetime. The field consists of a number of multi-values each recording the principal balance of the deal at various stages. The date on which the amount became effective is recorded on the associated multi-vale of the field PRIN.EFF.DATE. Information in this field is stored in reverse chronological order, ie the first multi-value will always contain the current principal balance. Validation Rules
+        1-19 numeric characters Multi-valued field associated with PRIN.EFF.DATE (No input allowed) */ 
+ PRIN_BALANCE : mml:string required 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=1.0, t24Name=PRIN.BALANCE) 
+ 
+ /* PRIN.PART.BALThe portion of the Principal amount that is shared by the Participants. This is a part of the PRIN.BALANCE multi-value set. In other words this represents the Participants' share in the Deal at that point of time.Validation Rules
+        Standard AMT format no input field. */ 
+ PRIN_PART_BAL : mml:string required 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=2.0, t24Name=PRIN.PART.BAL) 
+ 
+ /* Stores the dates on which the principal balance amounts in the PRIN.BALANCE field became effective. Records each date that the principal balance field changes over the lifetime of the deal. This field can contain future dates indicating the date on which the associated PRIN.BALANCE amount field will become effective, as well as current and historic dates. Information in this field is stored in reverse chronological order, ie the first multi-value will always contain the date of the most forward dated principal balance. Validation RulesStandard date format Multi-valued field associated with  PRIN.BALANCE (No input allowed) */ 
+ PRIN_EFF_DATE : mml:string required 
+ @t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=3.0, t24Name=PRIN.EFF.DATE) 
+ } 
+ MD_BALANCES__CHARGE_DATE 
+ { 
+ /* The claim date for the charges detailed in the fields CHARGE.CURR, CHARGE.AMT and CHARGE.CODE. This is the value date of the charges detailed in the associated fields CHARGE.CURR, CHARGE.AMT and CHARGE.CODE. It is taken directly from the MD.DEAL contract and is removed when the charges have been applied. Validation RulesStandard date format Multi-valued field associated with fields CHARGE.CURR, CHARGE.AMT and CHARGE.CODE. (No input allowed) */ 
+ CHARGE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=4.0, t24Name=CHARGE.DATE) 
+ 
+ /* The currency the charges, detailed in the fields CHARGE.AMT and CHARGE.CODE, are to be taken. This field contains the currency in which the charges described in the corresponding multi-value fields CHARGE.AMT and CHARGE.CODE are to be taken. It is taken directly from the MD.DEAL contract and is removed when the charges have been applied. Validation Rules3 uppercase alpha character currency code. Multi-valued field associated with fields CHARGE.CURR, CHARGE.AMT and CHARGE.CODE. (No input allowed) */ 
+ CHARGE_CURR : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=5.0, t24Name=CHARGE.CURR) 
+ 
+ /* CHARGE.ACCOUNTThe Customer account from where the corresponding charge amount is debited. This field is a part of the Charge multi-value set.Validation Rules
+        System Maintained. */ 
+ CHARGE_ACCOUNT -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=6.0, t24Name=CHARGE.ACCOUNT) 
+ 
+ CHARGE_AMT -> byValue MD_Foundation:MD_BALANCES__CHARGE_DATE__CHARGE_AMT * 
+ } 
+ MD_BALANCES__CHARGE_DATE__CHARGE_AMT 
+ { 
+ /* Records the principal balance on the deal at each stage throughout the life of the deal. This field contains the amount of the charges described in the currency defined in the associated multi-value field CHARGE.CURR, that will be applied according to the value in associated multi-value field CHARGE.CODE. This field is divided into sub-values with each sub-value CHARGE.AMT being associated with a corresponding CHARGE.CODE. It is taken directly from the MD.DEAL contract and is removed when the charges have been applied. Validation Rules1-14 numeric characters plus commas and decimal point Multi-valued field associated with CHARGE.DATE, CHARGE.CURR and CHARGE.CODE (No input allowed) */ 
+ CHARGE_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=7.0, t24Name=CHARGE.AMT) 
+ 
+ /* Identifies the type of charges to be levied as defined on either the FT.CHARGE.TYPE or FT.COMMISSION.TYPE tables. This field identifies the type of charges to be debited. It is taken directly from the MD.DEAL contract and is removed when the charges have been applied. Validation Rules1-11 alphanumeric characters Sub-valued field associated with CHARGE.AMT and Multi- value associated with fields CHARGE.DATE, CHARGE.CURR and CHARGE.AMT. (No input allowed) */ 
+ CHARGE_CODE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=8.0, t24Name=CHARGE.CODE) 
+ 
+ /* CHARGE.TAX.CODEThe tax code associated with the Charge. This is a part of the Charge multi-value set.Validation Rules
+        System Maintained. */ 
+ CHG_TAX_CODE -> ST_ChargeConfig:TAX 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=9.0, t24Name=CHG.TAX.CODE) 
+ 
+ /* CHRG.TAX.AMTThe amount of tax on the Charge amount. Part of the Charge multi-value set.Validation Rules
+        System Maintained. */ 
+ CHRG_TAX_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=10.0, t24Name=CHRG.TAX.AMT) 
+ } 
+ MD_BALANCES__TOT_CHARGE_CCY 
+ { 
+ CHARGE_AMT -> byValue MD_Foundation:MD_BALANCES__TOT_CHARGE_CCY__CHARGE_AMT * 
+ } 
+ MD_BALANCES__TOT_CHARGE_CCY__CHARGE_AMT 
+ { 
+ /* TOT.CHARGE.CCY This multi-valued field contains a list of all the currencies in which charges are to be levied. This field together with the associated multi-value TOT.CHARGE.AMT make up a list of every currency in which charges are levied and the amount to be levied in that currency. Validation Rules
+        3 uppercase alpha character currency code. Multi-valued field associated with field TOT.CHARGE.AMT. (No input allowed) */ 
+ TOT_CHARGE_CCY : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=11.0, t24Name=TOT.CHARGE.CCY) 
+ 
+ /* TOT.CHARGE.AMT This multi-valued field contains the amount of charges to be levied in each of the currencies in the associated field TOT.CHARGE.AMT. This field together with the associated multi-value TOT.CHARGE.CCY make up a list of every currency in which charges are levied and the amount to be levied in that currency. Validation Rules
+        1-14 numeric characters plus a decimal point and commas. Multi-valued field associated with field TOT.CHARGE.CCY. (No input allowed) */ 
+ TOT_CHARGE_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=12.0, t24Name=TOT.CHARGE.AMT) 
+ 
+ /* TOT.CHRG.TAXThis represents the total amount of tax for a given TOT.CHARGE.AMT under a TOT.CHARGE.CCY. Validation Rules
+        System Maintained. */ 
+ TOT_CHRG_TAX : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=13.0, t24Name=TOT.CHRG.TAX) 
+ } 
+ MD_BALANCES__ACCR_FROM_DATE 
+ { 
+ /* ACCR.FROM.DATEFor the current commission schedule this field holds the value of the Accrual start date. The set of fields ACCR.FROM.DATE to ACCR.ACT.AMT form a multi-value set of commission accrual fields. These record all the details of commission accrued for the contract.Information is stored in these fields in a reverse chronological order, i.e. the most recent accrual details will be found on top of the multi-value sets for a given commission schedule.Validation Rules
+        System Maintained. */ 
+ ACCR_FROM_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, t24Name=ACCR.FROM.DATE) 
+ 
+ /* ACCR.TO.DATERepresents the date up to which the current multi-value set has accrued for the current commission schedule. This forms part of the multi-value fields from ACCR.FROM.DATE to ACCR.ACT.AMT.Validation Rules
+        System Maintained. */ 
+ ACCR_TO_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, t24Name=ACCR.TO.DATE) 
+ 
+ /* ACCR.DAYSIdentifies the number of days for which the commission accrual has taken place within the multi-value set of ACCR.FROM.DATE to ACCR.ACT.AMT.Validation Rules
+        System Maintained. */ 
+ ACCR_DAYS : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=23.0, t24Name=ACCR.DAYS) 
+ 
+ /* ACCR.PRINIdentifies the portion of the Principal amount relating to the Leader on which the commission is accrued for the Accrual multi-value set. Forms part of the multi-value set from ACCR.FROM.DATE to ACCR.ACT.AMT.Validation Rules
+        System Maintained. */ 
+ ACCR_PRIN : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=24.0, t24Name=ACCR.PRIN) 
+ 
+ /* field represents the rate at which actual commission is calculated. */ 
+ ACCR_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, t24Name=ACCR.RATE) 
+ 
+ /* ACCR.AMTCommission is accrued to six decimal places and then rounded in such a way that the error in rounding is kept to the minimum. The six decimal un-rounded amount is held in the field ACCR.ACT.AMT. Any rounding error from a given accrual group is carried forward via the un-rounded accrual amount of the following group. However, this is true only if the following group is a part of the same commission period.Validation Rules
+        System Maintained. */ 
+ ACCR_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=26.0, t24Name=ACCR.AMT) 
+ 
+ /* ACCR.ACT.AMTLast of the Accrual multi-value set. This holds the un-rounded amount of commission accrued for the multi-value accrual group in question.Validation Rules
+        System Maintained. */ 
+ ACCR_ACT_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=27.0, t24Name=ACCR.ACT.AMT) 
+ } 
+ MD_BALANCES__PAST_SCHED_DATE 
+ { 
+ /* PAST.SCHED.DATEThis field contains the date on which an activity is scheduled, such as Principal, Commission, Charge and Maturity. Forms part of the multi-value set PAST.SCHED.DATE to PAST.PROCESS.DT.Validation Rules
+        System Maintained. */ 
+ PAST_SCHED_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, t24Name=PAST.SCHED.DATE) 
+ 
+ /* PAST.SCHED.AMTThe field contains the amount relating to that particular schedule. Forms part of the multi-value set PAST.SCHED.DATE to PAST.PROCESS.DT. If relation to commission, it displays only the Leader's share. Validation Rules
+        System Maintained. */ 
+ PAST_SCHED_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=29.0, t24Name=PAST.SCHED.AMT) 
+ 
+ /* PAST.SCHED.TYPEThis field contains the type of schedule that was processed.Valid Schedule types are:Principal Schedule:         PRNCommission Schedule:     CSNCharge Schedule:           CHGMaturity Schedule:         MATValidation Rules
+        System Maintained. */ 
+ PAST_SCHED_TYPE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=30.0, t24Name=PAST.SCHED.TYPE) 
+ 
+ /* COMM.ACCOUNTRepresents the account from which the Commission or Charge relating to that schedule is recovered.Validation Rules
+        System Maintained. */ 
+ COMM_ACCOUNT -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=31.0, t24Name=COMM.ACCOUNT) 
+ 
+ /* PAST.PART.COMMThis field holds the Participants' share of commission for that schedule.Validation Rules
+        System Maintained. */ 
+ PAST_PART_COMM : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=32.0, t24Name=PAST.PART.COMM) 
+ 
+ /* PAST.TAX.CODERepresents the Tax code used for that Commission schedule.Validation Rules
+        System Maintained. */ 
+ PAST_TAX_CODE -> ST_ChargeConfig:TAX 
+ @t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=33.0, t24Name=PAST.TAX.CODE) 
+ 
+ /* PAST.TAX.AMTTax amount calculated on that schedule relating to the Leader.Validation Rules
+        System Maintained. */ 
+ PAST_TAX_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=34.0, t24Name=PAST.TAX.AMT) 
+ 
+ /* PAST.PART.TAXRepresents the tax portion relating to the Participants' share of commission for that schedule.Validation Rules
+        System Maintained. */ 
+ PAST_PART_TAX : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=35.0, t24Name=PAST.PART.TAX) 
+ 
+ /* PAST.PROCESS.DTHolds the date on which that schedule was processed.Validation Rules
+        System Maintained. */ 
+ PAST_PROCESS_DT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=36.0, t24Name=PAST.PROCESS.DT) 
+ } 
+ MD_BALANCES__RATE_REVISION_DATE 
+ { 
+ RATE_REVISION_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=43.0, t24Name=RATE.REVISION.DATE) 
+ 
+ CSN_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=44.0, t24Name=CSN.RATE) 
+ } 
+ } 

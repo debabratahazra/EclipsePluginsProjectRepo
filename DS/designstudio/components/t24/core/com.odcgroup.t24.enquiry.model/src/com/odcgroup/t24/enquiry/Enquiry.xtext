@@ -1,0 +1,789 @@
+grammar com.odcgroup.t24.enquiry.Enquiry with com.odcgroup.translation.TranslationDsl
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
+generate enquiry "http://www.odcgroup.com/t24/Enquiry"
+
+/**
+ * ---------------------------------------------------------------------------
+ * ENQUIRY
+ * ---------------------------------------------------------------------------
+ */
+  
+Enquiry:
+	'Enquiry' name=STRING 'for' fileName=STRING /* TODO [mdf::MdfEntity|EntityRef] */ //or virtual templates  
+	'{'
+	    ('metamodelVersion:' metamodelVersion=STRING )?
+	     ('header' '{' header+=EnquiryHeader '}' )*
+		(
+			('description' '{' description=Translations '}' )?
+		 &	('server-mode:' serverMode=ServerMode)?
+		 &  ('enquiry-mode:' enquiryMode=EnquiryMode)?  
+		 &	('companies:' companies=Companies)?
+		 &	('account-field:' accountField=STRING)?  //Field on the Enquiry
+		 &	('customer-field:' customerField=STRING)?  //Field on the Enquiry
+	     &  ('zero-records-display:' zeroRecordsDisplay=BooleanObject)? //virtual fields from attributes like hotField of Version
+		 &	('no-selection:' noSelection=BooleanObject)?
+		 &	('show-all-books:' showAllBooks=BooleanObject)? 
+		 &	('start-line:' startLine=INTEGER_OBJECT)? 
+		 &	('end-line:' endLine=INTEGER_OBJECT)?
+		)
+		('build-routines' '{' buildRoutines += Routine+ '}')? 		
+		(fixedSelections+=FixedSelection)* 
+		(fixedSorts+=FixedSort)* 
+		('custom-selection' '{' customSelection = SelectionExpression '}')?
+		(fields+=Field)*
+		(		    
+		 ('toolbar:' toolbar=STRING)?  
+		 &	(tools+=Tool)*
+		 &	(target=Target)?
+		 &	(drillDowns+=DrillDown)*
+		 &	(security=Security)?
+		 &	(graph = Graph)?
+		 &	(webService = WebService)?
+		 &  ('generateIFP:' generateIFP=BooleanObject)?
+		)
+					//compsAllowed: "US00001" "GB000001"
+			//virtual fields from attributes like hotField of Version
+			//CompanySelect field used books as it is a more valid term for branches
+		// moved the file version from & group .',' is not accepting in the file version. 	
+		('fileVersion:' fileVersion+=FileVersion)?
+		('attributes:' attributes += STRING (';' attributes += STRING)* )? // == ATTRIBUTES
+		('introspection-messages:' introspectionMessages+=STRING)*		
+	'}'
+;
+
+enum EnquiryMode:
+	T24 | DB;
+
+Companies:
+	// TODO code=xx1234567 define a validationRule , 
+	('all:' all = BooleanObject) | code+=STRING (',' code+=STRING)*
+;
+
+EnquiryHeader:
+	'label' '{' (label=Translations)? '}'
+	(
+		'column:' column=INT
+	  &	'line:' line=INT
+    )
+;
+
+
+/**
+ * ---------------------------------------------------------------------------
+ * Target
+ * ---------------------------------------------------------------------------
+ */
+Target:
+	'target-for-application' {Target} application=STRING '{'
+		(
+		   ('screen:' screen=STRING)?
+		 &	mappings+=TargetMapping+
+		)
+	'}'
+; 
+ 
+TargetMapping:
+	'map-field:' fromField=STRING 'to' toField=STRING	
+;
+
+Parameters:
+	'{' 
+			(('function: ' function=FunctionKind)? 	
+			 &  ('auto-F3:' auto=Boolean)?
+			 &  ('run-immediately:' runImmediately=Boolean)? 	
+	 		)
+	 		('pw-activity:' pwActivity=STRING)?
+	 		 ('field:' fieldName+=STRING )*
+			 ('parameter:' variable+=STRING)*
+	'}'	 
+;
+
+/**
+ * ---------------------------------------------------------------------------
+ * DrillDown
+ * ---------------------------------------------------------------------------
+ */
+DrillDown:
+	'drilldown' (drill_name=STRING)? '{' 
+		(
+			('description' '{' description=Translations	'}'	)?
+		 &	('label-field:' labelField=STRING)? // Reference to field in Enquiry's fields
+		 &	('image:' image=STRING )?
+		 &  ('info:' info=STRING)?
+ 		 ) 	
+		 ('criteria:' criteria+=SelectionCriteria)*
+		 (	('parameters' parameters=Parameters )? // New property holding all parameters		 		 
+		 &	(type=DrillDownType)?
+		)
+	'}'
+;
+
+//DrillDown Types
+DrillDownType:
+	DrillDownStringType |
+	BlankType 
+;
+
+DrillDownStringType:
+	ApplicationType |
+	ScreenType |
+	EnquiryType |
+	FromFieldType |
+	CompositeScreenType |
+	TabbedScreenType |
+	ViewType |
+	QuitSEEType |
+	PWProcessType |
+	DownloadType |
+	RunType |
+	UtilType |
+	JavaScriptType |
+	ShouldBeChangedType
+;
+
+ApplicationType: property='application:' value=STRING;  /* TODO [mdf::MdfClass|ClassRef] */
+ScreenType:	property='screen:' value=STRING;	/* TODO [version::Version|VersionRef] */
+EnquiryType: property='enquiry:' value=STRING;	/* TODO [enquiry::Enquiry|EnquiryRef] */ 
+FromFieldType: property='from-field:' value=STRING; /* Reference to field in Enquiry's fields */
+CompositeScreenType: property='composite-screen:' value=STRING;
+TabbedScreenType: property='tab:' value=STRING;
+ViewType: property='view:' value=STRING;
+QuitSEEType: property='quit-SEE:' value=STRING;
+BlankType: property='blank' value=BooleanObject;
+PWProcessType: property='pw-process:' value=STRING;
+DownloadType: property='download:' value=STRING;
+RunType: property='run:' value=STRING;
+UtilType: property='util' value=STRING;
+JavaScriptType: property='javascript:' value=STRING;
+ShouldBeChangedType: property='should-be-changed:' value=STRING;
+
+DrillDownOption:
+	CompositeScreenOption | 
+	TabOption | 
+	ViewOption | 
+	QuitSEEOption;
+
+CompositeScreenOption:
+	'COS' {CompositeScreenOption} (compositeScreen=STRING)? '{'
+	      ('reference:' reference+=Reference )*
+ 		  ('field-parameter:' fieldParameter+=Parameter )*
+	 '}'
+	  // TODO: Validation Rule:
+	  // 'screen' is optional when the 'trigger-field' exists 
+	  // 'screen' is required when the 'trigger-field' does not exists 
+;
+
+TabOption:
+ 	'TAB' {TabOption} (tabName=STRING)? '{'
+	 	('reference:' reference+=Reference )*
+	 	('field-parameter:' fieldParameter+=Parameter )*
+ 	'}'
+;
+
+ViewOption:
+	'View' {ViewOption}
+;
+
+QuitSEEOption:
+	'Quit-SEE' {QuitSEEOption} 
+;
+Reference:
+	file=STRING  field=STRING
+;
+Parameter: 
+	field=STRING
+;
+
+SelectionCriteria:
+	/*(*/
+	 	field=STRING  
+		// one of the Field of (application or virtual) referenced in fileName
+	 /* & */	(operand=CriteriaOperator
+	 /* & */	values+=STRING ("," values+=STRING)* )?
+	/*)*/ 
+;
+
+/**
+ * ---------------------------------------------------------------------------
+ * SMS = Security M... S... ??
+ * ---------------------------------------------------------------------------
+ */
+ 
+Security:
+	'security' '{' 
+		(
+			'application:' application=STRING
+		 &	'field:' field=STRING  // mandatory
+		 & 	('abort:' abort=Boolean)?
+		)
+	'}'
+;
+
+/**
+ * ---------------------------------------------------------------------------
+ * Graph Definition
+ * ---------------------------------------------------------------------------
+ */
+Graph:
+	'graph' '{'
+		(
+			'type:' type=STRING //-Pickup the valid values from EB.GRAPH.CONFIG field Type ???
+		 &	(labels+=Label)*
+		 &	dimension=Dimension
+		 & 	margins=Margins
+		 & 	(scale=Scale)?
+		 & 	(legend=Legend)?
+		 & 	'x-axis' '{' xAxis=Axis '}'
+		 & 	'y-axis' '{' yAxis=Axis '}'
+		 &  ('z-axis' '{' zAxis=Axis '}')?
+		)
+	'}'
+;
+
+Axis:
+	(
+		'field:' field=STRING
+	 &	('display-legend:' displayLegend=Boolean)?
+	 & 	('show-grid:' showGrid=Boolean)?
+	)	
+;
+
+Dimension:
+	'dimension' '{' 
+		( 
+		 	'width:'  width=INT 
+		 &	'height:' height=INT
+		 &  ('orientation:' orientation=Orientation)?
+		)	
+	'}'
+;
+
+Label:
+	'label' '{' 
+		( 
+			description=Translations  
+		 &	position=Position
+		)
+	'}' 	
+;
+
+Position:
+	('x:' x=INT & 'y:' y=INT)
+;
+
+Legend:
+	'legend' '{'
+		('x:' x=INT & 'y:' y=INT)
+	'}'
+;
+
+Margins:
+	'margins' '{' 
+		(
+		 	'top:'    top=INT 
+		 &	'bottom:' bottom=INT 
+		 &	'left:'   left=INT 
+		 &	'right:'  right=INT
+		)
+	'}'
+;
+
+Scale:
+	'scale' '{'
+		(
+			('x:' x=INTEGER_OBJECT) ?
+		&   ('y:' y=INTEGER_OBJECT) ?
+		)
+	'}'
+;
+
+/**
+ * ---------------------------------------------------------------------------
+ * Routines
+ * ---------------------------------------------------------------------------
+ */
+ 
+Routine: 
+	JBCRoutine | JavaRoutine;
+
+JBCRoutine: 
+	"jBC:" name=STRING;
+	
+JavaRoutine: 
+	"java:" name=STRING;
+
+/**
+ * ---------------------------------------------------------------------------
+ * Selections
+ * ---------------------------------------------------------------------------
+ */
+
+FixedSelection:
+	'fixed-selection' {FixedSelection} field=STRING '{' 
+		// one of the Field of the Class (application or virtual) referenced in fileName
+		( operand=SelectionOperator
+		 values+=STRING ("," values+=STRING)* )?
+	'}'
+;
+
+FixedSort:
+	'fixed-sort:' 
+	field=STRING 
+		// one of the Field of the Class (application or virtual) referenced in fileName
+	order=SortOrder
+;
+
+// Original goal was simplified by decision in "RE: Enquiry" on 2012-11-28:
+// Just flat lists of Selection, not arbitrary trees,
+// as it's too complicated for T24 jBC to transform
+// this into leftBracket / rightBracket...
+// 
+//SelectionExpression returns Expression:
+//	SelectionPrimary ({SelectionExpression.left=current} operator=AndOr right=SelectionPrimary)*
+//;
+//
+//SelectionPrimary returns Expression:
+//	Selection | '(' SelectionExpression ')'
+//;
+
+SelectionExpression:
+	selection+=Selection (selection+=Selection)*
+;
+
+Selection:
+	'field' {Selection} field=STRING '{'
+		(
+			('mandatory:' mandatory=BooleanObject)?	
+		&	('popup-dropdown:' popupDropDown=BooleanObject)?
+		&	('label' '{' label=Translations	'}'	)?  			
+		) 
+		('operands:' operands+=SelectionOperator ("," operands+=SelectionOperator)*)?
+	'}' (operator=AndOr)
+;
+
+FileVersion:
+	values+=FileVersionOption (',' values+=FileVersionOption)* 
+;
+/**
+ * ---------------------------------------------------------------------------
+ * OPERATIONS
+ * ---------------------------------------------------------------------------
+ */
+
+Operation:
+	BreakOperation |
+	CalcOperation  |
+	ConstantOperation |
+	LabelOperation |
+	DateOperation  |
+	DecisionOperation |
+	DescriptorOperation |
+	FieldOperation |
+	SelectionOperation |
+	SystemOperation |
+	TotalOperation
+;
+
+BreakOperation:
+	BreakOnChangeOperation |
+	BreakLineOperation
+;
+
+BreakOnChangeOperation:
+	'break-change' {BreakOnChangeOperation} field=STRING;
+
+BreakLineOperation:
+	'break-line' {BreakLineOperation} line=INT;
+
+CalcOperation :
+	'calc' {CalcOperation} field+=STRING (operator+=('+' | '-' | '/' | '*' | ':') field+=STRING)*;
+
+ConstantOperation:
+	'constant' {ConstantOperation} value=STRING;
+	
+LabelOperation:
+	'label' {LabelOperation} '{' 
+		label=Translations 
+	'}'
+;
+
+DateOperation:
+	TodayOperation |
+	LWDOperation |
+	NWDOperation 	
+;
+
+DecisionOperation:
+	'if' leftField=STRING operand=DecisionOperand rightField=STRING
+		'process' firstField=STRING (secondField=STRING)?;
+
+DescriptorOperation:
+	'i-desc' {DescriptorOperation} field=STRING;
+
+TodayOperation :
+	'today' {TodayOperation};
+
+LWDOperation :
+	'last-working-day' {LWDOperation};
+
+NWDOperation :
+	'next-working-day' {NWDOperation};
+
+FieldOperation:
+	ApplicationFieldNameOperation |
+	FieldExtractOperation |
+	FieldNumberOperation;
+
+ApplicationFieldNameOperation:
+	'application-field-name' {ApplicationFieldNameOperation} field=STRING; 
+	// TODO change ID to a reference to an Enquiry field
+	// enquiry's field
+
+FieldNumberOperation:
+	'field-number' {FieldNumberOperation} number=INT;
+
+FieldExtractOperation:
+	'field-extract' {FieldExtractOperation} field=STRING; 
+	// TODO change ID to a reference to an Enquiry field
+
+SelectionOperation:
+	'selection' {SelectionOperation} field=STRING;
+	// TODO change ID to a reference to an Selection's field
+
+SystemOperation :
+	UserOperation |
+	CompanyOperation |
+	LanguageOperation |
+	LocalCurrencyOperation
+;
+
+UserOperation:
+	'user' {UserOperation};
+
+CompanyOperation:
+	'company' {CompanyOperation};
+
+LanguageOperation:
+	'language' {LanguageOperation};
+
+LocalCurrencyOperation:
+	'local-currency' {LocalCurrencyOperation};
+
+TotalOperation:
+	'total' {TotalOperation} field=STRING;
+
+/**
+ * ---------------------------------------------------------------------------
+ * CONVERSION
+ * ---------------------------------------------------------------------------
+ */
+
+Conversion:
+	ExtractConversion |
+	DecryptConversion |
+	ReplaceConversion |
+	ConvertConversion |
+	ValueConversion   |
+	JulianConversion  |
+	BasicConversion   |
+	GetFromConversion |
+	RateConversion    |
+	AbsConversion     |
+	MatchField        |
+	CallRoutine       | 
+	RepeatConversion
+;
+
+ExtractConversion:
+	'extract from' from=INT 'to' to=INT ('delimited by' delimiter=STRING)?
+;
+
+DecryptConversion:
+	'decrypt' {DecryptConversion} field=STRING
+;
+
+ReplaceConversion:
+	'replace' {ReplaceConversion} '{'
+	  ( ('oldData:'  oldData=STRING)? & 
+	    ('newData:'  newData=STRING)?
+	  )
+	 '}'
+;
+
+ConvertConversion:
+	'convert' {ConvertConversion} '{'
+	   ( ('oldData:' oldData=STRING)? &
+	     ('newData:' newData=STRING)?
+	   )
+	 '}'
+;
+
+ValueConversion:
+	'value'  {ValueConversion}  value=INT (subValue=INTEGER_OBJECT)?
+;
+
+JulianConversion:
+	'julian' {JulianConversion} 
+;
+
+BasicConversion:
+	BasicOConversion | BasicIConversion 
+;
+
+BasicOConversion:
+	'oconv' {BasicOConversion} instruction=STRING
+;
+BasicIConversion:
+	'iconv'  {BasicIConversion} instruction=STRING
+;
+
+GetFromConversion:
+	'getFrom' {GetFromConversion} application=STRING field=STRING language=Boolean
+;
+
+RateConversion:
+	CalcFixedRateConversion    |
+	GetFixedRateConversion     |
+	GetFixedCurrencyConversion
+;
+
+CalcFixedRateConversion:
+	'calcFixedRate' {CalcFixedRateConversion} field=STRING
+;
+
+GetFixedRateConversion:
+	'getFixedRate' {GetFixedRateConversion} field=STRING
+;
+
+GetFixedCurrencyConversion:
+	'getFixedCcy' {GetFixedCurrencyConversion} field=STRING
+;
+
+AbsConversion:
+	'abs' {AbsConversion}
+;
+
+MatchField:
+	'matchField' {MatchField} pattern=STRING value=STRING
+;
+
+CallRoutine:
+	'call' {CallRoutine} routine=Routine // jBC/Java
+;
+
+RepeatConversion:
+	RepeatOnNullConversion |
+	RepeatEveryConversion |
+	RepeatSubConversion
+;
+
+RepeatOnNullConversion:
+	/* multi and subvalues - note: if the field your are displaying is subvalued then you 
+	 * will get repetition of nmake=2 and svalue=1 (providing the data is null) because 
+	 * the mvalue is greater than one. If you do not want this then use 'repeat-sub'.
+	 */
+	'repeat-when-null' {RepeatOnNullConversion} 
+;
+
+RepeatEveryConversion:
+	// repeat previous data if current data is null - regardless of multi/subvalue number
+	'repeat-every'	{RepeatEveryConversion}
+;
+
+RepeatSubConversion:
+	// repeat previous data if current data is null - only if the subvalue number is greater that one
+	'repeat-sub' {RepeatSubConversion}
+;
+
+/**
+ * ---------------------------------------------------------------------------
+ * FIELDS
+ * ---------------------------------------------------------------------------
+ */
+
+Field:
+	'field' name=STRING '{'
+		(
+			('label' '{' label=Translations '}' )? 
+			& ('comments:' comments=STRING )?
+			 // TODO add validation rule
+		 &    ('display-type:' displayType=STRING )?  // defined a scope provider for EB/EB_REPORTS/ENQUIRY__FIELD_NAME__FIELD_LBL__FIELD_DISP_TYPE
+		 &	('format:' format=Format)? 
+		 &	('break-condition' '{' breakCondition = BreakCondition '}' )?   // /Field <Enq> ???
+		 &	('length:' length=INTEGER_OBJECT)?
+		 &	('alignment:' alignment=AlignmentKind)?
+		 &	('comma-separator:' commaSeparator=BooleanObject)?
+		 &	('decimals:' numberOfDecimals=INTEGER_OBJECT)?
+		 &  ('escapeSequence:' escapeSequence = EscapeSequence)?
+		 &   ('fmtMask:'  fmtMask = STRING)?	
+		 &	('display-section:' displaySection= DisplaySectionKind)?
+		 &	('position' '{' position=FieldPosition '}' )?
+		 &	('column-width:' columnWidth=INTEGER_OBJECT)?
+		 &	('spool-break:' spoolBreak=BooleanObject)? 
+		 &	('processing-mode:' singleMulti=ProcessingMode)?
+		 &	('hidden:' ^hidden=BooleanObject)? //- To go into ATTRIBS
+		 &	('no-header:' noHeader=BooleanObject)? //- To go into ATTRIBS
+		 &	('no-column-label:' noColumnLabel=BooleanObject)?
+		 &	('operation:' operation=Operation)?
+		 & 	('conversion:' conversion+=Conversion)*
+		) 
+		('attributes:' attributes +=STRING(',' attributes +=STRING)*)? 
+	'}'
+;
+
+BreakCondition:
+		( 'break:'   break = BreakKind ) | 
+	    ( 'field:'   field=STRING )
+	       
+;
+FieldPosition:
+	('page-throw:' pageThrow=BooleanObject) |
+	('column:' column=INTEGER_OBJECT
+		('line:' (relative=('+'|'-') )? line=INTEGER_OBJECT ('multiLine:' multiLine = BooleanObject)? )? 
+			// value 0 means the current line
+			// '+'|'-' means relative position from the current line 
+			// omit '+'|'-' for an absolute position
+			
+			
+	)
+;
+
+Format: 
+	// TODO Add a validation rule for "FieldFormat::Currency"
+	format=FieldFormat (field=STRING ("negative-pattern" pattern=CurrencyPattern)?)?  
+;
+
+
+//ID WITH Dot Character	
+ID_WITHDOT:
+	ID('.'ID)*
+;	
+/**
+ * ---------------------------------------------------------------------------
+ * TOOLS
+ * ---------------------------------------------------------------------------
+ */
+
+Tool:
+	'tool' name=ID_WITHDOT '{' 
+		(
+			('label' '{' label=Translations '}' )? 
+		 &	('command:' command+=STRING)*
+		)
+	'}'
+;
+
+/**
+ * ---------------------------------------------------------------------------
+ * Web Services
+ * ---------------------------------------------------------------------------
+ */
+ 
+ WebService:
+	'web-service' {WebService} '{'
+		(
+		 ('publish:' publishWebService = BooleanObject)?
+				// == EXPOSE
+		 ('names:' webServiceNames+=STRING (',' webServiceNames+=STRING)* )? 
+				// == SERVICE. This could in the future become a reference to an EB.Service from TWS EMF Model?  
+		 (	('activity:' webServiceActivity = STRING)? 
+				// == ACTIVITY
+		 &	('description:' webServiceDescription = STRING )? 
+				// == EXPOSE.DESC
+		  )
+		)
+	'}'
+ ;
+
+/**
+ * ---------------------------------------------------------------------------
+ * Data Types
+ * ---------------------------------------------------------------------------
+ */
+
+BooleanObject returns ecore::EBooleanObject: 
+	('No'|'false'|'Yes'|'true');
+
+Boolean returns ecore::EBoolean: 
+	('No'|'false'|'Yes'|'true');
+
+/**
+ * ---------------------------------------------------------------------------
+ * ENUMERATIONS
+ * ---------------------------------------------------------------------------
+ */
+ 
+enum AlignmentKind:
+	Unspecified="Null" | None |Left="Left" /* default */ | Right="Right";
+
+enum BreakKind:
+	Unspecified="Null" | None="None" /*default*/| Once="Once" | End="End" | NewPage="NewPage" |Page ="Page";
+
+// available formats for negative number.
+enum CurrencyPattern: 
+	Unspecified="Null" | None | NULL = "-#" /*default*/ | E = "<#>" | M = "#-" | B = "#db" | N = "#";
+
+enum DecisionOperand:
+	None |Equals | NotEquals |
+	Greater | GreaterOrEquals |
+	LessThan | LessOrEquals |
+	Between | NotBetween | 
+	Matches | NotMatches;
+
+enum DisplaySectionKind:
+	Unspecified="Null" | None="None" /*default*/ | Header="Header" |	Footer="Footer" | Caption="Caption" | NoDisplay="NoDisplay";
+
+enum FieldFormat:
+	Unspecified="Null" | None | Date | User | Translate | Rate | Currency;
+
+enum FunctionKind: 
+	Unspecified="Null" | None | Input | Authorise | Reverse | See | Copy | Delete | Verify;
+
+// Operands used in the definition of a fixed selection
+enum SelectionOperator:
+	None |Equals | NotEquals |
+	Greater    | GreaterOrEquals | 
+	LessThan   | LessOrEquals |
+	Matches    | NotMatches | 
+	Between	   | NotBetween | 
+	Contains   | DoesNotContain | 
+	BeginsWith | DoesNotBeginWith | 
+	EndsWith   | DoesNotEndWith | 
+	SoundsLike ;
+
+enum CriteriaOperator:
+	None |Equals | NotEquals |
+	Greater    | GreaterOrEquals | 
+	LessThan   | LessOrEquals |
+	Matches    | NotMatches | 
+	Between	   | NotBetween | 
+	Contains   | DoesNotContain | 
+	BeginsWith | DoesNotBeginWith | 
+	EndsWith   | DoesNotEndWith | 
+	SoundsLike | GreaterThanSymbol=">" 
+;
+
+enum ProcessingMode:
+	Unspecified="Null" | None |Single | Multi;
+
+// sort kinds
+enum SortOrder:
+	Unspecified="Null" | None |Ascending="Ascending" /*default*/ | Descending="Descending";
+
+enum AndOr:
+	None |AND = "AND" | OR = "OR"; 
+enum FileVersionOption: 
+	None |Live | History |
+	Exception |Simulation ;	
+enum EscapeSequence:
+	Unspecified="Null" | None |RV | UL | BL | HI | DING ;
+
+enum Orientation:
+	Horizontal | Vertical;
+
+enum ServerMode:
+	T24 | Solr;
+
+INTEGER_OBJECT returns ecore::EIntegerObject:INT ;

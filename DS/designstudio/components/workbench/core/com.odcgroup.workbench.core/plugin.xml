@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="model" name="Workbench Model Extension Point" schema="schema/model.exsd"/>
+   <extension-point id="importer" name="File Import Cartridge" schema="schema/importer.exsd"/>
+   <extension-point id="natureExtension" name="Design Studio Nature Extension" schema="schema/natureExtension.exsd"/>
+   <extension-point id="initializer" name="Project Initializer Extension Point" schema="schema/initializer.exsd"/>
+   <extension-point id="com.odcgroup.workbench.core.template.provider" name="Template Provider" schema="schema/com.odcgroup.workbench.core.template.provider.exsd"/>
+   <extension-point id="com.odcgroup.workbench.core.maven.config.provider" name="Maven Config Provider" schema="schema/com.odcgroup.workbench.core.maven.config.provider.exsd"/>
+   <extension-point id="dependencyManager" name="Model Project Dependency Manager" schema="schema/dependencyManager.exsd"/>
+   <extension-point id="com.odcgroup.workbench.core.maven.pom.template" name="Pom Template" schema="schema/com.odcgroup.workbench.core.maven.pom.template.exsd"/>
+   <extension-point id="com.odcgroup.workbench.language.repository" name="languageRepository" schema="schema/com.odcgroup.workbench.language.repository.exsd"/>
+   <extension-point id="com.odcgroup.workbench.core.migration.provider" name="Migration Provider" schema="schema/com.odcgroup.workbench.core.migration.provider.exsd"/>
+   
+   <extension
+         id="OfsNature"
+         name="Design Studio Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run class="com.odcgroup.workbench.core.internal.nature.OfsNature"/>
+      </runtime>
+      <builder
+            id="com.odcgroup.workbench.core.OfsBuilder">
+      </builder>
+   </extension>
+       <extension
+         id="com.odcgroup.workbench.core.OfsProblem"
+         name="Project Configuration Problem"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+ 
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.odcgroup.workbench.core.internal.preferences.PreferenceInitializer"/>
+   </extension>
+      <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.odcgroup.workbench.core.internal.properties.ModelPropertyTester"
+            id="com.odcgroup.workbench.core.ModelPropertyFolderTester"
+            namespace="com.odcgroup.workbench.core"
+            properties="modelType"
+            type="com.odcgroup.workbench.core.IOfsModelFolder"/>
+      <propertyTester
+            class="com.odcgroup.workbench.core.internal.properties.ModelPropertyTester"
+            id="com.odcgroup.workbench.core.ModelPropertyPackageTester"
+            namespace="com.odcgroup.workbench.core"
+            properties="modelType"
+            type="com.odcgroup.workbench.core.IOfsModelPackage">
+      </propertyTester>
+      <propertyTester
+            class="com.odcgroup.workbench.core.internal.properties.ModelPropertyTester"
+            id="com.odcgroup.workbench.core.ModelPropertyResourceTester"
+            namespace="com.odcgroup.workbench.core"
+            properties="modelType"
+            type="com.odcgroup.workbench.core.IOfsModelResource">
+      </propertyTester>
+      <propertyTester
+            class="com.odcgroup.workbench.core.internal.properties.ScopePropertyTester"
+            id="com.odcgroup.workbench.core.ScopePropertyTester"
+            namespace="com.odcgroup.workbench.core"
+            properties="scope"
+            type="com.odcgroup.workbench.core.IOfsModelPackage">
+      </propertyTester>
+      <propertyTester
+            class="com.odcgroup.workbench.core.internal.properties.ScopePropertyTester"
+            id="com.odcgroup.workbench.core.ScopePropertyTester"
+            namespace="com.odcgroup.workbench.core"
+            properties="scope"
+            type="com.odcgroup.workbench.core.IOfsModelResource">
+      </propertyTester>
+   </extension>
+
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+		<factory 
+            class="com.odcgroup.workbench.core.internal.adapter.OfsElementAdapterFactory" 
+            adaptableType="com.odcgroup.workbench.core.IOfsElement">
+            
+            <adapter type="org.eclipse.core.resources.IResource"/>
+            <adapter
+                  type="org.eclipse.core.resources.IProject">
+            </adapter>
+            <adapter
+                  type="org.eclipse.core.resources.IFile">
+            </adapter>
+   		</factory>
+  <factory
+        adaptableType="org.eclipse.core.resources.IResource"
+        class="com.odcgroup.workbench.core.internal.adapter.ResourceAdapterFactory">
+     <adapter
+           type="com.odcgroup.workbench.core.IOfsProject">
+     </adapter>
+     <adapter
+           type="com.odcgroup.workbench.core.IOfsElement">
+     </adapter>
+  </factory>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.odcgroup.workbench.core.internal.properties.NaturePropertyTester"
+            id="com.odcgroup.workbench.core.ResourceNaturePropertyTester"
+            namespace="com.odcgroup.workbench.core"
+            properties="nature"
+            type="org.eclipse.core.runtime.IAdaptable">
+      </propertyTester>
+   </extension>
+   <extension
+         id="com.odcgroup.workbench.core.OfsBuilder"
+         name="Design Studio Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="true">
+         <run
+               class="com.odcgroup.workbench.core.internal.builder.OfsBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.ltk.core.refactoring.renameParticipants">
+      <renameParticipant
+            class="com.odcgroup.workbench.core.internal.refactoring.ProjectRenameParticipant"
+            id="com.odcgroup.workbench.refactoring.rename"
+            name="Design Studio Project Rename">
+<enablement>
+      <with variable="affectedNatures">
+        <iterate operator="or">
+          <equals value="com.odcgroup.workbench.core.OfsNature"/>
+        </iterate>
+      </with>
+      <with variable="element">
+        <adapt
+              type="com.odcgroup.workbench.core.IOfsProject">
+        </adapt>
+      </with>
+    </enablement>
+      </renameParticipant>
+   </extension>
+   <extension
+         point="com.odcgroup.workbench.security.authorization">
+      <authorizationManager
+            class="com.odcgroup.workbench.core.internal.authorization.CoreAuthorizationManager"
+            id="com.odcgroup.workbench.core.authorization"
+            priority="lowest">
+      </authorizationManager>
+   </extension>
+
+</plugin>

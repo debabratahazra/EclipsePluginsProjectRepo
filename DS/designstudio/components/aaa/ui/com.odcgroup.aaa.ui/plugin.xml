@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.importWizards">       
+      <wizard
+            category="com.odcgroup.workbench"
+            class="com.odcgroup.aaa.ui.internal.wizard.AAAImportMetaDictionaryWizard"
+            icon="icons/aaametadict.png"
+            id="com.odcgroup.aaa.ui.internal.wizard.AAAImportMetaDictionaryWizard"
+            name="Import Triple'A Plus Core Meta-Dictionary">
+         <description>
+            Import Triple'A Plus Core Meta Dictionary
+         </description>
+      </wizard>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.importWizards">       
+      <wizard
+            category="com.odcgroup.workbench"
+            class="com.odcgroup.aaa.ui.internal.wizard.AAAImportFormatsWizard"
+            icon="icons/aaaformat.png"
+            id="com.odcgroup.aaa.ui.internal.wizard.AAAImportFormatsWizard"
+            name="Import Triple'A Plus Core Formats">
+         <description>
+            Import Triple'A Plus Core Formats
+         </description>
+      </wizard>
+   </extension>
+
+   <extension
+         point="com.odcgroup.mdf.editor.dialogpage">
+      <factory
+            class="com.odcgroup.aaa.ui.internal.page.AAAFormatPagesFactory"
+            type="aaa">
+      </factory>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <actionProvider
+            class="com.odcgroup.aaa.ui.internal.action.AAAImportFormatsActionProvider"
+            id="com.odcgroup.workbench.ui.navigator.action.formatsImport">
+         <enablement>
+             <and>
+                 <adapt
+                     type="com.odcgroup.workbench.core.IOfsModelPackage">
+                 </adapt>
+                 <test
+                     property="com.odcgroup.workbench.core.modelType"
+                     value="domain"/>
+                 <test
+                     property="com.odcgroup.mdf.aaa.integration.packageName"
+                     value="formats"
+                     forcePluginActivation="true"/>
+             </and>         
+          </enablement>
+      </actionProvider>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <actionProvider
+            class="com.odcgroup.aaa.ui.internal.action.AAAImportMetaDictionaryActionProvider"
+            id="com.odcgroup.workbench.ui.navigator.action.metadictImport">
+         <enablement>
+             <and>
+                 <adapt
+                     type="com.odcgroup.workbench.core.IOfsModelPackage">
+                 </adapt>
+                 <test
+                     property="com.odcgroup.workbench.core.modelType"
+                     value="domain"/>
+                 <test
+                     property="com.odcgroup.mdf.aaa.integration.packageName"
+                     value="entities"
+                     forcePluginActivation="true"/>
+              </and>         
+          </enablement>
+      </actionProvider>
+   </extension>
+
+   <!-- disable the synchronisation of mml formats
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <actionProvider
+            class="com.odcgroup.aaa.ui.internal.action.AAASynchronizeActionProvider"
+            id="com.odcgroup.workbench.ui.navigator.action.synchronizeImport">
+         <enablement>
+             <and>
+                 <adapt
+                     type="com.odcgroup.workbench.core.IOfsModelResource">
+                 </adapt>
+                 <test
+                     property="com.odcgroup.workbench.core.modelType"
+                     value="domain"/>
+                 <test
+                     property="com.odcgroup.mdf.aaa.integration.packageName"
+                     value="formats"
+                     forcePluginActivation="true"/>
+              </and>       
+          </enablement>
+      </actionProvider>
+   </extension>
+   -->
+   
+   <!--
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="com.odcgroup.mdf.aaa.integration.DomainModelEditorContribution"
+            targetID="com.odcgroup.mdf.editor.ui.editors.DomainModelEditor">
+         <action
+               id="com.odcgroup.aaa.ui.internal.action.AAASynchronizeActionDelegate"
+               label="Synchronize Triple'A Format"
+               tooltip="Synchronize Triple'A Format"
+               icon="icons/aaaformat.png"
+               menubarPath="additions"
+               enablesFor="1"
+               class="com.odcgroup.aaa.ui.internal.action.AAASynchronizeActionDelegate">
+         </action>
+      </viewerContribution>
+   </extension>
+   -->
+   
+   
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="false"
+      	    objectClass="com.odcgroup.mdf.metamodel.MdfClass"
+            id="com.odcgroup.mdf.aaa.integration.DomainModelEditorContribution">
+         <action
+               id="com.odcgroup.aaa.ui.internal.action.AAASynchronizeActionDelegate"
+               class="com.odcgroup.aaa.ui.internal.action.AAASynchronizeActionDelegate"
+               label="Synchronize Triple'A Format"
+               tooltip="Synchronize Triple'A Format"
+               icon="icons/aaaformat.png"
+               menubarPath="additions"
+               enablesFor="1">
+         </action>
+         <visibility>
+               <objectState name="format" value="true"/>
+         </visibility>
+         
+      </objectContribution>
+   </extension>
+   <extension
+         point="com.odcgroup.workbench.security.authorization">
+      <authorizationManager
+            class="com.odcgroup.aaa.ui.internal.authorization.AAAMdfAuthorizationManager"
+            id="com.odcgroup.mdf.aaa.ui.authorization"
+            priority="normal">
+      </authorizationManager>
+   </extension>
+   <extension
+         point="com.odcgroup.workbench.ui.actionFilter">
+      <actionFilter
+            class="com.odcgroup.aaa.ui.internal.action.AAASynchronizeActionFilter">
+         <filterId
+               id="format">
+         </filterId>
+      </actionFilter>
+   </extension>
+
+<!--
+               menubarPath="com.odcgroup.mdf.editor.menuId/filters/additions"
+               toolbarPath="settings"
+-->   
+   <extension
+         point="com.odcgroup.mdf.validation.modelvalidator">
+      <validator
+            class="com.odcgroup.aaa.ui.internal.page.validation.UDEModelValidatorAdapter"/>
+   </extension>
+   <extension
+         point="com.odcgroup.mdf.editor.domaincreationpage">
+      <pagecreator
+            class="com.odcgroup.aaa.ui.internal.wizard.AAADomainCreationPageCreator">
+      </pagecreator>
+   </extension>
+</plugin>

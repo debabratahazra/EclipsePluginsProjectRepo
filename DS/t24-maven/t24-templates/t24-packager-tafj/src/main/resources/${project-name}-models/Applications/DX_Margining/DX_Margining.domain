@@ -1,0 +1,3354 @@
+# UTF-8
+# UTF-8
+/* Position Margining Methods for Derivatives */
+Domain DX_Margining
+	@t24:i (module=DX)
+	@java:Package (value=com.temenos.t24.datamodel.dx.dx_margining)
+namespace "http://www.temenos.com/t24/DX_Margining"
+metamodelVersion 1.30.6
+Classes {
+	/* This Application allows the user to setup any number of margining methods to be used in the revaluation suite. Each method can be associated with a revaluation/margin method black box routine. (See the Manual)
+This application allows the user to define a number of extra parameters of there choice to be passed into the black box routine as well as a series of extra factors to apply to any results being produced by a black box.
+For example;
+
+NO.IM - Used in order to skip producing any Initial         margin for a group of trades.
+NO.VM - Used in order to skip producing any Variation         margin for a group of trades.
+STAND.IM - Provides the standard Initial Margin         Calculation.
+STAND.VM - Provides the standard Varitaion Margin         Calculation.
+ENHANCED - Provides an enhanced Initial Margin         Calculation.
+
+Validation Rules
+
+DX.REVAL.DET.
+DX.RV.DET.HIST */
+	DX_MARGIN_CALC
+		@t24:i (t24Name=DX.MARGIN.CALC, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* A brief description of the margin calculation being used.
+For example;
+
+NO.IM - Used in order to skip producing any Initial         margin for a group of trades.
+NO.VM - Used in order to skip producing any Variation         margin for a group of trades.
+STAND.IM - Provides the standard Initial Margin         Calculation.
+STAND.VM - Provides the standard Varitaion Margin         Calculation.
+ENHANCED - Provides an enhanced Initial Margin         Calculation.
+
+Validation Rules
+
+8 Characters
+Alphanumeric
+DX.REVAL.DET. file
+DX.RV.DET.HIST file */
+		CALCULATION -> DX_Margining:DX_MARGIN_CALC PK required
+			@i18n:Label (en=Calculation)
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=0.0, core=true, businessType=A, t24Name=CALCULATION)
+		NAME -> byValue DX_Margining:DX_MARGIN_CALC__NAME *
+		/* This field define the name of the routine that will be called from the remargin process in order to calculate the margins for any contracts that are specified to use this margin calculation method.
+Validation Rules
+
+Up to 35 characters
+Mandatory Field
+Input must exist as a valid record on PGM.FILE */
+		PROGRAM_NAME -> EB_SystemTables:PGM_FILE required
+			@i18n:Label (en="Investment Program")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, businessType=PG, t24Name=PROGRAM.NAME, typeModifiers=S)
+		/* This field defines the type of margin that will be calculated by the routine specified in the PROGRAM.NAME field.
+This maybe be either INITIAL (also known as DEPOSITS) or VARIATION (also known as PROFIT/LOSS)
+Validation Rules
+
+Up to 9 characters
+Mandatory Field
+Input must be either : INITIAL /VARIATION */
+		TYPE : DX_Margining:DX_MARGIN_CALC__TYPE required
+			@i18n:Label (en=Type)
+			@i18n:Tooltip (en=Type)
+			@t24:i (align=L, inputBehaviour=I, maxLength=9, sysNumber=3.0, core=true, t24Name=TYPE)
+		/* This field defines a percentage increase or reduction that will be applied to all margin figures calculated by this routine.
+If no value is entered then the calculation will default to 100%. i.e. the margin figure calculated will remain unchanged.
+Validation Rules
+
+Up to 5 characters
+Numeric value */
+		ADDON_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=ADDON.FACTOR)
+		/* Optional percentage maintenance margin calculation factor. Only input if calculation type is INITIAL.
+Validation Rules
+
+Up to 5 characters */
+		MAINTENANCE_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=5.0, core=true, t24Name=MAINTENANCE.FACTOR)
+		CONTRACT -> byValue DX_Margining:DX_MARGIN_CALC__CONTRACT *
+		RESERVED13 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=8.0, core=true, t24Name=RESERVED13)
+		DATA_RECORD -> byValue DX_Margining:DX_MARGIN_CALC__DATA_RECORD *
+		CONS_DATA_NAME -> byValue DX_Margining:DX_MARGIN_CALC__CONS_DATA_NAME *
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=13.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=14.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=15.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=16.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=18.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=19.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=20.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue DX_Margining:DX_MARGIN_CALC__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=23.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=24.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Margining:DX_MARGIN_CALC__INPUTTER *
+		DATE_TIME -> byValue DX_Margining:DX_MARGIN_CALC__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=27.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=28.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=29.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=30.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=31.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_MARGIN_CALC__NAME
+	{
+		/* Please enter a descriptive name for the margin calculation method. This is used for reporting purposes only.
+Validation Rules
+
+Up to 35 characters
+
+Mandatory Field */
+		NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=NAME)
+	}
+	DX_MARGIN_CALC__CONTRACT
+	{
+		/* The contract code for an additional factor. This field should allow the entry of a mnemonic as well as the number.
+Validation Rules
+
+Up to 12 characters, input must be a valid record the DX.CONTRACT.MASTER         Application */
+		CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=6.0, core=true, businessType=A, t24Name=CONTRACT)
+		/* Percentage factor to be applied to an initial margin fot the corresponding contract.
+Validation Rules
+
+Up to 5 characters */
+		MARGIN_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=7.0, core=true, t24Name=MARGIN.FACTOR)
+	}
+	DX_MARGIN_CALC__DATA_RECORD
+	{
+		/* This field specifies which of the listed relevent records the system should pass into the revaluation black box routine (PROGRAM.NAME) that is associated with this routine.
+Validation Rules
+
+Can be CUSTOMER, DX.CONTRACT.MASTER,DX.CUSTOMER,DX.EXCHANGE.MASTER,DX.MARGIN.CALC,DX.PARAMETER,         DX.POSITION,SECC.ACC.MASTER (Limited to 10 multivalue         items)
+No Duplicates are allowed. */
+		DATA_RECORD : DX_Margining:DX_MARGIN_CALC__DATA_RECORD__DATA_RECORD
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=9.0, core=true, t24Name=DATA.RECORD)
+	}
+	DX_MARGIN_CALC__CONS_DATA_NAME
+	{
+		/* This allows the user to associate a data name (variable) to a piece of data to be passed to a particular revaluation black box. Such as
+CONS.DATA.NAME : RISK.FACTOR CONS.DATA.ITEM: 35
+When processing the black box the box is provided with the information that RISK.FACTOR = 35.
+This information can be extracted from a common array called R.RVC.DATA by locating the text in array position DX.RVD.DATA.NAME, this will identify where in the DX.RVD.DATA.ITEM position the data value is stored.
+Validation Rules
+
+35 Characters Alphanumeric
+No Duplicates */
+		CONS_DATA_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, t24Name=CONS.DATA.NAME)
+		/* This allows the user to associate a data name (variable) to a piece of data to be passed to a particular revaluation black box. Such as
+CONS.DATA.NAME : RISK.FACTOR CONS.DATA.ITEM: 35
+When processing the black box the box is provided with the information that RISK.FACTOR = 35.
+This information can be extracted from a common array called R.RVC.DATA by locating the text in array position DX.RVD.DATA.NAME, this will identify where in the DX.RVD.DATA.ITEM position the data value is stored.
+This field also has a number of online substitutions available.
+
+!TODAY - Provides the current bank date in internal T24 format, e.g. 20020205.
+!NWD - Provides the next working day of the current company in internal T24 format, e.g. 20020206.
+!LWD - Provides the last working day of the current company in internal T24 format, e.g. 20020204.
+!WHO - Provides the ID of the current operator, e.g. TRAIN01.
+
+Validation Rules
+
+35 Characters Alphanumeric */
+		CONS_DATA_ITEM : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=CONS.DATA.ITEM)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=12.0, core=true, t24Name=RESERVED9)
+	}
+	DX_MARGIN_CALC__OVERRIDE
+	{
+		/* This field holds any override messages generated on input to this record.
+
+System-generated field only. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_MARGIN_CALC__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=25.0, core=true, t24Name=INPUTTER)
+	}
+	DX_MARGIN_CALC__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=26.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_MARGIN_RATES
+		@t24:i (t24Name=DX.MARGIN.RATES, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* DX.MARGIN.RATS will allow the entry of initial margin rates for various trades. These rates will be used, as required, by various initial margin calculation routines.
+Margin can be defined for Contract class level, Contract leve, Contract group level or customer level.
+example : CU100055 customer 100015; CGINT2 is for contract group INT2; CT100 for contract 100; CCBONDS for contract class BONDS. This can also be given in combinations of one or more combinations each separated with a '-' sign.
+On input the classification of type will be charged to '---' .
+Validation Rules
+two alphabets
+should be CC,CG,CT,CU to identify the classification.
+Should be a valid ID in the respective files. */
+		RATE_KEY -> DX_Margining:DX_MARGIN_RATES PK required
+			@i18n:Label (en="Rate Key")
+			@i18n:Tooltip (en="Indicates the Basic Interest key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=RATE.KEY)
+		/* The type of margin rate to be applied.
+Either flat rate or percentage of contract value.
+Validation Rules
+
+Up to 10 characters
+Input must be either RATE/PERCENTAGE
+Mandatory Input */
+		RATE_TYPE : DX_Margining:DX_MARGIN_RATES__RATE_TYPE required
+			@i18n:Label (en="Rate Type")
+			@i18n:Tooltip (en="Is the Rate quoted net of tax or gross of tax")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, t24Name=RATE.TYPE)
+		/* Margin rate to apply to lots not involved in any spread, spot or straddle calculations.
+Validation Rules
+
+Up to 15 numerical characters
+Mandatory Field */
+		FULL : T24BusinessTypes:DEC required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=FULL, typeModifiers="4")
+		/* Should the system apply a special margin rate to trades that form a time (maturity) spread.
+If YES, the rate input in SPREAD will be applied to the number of lots involved in a valid spread
+
+
+Input must be either YES/NO */
+		APPLY_SPREAD_RATE : DX_Margining:DX_MARGIN_RATES__APPLY_SPREAD_RATE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=APPLY.SPREAD.RATE)
+		/* Margin rate to apply to lots involved in a qualifying time (maturity) spread.
+Validation Rules
+
+Up to 15 numerical characters
+No Input unless APPLY.SPREAD.RATE is set to         &#145;YES&#146; */
+		SPREAD : T24BusinessTypes:DEC
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=4.0, core=true, t24Name=SPREAD, typeModifiers="4")
+		/* spot rate applicable for calculating margin
+Validation Rules
+
+
+
+Input must be YES/NO
+If left Null, field will default to NO */
+		APPLY_SPOT_RATE : DX_Margining:DX_MARGIN_RATES__APPLY_SPOT_RATE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=APPLY.SPOT.RATE)
+		/* Should be a numerical value. no decimals allowed
+Validation Rules
+
+
+
+Up to 15 numerical characters
+No Input unless APPLY.SPOT.RATE is set to &#145;YES&#146; */
+		SPOT : T24BusinessTypes:DEC
+			@i18n:Label (en=Spot)
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=6.0, core=true, t24Name=SPOT, typeModifiers="4")
+		/* Should the system apply a special margin rate for both way trades in a straddle.
+If YES, the rate input in this field then the system will use the same rate for buy and sell of the transactions.
+
+Input must be either YES/NOThis is a samle help text. */
+		APPLY_STRADDLE_RTE : DX_Margining:DX_MARGIN_RATES__APPLY_STRADDLE_RTE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, t24Name=APPLY.STRADDLE.RTE)
+		/* Margin rate to apply to both way deals
+
+
+
+
+Up to 15 numerical characters
+No Input unless APPLY.STRADDLE.RATE is set to                 &#145;YES&#146; */
+		STRADDLE : T24BusinessTypes:DEC
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=8.0, core=true, t24Name=STRADDLE, typeModifiers="4")
+		/* Minimum margin amount to be taken on a single trade. If the calculated margin amount is less than this then this amount will l be charged as the margin for that particular trade.
+Validation Rules
+
+
+
+Up to 15 numerical characters
+Input should be an amount not a rate or                 percentage */
+		MINIMUM : T24BusinessTypes:DEC
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=9.0, core=true, t24Name=MINIMUM, typeModifiers="4")
+		RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=10.0, core=true, t24Name=RESERVED.10)
+		RESERVED_09 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=11.0, core=true, t24Name=RESERVED.09)
+		RESERVED_08 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=12.0, core=true, t24Name=RESERVED.08)
+		RESERVED_07 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=13.0, core=true, t24Name=RESERVED.07)
+		RESERVED_06 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=14.0, core=true, t24Name=RESERVED.06)
+		RESERVED_05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=15.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=16.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=17.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=18.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=19.0, core=true, t24Name=RESERVED.01)
+		OVERRIDE -> byValue DX_Margining:DX_MARGIN_RATES__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=23.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Margining:DX_MARGIN_RATES__INPUTTER *
+		DATE_TIME -> byValue DX_Margining:DX_MARGIN_RATES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=26.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=27.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=28.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=29.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=30.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_MARGIN_RATES__OVERRIDE
+	{
+		/* This field holds any override messages created on input to this record.
+
+System-generated field only. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_MARGIN_RATES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=INPUTTER)
+	}
+	DX_MARGIN_RATES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=25.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_REVAL_DET_CHREG_VM
+		@t24:i (t24Name=DX.REVAL.DET.CHREG.VM, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key to this DX.REVAL.DET.CHREG.VM record.
+This takes the format DX.TRANSACTION key * exchange * currency * customer */
+		CHREG_VM_KEY -> DX_Margining:DX_REVAL_DET_CHREG_VM PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=0.0, core=true, businessType=A, t24Name=CHREG.VM.KEY)
+		CONTRACT -> byValue DX_Margining:DX_REVAL_DET_CHREG_VM__CONTRACT *
+		RESERVED_16 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, core=true, t24Name=RESERVED.16)
+		RESERVED_17 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=RESERVED.17)
+		RESERVED_18 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=30.0, core=true, t24Name=RESERVED.18)
+		RESERVED_19 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_REVAL_DET_CHREG_VM__CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to variation margin. */
+		CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, businessType=A, t24Name=CONTRACT)
+		/* This is the total variation margin calculated for this contract. */
+		CONTRACT_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=CONTRACT.VM)
+		/* The unrealised option profit or loss against this contract. */
+		CONTRACT_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=CONTRACT.UNOPT)
+		RESERVED_01 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.01)
+		RESERVED_02 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.02)
+		RESERVED_03 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.03)
+		RESERVED_04 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.04)
+		RESERVED_05 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.05)
+		TRANSACTION -> byValue DX_Margining:DX_REVAL_DET_CHREG_VM__CONTRACT__TRANSACTION *
+		RESERVED_11 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED.11)
+		RESERVED_12 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=24.0, core=true, t24Name=RESERVED.12)
+		RESERVED_13 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=25.0, core=true, t24Name=RESERVED.13)
+		RESERVED_14 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=26.0, core=true, t24Name=RESERVED.14)
+		RESERVED_15 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=27.0, core=true, t24Name=RESERVED.15)
+	}
+	DX_REVAL_DET_CHREG_VM__CONTRACT__TRANSACTION
+	{
+		/* These transactions further break down the detailed revaluation data per contract. */
+		TRANSACTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=TRANSACTION)
+		/* The revaluation transaction ID. */
+		REVAL_TRANS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, t24Name=REVAL.TRANS)
+		/* The calculated variation margin for this transaction. */
+		TRANS_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=TRANS.VM)
+		/* The unrealised option profit or loss for this transaction. */
+		TRANS_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, t24Name=TRANS.UNOPT)
+		/* The external market price for this transaction. */
+		MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=MKT.PRICE)
+		/* The internal market price for this transaction. */
+		MKT_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=14.0, core=true, t24Name=MKT.IPRICE)
+		/* The external trade price for this transaction. */
+		TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=15.0, core=true, t24Name=TRD.PRICE)
+		/* The internal trade price for this transaction. */
+		TRD_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=16.0, core=true, t24Name=TRD.IPRICE)
+		/* The number of lots applicable to this transaction. */
+		NO_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=17.0, core=true, t24Name=NO.LOTS)
+		RESERVED_06 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.06)
+		RESERVED_07 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.07)
+		RESERVED_08 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED.08)
+		RESERVED_09 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED.09)
+		RESERVED_10 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED.10)
+	}
+	DX_REVAL_DET_ENHANCED
+		@t24:i (t24Name=DX.REVAL.DET.ENHANCED, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* This is the key to this DX.REVAL.DET.ENHANCED record.
+This takes the format DX.TRANSACTION key * exchange * currency * customer */
+		STAND_IM_KEY -> DX_Margining:DX_REVAL_DET_ENHANCED PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=75, sysNumber=0.0, core=true, businessType=A, t24Name=STAND.IM.KEY)
+		/* Margin calcualted NETT or GROSS */
+		NETT_GROSS : T24BusinessTypes:A
+			@i18n:Label (en="Nett Gross")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=1.0, core=true, t24Name=NETT.GROSS)
+		/* Bump up factor applied to the initial margin. */
+		IM_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=2.0, core=true, t24Name=IM.FACTOR)
+		/* Bump up factor applied to the maintenance margin. */
+		MAINT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=MAINT.FACTOR)
+		/* Bump up factor to be applied to initial margin at exchange level. */
+		EXCH_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=EXCH.FACTOR)
+		/* The calculated Initial Margin amount. */
+		INITIAL_MARGIN : mml:Integer
+			@i18n:Label (en="Initial Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=5.0, core=true, t24Name=INITIAL.MARGIN)
+		/* The calcualated Maintenance margin amount */
+		MAINT_MARGIN : mml:Integer
+			@i18n:Label (en="Maint Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=6.0, core=true, t24Name=MAINT.MARGIN)
+		RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.01)
+		RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.02)
+		RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.03)
+		RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.04)
+		RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=11.0, core=true, t24Name=RESERVED.05)
+		CONTRACT -> byValue DX_Margining:DX_REVAL_DET_ENHANCED__CONTRACT *
+		OVERRIDE -> byValue DX_Margining:DX_REVAL_DET_ENHANCED__OVERRIDE *
+	}
+	DX_REVAL_DET_ENHANCED__CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to initial margin. */
+		CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=12.0, core=true, businessType=A, t24Name=CONTRACT)
+		/* Bump up factor to be applied to initial margin at contract level. */
+		CONTRACT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=13.0, core=true, t24Name=CONTRACT.FACTOR)
+		/* This is the total initial margin calculated for this contract, on this exchange, in this currency for this customer/group./portfolio. */
+		CONTRACT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=14.0, core=true, t24Name=CONTRACT.IM)
+		/* A valid DX.MARGIN.RATES key. */
+		RATE_KEY -> DX_Margining:DX_MARGIN_RATES
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=15.0, core=true, businessType=A, t24Name=RATE.KEY)
+		/* The type of margin rate to be applied. Either flat rate or percentage of contract value. */
+		RATE_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=16.0, core=true, t24Name=RATE.TYPE)
+		/* Margin rate to apply to lots not involved in any spread, spot or straddle calculations. */
+		FULL_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=17.0, core=true, t24Name=FULL.RATE)
+		/* Margin rate to apply to lots involved in a qualifying time (maturity) spread. */
+		SPREAD_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=18.0, core=true, t24Name=SPREAD.RATE)
+		/* Margin rate to apply to lots that mature on the same day. */
+		SPOT_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=19.0, core=true, t24Name=SPOT.RATE)
+		/* Margin rate to apply to both way deals. */
+		STRADDLE_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=20.0, core=true, t24Name=STRADDLE.RATE)
+		/* Minimum margin amount to be taken on a single trade. If the calculated margin amount is less than this then this amount will be charged as the margin for that particular trade. */
+		MINIMUM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=21.0, core=true, t24Name=MINIMUM)
+		RESERVED_06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=22.0, core=true, t24Name=RESERVED.06)
+		RESERVED_07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=23.0, core=true, t24Name=RESERVED.07)
+		RESERVED_08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=24.0, core=true, t24Name=RESERVED.08)
+		RESERVED_09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=25.0, core=true, t24Name=RESERVED.09)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=26.0, core=true, t24Name=RESERVED.10)
+		/* Number of lots that the Full rate has been applied to. */
+		FULL_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=27.0, core=true, t24Name=FULL.LOTS)
+		/* Number of lots that the spread rate has been applied to. */
+		SPREAD_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=28.0, core=true, t24Name=SPREAD.LOTS)
+		/* Number of lots that spot rate has been applied to */
+		SPOT_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=29.0, core=true, t24Name=SPOT.LOTS)
+		/* Number of lots that straddle rate has been applied to. */
+		STRADDLE_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=30.0, core=true, t24Name=STRADDLE.LOTS)
+		SPREAD_PAIR -> byValue DX_Margining:DX_REVAL_DET_ENHANCED__CONTRACT__SPREAD_PAIR *
+		STRADD_PAIR -> byValue DX_Margining:DX_REVAL_DET_ENHANCED__CONTRACT__STRADD_PAIR *
+		RESERVED_21 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=45.0, core=true, t24Name=RESERVED.21)
+		RESERVED_22 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=46.0, core=true, t24Name=RESERVED.22)
+		RESERVED_23 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=47.0, core=true, t24Name=RESERVED.23)
+		RESERVED_24 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=48.0, core=true, t24Name=RESERVED.24)
+		RESERVED_25 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=49.0, core=true, t24Name=RESERVED.25)
+	}
+	DX_REVAL_DET_ENHANCED__CONTRACT__SPREAD_PAIR
+	{
+		/* The lots paired by spread. */
+		SPREAD_PAIR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=31.0, core=true, t24Name=SPREAD.PAIR)
+		/* The maturity months of the lots that were paired by spread. */
+		SPREAD_MNTHS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=32.0, core=true, t24Name=SPREAD.MNTHS)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=33.0, core=true, t24Name=RESERVED.11)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=34.0, core=true, t24Name=RESERVED.12)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=35.0, core=true, t24Name=RESERVED.13)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=36.0, core=true, t24Name=RESERVED.14)
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=37.0, core=true, t24Name=RESERVED.15)
+	}
+	DX_REVAL_DET_ENHANCED__CONTRACT__STRADD_PAIR
+	{
+		/* The lots that were paired using the straddle strategy. */
+		STRADD_PAIR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=38.0, core=true, t24Name=STRADD.PAIR)
+		/* The maturity months of the lots that were paired using the straddle strategy. */
+		STRADD_MNTHS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=39.0, core=true, t24Name=STRADD.MNTHS)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=40.0, core=true, t24Name=RESERVED.16)
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=41.0, core=true, t24Name=RESERVED.17)
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=42.0, core=true, t24Name=RESERVED.18)
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=43.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=44.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_REVAL_DET_ENHANCED__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=51.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_REVAL_DET_EURONEXT
+		@t24:i (t24Name=DX.REVAL.DET.EURONEXT, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* This is the key to this DX.REVAL.DET.EURONEXT record.
+This takes the format DX.TRANSACTION key * exchange * currency * customer */
+		IM_KEY -> DX_Margining:DX_REVAL_DET_EURONEXT PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=IM.KEY)
+		/* The calculated Initial Margin amount. */
+		INITIAL_MARGIN : mml:Integer
+			@i18n:Label (en="Initial Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=1.0, core=true, t24Name=INITIAL.MARGIN)
+		/* This field defines a percentage increase or reduction that will be applied to all margin figures calculated by this routine. */
+		ADDON_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=ADDON.FACTOR)
+		/* Bump up factor to be applied to initial margin at exchange level. */
+		EXCH_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=EXCH.FACTOR)
+		/* The calcualated Maintenance margin amount. */
+		MAINT_MARGIN : mml:Integer
+			@i18n:Label (en="Maint Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=4.0, core=true, t24Name=MAINT.MARGIN)
+		/* Bump up factor applied to the maintenance margin. */
+		MAINT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=5.0, core=true, t24Name=MAINT.FACTOR)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=6.0, core=true, t24Name=RESERVED.20)
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.19)
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.18)
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.17)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.16)
+		/* Total calculated initial margin. */
+		TOT_CT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=11.0, core=true, t24Name=TOT.CT.IM)
+		CT_CONTRACT -> byValue DX_Margining:DX_REVAL_DET_EURONEXT__CT_CONTRACT *
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=17.0, core=true, t24Name=RESERVED.15)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=18.0, core=true, t24Name=RESERVED.14)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=19.0, core=true, t24Name=RESERVED.13)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=20.0, core=true, t24Name=RESERVED.12)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=21.0, core=true, t24Name=RESERVED.11)
+		TX_ID -> byValue DX_Margining:DX_REVAL_DET_EURONEXT__TX_ID *
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=60.0, core=true, t24Name=RESERVED.10)
+		RESERVED_09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=61.0, core=true, t24Name=RESERVED.09)
+		RESERVED_08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=62.0, core=true, t24Name=RESERVED.08)
+		RESERVED_07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=63.0, core=true, t24Name=RESERVED.07)
+		RESERVED_06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=64.0, core=true, t24Name=RESERVED.06)
+		RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=65.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=66.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=67.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=68.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=69.0, core=true, t24Name=RESERVED.01)
+		RESERVED_00 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=70.0, core=true, t24Name=RESERVED.00)
+		OVERRIDE -> byValue DX_Margining:DX_REVAL_DET_EURONEXT__OVERRIDE *
+	}
+	DX_REVAL_DET_EURONEXT__CT_CONTRACT
+	{
+		/* This contract breaks down the initial margin revaluation. */
+		CT_CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=12.0, core=true, businessType=A, t24Name=CT.CONTRACT)
+		/* This is the total initial margin calculated for this contract. */
+		CT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=13.0, core=true, t24Name=CT.IM)
+		/* Bump up factor to be applied to initial margin at contract level. */
+		CT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=14.0, core=true, t24Name=CT.FACTOR)
+		/* The margin for this contract before the contract factor is applied. */
+		CT_TOT_PRE_CF : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=15.0, core=true, t24Name=CT.TOT.PRE.CF)
+		CT_RESERVED : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=16.0, core=true, t24Name=CT.RESERVED)
+	}
+	DX_REVAL_DET_EURONEXT__TX_ID
+	{
+		/* This transaction breaks down the valuation. */
+		TX_ID -> DX_Trade:DX_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, businessType=A, t24Name=TX.ID)
+		/* This is the total initial margin calculated for this transaction. */
+		TX_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=25, sysNumber=23.0, core=true, t24Name=TX.IM)
+		/* A valid DX.MARGIN.RATES key. */
+		TX_RATE_ID -> DX_Margining:DX_MARGIN_RATES
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=24.0, core=true, businessType=A, t24Name=TX.RATE.ID)
+		/* The type of margin rate to be applied. Either flat rate or percentage of contract value. */
+		TX_RT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=25.0, core=true, t24Name=TX.RT.TYPE)
+		/* Full margin rate. */
+		TX_RT_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=26.0, core=true, t24Name=TX.RT.RATE)
+		/* Minimum margin amount to be taken on a single trade. If the calculated margin amount is less than this then this amount will be charged as the margin for that particular trade. */
+		TX_RT_MIN : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=27.0, core=true, t24Name=TX.RT.MIN)
+		/* The contract code for this transaction. */
+		TX_CT_CODE -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=28.0, core=true, businessType=A, t24Name=TX.CT.CODE)
+		/* The number of lots for this transaction. */
+		TX_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=29.0, core=true, t24Name=TX.LOTS)
+		/* Is this transaction a BUY or SELL */
+		TX_BUY_SELL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=30.0, core=true, t24Name=TX.BUY.SELL)
+		/* Is this transaction a CALL or a PUT */
+		TX_CALL_PUT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=31.0, core=true, t24Name=TX.CALL.PUT)
+		/* The maturity date for this transaction. */
+		TX_MAT_DATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=32.0, core=true, t24Name=TX.MAT.DATE)
+		/* The Internal maturity date for this transaction. */
+		TX_I_MAT_DATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=33.0, core=true, t24Name=TX.I.MAT.DATE)
+		/* The external strike price for this transaction. */
+		TX_STRIKE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=34.0, core=true, t24Name=TX.STRIKE)
+		/* The internal strike price for this transaction. */
+		TX_INT_STRIKE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=35.0, core=true, t24Name=TX.INT.STRIKE)
+		/* A valid DX.STRATEGY code. */
+		TX_STRATEGY -> DX_Configuration:DX_STRATEGY
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=36.0, core=true, businessType=A, t24Name=TX.STRATEGY)
+		/* Code representing this contract in the AEX report/limit/valuation method. */
+		TX_AEX_STRAT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=37.0, core=true, t24Name=TX.AEX.STRAT)
+		/* The strategy link for this transaction. */
+		TX_STRAT_LNK -> DX_Trade:DX_STRATEGY_LINK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=38.0, core=true, businessType=A, t24Name=TX.STRAT.LNK)
+		TX_STRAT_TX -> byValue DX_Margining:DX_REVAL_DET_EURONEXT__TX_ID__TX_STRAT_TX *
+		/* The price / Premium from the transaction. */
+		TX_TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=40.0, core=true, t24Name=TX.TRD.PRICE)
+		/* The internal price / Premium from the transaction. */
+		TX_I_TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=41.0, core=true, t24Name=TX.I.TRD.PRICE)
+		/* The external market price from the transaction. */
+		TX_MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=42.0, core=true, t24Name=TX.MKT.PRICE)
+		/* The internal market price from the transaction. */
+		TX_I_MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=43.0, core=true, t24Name=TX.I.MKT.PRICE)
+		/* The external underlying price for this transaction. */
+		TX_UL_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=44.0, core=true, t24Name=TX.UL.PRICE)
+		/* The internal underlying price for this transaction. */
+		TX_I_UL_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=45.0, core=true, t24Name=TX.I.UL.PRICE)
+		/* The option premium from the transaction */
+		TX_OPT_PREM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=46.0, core=true, t24Name=TX.OPT.PREM)
+		/* The contract size for the transaction. */
+		TX_CT_SIZE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=47.0, core=true, t24Name=TX.CT.SIZE)
+		/* The underlying transaction ID. */
+		TX_UL_FT_TX -> DX_Trade:DX_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=48.0, core=true, businessType=A, t24Name=TX.UL.FT.TX)
+		/* The underlying margin. */
+		TX_UL_FT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=49.0, core=true, t24Name=TX.UL.FT.IM)
+		/* The rate ID of the underlying transaction. */
+		TX_UL_FT_RATE_ID -> DX_Margining:DX_MARGIN_RATES
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=50.0, core=true, businessType=A, t24Name=TX.UL.FT.RATE.ID)
+		/* The rate type of the underlying transaction. */
+		TX_UL_FT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=51.0, core=true, t24Name=TX.UL.FT.TYPE)
+		/* Bump up factor to be applied to initial margin of the underlying transaction. */
+		TX_UL_FT_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=52.0, core=true, t24Name=TX.UL.FT.RATE)
+		/* Minimum margin amount to be taken on the underlying transaction. */
+		TX_UL_FT_MIN : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=53.0, core=true, t24Name=TX.UL.FT.MIN)
+		/* The number of lots of the underlying transaction. */
+		TX_UL_F_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=54.0, core=true, t24Name=TX.UL.F.LOTS)
+		TX_RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=55.0, core=true, t24Name=TX.RESERVED.05)
+		TX_RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=56.0, core=true, t24Name=TX.RESERVED.04)
+		TX_RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=57.0, core=true, t24Name=TX.RESERVED.03)
+		TX_RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=58.0, core=true, t24Name=TX.RESERVED.02)
+		TX_RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=59.0, core=true, t24Name=TX.RESERVED.01)
+	}
+	DX_REVAL_DET_EURONEXT__TX_ID__TX_STRAT_TX
+	{
+		/* Transactions used as a part of this strategy */
+		TX_STRAT_TX -> DX_Trade:DX_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=39.0, core=true, businessType=A, t24Name=TX.STRAT.TX)
+	}
+	DX_REVAL_DET_EURONEXT__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=72.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_REVAL_DET_FXOPT_VM
+		@t24:i (t24Name=DX.REVAL.DET.FXOPT.VM, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key to this DX.REVAL.DET.STAND.VM record.
+This takes the format DX.TRANSACTION key * exchange * currency * customer */
+		STAND_VM_KEY -> DX_Margining:DX_REVAL_DET_FXOPT_VM PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=0.0, core=true, businessType=A, t24Name=STAND.VM.KEY)
+		CONTRACT -> byValue DX_Margining:DX_REVAL_DET_FXOPT_VM__CONTRACT *
+		RESERVED_16 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, core=true, t24Name=RESERVED.16)
+		RESERVED_17 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=RESERVED.17)
+		RESERVED_18 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=30.0, core=true, t24Name=RESERVED.18)
+		RESERVED_19 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_REVAL_DET_FXOPT_VM__CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to variation margin. */
+		CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, businessType=A, t24Name=CONTRACT)
+		/* This is the total variation margin calculated for this contract. */
+		CONTRACT_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=CONTRACT.VM)
+		/* The unrealised option profit or loss against this contract. */
+		CONTRACT_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=CONTRACT.UNOPT)
+		RESERVED_01 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.01)
+		RESERVED_02 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.02)
+		RESERVED_03 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.03)
+		RESERVED_04 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.04)
+		RESERVED_05 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.05)
+		TRANSACTION -> byValue DX_Margining:DX_REVAL_DET_FXOPT_VM__CONTRACT__TRANSACTION *
+		RESERVED_11 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED.11)
+		RESERVED_12 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=24.0, core=true, t24Name=RESERVED.12)
+		RESERVED_13 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=25.0, core=true, t24Name=RESERVED.13)
+		RESERVED_14 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=26.0, core=true, t24Name=RESERVED.14)
+		RESERVED_15 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=27.0, core=true, t24Name=RESERVED.15)
+	}
+	DX_REVAL_DET_FXOPT_VM__CONTRACT__TRANSACTION
+	{
+		/* These transactions further break down the detailed revaluation data per contract. */
+		TRANSACTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=TRANSACTION)
+		/* The revaluation transaction ID. */
+		REVAL_TRANS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, t24Name=REVAL.TRANS)
+		/* The calculated variation margin for this transaction. */
+		TRANS_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=TRANS.VM)
+		/* The unrealised option profit or loss for this transaction. */
+		TRANS_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, t24Name=TRANS.UNOPT)
+		/* The external market price for this transaction. */
+		MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=MKT.PRICE)
+		/* The internal market price for this transaction. */
+		MKT_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=14.0, core=true, t24Name=MKT.IPRICE)
+		/* The external trade price for this transaction. */
+		TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=15.0, core=true, t24Name=TRD.PRICE)
+		/* The internal trade price for this transaction. */
+		TRD_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=16.0, core=true, t24Name=TRD.IPRICE)
+		/* The number of lots applicable to this transaction. */
+		NO_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=17.0, core=true, t24Name=NO.LOTS)
+		RESERVED_06 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.06)
+		RESERVED_07 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.07)
+		RESERVED_08 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED.08)
+		RESERVED_09 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED.09)
+		RESERVED_10 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED.10)
+	}
+	/* This application is a dummy application for use with the NO.IM margining method defined in DX.MARGIN.CALC
+Validation Rules
+
+None */
+	DX_REVAL_DET_NO_IM
+		@t24:i (t24Name=DX.REVAL.DET.NO.IM, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This application is a dummy application for use with the NO.IM margining method defined in DX.MARGIN.CALC
+Validation Rules
+
+None. */
+		NO_MARGIN_KEY -> DX_Margining:DX_REVAL_DET_NO_IM PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=NO.MARGIN.KEY)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=1.0, core=true, t24Name=RESERVED.1)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=2.0, core=true, t24Name=RESERVED.2)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=3.0, core=true, t24Name=RESERVED.3)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=4.0, core=true, t24Name=RESERVED.4)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=5.0, core=true, t24Name=RESERVED.5)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=6.0, core=true, t24Name=RESERVED.6)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.7)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.8)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.9)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.10)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=11.0, core=true, t24Name=RESERVED.11)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=12.0, core=true, t24Name=RESERVED.12)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=13.0, core=true, t24Name=RESERVED.13)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=14.0, core=true, t24Name=RESERVED.14)
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=15.0, core=true, t24Name=RESERVED.15)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=16.0, core=true, t24Name=RESERVED.16)
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=17.0, core=true, t24Name=RESERVED.17)
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=18.0, core=true, t24Name=RESERVED.18)
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=19.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=20.0, core=true, t24Name=RESERVED.20)
+	}
+	/* This application is a dummy application for use with the NO.VM margining method defined in DX.MARGIN.CALC
+Validation Rules
+
+None */
+	DX_REVAL_DET_NO_VM
+		@t24:i (t24Name=DX.REVAL.DET.NO.VM, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This application is a dummy application for use with the NO.VM margining method defined in DX.MARGIN.CALC
+Validation Rules
+
+None. */
+		NO_MARGIN_KEY -> DX_Margining:DX_REVAL_DET_NO_VM PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=NO.MARGIN.KEY)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=1.0, core=true, t24Name=RESERVED.1)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=2.0, core=true, t24Name=RESERVED.2)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=3.0, core=true, t24Name=RESERVED.3)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=4.0, core=true, t24Name=RESERVED.4)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=5.0, core=true, t24Name=RESERVED.5)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=6.0, core=true, t24Name=RESERVED.6)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.7)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.8)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.9)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.10)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=11.0, core=true, t24Name=RESERVED.11)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=12.0, core=true, t24Name=RESERVED.12)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=13.0, core=true, t24Name=RESERVED.13)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=14.0, core=true, t24Name=RESERVED.14)
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=15.0, core=true, t24Name=RESERVED.15)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=16.0, core=true, t24Name=RESERVED.16)
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=17.0, core=true, t24Name=RESERVED.17)
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=18.0, core=true, t24Name=RESERVED.18)
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=19.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=20.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_REVAL_DET_OCC_TIMS
+		@t24:i (t24Name=DX.REVAL.DET.OCC.TIMS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* This is the key to this DX.REVAL.DET.OCC.TIMS record.
+This takes the format DX.TRANSACTION key * exchange * currency * customer */
+		IM_KEY -> DX_Margining:DX_REVAL_DET_OCC_TIMS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=IM.KEY)
+		/* The calculated Initial Margin amount. */
+		INITIAL_MARGIN : mml:Integer
+			@i18n:Label (en="Initial Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=1.0, core=true, t24Name=INITIAL.MARGIN)
+		/* This field defines a percentage increase or reduction that will be applied to all margin figures calculated by this routine. */
+		ADDON_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=ADDON.FACTOR)
+		/* Bump up factor to be applied to initial margin at exchange level. */
+		EXCH_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=EXCH.FACTOR)
+		/* The calcualated Maintenance margin amount */
+		MAINT_MARGIN : mml:Integer
+			@i18n:Label (en="Maint Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=4.0, core=true, t24Name=MAINT.MARGIN)
+		/* Bump up factor applied to the maintenance margin. */
+		MAINT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=5.0, core=true, t24Name=MAINT.FACTOR)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=6.0, core=true, t24Name=RESERVED.20)
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.19)
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.18)
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.17)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.16)
+		/* The total calculated Initial Margin amount for all contracts. */
+		TOT_CT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=11.0, core=true, t24Name=TOT.CT.IM)
+		CT_CONTRACT -> byValue DX_Margining:DX_REVAL_DET_OCC_TIMS__CT_CONTRACT *
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=17.0, core=true, t24Name=RESERVED.15)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=18.0, core=true, t24Name=RESERVED.14)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=19.0, core=true, t24Name=RESERVED.13)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=20.0, core=true, t24Name=RESERVED.12)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=21.0, core=true, t24Name=RESERVED.11)
+		TX_ID -> byValue DX_Margining:DX_REVAL_DET_OCC_TIMS__TX_ID *
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=56.0, core=true, t24Name=RESERVED.10)
+		RESERVED_09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=57.0, core=true, t24Name=RESERVED.09)
+		RESERVED_08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=58.0, core=true, t24Name=RESERVED.08)
+		RESERVED_07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=59.0, core=true, t24Name=RESERVED.07)
+		RESERVED_06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=60.0, core=true, t24Name=RESERVED.06)
+		RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=61.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=62.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=63.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=64.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=65.0, core=true, t24Name=RESERVED.01)
+		RESERVED_00 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=66.0, core=true, t24Name=RESERVED.00)
+		OVERRIDE -> byValue DX_Margining:DX_REVAL_DET_OCC_TIMS__OVERRIDE *
+	}
+	DX_REVAL_DET_OCC_TIMS__CT_CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to initial margin. */
+		CT_CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=12.0, core=true, businessType=A, t24Name=CT.CONTRACT)
+		/* This is the total initial margin calculated for this contract, on this exchange, in this currency for this customer/group./portfolio. */
+		CT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=13.0, core=true, t24Name=CT.IM)
+		/* Bump up factor to be applied at contract level. */
+		CT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=14.0, core=true, t24Name=CT.FACTOR)
+		/* The total amount to be applied against this contract before the contract bump up factor is applied. */
+		CT_TOT_PRE_CF : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=15.0, core=true, t24Name=CT.TOT.PRE.CF)
+		CT_RESERVED : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=16.0, core=true, t24Name=CT.RESERVED)
+	}
+	DX_REVAL_DET_OCC_TIMS__TX_ID
+	{
+		/* This transaction breaks down the valuation. */
+		TX_ID -> DX_Trade:DX_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, businessType=A, t24Name=TX.ID)
+		/* This is the total initial margin calculated for this transaction. */
+		TX_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=25, sysNumber=23.0, core=true, t24Name=TX.IM)
+		/* The OCC code applicable to the contract for this transaction. */
+		TX_PRODUCT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=24.0, core=true, t24Name=TX.PRODUCT.TYPE)
+		/* Is this transaction a HEDGE or a TRADE. */
+		TX_HEDGE_TRADE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=25.0, core=true, t24Name=TX.HEDGE.TRADE)
+		/* The rate ID of the transaction. */
+		TX_RATE_ID -> DX_Margining:DX_MARGIN_RATES
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=26.0, core=true, businessType=A, t24Name=TX.RATE.ID)
+		/* The rate type of the transaction. */
+		TX_RT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=27.0, core=true, t24Name=TX.RT.TYPE)
+		/* Bump up factor to be applied to initial margin of the transaction. */
+		TX_RT_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=28.0, core=true, t24Name=TX.RT.RATE)
+		/* Margin rate to apply to lots involved in a qualifying time (maturity) spread. */
+		TX_RT_SPREAD : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=29.0, core=true, t24Name=TX.RT.SPREAD)
+		/* Minimum margin amount to be taken on a single transaction. If the calculated margin amount is less than this then this amount will be charged as the margin for that particular transaction. */
+		TX_RT_MIN : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=30.0, core=true, t24Name=TX.RT.MIN)
+		/* The contract code for this transaction. */
+		TX_CT_CODE -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=31.0, core=true, businessType=A, t24Name=TX.CT.CODE)
+		/* The number of lots applicable to this transaction. */
+		TX_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=32.0, core=true, t24Name=TX.LOTS)
+		/* This contains whether the transaction is a BUY or a SELL. */
+		TX_BUY_SELL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=33.0, core=true, t24Name=TX.BUY.SELL)
+		/* If the transaction contract is an option this contains whether the transaction is a CALL or a PUT. */
+		TX_CALL_PUT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=34.0, core=true, t24Name=TX.CALL.PUT)
+		/* The external maturity date for the transaction. */
+		TX_MAT_DATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=35.0, core=true, t24Name=TX.MAT.DATE)
+		/* The internal maturity date for this transaction. */
+		TX_I_MAT_DATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=36.0, core=true, t24Name=TX.I.MAT.DATE)
+		/* The external strike price for this transaction. */
+		TX_STRIKE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=37.0, core=true, t24Name=TX.STRIKE)
+		/* The internal strike price for this transaction. */
+		TX_INT_STRIKE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=38.0, core=true, t24Name=TX.INT.STRIKE)
+		/* A valid DX.STRATEGY key.
+The trading strategy that this transaction is a part of. */
+		TX_STRATEGY -> DX_Configuration:DX_STRATEGY
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=39.0, core=true, businessType=A, t24Name=TX.STRATEGY)
+		/* Code representing this contract in the OCC report/limit/valuation method. */
+		TX_OCC_STRAT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=40.0, core=true, t24Name=TX.OCC.STRAT)
+		/* The strategy link for this transaction. */
+		TX_STRAT_LNK -> DX_Trade:DX_STRATEGY_LINK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=41.0, core=true, businessType=A, t24Name=TX.STRAT.LNK)
+		TX_STRAT_TX -> byValue DX_Margining:DX_REVAL_DET_OCC_TIMS__TX_ID__TX_STRAT_TX *
+		/* The price / Premium from the transaction. */
+		TX_TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=43.0, core=true, t24Name=TX.TRD.PRICE)
+		/* The internal price / Premium from the transaction. */
+		TX_I_TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=44.0, core=true, t24Name=TX.I.TRD.PRICE)
+		/* The external market price from the transaction. */
+		TX_MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=45.0, core=true, t24Name=TX.MKT.PRICE)
+		/* The internal market price from the transaction. */
+		TX_I_MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=46.0, core=true, t24Name=TX.I.MKT.PRICE)
+		/* The external underlying price for this transaction. */
+		TX_UL_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=47.0, core=true, t24Name=TX.UL.PRICE)
+		/* The internal underlying price for this transaction. */
+		TX_I_UL_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=48.0, core=true, t24Name=TX.I.UL.PRICE)
+		/* The contract size for the transaction. */
+		TX_UL_PRINCIPAL : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=49.0, core=true, t24Name=TX.UL.PRINCIPAL)
+		/* The contract size for the transaction. */
+		TX_CT_SIZE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=50.0, core=true, t24Name=TX.CT.SIZE)
+		TX_RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=51.0, core=true, t24Name=TX.RESERVED.05)
+		TX_RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=52.0, core=true, t24Name=TX.RESERVED.04)
+		TX_RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=53.0, core=true, t24Name=TX.RESERVED.03)
+		TX_RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=54.0, core=true, t24Name=TX.RESERVED.02)
+		TX_RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=55.0, core=true, t24Name=TX.RESERVED.01)
+	}
+	DX_REVAL_DET_OCC_TIMS__TX_ID__TX_STRAT_TX
+	{
+		/* Transactions used as a part of this strategy. */
+		TX_STRAT_TX -> DX_Trade:DX_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=42.0, core=true, businessType=A, t24Name=TX.STRAT.TX)
+	}
+	DX_REVAL_DET_OCC_TIMS__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=68.0, core=true, t24Name=OVERRIDE)
+	}
+	/* This application is a reporting file created for the standard initial margin calculation routine supplied with T24.
+A DX.REVAL.DET... file exists for every DX.MARGIN.CALC record that has been created. Without these files the DX revaluation cannot function.
+Validation Rules
+
+None */
+	DX_REVAL_DET_STAND_IM
+		@t24:i (t24Name=DX.REVAL.DET.STAND.IM, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* The key for this file is designed to aid reporting of varition margins in the DX revaluation suite.
+An example of key could be,
+DXRVL9510900006*1*USD*10018
+
+DXRVL9510900006 - This is the key to the revaliation that         created the record.
+1 - This is the exchange code for which this record         belongs.
+USD - This is the currency of the margins held at the         exchange.
+10018 - This is the customer/group or portfolio to which         the margins relate.
+Validation Rules
+
+None */
+		STAND_IM_KEY -> DX_Margining:DX_REVAL_DET_STAND_IM PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=75, sysNumber=0.0, core=true, businessType=A, t24Name=STAND.IM.KEY)
+		/* Margin calcualted NETT or GROSS
+Validation Rules
+
+
+Input is defaulted from DX.EXCHANGE.MASTER  will be either : NETT/GROSS */
+		NETT_GROSS : T24BusinessTypes:A
+			@i18n:Label (en="Nett Gross")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=1.0, core=true, t24Name=NETT.GROSS)
+		/* Bump up factor applied to the initial margin.
+Validation Rules
+
+
+Input is defaulted from DX.MARGIN.CALC application */
+		IM_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=2.0, core=true, t24Name=IM.FACTOR)
+		/* Bump up factor applied to the maintenance margin.
+Validation Rules
+
+
+Input is defaulted from the DX.MARGIN.CALC Application */
+		MAINT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=MAINT.FACTOR)
+		/* Bump up factor to be applied to initial margin at exchange level.
+Validation Rules
+
+
+Input is defaulted from the CUSTOMER Application */
+		EXCH_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=EXCH.FACTOR)
+		/* The calculated Initial Margin amount.
+Validation Rules
+
+
+Up to 15 characters */
+		INITIAL_MARGIN : mml:Integer
+			@i18n:Label (en="Initial Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=5.0, core=true, t24Name=INITIAL.MARGIN)
+		/* The calcualated Maintenance margin amount
+Validation Rules
+
+
+Up to 15 characters */
+		MAINT_MARGIN : mml:Integer
+			@i18n:Label (en="Maint Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=6.0, core=true, t24Name=MAINT.MARGIN)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.01)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.02)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.03)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.04)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=11.0, core=true, t24Name=RESERVED.05)
+		CONTRACT -> byValue DX_Margining:DX_REVAL_DET_STAND_IM__CONTRACT *
+		OVERRIDE -> byValue DX_Margining:DX_REVAL_DET_STAND_IM__OVERRIDE *
+	}
+	DX_REVAL_DET_STAND_IM__CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to initial margin.
+Validation Rules
+
+
+Up to 12 characters, input must be a valid record on DX.CONTRACT.MASTER application */
+		CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=12.0, core=true, businessType=A, t24Name=CONTRACT)
+		/* Bump up factor to be applied to initial margin at contract level.
+Validation Rules
+
+
+Input is defaulted from the DX.MARGIN.CALC Application */
+		CONTRACT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=13.0, core=true, t24Name=CONTRACT.FACTOR)
+		/* This is the total initial margin calculated for this contract, on this exchange, in this currency for this customer/group./portfolio.
+Validation Rules
+
+
+Up to 15 characters */
+		CONTRACT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=14.0, core=true, t24Name=CONTRACT.IM)
+		/* A valid DX.MARGIN.RATES key.
+Validation Rules
+
+
+Up to 25 characters, input must be a valid record on the DX.MARGIN.RATES Application */
+		RATE_KEY -> DX_Margining:DX_MARGIN_RATES
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=15.0, core=true, businessType=A, t24Name=RATE.KEY)
+		/* The type of margin rate to be applied. Either flat rate or percentage of contract value.
+Validation Rules
+
+
+Defaulted input must be either : RATE/PERCENTAGE */
+		RATE_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=16.0, core=true, t24Name=RATE.TYPE)
+		/* Margin rate to apply to lots not involved in any spread, spot or straddle calculations.
+Validation Rules
+
+
+Up to 15 characters */
+		FULL_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=17.0, core=true, t24Name=FULL.RATE)
+		/* Margin rate to apply to lots involved in a qualifying time (maturity) spread.
+Validation Rules
+
+
+Up to 15 characters */
+		SPREAD_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=18.0, core=true, t24Name=SPREAD.RATE)
+		/* Margin rate to apply to lots that mature on the same day.
+Validation Rules
+
+
+Up to 15 characters */
+		SPOT_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=19.0, core=true, t24Name=SPOT.RATE)
+		/* Margin rate to apply to both way deals.
+Validation Rules
+
+
+Up to 15 characters */
+		STRADDLE_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=20.0, core=true, t24Name=STRADDLE.RATE)
+		/* Minimum margin amount to be taken on a single trade. If the calculated margin amount is less than this then this amount will be charged as the margin for that particular trade.
+Validation Rules
+
+
+Up to 15 characters */
+		MINIMUM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=21.0, core=true, t24Name=MINIMUM)
+		/* Reserved For Future Use
+Validation Rules
+
+No Input Field */
+		RESERVED_06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=22.0, core=true, t24Name=RESERVED.06)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=23.0, core=true, t24Name=RESERVED.07)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=24.0, core=true, t24Name=RESERVED.08)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=25.0, core=true, t24Name=RESERVED.09)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=26.0, core=true, t24Name=RESERVED.10)
+		/* Number of lots that the Full rate has been applied to.
+Validation Rules
+
+
+Up to 10 characters */
+		FULL_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=27.0, core=true, t24Name=FULL.LOTS)
+		/* Number of lots that spread rate has been applied to.
+Validation Rules
+
+
+Up to 10 characters */
+		SPREAD_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=28.0, core=true, t24Name=SPREAD.LOTS)
+		/* Number of lots that spot rate has been applied to.
+Validation Rules
+
+Up to 10 characters */
+		SPOT_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=29.0, core=true, t24Name=SPOT.LOTS)
+		/* Number of lots that straddle rate has been applied to.
+Validation Rules
+
+
+Up to 10 characters */
+		STRADDLE_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=30.0, core=true, t24Name=STRADDLE.LOTS)
+		SPREAD_PAIR -> byValue DX_Margining:DX_REVAL_DET_STAND_IM__CONTRACT__SPREAD_PAIR *
+		STRADD_PAIR -> byValue DX_Margining:DX_REVAL_DET_STAND_IM__CONTRACT__STRADD_PAIR *
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_21 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=45.0, core=true, t24Name=RESERVED.21)
+		/* Reserved For Future Use Insert text here
+Validation Rules
+
+
+No Input Field */
+		RESERVED_22 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=46.0, core=true, t24Name=RESERVED.22)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_23 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=47.0, core=true, t24Name=RESERVED.23)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_24 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=48.0, core=true, t24Name=RESERVED.24)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_25 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=49.0, core=true, t24Name=RESERVED.25)
+	}
+	DX_REVAL_DET_STAND_IM__CONTRACT__SPREAD_PAIR
+	{
+		/* The lots paired by spread.
+Validation Rules
+
+
+Up to 10 characters */
+		SPREAD_PAIR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=31.0, core=true, t24Name=SPREAD.PAIR)
+		/* The maturity months of the lots that were paired by spread.
+Validation Rules
+
+
+Up to 20 characters */
+		SPREAD_MNTHS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=32.0, core=true, t24Name=SPREAD.MNTHS)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=33.0, core=true, t24Name=RESERVED.11)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=34.0, core=true, t24Name=RESERVED.12)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=35.0, core=true, t24Name=RESERVED.13)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=36.0, core=true, t24Name=RESERVED.14)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=37.0, core=true, t24Name=RESERVED.15)
+	}
+	DX_REVAL_DET_STAND_IM__CONTRACT__STRADD_PAIR
+	{
+		/* The lots that were psired using the straddle strategy.
+Validation Rules
+
+
+Up to 10 characters */
+		STRADD_PAIR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=38.0, core=true, t24Name=STRADD.PAIR)
+		/* The maturity months of the lots that were paired using the straddle strategy.
+Validation Rules
+
+
+Up to 20 characters */
+		STRADD_MNTHS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=39.0, core=true, t24Name=STRADD.MNTHS)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=40.0, core=true, t24Name=RESERVED.16)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=41.0, core=true, t24Name=RESERVED.17)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=42.0, core=true, t24Name=RESERVED.18)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=43.0, core=true, t24Name=RESERVED.19)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=44.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_REVAL_DET_STAND_IM__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=51.0, core=true, t24Name=OVERRIDE)
+	}
+	/* This application is a reporting file created for the standard variation margin calculation routine supplied with T24.
+A DX.REVAL.DET. file exists for every DX.MARGIN.CALC record that has been created... Without these files the DX revaluation cannot function.
+Validation Rules
+
+None */
+	DX_REVAL_DET_STAND_VM
+		@t24:i (t24Name=DX.REVAL.DET.STAND.VM, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The key for this file is designed to aid reporting of varition margins in the DX revaluation suite.
+An example of key could be,
+DXRVL9510900006*1*USD*10018
+
+DXRVL9510900006 - This is the key to the revaliation that         created the record.
+1 - This is the exchange code for which this record         belongs.
+USD - This is the currency of the margins held at the         exchange.
+10018 - This is the customer/group or portfolio to which         the margins relate.
+Validation Rules
+
+None */
+		STAND_VM_KEY -> DX_Margining:DX_REVAL_DET_STAND_VM PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=0.0, core=true, businessType=A, t24Name=STAND.VM.KEY)
+		CONTRACT -> byValue DX_Margining:DX_REVAL_DET_STAND_VM__CONTRACT *
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_16 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, core=true, t24Name=RESERVED.16)
+		/* Reserved for Future Use
+Validation Rules
+
+Reserved for Future Use */
+		RESERVED_17 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=RESERVED.17)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_18 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=30.0, core=true, t24Name=RESERVED.18)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_19 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, core=true, t24Name=RESERVED.19)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_20 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_REVAL_DET_STAND_VM__CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to variation margin.
+Validation Rules
+
+Must exist as a valid contract on the DX.CONTRACT.MASTER         application */
+		CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, businessType=A, t24Name=CONTRACT)
+		/* This is the total variation margin calculated for this contract, on this exchange, in this currency for this customer/group./portfolio.
+Validation Rules
+
+15 Characters in AMT format. */
+		CONTRACT_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=CONTRACT.VM)
+		/* This is the total unrealised option profit and loss calculated for this contract, on this exchange, in this currency for this customer/group/portfolio.
+Validation Rules
+
+15 Characted in AMT format. */
+		CONTRACT_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=CONTRACT.UNOPT)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_01 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.01)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_02 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.02)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_03 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.03)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED_04 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.04)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED_05 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.05)
+		TRANSACTION -> byValue DX_Margining:DX_REVAL_DET_STAND_VM__CONTRACT__TRANSACTION *
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_11 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED.11)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_12 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=24.0, core=true, t24Name=RESERVED.12)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_13 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=25.0, core=true, t24Name=RESERVED.13)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_14 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=26.0, core=true, t24Name=RESERVED.14)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_15 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=27.0, core=true, t24Name=RESERVED.15)
+	}
+	DX_REVAL_DET_STAND_VM__CONTRACT__TRANSACTION
+	{
+		/* These transactions further break down the detailed revaluation data per contract. */
+		TRANSACTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=TRANSACTION)
+		/* The revaluation transaction ID. */
+		REVAL_TRANS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, t24Name=REVAL.TRANS)
+		/* The calculated variation margin for this transaction. */
+		TRANS_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=TRANS.VM)
+		/* The unrealised option profit or loss for this transaction. */
+		TRANS_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, t24Name=TRANS.UNOPT)
+		/* The external market price for this transaction. */
+		MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=MKT.PRICE)
+		/* The internal market price for this transaction. */
+		MKT_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=14.0, core=true, t24Name=MKT.IPRICE)
+		/* The external trade price for this transaction. */
+		TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=15.0, core=true, t24Name=TRD.PRICE)
+		/* The internal trade price for this transaction. */
+		TRD_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=16.0, core=true, t24Name=TRD.IPRICE)
+		/* The number of lots applicable to this transaction. */
+		NO_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=17.0, core=true, t24Name=NO.LOTS)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_06 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.06)
+		/* Reserved for Future Use
+
+Validation Rules
+
+None */
+		RESERVED_07 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.07)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_08 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED.08)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_09 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED.09)
+		/* Reserved for Future Use
+Validation Rules
+
+None */
+		RESERVED_10 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED.10)
+	}
+	DX_RV_DET_CHREG_VM_HIST
+		@t24:i (t24Name=DX.RV.DET.CHREG.VM.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key to this DX.REVAL.DET.CHREG.VM.HIST record. */
+		CHREG_VM_KEY -> DX_Margining:DX_RV_DET_CHREG_VM_HIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=0.0, core=true, businessType=A, t24Name=CHREG.VM.KEY)
+		CONTRACT -> byValue DX_Margining:DX_RV_DET_CHREG_VM_HIST__CONTRACT *
+		RESERVED_16 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, core=true, t24Name=RESERVED.16)
+		RESERVED_17 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=RESERVED.17)
+		RESERVED_18 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=30.0, core=true, t24Name=RESERVED.18)
+		RESERVED_19 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_RV_DET_CHREG_VM_HIST__CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to variation margin. */
+		CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, businessType=A, t24Name=CONTRACT)
+		/* This is the total variation margin calculated for this contract. */
+		CONTRACT_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=CONTRACT.VM)
+		/* The unrealised option profit or loss against this contract. */
+		CONTRACT_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=CONTRACT.UNOPT)
+		RESERVED_01 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.01)
+		RESERVED_02 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.02)
+		RESERVED_03 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.03)
+		RESERVED_04 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.04)
+		RESERVED_05 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.05)
+		TRANSACTION -> byValue DX_Margining:DX_RV_DET_CHREG_VM_HIST__CONTRACT__TRANSACTION *
+		RESERVED_11 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED.11)
+		RESERVED_12 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=24.0, core=true, t24Name=RESERVED.12)
+		RESERVED_13 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=25.0, core=true, t24Name=RESERVED.13)
+		RESERVED_14 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=26.0, core=true, t24Name=RESERVED.14)
+		RESERVED_15 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=27.0, core=true, t24Name=RESERVED.15)
+	}
+	DX_RV_DET_CHREG_VM_HIST__CONTRACT__TRANSACTION
+	{
+		/* These transactions further break down the detailed revaluation data per contract. */
+		TRANSACTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=TRANSACTION)
+		/* The revaluation transaction ID. */
+		REVAL_TRANS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, t24Name=REVAL.TRANS)
+		/* The calculated variation margin for this transaction. */
+		TRANS_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=TRANS.VM)
+		/* The unrealised option profit or loss for this transaction. */
+		TRANS_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, t24Name=TRANS.UNOPT)
+		/* The external market price for this transaction. */
+		MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=MKT.PRICE)
+		/* The internal market price for this transaction. */
+		MKT_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=14.0, core=true, t24Name=MKT.IPRICE)
+		/* The external trade price for this transaction. */
+		TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=15.0, core=true, t24Name=TRD.PRICE)
+		/* The internal trade price for this transaction. */
+		TRD_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=16.0, core=true, t24Name=TRD.IPRICE)
+		/* The number of lots applicable to this transaction. */
+		NO_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=17.0, core=true, t24Name=NO.LOTS)
+		RESERVED_06 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.06)
+		RESERVED_07 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.07)
+		RESERVED_08 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED.08)
+		RESERVED_09 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED.09)
+		RESERVED_10 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED.10)
+	}
+	DX_RV_DET_ENHANCED_HIST
+		@t24:i (t24Name=DX.RV.DET.ENHANCED.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* This is the key to this DX.REVAL.DET.ENHANCED.HIST record. */
+		STAND_IM_KEY -> DX_Margining:DX_RV_DET_ENHANCED_HIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=75, sysNumber=0.0, core=true, businessType=A, t24Name=STAND.IM.KEY)
+		/* Margin calcualted NETT or GROSS */
+		NETT_GROSS : T24BusinessTypes:A
+			@i18n:Label (en="Nett Gross")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=1.0, core=true, t24Name=NETT.GROSS)
+		/* Bump up factor applied to the initial margin. */
+		IM_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=2.0, core=true, t24Name=IM.FACTOR)
+		/* Bump up factor applied to the maintenance margin. */
+		MAINT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=MAINT.FACTOR)
+		/* Bump up factor to be applied to initial margin at exchange level. */
+		EXCH_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=EXCH.FACTOR)
+		/* The calculated Initial Margin amount. */
+		INITIAL_MARGIN : mml:Integer
+			@i18n:Label (en="Initial Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=5.0, core=true, t24Name=INITIAL.MARGIN)
+		/* The calcualated Maintenance margin amount */
+		MAINT_MARGIN : mml:Integer
+			@i18n:Label (en="Maint Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=6.0, core=true, t24Name=MAINT.MARGIN)
+		RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.01)
+		RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.02)
+		RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.03)
+		RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.04)
+		RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=11.0, core=true, t24Name=RESERVED.05)
+		CONTRACT -> byValue DX_Margining:DX_RV_DET_ENHANCED_HIST__CONTRACT *
+		OVERRIDE -> byValue DX_Margining:DX_RV_DET_ENHANCED_HIST__OVERRIDE *
+	}
+	DX_RV_DET_ENHANCED_HIST__CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to initial margin. */
+		CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=12.0, core=true, businessType=A, t24Name=CONTRACT)
+		/* Bump up factor to be applied to initial margin at contract level. */
+		CONTRACT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=13.0, core=true, t24Name=CONTRACT.FACTOR)
+		/* This is the total initial margin calculated for this contract, on this exchange, in this currency for this customer/group./portfolio. */
+		CONTRACT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=14.0, core=true, t24Name=CONTRACT.IM)
+		/* A valid DX.MARGIN.RATES key. */
+		RATE_KEY -> DX_Margining:DX_MARGIN_RATES
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=15.0, core=true, businessType=A, t24Name=RATE.KEY)
+		/* The type of margin rate to be applied. Either flat rate or percentage of contract value. */
+		RATE_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=16.0, core=true, t24Name=RATE.TYPE)
+		/* Margin rate to apply to lots not involved in any spread, spot or straddle calculations. */
+		FULL_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=17.0, core=true, t24Name=FULL.RATE)
+		/* Margin rate to apply to lots involved in a qualifying time (maturity) spread. */
+		SPREAD_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=18.0, core=true, t24Name=SPREAD.RATE)
+		/* Margin rate to apply to lots that mature on the same day. */
+		SPOT_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=19.0, core=true, t24Name=SPOT.RATE)
+		/* Margin rate to apply to both way deals. */
+		STRADDLE_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=20.0, core=true, t24Name=STRADDLE.RATE)
+		/* Minimum margin amount to be taken on a single trade. If the calculated margin amount is less than this then this amount will be charged as the margin for that particular trade. */
+		MINIMUM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=21.0, core=true, t24Name=MINIMUM)
+		RESERVED_06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=22.0, core=true, t24Name=RESERVED.06)
+		RESERVED_07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=23.0, core=true, t24Name=RESERVED.07)
+		RESERVED_08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=24.0, core=true, t24Name=RESERVED.08)
+		RESERVED_09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=25.0, core=true, t24Name=RESERVED.09)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=26.0, core=true, t24Name=RESERVED.10)
+		/* Number of lots that the Full rate has been applied to. */
+		FULL_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=27.0, core=true, t24Name=FULL.LOTS)
+		/* Number of lots that the spread rate has been applied to. */
+		SPREAD_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=28.0, core=true, t24Name=SPREAD.LOTS)
+		/* Number of lots that spot rate has been applied to. */
+		SPOT_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=29.0, core=true, t24Name=SPOT.LOTS)
+		/* Number of lots that straddle rate has been applied to. */
+		STRADDLE_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=30.0, core=true, t24Name=STRADDLE.LOTS)
+		SPREAD_PAIR -> byValue DX_Margining:DX_RV_DET_ENHANCED_HIST__CONTRACT__SPREAD_PAIR *
+		STRADD_PAIR -> byValue DX_Margining:DX_RV_DET_ENHANCED_HIST__CONTRACT__STRADD_PAIR *
+		RESERVED_21 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=45.0, core=true, t24Name=RESERVED.21)
+		RESERVED_22 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=46.0, core=true, t24Name=RESERVED.22)
+		RESERVED_23 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=47.0, core=true, t24Name=RESERVED.23)
+		RESERVED_24 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=48.0, core=true, t24Name=RESERVED.24)
+		RESERVED_25 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=49.0, core=true, t24Name=RESERVED.25)
+	}
+	DX_RV_DET_ENHANCED_HIST__CONTRACT__SPREAD_PAIR
+	{
+		/* The lots paired by spread. */
+		SPREAD_PAIR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=31.0, core=true, t24Name=SPREAD.PAIR)
+		/* The maturity months of the lots that were paired by spread. */
+		SPREAD_MNTHS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=32.0, core=true, t24Name=SPREAD.MNTHS)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=33.0, core=true, t24Name=RESERVED.11)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=34.0, core=true, t24Name=RESERVED.12)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=35.0, core=true, t24Name=RESERVED.13)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=36.0, core=true, t24Name=RESERVED.14)
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=37.0, core=true, t24Name=RESERVED.15)
+	}
+	DX_RV_DET_ENHANCED_HIST__CONTRACT__STRADD_PAIR
+	{
+		/* The lots that were paired using the straddle strategy. */
+		STRADD_PAIR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=38.0, core=true, t24Name=STRADD.PAIR)
+		/* The maturity months of the lots that were paired using the straddle strategy. */
+		STRADD_MNTHS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=39.0, core=true, t24Name=STRADD.MNTHS)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=40.0, core=true, t24Name=RESERVED.16)
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=41.0, core=true, t24Name=RESERVED.17)
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=42.0, core=true, t24Name=RESERVED.18)
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=43.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=44.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_RV_DET_ENHANCED_HIST__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=51.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_RV_DET_EURONEXT_HIST
+		@t24:i (t24Name=DX.RV.DET.EURONEXT.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* This is the key to this DX.REVAL.DET.EURONEXT.HIST record. */
+		IM_KEY -> DX_Margining:DX_RV_DET_EURONEXT_HIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=IM.KEY)
+		/* The calculated Initial Margin amount. */
+		INITIAL_MARGIN : mml:Integer
+			@i18n:Label (en="Initial Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=1.0, core=true, t24Name=INITIAL.MARGIN)
+		/* This field defines a percentage increase or reduction that will be applied to all margin figures calculated by this routine. */
+		ADDON_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=ADDON.FACTOR)
+		/* Bump up factor to be applied to initial margin at exchange level. */
+		EXCH_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=EXCH.FACTOR)
+		/* The calcualated Maintenance margin amount. */
+		MAINT_MARGIN : mml:Integer
+			@i18n:Label (en="Maint Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=4.0, core=true, t24Name=MAINT.MARGIN)
+		/* Bump up factor applied to the maintenance margin. */
+		MAINT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=5.0, core=true, t24Name=MAINT.FACTOR)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=6.0, core=true, t24Name=RESERVED.20)
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.19)
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.18)
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.17)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.16)
+		/* Total calculated initial margin. */
+		TOT_CT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=11.0, core=true, t24Name=TOT.CT.IM)
+		CT_CONTRACT -> byValue DX_Margining:DX_RV_DET_EURONEXT_HIST__CT_CONTRACT *
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=17.0, core=true, t24Name=RESERVED.15)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=18.0, core=true, t24Name=RESERVED.14)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=19.0, core=true, t24Name=RESERVED.13)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=20.0, core=true, t24Name=RESERVED.12)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=21.0, core=true, t24Name=RESERVED.11)
+		TX_ID -> byValue DX_Margining:DX_RV_DET_EURONEXT_HIST__TX_ID *
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=60.0, core=true, t24Name=RESERVED.10)
+		RESERVED_09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=61.0, core=true, t24Name=RESERVED.09)
+		RESERVED_08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=62.0, core=true, t24Name=RESERVED.08)
+		RESERVED_07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=63.0, core=true, t24Name=RESERVED.07)
+		RESERVED_06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=64.0, core=true, t24Name=RESERVED.06)
+		RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=65.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=66.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=67.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=68.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=69.0, core=true, t24Name=RESERVED.01)
+		RESERVED_00 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=70.0, core=true, t24Name=RESERVED.00)
+		OVERRIDE -> byValue DX_Margining:DX_RV_DET_EURONEXT_HIST__OVERRIDE *
+	}
+	DX_RV_DET_EURONEXT_HIST__CT_CONTRACT
+	{
+		/* This contract breaks down the initial margin revaluation. */
+		CT_CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=12.0, core=true, businessType=A, t24Name=CT.CONTRACT)
+		/* This is the total initial margin calculated for this contract. */
+		CT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=13.0, core=true, t24Name=CT.IM)
+		/* Bump up factor to be applied to initial margin at contract level. */
+		CT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=14.0, core=true, t24Name=CT.FACTOR)
+		/* The margin for this contract before the contract factor is applied. */
+		CT_TOT_PRE_CF : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=15.0, core=true, t24Name=CT.TOT.PRE.CF)
+		CT_RESERVED : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=16.0, core=true, t24Name=CT.RESERVED)
+	}
+	DX_RV_DET_EURONEXT_HIST__TX_ID
+	{
+		/* This transaction breaks down the valuation. */
+		TX_ID -> DX_Trade:DX_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, businessType=A, t24Name=TX.ID)
+		/* This is the total initial margin calculated for this transaction. */
+		TX_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=25, sysNumber=23.0, core=true, t24Name=TX.IM)
+		/* A valid DX.MARGIN.RATES key. */
+		TX_RATE_ID -> DX_Margining:DX_MARGIN_RATES
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=24.0, core=true, businessType=A, t24Name=TX.RATE.ID)
+		/* The type of margin rate to be applied. Either flat rate or percentage of contract value. */
+		TX_RT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=25.0, core=true, t24Name=TX.RT.TYPE)
+		/* Full margin rate. */
+		TX_RT_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=26.0, core=true, t24Name=TX.RT.RATE)
+		/* Minimum margin amount to be taken on a single trade. If the calculated margin amount is less than this then this amount will be charged as the margin for that particular trade. */
+		TX_RT_MIN : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=27.0, core=true, t24Name=TX.RT.MIN)
+		/* The contract code for this transaction. */
+		TX_CT_CODE -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=28.0, core=true, businessType=A, t24Name=TX.CT.CODE)
+		/* The number of lots for this transaction. */
+		TX_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=29.0, core=true, t24Name=TX.LOTS)
+		/* Is this transaction a BUY or SELL */
+		TX_BUY_SELL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=30.0, core=true, t24Name=TX.BUY.SELL)
+		/* Is this transaction a CALL or a PUT */
+		TX_CALL_PUT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=31.0, core=true, t24Name=TX.CALL.PUT)
+		/* The maturity date for this transaction. */
+		TX_MAT_DATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=32.0, core=true, t24Name=TX.MAT.DATE)
+		/* The Internal maturity date for this transaction. */
+		TX_I_MAT_DATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=33.0, core=true, t24Name=TX.I.MAT.DATE)
+		/* The external strike price for this transaction. */
+		TX_STRIKE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=34.0, core=true, t24Name=TX.STRIKE)
+		/* The internal strike price for this transaction. */
+		TX_INT_STRIKE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=35.0, core=true, t24Name=TX.INT.STRIKE)
+		/* A valid DX.STRATEGY code. */
+		TX_STRATEGY -> DX_Configuration:DX_STRATEGY
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=36.0, core=true, businessType=A, t24Name=TX.STRATEGY)
+		/* Code representing this contract in the AEX report/limit/valuation method. */
+		TX_AEX_STRAT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=37.0, core=true, t24Name=TX.AEX.STRAT)
+		/* The strategy link for this transaction. */
+		TX_STRAT_LNK -> DX_Trade:DX_STRATEGY_LINK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=38.0, core=true, businessType=A, t24Name=TX.STRAT.LNK)
+		TX_STRAT_TX -> byValue DX_Margining:DX_RV_DET_EURONEXT_HIST__TX_ID__TX_STRAT_TX *
+		/* The price / Premium from the transaction. */
+		TX_TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=40.0, core=true, t24Name=TX.TRD.PRICE)
+		/* The internal price / Premium from the transaction. */
+		TX_I_TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=41.0, core=true, t24Name=TX.I.TRD.PRICE)
+		/* The external market price from the transaction. */
+		TX_MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=42.0, core=true, t24Name=TX.MKT.PRICE)
+		/* The internal market price from the transaction. */
+		TX_I_MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=43.0, core=true, t24Name=TX.I.MKT.PRICE)
+		/* The external underlying price for this transaction. */
+		TX_UL_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=44.0, core=true, t24Name=TX.UL.PRICE)
+		/* The internal underlying price for this transaction. */
+		TX_I_UL_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=45.0, core=true, t24Name=TX.I.UL.PRICE)
+		/* The option premium from the transaction. */
+		TX_OPT_PREM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=46.0, core=true, t24Name=TX.OPT.PREM)
+		/* The contract size for the transaction. */
+		TX_CT_SIZE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=47.0, core=true, t24Name=TX.CT.SIZE)
+		/* The underlying transaction ID. */
+		TX_UL_FT_TX -> DX_Trade:DX_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=48.0, core=true, businessType=A, t24Name=TX.UL.FT.TX)
+		/* The underlying margin. */
+		TX_UL_FT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=49.0, core=true, t24Name=TX.UL.FT.IM)
+		/* The rate ID of the underlying transaction. */
+		TX_UL_FT_RATE_ID -> DX_Margining:DX_MARGIN_RATES
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=50.0, core=true, businessType=A, t24Name=TX.UL.FT.RATE.ID)
+		/* The rate type of the underlying transaction. */
+		TX_UL_FT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=51.0, core=true, t24Name=TX.UL.FT.TYPE)
+		/* Bump up factor to be applied to initial margin of the underlying transaction. */
+		TX_UL_FT_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=52.0, core=true, t24Name=TX.UL.FT.RATE)
+		/* Minimum margin amount to be taken on the underlying transaction. */
+		TX_UL_FT_MIN : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=53.0, core=true, t24Name=TX.UL.FT.MIN)
+		/* The number of lots of the underlying transaction. */
+		TX_UL_F_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=54.0, core=true, t24Name=TX.UL.F.LOTS)
+		TX_RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=55.0, core=true, t24Name=TX.RESERVED.05)
+		TX_RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=56.0, core=true, t24Name=TX.RESERVED.04)
+		TX_RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=57.0, core=true, t24Name=TX.RESERVED.03)
+		TX_RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=58.0, core=true, t24Name=TX.RESERVED.02)
+		TX_RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=59.0, core=true, t24Name=TX.RESERVED.01)
+	}
+	DX_RV_DET_EURONEXT_HIST__TX_ID__TX_STRAT_TX
+	{
+		/* Transactions used as a part of this strategy. */
+		TX_STRAT_TX -> DX_Trade:DX_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=39.0, core=true, businessType=A, t24Name=TX.STRAT.TX)
+	}
+	DX_RV_DET_EURONEXT_HIST__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=72.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_RV_DET_FXOPT_VM_HIST
+		@t24:i (t24Name=DX.RV.DET.FXOPT.VM.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key to this DX.REVAL.DET.FXOPT.VM.HIST record. */
+		STAND_VM_KEY -> DX_Margining:DX_RV_DET_FXOPT_VM_HIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=0.0, core=true, businessType=A, t24Name=STAND.VM.KEY)
+		CONTRACT -> byValue DX_Margining:DX_RV_DET_FXOPT_VM_HIST__CONTRACT *
+		RESERVED_16 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, core=true, t24Name=RESERVED.16)
+		RESERVED_17 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=RESERVED.17)
+		RESERVED_18 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=30.0, core=true, t24Name=RESERVED.18)
+		RESERVED_19 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_RV_DET_FXOPT_VM_HIST__CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to variation margin. */
+		CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, businessType=A, t24Name=CONTRACT)
+		/* This is the total variation margin calculated for this contract. */
+		CONTRACT_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=CONTRACT.VM)
+		/* The unrealised option profit or loss against this contract. */
+		CONTRACT_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=CONTRACT.UNOPT)
+		RESERVED_01 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.01)
+		RESERVED_02 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.02)
+		RESERVED_03 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.03)
+		RESERVED_04 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.04)
+		RESERVED_05 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.05)
+		TRANSACTION -> byValue DX_Margining:DX_RV_DET_FXOPT_VM_HIST__CONTRACT__TRANSACTION *
+		RESERVED_11 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED.11)
+		RESERVED_12 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=24.0, core=true, t24Name=RESERVED.12)
+		RESERVED_13 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=25.0, core=true, t24Name=RESERVED.13)
+		RESERVED_14 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=26.0, core=true, t24Name=RESERVED.14)
+		RESERVED_15 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=27.0, core=true, t24Name=RESERVED.15)
+	}
+	DX_RV_DET_FXOPT_VM_HIST__CONTRACT__TRANSACTION
+	{
+		/* These transactions further break down the detailed revaluation data per contract. */
+		TRANSACTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=TRANSACTION)
+		/* The revaluation transaction ID. */
+		REVAL_TRANS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, t24Name=REVAL.TRANS)
+		/* The calculated variation margin for this transaction. */
+		TRANS_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=TRANS.VM)
+		/* The unrealised option profit or loss for this transaction. */
+		TRANS_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, t24Name=TRANS.UNOPT)
+		/* The external market price for this transaction. */
+		MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=MKT.PRICE)
+		/* The internal market price for this transaction. */
+		MKT_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=14.0, core=true, t24Name=MKT.IPRICE)
+		/* The external trade price for this transaction. */
+		TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=15.0, core=true, t24Name=TRD.PRICE)
+		/* The internal trade price for this transaction. */
+		TRD_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=16.0, core=true, t24Name=TRD.IPRICE)
+		/* The number of lots applicable to this transaction. */
+		NO_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=17.0, core=true, t24Name=NO.LOTS)
+		RESERVED_06 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.06)
+		RESERVED_07 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.07)
+		RESERVED_08 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED.08)
+		RESERVED_09 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED.09)
+		RESERVED_10 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED.10)
+	}
+	/* This application is a dummy application for use with the NO.IM margining method defined in DX.MARGIN.CALC
+Validation Rules
+
+None */
+	DX_RV_DET_NO_IM_HIST
+		@t24:i (t24Name=DX.RV.DET.NO.IM.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This application is a dummy application for use with the NO.IM margining method defined in DX.MARGIN.CALC
+Validation Rules
+
+None. */
+		NO_MARGIN_KEY -> DX_Margining:DX_RV_DET_NO_IM_HIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=NO.MARGIN.KEY)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=1.0, core=true, t24Name=RESERVED.1)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=2.0, core=true, t24Name=RESERVED.2)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=3.0, core=true, t24Name=RESERVED.3)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=4.0, core=true, t24Name=RESERVED.4)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=5.0, core=true, t24Name=RESERVED.5)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=6.0, core=true, t24Name=RESERVED.6)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.7)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.8)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.9)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.10)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=11.0, core=true, t24Name=RESERVED.11)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=12.0, core=true, t24Name=RESERVED.12)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=13.0, core=true, t24Name=RESERVED.13)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=14.0, core=true, t24Name=RESERVED.14)
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=15.0, core=true, t24Name=RESERVED.15)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=16.0, core=true, t24Name=RESERVED.16)
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=17.0, core=true, t24Name=RESERVED.17)
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=18.0, core=true, t24Name=RESERVED.18)
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=19.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=20.0, core=true, t24Name=RESERVED.20)
+	}
+	/* This application is a dummy application for use with the NO.VM margining method defined in DX.MARGIN.CALC
+Validation Rules
+
+None. */
+	DX_RV_DET_NO_VM_HIST
+		@t24:i (t24Name=DX.RV.DET.NO.VM.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This application is a dummy application for use with the NO.VM margining method defined in DX.MARGIN.CALC
+Validation Rules
+
+None. */
+		NO_MARGIN_KEY -> DX_Margining:DX_RV_DET_NO_VM_HIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=NO.MARGIN.KEY)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=1.0, core=true, t24Name=RESERVED.1)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=2.0, core=true, t24Name=RESERVED.2)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=3.0, core=true, t24Name=RESERVED.3)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=4.0, core=true, t24Name=RESERVED.4)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=5.0, core=true, t24Name=RESERVED.5)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=6.0, core=true, t24Name=RESERVED.6)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.7)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.8)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.9)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.10)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=11.0, core=true, t24Name=RESERVED.11)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=12.0, core=true, t24Name=RESERVED.12)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=13.0, core=true, t24Name=RESERVED.13)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=14.0, core=true, t24Name=RESERVED.14)
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=15.0, core=true, t24Name=RESERVED.15)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=16.0, core=true, t24Name=RESERVED.16)
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=17.0, core=true, t24Name=RESERVED.17)
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=18.0, core=true, t24Name=RESERVED.18)
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=19.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=20.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_RV_DET_OCC_TIMS_HIST
+		@t24:i (t24Name=DX.RV.DET.OCC.TIMS.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* This is the key to this DX.REVAL.DET.OCC.TIMS.HIST record. */
+		IM_KEY -> DX_Margining:DX_RV_DET_OCC_TIMS_HIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=IM.KEY)
+		/* The calculated Initial Margin amount. */
+		INITIAL_MARGIN : mml:Integer
+			@i18n:Label (en="Initial Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=1.0, core=true, t24Name=INITIAL.MARGIN)
+		/* This field defines a percentage increase or reduction that will be applied to all margin figures calculated by this routine. */
+		ADDON_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=ADDON.FACTOR)
+		/* Bump up factor to be applied to initial margin at exchange level. */
+		EXCH_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=EXCH.FACTOR)
+		/* The calcualated Maintenance margin amount. */
+		MAINT_MARGIN : mml:Integer
+			@i18n:Label (en="Maint Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=4.0, core=true, t24Name=MAINT.MARGIN)
+		/* Bump up factor applied to the maintenance margin. */
+		MAINT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=5.0, core=true, t24Name=MAINT.FACTOR)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=6.0, core=true, t24Name=RESERVED.20)
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.19)
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.18)
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.17)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.16)
+		/* The total calculated Initial Margin amount for all contracts. */
+		TOT_CT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=11.0, core=true, t24Name=TOT.CT.IM)
+		CT_CONTRACT -> byValue DX_Margining:DX_RV_DET_OCC_TIMS_HIST__CT_CONTRACT *
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=17.0, core=true, t24Name=RESERVED.15)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=18.0, core=true, t24Name=RESERVED.14)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=19.0, core=true, t24Name=RESERVED.13)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=20.0, core=true, t24Name=RESERVED.12)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=21.0, core=true, t24Name=RESERVED.11)
+		TX_ID -> byValue DX_Margining:DX_RV_DET_OCC_TIMS_HIST__TX_ID *
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=56.0, core=true, t24Name=RESERVED.10)
+		RESERVED_09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=57.0, core=true, t24Name=RESERVED.09)
+		RESERVED_08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=58.0, core=true, t24Name=RESERVED.08)
+		RESERVED_07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=59.0, core=true, t24Name=RESERVED.07)
+		RESERVED_06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=60.0, core=true, t24Name=RESERVED.06)
+		RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=61.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=62.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=63.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=64.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=65.0, core=true, t24Name=RESERVED.01)
+		RESERVED_00 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=66.0, core=true, t24Name=RESERVED.00)
+		OVERRIDE -> byValue DX_Margining:DX_RV_DET_OCC_TIMS_HIST__OVERRIDE *
+	}
+	DX_RV_DET_OCC_TIMS_HIST__CT_CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to initial margin. */
+		CT_CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=12.0, core=true, businessType=A, t24Name=CT.CONTRACT)
+		/* This is the total initial margin calculated for this contract, on this exchange, in this currency for this customer/group./portfolio. */
+		CT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=13.0, core=true, t24Name=CT.IM)
+		/* Bump up factor to be applied at contract level. */
+		CT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=14.0, core=true, t24Name=CT.FACTOR)
+		/* The total amount to be applied against this contract before the contract bump up factor is applied. */
+		CT_TOT_PRE_CF : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=15.0, core=true, t24Name=CT.TOT.PRE.CF)
+		CT_RESERVED : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=16.0, core=true, t24Name=CT.RESERVED)
+	}
+	DX_RV_DET_OCC_TIMS_HIST__TX_ID
+	{
+		/* This transaction breaks down the valuation. */
+		TX_ID -> DX_Trade:DX_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, businessType=A, t24Name=TX.ID)
+		/* This is the total initial margin calculated for this transaction. */
+		TX_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=25, sysNumber=23.0, core=true, t24Name=TX.IM)
+		/* The OCC code applicable to the contract for this transaction. */
+		TX_PRODUCT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=24.0, core=true, t24Name=TX.PRODUCT.TYPE)
+		/* Is this transaction a HEDGE or a TRADE. */
+		TX_HEDGE_TRADE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=25.0, core=true, t24Name=TX.HEDGE.TRADE)
+		/* The rate ID of the transaction. */
+		TX_RATE_ID -> DX_Margining:DX_MARGIN_RATES
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=26.0, core=true, businessType=A, t24Name=TX.RATE.ID)
+		/* The rate type of the transaction. */
+		TX_RT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=27.0, core=true, t24Name=TX.RT.TYPE)
+		/* Bump up factor to be applied to initial margin of the transaction. */
+		TX_RT_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=28.0, core=true, t24Name=TX.RT.RATE)
+		/* Margin rate to apply to lots involved in a qualifying time (maturity) spread. */
+		TX_RT_SPREAD : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=29.0, core=true, t24Name=TX.RT.SPREAD)
+		/* Minimum margin amount to be taken on a single transaction. If the calculated margin amount is less than this then this amount will be charged as the margin for that particular transaction. */
+		TX_RT_MIN : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=30.0, core=true, t24Name=TX.RT.MIN)
+		/* The contract code for this transaction. */
+		TX_CT_CODE -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=31.0, core=true, businessType=A, t24Name=TX.CT.CODE)
+		/* The number of lots applicable to this transaction. */
+		TX_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=32.0, core=true, t24Name=TX.LOTS)
+		/* This contains whether the transaction is a BUY or a SELL. */
+		TX_BUY_SELL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=33.0, core=true, t24Name=TX.BUY.SELL)
+		/* If the transaction contract is an option this contains whether the transaction is a CALL or a PUT. */
+		TX_CALL_PUT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=34.0, core=true, t24Name=TX.CALL.PUT)
+		/* The external maturity date for the transaction. */
+		TX_MAT_DATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=35.0, core=true, t24Name=TX.MAT.DATE)
+		/* The internal maturity date for this transaction. */
+		TX_I_MAT_DATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=36.0, core=true, t24Name=TX.I.MAT.DATE)
+		/* The external strike price for this transaction. */
+		TX_STRIKE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=37.0, core=true, t24Name=TX.STRIKE)
+		/* The internal strike price for this transaction. */
+		TX_INT_STRIKE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=38.0, core=true, t24Name=TX.INT.STRIKE)
+		/* A valid DX.STRATEGY key.
+The trading strategy that this transaction is a part of. */
+		TX_STRATEGY -> DX_Configuration:DX_STRATEGY
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=39.0, core=true, businessType=A, t24Name=TX.STRATEGY)
+		/* Code representing this contract in the OCC report/limit/valuation method. */
+		TX_OCC_STRAT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=40.0, core=true, t24Name=TX.OCC.STRAT)
+		/* The strategy link for this transaction. */
+		TX_STRAT_LNK -> DX_Trade:DX_STRATEGY_LINK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=41.0, core=true, businessType=A, t24Name=TX.STRAT.LNK)
+		TX_STRAT_TX -> byValue DX_Margining:DX_RV_DET_OCC_TIMS_HIST__TX_ID__TX_STRAT_TX *
+		/* The price / Premium from the transaction. */
+		TX_TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=43.0, core=true, t24Name=TX.TRD.PRICE)
+		/* The internal price / Premium from the transaction. */
+		TX_I_TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=44.0, core=true, t24Name=TX.I.TRD.PRICE)
+		/* The external market price from the transaction. */
+		TX_MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=45.0, core=true, t24Name=TX.MKT.PRICE)
+		/* The internal market price from the transaction. */
+		TX_I_MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=46.0, core=true, t24Name=TX.I.MKT.PRICE)
+		/* The external underlying price for this transaction. */
+		TX_UL_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=47.0, core=true, t24Name=TX.UL.PRICE)
+		/* The internal underlying price for this transaction. */
+		TX_I_UL_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=48.0, core=true, t24Name=TX.I.UL.PRICE)
+		/* The contract size for the transaction. */
+		TX_UL_PRINCIPAL : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=49.0, core=true, t24Name=TX.UL.PRINCIPAL)
+		/* The contract size for the transaction. */
+		TX_CT_SIZE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=50.0, core=true, t24Name=TX.CT.SIZE)
+		TX_RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=51.0, core=true, t24Name=TX.RESERVED.05)
+		TX_RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=52.0, core=true, t24Name=TX.RESERVED.04)
+		TX_RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=53.0, core=true, t24Name=TX.RESERVED.03)
+		TX_RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=54.0, core=true, t24Name=TX.RESERVED.02)
+		TX_RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=55.0, core=true, t24Name=TX.RESERVED.01)
+	}
+	DX_RV_DET_OCC_TIMS_HIST__TX_ID__TX_STRAT_TX
+	{
+		/* Transactions used as a part of this strategy. */
+		TX_STRAT_TX -> DX_Trade:DX_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=42.0, core=true, businessType=A, t24Name=TX.STRAT.TX)
+	}
+	DX_RV_DET_OCC_TIMS_HIST__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=68.0, core=true, t24Name=OVERRIDE)
+	}
+	/* This application is a reporting file created for the standard initial margin calculation routine supplied with T24.
+A DX.RV.DET...HIST file exists for every DX.MARGIN.CALC record that has been created.
+This files are used for historical storage of revaluation details.
+They share there file layout with the DX.REVAL.DET... for the DX.MARGIN.CALC record.
+Validation Rules
+
+None */
+	DX_RV_DET_STAND_IM_HIST
+		@t24:i (t24Name=DX.RV.DET.STAND.IM.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* The key for this file is designed to aid reporting of varition margins in the DX revaluation suite.
+
+An example of key could be,
+
+DXRVL9510900006*1*USD*10018
+
+
+
+DXRVL9510900006 - This is the key to the revaliation that created the record.
+
+1 - This is the exchange code for which this record belongs.
+
+USD - This is the currency of the margins held at the exchange.
+
+10018 - This is the customer/group or portfolio to which the margins relate. */
+		STAND_IM_KEY -> DX_Margining:DX_RV_DET_STAND_IM_HIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=75, sysNumber=0.0, core=true, businessType=A, t24Name=STAND.IM.KEY)
+		/* Margin calcualted NETT or GROSS
+
+Validation Rules
+
+
+Up to 5 characters, input will default from DX.EXCHNAGE.MASTER
+Must be either NETT/GROSS */
+		NETT_GROSS : T24BusinessTypes:A
+			@i18n:Label (en="Nett Gross")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=1.0, core=true, t24Name=NETT.GROSS)
+		/* Bump up factor applied to the initial margin.
+
+Validation Rules
+
+
+Up to 5 characters, input will default from DX.MARGIN.CALC */
+		IM_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=2.0, core=true, t24Name=IM.FACTOR)
+		/* Bump up factor applied to the maintenance margin.
+
+Validation Rules
+
+
+Up to 5 characters, input defaults from  DX.MARGIN.CALC */
+		MAINT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=MAINT.FACTOR)
+		/* Bump up factor to be applied to initial margin at exchange level.
+
+Validation Rules
+
+
+Up to 5 characters, input defaults from the CUSTOMER Application */
+		EXCH_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=EXCH.FACTOR)
+		/* The calculated Initial Margin amount.
+
+Validation Rules
+
+
+Up to 15 characters */
+		INITIAL_MARGIN : mml:Integer
+			@i18n:Label (en="Initial Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=5.0, core=true, t24Name=INITIAL.MARGIN)
+		/* The calcualated Maintenance margin amount
+
+Validation Rules
+
+
+Up to 15 characters */
+		MAINT_MARGIN : mml:Integer
+			@i18n:Label (en="Maint Margin")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=6.0, core=true, t24Name=MAINT.MARGIN)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=7.0, core=true, t24Name=RESERVED.01)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=RESERVED.02)
+		/* Reserved For Future Use
+Validation Rules
+
+No Input Field */
+		RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=9.0, core=true, t24Name=RESERVED.03)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=RESERVED.04)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=11.0, core=true, t24Name=RESERVED.05)
+		CONTRACT -> byValue DX_Margining:DX_RV_DET_STAND_IM_HIST__CONTRACT *
+		OVERRIDE -> byValue DX_Margining:DX_RV_DET_STAND_IM_HIST__OVERRIDE *
+	}
+	DX_RV_DET_STAND_IM_HIST__CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to initial margin.
+
+Validation Rules
+
+
+Up to 12 character, input must be a valid record on DX.CONTRACT.MASTER */
+		CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=12.0, core=true, businessType=A, t24Name=CONTRACT)
+		/* Bump up factor to be applied to initial margin at contract level.
+
+Validation Rules
+
+
+Up to 5 characters, input is defaulted from the CUSTOMER Application */
+		CONTRACT_FACTOR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=13.0, core=true, t24Name=CONTRACT.FACTOR)
+		/* This is the total initial margin calculated for this contract, on this exchange, in this currency for this customer/group./portfolio.
+
+Validation Rules
+
+
+Up to 15 characters */
+		CONTRACT_IM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=14.0, core=true, t24Name=CONTRACT.IM)
+		/* A valid DX.MARGIN.RATES key.
+
+Validation Rules
+
+
+Up to 25 characters, input must be a valid record on the DX.MARGIN.RATES field */
+		RATE_KEY -> DX_Margining:DX_MARGIN_RATES
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=15.0, core=true, businessType=A, t24Name=RATE.KEY)
+		/* The type of margin rate to be applied. Either flat rate or percentage of contract value.
+
+Validation Rules
+
+
+Up to 10 characters, input will default from DX.MARGIN.RATES
+Must be either RATE/PERCENTAGE */
+		RATE_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=16.0, core=true, t24Name=RATE.TYPE)
+		/* Margin rate to apply to lots not involved in any spread, spot or straddle calculations.
+
+Validation Rules
+
+
+Up to 15 characters */
+		FULL_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=17.0, core=true, t24Name=FULL.RATE)
+		/* Margin rate to apply to lots involved in a qualifying time (maturity) spread.
+
+Validation Rules
+
+
+Up to 15 characters */
+		SPREAD_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=18.0, core=true, t24Name=SPREAD.RATE)
+		/* Margin rate to apply to lots that mature on the same day.
+
+Validation Rules
+
+
+Up to 15 characters */
+		SPOT_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=19.0, core=true, t24Name=SPOT.RATE)
+		/* Margin rate to apply to both way deals.
+
+Validation Rules
+
+
+Up to 15 characters */
+		STRADDLE_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=20.0, core=true, t24Name=STRADDLE.RATE)
+		/* Minimum margin amount to be taken on a single trade. If the calculated margin amount is less than this then this amount will be charged as the margin for that particular trade.
+
+Validation Rules
+
+
+Up to 15 characters */
+		MINIMUM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=21.0, core=true, t24Name=MINIMUM)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=22.0, core=true, t24Name=RESERVED.06)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=23.0, core=true, t24Name=RESERVED.07)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=24.0, core=true, t24Name=RESERVED.08)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=25.0, core=true, t24Name=RESERVED.09)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=26.0, core=true, t24Name=RESERVED.10)
+		/* Number of lots that the Full rate has been applied to.
+
+Validation Rules
+
+
+Up to 10 characters */
+		FULL_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=27.0, core=true, t24Name=FULL.LOTS)
+		/* Number of lots that spread rate has been applied to.
+
+Validation Rules
+
+
+Up to 10 characters */
+		SPREAD_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=28.0, core=true, t24Name=SPREAD.LOTS)
+		/* Number of lots that spot rate has been applied to.
+
+Validation Rules
+
+
+Up to 10 characters */
+		SPOT_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=29.0, core=true, t24Name=SPOT.LOTS)
+		/* Number of lots that straddle rate has been applied to.
+
+Validation Rules
+
+
+Up to 10 characters */
+		STRADDLE_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=30.0, core=true, t24Name=STRADDLE.LOTS)
+		SPREAD_PAIR -> byValue DX_Margining:DX_RV_DET_STAND_IM_HIST__CONTRACT__SPREAD_PAIR *
+		STRADD_PAIR -> byValue DX_Margining:DX_RV_DET_STAND_IM_HIST__CONTRACT__STRADD_PAIR *
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_21 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=45.0, core=true, t24Name=RESERVED.21)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_22 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=46.0, core=true, t24Name=RESERVED.22)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_23 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=47.0, core=true, t24Name=RESERVED.23)
+		/* Reserved For Furture Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_24 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=48.0, core=true, t24Name=RESERVED.24)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_25 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=49.0, core=true, t24Name=RESERVED.25)
+	}
+	DX_RV_DET_STAND_IM_HIST__CONTRACT__SPREAD_PAIR
+	{
+		/* The lots paired by spread.
+
+Validation Rules
+
+
+Up to 10 characters */
+		SPREAD_PAIR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=31.0, core=true, t24Name=SPREAD.PAIR)
+		/* The maturity months of the lots that were paired by spread.
+
+Validation Rules
+
+
+Up to 20 characters */
+		SPREAD_MNTHS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=32.0, core=true, t24Name=SPREAD.MNTHS)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=33.0, core=true, t24Name=RESERVED.11)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=34.0, core=true, t24Name=RESERVED.12)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=35.0, core=true, t24Name=RESERVED.13)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=36.0, core=true, t24Name=RESERVED.14)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=37.0, core=true, t24Name=RESERVED.15)
+	}
+	DX_RV_DET_STAND_IM_HIST__CONTRACT__STRADD_PAIR
+	{
+		/* The lots that were psired using the straddle strategy.
+
+Validation Rules
+
+
+Up to 10 characters */
+		STRADD_PAIR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=38.0, core=true, t24Name=STRADD.PAIR)
+		/* The maturity months of the lots that were paired using the straddle strategy.
+
+Validation Rules
+
+
+Up to 20 characters */
+		STRADD_MNTHS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=39.0, core=true, t24Name=STRADD.MNTHS)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=40.0, core=true, t24Name=RESERVED.16)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=41.0, core=true, t24Name=RESERVED.17)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=42.0, core=true, t24Name=RESERVED.18)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=43.0, core=true, t24Name=RESERVED.19)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=44.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_RV_DET_STAND_IM_HIST__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=51.0, core=true, t24Name=OVERRIDE)
+	}
+	/* This application is a reporting file created for the standard variation margin calculation routine supplied with T24.
+A DX.RV.DET. . .HIST file exists for every DX.MARGIN.CALC record that has been created.
+This files are used for historical storage of revaluation details.
+They share there file layout with the DX.REVAL.DET. . . for the DX.MARGIN.CALC record.
+Validation Rules
+
+None */
+	DX_RV_DET_STAND_VM_HIST
+		@t24:i (t24Name=DX.RV.DET.STAND.VM.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key to this DX.RV.DET.STAND.VM.HIST record. */
+		STAND_VM_KEY -> DX_Margining:DX_RV_DET_STAND_VM_HIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=0.0, core=true, businessType=A, t24Name=STAND.VM.KEY)
+		CONTRACT -> byValue DX_Margining:DX_RV_DET_STAND_VM_HIST__CONTRACT *
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_16 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, core=true, t24Name=RESERVED.16)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_17 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=RESERVED.17)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_18 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=30.0, core=true, t24Name=RESERVED.18)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_19 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, core=true, t24Name=RESERVED.19)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_20 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=RESERVED.20)
+	}
+	DX_RV_DET_STAND_VM_HIST__CONTRACT
+	{
+		/* This contract breaks the detailed revaluation data down into contract by contract figures relating to variation margin.
+
+Validation Rules
+
+
+Up to 12 characters, input must be a valid contract on the DX.CONTRACT.MASTER Application */
+		CONTRACT -> DX_Configuration:DX_CONTRACT_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, businessType=A, t24Name=CONTRACT)
+		/* This is the total variation margin calculated for this contract.
+
+Validation Rules
+
+
+Up to 15 characters in AMT format */
+		CONTRACT_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=CONTRACT.VM)
+		/* The unrealised option profit or loss against this contract.
+
+Validation Rules
+
+
+Up to 15 characters in AMT format */
+		CONTRACT_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=CONTRACT.UNOPT)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_01 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.01)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_02 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.02)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_03 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.03)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_04 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.04)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_05 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.05)
+		TRANSACTION -> byValue DX_Margining:DX_RV_DET_STAND_VM_HIST__CONTRACT__TRANSACTION *
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_11 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED.11)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_12 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=24.0, core=true, t24Name=RESERVED.12)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_13 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=25.0, core=true, t24Name=RESERVED.13)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_14 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=26.0, core=true, t24Name=RESERVED.14)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_15 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=27.0, core=true, t24Name=RESERVED.15)
+	}
+	DX_RV_DET_STAND_VM_HIST__CONTRACT__TRANSACTION
+	{
+		/* These transactions further break down the detailed revaluation data per contract.
+
+Validation Rules
+
+
+Up to 35 characters */
+		TRANSACTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=TRANSACTION)
+		/* The revaluation transaction ID.
+
+Validation Rules
+
+
+Up to 35 characters, input must be a valid record on the DX.REVAL.TRANSACTION Application */
+		REVAL_TRANS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, t24Name=REVAL.TRANS)
+		/* The calculated variation margin for this transaction.
+
+Validation Rules
+
+
+Up to 35 characters in AMT format */
+		TRANS_VM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=TRANS.VM)
+		/* The unrealised option profit or loss for this transaction
+
+Validation Rules
+
+
+Up to 25 characters in AMT format */
+		TRANS_UNOPT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, t24Name=TRANS.UNOPT)
+		/* The external market price for this transaction.
+
+Validation Rules
+
+
+Up to 35 characters */
+		MKT_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=MKT.PRICE)
+		/* The internal market price for this transaction.
+
+Validation Rules
+
+
+Up to 35 characters */
+		MKT_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=14.0, core=true, t24Name=MKT.IPRICE)
+		/* The external trade price for this transaction.
+
+Validation Rules
+
+
+Up to 35 characters */
+		TRD_PRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=15.0, core=true, t24Name=TRD.PRICE)
+		/* The internal trade price for this transaction.
+
+Validation Rules
+
+
+Up to 35 characters */
+		TRD_IPRICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=16.0, core=true, t24Name=TRD.IPRICE)
+		/* The number of lots applicable to this transaction.
+
+Validation Rules
+
+
+Up to 35 characters */
+		NO_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=17.0, core=true, t24Name=NO.LOTS)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_06 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.06)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_07 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.07)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_08 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED.08)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_09 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED.09)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Field */
+		RESERVED_10 : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED.10)
+	}
+}
+Enumerations {
+	DX_MARGIN_CALC__TYPE : mml:string
+		INITIAL=INITIAL
+		VARIATION=VARIATION
+	DX_MARGIN_CALC__DATA_RECORD__DATA_RECORD : mml:string
+		DX_CUSTOMER=DX.CUSTOMER
+		CUSTOMER=CUSTOMER
+		SEC_ACC_MASTER=SEC.ACC.MASTER
+		DX_EXCHANGE_MASTER=DX.EXCHANGE.MASTER
+		DX_PARAMETER=DX.PARAMETER
+		DX_MARGIN_CALC=DX.MARGIN.CALC
+		DX_CONTRACT_MASTER=DX.CONTRACT.MASTER
+		DX_REP_POSITION=DX.REP.POSITION
+	DX_MARGIN_RATES__RATE_TYPE : mml:string
+		RATE=RATE
+		PERCENTAGE=PERCENTAGE
+	DX_MARGIN_RATES__APPLY_SPREAD_RATE : mml:string
+		YES=YES
+		NO=NO
+	DX_MARGIN_RATES__APPLY_SPOT_RATE : mml:string
+		YES=YES
+		NO=NO
+	DX_MARGIN_RATES__APPLY_STRADDLE_RTE : mml:string
+		YES=YES
+		NO=NO
+}

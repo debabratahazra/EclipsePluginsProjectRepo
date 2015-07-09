@@ -1,0 +1,138 @@
+<%@ jet package="com.odcgroup.mdf.generation.legacy.java.jet" 
+	class="BeanSerializerGenerator" 
+	skeleton="BeanSerializerGenerator.skel"
+	imports="java.util.*
+		com.odcgroup.mdf.ecore.PrimitivesDomain
+		com.odcgroup.mdf.transform.java.JavaCore
+		com.odcgroup.mdf.generation.legacy.java.SourceCodeGenerator
+		com.odcgroup.mdf.metamodel.*" %>
+<%@ include file="../header.txt" %>
+
+package <%= JavaCore.getBeanPackage(_model) %>.serializer;
+
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.IOException;
+
+/*
+import <%= JavaCore.getModelPackage(_model) %>.*;
+*/
+import com.odcgroup.mdf.core.*;
+import com.odcgroup.mdf.serializer.*;
+
+
+/**
+ * @generated
+ */
+public class <%= JavaCore.getBeanClassName(_model)%>Serializer<%if (!_model.isAbstract()){%> implements Serializer<%}%> {
+	 public static final long CLASSID = <%=JavaCore.generateBeanSUID(_model)%>L;
+
+<%	 if (!_model.isAbstract()){%>	 
+	 public void writeObject(Object obj, ObjectOutput out) throws IOException {
+	 	write((<%=JavaCore.getQualifiedBeanClassName(_model)%>)obj , out);
+	 }
+
+	 public Object readObject(ObjectInput in) throws IOException {
+	 	<%=JavaCore.getQualifiedBeanClassName(_model)%> obj = new <%=JavaCore.getQualifiedBeanClassName(_model)%>();
+		
+		read(obj,in);
+
+		return obj;
+	 }
+<%	 }%>
+    /*
+     * serialization
+     */ 
+	static public void write(<%=JavaCore.getQualifiedBeanClassName(_model)%> obj, ObjectOutput out) throws IOException {
+
+<% if (_model.getBaseClass() != null) { %>
+		<%=JavaCore.getQualifiedBeanClassSerializerName(_model.getBaseClass())%>.write(obj, out);
+<% }%>
+	
+<%		Iterator it = _model.getProperties().iterator();
+		boolean cptDeclared = false;
+        while (it.hasNext()) {
+            MdfProperty p = (MdfProperty) it.next();
+            
+            MdfEntity type = p.getType();
+				
+			if (p instanceof MdfReverseAssociation) {
+					continue;
+			}
+
+			
+			
+			if (p instanceof MdfAssociation){
+				MdfAssociation asso = (MdfAssociation)p;
+				if (asso.getMultiplicity() == MdfConstants.MULTIPLICITY_MANY){%>
+        MdfSerializer.writeList((obj.<%=JavaCore.getGetterName(p)%>().size() == 0 ? null : obj.<%=JavaCore.getGetterName(p)%>()) , out);
+<%					} else {%>
+		MdfSerializer.write(obj.<%=JavaCore.getGetterName(p)%>(), out);
+<%				}
+			} else if (p instanceof MdfAttribute){
+			  if (type instanceof MdfEnumeration) {
+			  	 MdfEnumeration e = (MdfEnumeration) type;
+				 type = e.getType();
+			  } 
+			  Class javaClass = PrimitivesDomain.getJavaType(type);
+			  if (javaClass == null) {
+			  	 throw new RuntimeException("Invalid Property Type!");
+			  }
+					
+			  javaClass = PrimitivesDomain.getJavaType(type);%>
+		BasicObjectSerializer.write<%=JavaCore.getLastWord(javaClass.getName())%>(obj.<%= JavaCore.getGetterName(p)%>(), out);
+<%			}
+		}	 %>
+	}
+		
+		
+	/*
+     * serialization
+     */ 
+	
+	static public <%=JavaCore.getQualifiedBeanClassName(_model)%> read(<%=JavaCore.getQualifiedBeanClassName(_model)%> obj, ObjectInput in) throws IOException {
+<% if (_model.getBaseClass() != null) { %>
+		<%=JavaCore.getQualifiedBeanClassSerializerName(_model.getBaseClass())%>.read(obj, in);
+<% }%>
+	
+<%		it = _model.getProperties().iterator();
+		cptDeclared = false;
+        while (it.hasNext()) {
+            MdfProperty p = (MdfProperty) it.next();
+            
+            MdfEntity type = p.getType();
+				
+			if (p instanceof MdfReverseAssociation) {
+					continue;
+			}
+
+			if (p instanceof MdfAssociation){
+				MdfAssociation asso = (MdfAssociation)p;
+				if (asso.getMultiplicity() == MdfConstants.MULTIPLICITY_MANY){%>
+	  	obj.<%=JavaCore.getSetterName(p)%>(MdfSerializer.readList(in));
+<%				} else {
+				  if (asso.getContainment()== MdfConstants.CONTAINMENT_BYREFERENCE) {%>
+		obj.<%=JavaCore.getSetterName(p)%>((<%=JavaCore.getQualifiedRefClassName((MdfClass)type)%>)MdfSerializer.read(in));
+<%				  } else { %>
+		obj.<%=JavaCore.getSetterName(p)%>((<%=JavaCore.getQualifiedBeanClassName((MdfClass)type)%>)MdfSerializer.read(in));
+<%				  }
+			    }
+			} else if (p instanceof MdfAttribute){
+			  if (type instanceof MdfEnumeration) {
+			  	 MdfEnumeration e = (MdfEnumeration) type;
+				 type = e.getType();
+			  } 
+			  Class javaClass = PrimitivesDomain.getJavaType(type);
+			  if (javaClass == null) {
+			  	 throw new RuntimeException("Invalid Property Type!");
+			  }
+					
+			  javaClass = PrimitivesDomain.getJavaType(type);%>
+		obj.<%= JavaCore.getSetterName(p)%>(BasicObjectSerializer.read<%=JavaCore.getLastWord(javaClass.getName())%>(in));
+<%			}
+		}	 %>
+		return obj;
+	}
+		
+
+}

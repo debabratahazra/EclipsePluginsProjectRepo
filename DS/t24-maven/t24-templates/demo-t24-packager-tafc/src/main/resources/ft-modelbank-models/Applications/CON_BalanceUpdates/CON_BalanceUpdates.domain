@@ -1,0 +1,716 @@
+# UTF-8
+# UTF-8
+/* Balance Updates for General Ledger */
+Domain CON_BalanceUpdates
+	@t24:i (module=RE)
+	@java:Package (value=com.temenos.t24.datamodel.re.con_balanceupdates)
+namespace "http://www.temenos.com/t24/CON_BalanceUpdates"
+metamodelVersion 1.30.6
+Classes {
+	/* The EB.CONTRACT.BALANCES file records the information held  in the CENTRAL.REPORTING FILE '(CRF)' down at contract level.
+Account balances, principal outstanding amounts in product files and any related amount fields such as interest reserves, accrued charges, commissions, etc. held for each contract may be viewed into records held on the EB.CONTRACT.BALANCES.
+The Key to the balances file is either the contract itself or the contract and an additional element. The data in the record relates to a single consol key and therefore currency.
+
+The purpose of this file is to :
+1. Allow the user to see the online effect of a transaction to the CRF
+2. provide drill down information from a reporting line
+3. be used as the basis for the CRB rebuild
+4. be used as the basis for CRB static changes.
+
+Both current and historical  details are maintained providing a means by which the system can control and record all financial transactions.
+This file also provides a valuable source of information for enquiry and reporting purposes for both bank and customer requirements.
+The file is updated automatically by any transaction (either online or during the close of business) that modifies CRB balance details. There is no facility for direct input to this file. The only functions that users are allowed to perform are "L"ist, "S"ee, and "P"rint.
+The information is held on this file includes:
+o  Currency of the balance
+o  Multi-valued set of fields detailing CRB asset types and associated value date,
+maturity date, and amount of outstanding CRB balance.
+o  Consol key. */
+	EB_CONTRACT_BALANCES
+		@t24:i (t24Name=EB.CONTRACT.BALANCES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The Key to the balances file is either the contract itself or the contract and an additional element. The data in the record relates to a single consol key and therefore currency.. */
+		CONTRACT_BAL_ID -> CON_BalanceUpdates:EB_CONTRACT_BALANCES PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.BAL.ID)
+		/* CURRENCY
+Indicates the currency of the balances record.
+Indicates the currency of the associated contract leg and the currency of the various P&L accounting movements raised in respect of the contract.
+Validation Rules
+
+3 Alpha-numeric Currency code.
+Internal file, no input
+. */
+		CURRENCY : T24BusinessTypes:CCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=CURRENCY)
+		TYPE_SYSDATE -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__TYPE_SYSDATE *
+		/* Contains the key of the Consolidation record ( in the CONSOLIDATE.ASST.LIAB) into which the details if this record is being consolidated.
+Validation Rules
+Alphanumeric, as specified in the Consolidate Conditions file (CONSOLIDATE.COND)
+Internal file, no input */
+		CONSOL_KEY : T24BusinessTypes:A
+			@i18n:Label (en="Consol Key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=85, sysNumber=14.0, core=true, t24Name=CONSOL.KEY)
+		/* This field holds the  opening asset type for applications such as Accounts, Securities and DX where the main principal type can change sign.
+Validation Rules
+Valid hard-coded Balance type
+Multi-value field associated with Balance.Type
+Internal file, no input */
+		OPEN_ASSET_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=15.0, core=true, t24Name=OPEN.ASSET.TYPE)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=I, maxLength=9, sysNumber=16.0, core=true, businessType=A, t24Name=CO.CODE)
+		/* This field holds a flag to indicate if the contract has changed sign during the day. It is automatically set to ‘Y’ if CURR.ASSET.TYPE  not equal to OPEN.ASSET.TYPE.
+For example if a debit transaction has caused the sign of an account to move from credit to debit, then the Open.Asset.Type would be ‘CREDIT’ while the CURR.ASSET.TYPE would be ‘DEBIT’ and the POSS.SIGN.CHANGE would be set to ‘Y’.
+The Close of Business would then :
+1         Raise the required entries to move the balance of this contract from the CREDIT side to the
+DEBIT side of the Consolidate.Asset.Liab record
+2         Initialise the flag.
+
+Validation Rules
+‘Y’ or blank
+Internal field, no input
+. */
+		POSS_SIGN_CHANGE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=17.0, core=true, t24Name=POSS.SIGN.CHANGE)
+		/* This field is reserved for future use.. */
+		NS_UPDATE_INDICATOR : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=18.0, core=true, t24Name=NS.UPDATE.INDICATOR)
+		/* This field holds the underlying application, e.g ACCOUNT.
+It can be used for reporting/enquiry drilldown */
+		APPLICATION : T24BusinessTypes:A
+			@i18n:Label (en=Application)
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=19.0, core=true, t24Name=APPLICATION)
+		/* This field holds the product code of the contract e.g. AC, FDO */
+		PRODUCT : T24BusinessTypes:A
+			@i18n:Label (en=Product)
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=20.0, core=true, t24Name=PRODUCT)
+		/* This field records the date of the last system update. */
+		DATE_LAST_UPDATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, core=true, t24Name=DATE.LAST.UPDATE)
+		/* This field is reserved for future use. */
+		CUSTOMER : T24BusinessTypes:CUS
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=22.0, core=true, t24Name=CUSTOMER)
+		/* This field is reserved for future use.. */
+		INTEREST_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Interest Rate")
+			@i18n:Tooltip (en="Indicates interest rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=INTEREST.RATE)
+		/* This field is reserved for future use.. */
+		INTEREST_KEY : mml:Integer
+			@i18n:Label (en="Interest Key")
+			@i18n:Tooltip (en="Indicates key to apply floating rate of interest")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=24.0, core=true, t24Name=INTEREST.KEY)
+		/* This field is reserved for future use. */
+		INTEREST_BASIS : T24BusinessTypes:A
+			@i18n:Label (en="Interest Basis")
+			@i18n:Tooltip (en="Indicates the interest day basis")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=25.0, core=true, t24Name=INTEREST.BASIS)
+		/* This field is reserved for future use.. */
+		INTEREST_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Interest Spread")
+			@i18n:Tooltip (en="Indicates the spread or margin on the contract.")
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=26.0, core=true, t24Name=INTEREST.SPREAD, typeModifiers=-)
+		REPORT_ITEM -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__REPORT_ITEM *
+		/* This field holds the previous day’s consol key, it should hold the same value as in the field CONSOL.KEY , unless a static change has occurred during the Close of Business.
+Validation Rules
+Alphanumeric, as specified in the Consolidate Conditions file (CONSOLIDATE.COND)
+Internal file, no input */
+		PREV_CONSOL_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=85, sysNumber=29.0, core=true, t24Name=PREV.CONSOL.KEY)
+		/* This field holds the  opening asset type for the previous day,  for applications such as Accounts, Securities and DX where the main principal type can change sign.
+It should the same value as in the field OPEN.ASSET.TYPE unless a sign change has occurred during the Close of Business.
+Validation Rules
+Valid hard-coded Balance type
+Internal file, no input */
+		PREV_ASSET_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=30.0, core=true, t24Name=PREV.ASSET.TYPE)
+		/* CONTRACT.VALUE.DATE is one of the static information which is displayed in reports generated in EOD. Hence field is updated to be extracted at EOD for reporting purposes.
+
+Validation rules:
+• No input field -Updated by system */
+		CONTRACT_VALUE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=31.0, core=true, t24Name=CONTRACT.VALUE.DATE)
+		BALANCE_TYPE -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__BALANCE_TYPE *
+		ACTIVITY_ID -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__ACTIVITY_ID *
+		STMT_ENT_IDS -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__STMT_ENT_IDS *
+		STMT_SPLIT_ID : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=36.0, core=true, t24Name=STMT.SPLIT.ID)
+		CONSOL_ENT_IDS -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__CONSOL_ENT_IDS *
+		CONSOL_SPLIT_ID : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=38.0, core=true, t24Name=CONSOL.SPLIT.ID)
+		CATEG_ENT_IDS -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__CATEG_ENT_IDS *
+		CATEG_SPLIT_ID : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=40.0, core=true, t24Name=CATEG.SPLIT.ID)
+		ACCR_CATEGORY -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__ACCR_CATEGORY *
+		ACTIVITY_MONTHS -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__ACTIVITY_MONTHS *
+		BAL_TYPE -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__BAL_TYPE *
+		COLLAT_RIGHT -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__COLLAT_RIGHT *
+		COLLATERAL -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__COLLATERAL *
+		STMT_PROC_DATE -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__STMT_PROC_DATE *
+		RISK_LIMIT_REF : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=61.0, core=true, t24Name=RISK.LIMIT.REF)
+		RISK_COLL_RGT_ID -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__RISK_COLL_RGT_ID *
+		CATEG_PROCESS_DATE -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__CATEG_PROCESS_DATE *
+		OPEN_ACTUAL_BAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=68.0, core=true, t24Name=OPEN.ACTUAL.BAL)
+		OPEN_CLEARED_BAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=69.0, core=true, t24Name=OPEN.CLEARED.BAL)
+		ONLINE_ACTUAL_BAL : T24BusinessTypes:AMT
+			@i18n:Label (en="Online Actual Bal")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=70.0, core=true, t24Name=ONLINE.ACTUAL.BAL)
+		ONLINE_CLEARED_BAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=71.0, core=true, t24Name=ONLINE.CLEARED.BAL)
+		WORKING_BALANCE : T24BusinessTypes:AMT
+			@i18n:Label (en="Working Balance")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=72.0, core=true, t24Name=WORKING.BALANCE)
+		OPEN_AVAILABLE_BAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=73.0, core=true, t24Name=OPEN.AVAILABLE.BAL)
+		AVAILABLE_DATE -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__AVAILABLE_DATE *
+		FIRST_AF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=81.0, core=true, t24Name=FIRST.AF.DATE)
+		NEXT_AF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=82.0, core=true, t24Name=NEXT.AF.DATE)
+		NEXT_EXP_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=83.0, core=true, t24Name=NEXT.EXP.DATE)
+		EXPOSURE_DATES -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__EXPOSURE_DATES *
+		INITIATOR_TYPE -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__INITIATOR_TYPE *
+		LAST_AC_BAL_UPD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=89.0, core=true, t24Name=LAST.AC.BAL.UPD)
+		BALANCE_MOVED : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=90.0, core=true, t24Name=BALANCE.MOVED)
+		AUTH_PAY_MVMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=91.0, core=true, t24Name=AUTH.PAY.MVMT)
+		AUTH_RECEIVE_MVMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=92.0, core=true, t24Name=AUTH.RECEIVE.MVMT)
+		TRADE_DATED_GL_BAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=93.0, core=true, t24Name=TRADE.DATED.GL.BAL)
+		TOT_UNAUTH_CR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=94.0, core=true, t24Name=TOT.UNAUTH.CR)
+		TOT_UNAUTH_DB : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=95.0, core=true, t24Name=TOT.UNAUTH.DB)
+		TOT_FWD_UNAU_CR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=96.0, core=true, t24Name=TOT.FWD.UNAU.CR)
+		TOT_FWD_UNAU_DB : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=97.0, core=true, t24Name=TOT.FWD.UNAU.DB)
+		UNAUTH_KEY -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__UNAUTH_KEY *
+		FWD_UNAUTH_KEY -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__FWD_UNAUTH_KEY *
+		HVT_FLAG : CON_BalanceUpdates:EB_CONTRACT_BALANCES__HVT_FLAG
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=100.0, core=true, t24Name=HVT.FLAG)
+		LAST_UPDATE_TIME : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=101.0, core=true, t24Name=LAST.UPDATE.TIME)
+		ACCOUNTING_COMPANY -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=F, maxLength=9, sysNumber=102.0, core=true, businessType=COM, t24Name=ACCOUNTING.COMPANY)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=103.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=104.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=105.0, core=true, t24Name=RESERVED.1)
+		END_OF_REC_CRF : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=106.0, core=true, t24Name=END.OF.REC.CRF)
+	}
+	EB_CONTRACT_BALANCES__TYPE_SYSDATE
+	{
+		/* The information  held here is in the following format:
+
+BALANCE.TYPE – [SYSTEM.DATE]
+
+The BALANCE.TYPE is the Asset type of the underlying entry to that contract.
+It may be related to the Principal balances or amount fields such as interest reserves, accrued charges, commissions, etc.
+BALANCE.TYPE will only be populated if supplied on the underlying entry.
+
+SYSTEM.DATE is the date on which the entry for that balance type has been raised.
+
+Note:
+The first transaction posted to an Account will update the Balance.Type ‘NILOPEN’. The COB will then move it under the correct Balance.Type according to the sign of the Account(DEBIT or CREDIT).
+
+Each time the EB.CONTRACT.BALANCES is updated, the balances and movements are merged under the corresponding Balance.Type leaving out the dates(for the dates prior to the last working day).
+
+Validation Rules
+A valid hard-coded Balance.Type or a composite of Balance.Type-System.date
+Multi-value field associated with Value.Date
+Internal file, no input.
+. */
+		TYPE_SYSDATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=22, sysNumber=2.0, core=true, t24Name=TYPE.SYSDATE)
+		/* This field holds the value date of the movement for that balance type.
+It is only updated for Forward types and is not used in reporting.
+
+Validation Rules
+
+Multi-value field associated with the Balance.Type
+Standard Date Format
+Internal file, no input
+. */
+		VALUE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=VALUE.DATE)
+		MAT_DATE -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__TYPE_SYSDATE__MAT_DATE *
+		/* This field is reserved for future use. */
+		NAU_MVMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=11.0, core=true, t24Name=NAU.MVMT)
+		/* This field is reserved for future use. */
+		NAU_TXN_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=12.0, core=true, t24Name=NAU.TXN.ID)
+		/* For accounts and securities this field contains the asset type calculated based on the balances for the associated type. For all other balance types, it contains the associated balance type.
+Validation Rules
+Valid hard-coded Balance type
+Multi-value field associated with Balance.Type
+Internal file, no input */
+		CURR_ASSET_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=13.0, core=true, t24Name=CURR.ASSET.TYPE)
+	}
+	EB_CONTRACT_BALANCES__TYPE_SYSDATE__MAT_DATE
+	{
+		/* This field holds the related maturity date for the asset type and its associated balances. The multivalue associated group of fields open balance and the movements  for the associated maturity date, value date and asset type.
+
+Validation Rules
+Multi-value field associated with field range OPEN.BALANCE to DEBIT.MVMT.LCL
+Standard Date Format
+Internal file, no input */
+		MAT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=MAT.DATE, typeModifiers=DAYS)
+		/* This field holds the opening balance for the type and mat date in the contract currency
+Validation Rules
+Multi-value field associated with field range MAT.DATE to DEBIT.MVMT.LCL
+Standard Amount Format
+Internal file, no input. */
+		OPEN_BALANCE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=OPEN.BALANCE)
+		/* This field holds the original local equivalent for the type and mat date. This amount is not revalued and only for information purpose.
+Validation Rules
+Multi-value field associated with field range MAT.DATE to DEBIT.MVMT.LCL
+Standard Amount Format
+Internal file, no input */
+		OPEN_BAL_LCL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=OPEN.BAL.LCL)
+		/* This field holds the credit movement for the type and mat date.
+
+Validation Rules
+Multi-value field associated with field range MAT.DATE to DEBIT.MVMT.LCL
+Standard Amount Format
+Internal file, no input */
+		CREDIT_MVMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=CREDIT.MVMT)
+		/* The field holds the local equivalent of the credit movement.This amount is not revalued and only for information purpose.
+Validation Rules
+Multi-value field associated with field range MAT.DATE to DEBIT.MVMT.LCL
+Standard Amount Format
+Internal file, no input */
+		CR_MVMT_LCL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=CR.MVMT.LCL)
+		/* This field holds the debit movement for the asset type and maturity date
+
+Validation Rules
+Multi-value field associated with field range MAT.DATE to DEBIT.MVMT.LCL
+Standard Amount Format
+Internal file, no input */
+		DEBIT_MVMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, core=true, t24Name=DEBIT.MVMT)
+		/* The field holds the local equivalent of the debit movement.This amount is not revalued and only for information purpose.
+Validation Rules
+Multi-value field associated with field range MAT.DATE to DEBIT.MVMT.LCL
+Standard Amount Format
+Internal file, no input. */
+		DB_MVMT_LCL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=DB.MVMT.LCL)
+	}
+	EB_CONTRACT_BALANCES__REPORT_ITEM
+	{
+		/* This field is reserved for future use. */
+		REPORT_ITEM : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=27.0, core=true, t24Name=REPORT.ITEM)
+		/* This field is reserved for future use.. */
+		REPORT_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=28.0, core=true, t24Name=REPORT.VALUE)
+	}
+	EB_CONTRACT_BALANCES__BALANCE_TYPE
+	{
+		/* This field is reserved for future use.. */
+		BALANCE_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=32.0, core=true, t24Name=BALANCE.TYPE)
+	}
+	EB_CONTRACT_BALANCES__ACTIVITY_ID
+	{
+		ACTIVITY_ID -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__ACTIVITY_ID__ACTIVITY_ID *
+		LAST_CAP_DATE -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__ACTIVITY_ID__LAST_CAP_DATE *
+	}
+	EB_CONTRACT_BALANCES__ACTIVITY_ID__ACTIVITY_ID
+	{
+		/* This field is reserved for future use. */
+		ACTIVITY_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=33.0, core=true, t24Name=ACTIVITY.ID)
+	}
+	EB_CONTRACT_BALANCES__ACTIVITY_ID__LAST_CAP_DATE
+	{
+		/* This field is reserved for future use. */
+		LAST_CAP_DATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=34.0, core=true, t24Name=LAST.CAP.DATE)
+	}
+	EB_CONTRACT_BALANCES__STMT_ENT_IDS
+	{
+		STMT_ENT_IDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=35.0, core=true, t24Name=STMT.ENT.IDS)
+	}
+	EB_CONTRACT_BALANCES__CONSOL_ENT_IDS
+	{
+		CONSOL_ENT_IDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=37.0, core=true, t24Name=CONSOL.ENT.IDS)
+	}
+	EB_CONTRACT_BALANCES__CATEG_ENT_IDS
+	{
+		/* This field holds the keys of the CATEG.ENTRY records raised for the contract during the day.
+
+Validation
+Multi-value field
+Internal field, no inout */
+		CATEG_ENT_IDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=39.0, core=true, t24Name=CATEG.ENT.IDS)
+	}
+	EB_CONTRACT_BALANCES__ACCR_CATEGORY
+	{
+		/* PL Category code. */
+		ACCR_CATEGORY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=41.0, core=true, t24Name=ACCR.CATEGORY)
+		/* CRF type used, required for future use with AA, as the crf code may not match the PL Category. */
+		ACCR_CRF_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=42.0, core=true, t24Name=ACCR.CRF.TYPE)
+		/* Date of last accrual. */
+		ACCR_BOOKING_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=43.0, core=true, t24Name=ACCR.BOOKING.DATE)
+		/* Transaction code used on PL accrual entry. */
+		ACCR_TRANS_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=44.0, core=true, t24Name=ACCR.TRANS.CODE)
+		/* System id used on the PL accrual entry. */
+		ACCR_SYSTEM_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=45.0, core=true, t24Name=ACCR.SYSTEM.ID)
+		/* Total amount booked to PL */
+		ACCR_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=46.0, core=true, t24Name=ACCR.AMOUNT)
+		/* Local equivalent of ACCR.AMOUNT. Only updated if contract in foreign currency. */
+		ACCR_AMOUNT_LCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=47.0, core=true, t24Name=ACCR.AMOUNT.LCY)
+		/* Total accrual amount booked to CRF */
+		ACCR_OPP_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=48.0, core=true, t24Name=ACCR.OPP.AMOUNT)
+		/* Echange rate used in the last accrual. */
+		ACCR_EXRATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=49.0, core=true, t24Name=ACCR.EXRATE)
+		/* Total amount including unauthorised accrual */
+		ACCR_NAU_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=50.0, core=true, t24Name=ACCR.NAU.AMT)
+		/* Local equivalent of ACCR.NAU.AMT. Only updated if contract in foreign currency. */
+		ACCR_NAU_AMT_LCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=51.0, core=true, t24Name=ACCR.NAU.AMT.LCY)
+		/* Total amount including unauthorised accrual booked to CRF */
+		ACCR_NAU_OPP_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=52.0, core=true, t24Name=ACCR.NAU.OPP.AMT)
+		/* Echange rate used on unauth accruals */
+		ACCR_NAU_EXRATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=53.0, core=true, t24Name=ACCR.NAU.EXRATE)
+	}
+	EB_CONTRACT_BALANCES__ACTIVITY_MONTHS
+	{
+		/* This field stores dates in YYYYMM format to link to ACCT.ACTICITY records. */
+		ACTIVITY_MONTHS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=54.0, core=true, t24Name=ACTIVITY.MONTHS)
+	}
+	EB_CONTRACT_BALANCES__BAL_TYPE
+	{
+		/* This field contains a multi-valued list of balance types. */
+		BAL_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=55.0, core=true, t24Name=BAL.TYPE)
+		BT_ACT_MONTHS -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__BAL_TYPE__BT_ACT_MONTHS *
+	}
+	EB_CONTRACT_BALANCES__BAL_TYPE__BT_ACT_MONTHS
+	{
+		/* This field contains a multi-sub-valued list of months (YYYYMM) by balance type (relates to ECB.BAL.TYPE). */
+		BT_ACT_MONTHS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=56.0, core=true, t24Name=BT.ACT.MONTHS)
+	}
+	EB_CONTRACT_BALANCES__COLLAT_RIGHT
+	{
+		/* Contains the key of COLLATERAL.RIGHT record. This filed gets updated when a contract is linked to a COLLATERAL.RIGHT. Multi value field. */
+		COLLAT_RIGHT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=57.0, core=true, t24Name=COLLAT.RIGHT)
+	}
+	EB_CONTRACT_BALANCES__COLLATERAL
+	{
+		/* Contains the key of COLLATERAL record. This field gets updated when a contract is linked to a COLLATERAL. Multi value field. */
+		COLLATERAL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=58.0, core=true, t24Name=COLLATERAL)
+	}
+	EB_CONTRACT_BALANCES__STMT_PROC_DATE
+	{
+		STMT_PROC_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=59.0, core=true, t24Name=STMT.PROC.DATE)
+		NO_OF_STMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=60.0, core=true, t24Name=NO.OF.STMT)
+	}
+	EB_CONTRACT_BALANCES__RISK_COLL_RGT_ID
+	{
+		RISK_COLL_RGT_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=62.0, core=true, t24Name=RISK.COLL.RGT.ID)
+		RISK_COLL_ID -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__RISK_COLL_RGT_ID__RISK_COLL_ID *
+	}
+	EB_CONTRACT_BALANCES__RISK_COLL_RGT_ID__RISK_COLL_ID
+	{
+		RISK_COLL_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=63.0, core=true, t24Name=RISK.COLL.ID)
+		COLL_CCY : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=64.0, core=true, t24Name=COLL.CCY)
+		ALLOC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=65.0, core=true, t24Name=ALLOC.AMT)
+	}
+	EB_CONTRACT_BALANCES__CATEG_PROCESS_DATE
+	{
+		CATEG_PROCESS_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=66.0, core=true, t24Name=CATEG.PROCESS.DATE)
+		CATEG_ENTRY_IDS -> byValue CON_BalanceUpdates:EB_CONTRACT_BALANCES__CATEG_PROCESS_DATE__CATEG_ENTRY_IDS *
+	}
+	EB_CONTRACT_BALANCES__CATEG_PROCESS_DATE__CATEG_ENTRY_IDS
+	{
+		CATEG_ENTRY_IDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=67.0, core=true, t24Name=CATEG.ENTRY.IDS)
+	}
+	EB_CONTRACT_BALANCES__AVAILABLE_DATE
+	{
+		AVAILABLE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=74.0, core=true, t24Name=AVAILABLE.DATE)
+		AV_AUTH_DB_MVMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=75.0, core=true, t24Name=AV.AUTH.DB.MVMT)
+		AV_NAU_DB_MVMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=76.0, core=true, t24Name=AV.NAU.DB.MVMT)
+		AV_AUTH_CR_MVMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=77.0, core=true, t24Name=AV.AUTH.CR.MVMT)
+		AV_NAU_CR_MVMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=78.0, core=true, t24Name=AV.NAU.CR.MVMT)
+		AVAILABLE_BAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=79.0, core=true, t24Name=AVAILABLE.BAL)
+		FORWARD_MVMTS : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=80.0, core=true, t24Name=FORWARD.MVMTS)
+	}
+	EB_CONTRACT_BALANCES__EXPOSURE_DATES
+	{
+		EXPOSURE_DATES : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=84.0, core=true, t24Name=EXPOSURE.DATES)
+	}
+	EB_CONTRACT_BALANCES__INITIATOR_TYPE
+	{
+		INITIATOR_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=85.0, core=true, t24Name=INITIATOR.TYPE)
+		DATE_LAST : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=86.0, core=true, t24Name=DATE.LAST)
+		AMNT_LAST : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=87.0, core=true, t24Name=AMNT.LAST)
+		TRANS_LAST : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=88.0, core=true, t24Name=TRANS.LAST)
+	}
+	EB_CONTRACT_BALANCES__UNAUTH_KEY
+	{
+		UNAUTH_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=98.0, core=true, t24Name=UNAUTH.KEY)
+	}
+	EB_CONTRACT_BALANCES__FWD_UNAUTH_KEY
+	{
+		FWD_UNAUTH_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=99.0, core=true, t24Name=FWD.UNAUTH.KEY)
+	}
+	EB_CONTRACT_ENTRIES
+		@t24:i (t24Name=EB.CONTRACT.ENTRIES, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_ENT_SPLIT -> CON_BalanceUpdates:EB_CONTRACT_ENTRIES PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=34, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.ENT.SPLIT)
+		ENTRY_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=1.0, core=true, t24Name=ENTRY.NO)
+	}
+	PR_CUSTOMER_BALANCE
+		@t24:i (t24Name=PR.CUSTOMER.BALANCE, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		PR_CUSTOMER_BALANCE_ID -> CON_BalanceUpdates:PR_CUSTOMER_BALANCE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=PR.CUSTOMER.BALANCE.ID)
+		CUSTOMER -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, businessType=CUS, t24Name=CUSTOMER)
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		CATEGORY -> ST_Config:CATEGORY
+			@i18n:Label (en=Category)
+			@i18n:Tooltip (en="Specifies the Category")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, businessType=A, t24Name=CATEGORY)
+		PRODUCT : mml:Integer
+			@i18n:Label (en=Product)
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=4.0, core=true, t24Name=PRODUCT)
+		TXN_SUB_ASST_TYP : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=TXN.SUB.ASST.TYP)
+		CRF_TYPES -> byValue CON_BalanceUpdates:PR_CUSTOMER_BALANCE__CRF_TYPES *
+		MATURITY_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=MATURITY.DATE)
+		LAST_AMEND_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=LAST.AMEND.DATE)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.10)
+		RESERVED_09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.09)
+		RESERVED_08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.08)
+		RESERVED_07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.07)
+		RESERVED_06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.06)
+		RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.01)
+	}
+	PR_CUSTOMER_BALANCE__CRF_TYPES
+	{
+		CRF_TYPES : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=CRF.TYPES)
+	}
+	/* The RE.CONTRACT.BALANCES file records all CRB financial movements and CRB balance details of a particular T24 application contract.
+The purpose of this file is to :
+1.  provide drill down information from a reporting line   2.  be used as the basis for the CRB rebuild   3.  be used as the basis for CRB static changes.
+Both current and historical details are maintained providing a means by which the system can control and record all financial transactions.
+This file also provides a valuable source of information for enquiry and reporting purposes for both bank and customer requirements.
+The file is updated automatically by any routines which modify CRB balance details.  There is no facility for direct input to this file.  The only functions that users are allowed to perform are "L"ist, "S"ee, and "P"rint.
+The following associated information is held on this file :
+o  Currency of the balance   o  Multi-valued set of fields detailing CRB asset types and      associated value date, maturity date, and amount of      outstanding CRB balance.   o  Consol key.   o  Customer number.   o  Interest rate, key, and basis.
+Note :
+Two RE.CONTRACT.BALANCES records, Asset and Liability, are created whenever a Swap contract is entered into the system and remain there as long as the contract remains "Live". The Ids of the two records are the same as their associated SWAP.BALANCES records (SWAP.BALANCES stores all contract balance information, principal outstanding, accruals, interest paid/received, rate changes, etc.).
+Eg. Swap contract SW9503100001.     The associated RE.CONTRACT.BALANCES records created for     this contract would be SW9503100001.A and SW9503100001.L. */
+	RE_CONTRACT_BALANCES
+		@t24:i (t24Name=RE.CONTRACT.BALANCES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The RE.CONTRACT.BALANCES Id is keyed by the T24 application contract number.
+Note :
+Within the Swaps module the Id is keyed by the contract number and leg identifier (asset or liability).
+For example,
+Swap contract SW9503000001   Asset balance record     = SW9503000001.A   Liability balance record = SW9503000001.L
+Validation Rules
+14 Alpha-numeric Character Id. (No-input field.  System generated). */
+		CONTRACT_NUMBER -> CON_BalanceUpdates:RE_CONTRACT_BALANCES PK required
+			@i18n:Label (en="Contract Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NUMBER)
+		/* Indicates the currency of the balances record.
+Indicates the currency of the associated contract leg and the currency of the various P&L accounting movements raised in respect of the contract.
+Validation Rules
+3 Alpha-numeric Currency code. (No-input field.  System generated). */
+		CURRENCY : T24BusinessTypes:CCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=CURRENCY)
+		TYPE -> byValue CON_BalanceUpdates:RE_CONTRACT_BALANCES__TYPE *
+		/* Defines the associated CRF consol key.
+This key is the reference to the CONSOLIDATE.ASST.LIAB table.
+Validation Rules
+1 to 65 Alphanumeric characters. (No-input field.  Automatically updated). */
+		CONSOL_KEY : T24BusinessTypes:A
+			@i18n:Label (en="Consol Key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=6.0, core=true, t24Name=CONSOL.KEY)
+		/* Defines the associated counterparty (Customer) to whom the bank has made the contract.
+Validation Rules
+1-10 Numeric Character Customer number. (No-input field.  Automatically updated). */
+		CUSTOMER : T24BusinessTypes:CUS
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=7.0, core=true, t24Name=CUSTOMER)
+		/* Identifies the applied Fixed interest rate of the contract.
+Validation Rules
+1-11 Numeric characters. (No-input field.  Automatically updated).
+Will be null if floating interest rate. */
+		INTEREST_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Interest Rate")
+			@i18n:Tooltip (en="Indicates interest rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=INTEREST.RATE)
+		/* Identifies the MARKET.RATE.TEXT key which has been applied.
+The MARKET.RATE.TEXT key defines the underlying market rate that has been applied if the the contract has a floating interest rate.
+Validation Rules
+1-3 Numeric characters. (No-input field).
+Will be null if fixed interest rate. */
+		INTEREST_KEY : mml:Integer
+			@i18n:Label (en="Interest Key")
+			@i18n:Tooltip (en="Indicates key to apply floating rate of interest")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=9.0, core=true, t24Name=INTEREST.KEY)
+		/* Indicates the Interest Day Basis which defines the calculation method that is currently being used for interest amount calculations on the contract.  (INTEREST.BASIS key).
+Validation Rules
+1-2 Alpha-numeric characters. (No-input field.  Automatically updated). */
+		INTEREST_BASIS : T24BusinessTypes:A
+			@i18n:Label (en="Interest Basis")
+			@i18n:Tooltip (en="Indicates the interest day basis")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=10.0, core=true, t24Name=INTEREST.BASIS)
+		/* Indicates the spread (also known as the margin) which has been applied to the interest rate for the current interest period.
+The spread value is applied to the percentage interest rate related to the contract INTEREST KEY.
+For the Swaps application this field is leg specific.  Ie. Asset or Liability.
+Validation Rules
+12 Numeric characters (incl. decimal point). (No-input field.  Generated automatically). */
+		INTEREST_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Interest Spread")
+			@i18n:Tooltip (en="Indicates the spread or margin on the contract.")
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=11.0, core=true, t24Name=INTEREST.SPREAD, typeModifiers=-)
+		/* Reserved for future use. */
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=12.0, core=true, t24Name=RESERVED.8)
+		/* Reserved for future use. */
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=13.0, core=true, t24Name=RESERVED.7)
+		/* Reserved for future use. */
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=14.0, core=true, t24Name=RESERVED.6)
+		/* Reserved for future use. */
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=15.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use. */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=16.0, core=true, t24Name=RESERVED.4)
+		/* Reserved for future use. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, core=true, t24Name=RESERVED.3)
+		/* Reserved for future use. */
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=18.0, core=true, t24Name=RESERVED.2)
+		/* Reserved for future use. */
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=19.0, core=true, t24Name=RESERVED.1)
+	}
+	RE_CONTRACT_BALANCES__TYPE
+	{
+		/* CRF asset type. */
+		TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=2.0, core=true, t24Name=TYPE)
+		/* Identifies the Value date of the CRB balance.
+Forms part of a multi-valued set of fields (TYPE - BALANCE).
+Validation Rules
+11 Character Type DD field (standard date format). (No-input field.  Automatically updated). */
+		VALUE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=VALUE.DATE)
+		/* Identifies the Maturity Date of the CRB balance.
+Forms part of a multi-valued set of fields (TYPE - BALANCE).
+Validation Rules
+11 Character Type DD field (standard date format). (No-input field.  Automatically updated). */
+		MATURITY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=MATURITY.DATE, typeModifiers=DAYS)
+		/* Identifies the CRB balance amount.
+Forms part of a multi-valued set of fields (TYPE - BALANCE).
+Validation Rules
+19 Numeric characters Type AMT (standard amount field) (No-input field.  Automatically updated). */
+		BALANCE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=BALANCE)
+	}
+}
+Enumerations {
+	EB_CONTRACT_BALANCES__HVT_FLAG : mml:string
+		YES=YES
+		NO=NO
+}

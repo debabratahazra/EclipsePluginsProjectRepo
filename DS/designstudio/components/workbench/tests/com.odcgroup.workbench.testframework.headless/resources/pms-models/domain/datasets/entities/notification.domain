@@ -1,0 +1,193 @@
+# UTF-8
+Domain AAADSNotification 
+	@java:Package (value=com.odcgroup.aaa.administration) 
+namespace "http://www.odcgroup.com/aaa-ds-notification" 
+metamodelVersion 4.3.0.20110527 
+Datasets { 
+	/* Dataset exposing business attributes of the notification instance.
+It is used when creating notification instance. */ 
+	NotifInstanceCreation basedOn AAAEntities:NotifInstance 
+	{ 
+		creationUser -> creationUser [AAAIdentifierDatasets:ApplUserIdentifier] 
+		domain -> domain [AAAIdentifierDatasets:DomainIdentifier] 
+		externalReferenceC -> externalReferenceC 
+		instr -> instr [AAAIdentifierDatasets:InstrumentIdentifier] 
+		list -> list [AAAIdentifierDatasets:ListAAAIdentifier] 
+		notifDefinition -> notifDefinition [AAAIdentifierDatasets:NotifDefinitionIdentifier] 
+		notifImportanceE -> notifImportanceE 
+		notifNatureE -> notifNatureE 
+		notifPriorityE -> notifPriorityE 
+		portfolio -> portfolio [AAAIdentifierDatasets:PortfolioIdentifier] 
+		strategy -> strategy [AAAIdentifierDatasets:StrategyIdentifier] 
+		thirdParty -> thirdParty [AAAIdentifierDatasets:ThirdPartyIdentifier] 
+		urlC -> urlC 
+	} 
+	NotifSubjectBodyCreation basedOn AAAEntities:NotifSubjectBody 
+	{ 
+		bodyC -> bodyC 
+		language -> language [AAAIdentifierDatasets:DictLanguageIdentifier] 
+		subjectC -> subjectC 
+	} 
+	NotifInstanceAll basedOn AAAEntities:NotifInstance synchronized 
+	{ 
+		code -> code 
+		creationD -> creationD 
+		creationUser -> creationUser [AAAIdentifierDatasets:ApplUserIdentifier] 
+		domain -> domain [AAADSDomain:DomainContext] 
+		externalReferenceC -> externalReferenceC 
+		id -> id 
+		instr -> instr [AAAIdentifierDatasets:InstrumentIdentifier] 
+		lastModifD -> lastModifD 
+		lastUser -> lastUser [AAAIdentifierDatasets:ApplUserIdentifier] 
+		list -> list [AAAIdentifierDatasets:ListAAAIdentifier] 
+		notifDefinition -> notifDefinition [AAAIdentifierDatasets:NotifDefinitionIdentifier] 
+		notifImportanceE -> notifImportanceE 
+		notifNatureE -> notifNatureE 
+		notifPriorityE -> notifPriorityE 
+		portfolio -> portfolio [AAAIdentifierDatasets:PortfolioIdentifier] 
+		strategy -> strategy [AAAIdentifierDatasets:StrategyIdentifier] 
+		thirdParty -> thirdParty [AAAIdentifierDatasets:ThirdPartyIdentifier] 
+		urlC -> urlC 
+	} 
+	NotifRecipientAll basedOn AAAEntities:NotifRecipient default synchronized 
+	{ 
+		id -> id 
+		isReadF -> isReadF 
+		notifInstance -> notifInstance [AAAIdentifierDatasets:NotifInstanceIdentifier] 
+		sentOnD -> sentOnD 
+		user -> user [AAAIdentifierDatasets:ApplUserIdentifier] 
+	} 
+	NotifSubjectBodyAll basedOn AAAEntities:NotifSubjectBody default synchronized 
+	{ 
+		bodyC -> bodyC 
+		id -> id 
+		language -> language [AAAIdentifierDatasets:DictLanguageIdentifier] 
+		notifInstance -> notifInstance [AAAIdentifierDatasets:NotifInstanceIdentifier] 
+		subjectC -> subjectC 
+	} 
+	NotifDefinitionAll basedOn AAAEntities:NotifDefinition synchronized 
+	{ 
+		code -> code 
+		creationD -> creationD 
+		creationUser -> creationUser [AAAIdentifierDatasets:ApplUserIdentifier] 
+		id -> id 
+		lastModifD -> lastModifD 
+		lastUser -> lastUser [AAAIdentifierDatasets:ApplUserIdentifier] 
+		notifImportanceE -> notifImportanceE 
+		notifNatureE -> notifNatureE 
+		notifPriorityE -> notifPriorityE 
+		urlC -> urlC 
+	} 
+	NotifSubjectBodyDefAll basedOn AAAEntities:NotifSubjectBodyDef default synchronized 
+	{ 
+		bodyC -> bodyC 
+			@i18n:Label (en=Body) 
+		id -> id 
+		language -> language [AAAIdentifierDatasets:DictLanguageIdentifier] 
+		notifDefinition -> notifDefinition [AAAIdentifierDatasets:NotifDefinitionIdentifier] 
+		subjectC -> subjectC 
+			@i18n:Label (en=Subject) 
+	} 
+	NotifDefinitionCreation basedOn AAAEntities:NotifDefinition 
+	{ 
+		code -> code 
+		id -> id 
+		notifImportanceE -> notifImportanceE 
+		notifNatureE -> notifNatureE 
+		notifPriorityE -> notifPriorityE 
+		notifSubjectBodyDef -> notifSubjectBodyDef [AAADSNotification:NotifSubjectBodyDefAll] 
+		urlC -> urlC 
+	} 
+	NotificationList basedOn AAAEntities:NotifRecipient 
+	{ 
+		id -> id 
+		isReadF -> isReadF 
+		notifInstanceCreationD -> notifInstance.creationD 
+		notifInstanceCreationUserCode -> notifInstance.creationUser.code 
+		notifInstanceExternalReferenceC -> notifInstance.externalReferenceC 
+		notifInstanceId -> notifInstance.id 
+		notifInstanceNotifImportanceE -> notifInstance.notifImportanceE 
+		notifInstanceNotifNatureE -> notifInstance.notifNatureE 
+		notifInstanceNotifPriorityE -> notifInstance.notifPriorityE 
+		notifInstanceUrlC -> notifInstance.urlC 
+		sentOnD -> sentOnD 
+		subject : mml:string 
+			@i18n:Label (en=Subject) 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuerySelect="isnull ( \r\n(select s.subject_c \r\nfrom notif_subject_body_vw s, dict_language_lvw lang\r\nwhere s.notif_instance_id = t0.notif_instance_id and s.language_dict_id = lang.dict_id and lang.code = @language), \r\n  \r\n(select s.subject_c \r\nfrom notif_subject_body_vw s, dict_language_lvw lang  \r\nwhere s.notif_instance_id = t0.notif_instance_id and s.language_dict_id = lang.dict_id and lang.code = \'en\') )") 
+		userId -> user.id 
+	} 
+	NotifDefinitionForAlert basedOn AAAEntities:NotifDefinition 
+	{ 
+		code -> code 
+		creationD -> creationD 
+		creationUser -> creationUser [AAAIdentifierDatasets:ApplUserIdentifier] 
+		id -> id 
+		lastModifD -> lastModifD 
+		lastUser -> lastUser [AAAIdentifierDatasets:ApplUserIdentifier] 
+		notifImportanceE -> notifImportanceE 
+		notifNatureE -> notifNatureE 
+		notifPriorityE -> notifPriorityE 
+		notifSubjectBodyDefEnglish singleValued -> notifSubjectBodyDef [AAADSNotification:NotifSubjectBodyDefAll] 
+			@"http://www.odcgroup.com/mdf/qualifier":qualifier (language.code=en, notifDefinition.id="#id") 
+		notifSubjectBodyDefFrench singleValued -> notifSubjectBodyDef [AAADSNotification:NotifSubjectBodyDefAll] 
+			@"http://www.odcgroup.com/mdf/qualifier":qualifier (language.code=fr, notifDefinition.id="#id") 
+		notifSubjectBodyDefGerman singleValued -> notifSubjectBodyDef [AAADSNotification:NotifSubjectBodyDefAll] 
+			@"http://www.odcgroup.com/mdf/qualifier":qualifier (language.code=de, notifDefinition.id="#id") 
+	} 
+	/* This dataset is used to check if a notification is already sent to a specific recipient */ 
+	NotifRecipientAndInstance basedOn AAAEntities:NotifInstance 
+	{ 
+		creationUser -> creationUser [AAAIdentifierDatasets:ApplUserIdentifier] 
+		domain -> domain [AAADSDomain:DomainContext] 
+		externalReferenceC -> externalReferenceC 
+		instr -> instr [AAAIdentifierDatasets:InstrumentIdentifier] 
+		lastUser -> lastUser [AAAIdentifierDatasets:ApplUserIdentifier] 
+		list -> list [AAAIdentifierDatasets:ListAAAIdentifier] 
+		notifDefinition -> notifDefinition [AAADSNotification:NotifDefinitionAll] 
+		notifImportanceE -> notifImportanceE 
+		notifNatureE -> notifNatureE 
+		notifPriorityE -> notifPriorityE 
+		notifRecipientIsReadF -> notifRecipient.isReadF 
+		notifRecipientUserId -> notifRecipient.user.id 
+		portfolio -> portfolio [AAAIdentifierDatasets:PortfolioIdentifier] 
+		strategy -> strategy [AAAIdentifierDatasets:StrategyIdentifier] 
+		thirdParty -> thirdParty [AAAIdentifierDatasets:ThirdPartyIdentifier] 
+		urlC -> urlC 
+	} 
+	NotificationInstanceDetails basedOn AAAEntities:NotifInstance 
+	{ 
+		body : mml:string 
+			@i18n:Label (en=Body) 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuerySelect="isnull ( \r\n(select s.body_c \r\nfrom notif_subject_body_vw s, dict_language_lvw lang\r\nwhere s.notif_instance_id = t0.id and s.language_dict_id = lang.dict_id and lang.code = @language), \r\n  \r\n(select s.subject_c \r\nfrom notif_subject_body_vw s, dict_language_lvw lang  \r\nwhere s.notif_instance_id = t0.id and s.language_dict_id = lang.dict_id and lang.code = \'en\') )") 
+		id -> id 
+		notifDefinition -> notifDefinition [AAADSNotification:NotifDefinitionAll] 
+		notifImportanceE -> notifImportanceE 
+		notifNatureE -> notifNatureE 
+		notifPriorityE -> notifPriorityE 
+		subject : mml:string 
+			@i18n:Label (en=Subject) 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuerySelect="isnull ( \r\n(select s.subject_c \r\nfrom notif_subject_body_vw s, dict_language_lvw lang\r\nwhere s.notif_instance_id = t0.id and s.language_dict_id = lang.dict_id and lang.code = @language), \r\n  \r\n(select s.subject_c \r\nfrom notif_subject_body_vw s, dict_language_lvw lang  \r\nwhere s.notif_instance_id = t0.id and s.language_dict_id = lang.dict_id and lang.code = \'en\') )") 
+		urlC -> urlC 
+	} 
+	NotifInstanceDelete basedOn AAAEntities:NotifInstance 
+	{ 
+		id -> id 
+		missingRecipient : mml:string 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (OpenQuery="not exists (select 1 from notif_recipient_vw ni where ni.notif_instance_id = t0.id)", DisplayRank=1) 
+	} 
+	FindExistingNotifInstance basedOn AAAEntities:NotifRecipient 
+	{ 
+		isReadF -> isReadF 
+		notifInstanceCreationUserId -> notifInstance.creationUser.id 
+		notifInstanceNotifDefinitionCode -> notifInstance.notifDefinition.code 
+		user -> user [AAAIdentifierDatasets:ApplUserIdentifier] 
+	} 
+} 
+Enumerations { 
+	NotifDefaultCodesE : mml:string 
+		REP_BURST_SUCCESS=PCK_DS_REPORT_BURST_SUCCESS 
+		REP_SUCCESS=PCK_DS_REPORT_SUCCESS 
+		REP_BURST_FAILURE=PCK_DS_REPORT_BURST_FAILURE 
+		REP_FAILURE=PCK_DS_REPORT_FAILURE 
+	
+} 

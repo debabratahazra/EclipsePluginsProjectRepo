@@ -1,0 +1,226 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = "Order Session", fr = "Session d’ordre", de = Auftrags-Sitzung
+	containment = container
+	domainEntity = "AAADSDomain:DomainContext"
+	cssClass = nodeco
+	bean-define = DSActivityBean.AAADSDomain.DomainContext
+	bean-name = DomainContext
+	id = OrderSession_SJLZL
+	tid = 884334322202216
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- Conditional ---
+			technicalName = Final
+			indexOfSelectedChild = 2
+		{
+			--- ConditionalBody ---
+				javaCode = "Integer.toString(com.odcgroup.aaa.DomainAAASessionStatusE.Working).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString())"
+				technicalName = Working
+				boxType = vertical
+				isWidgetVisible = false
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/ordersession/context/ContextCheckReBuild.module
+			}
+			--- ConditionalBody ---
+				javaCode = "Integer.toString(com.odcgroup.aaa.DomainAAASessionStatusE.Checked).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString())"
+				technicalName = Checked
+				boxType = vertical
+				isWidgetVisible = false
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/ordersession/context/ContextSendToValidationReBuild.module
+			}
+			--- ConditionalBody ---
+				javaCode = "Integer.toString(com.odcgroup.aaa.DomainAAASessionStatusE.SentForValidation).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString())"
+				technicalName = SentForValidation
+				boxType = vertical
+				isWidgetSelected = true
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/ordersession/context/ContextValidateReject.module
+			}
+			--- ConditionalBody ---
+				javaCode = "Integer.toString(com.odcgroup.aaa.DomainAAASessionStatusE.Rejected).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString())"
+				technicalName = Rejected
+				boxType = vertical
+				isWidgetVisible = false
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/ordersession/context/ContextRecycle.module
+			}
+			--- ConditionalBody ---
+				javaCode = "Integer.toString(com.odcgroup.aaa.DomainAAASessionStatusE.ReleasedForTrading).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString())"
+				technicalName = ReleasedForTrading
+				boxType = vertical
+				isWidgetVisible = false
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/ordersession/context/ContextFinal.module
+			}
+		}
+		--- TabbedPane ---
+			id = Q8_m8
+			indexOfSelectedChild = 0
+		{
+			--- Tab ---
+				labels en = Order, fr = Ordre, de = Auftrag
+				boxType = vertical
+				id = tab_order
+				isWidgetSelected = true
+				tid = 52133506607683
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/ordersession/order/summary/OrderSessionSummary.module
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						javaCode = "(null == <bean:get-property bean=\"DomainContext\" property=\"sessionEditMode\"/> ||\r\n(null != <bean:get-property bean=\"DomainContext\" property=\"sessionEditMode\"/> &amp;&amp; \r\n\"1\".equals(<bean:get-property bean=\"DomainContext\" property=\"sessionEditMode\"/>.toString()))) &amp;&amp; \r\n(Integer.toString(com.odcgroup.aaa.DomainAAASessionStatusE.Working).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString()) || \r\nInteger.toString(com.odcgroup.aaa.DomainAAASessionStatusE.CheckFailed).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString()) ||\r\nInteger.toString(com.odcgroup.aaa.DomainAAASessionStatusE.Checked).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString())\r\n)"
+						technicalName = Edit
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Include ---
+							includeSrc = "" !
+							resource:///Default/module/aaa/ordersession/order/detailedlist/DetailedListAdd.module
+					}
+					--- ConditionalBody ---
+						javaCode = true
+						technicalName = View
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Include ---
+							includeSrc = "" !
+							resource:///Default/module/aaa/ordersession/order/detailedlist/DetailedListView.module
+					}
+				}
+			}
+			--- Tab ---
+				labels en = Compliance, fr = Conformité, de = Konformität
+				boxType = vertical
+				id = tab_compliance
+				isWidgetVisible = false
+				tid = 52152683555312
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						javaCode = "null != <bean:get-property bean=\"DomainContext\" property=\"caseActivation\"/> &amp;&amp; \r\n\"1\".equals(<bean:get-property bean=\"DomainContext\" property=\"caseActivation\"/>.toString()) &amp;&amp;\r\nBoolean.toString(com.odcgroup.aaa.DomainAAASessionInErrorF.No).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionInErrorF\"/>.toString()) &amp;&amp;\r\n(Integer.toString(com.odcgroup.aaa.DomainAAASessionStatusE.CheckFailed).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString()) ||\r\nInteger.toString(com.odcgroup.aaa.DomainAAASessionStatusE.Checked).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString())) &amp;&amp;\r\n(null == <bean:get-property bean=\"DomainContext\" property=\"sessionEditMode\"/> || \r\n(null != <bean:get-property bean=\"DomainContext\" property=\"sessionEditMode\"/> &amp;&amp; \r\n\"1\".equals(<bean:get-property bean=\"DomainContext\" property=\"sessionEditMode\"/>.toString())))"
+						technicalName = CMCEdit
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Box ---
+							boxType = vertical
+						{
+							--- Include ---
+								includeSrc = "" !
+								resource:///Default/module/aaa/ordersession/cmc/CaseSessionListEdit.module
+						}
+					}
+					--- ConditionalBody ---
+						javaCode = "null != <bean:get-property bean=\"DomainContext\" property=\"caseActivation\"/> &amp;&amp; \r\n\"1\".equals(<bean:get-property bean=\"DomainContext\" property=\"caseActivation\"/>.toString()) &amp;&amp;\r\n!Integer.toString(com.odcgroup.aaa.DomainAAASessionStatusE.Working).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString())"
+						technicalName = CMCView
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Box ---
+							boxType = vertical
+						{
+							--- Include ---
+								includeSrc = "" !
+								resource:///Default/module/aaa/ordersession/cmc/CaseSessionListView.module
+						}
+					}
+				}
+				--- Conditional ---
+					indexOfSelectedChild = 1
+				{
+					--- ConditionalBody ---
+						javaCode = "Integer.toString(com.odcgroup.aaa.DomainAAASessionStatusE.Working).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString())"
+						technicalName = Working
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Grid ---
+							cssClass = blank
+							gridColumnCount = 2
+							gridColumnsWidth = "5,95" !
+							gridRowCount = 1
+						{
+							--- GridCell ---
+								gridColumnWidth = 5
+							{
+								--- Icon ---
+									icon = information
+									id = w9pT8
+							}
+							--- GridCell ---
+								gridColumnWidth = 95
+							{
+								--- Spacer ---
+									height = 4
+									width = 4
+								--- Label ---
+									labels en = "No compliance result is displayed when the session status is Working. Please run a Check on the session to get compliance result.", fr = "Aucun résultat de conformité de la session n’est affiché lorsque la session est en statut Projet. Merci de lancer une vérification de la session pour obtenir le résultat de la conformité de la session.", de = "Die Ergebnisse der Konformitäts-Prüfung werden nicht angezeigt, solange sich die Sitzung im Status .“in Bearbeitung“. befindet. Bitte führen Sie eine Prüfung der Sitzung durch, um die Ergebnisse der Konformitäts-Prüfung zu erhalten."
+									cssClass = bold
+									nowrap = false
+									width = 100
+									id = u__r3
+									tid = 9826480064364
+							}
+						}
+					}
+					--- ConditionalBody ---
+						javaCode = true
+						technicalName = Default
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Include ---
+							includeSrc = "" !
+							resource:///Default/module/aaa/ordersession/compliance/summary/ByPortfolio.module
+					}
+				}
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						javaCode = "(Integer.toString(com.odcgroup.aaa.DomainAAASessionStatusE.CheckFailed).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString()) ||\r\nInteger.toString(com.odcgroup.aaa.DomainAAASessionStatusE.Checked).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString())) &amp;&amp;\r\n(null == <bean:get-property bean=\"DomainContext\" property=\"sessionEditMode\"/> || \r\n(null != <bean:get-property bean=\"DomainContext\" property=\"sessionEditMode\"/> &amp;&amp; \r\n\"1\".equals(<bean:get-property bean=\"DomainContext\" property=\"sessionEditMode\"/>.toString())))"
+						technicalName = ICOrderEdit
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Include ---
+							includeSrc = "" !
+							resource:///Default/module/aaa/ordersession/inputcontrol/InputControlResult.module
+					}
+					--- ConditionalBody ---
+						javaCode = "!Integer.toString(com.odcgroup.aaa.DomainAAASessionStatusE.Working).equals(<bean:get-property bean=\"DomainContext\" property=\"sessionStatusE\"/>.toString())"
+						technicalName = ICOrderView
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Include ---
+							includeSrc = "" !
+							resource:///Default/module/aaa/ordersession/inputcontrol/InputControlResultView.module
+					}
+				}
+			}
+		}
+	}
+}

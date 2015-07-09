@@ -1,0 +1,1850 @@
+# UTF-8
+# UTF-8
+/* Group Valuations in Asset Management */
+Domain AM_Group
+	@t24:i (module=AM)
+	@java:Package (value=com.temenos.t24.datamodel.am.am_group)
+namespace "http://www.temenos.com/t24/AM_Group"
+metamodelVersion 1.30.6
+Classes {
+	/* The AM.GROUP.PORT application allows grouping the portfolios so that the consolidation of the portfolios as a group can be monitored.
+The selection of the portfolios to be included in the group can be made in 2 ways.
+1. Personal Portfolios - These can be entered individually in the field SEC.ACC.NO.
+2. Dynamic Portfolios - These can be included by defining the selection criteria for the portfolios to be included, based on the fields in the file SEC.ACC.MASTER. For this the fields DYN.FLD.NAME, DYN.OPERAND, DYN.VALUE, DYN.SUB.FUND and DYM.MAIN.FUNC are used.
+Based on these selection criteria, the portfolios included in a group are maintained in the file AM.GROUP.PORT.CONCAT.
+In additions, the portfolios included can be checked for the Account Officer voilation. This check will be performed only if the field ACCOUNT.OFFICER (Field 1)  is entered. In this case, the portfolios included should either
+-belong to the Account Officer entered in field ACCOUNT.OFFICER (Field 1).
+-the portfolio's included should belong to the Account officer's whose hierarchy level in the DEPT.ACCT.OFFICER Application is below the Account officer for whom the Group is created. */
+	AM_GROUP_PORT
+		@t24:i (t24Name=AM.GROUP.PORT, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Specifies code by which the Group will be identified uniquely.
+Validation Rules
+
+Mandatory input.
+Must be 1-8 alphanumeric characters. */
+		GROUP_PORT_ID -> AM_Group:AM_GROUP_PORT PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.PORT.ID)
+		/* This field contains the Account Officer who controls the portfolios grouped together in the AM.GROUP.PORT record.
+When this field contains value, the portfolio's added to this group should belong to this ACCOUNT.OFFICER.
+Validation Rules
+
+Optional.
+Must exist on the DEPT.ACCT.OFFICER file. */
+		ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Account Officer")
+			@i18n:Tooltip (en="Indicates Account Officer responsible")
+			@t24:i (align=R, inputBehaviour=F, maxLength=4, sysNumber=1.0, core=true, t24Name=ACCOUNT.OFFICER)
+		/* Specifies an alternative easy means of referencing the Group.
+Like the ID, the Mnemonic must be unique.
+Care should be taken when assigning Mnemonics to Groups and some rules should ideally be defined across the bank to allow easy identification of the Groups by their Mnemonics.
+Note : For each Group, the System will automatically update the internal file "MNEMONIC.AM.GROUP.PORT" which allows the User to display the Groups in Mnemonic sequence instead of Group number.
+Validation Rules
+
+Optional input.
+3-20 type MNE (Uppercase alpha or numeric, first character alpha, or     ".") characters. */
+		MNEMONIC : T24BusinessTypes:MNE required
+			@i18n:Label (en=Mnemonic)
+			@i18n:Tooltip (en="The alternate short way of calling the record")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=2.0, core=true, t24Name=MNEMONIC)
+		SEC_ACC_NO -> byValue AM_Group:AM_GROUP_PORT__SEC_ACC_NO *
+		DYN_FLD_NAME -> byValue AM_Group:AM_GROUP_PORT__DYN_FLD_NAME *
+		/* Identifies the currency in which the Portfolio Group consolidation should be done.
+When consolidating the Group, the amounts will be converted to this currency if it is present.
+Validation Rules
+
+Mandatory input
+3 characters currency code
+Must be present on the CURRENCY file. */
+		VAL_CURRENCY -> FIN_CurrencyConfig:CURRENCY required
+			@i18n:Label (en="Valuation Ccy")
+			@i18n:Tooltip (en="Valuation Ccy")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, businessType=A, t24Name=VAL.CURRENCY)
+		/* Specifies the Type of report required for this Group.
+The report can be either Detailed report or Consolidated Report.
+
+Validation Rules
+
+Mandatory Input.
+Only 4 values are accepted - 'Detail', 'Consolidated', 'None' and       'Both'.
+If left Blank, will be defaulted 'None' */
+		DET_OR_CON_REP : AM_Group:AM_GROUP_PORT__DET_OR_CON_REP
+			@i18n:Label (en="Det Or Con Rep")
+			@i18n:Tooltip (en="Det Or Con Rep")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=10.0, core=true, t24Name=DET.OR.CON.REP)
+		P_N_CONSOLIDATE -> byValue AM_Group:AM_GROUP_PORT__P_N_CONSOLIDATE *
+		/* Indicates whether the Group is Deactivated or Not.
+Only 2 values are allowed. 'Yes' or 'No'.
+Once if the Value is set to 'Yes', then the Group cannot be Activated again.
+Validation Rules
+
+Optional Input.
+Only 2 values are allowed. 'Yes', 'No' and Blank.
+Default Value - 'No' */
+		DEACTIVATED : AM_Group:AM_GROUP_PORT__DEACTIVATED
+			@i18n:Label (en=Deactivated)
+			@i18n:Tooltip (en=Deactivated)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, t24Name=DEACTIVATED)
+		/* Specifies the date on which the Group is deactivated.
+Validation Rules
+
+Noinput Field. */
+		DEACTIVATED_DATE : T24BusinessTypes:A
+			@i18n:Label (en="Deactivated Date")
+			@i18n:Tooltip (en="Deactivated Date")
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=13.0, core=true, t24Name=DEACTIVATED.DATE)
+		COMMENTS -> byValue AM_Group:AM_GROUP_PORT__COMMENTS *
+		/* Should the performance for this group be recalculated during a back valuation?
+Values for this field are YES and NO, defaults to NO.
+No change field. */
+		BACK_VAL_PERF_REQ : AM_Group:AM_GROUP_PORT__BACK_VAL_PERF_REQ
+			@i18n:Label (en="Back Val Perf Req")
+			@i18n:Tooltip (en="Retro-Active Goup Creation")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=15.0, core=true, t24Name=BACK.VAL.PERF.REQ)
+		/* This no input field only populated if BACK.VAL.PERF.REQ is YES.
+The date will default to the first day of the month in which the AM.GROUP.PORT record is input. */
+		BACK_VAL_FROM_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Back Val From Date")
+			@i18n:Tooltip (en="Back Val From Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=16.0, core=true, t24Name=BACK.VAL.FROM.DATE)
+		GROUP_TYPE -> AM_Group:AM_GROUP_TYPE
+			@i18n:Label (en="Group Type")
+			@i18n:Tooltip (en="Type of Group")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=17.0, core=true, businessType=A, t24Name=GROUP.TYPE)
+		INVESTMENT_PROGRAM -> SCO_PortfolioMaintenance:INVESTMENT_PROGRAM
+			@i18n:Label (en="Investment Pgm")
+			@i18n:Tooltip (en="Investment Pgm used for Rebalancing")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=18.0, core=true, businessType=A, t24Name=INVESTMENT.PROGRAM)
+		BENCHMARK -> AM_Benchmark:AM_BENCHMARK
+			@i18n:Label (en=Benchmark)
+			@i18n:Tooltip (en=Benchmark)
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=19.0, core=true, businessType=S, t24Name=BENCHMARK)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=20.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=21.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=22.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=23.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=24.0, core=true, t24Name=RESERVED3)
+		OVERRIDE -> byValue AM_Group:AM_GROUP_PORT__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=27.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=28.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AM_Group:AM_GROUP_PORT__INPUTTER *
+		DATE_TIME -> byValue AM_Group:AM_GROUP_PORT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=31.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=32.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=33.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=34.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=35.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AM_GROUP_PORT__SEC_ACC_NO
+	{
+		/* Multi-valued field. This field is multi-valued to allow the user to specify more than one portfolio for a particular Group.
+The Portfolio entered should have the ACCOUNT.OFFICER equal to the Account officer for which this Group was made. If not, the Account officer of the Group should be higher up in the hierarchy specified in DEPT.ACCT.OFFICER file.
+Validation Rules
+
+Optional Input.
+Must exist on the SEC.ACC.MASTER file.
+Any portfolio input must belong to the Account officer  identified in     the associated ACCOUNT.OFFICER field. */
+		SEC_ACC_NO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=3.0, core=true, businessType=A, t24Name=SEC.ACC.NO)
+	}
+	AM_GROUP_PORT__DYN_FLD_NAME
+	{
+		DYN_FLD_NAME -> byValue AM_Group:AM_GROUP_PORT__DYN_FLD_NAME__DYN_FLD_NAME *
+		/* Specifies the conditions operator(AND/OR) used within the multivalue set to select the portfolios.
+Multi-value field associated with the fields 4.1.1 to 7.1.1.
+This field, together with the fields DYN.FLD.NAME, DYN.OPERAND, DYN.VALUE and SEL.SUB.FUNC are used to define the selection of portfolios which belong to a particular Group.
+
+Example 1: To create a simple selection criteria the field DYN.SUB.FUNC, DYN.FLD.NAME, DYN.OPERAND and DYN.VALUE have values entered into them.
+
+
+To include all the portfolios with ACCOUNT.OFFICER eq 11 OR 12
+
+
+4. 1. 1 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 1 DYN.OPERAND.... EQ
+
+
+6. 1. 1 DYN.VALUE... .. 11
+
+
+7. 1. 1 DYN.SUB.FUNC... OR
+
+
+4. 1. 2 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 2 DYN.OPERAND.... EQ
+
+
+6. 1. 2 DYN.VALUE... .. 21
+
+
+7. 1. 2 DYN.SUB.FUNC...
+
+
+8. 1. DYN.MAIN.FUNC....
+
+Example 2: To facilitate the creation of more complex selection criteria that simulate the use of parenthesis, the fields DYN.SUB.FUNC & DYN.MAIN.FUNC are used in conjunction with DYN.FLD.NAME, DYN.OPERAND and DYN.VALUE.
+
+To include all the portfolios with
+
+(ACCOUNT.OFFICER eq 11 (or) REFERENCE.CURRENCY eq USD )
+AND
+(VALUATION.CURRENCY eq GBP (and) MANAGED.ACCOUNT eq 1)
+
+
+
+
+
+4. 1. 1 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 1 DYN.OPERAND.... EQ
+
+
+6. 1. 1 DYN.VALUE... .. 21
+
+
+7. 1. 1 DYN.SUB.FUNC... OR
+
+
+4. 1. 2 DYN.FIELD.NAME. REFERENCE.CURRENCY
+
+
+5. 1. 2 DYN.OPERAND.... EQ
+
+
+6. 1. 2 DYN.VALUE... .. USD
+
+
+7. 1. 2 DYN.SUB.FUNC...
+
+
+8. 1. DYN.MAIN.FUNC....AND
+
+
+4. 2. 1 DYN.FIELD.NAME. VALUATION.CURRENCY
+
+
+5. 2. 1 DYN.OPERAND.... EQ
+
+
+6. 2. 1 DYN.VALUE... .. GBP
+
+
+7. 2. 1 DYN.SUB.FUNC... AND
+
+
+4. 2. 2 DYN.FIELD.NAME. MANAGED.ACCOUNT
+
+
+5. 2. 2 DYN.OPERAND.... EQ
+
+
+6. 2. 2 DYN.VALUE... .. 1
+
+
+7. 2. 2 DYN.SUB.FUNC...
+
+
+8. 2. DYN.MAIN.FUNC....
+
+Note : Care must be taken when using a mix of 'AND' and 'OR' conditions as 'AND' condition has priority.
+Validation Rules
+
+Optional input
+Only either AND/OR are allowed.
+The value of the field in the last multivalue set should be blank. */
+		SEL_MAIN_FUNC : AM_Group:AM_GROUP_PORT__DYN_FLD_NAME__SEL_MAIN_FUNC
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, t24Name=SEL.MAIN.FUNC)
+	}
+	AM_GROUP_PORT__DYN_FLD_NAME__DYN_FLD_NAME
+	{
+		/* This field specifies the field name of a field in the SEC.ACC.MASTER file.
+
+Multi-value field associated with the fields 5.1.1 to 8.1. Sub value field associated with the fields 5.1.1 to 7.1.1.
+
+This field, together with the fields DYN.OPERAND, DYN.VALUE, SEL.SUB.FUNC and SEL.MAIN.FUNC are used to define the selection of portfolios which belong to a particular Group.
+
+Example 1: To create a simple selection criteria the field DYN.SUB.FUNC, DYN.FLD.NAME, DYN.OPERAND and DYN.VALUE have values entered into them.
+
+
+To include all the portfolios with ACCOUNT.OFFICER eq 11 OR 12
+
+
+4. 1. 1 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 1 DYN.OPERAND.... EQ
+
+
+6. 1. 1 DYN.VALUE... .. 11
+
+
+7. 1. 1 DYN.SUB.FUNC... OR
+
+
+4. 1. 2 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 2 DYN.OPERAND.... EQ
+
+
+6. 1. 2 DYN.VALUE... .. 21
+
+
+7. 1. 2 DYN.SUB.FUNC...
+
+
+8. 1. DYN.MAIN.FUNC....
+
+Example 2: To facilitate the creation of more complex selection criteria that simulate the use of parenthesis, the fields DYN.SUB.FUNC & DYN.MAIN.FUNC are used in conjunction with DYN.FLD.NAME, DYN.OPERAND and DYN.VALUE.
+
+To include all the portfolios with
+
+(ACCOUNT.OFFICER eq 11 (or) REFERENCE.CURRENCY eq USD )
+AND
+(VALUATION.CURRENCY eq GBP (and) MANAGED.ACCOUNT eq 1)
+
+
+
+
+
+4. 1. 1 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 1 DYN.OPERAND.... EQ
+
+
+6. 1. 1 DYN.VALUE... .. 21
+
+
+7. 1. 1 DYN.SUB.FUNC... OR
+
+
+4. 1. 2 DYN.FIELD.NAME. REFERENCE.CURRENCY
+
+
+5. 1. 2 DYN.OPERAND.... EQ
+
+
+6. 1. 2 DYN.VALUE... .. USD
+
+
+7. 1. 2 DYN.SUB.FUNC...
+
+
+8. 1. DYN.MAIN.FUNC....AND
+
+
+4. 2. 1 DYN.FIELD.NAME. VALUATION.CURRENCY
+
+
+5. 2. 1 DYN.OPERAND.... EQ
+
+
+6. 2. 1 DYN.VALUE... .. GBP
+
+
+7. 2. 1 DYN.SUB.FUNC... AND
+
+
+4. 2. 2 DYN.FIELD.NAME. MANAGED.ACCOUNT
+
+
+5. 2. 2 DYN.OPERAND.... EQ
+
+
+6. 2. 2 DYN.VALUE... .. 1
+
+
+7. 2. 2 DYN.SUB.FUNC...
+
+
+8. 2. DYN.MAIN.FUNC....
+
+Note : Care must be taken when using a mix of 'AND' and 'OR' conditions as 'AND' condition has priority.
+Validation Rules
+
+
+0-18     alphanumeric characters
+Optional
+Must be a valid field in STANDARD.SELECTION of SEC.ACC.MASTER application */
+		DYN_FLD_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, core=true, t24Name=DYN.FLD.NAME)
+		/* The value entered indicates the type of comparison that is to be performed between the values entered in DYN.FLD.NAME & DYN.VALUE.
+Optional field containing EQ, NE, LE, LT, GE or GT.
+Default value is EQ.
+Multi-value field associated with the fields 4.1.1 and 6.1.1 to 8.1. Sub value field associated with the fields 4.1.1 and 6.1.1 to 7.1.1.
+
+This field, together with the fields DYN.FLD.NAME, DYN.VALUE, SEL.SUB.FUNC and SEL.MAIN.FUNC are used to define the selection of portfolios which belong to a particular Group.
+
+
+Example 1: To create a simple selection criteria the field DYN.SUB.FUNC, DYN.FLD.NAME, DYN.OPERAND and DYN.VALUE have values entered into them.
+
+
+To include all the portfolios with ACCOUNT.OFFICER eq 11 OR 12
+
+
+4. 1. 1 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 1 DYN.OPERAND.... EQ
+
+
+6. 1. 1 DYN.VALUE... .. 11
+
+
+7. 1. 1 DYN.SUB.FUNC... OR
+
+
+4. 1. 2 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 2 DYN.OPERAND.... EQ
+
+
+6. 1. 2 DYN.VALUE... .. 21
+
+
+7. 1. 2 DYN.SUB.FUNC...
+
+
+8. 1. DYN.MAIN.FUNC....
+
+Example 2: To facilitate the creation of more complex selection criteria that simulate the use of parenthesis, the fields DYN.SUB.FUNC & DYN.MAIN.FUNC are used in conjunction with DYN.FLD.NAME, DYN.OPERAND and DYN.VALUE.
+
+To include all the portfolios with
+
+(ACCOUNT.OFFICER eq 11 (or) REFERENCE.CURRENCY eq USD )
+AND
+(VALUATION.CURRENCY eq GBP (and) MANAGED.ACCOUNT eq 1)
+
+
+
+
+
+4. 1. 1 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 1 DYN.OPERAND.... EQ
+
+
+6. 1. 1 DYN.VALUE... .. 21
+
+
+7. 1. 1 DYN.SUB.FUNC... OR
+
+
+4. 1. 2 DYN.FIELD.NAME. REFERENCE.CURRENCY
+
+
+5. 1. 2 DYN.OPERAND.... EQ
+
+
+6. 1. 2 DYN.VALUE... .. USD
+
+
+7. 1. 2 DYN.SUB.FUNC...
+
+
+8. 1. DYN.MAIN.FUNC....AND
+
+
+4. 2. 1 DYN.FIELD.NAME. VALUATION.CURRENCY
+
+
+5. 2. 1 DYN.OPERAND.... EQ
+
+
+6. 2. 1 DYN.VALUE... .. GBP
+
+
+7. 2. 1 DYN.SUB.FUNC... AND
+
+
+4. 2. 2 DYN.FIELD.NAME. MANAGED.ACCOUNT
+
+
+5. 2. 2 DYN.OPERAND.... EQ
+
+
+6. 2. 2 DYN.VALUE... .. 1
+
+
+7. 2. 2 DYN.SUB.FUNC...
+
+
+8. 2. DYN.MAIN.FUNC....
+
+Note : Care must be taken when using a mix of 'AND' and 'OR' conditions as 'AND' condition has priority.
+Validation Rules
+
+
+Optional input
+
+
+
+2 characters field
+
+Valid values are :- EQ - equal to, NE -     not equal to, LT - less than, LE - less than or equal to, GT - greater than,     GE - greater than or equal to */
+		DYN_OPERAND : AM_Group:AM_GROUP_PORT__DYN_FLD_NAME__DYN_FLD_NAME__DYN_OPERAND
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=5.0, core=true, t24Name=DYN.OPERAND)
+		/* This field contains the content of the field defined in DYN.FLD.NAME.
+
+Multi-value field associated with the fields 4.1.1 to 5.1.1 and 7.1.1 to 8.1. Sub value field associated with the fields 4.1.1 to 5.1.1 and 7.1.1.
+
+This field, together with the fields DYN.FLD.NAME, DYN.OPERAND, SEL.SUB.FUNC and SEL.MAIN.FUNC are used to define the selection of portfolios which belong to a particular Group.
+
+Example 1: To create a simple selection criteria the field DYN.SUB.FUNC, DYN.FLD.NAME, DYN.OPERAND and DYN.VALUE have values entered into them.
+
+
+To include all the portfolios with ACCOUNT.OFFICER eq 11 OR 12
+
+
+4. 1. 1 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 1 DYN.OPERAND.... EQ
+
+
+6. 1. 1 DYN.VALUE... .. 11
+
+
+7. 1. 1 DYN.SUB.FUNC... OR
+
+
+4. 1. 2 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 2 DYN.OPERAND.... EQ
+
+
+6. 1. 2 DYN.VALUE... .. 21
+
+
+7. 1. 2 DYN.SUB.FUNC...
+
+
+8. 1. DYN.MAIN.FUNC....
+
+Example 2: To facilitate the creation of more complex selection criteria that simulate the use of parenthesis, the fields DYN.SUB.FUNC & DYN.MAIN.FUNC are used in conjunction with DYN.FLD.NAME, DYN.OPERAND and DYN.VALUE.
+
+To include all the portfolios with
+
+(ACCOUNT.OFFICER eq 11 (or) REFERENCE.CURRENCY eq USD )
+AND
+(VALUATION.CURRENCY eq GBP (and) MANAGED.ACCOUNT eq 1)
+
+
+
+
+
+4. 1. 1 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 1 DYN.OPERAND.... EQ
+
+
+6. 1. 1 DYN.VALUE... .. 21
+
+
+7. 1. 1 DYN.SUB.FUNC... OR
+
+
+4. 1. 2 DYN.FIELD.NAME. REFERENCE.CURRENCY
+
+
+5. 1. 2 DYN.OPERAND.... EQ
+
+
+6. 1. 2 DYN.VALUE... .. USD
+
+
+7. 1. 2 DYN.SUB.FUNC...
+
+
+8. 1. DYN.MAIN.FUNC....AND
+
+
+4. 2. 1 DYN.FIELD.NAME. VALUATION.CURRENCY
+
+
+5. 2. 1 DYN.OPERAND.... EQ
+
+
+6. 2. 1 DYN.VALUE... .. GBP
+
+
+7. 2. 1 DYN.SUB.FUNC... AND
+
+
+4. 2. 2 DYN.FIELD.NAME. MANAGED.ACCOUNT
+
+
+5. 2. 2 DYN.OPERAND.... EQ
+
+
+6. 2. 2 DYN.VALUE... .. 1
+
+
+7. 2. 2 DYN.SUB.FUNC...
+
+
+8. 2. DYN.MAIN.FUNC....
+
+Note : Care must be taken when using a mix of 'AND' and 'OR' conditions as 'AND' condition has priority.
+Validation Rules
+
+
+0-35     alphanumeric characters */
+		DYN_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=6.0, core=true, t24Name=DYN.VALUE)
+		/* Specifies the conditional operator(AND/OR) used within the subvalue set to select the portfolios.
+Multi-value field associated with the fields 4.1.1 to 6.1.1 and 8.1.1. Sub value field associated with the fields 4.1.1 to 6.1.1.
+
+This field, together with the fields DYN.FLD.NAME, DYN.OPERAND, DYN.VALUE and SEL.MAIN.FUNC are used to define the selection of portfolios which belong to a particular Group.
+
+Example 1: To create a simple selection criteria the field DYN.SUB.FUNC, DYN.FLD.NAME, DYN.OPERAND and DYN.VALUE have values entered into them.
+
+
+To include all the portfolios with ACCOUNT.OFFICER eq 11 OR 12
+
+
+4. 1. 1 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 1 DYN.OPERAND.... EQ
+
+
+6. 1. 1 DYN.VALUE... .. 11
+
+
+7. 1. 1 DYN.SUB.FUNC... OR
+
+
+4. 1. 2 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 2 DYN.OPERAND.... EQ
+
+
+6. 1. 2 DYN.VALUE... .. 21
+
+
+7. 1. 2 DYN.SUB.FUNC...
+
+
+8. 1. DYN.MAIN.FUNC....
+
+Example 2: To facilitate the creation of more complex selection criteria that simulate the use of parenthesis, the fields DYN.SUB.FUNC & DYN.MAIN.FUNC are used in conjunction with DYN.FLD.NAME, DYN.OPERAND and DYN.VALUE.
+
+To include all the portfolios with
+
+(ACCOUNT.OFFICER eq 11 (or) REFERENCE.CURRENCY eq USD )
+AND
+(VALUATION.CURRENCY eq GBP (and) MANAGED.ACCOUNT eq 1)
+
+
+
+
+
+4. 1. 1 DYN.FIELD.NAME. ACCOUNT.OFFICER
+
+
+5. 1. 1 DYN.OPERAND.... EQ
+
+
+6. 1. 1 DYN.VALUE... .. 21
+
+
+7. 1. 1 DYN.SUB.FUNC... OR
+
+
+4. 1. 2 DYN.FIELD.NAME. REFERENCE.CURRENCY
+
+
+5. 1. 2 DYN.OPERAND.... EQ
+
+
+6. 1. 2 DYN.VALUE... .. USD
+
+
+7. 1. 2 DYN.SUB.FUNC...
+
+
+8. 1. DYN.MAIN.FUNC....AND
+
+
+4. 2. 1 DYN.FIELD.NAME. VALUATION.CURRENCY
+
+
+5. 2. 1 DYN.OPERAND.... EQ
+
+
+6. 2. 1 DYN.VALUE... .. GBP
+
+
+7. 2. 1 DYN.SUB.FUNC... AND
+
+
+4. 2. 2 DYN.FIELD.NAME. MANAGED.ACCOUNT
+
+
+5. 2. 2 DYN.OPERAND.... EQ
+
+
+6. 2. 2 DYN.VALUE... .. 1
+
+
+7. 2. 2 DYN.SUB.FUNC...
+
+
+8. 2. DYN.MAIN.FUNC....
+
+Note : Care must be taken when using a mix of 'AND' and 'OR' conditions as 'AND' condition has priority.
+Validation Rules
+
+Optional input
+Only either AND/OR are allowed.
+The value of the field in the last subvalue set within the multivalue       set should be blank. */
+		SEL_SUB_FUNC : AM_Group:AM_GROUP_PORT__DYN_FLD_NAME__DYN_FLD_NAME__SEL_SUB_FUNC
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, t24Name=SEL.SUB.FUNC)
+	}
+	AM_GROUP_PORT__P_N_CONSOLIDATE
+	{
+		/* Indicates the products that need the Positive and Negative positions to be consolidated seperately. Multivalued to allow the inputt of more than one Product
+Presently the Portfolio Consolidation was performed only for the products AC, FD, FX, MM, SC and RP. The values entered here should correspond to one the above values. By Default each product will be consolidated with Positive and Negative Positions together unless otherwise specified in this field.
+Validation Rules
+
+Optinal Input
+The value entered here should exist in EB.PRODUCT
+Presently allowed values are AC, FD, FX, MM, SC and RP */
+		P_N_CONSOLIDATE -> EB_SystemTables:EB_PRODUCT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=11.0, core=true, t24Name=P.N.CONSOLIDATE)
+	}
+	AM_GROUP_PORT__COMMENTS
+	{
+		/* Describes the Group and can be used for any description purpose.
+Validation Rules
+
+Optional input */
+		COMMENTS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=14.0, core=true, t24Name=COMMENTS, isTextarea=true)
+	}
+	AM_GROUP_PORT__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=26.0, core=true, t24Name=OVERRIDE)
+	}
+	AM_GROUP_PORT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=29.0, core=true, t24Name=INPUTTER)
+	}
+	AM_GROUP_PORT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=30.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* AM.GROUP.PORT.CONCAT file stores the list of portfolio's that comes belongs to different groups present in AM.GROUP.PORT Application.
+This file is updated automatically during the Batch process for all the groups present in AM.GROUP.PORT which are NOT deactivated (Field DEACTIVATED set to NO). */
+	AM_GROUP_PORT_CONCAT
+		@t24:i (t24Name=AM.GROUP.PORT.CONCAT, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The key to this record */
+		GROUP_CODE -> AM_Group:AM_GROUP_PORT_CONCAT PK required
+			@i18n:Label (en="Group Code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.CODE)
+		/* A list of portfolios that belong to this group.
+Must be a valid record in SEC.ACC.MASTER table. */
+		SAM_ID -> SCO_PortfolioMaintenance:SEC_ACC_MASTER required
+			@i18n:Label (en="Portfolio Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, businessType=A, t24Name=SAM.ID)
+	}
+	AM_GROUP_PORT_CONCAT_HIST
+		@t24:i (t24Name=AM.GROUP.PORT.CONCAT.HIST, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		GROUP_CODE -> AM_Group:AM_GROUP_PORT_CONCAT_HIST PK required
+			@i18n:Label (en="Group Code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.CODE)
+		SAM_ID : T24BusinessTypes:A required
+			@i18n:Label (en="Portfolio Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=1.0, core=true, t24Name=SAM.ID)
+		DATE : mml:Integer
+			@i18n:Label (en=Date)
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, core=false, t24Name=DATE)
+		GROUP_ID : mml:Integer
+			@i18n:Label (en="Group Id")
+			@t24:i (align=R, inputBehaviour=N, maxLength=50, core=false, t24Name=GROUP.ID)
+	}
+	AM_GROUP_PORT_CONCAT_LW
+		@t24:i (t24Name=AM.GROUP.PORT.CONCAT.LW, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		GROUP_CODE -> AM_Group:AM_GROUP_PORT_CONCAT_LW PK required
+			@i18n:Label (en="Group Code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.CODE)
+		SAM_ID -> SCO_PortfolioMaintenance:SEC_ACC_MASTER required
+			@i18n:Label (en="Portfolio Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, businessType=A, t24Name=SAM.ID)
+	}
+	AM_GROUP_PORT_DATE_CHANGE
+		@t24:i (t24Name=AM.GROUP.PORT.DATE.CHANGE, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		GROUP_CODE -> AM_Group:AM_GROUP_PORT_DATE_CHANGE PK required
+			@i18n:Label (en="Group Code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=60, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.CODE)
+		DATE_OF_CHANGE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=1.0, core=true, t24Name=DATE.OF.CHANGE)
+	}
+	AM_GROUP_PORT_UNIQUE
+		@t24:i (t24Name=AM.GROUP.PORT.UNIQUE, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		UNIQUE_GROUP_ID -> AM_Group:AM_GROUP_PORT_UNIQUE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=UNIQUE.GROUP.ID)
+		SAM_ID : T24BusinessTypes:SAM
+			@i18n:Label (en="Portfolio Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=SAM.ID)
+	}
+	AM_GROUP_TYPE
+		@t24:i (t24Name=AM.GROUP.TYPE, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		GROUP_TYPE -> AM_Group:AM_GROUP_TYPE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.TYPE)
+		DESCRIPTION -> byValue AM_Group:AM_GROUP_TYPE__DESCRIPTION *
+		SHORT_NAME -> byValue AM_Group:AM_GROUP_TYPE__SHORT_NAME *
+		BLOCKED_PORT_TYPE -> byValue AM_Group:AM_GROUP_TYPE__BLOCKED_PORT_TYPE *
+		PERFORMANCE : AM_Group:AM_GROUP_TYPE__PERFORMANCE
+			@i18n:Label (en="Performance Grp")
+			@i18n:Tooltip (en="Performance data will be calculated")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=PERFORMANCE)
+		REBALANCING : AM_Group:AM_GROUP_TYPE__REBALANCING
+			@i18n:Label (en=Rebalance)
+			@i18n:Tooltip (en="Group can be Rebalanced")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, t24Name=REBALANCING)
+		UNIQUE_MBRSHIP : AM_Group:AM_GROUP_TYPE__UNIQUE_MBRSHIP
+			@i18n:Label (en="Unique Membership")
+			@i18n:Tooltip (en="Portfolios can be member of only this")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, t24Name=UNIQUE.MBRSHIP)
+		GRP_VALID_RTN -> EB_SystemTables:PGM_FILE
+			@i18n:Label (en="Grp Valid Rtn")
+			@i18n:Tooltip (en="Group Validation Routine")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, businessType=PG, t24Name=GRP.VALID.RTN)
+		RESERVED_07 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.07)
+		RESERVED_06 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.06)
+		RESERVED_05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.01)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AM_Group:AM_GROUP_TYPE__INPUTTER *
+		DATE_TIME -> byValue AM_Group:AM_GROUP_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=22.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=23.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=24.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=25.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AM_GROUP_TYPE__DESCRIPTION
+	{
+		DESCRIPTION -> byValue AM_Group:AM_GROUP_TYPE__DESCRIPTION__DESCRIPTION *
+	}
+	AM_GROUP_TYPE__DESCRIPTION__DESCRIPTION
+	{
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	AM_GROUP_TYPE__SHORT_NAME
+	{
+		SHORT_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.NAME)
+	}
+	AM_GROUP_TYPE__BLOCKED_PORT_TYPE
+	{
+		BLOCKED_PORT_TYPE -> AM_Group:AM_PORT_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=3.0, core=true, businessType=A, t24Name=BLOCKED.PORT.TYPE)
+		BLOCKED_PORT_ERR : AM_Group:AM_GROUP_TYPE__BLOCKED_PORT_TYPE__BLOCKED_PORT_ERR
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, core=true, t24Name=BLOCKED.PORT.ERR)
+	}
+	AM_GROUP_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=INPUTTER)
+	}
+	AM_GROUP_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=20.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AM_PORT_GROUP_CONCAT
+		@t24:i (t24Name=AM.PORT.GROUP.CONCAT, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		SAM_CODE -> AM_Group:AM_PORT_GROUP_CONCAT PK required
+			@i18n:Label (en=Portfolio)
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=SAM.CODE)
+		GROUP_ID : T24BusinessTypes:A required
+			@i18n:Label (en="Group Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=1.0, core=true, t24Name=GROUP.ID)
+	}
+	AM_PORT_GROUP_CONCAT_HIST
+		@t24:i (t24Name=AM.PORT.GROUP.CONCAT.HIST, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		SAM_CODE -> AM_Group:AM_PORT_GROUP_CONCAT_HIST PK required
+			@i18n:Label (en=Portfolio)
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=SAM.CODE)
+		GROUP_ID : T24BusinessTypes:A required
+			@i18n:Label (en="Group Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=1.0, core=true, t24Name=GROUP.ID)
+	}
+	AM_PORT_GROUP_DATE_CHANGE
+		@t24:i (t24Name=AM.PORT.GROUP.DATE.CHANGE, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		PORTFOLIO_CODE -> AM_Group:AM_PORT_GROUP_DATE_CHANGE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=60, sysNumber=0.0, core=true, businessType=A, t24Name=PORTFOLIO.CODE)
+		DATE_OF_CHANGE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=1.0, core=true, t24Name=DATE.OF.CHANGE)
+	}
+	AM_PORT_TYPE
+		@t24:i (t24Name=AM.PORT.TYPE, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		PORTFOLIO_TYPE -> AM_Group:AM_PORT_TYPE PK required
+			@i18n:Label (en="Portfolio Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, businessType=A, t24Name=PORTFOLIO.TYPE)
+		DESCRIPTION -> byValue AM_Group:AM_PORT_TYPE__DESCRIPTION *
+		SHORT_NAME -> byValue AM_Group:AM_PORT_TYPE__SHORT_NAME *
+		TAX_WRAPPER : AM_Group:AM_PORT_TYPE__TAX_WRAPPER
+			@i18n:Label (en="Tax Wrapper")
+			@i18n:Tooltip (en="Is this a Tax Wrapper")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=TAX.WRAPPER)
+		PRIORITY : mml:Integer
+			@i18n:Label (en=Priority)
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=4.0, core=true, t24Name=PRIORITY)
+		SUPPORT_MODEL -> SCO_PortfolioMaintenance:INVESTMENT_PROGRAM
+			@i18n:Label (en="Support Model")
+			@i18n:Tooltip (en="The Model to use for rebalancing")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=5.0, core=true, businessType=A, t24Name=SUPPORT.MODEL)
+		NOMINEE_CODE -> SC_Config:NOMINEE_CODE
+			@i18n:Label (en="Nominee Code")
+			@i18n:Tooltip (en="Identifies the Nominee Company ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=6.0, core=true, businessType=A, t24Name=NOMINEE.CODE)
+		RESERVED_04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.01)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AM_Group:AM_PORT_TYPE__INPUTTER *
+		DATE_TIME -> byValue AM_Group:AM_PORT_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=17.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=19.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=20.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AM_PORT_TYPE__DESCRIPTION
+	{
+		DESCRIPTION -> byValue AM_Group:AM_PORT_TYPE__DESCRIPTION__DESCRIPTION *
+	}
+	AM_PORT_TYPE__DESCRIPTION__DESCRIPTION
+	{
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	AM_PORT_TYPE__SHORT_NAME
+	{
+		SHORT_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.NAME)
+	}
+	AM_PORT_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=INPUTTER)
+	}
+	AM_PORT_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=15.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* AM.VALUATION.EXT.GRP.CONS will store the consolidated positions for various Groups defined in AM.GROUP.PORT application.
+The following is the criteria for consolidating the various positions for each portfolio and populate the AM.VALUATION.EXTRACT.GROUP.CONS.
+
+
+
+
+Distinct currencies are consolidated separately
+
+
+
+
+Distinct currencies are consolidated separately
+Distinct maturities are consolidated separately
+
+
+
+
+Notice and fixed fiduciaries are consolidated separately
+Distinct rates are consolidated separately
+Distinct currencies are consolidated separately
+Distinct maturities are consolidated separately
+
+
+
+
+Distinct maturities are consolidated separately
+Distinct Couple currencies are consolidated separately
+
+
+
+Distinct currencies are consolidated separately
+Distinct security codes are consolidated separately */
+	AM_VALUATION_EXT_GRP_CONS
+		@t24:i (t24Name=AM.VALUATION.EXT.GRP.CONS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* AlphaNumeric Id which identifies the identifies the AM.VALUATION.EXT.GRP.CONS.
+Each AM.VALUATION.EXT.GRP.CONS record is identified by the following components separated by a "*":
+1) Group ID
+This is a 3-10 alphanumeric Group Id identifying the group.
+2) Application system id
+This is a 2 Alphanumeric Product id.
+Positions 3 to 7 will be filled based on the Application System Id.
+3) Security Code
+This is used for Security Positions and Repos.
+4) Security Currency
+This is used for Cash, Money Market, Fiduciary, Forex and Repo.
+5) Maturity date
+This is used for Money market, Fiduciary and Forex.
+6) Interest Rate
+This is used for Fiduciary.
+7) Transaction type
+This is used for Fiduciary(NOTICE or FIXED) and Securities(Bond or Share).
+8) Sub Asset type
+9) Asset type
+10) Position Type
+This is based on the requirement whether the positive and negative posiitons should be consolidation seperately or combined for different products. The following values are possible :
+P - Consolidated Positive Positions
+N - Consolidated Negative positions
+C - Consolidated Positive and Negative Positions together.
+Validation Rules
+
+No Input field
+Automatically updated by the system whenever the Group Consolidation was       performed */
+		AVE_GRP_CON_KEY -> AM_Group:AM_VALUATION_EXT_GRP_CONS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=0.0, core=true, businessType=A, t24Name=AVE.GRP.CON.KEY)
+		/* This field contains a description of the particular asset. This is populated only in case of security positions. This will be the Short name Security.
+
+Validation Rules
+
+
+
+
+
+No input field
+
+
+Automatically updated by the system whenever the Group Consolidation is performed */
+		SHORT_NAME : T24BusinessTypes:A
+			@i18n:Label (en="Short name")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=SHORT.NAME)
+		/* The contents of this field varies depending on the module that the position is for.
+
+
+
+
+If the position is for an Account (AC) then this field will contain the consolidated ONLINE.ACTUAL.BAL balances from the Account records plus the value of any forward entries for those accounts generated by the Securities module for transactions that have updated the portfolio.
+If the position is for a Fiduciary Contract (FD) then this field will contain the consolidated principal amounts from the AMOUNT field on the underlying FD.FID.ORDER records for this group.
+
+If the position is for a FOREX contract the this field will Contain the consolidated amount bought (AMOUNT.BOUGHT) expressed in the currency CURRENCY.BOUGHT field from the original FOREX records .
+
+If the position is for a Money Market (MM) contract then this field will contain the consolidated principal amount from the PRINCIPAL field on the MM.MONEY.MARKET record that gave rise to the position. If the position is for a loan then the amount will have a negative   '-' symbol before it.
+
+If the position is for a security position (SC) then this field will contain the consolidated number of securities held by the Group. If the  security position is short then the figure will be preceded by a '-' sign.
+
+Validation Rules
+
+No input field
+Automatically updated by the system whenever the Group Consolidation is       performed */
+		NO_NOMINAL : T24BusinessTypes:AMT required
+			@i18n:Label (en=Nominal)
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=2.0, core=true, t24Name=NO.NOMINAL)
+		/* This field is populated in case of security position and contains the Weighted COST.PRICE of the security for the group, in the securuity currency
+
+COST.PRICE = SUM(NOMINAL*COST.PRICE)/SUM(NOMINAL)
+
+Validation Rules
+
+
+
+
+
+No input field
+
+
+Automatically updated by the system whenever the Group Consolidation is performed */
+		COST_PRICE : T24BusinessTypes:AMT required
+			@i18n:Label (en="Cost Price")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, t24Name=COST.PRICE)
+		/* If the position is a Security Position then this field contains the price of the security from the LAST.PRICE field on the SECURITY.MASTER record for the Security.
+
+Validation Rules
+
+
+
+No input field
+
+
+
+Automatically updated by the system whenever the Group Consolidation is performed */
+		MARKET_PRICE : T24BusinessTypes:AMT required
+			@i18n:Label (en="Market Price")
+			@i18n:Tooltip (en="Indicates the Market Price")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=4.0, core=true, t24Name=MARKET.PRICE)
+		/* This field is populated only in case of Forex positions. This field will contain either the amount sold (AMOUNT.SOLD) from the original FOREX record.
+Validation Rules
+
+No input field
+Automatically updated by the system whenever the Group consolidation is     performed. */
+		COUNTER_NOMINAL : T24BusinessTypes:AMT required
+			@i18n:Label (en="Counter Nominal")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=5.0, core=true, t24Name=COUNTER.NOMINAL)
+		/* This field contains the value of the asset in the currency contained in the associated GRP.VAL.CURRENCY field.
+
+If the position is for an Account (AC) then this field will contain the consolidated ONLINE.ACTUAL.BAL balance from the Account records plus the value of any forward entries for this account generate by the Securities module for transactions that have updated the portfolio.
+
+If the position is for a Fiduciary Contract (FD) then this field will contain the consolidated principal amount from the AMOUNT field on the underlying FD.FID.ORDER record.
+
+If the position is for a Forex contract (FX) then this field will contain the consolidated Estimated profit or loss of the Forex transaction.
+
+If the position is for a Money Market (MM) contract then this field will contain the consolidated principal amount from the PRINCIPAL field on the MM.MONEY.MARKET records that represent this Group.
+
+If the position is for a Security positin then this field will contain an consolidated estimated value of the security position calculated using the market price in the associated MARKET.PRICE field. If the security position is short then the figure will be preceded by a '-' sign.
+
+Validation Rules
+
+No input field
+Automatically updated by the System whenever the Group Consolidation was       performed */
+		ESTIMATION : T24BusinessTypes:AMT required
+			@i18n:Label (en=Estimation)
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=6.0, core=true, t24Name=ESTIMATION)
+		/* If the position has been generated from a Fiduciary contract (FD) the this field will contain the INTEREST.RATE from the FD.FID.ORDER record that gave rise to the position.
+
+
+If this position has been generated from a Security Position then if the Security giving rise to the position is a share then this field will be updated from the PROCE.EARN.RATIO field on the SECURITY.SUPP record for the security. This field is not updated for positions arising from Bond.
+
+Validation Rules
+
+
+No input field
+
+Automatically       updated by the system whenever the Group Consolidation is performed */
+		YIELD : T24BusinessTypes:AMT required
+			@i18n:Label (en=Yield)
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=7.0, core=true, t24Name=YIELD)
+		/* This field contains a consolidated Margin value for the Group position. If the position is a debit or a short position then this field will be equal to the associated ESTIMATION field. Otherwise this field will contain a value calculated by multiplying the ESTIMATION amount by the Margin Rate for the position.
+
+Validation Rules
+
+No input field
+Automatically updated by the system whenever the Group consolidation is       performed. */
+		MARGIN_VALUE : T24BusinessTypes:AMT required
+			@i18n:Label (en="Margin Value")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=8.0, core=true, t24Name=MARGIN.VALUE)
+		/* This field contains the Consolidated amount of interest (income) that has been accrued for the Group but not yet been capitalised.
+
+If the position is for an account (AC) then this field will contain the sum of the ACCR.CR.AMOUNT, ACCR.CR2.AMOUNT,    ACCR.DR.AMOUNT and ACCR.DR2.AMOUNT fields of all Account records for the group.
+
+If the position is for a Money Market (MM) contract then if the contract is a deposit then this field will contain the consolidated amount from the OUTS.CUR.ACC.I.PAY from the LMM.ACCOUNT.BALANCES records that represent this group. If the contract is a loan then this field will contain the OUTS.ACCRUED.INT field from the LMM.ACCOUNT.BALANCES records for the Group.
+
+If the position represents a Fiduciary contract (FD) then this field will be updated from the OTS.INTEREST field on the  FD.BALANCES record for all the contracts that constitute this Group.
+
+If the position represents a FOREX (FX) contract or a Forward Rate Agreement then this field will contain 0.
+
+If this position is for a Security then this field represents the consolidated amount of accrued interest for the Group.
+
+
+Validation Rules
+
+No input field
+Automatically updated by the system whenever the Group Consolidation was       performed */
+		ACCRUED_INT : T24BusinessTypes:AMT required
+			@i18n:Label (en="Accrued Int")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=9.0, core=true, t24Name=ACCRUED.INT)
+		/* If the position is a Money Market (MM) or a Fiduciary (FD) contract then this field represents theconsolidated annual income - i.e. contract amount multiplied by the interest rate.
+If the position is a Securities (SC) position then this field will represent an consolidated estimated annual income from the Interest Rate of the Security if it is a Bond or the PRICE.EARN.RATIO field on the SECURITY.SUPP record for the security if it is a share.
+This field is not updated if the position is for an account (AC), a Forex (FX) contract.
+Validation Rules
+
+No input field
+Automatically updated by the system whenever the Group consolidation is       performed. */
+		ESTIMATED_INCOME : T24BusinessTypes:AMT required
+			@i18n:Label (en="Estimated Income")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=10.0, core=true, t24Name=ESTIMATED.INCOME)
+		/* The contents of this field varies depending on the module that the position is for.
+
+If the position if for an Account (AC) then this field will contain the consolidated ONLINE.ACTUAL.BAL balance from the Account record.
+
+If the position is for a Fiduciary Contract (FD) then this field will contain the consolidated principal amount from the AMOUNT field on the underlying FD.FID.ORDER records for the group.
+If the position is for a FOREX contract the this field will Contain either the consolidated amount bought (AMOUNT.BOUGHT)  from the original FOREX record representing the bought side of the contract.
+
+If the position is for a Money Market (MM) contract then this field will contain the consolidated principal amount from the PRINCIPAL field on the MM.MONEY.MARKET records that belong to this Group. If the position is for a loan then the amount will have a negative   '-' symbol before it.
+
+If the position is for a security position (SC) then this field will contain the consolidated number of securities settled by the various positions belonging to this group at the current date. If the security position is short then the figure will be preceded by a '-' symbol.
+
+Validation Rules
+
+No input field
+Automatically updated by the system whenever the Group consolidation was       performed */
+		V_DATE_NOMINAL : T24BusinessTypes:AMT required
+			@i18n:Label (en="V Date Nominal")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=11.0, core=true, t24Name=V.DATE.NOMINAL)
+		/* This field contains the value of the asset in the currency ontained in the associated GRP.VAL.CURRENCY field.
+
+If the position is for an Account (AC) then this field will contain the consolidated ONLINE.ACTUAL.BAL balance from the Account records for the group.
+
+If the position is for a Fiduciary Contract (FD) then this field will contain the consolidated principal amount from the AMOUNT field on the underlying FD.FID.ORDER records for the group.
+
+If the position is for a Forex contract (FX) then this field will contain the estimated profit or loss of the Forex transactions that constitute this group.
+
+If the position is for a Money Market (MM) contract then this field will contain the consolidated principal amount from the PRINCIPAL field on the MM.MONEY.MARKET records of different positions that belong to this group.
+
+If the position is for a Security positin then this field will contain an consolidated estimated value of the security position calculated using the market price in the associated MARKET.PRICE field. If the security position is short then the figure will be preceded by a '-' sign. This figure will only include securities that have updated the security position via transactions that have settled before the next working day.
+
+
+Validation Rules
+
+No input field
+Automatically updated by the system whenever the Group consolidation was       performed */
+		V_DT_ESTIMATION : T24BusinessTypes:AMT required
+			@i18n:Label (en="V Dt Estimation")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=12.0, core=true, t24Name=V.DT.ESTIMATION)
+		/* This field is the consolidated value dated margin value of the different positions that constitute this group. If the position is a debit or a short position then this field will be equal to the associated V.DT.ESTIMATION field. Otherwise this field will contain a value calculated by multiplying the V.DT.ESTIMATION amount by the Margin Rate for the position.
+
+Validation Rules
+
+No input field
+Automatically updated by the system whenever the Group consolidation was       performed. */
+		V_DATE_MARGIN : T24BusinessTypes:AMT required
+			@i18n:Label (en=V.Dt.Margin)
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=13.0, core=true, t24Name=V.DATE.MARGIN)
+		/* Represents the annual income - i.e. contract amount multiplied by the interest rate, in the currency of the Fiduciary Order.
+
+
+
+Validation Rules
+No input field.
+Automatically updated by the system whenever the Group Consolidation is       performed */
+		INT_AT_MATURITY : T24BusinessTypes:AMT required
+			@i18n:Label (en=Int.At.Maturity)
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=INT.AT.MATURITY)
+		/* Security module : Specifies the number of coupons or interest payments a year .
+
+Validation Rules
+
+No input field.
+Automatically updated by the system whenever the Group Consolidation is       performed */
+		COUP_PR_YEAR : T24BusinessTypes:AMT required
+			@i18n:Label (en="Coup Pr Year")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=COUP.PR.YEAR)
+		/* Security module : Updated automatically with Duration of the Yield. These figures are updated automatically when the SC.CALC.YIELD routine is run during the end of day process.
+Validation Rules
+
+No input field.
+Automatically updated by the system whenever the Group consolidation is       performed. */
+		DURATION : mml:Integer required
+			@i18n:Label (en=Duration)
+			@i18n:Tooltip (en="Duration of that opportunity to be active")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=16.0, core=true, t24Name=DURATION)
+		/* Security module : Specifies the maturity date of the Security.
+
+Validation Rules
+
+No input field.
+Automatically updated by the system whenever the group consolidation is       performed. */
+		MATURITY_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=MATURITY.DATE)
+		/* Security module : Contains the average book price for a single security in the security currency.
+
+Validation Rules
+
+Noinput field.
+Automatically updated by the system whenever the Group consolidation is       performed. */
+		BOOK_COST_SEC_CCY : T24BusinessTypes:AMT required
+			@i18n:Label (en="Book Cost Sec Ccy")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=BOOK.COST.SEC.CCY)
+		PORTFOLIO_NO -> byValue AM_Group:AM_VALUATION_EXT_GRP_CONS__PORTFOLIO_NO *
+		DEPOSITORY : T24BusinessTypes:A required
+			@i18n:Label (en=Depository)
+			@i18n:Tooltip (en="Depository the Security to be delivered from/to")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=20.0, core=true, t24Name=DEPOSITORY)
+		BEGIN_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Begin Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=21.0, core=true, t24Name=BEGIN.DATE)
+		BOOK_CST_EXC_RATE : T24BusinessTypes:AMT required
+			@i18n:Label (en="Book Cst Exc Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=BOOK.CST.EXC.RATE)
+		HELD_SINCE : T24BusinessTypes:D required
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=23.0, core=true, t24Name=HELD.SINCE)
+		/* Specifies the Valuation currency in which the consolidation was performed.
+During ONLINE, the consolidation can be performed on the currency of the user's choice. If the currency was not given by the user, then the Consolidation will be done on the currency given in AM.GROUP.PORT for this group.
+Validation Rules
+
+No input Field
+Automatically updated by the system whenever the Group consolidation was       performed. */
+		GRP_VAL_CURRENCY : T24BusinessTypes:A required
+			@i18n:Label (en="Grp Val CCy")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=24.0, core=true, t24Name=GRP.VAL.CURRENCY)
+		/* Specifies the Date and Time on which the File AM.VALIUATION.EXT.GRP.CONS was last updated for this Group.
+Validation Rules
+
+No input field
+Automatically updated by the system when the Group consolidation was       performed */
+		DATE_TIME : T24BusinessTypes:A required
+			@i18n:Label (en="Date time")
+			@i18n:Tooltip (en="Date and time when record was input or authorised")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=25.0, core=true, t24Name=DATE.TIME)
+		ORIG_ACCR_DIV : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=26.0, core=true, t24Name=ORIG.ACCR.DIV)
+		NET_ACCR_DIV : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=27.0, core=true, t24Name=NET.ACCR.DIV)
+		/* This field will hold the Recoverable Tax Amount.
+
+Validation Rules
+
+
+Standard     T24 Amount (AMT) field. */
+		REC_TAX_CUM_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=28.0, core=true, t24Name=REC.TAX.CUM.AMT)
+		/* This field will hold the Recoverable Tax Reset Amount.
+
+Validation Rules
+
+
+Standard     T24 Amount (AMT) field. */
+		REC_TAX_CUM_RESET : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=29.0, core=true, t24Name=REC.TAX.CUM.RESET)
+		AM_GROUP_ID : mml:Integer
+			@i18n:Label (en="Group Id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, core=false, t24Name=AM.GROUP.ID, genOperation="@ID[\'*\',1,1]")
+		APPLICATION : mml:Integer
+			@i18n:Label (en=Application)
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, core=false, t24Name=APPLICATION, genOperation="@ID[\'*\',2,1]")
+		SECURITY_NO : mml:Integer
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates the security code/number")
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, core=false, t24Name=SECURITY.NO, genOperation="@ID[\'*\',3,1]")
+		SECURITY_CCY : mml:Integer
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=SECURITY.CCY, genOperation="@ID[\'*\',4,1]")
+		ASSET_TYPE : mml:Integer
+			@i18n:Label (en="Asset Type")
+			@i18n:Tooltip (en="Indicates the asset type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=ASSET.TYPE, genOperation="@ID[\'*\',9,1]")
+		SUB_ASSET_TYPE : mml:Integer
+			@i18n:Label (en="Sub Asset Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, core=false, t24Name=SUB.ASSET.TYPE, genOperation="@ID[\'*\',8,1]")
+		ONLINE_REQ : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, core=false, t24Name=ONLINE.REQ)
+		P_N_SEP_CONS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, core=false, t24Name=P.N.SEP.CONS)
+		VAL_CURR : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, core=false, t24Name=VAL.CURR)
+	}
+	AM_VALUATION_EXT_GRP_CONS__PORTFOLIO_NO
+	{
+		/* Specifies the portfolios within the group
+
+that contributed to this position.
+Validation Rules
+
+Noinput field
+Automatically updated by the system whenever the group consolidation is       performed. */
+		PORTFOLIO_NO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=19.0, core=true, businessType=A, t24Name=PORTFOLIO.NO)
+	}
+	/* AM.VALUATION.EXT.GRP.CONS.LW will store the consolidated positions for various Groups defined in AM.GROUP.PORT application, for the last working day. This is a copy of the AM.VALUATION.EXT.GRP.CONS taken during batch.
+The following is the criteria for consolidating the various positions for each portfolio and populate the AM.VALUATION.EXTRACT.GROUP.CONS.
+
+
+
+
+Distinct currencies are consolidated separately
+
+
+
+
+Distinct currencies are consolidated separately
+Distinct maturities are consolidated separately
+
+
+
+
+Notice and fixed fiduciaries are consolidated separately
+Distinct rates are consolidated separately
+Distinct currencies are consolidated separately
+Distinct maturities are consolidated separately
+
+
+
+
+Distinct maturities are consolidated separately
+Distinct Couple currencies are consolidated separately
+
+
+
+Distinct currencies are consolidated separately
+Distinct security codes are consolidated separately */
+	AM_VALUATION_EXT_GRP_CONS_LW
+		@t24:i (t24Name=AM.VALUATION.EXT.GRP.CONS.LW, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* AlphaNumeric Id which identifies the identifies the AM.VALUATION.EXT.GRP.CONS.LW.
+Each AM.VALUATION.EXT.GRP.CONS record is identified by the following components separated by a "*":
+1) Group ID
+This is a 3-10 alphanumeric Group Id identifying the group.
+2) Application system id
+This is a 2 Alphanumeric Product id.
+Positions 3 to 7 will be filled based on the Application System Id.
+3) Security Code
+This is used for Security Positions and Repos.
+4) Security Currency
+This is used for Cash, Money Market, Fiduciary, Forex and Repo.
+5) Maturity date
+This is used for Money market, Fiduciary and Forex.
+6) Interest Rate
+This is used for Fiduciary.
+7) Transaction type
+This is used for Fiduciary(NOTICE or FIXED) and Securities(Bond or Share).
+8) Sub Asset type
+9) Asset type
+10) Position Type
+This is based on the requirement whether the positive and negative posiitons should be consolidation seperately or combined for different products. The following values are possible :
+P - Consolidated Positive Positions
+N - Consolidated Negative positions
+C - Consolidated Positive and Negative Positions together.
+Validation Rules
+
+No Input field
+Automatically updated by the system whenever the Group Consolidation was       performed */
+		AVE_GRP_CON_LW_KEY -> AM_Group:AM_VALUATION_EXT_GRP_CONS_LW PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=0.0, core=true, businessType=A, t24Name=AVE.GRP.CON.LW.KEY)
+		/* This field contains a description of the particular asset. This is populated only in case of security positions. This will be the Short name Security.
+
+Validation Rules
+
+
+
+
+
+No input field
+
+
+Automatically updated by the system whenever the Group Consolidation is performed */
+		SHORT_NAME : T24BusinessTypes:A
+			@i18n:Label (en="Short name")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=SHORT.NAME)
+		/* The contents of this field varies depending on the module that the position is for.
+
+
+
+
+If the position is for an Account (AC) then this field will contain the consolidated ONLINE.ACTUAL.BAL balances from the Account records plus the value of any forward entries for those accounts generated by the Securities module for transactions that have updated the portfolio.
+If the position is for a Fiduciary Contract (FD) then this field will contain the consolidated principal amounts from the AMOUNT field on the underlying FD.FID.ORDER records for this group.
+
+If the position is for a FOREX contract the this field will Contain the consolidated amount bought (AMOUNT.BOUGHT) expressed in the currency CURRENCY.BOUGHT field from the original FOREX records .
+
+If the position is for a Money Market (MM) contract then this field will contain the consolidated principal amount from the PRINCIPAL field on the MM.MONEY.MARKET record that gave rise to the position. If the position is for a loan then the amount will have a negative   '-' symbol before it.
+
+If the position is for a security position (SC) then this field will contain the consolidated number of securities held by the Group. If the  security position is short then the figure will be preceded by a '-' sign.
+
+Validation Rules
+
+No input field
+Automatically updated by the system during batch process when the Group       Consolidation is performed */
+		NO_NOMINAL : T24BusinessTypes:AMT required
+			@i18n:Label (en=Nominal)
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=2.0, core=true, t24Name=NO.NOMINAL)
+		/* This field is populated in case of security position and contains the Weighted COST.PRICE of the security for the group, in the securuity currency
+
+COST.PRICE = SUM(NOMINAL*COST.PRICE)/SUM(NOMINAL)
+
+Validation Rules
+
+
+
+
+
+No input field
+
+
+Automatically updated by the system whenever the Group Consolidation is performed */
+		COST_PRICE : T24BusinessTypes:AMT required
+			@i18n:Label (en="Cost Price")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, t24Name=COST.PRICE)
+		/* If the position is a Security Position then this field contains the price of the security from the LAST.PRICE field on the SECURITY.MASTER record for the Security.
+
+Validation Rules
+
+
+
+No input field
+
+
+
+Automatically updated by the system whenever the Group Consolidation is performed */
+		MARKET_PRICE : T24BusinessTypes:AMT required
+			@i18n:Label (en="Market Price")
+			@i18n:Tooltip (en="Indicates the Market Price")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=4.0, core=true, t24Name=MARKET.PRICE)
+		/* This field is populated only in case of Forex positions. This field will contain either the amount sold (AMOUNT.SOLD) from the original FOREX record.
+Validation Rules
+
+No input field
+Automatically updated by the system during batch when the Group       consolidation is performed. */
+		COUNTER_NOMINAL : T24BusinessTypes:AMT required
+			@i18n:Label (en="Counter Nominal")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=5.0, core=true, t24Name=COUNTER.NOMINAL)
+		/* This field contains the value of the asset in the currency contained in the associated GRP.VAL.CURRENCY field.
+
+If the position is for an Account (AC) then this field will contain the consolidated ONLINE.ACTUAL.BAL balance from the Account records plus the value of any forward entries for this account generate by the Securities module for transactions that have updated the portfolio.
+
+If the position is for a Fiduciary Contract (FD) then this field will contain the consolidated principal amount from the AMOUNT field on the underlying FD.FID.ORDER record.
+
+If the position is for a Forex contract (FX) then this field will contain the consolidated Estimated profit or loss of the Forex transaction.
+
+If the position is for a Money Market (MM) contract then this field will contain the consolidated principal amount from the PRINCIPAL field on the MM.MONEY.MARKET records that represent this Group.
+
+If the position is for a Security positin then this field will contain an consolidated estimated value of the security position calculated using the market price in the associated MARKET.PRICE field. If the security position is short then the figure will be preceded by a '-' sign.
+
+Validation Rules
+
+No input field
+Automatically updated by the System during batch processing when the Group     Consolidation was performed */
+		ESTIMATION : T24BusinessTypes:AMT required
+			@i18n:Label (en=Estimation)
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=6.0, core=true, t24Name=ESTIMATION)
+		YIELD : T24BusinessTypes:AMT required
+			@i18n:Label (en=Yield)
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=7.0, core=true, t24Name=YIELD)
+		/* This field contains a consolidated Margin value for the Group position. If the position is a debit or a short position then this field will be equal to the associated ESTIMATION field. Otherwise this field will contain a value calculated by multiplying the ESTIMATION amount by the Margin Rate for the position.
+
+Validation Rules
+
+No input field
+Automatically updated by the system during batch processing when the Group     consolidation is performed. */
+		MARGIN_VALUE : T24BusinessTypes:AMT required
+			@i18n:Label (en="Margin Value")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=8.0, core=true, t24Name=MARGIN.VALUE)
+		/* This field contains the Consolidated amount of interest (income) that has been accrued for the Group but not yet been capitalised.
+
+If the position is for an account (AC) then this field will contain the sum of the ACCR.CR.AMOUNT, ACCR.CR2.AMOUNT,    ACCR.DR.AMOUNT and ACCR.DR2.AMOUNT fields of all Account records for the group.
+
+If the position is for a Money Market (MM) contract then if the contract is a deposit then this field will contain the consolidated amount from the OUTS.CUR.ACC.I.PAY from the LMM.ACCOUNT.BALANCES records that represent this group. If the contract is a loan then this field will contain the OUTS.ACCRUED.INT field from the LMM.ACCOUNT.BALANCES records for the Group.
+
+If the position represents a Fiduciary contract (FD) then this field will be updated from the OTS.INTEREST field on the  FD.BALANCES record for all the contracts that constitute this Group.
+
+If the position represents a FOREX (FX) contract or a Forward Rate Agreement then this field will contain 0.
+
+If this position is for a Security then this field represents the consolidated amount of accrued interest for the Group.
+
+
+Validation Rules
+
+No input field
+Automatically updated by the system during batch processing when the Group     Consolidation is performed */
+		ACCRUED_INT : T24BusinessTypes:AMT required
+			@i18n:Label (en="Accrued Int")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=9.0, core=true, t24Name=ACCRUED.INT)
+		/* If the position is a Money Market (MM) or a Fiduciary (FD) contract then this field represents theconsolidated annual income - i.e. contract amount multiplied by the interest rate.
+If the position is a Securities (SC) position then this field will represent an consolidated estimated annual income from the Interest Rate of the Security if it is a Bond or the PRICE.EARN.RATIO field on the SECURITY.SUPP record for the security if it is a share.
+This field is not updated if the position is for an account (AC), a Forex (FX) contract.
+Validation Rules
+
+No input field
+Automatically updated by the system during batch when the Group     consolidation is performed. */
+		ESTIMATED_INCOME : T24BusinessTypes:AMT required
+			@i18n:Label (en="Estimated Income")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=10.0, core=true, t24Name=ESTIMATED.INCOME)
+		/* The contents of this field varies depending on the module that the position is for.
+
+If the position if for an Account (AC) then this field will contain the consolidated ONLINE.ACTUAL.BAL balance from the Account record.
+
+If the position is for a Fiduciary Contract (FD) then this field will contain the consolidated principal amount from the AMOUNT field on the underlying FD.FID.ORDER records for the group.
+If the position is for a FOREX contract the this field will Contain either the consolidated amount bought (AMOUNT.BOUGHT)  from the original FOREX record representing the bought side of the contract.
+
+If the position is for a Money Market (MM) contract then this field will contain the consolidated principal amount from the PRINCIPAL field on the MM.MONEY.MARKET records that belong to this Group. If the position is for a loan then the amount will have a negative   '-' symbol before it.
+
+If the position is for a security position (SC) then this field will contain the consolidated number of securities settled by the various positions belonging to this group at the current date. If the security position is short then the figure will be preceded by a '-' symbol.
+
+Validation Rules
+
+No input field
+Automatically updated by the system during batch processing  when the     Group consolidation is performed */
+		V_DATE_NOMINAL : T24BusinessTypes:AMT required
+			@i18n:Label (en="V Date Nominal")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=11.0, core=true, t24Name=V.DATE.NOMINAL)
+		/* This field contains the value of the asset in the currency ontained in the associated GRP.VAL.CURRENCY field.
+
+If the position is for an Account (AC) then this field will contain the consolidated ONLINE.ACTUAL.BAL balance from the Account records for the group.
+
+If the position is for a Fiduciary Contract (FD) then this field will contain the consolidated principal amount from the AMOUNT field on the underlying FD.FID.ORDER records for the group.
+
+If the position is for a Forex contract (FX) then this field will contain the estimated profit or loss of the Forex transactions that constitute this group.
+
+If the position is for a Money Market (MM) contract then this field will contain the consolidated principal amount from the PRINCIPAL field on the MM.MONEY.MARKET records of different positions that belong to this group.
+
+If the position is for a Security positin then this field will contain an consolidated estimated value of the security position calculated using the market price in the associated MARKET.PRICE field. If the security position is short then the figure will be preceded by a '-' sign. This figure will only include securities that have updated the security position via transactions that have settled before the next working day.
+
+
+Validation Rules
+
+No input field
+Automatically updated by the system during batch processing when the Group     consolidation is performed */
+		V_DT_ESTIMATION : T24BusinessTypes:AMT required
+			@i18n:Label (en="V Dt Estimation")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=12.0, core=true, t24Name=V.DT.ESTIMATION)
+		/* This field is the consolidated value dated margin value of the different positions that constitute this group. If the position is a debit or a short position then this field will be equal to the associated V.DT.ESTIMATION field. Otherwise this field will contain a value calculated by multiplying the V.DT.ESTIMATION amount by the Margin Rate for the position.
+
+Validation Rules
+
+No input field
+Automatically updated by the system during batch processingwhen the Group     consolidation is performed. */
+		V_DATE_MARGIN : T24BusinessTypes:AMT required
+			@i18n:Label (en=V.Dt.Margin)
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=13.0, core=true, t24Name=V.DATE.MARGIN)
+		INT_AT_MATURITY : T24BusinessTypes:AMT required
+			@i18n:Label (en=Int.At.Maturity)
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=INT.AT.MATURITY)
+		/* Security module : Specifies the number of coupons or interest payments a year .
+
+Validation Rules
+
+No input field.
+Automatically updated by the system whenever the Group Consolidation is       performed */
+		COUP_PR_YEAR : T24BusinessTypes:AMT required
+			@i18n:Label (en="Coup Pr Year")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=COUP.PR.YEAR)
+		/* Security module : Updated automatically with Duration of the Yield. These figures are updated automatically when the SC.CALC.YIELD routine is run during the end of day process.
+Validation Rules
+
+No input field.
+Automatically updated by the system whenever the Group consolidation is       performed. */
+		DURATION : mml:Integer required
+			@i18n:Label (en=Duration)
+			@i18n:Tooltip (en="Duration of that opportunity to be active")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=16.0, core=true, t24Name=DURATION)
+		/* Security module : Specifies the maturity date of the Security.
+
+Validation Rules
+
+No input field.
+Automatically updated by the system whenever the group consolidation is     performed. */
+		MATURITY_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=MATURITY.DATE)
+		/* Insert text here
+Validation Rules
+
+Rule 1
+Rule 2 */
+		BOOK_COST_SEC_CCY : T24BusinessTypes:AMT required
+			@i18n:Label (en="Book Cost Sec Ccy")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=BOOK.COST.SEC.CCY)
+		PORTFOLIO_NO -> byValue AM_Group:AM_VALUATION_EXT_GRP_CONS_LW__PORTFOLIO_NO *
+		DEPOSITORY : T24BusinessTypes:A required
+			@i18n:Label (en=Depository)
+			@i18n:Tooltip (en="Depository the Security to be delivered from/to")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=20.0, core=true, t24Name=DEPOSITORY)
+		BEGIN_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Begin Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=21.0, core=true, t24Name=BEGIN.DATE)
+		BOOK_CST_EXC_RATE : T24BusinessTypes:AMT required
+			@i18n:Label (en="Book Cst Exc Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=BOOK.CST.EXC.RATE)
+		HELD_SINCE : T24BusinessTypes:D required
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=23.0, core=true, t24Name=HELD.SINCE)
+		/* Specifies the Valuation currency in which the consolidation was performed.
+During ONLINE, the consolidation can be performed on the currency of the user's choice. If the currency was not given by the user, then the Consolidation will be done on the currency given in AM.GROUP.PORT for this group.
+Validation Rules
+
+No input Field
+Automatically updated by the system during batch processing when the Group     consolidation is performed. */
+		GRP_VAL_CURRENCY : T24BusinessTypes:A required
+			@i18n:Label (en="Grp Val CCy")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=24.0, core=true, t24Name=GRP.VAL.CURRENCY)
+		/* Specifies the Date and Time on which the File AM.VALIUATION.EXT.GRP.CONS was last updated for this Group.
+Validation Rules
+
+No input field
+Automatically updated by the system during batch processing when the Group     consolidation is performed */
+		DATE_TIME : T24BusinessTypes:A required
+			@i18n:Label (en="Date time")
+			@i18n:Tooltip (en="Date and time when record was input or authorised")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=25.0, core=true, t24Name=DATE.TIME)
+		ORIG_ACCR_DIV : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=26.0, core=true, t24Name=ORIG.ACCR.DIV)
+		NET_ACCR_DIV : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=27.0, core=true, t24Name=NET.ACCR.DIV)
+		/* This field will hold the Recoverable Tax Amount.
+
+Validation Rules
+
+
+Standard     T24 Amount (AMT) field. */
+		REC_TAX_CUM_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=28.0, core=true, t24Name=REC.TAX.CUM.AMT)
+		/* This field will hold the Recoverable Tax Reset Amount.
+
+Validation Rules
+
+
+Standard     T24 Amount (AMT) field. */
+		REC_TAX_CUM_RESET : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=29.0, core=true, t24Name=REC.TAX.CUM.RESET)
+		AM_GROUP_ID : mml:Integer
+			@i18n:Label (en="Group Id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, core=false, t24Name=AM.GROUP.ID, genOperation="@ID[\'*\',1,1]")
+		APPLICATION : mml:Integer
+			@i18n:Label (en=Application)
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, core=false, t24Name=APPLICATION, genOperation="@ID[\'*\',2,1]")
+		ASSET_TYPE : mml:Integer
+			@i18n:Label (en="Asset Type")
+			@i18n:Tooltip (en="Indicates the asset type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=ASSET.TYPE, genOperation="@ID[\'*\',9,1]")
+		SUB_ASSET_TYPE : mml:Integer
+			@i18n:Label (en="Sub Asset Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, core=false, t24Name=SUB.ASSET.TYPE, genOperation="@ID[\'*\',8,1]")
+		SECURITY_NO : mml:Integer
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates the security code/number")
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, core=false, t24Name=SECURITY.NO, genOperation="@ID[\'*\',3,1]")
+		SECURITY_CCY : mml:Integer
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=SECURITY.CCY, genOperation="@ID[\'*\',4,1]")
+	}
+	AM_VALUATION_EXT_GRP_CONS_LW__PORTFOLIO_NO
+	{
+		PORTFOLIO_NO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=19.0, core=true, businessType=A, t24Name=PORTFOLIO.NO)
+	}
+	MNEMONIC_AM_GROUP_PORT
+		@t24:i (t24Name=MNEMONIC.AM.GROUP.PORT, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		MNEMONIC_AGP -> AM_Group:MNEMONIC_AM_GROUP_PORT PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=0.0, core=true, businessType=MNE, t24Name=MNEMONIC.AGP)
+		AM_GROUP_PORT -> AM_Group:AM_GROUP_PORT required
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=1.0, core=true, t24Name=AM.GROUP.PORT)
+	}
+}
+Enumerations {
+	AM_GROUP_PORT__DYN_FLD_NAME__DYN_FLD_NAME__DYN_OPERAND : mml:string
+		EQ=EQ
+		NE=NE
+		GE=GE
+		LE=LE
+		GT=GT
+		LT=LT
+	AM_GROUP_PORT__DYN_FLD_NAME__DYN_FLD_NAME__SEL_SUB_FUNC : mml:string
+		AND=AND
+		OR=OR
+	AM_GROUP_PORT__DYN_FLD_NAME__SEL_MAIN_FUNC : mml:string
+		AND=AND
+		OR=OR
+	AM_GROUP_PORT__DET_OR_CON_REP : mml:string
+		DETAIL=DETAIL
+		CONSOLIDATED=CONSOLIDATED
+		BOTH=BOTH
+		NONE=NONE
+	AM_GROUP_PORT__DEACTIVATED : mml:string
+		YES=YES
+		NO=NO
+	AM_GROUP_PORT__BACK_VAL_PERF_REQ : mml:string
+		YES=YES
+		NO=NO
+	AM_GROUP_TYPE__BLOCKED_PORT_TYPE__BLOCKED_PORT_ERR : mml:string
+		OVERRIDE=OVERRIDE
+		ERROR=ERROR
+	AM_GROUP_TYPE__PERFORMANCE : mml:string
+		YES=YES
+		NULL=NULL
+	AM_GROUP_TYPE__REBALANCING : mml:string
+		YES=YES
+		NULL=NULL
+	AM_GROUP_TYPE__UNIQUE_MBRSHIP : mml:string
+		YES=YES
+		NULL=NULL
+	AM_PORT_TYPE__TAX_WRAPPER : mml:string
+		YES=YES
+		NULL=NULL
+}

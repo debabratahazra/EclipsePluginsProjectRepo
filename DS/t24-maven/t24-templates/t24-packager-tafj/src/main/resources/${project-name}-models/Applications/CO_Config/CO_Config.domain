@@ -1,0 +1,782 @@
+# UTF-8
+# UTF-8
+/* ParameterDefinitions for Collateral */
+Domain CO_Config
+	@t24:i (module=CO)
+	@java:Package (value=com.temenos.t24.datamodel.co.co_config)
+namespace "http://www.temenos.com/t24/CO_Config"
+metamodelVersion 1.30.6
+Classes {
+	/* COLLATERAL CODE
+
+The information on this file is used to identify categories of collateral right.
+The collateral code file permits definition of the allowable collateral (object) types which may occur under each category of right and permits the definition of a default frequency of review of these rights.
+This collateral code is also used in determining how collateral values are reallocated across central bank reporting lines. */
+	COLLATERAL_CODE
+		@t24:i (t24Name=COLLATERAL.CODE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Unique identification of collateral code.
+The identifier of a category of collateral rights.
+Validation Rules
+1 to 3-digit numeric. */
+		COLLATERAL_CODE -> CO_Config:COLLATERAL_CODE PK required
+			@i18n:Label (en="Collateral Code")
+			@i18n:Tooltip (en="Indicates the Collateral attached to the Limit")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, t24Name=COLLATERAL.CODE)
+		DESCRIPTION -> byValue CO_Config:COLLATERAL_CODE__DESCRIPTION *
+		SHORT_NAME -> byValue CO_Config:COLLATERAL_CODE__SHORT_NAME *
+		COLLATERAL_TYPE -> byValue CO_Config:COLLATERAL_CODE__COLLATERAL_TYPE *
+		/* Determines when the system is to perform a recalculation of the percentage of cover applicable to collateral rights held under this code.
+A combined date & frequency field which determines if and when the system is to automatically recalculate the value of the PERCENTAGE COVER (field 4) of collateral right main file records belonging to this code.
+When such a recalculation is performed, the date part of this field is automatically cycled according to the frequency part.
+Validation Rules
+17 type FQU (frequency format). (Optional input) */
+		PERCENT_DATE_FQU : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=4.0, core=true, t24Name=PERCENT.DATE.FQU, mask="RDD DDD DDDD #####")
+		/* The default review frequency applicable to this category of collateral right.
+The content of this field is used to generate a default value for the REVIEW DATE FQU (field 6) when input is made to the collateral right main file using this code.
+The permitted values of the frequency code are as follows:
+BSNSS - business (working) days; date is to be cycled each business day,
+DAILY - date is to be cycled daily (ie. each calendar day),
+WEEKn - where n is a number in the range 1 to 9; date is to be cycled every n weeks,
+TWMTH - twice monthly; date cycles twice monthly on the 15th and last day of each month,
+Mmmdd - where mm is a number in the range 1 to 12 and dd is a number in the range 1 to 31; describes a cycle on a particular day (dd) each month or every mm months.
+These frequency codes correspond to the equivalent codes contained in the standard date/frequency combined format.
+Validation Rules
+5 alphanumeric characters (frequency code). (Optional input) */
+		REVIEW_FQU : T24BusinessTypes:A
+			@i18n:Label (en="Review Frequency")
+			@i18n:Tooltip (en="Review Frequency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=5.0, core=true, t24Name=REVIEW.FQU)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=6.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=7.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue CO_Config:COLLATERAL_CODE__INPUTTER *
+		DATE_TIME -> byValue CO_Config:COLLATERAL_CODE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=13.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=14.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	COLLATERAL_CODE__DESCRIPTION
+	{
+		/* Description of the category of collateral right.
+Validation Rules
+Up to 35 characters free text. Multilanguage field. (Mandatory input) */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	COLLATERAL_CODE__SHORT_NAME
+	{
+		/* Short name of the category of collateral right.
+Validation Rules
+Up to 15 characters free text. Multilanguage field. (Mandatory input) */
+		SHORT_NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.NAME)
+	}
+	COLLATERAL_CODE__COLLATERAL_TYPE
+	{
+		/* The collateral type or types which are normally associated with this code.
+Input to this field must be a valid collateral type defined on the collateral type file.
+The collateral code usually relates to a particular type of object, in which case this type may be entered in this field.
+When more than one possible type of object occurs under a given type of right, all the allowable types should be mentioned here.
+In either case, the first value entered in this field (for the code which has been allocated to the corresponding right) is taken as the default value of the COLLATERAL TYPE (field 1) on the collateral main file. Input of any other type of collateral may be made on the main file, but will require acceptance of an override.
+
+Note:      If no input is made to this field, the system will            not link automatically from the collateral right            application to the collateral (object) application            when this code has been used.
+Validation Rules
+1 to 3-digit numeric. Multivalue field. (Optional input)
+Values may not be duplicated. */
+		COLLATERAL_TYPE -> CO_Config:COLLATERAL_TYPE
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=COLLATERAL.TYPE)
+	}
+	COLLATERAL_CODE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, core=true, t24Name=INPUTTER)
+	}
+	COLLATERAL_CODE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=9.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This file permits the company-level definition of system parameters. */
+	COLLATERAL_PARAMETER
+		@t24:i (t24Name=COLLATERAL.PARAMETER, level=I, type=U, allowedFunctions="A C D E I L P Q R S", localRefAllowed=false)
+	{
+		/* The company for which the parameter record applies.
+The collateral parameter table is a company-level table. The item-id to the parameter record must exist as a valid company code on the company file.
+In a single-company environment, enter the id (or mnemonic) of the company record.
+In a multi-company environment, separate parameter records may be entered for each company at which customer-level details are defined.
+Validation Rules
+Up to 11 alphanumeric characters (company id). */
+		COMPANY_ID -> CO_Config:COLLATERAL_PARAMETER PK required
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=0.0, core=true, businessType=COM, t24Name=COMPANY.ID, mask="R##-###-####")
+		/* Determines to what extent a history of the revaluation of a collateral record is kept (ie. how many previous values).
+A numeric parameter which determines how many values are stored on the collateral main file in REVALUED DATE & REVALUED AMOUNT.
+Each time the collateral is revalued, the system records the previous value of the EXECUTION VALUE and the date at which the revaluation took place in the fields mentioned above.
+This parameter determines how much of this historical information is kept in the system by limiting the number of multivalues used.
+When the maximum number of values defined in this field has been reached, the system automatically discards the oldest each time a new one is added.
+Zero is allowed. If no value is given, the value one is assumed.
+Validation Rules
+
+1 to 2-digit numeric. (Optional input) */
+		REVALUATION_INFO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, t24Name=REVALUATION.INFO)
+		/* Identifies which descriptive field from the report lines file is used to enrich the source & target line fields on the collateral allocation table.
+The value of this field determines which of the values in the F.RE.STAT.REP.LINE field DESC is used to provide an enrichment to the collateral allocation fields SOURCE LINE & TARGET LINE.
+These source & target fields are recorded on the collateral allocation table using the CRF line numbers (ie. those numbers which form the second part of the key to records on F.RE.STAT.REP.LINE).
+In order to clarify the meaning of the line numbers on this table, this parameter may be used to instruct the system to display against them one of the available descriptive lines from the report lines file.
+The number in this field indicates which value to use.
+If no value is entered here, no descriptive enrichment appears.
+Validation Rules
+
+'1', '2' or '3'. (Optional input) */
+		STAT_REP_LINE_DESC : CO_Config:COLLATERAL_PARAMETER__STAT_REP_LINE_DESC
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=2.0, core=true, t24Name=STAT.REP.LINE.DESC)
+		DEFAULT_ADDRESS -> byValue CO_Config:COLLATERAL_PARAMETER__DEFAULT_ADDRESS *
+		/* Provides the user with a direct link from the input screen of the collateral right to the input of collateral objects belonging to it.
+A parameter which determines whether the collateral right application links automatically to the input screen of the collateral object application. There is no automatic link unless a value is entered here.
+The value '1ST' indicates normal processing, whereby input & authorization of a new collateral right links directly into the same function on the corresponding object.
+The value 'ALL' indicates that the same link is to be provided each time input (& authorization) of a change is made to an existing collateral right.
+Validation Rules
+'1ST' or 'ALL'. (Optional input) */
+		COLLATERAL_LINK : CO_Config:COLLATERAL_PARAMETER__COLLATERAL_LINK
+			@i18n:Label (en="Collateral Link")
+			@i18n:Tooltip (en="Collateral Link")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=COLLATERAL.LINK)
+		/* The retention period for liquidated collateral records. A period after the expiry date has been reached during which they remain on the 'live' file.
+This parameter controls the first step in the cycle of archiving collateral records.
+The content of the field specifies a period of time as follows:
+nnD#nn days##
+nnM#nn months##
+nnY#nn years##
+In each case, this period of time must elapse before a set of associated collateral records are moved from the live file and placed on the history file.
+This elapsed period is taken from the date of the collateral right's EXPIRY DATE.
+Any collateral main file (object) records are moved to history together with their associated right. The status of all records moved is set to 'MAT'.
+This process is performed as part of the collateral application's end-of-day. The archiving of history records (their complete removal from disk) is handled by the Archiving module.
+Validation Rules
+
+2 to 3 alphanumeric characters; nnx where nn is a number         in the range 1 to 99 and x is either 'D', 'M' or 'Y'. (Optional         input) */
+		RETENTION_PERIOD : T24BusinessTypes:A
+			@i18n:Label (en="Retention Period")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=5.0, core=true, t24Name=RETENTION.PERIOD)
+		/* Reserved for future use.
+Validation Rules
+
+This is a NOINPUT field. */
+		LIMIT_INTERFACE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=6.0, core=true, t24Name=LIMIT.INTERFACE)
+		/* Reserved for future use.
+Validation Rules
+
+This is a NOINPUT field. */
+		ACCOUNT_BALANCE : CO_Config:COLLATERAL_PARAMETER__ACCOUNT_BALANCE
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=7.0, core=true, t24Name=ACCOUNT.BALANCE)
+		/* This field controls online update of cash collaterals. If cash collateral such as account, deposits (LD, MM), securities and fiduciary are attached to a limit record; any change in these collateral value are updated during the End of Day process. If such collateral, if value to be updated online then this field is to be marked as "Y". (LIMIT record where the cash collateral are attached, also to be marked "Y" in the online update field along with Online update field marked "Y" in COLLATERAL.TYPE) In such cases the collateral is recalculated when the limit reference is drawn. If the field is marked "N" or left blank then no online update process is done.
+Validation Rules
+
+
+Optional Input field
+Input can be Y,N or null
+Input allowed only if the execution value(field 5) contains value F (FED)
+Online update of cash collateral is done only when online update fields in
+
+
+
+
+
+
+COLLATERAL.PARAMETER, COLLATERAL.TYPE & LIMIT records are marked "Y" */
+		ONLINE_UPDATE : CO_Config:COLLATERAL_PARAMETER__ONLINE_UPDATE
+			@i18n:Label (en="Online Update?")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=8.0, core=true, t24Name=ONLINE.UPDATE)
+		COLLATERAL_CCY -> byValue CO_Config:COLLATERAL_PARAMETER__COLLATERAL_CCY *
+		/* Determines whether manual allocation of priority in COLLATERAL.RIGHT is allowed.
+"NONE" or "MANUAL.
+This value must be the same for all companies and so can only be changed via the LIMIT.CHANGE application.
+Validation Rules
+
+System-maintained. */
+		ORDER_PRIORITY : CO_Config:COLLATERAL_PARAMETER__ORDER_PRIORITY
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=11.0, core=true, t24Name=ORDER.PRIORITY)
+		/* The portion of a LIMIT which is allowed unsecured by collateral may be allowed before any collateral is allocated or it may be allowed after an amount covered by collateral.
+If this field is "Y" then the unsecured amount is allowed without any collateral being needed and only when the unsecured amount is exceeded is collateral allocated. If this field is "N" then an unsecured amount is allowed after no more collateral cover is available.
+Blank is treated as "N".
+Validation Rules
+
+Y/N or blank */
+		COVER_UNSEC_1ST : CO_Config:COLLATERAL_PARAMETER__COVER_UNSEC_1ST
+			@i18n:Label (en="Cover Unsec 1st?")
+			@i18n:Tooltip (en="Cover Unsecured")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=12.0, core=true, t24Name=COVER.UNSEC.1ST)
+		ALLOC_BY_PARAMETER : CO_Config:COLLATERAL_PARAMETER__ALLOC_BY_PARAMETER
+			@i18n:Label (en="Allocation by Parameter")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=13.0, core=true, t24Name=ALLOC.BY.PARAMETER)
+		REALTIME_ALLOC : T24BusinessTypes:A
+			@i18n:Label (en="Real Time Allocation")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=14.0, core=true, t24Name=REALTIME.ALLOC)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=15.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=16.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=18.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=19.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=20.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=21.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=22.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=23.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=24.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue CO_Config:COLLATERAL_PARAMETER__INPUTTER *
+		DATE_TIME -> byValue CO_Config:COLLATERAL_PARAMETER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=29.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=30.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=31.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=32.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=33.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		COMPANY : mml:Integer
+			@i18n:Label (en=Company)
+			@t24:i (align=R, inputBehaviour=N, core=false, t24Name=COMPANY)
+	}
+	COLLATERAL_PARAMETER__DEFAULT_ADDRESS
+	{
+		/* Item-id to collateral type file. Indicates types of collateral for which the address is to be defaulted from the customer record.
+Indicates to the system that the address fields from the customer record are to be used as default values in the address fields on the collateral main file. The types of collateral for which this facility is required are entered here.
+Validation Rules
+1 to 3-digit numeric. Multivalue field. (Optional input)
+Values may not be duplicated. */
+		DEFAULT_ADDRESS -> CO_Config:COLLATERAL_TYPE
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=DEFAULT.ADDRESS)
+	}
+	COLLATERAL_PARAMETER__COLLATERAL_CCY
+	{
+		/* COLLATERAL.PARAMETER
+COLLATERAL.CCY
+Collateral currency for which FX risk margin is to be specified. Multi value field associated with Field  FX.RISK.MARGIN.
+Validation Rules
+
+Any valid Currency defined in the Currency table. */
+		COLLATERAL_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, businessType=CCY, t24Name=COLLATERAL.CCY)
+		/* COLLATERAL.PARAMETER
+FX.RISK.MARGIN
+Margin for the collateral currency defined in field COLLATERAL.CCY. When the user desires to cover the  Currency conversion risk factor in respect of collaterals in currencies different from the limit currency then this field can be used to define the desired margin.
+E.g.
+Take a limit 100053.400.01 in currency USD. For this limit a collateral in GBP50000 is taken. The execution value for this collateral is 100%N. If no margin is defined in this field for the Collateral currency GBP, then the SECURED.AMT under the corresponding COLLAT.RIGHT in the limit record 100053.400.01 will be updated with USD77875 (assuming Mid Reval rate for GBP to USD as 1.5575). If the user defines a FX.RISK.MARGIN as 95% in this field, then the SECURED.AMT in the limit will be USD73981.25(that is 50000*1.5575*95/100).
+Validation Rules
+
+Numeric up to 3 characters (0 to100)
+Multi value field associated with field  COLLATERAL.CCY */
+		FX_RISK_MARGIN : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=FX.RISK.MARGIN)
+	}
+	COLLATERAL_PARAMETER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=27.0, core=true, t24Name=INPUTTER)
+	}
+	COLLATERAL_PARAMETER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=28.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This file is used to define classes of collateral object such as buildings, stocks, guarantees (or subdivisions thereof).
+The information on this file is used to determine, for each type, how the collateral value is established, revalued and linked to other applications.
+
+APPLICATION INPUT & APPLICATION
+Defines whether input to the collateral main file field APPLICATION.ID is mandatory, optional or not allowed, and, if so, which application(s) are permitted.
+
+NOMINAL, EXECUTION, THIRD PARTY, GENERAL LEDGER & CENTRAL BANK VALUES
+These fields correspond to the fields of the same names in the collateral main file.
+The value, in each case, determines firstly whether the corresponding field is to be entered by the user or calculated from another value on the record or fed from one of the application main records.
+In the case of user-input, the value here signifies whether that input is required or optional.
+
+REVALUATION DATE, FREQUENCY & RATE
+These fields determine the cycle and rate of revaluation of collateral held under this code. */
+	COLLATERAL_TYPE
+		@t24:i (t24Name=COLLATERAL.TYPE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Unique identification of collateral type.
+The number by which the collateral type is identified and by which it is recorded on the collateral main file.
+Validation Rules
+1-3 digit numeric. */
+		COLLATERAL_TYPE -> CO_Config:COLLATERAL_TYPE PK required
+			@i18n:Label (en="Collateral Type")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, t24Name=COLLATERAL.TYPE)
+		DESCRIPTION -> byValue CO_Config:COLLATERAL_TYPE__DESCRIPTION *
+		/* Defines whether input to APPLICATION.ID on the collateral main file is mandatory, optional or not allowed.
+The value entered in this field determines whether or not a collateral record belonging to this type may be linked to a contract or account record elsewhere in the system.
+When a collateral record belonging to this type is entered, the input to APPLICATION.ID must be made in accordance with the definition in this field as follows:
+M=MANDATORY - collateral belonging to this type must always be represented               by a credit balance or deposit recorded elsewhere in the               system;
+O=OPTIONAL  - collateral belonging to this type may either be represented               by a credit balance or deposit elsewhere in the system, or               by an external object;
+N=NONE      - collateral belonging to this type is always an external               object.
+Examples:
+(a)       The collateral type is a credit balance on an account               recorded in the Account module. The account id must always               be given when the collateral record is entered               (M=MANDATORY).
+(b)       The collateral type is a deposit. However, the right of               security may refer to a customer's deposit recorded in the               Loans & Deposits module or to a deposit at another bank               (O=OPTIONAL).
+(c)       The collateral type is a building (ie. mortgage). No               application reference may be given on the collateral               record (N=NONE).
+Validation Rules
+'M', 'O' or 'N'. (Mandatory input) */
+		APPLICATION_INPUT : CO_Config:COLLATERAL_TYPE__APPLICATION_INPUT required
+			@i18n:Label (en="Application Input")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=2.0, core=true, t24Name=APPLICATION.INPUT)
+		APPLICATION -> byValue CO_Config:COLLATERAL_TYPE__APPLICATION *
+		/* Determines whether the nominal value on the collateral main file is to be entered by the user or fed from one of the application main records. In the case of user-input, the value here signifies whether that input is required or optional.
+This field corresponds to the field of the same name on the collateral main file and determines how input to that field is to be interpreted by the system.
+When a collateral record belonging to this type is entered, the input to NOMINAL.VALUE must be made in accordance with the definition in this field as follows:
+M=MANDATORY - the nominal value of the collateral must be input by the               user;
+O=OPTIONAL  - the nominal value of the collateral is an optional input               field;
+N=NONE      - no input of a nominal value is permitted;
+F=FED       - the nominal value of the collateral is automatically fed               from the application main record belonging to the               collateral;
+FM=FED/MARGIN the nominal value of the collateral is automatically fed from the application main record belonging to the collateral, using the margin value calculated by the application.
+Example:
+The collateral type represents goods. The market value of the goods, which may be greater than their accepted value as collateral, is to be recorded when known (O=OPTIONAL).
+
+Note : If the nominal value is defined as fed (F=FED or FM=FED/MARGIN) and        the value of APPLICATION.INPUT is 'O' (O=OPTIONAL), it becomes        possible to enter collateral records of this type without linking        them to an application main file record. Under these circumstances,        input to the collateral field NOMINAL.VALUE will be treated as        mandatory.
+Validation Rules
+'M', 'O', 'N', 'F' or 'FM'. (Mandatory input)
+The value 'F' is not allowed when APPLICATION.INPUT is 'N'.
+The value 'FM' is not allowed unless the application 'SC' (Securities module) is defined under APPLICATION. */
+		NOMINAL_VALUE : T24BusinessTypes:A required
+			@i18n:Label (en=Nominal)
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=NOMINAL.VALUE)
+		/* Determines whether the execution value on the collateral main file is to be entered by the user or calculated from the nominal value or fed from one of the application main records. In the case of user-input, the value here signifies whether that input is required or optional.
+This field corresponds to the field of the same name on the collateral main file and determines how input to that field is to be interpreted by the system.
+When a collateral record belonging to this type is entered, the input to EXECUTION.VALUE must be made in accordance with the definition in this field as follows:
+M=MANDATORY - the execution value of the collateral must be input by               the user;
+O=OPTIONAL  - the execution value of the collateral is an optional               input field;
+N=NONE      - no input of a execution value is permitted;
+F=FED       - the execution value of the collateral is automatically fed               from the application main record belonging to the               collateral;
+FM=FED/MARGIN the nominal value of the collateral is automatically fed from the application main record belonging to the collateral, using the margin value calculated by the application.
+n%N=n% NOMINAL VALUE the execution value of the collateral may not be input; it is always calculated automatically by the system as a fixed percentage of the nominal value.
+Example:
+The collateral type represents a deposit recorded in the Loans & Deposits module. The execution value is always defaulted from the current principal on the deposit (F=FED).
+
+Note : If the execution value is defined as fed (F=FED or FM=FED/MARGIN)        and the value of APPLICATION.INPUT is 'O' (O=OPTIONAL), it becomes        possible to enter collateral records of this type without linking        them to an application main file record. Under these circumstances,        input to the collateral field EXECUTION.VALUE will be treated as        mandatory.
+Validation Rules
+'M', 'O', 'N', 'F', 'FM' or n'%N' where n is numeric in the range 1 to 100.
+Mandatory input; default value of n is 100.
+The value 'F' is not allowed when APPLICATION.INPUT is 'N'.
+The value 'FM' is not allowed unless the application 'SC' (Securities module) is defined under APPLICATION.
+The value n'%N' is not allowed when NOMINAL.VALUE is 'N'. */
+		EXECUTION_VALUE : T24BusinessTypes:A required
+			@i18n:Label (en="Execution Value")
+			@i18n:Tooltip (en="Indicates the accepted value ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=5.0, core=true, t24Name=EXECUTION.VALUE)
+		/* Determines whether the third party value on the collateral main file is to be entered by the user and whether that input is required or optional.
+This field corresponds to the field of the same name on the collateral main file and determines how input to that field is to be interpreted by the system.
+When a collateral record belonging to this type is entered, the input to THIRD.PARTY.VALUE must be made in accordance with the definition in this field as follows:
+M=MANDATORY - the third party value of the collateral must be input by               the user;
+O=OPTIONAL  - the third party value of the collateral is an optional               input field;
+N=NONE      - no input of a third party value is permitted;
+Example:
+The collateral type represents a guarantee for which there can be no second right of security (N=NONE).
+Validation Rules
+'M', 'O', or 'N'. (Mandatory input) */
+		THIRD_PARTY_VALUE : T24BusinessTypes:A required
+			@i18n:Label (en="Third Party Value")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=6.0, core=true, t24Name=THIRD.PARTY.VALUE)
+		/* Determines whether the general ledger value on the collateral main file is to be entered by the user or calculated from another value on the record. In the case of user-input, the value here signifies whether that input is required or optional.
+This field corresponds to the field of the same name on the collateral main file and determines how input to that field is to be interpreted by the system.
+When a collateral record belonging to this type is entered, the input to GEN.LEDGER.VALUE must be made in accordance with the definition in this field as follows:
+M=MANDATORY - the general ledger value of the collateral must be input               by the user;
+O=OPTIONAL  - the general ledger value of the collateral is an optional               input field;
+N=NONE      - no input of a general ledger value is permitted;
+n%E=n% EXECUTION VALUE the general ledger value of the collateral may not be input; it is always calculated automatically by the system as a fixed percentage of the (net) execution value.
+n%N=n% NOMINAL VALUE the general ledger value of the collateral may not be input; it is always calculated automatically by the system as a fixed percentage of the nominal value.
+Example:
+The collateral type represents a securities portfolio. The general ledger value is always the same as the execution value (100%E).
+Validation Rules
+'M', 'O', 'N', n'%E' or n'%N' where n is numeric in the range 1 to 100.
+Mandatory input; default value of n is 100.
+The value n'%E' is not allowed when EXECUTION.VALUE is 'N'.
+The value n'%N' is not allowed when NOMINAL.VALUE is 'N'. */
+		GEN_LEDGER_VALUE : T24BusinessTypes:A required
+			@i18n:Label (en="General Ledger Value")
+			@i18n:Tooltip (en="The collateral value for general ledger purposes.")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=7.0, core=true, t24Name=GEN.LEDGER.VALUE)
+		/* Determines whether the central bank value on the collateral main file is to be entered by the user or calculated from another value on the record. In the case of user-input, the value here signifies whether that input is required or optional.
+This field corresponds to the field of the same name on the collateral main file and determines how input to that field is to be interpreted by the system.
+When a collateral record belonging to this type is entered, the input to CENTRAL.BANK.VALUE must be made in accordance with the definition in this field as follows:
+M=MANDATORY - the central bank value of the collateral must be input by               the user;
+O=OPTIONAL  - the central bank value of the collateral is an optional               input field;
+N=NONE      - no input of a central bank value is permitted;
+n%E=n% EXECUTION VALUE the central bank value of the collateral may not be input; it is always calculated automatically by the system as a fixed percentage of the (net) execution value.
+n%N=n% NOMINAL VALUE the central bank value of the collateral may not be input; it is always calculated automatically by the system as a fixed percentage of the nominal value.
+Example:
+The collateral type represents a building (i.e. mortgage). The central bank value is, by rule, taken as 75% of the true execution value of the property (75%E).
+Validation Rules
+'M', 'O', 'N', n'%E' or n'%N' where n is numeric in the range 1 to 100.
+Mandatory input; default value of n is 100.
+The value n'%E' is not allowed when EXECUTION.VALUE is 'N'.
+The value n'%N' is not allowed when NOMINAL.VALUE is 'N'. */
+		CENTRAL_BANK_VALUE : T24BusinessTypes:A required
+			@i18n:Label (en="Central Bank Value")
+			@i18n:Tooltip (en="The collateral value for central bank reporting.")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=8.0, core=true, t24Name=CENTRAL.BANK.VALUE)
+		/* This field controls online update of cash collateral along with the online update field in the limit record. If cash collateral such as account, deposits (LD, MM), securities and fiduciary are attached to a limit record; any change in these collateral value are updated during the End of Day process. If such collaterals value to be updated online then this field is to be marked as "Y". (LIMIT record where the cash collateral are attached, also to be marked "Y" in the online update field along with Online update field marked "Y" in COLLATERAL.PARAMETER) In such cases the collateral is recalculated when the limit reference is drawn. If the field is marked "N" or left blank then no online update is done.
+Validation Rules
+
+
+Optional Input field
+Input can be Y,N or null
+Input allowed only if the execution value(field 5) contains value F (FED)
+Online update of cash collateral is done only when online update fields in
+
+
+
+
+
+
+COLLATERAL.PARAMETER, COLLATERAL.TYPE & LIMIT records are marked "Y" */
+		ONLINE_UPDATE : CO_Config:COLLATERAL_TYPE__ONLINE_UPDATE
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=9.0, core=true, t24Name=ONLINE.UPDATE)
+		/* The date of the next revaluation of the execution values attached to collateral of this type.
+The content of this field determines the date of the next revaluation of (all) collateral records belonging to this type.
+This date may be updated by the user when required or may be cycled automatically by the system according to a frequency specified in the next field, REVALUATION.FQU.
+The revaluation process is performed either by applying the rate specified under REVALUATION.RATE or by updating the values fed from an application main file. Input is therefore not allowed when there are no suitable values defined.
+A past date in this field indicates the date of the last revaluation.
+Validation Rules
+11 type D characters. (Optional input)
+Input is not allowed when EXECUTION.VALUE is 'N' and NOMINAL.VALUE is not 'F'. */
+		REVALUATION_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=REVALUATION.DATE)
+		/* The frequency of revaluation of the execution values attached to collateral of this type.
+The content of this field determines the frequency of revaluation of (all) collateral records belonging to this type. In conjunction with the REVALUATION.DATE, this field may be used to define a cycle of revaluation of collateral values.
+The permitted values of the frequency code are as follows:
+BSNSS - business (working) days; date is to be cycled each business day;
+DAILY - date is to be cycled daily (i.e. each calendar day);
+WEEKn - where n is a number in the range 1 to 9; date is to be cycled         every n weeks;
+TWMTH - twice monthly; date cycles twice monthly on the 15th and last         day of each month;
+Mmmdd - where mm is a number in the range 1 to 12 and dd is a number         in the range 1 to 31; describes a cycle on a particular day (dd)         each month or every mm months.
+These frequency codes correspond to the equivalent codes contained in the standard date/frequency combined format.
+
+Note : The REVALUATION.DATE is always cycled forward (when due) to the        next future date. In other words, more than one cycle may be        performed at a time.  In the context of this field, therefore,        DAILY and BSNSS frequencies are equivalent to one another.
+Validation Rules
+5 alphanumeric characters. (Optional input)
+Input is not allowed when REVALUATION.DATE is absent. */
+		REVALUATION_FQU : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=11.0, core=true, t24Name=REVALUATION.FQU)
+		/* The rate of revaluation of the execution values attached to collateral of this type.
+The content of this field determines the rate of revaluation of (all) collateral records belonging to this type.
+Normally, a revaluation rate is mandatory when the fields determining a revaluation cycle have been entered, i.e. REVALUATION.DATE and the optional REVALUATION.FQU. On the date so defined, the rate will be applied to the execution value of each collateral main file record belonging to this type.
+However, the rate may be omitted when the collateral type has an application-fed value defined under EXECUTION.VALUE or NOMINAL.VALUE. In this case, the revaluation is performed by applying the current balance of the contract or account to the collateral value field(s) and no explicit rate is therefore required.
+A rate may still be entered when application-fed values are defined. It will be applied to the execution value if either (a) only the nominal value is defined as fed or (b) no application reference exists on the collateral main file record.
+
+Note : A rate of one may be entered. This will instruct the system to        perform the revaluation, but will not have any impact on the        execution value of the collateral records.  However, any        calculated values will be recalculated in the normal way. This        gives the capability to apply, to existing collateral records,        any change in the rules for the calculation of derived values.
+Validation Rules
+5 numeric characters including decimals. (Optional input)
+Input is not allowed when REVALUATION.DATE is absent.
+Input is mandatory when REVALUATION.DATE is present and there in no value 'F' in either the NOMINAL.VALUE or the EXECUTION.VALUE. */
+		REVALUATION_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=12.0, core=true, t24Name=REVALUATION.RATE)
+		ASSET_TYPE -> byValue CO_Config:COLLATERAL_TYPE__ASSET_TYPE *
+		SUB_ASSET_TYPE -> byValue CO_Config:COLLATERAL_TYPE__SUB_ASSET_TYPE *
+		RISK_TYPE : CO_Config:COLLATERAL_TYPE__RISK_TYPE
+			@i18n:Label (en="Risk Type")
+			@i18n:Tooltip (en="Risk Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=15.0, core=true, t24Name=RISK.TYPE)
+		OVERRIDE -> byValue CO_Config:COLLATERAL_TYPE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue CO_Config:COLLATERAL_TYPE__INPUTTER *
+		DATE_TIME -> byValue CO_Config:COLLATERAL_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=23.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=24.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=25.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=26.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	COLLATERAL_TYPE__DESCRIPTION
+	{
+		/* Description of the type of collateral.
+Validation Rules
+Up to 35 characters free text.  Multi-language field. (Mandatory input) */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	COLLATERAL_TYPE__APPLICATION
+	{
+		/* Defines which applications may be referenced by the field APPLICATION.ID on the collateral main file.
+The values entered in this field determine which applications may be used when a collateral record belonging to this type is linked to a contract or account record elsewhere in the system.
+When a collateral record belonging to this type is entered, the input to APPLICATION.ID must be made in accordance with the definition in this field as follows:
+AC - collateral belonging to this type may be represented by a credit balance recorded in the Account module;
+BL - collateral belonging to this type may be represented by a Bill Contract with OPERATION as COLLATERAL recorded in the Bills module;
+FD - collateral belonging to this type may be represented by a deposit (order) recorded in the Fiduciary module;
+LCE - collateral belonging to this type may be a Letter of Credit Export order.
+LCI - collateral belonging to this type may be a Letter of Credit Import order.
+LD - collateral belonging to this type may be represented by a deposit recorded in the Loans & Deposits module;
+MD - collateral belonging to this type may be represented by a record of a contingent asset in the Miscellaneous Deals module;
+MM - collateral belonging to this type may be represented by a placement recorded in the Money Market module;
+SC - collateral belonging to this type may be represented by a securities portfolio or by a group of sub-assets within a portfolio.
+More than one of the above values may be entered in combination.
+Examples:
+(a) The collateral type is a credit balance on an account recorded in the Account module (AC).
+(b) The collateral type is either a deposit or a Money Market placement (LD and MM).
+Validation Rules
+
+'AC', 'BL', 'FD', 'LCE', 'LCI', 'LD', 'MD', 'MM' or 'SC'.         Multi-value field.
+Mandatory input when APPLICATION.INPUT is 'M' or 'O',         otherwise not allowed.
+This is a NOINPUT field when APPLICATION.INPUT is 'N'.         Otherwise input is mandatory.
+Values may not be duplicated. */
+		APPLICATION : CO_Config:COLLATERAL_TYPE__APPLICATION__APPLICATION
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=APPLICATION)
+	}
+	COLLATERAL_TYPE__ASSET_TYPE
+	{
+		/* The asset type to which the collateral type corresponds.
+Refers to a record on the ASSET.TYPE file, or to a range of keys on this file.
+The ASSET.TYPE keys defined in this field are used when a range of assets belonging to a portfolio are pledged as collateral.  If a portfolio number is quoted on the collateral record, the system will examine the COLLATERAL.TYPE to which the record belongs.  If this record refers to a range of asset type and/or sub-asset types, then the COLLATERAL record will automatically take the value of only those parts of the portfolio which belong to one of the types listed.
+Validation Rules
+1-3 digit numeric asset type code       or a range specified by 1 to 3-digits; '-'; 1 to 3-digits.  (Optional input)
+Multi-value field.
+Input is not allowed when APPLICATION.INPUT is 'N'.
+Input is only allowed when APPLICATION is 'SC'.
+If a discreet value is entered, it must be a valid key to a record on the ASSET.TYPE file. */
+		ASSET_TYPE : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=13.0, core=true, t24Name=ASSET.TYPE)
+	}
+	COLLATERAL_TYPE__SUB_ASSET_TYPE
+	{
+		/* The sub-asset type to which the collateral type corresponds.
+Refers to a record on the SUB.ASSET.TYPE file, or to a range of keys on this file.
+The SUB.ASSET.TYPE keys defined in this field are used when a range of sub-assets belonging to a portfolio are pledged as collateral.  If a portfolio number is quoted on the collateral record, the system will examine the COLLATERAL TYPE to which the record belongs.  If this record refers to a range of sub-asset type and/or asset types, then the COLLATERAL record will automatically take the value of only those parts of the portfolio which belong to one of the types listed.
+Validation Rules
+Up to 5 alphanumeric character sub-asset type code        or a range specified by up to 5 characters; '-'; up to 5 characters.  (Optional input)  Multi-value field.
+Input is not allowed when APPLICATION.INPUT is 'N'.
+Input is only allowed when APPLICATION is 'SC'.
+If a discreet value is entered, it must be a valid key to a record on the SUB.ASSET.TYPE file. */
+		SUB_ASSET_TYPE : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=14.0, core=true, t24Name=SUB.ASSET.TYPE)
+	}
+	COLLATERAL_TYPE__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=OVERRIDE)
+	}
+	COLLATERAL_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=INPUTTER)
+	}
+	COLLATERAL_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=21.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CUSTOMER_COLLATERAL_TYPE
+		@t24:i (t24Name=CUSTOMER.COLLATERAL.TYPE, level=C, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Unique identification of customer collateral type. The format is a valid customer number followed by a valid collateral type separated by a hyphen.
+Example:
+COLLATERAL.TYPE: ID=100
+NOMINAL. VALUE=F
+EXECUTION.VALUE=100%N
+When collaterals are created under this collateral type, the execution value will be calculated at100% of the nominal value for all customers.
+If the user desires to fix the execution value differently @ 50%N, for the collaterals under this collateral type to a particular customer say 100053, then this table can be used. The ID of the CUSTOMER.COLLATERAL.TYPE record will be 100053-100, in which user can input the desired percentage in the field EXECUTION.VALUE.
+
+Validation Rules
+
+Valid Customer Number followed by a valid Collateral Type separated by a     hyphen.
+Input allowed only if the EXECUTION.VALUE  in main COLLATERAL.TYPE is %N. */
+		KEY -> CO_Config:CUSTOMER_COLLATERAL_TYPE PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=21, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		DESCRIPTION -> byValue CO_Config:CUSTOMER_COLLATERAL_TYPE__DESCRIPTION *
+		/* Execution value as a percentage of Nominal Value but different from that  in the main Collateral Type record.
+Example.
+COLLATERAL.TYPE-100-cash collaterals-EXECUTION.VALUE-100%N
+CUSTOMER.COLLATERAL.TYPE-100053-100-EXECUTION.VALUE-75%N.
+In the above case Execution Value for the collaterals under Collateral Type 100 for the customer 100053 will be calculated at 75%N only.
+Validation Rules
+
+Mandatory input; Allowed as  %N only, in the range 0-100. (E.g.50%N, 60%N     Etc.)
+Duplication of the percentage in the main record not allowed. */
+		EXECUTION_VALUE : T24BusinessTypes:A
+			@i18n:Label (en="Execution Value")
+			@i18n:Tooltip (en="Indicates the accepted value ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=2.0, core=true, t24Name=EXECUTION.VALUE)
+		RESERVED13 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=3.0, core=true, t24Name=RESERVED13)
+		RESERVED12 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED12)
+		RESERVED11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED11)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue CO_Config:CUSTOMER_COLLATERAL_TYPE__INPUTTER *
+		DATE_TIME -> byValue CO_Config:CUSTOMER_COLLATERAL_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=21.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=23.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=24.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CUSTOMER_COLLATERAL_TYPE__DESCRIPTION
+	{
+		/* Description of the type of Collateral
+VALIDATION RULES
+
+Up to 35 characters free text. Multi-language field. (Mandatory input)     Defaults from the main collateral type record. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	CUSTOMER_COLLATERAL_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=INPUTTER)
+	}
+	CUSTOMER_COLLATERAL_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=19.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	COLLATERAL_PARAMETER__STAT_REP_LINE_DESC : mml:string
+		n1=1
+		n2=2
+		n3=3
+	COLLATERAL_PARAMETER__COLLATERAL_LINK : mml:string
+		n1ST=1ST
+		ALL=ALL
+	COLLATERAL_PARAMETER__ACCOUNT_BALANCE : mml:string
+		W=W
+		C=C
+		TD=TD
+	COLLATERAL_PARAMETER__ONLINE_UPDATE : mml:string
+		Y=Y
+		N=N
+	COLLATERAL_PARAMETER__ORDER_PRIORITY : mml:string
+		NONE=NONE
+		MANUAL=MANUAL
+	COLLATERAL_PARAMETER__COVER_UNSEC_1ST : mml:string
+		Y=Y
+		N=N
+	COLLATERAL_PARAMETER__ALLOC_BY_PARAMETER : mml:string
+		NULL=NULL
+		YES=YES
+	COLLATERAL_TYPE__APPLICATION_INPUT : mml:string
+		M=M
+		O=O
+		N=N
+	COLLATERAL_TYPE__APPLICATION__APPLICATION : mml:string
+		AC=AC
+		BL=BL
+		CQ=CQ
+		FD=FD
+		LCE=LCE
+		LCI=LCI
+		LD=LD
+		MD=MD
+		MM=MM
+		SC=SC
+		AA=AA
+	COLLATERAL_TYPE__ONLINE_UPDATE : mml:string
+		Y=Y
+		N=N
+	COLLATERAL_TYPE__RISK_TYPE : mml:string
+		BOND=BOND
+		DEPOSIT=DEPOSIT
+		EQUITY=EQUITY
+		REPO=REPO
+}

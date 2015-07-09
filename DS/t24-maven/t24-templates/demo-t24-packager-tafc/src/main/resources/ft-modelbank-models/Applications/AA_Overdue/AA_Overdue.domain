@@ -1,0 +1,2649 @@
+# UTF-8
+# UTF-8
+/* Overdue Processing for Arrangement Architecture */
+Domain AA_Overdue
+	@t24:i (module=AA)
+	@java:Package (value=com.temenos.t24.datamodel.aa.aa_overdue)
+namespace "http://www.temenos.com/t24/AA_Overdue"
+metamodelVersion 1.30.6
+Classes {
+	/* After a bill is made due, the bills are subject to aging process as per the OVERDUE property setting for the arrangement. A number of options are required to define the aging periods, statuses and accounting treatment of the outstanding balance.
+
+The system can apply penalty interest and charges based on overdue and current balances. The AA module allows this to be configured in a flexible manner when creating products. */
+	AA_ARR_OVERDUE
+		@t24:i (t24Name=AA.ARR.OVERDUE, nonStop=true, level=F, type=H, allowedFunctions="A C D E I L Q R S", localRefAllowed=true)
+	{
+		/* The key to the arrangement property condition. The key is comprised of the following components (delimited by a "-"):
+Arrangement Id
+Property name>
+Effective Date */
+		ARRANGEMENT_KEY -> AA_Overdue:AA_ARR_OVERDUE PK required
+			@i18n:Label (en=Arrangement)
+			@i18n:Tooltip (en=Arrangement)
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=0.0, core=true, businessType=ANY, t24Name=ARRANGEMENT.KEY)
+		/* The activity that caused this arrangement property to be updated.
+The activity is taken from the underlying AA.ARRANGEMENT.ACTIVITY request that caused the record to be modified */
+		ACTIVITY : T24BusinessTypes:A required
+			@i18n:Label (en=Activity)
+			@i18n:Tooltip (en=Activity)
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=1.0, core=true, t24Name=ACTIVITY)
+		ACTION -> byValue AA_Overdue:AA_ARR_OVERDUE__ACTION *
+		BILL_TYPE -> byValue AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE *
+		/* This field represents whether the settlement is against the total bill oustanding that is bill is considered for delinquency processing.
+Only the values BILL.TOTAL and null are allowed at present.
+If the value is BILL.TOTAL, the original repayment amount is compared with the total outstanding amount of the selected bill and if it happens to be greater than or equal to total outstanding amount, the bill is deemed to be settled. */
+		BILL_SETTLEMENT : AA_Overdue:AA_ARR_OVERDUE__BILL_SETTLEMENT
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=29.0, core=true, t24Name=BILL.SETTLEMENT)
+		/* This field denotes whether to consider the current bill for further aging when the bill is deemed to be settled (that is Delin.os.amt in the bill is zero and Aging.status is settled)
+Validation rules
+Valid options are BILL.STATUS or SETTLE.STATUS
+BILL.STATUS allowed only BILL.SETTLEMENT has value BILL.TOTAL */
+		AGE_BILLS : AA_Overdue:AA_ARR_OVERDUE__AGE_BILLS
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=AGE.BILLS)
+		ARR_BILL_TYPE -> AA_PaymentSchedule:AA_BILL_TYPE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=31.0, core=true, businessType=A, t24Name=ARR.BILL.TYPE)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=RESERVED.1)
+		PR_ATTRIBUTE -> byValue AA_Overdue:AA_ARR_OVERDUE__PR_ATTRIBUTE *
+		/* System field - reserved for future use */
+		SYS_RESERVE7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=44.0, core=true, t24Name=SYS.RESERVE7, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=45.0, core=true, t24Name=SYS.RESERVE6, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=46.0, core=true, t24Name=SYS.RESERVE5, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=47.0, core=true, t24Name=SYS.RESERVE4, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=48.0, core=true, t24Name=SYS.RESERVE3, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=49.0, core=true, t24Name=SYS.RESERVE2, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=50.0, core=true, t24Name=SYS.RESERVE1, mvSvExpansionAccess=NOEXPAND)
+		/* Optional field - Allowed Values are RESETTING and NON-RESETTING.
+
+RESETTING - During any Renewal Activities (for eg : change.product, rollover or reset) the property conditions will be reset from the product.
+
+NON-RESETTING - During any Renewal Activities property conditions will be maintained from the Arrangement level.
+
+Not used in Arrangement/Sim level. */
+		DEFAULT_ATTR_OPTION : AA_Overdue:AA_ARR_OVERDUE__DEFAULT_ATTR_OPTION
+			@i18n:Label (en="Default Attribute")
+			@i18n:Tooltip (en="Default Attribute")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=51.0, core=true, t24Name=DEFAULT.ATTR.OPTION)
+		/* Not used for arrangement level conditions */
+		DEFAULT_NEGOTIABLE : AA_Overdue:AA_ARR_OVERDUE__DEFAULT_NEGOTIABLE
+			@i18n:Label (en="Default Negotiable")
+			@i18n:Tooltip (en="Default Negotiable")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=52.0, core=true, t24Name=DEFAULT.NEGOTIABLE)
+		NR_ATTRIBUTE -> byValue AA_Overdue:AA_ARR_OVERDUE__NR_ATTRIBUTE *
+		CHANGED_FIELDS -> byValue AA_Overdue:AA_ARR_OVERDUE__CHANGED_FIELDS *
+		NEGOTIATED_FLDS -> byValue AA_Overdue:AA_ARR_OVERDUE__NEGOTIATED_FLDS *
+		/* Contains the arrangement number, extracted from the first component of the id
+System updated field no input allowed */
+		ID_COMP_1 : T24BusinessTypes:A
+			@i18n:Label (en="Arrangement Id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=63.0, core=true, t24Name=ID.COMP.1)
+		/* Contains the name of the property that this arrangement level condition relates to
+Name is defined in AA.PRORERTY table
+System maintained field no input allowed */
+		ID_COMP_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=64.0, core=true, t24Name=ID.COMP.2)
+		/* Contains the Effective Date of this property condition
+System updated field no input allowed */
+		ID_COMP_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=65.0, core=true, t24Name=ID.COMP.3)
+		/* Reserved for future use
+System field no input allowed */
+		ID_COMP_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=66.0, core=true, t24Name=ID.COMP.4)
+		/* Reserved for future use
+System field no input allowed */
+		ID_COMP_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=67.0, core=true, t24Name=ID.COMP.5)
+		/* Reserved for future use
+System field no input allowed */
+		ID_COMP_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=68.0, core=true, t24Name=ID.COMP.6)
+		RESERVED2_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=69.0, core=true, t24Name=RESERVED2.ID)
+		/* This field denotes the target classic product of the given property class
+
+The already existing T24 products are mapped using AA infrastructure
+These are called classic products
+These products are mapped to different property clases */
+		TARGET_PRODUCT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=70.0, core=true, t24Name=TARGET.PRODUCT)
+		STMT_NOS -> byValue AA_Overdue:AA_ARR_OVERDUE__STMT_NOS *
+		OVERRIDE -> byValue AA_Overdue:AA_ARR_OVERDUE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=73.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=74.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AA_Overdue:AA_ARR_OVERDUE__INPUTTER *
+		DATE_TIME -> byValue AA_Overdue:AA_ARR_OVERDUE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=77.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=78.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=79.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=80.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=81.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AA_ARR_OVERDUE__ACTION
+	{
+		/* The activity that caused this arrangement property to be updated.
+The activity is taken from the underlying AA.ARRANGEMENT.ACTIVITY request that caused the record to be modified */
+		ACTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=2.0, core=true, t24Name=ACTION)
+	}
+	AA_ARR_OVERDUE__BILL_TYPE
+	{
+		BILL_TYPE -> byValue AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__BILL_TYPE *
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.14)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.13)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.12)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.11)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.10)
+		OVERDUE_STATUS -> byValue AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS *
+		/* This field represents the tolerance percentage that needs to be applied on the bill's original amount.  The tolerance percentage is applied on the bill amount that was issued. It is then compared with the current outstanding amount in bill.  If the outstanding amount is within the tolerance then the bill is either not aged or will be considered as repaid based on the setting in the field TOL.ACTION.
+
+Validation rule
+Standard rate field */
+		PAY_TOLERANCE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=25.0, core=true, t24Name=PAY.TOLERANCE)
+		/* This field denotes the action to be taken when bill amount is within the tolerance set.  When this field is set to REPAY and if the bill amount is within the tolerance, it is considred as repaid. If it is set to REMAIN and if the bill amount is within the tolerance, the overdue status will not be changed and will remain in the same status.
+
+NB: Currently only REMAIN option is available.
+
+Validation rule
+Allowed values are REPAY and REMAIN */
+		TOL_ACTION : AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__TOL_ACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=26.0, core=true, t24Name=TOL.ACTION)
+		TOL_CCY -> byValue AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__TOL_CCY *
+	}
+	AA_ARR_OVERDUE__BILL_TYPE__BILL_TYPE
+	{
+		BILL_TYPE -> AA_PaymentSchedule:AA_BILL_TYPE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, businessType=A, t24Name=BILL.TYPE)
+	}
+	AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS
+	{
+		/* This field denotes the overdue or aging status of the arrangement. The list of values allowed is equal to the list defined in EB.LOOKUP file with the ID like AA.OVERDUE.STATUS*<odStatus>. For example, if PDO is an overdue status, then a record in EB.LOOKUP.FILE should be defined as AA.OVERDUE.STATUS*PDO. */
+		OVERDUE_STATUS : AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__OVERDUE_STATUS required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=OVERDUE.STATUS)
+		/* This file denotes whether the aging should be based on days or by bills. This field is associated multivalue field starting from OVERDUE.STATUS  to EFFECTIVE.DATE
+
+Allowed inputs are DAYS and BILLS.
+
+If days, the value in the field AGEING denotes number of days.
+If bills,  the value in the field AGEING denotes number of bills */
+		AGEING_TYPE : AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGEING_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=10.0, core=true, t24Name=AGEING.TYPE)
+		/* This field tells when the bill is to be moved to the specified aging status.
+
+There are two types of aging, one is by days and ther other by bills. When bills are to be aged by days, give the number of days (numeric value)  from the make due date and if it is by bills given the number followed by 'B' character. In both cases, the number defined should be in ascending order. An overdue definition should either be fully based on days or by bills, i.e., it is not possible to define a overdue status based on days and another status by bills.
+
+A value of zero in this field indicates that the bill will move the overdue status on the same day the bill was made due.
+
+This is a mandatory field.
+
+Validation Rules
+Can be either numeric value or numeric value suffixed with character 'B'. A value of zero cannot be set to more than one overdue status. */
+		AGEING : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=11.0, core=true, t24Name=AGEING)
+		/* This field represents the calendar days post to a aging status that a chaser advice to be sent.
+
+Validation rules
+Accepts any number */
+		NOTICE_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, t24Name=NOTICE.DAYS)
+		/* The field represents a frequency in which the advice to be sent for the aging status.
+
+Both Notice days and frequency can be given, in which case, the system would produce advice after the notice days and thereon based on the frequency set, advices would be sent. If Notice days are not given, system would cycle the notice dates with the base as ageing status date.
+
+Validation rules
+Should be a valid T24 freqeuncy */
+		NOTICE_FREQ : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=13.0, core=true, t24Name=NOTICE.FREQ, typeModifiers=EXTENDED)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use. */
+		MANUAL_CHANGE : AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MANUAL_CHANGE
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=19.0, core=true, t24Name=MANUAL.CHANGE)
+		/* This field is set to indicate that all bills under the arrangement should be aged to this status. Usually this field is set to YES for a higher overdue status.
+
+This is an optional field.
+
+Validation Rules
+Can take either YES or NO only. */
+		AGE_ALL_BILLS : AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGE_ALL_BILLS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=20.0, core=true, t24Name=AGE.ALL.BILLS)
+		/* This field represents whether the arrangement needs to be suspended when the current aging status is reached. */
+		SUSPEND : AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__SUSPEND
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=21.0, core=true, t24Name=SUSPEND)
+		/* This field is reserved for future use */
+		STATUS_MVMT : AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__STATUS_MVMT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=22.0, core=true, t24Name=STATUS.MVMT)
+		/* This field denotes if accounting entries are to raised for the overdue status movement. The field when set to YES would mean accounting entries are needed for status movement and the current status would be debited and previous status which has move balance set to YES or DUE balance type would be credited.
+
+Validation Rules
+Valid options are YES and NO */
+		MOVE_BALANCE : AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MOVE_BALANCE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=23.0, core=true, t24Name=MOVE.BALANCE)
+		/* This field indicates the method of finding the value date for the accounting entries as a result of ageing status movement. The allowed values are DUE, STATUS or can be Blank.
+
+DUE    - The value date will be the bill due date.
+STATUS - The value date will be the ageing status effective date.
+Blank  - The value date will be the bill's financial date.
+
+Example:
+Suppose a bill has been made DUE on 30th November and its Finanacial date is say on 02 December. Subsequently when the bill moves to GRA (Grace) overdue status , say after 5 days from the due date, that is, on 5th December. The accounting value date for various values in this field would be: -
+
+DUE            - 30th November
+STATUS         - 5th Decemeber
+When blank     - 2nd December */
+		EFFECTIVE_DATE : AA_Overdue:AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__EFFECTIVE_DATE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=24.0, core=true, t24Name=EFFECTIVE.DATE)
+	}
+	AA_ARR_OVERDUE__BILL_TYPE__TOL_CCY
+	{
+		/* This field denotes the tolerance currency. If the currency defined in bill matches the TOL.CCY, then the tolerance amount is taken from the field TOL.AMOUNT
+
+
+Validation rule
+Standard T24 currency field */
+		TOL_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=27.0, core=true, businessType=CCY, t24Name=TOL.CCY)
+		/* This field represents the tolerance amount that can be set for the bill's outstanding amount. If the currency defined in bill matches the TOL.CCY, then the tolerance amount is taken from this field. If the outstanding amount is within the tolerance, then bill is either not aged or will be considered as repaid based on the setting in the field TOL.ACTION.
+
+
+Validation rule
+Standard T24 amount field */
+		TOL_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=28.0, core=true, t24Name=TOL.AMOUNT)
+	}
+	AA_ARR_OVERDUE__PR_ATTRIBUTE
+	{
+		/* These are set of Attributes which define the names of the rule, which will be applied on certain attributes of property classes over a period of time
+
+Validation Rules
+Input must be a valid record from AA.PERIODIC.ATTRIBUTE */
+		PR_ATTRIBUTE -> AA_Rules:AA_PERIODIC_ATTRIBUTE
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=34.0, core=true, businessType=A, t24Name=PR.ATTRIBUTE, mvSvExpansionAccess=NOEXPAND)
+		/* This is the actual rule value, which will be applied on certain attributes of the property classes over a period of time.
+
+Validation Rules
+Input must be a valid data type defined in the corresponding
+AA.PERIODIC.ATTRIBUTE.CLASS record. */
+		PR_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=35.0, core=true, t24Name=PR.VALUE, mvSvExpansionAccess=NOEXPAND)
+		/* When a rule is broken what action needs to be taken is defined here. Currently, the various options available are
+
+Error block further processing
+Override Give an override
+Information  Record details only
+CAP the rule value is to be used as a CAP if the rule is broken
+FLOOR the rule value is to be used as a FLOOR if the rule is broken
+
+Validation Rules
+Should be one of the above valid options */
+		PR_BRK_RES : AA_Overdue:AA_ARR_OVERDUE__PR_ATTRIBUTE__PR_BRK_RES
+			@t24:i (align=L, inputBehaviour=N, maxLength=13, sysNumber=36.0, core=true, t24Name=PR.BRK.RES, mvSvExpansionAccess=NOEXPAND)
+		/* Based on the PR.BRK.RES option selected, this will hold either an OVERRIDE or EB.ERROR id. By default the ids will be picked from the associated EB.COMPARISON.TYPE record. If CAP or FLOOR values are given, then the underlying AA.PERIODIC.ATTRIBUTE.CLASS should have this type defined in it
+
+Validation Rules
+Input must be a valid OVERRIDE ID or EB.ERROR ID */
+		PR_BRK_MSG : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=37.0, core=true, t24Name=PR.BRK.MSG, mvSvExpansionAccess=NOEXPAND)
+		/* Not used for arrangement level conditions
+
+Validation Rules
+Input not allowed. */
+		PR_BRK_CHARGE -> AA_ProductFramework:AA_PROPERTY
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=38.0, core=true, businessType=A, t24Name=PR.BRK.CHARGE, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		PR_RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=39.0, core=true, t24Name=PR.RESERVED.3, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		PR_RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=40.0, core=true, t24Name=PR.RESERVED.2, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		PR_RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=41.0, core=true, t24Name=PR.RESERVED.1, mvSvExpansionAccess=NOEXPAND)
+		/* This field denotes the application method that needs to be applied to the periodic rule charges.
+Allowed values are
+Due - The periodic rule charges are made due
+Capitalise - The periodic rule charges are capitalised
+Not inputtable at arrangement level */
+		PR_APP_METHOD : AA_Overdue:AA_ARR_OVERDUE__PR_ATTRIBUTE__PR_APP_METHOD
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=42.0, core=true, t24Name=PR.APP.METHOD, mvSvExpansionAccess=NOEXPAND)
+		/* This field denotes the application period for the given periodic rule charges.
+The periodic rule charges will be applied at the end of the period. If the value defined is zero, then the charges are applied immediately.
+Standard T24 period field.
+Not inputtable at arrangement level */
+		PR_APP_PERIOD : T24BusinessTypes:PERIOD
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=43.0, core=true, t24Name=PR.APP.PERIOD, mvSvExpansionAccess=NOEXPAND)
+	}
+	AA_ARR_OVERDUE__NR_ATTRIBUTE
+	{
+		/* System field - not used for arrangement conditions
+
+Validation Rules
+System Field NoINPUT allowed - */
+		NR_ATTRIBUTE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=53.0, core=true, t24Name=NR.ATTRIBUTE)
+		NR_OPTIONS -> byValue AA_Overdue:AA_ARR_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS *
+		/* System Field - Reserved for future use */
+		NR_RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=55.0, core=true, t24Name=NR.RESERVED2)
+		/* System Field - Reserved for future use */
+		NR_RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=56.0, core=true, t24Name=NR.RESERVED1)
+		/* Not used for Arrangement Conditions
+
+
+Validation Rules
+Input not allowed */
+		NR_STD_COMP -> AA_Rules:EB_STANDARD_COMPARISON
+			@t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=57.0, core=true, businessType=A, t24Name=NR.STD.COMP)
+		NR_TYPE -> byValue AA_Overdue:AA_ARR_OVERDUE__NR_ATTRIBUTE__NR_TYPE *
+	}
+	AA_ARR_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS
+	{
+		/* System field - not used for arrangement conditions
+
+Validation Rules
+System Field NoINPUT allowed - */
+		NR_OPTIONS : AA_Overdue:AA_ARR_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS__NR_OPTIONS
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=54.0, core=true, t24Name=NR.OPTIONS)
+	}
+	AA_ARR_OVERDUE__NR_ATTRIBUTE__NR_TYPE
+	{
+		/* System field - not used for arrangement conditions
+
+Validation Rules
+System Field NoINPUT allowed - */
+		NR_TYPE -> AA_Rules:EB_COMPARISON_TYPE
+			@t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=58.0, core=true, businessType=A, t24Name=NR.TYPE)
+		/* System field - not used for arrangement conditions
+
+Validation Rules
+System Field NoINPUT allowed - */
+		NR_VALUE : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=60, sysNumber=59.0, core=true, t24Name=NR.VALUE)
+		/* System field - not used for arrangement conditions
+
+Validation Rules
+System Field NoINPUT allowed - */
+		NR_MESSAGE : T24BusinessTypes:T
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=60.0, core=true, t24Name=NR.MESSAGE)
+	}
+	AA_ARR_OVERDUE__CHANGED_FIELDS
+	{
+		/* No input and multi value field lists all fields that have been negotiated for each dated version of the property. For a subsequently dated property, the attributes listed in this field will appear in "Negotiated.Fields" and only newly negotiated fields will appear on "Changed.Fields" */
+		CHANGED_FIELDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=61.0, core=true, t24Name=CHANGED.FIELDS)
+	}
+	AA_ARR_OVERDUE__NEGOTIATED_FLDS
+	{
+		/* No input and multi value field that lists the attributes on the arrangement property record that have been fixed and/or negotiated. These are stored when the arrangement level record is committed. When the arrangement level record is next used all items in the NEGOTIATED.FIELDS list will be maintained
+Once an attribute has been fixed or negotiated it will remain in negotiated field list on all subsequent dated versions of the property. */
+		NEGOTIATED_FLDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=62.0, core=true, t24Name=NEGOTIATED.FLDS)
+	}
+	AA_ARR_OVERDUE__STMT_NOS
+	{
+		/* Contains the key to the accounting entries raised by the activity being applied to this arrangement property */
+		STMT_NOS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=71.0, core=true, t24Name=STMT.NOS)
+	}
+	AA_ARR_OVERDUE__OVERRIDE
+	{
+		/* Standard Override field containing override messages generated by amendments to this property */
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=72.0, core=true, t24Name=OVERRIDE)
+	}
+	AA_ARR_OVERDUE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=75.0, core=true, t24Name=INPUTTER)
+	}
+	AA_ARR_OVERDUE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=76.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This is a central table used to store statistical data of various overdue statuses that an arrangement is going through during its lifecycle. This is a live table and it is maintained by the system internally.
+
+Broadly, this table is updated on two occassions:
+1. Whenever there is a change to arrangement overdue status.
+2. Whenever there is a movement of amount, either credit or debit but, the overall arrangement overdue status still remains the same.
+
+In the first case, the arrangement overdue status undergoes a change and hence recording this overdue status movement would be necessary for maintaining the statistics. This change in overdue status can happen either because an AGE activity has moved certain bills to next overdue status and hence the arrangement overdue status has changed or there could be a repayment which has moved back the overdue status of unpaid bills to a lower overdue status and hence the arrangement overdue status has undergone a change. In either case, the statistics table would to updated with suitable information to reflect this change in status.
+
+In the second case, even though the overdue status of the arrangement has not changed, still the amount movement within the current arrangement overdue status has to be recorded so that it would be useful in the calculation of average amount for the overdue status. Again, here the amount movement can happen either due to AGE activity or due to repayment activity. In the case of AGE activity, the overall arrangement overdue status can be in a particular overdue status, when a bill is aged but to a lower overdue status and thus not changing the overall arrangement overdue status. However, the amount movement has to maintained still. Similarly, a partial repayment would not have changed the overall overdue status of the arrangement, but the amount movement has to maintained still. */
+	AA_OVERDUE_STATS
+		@t24:i (t24Name=AA.OVERDUE.STATS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* ID for this table is a combination of arrangementID-OverduePropertyID. */
+		ARR_ID_OD_PROP_ID -> AA_Overdue:AA_OVERDUE_STATS PK required
+			@i18n:Label (en="Property Id")
+			@i18n:Tooltip (en="Property Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=0.0, core=true, businessType=ANY, t24Name=ARR.ID.OD.PROP.ID)
+		OD_STATUS -> byValue AA_Overdue:AA_OVERDUE_STATS__OD_STATUS *
+	}
+	AA_OVERDUE_STATS__OD_STATUS
+	{
+		/* This field specifies the overdue status that the arrangement has moved into during its life cycle. */
+		OD_STATUS : AA_Overdue:AA_OVERDUE_STATS__OD_STATUS__OD_STATUS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=OD.STATUS)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=RESERVED.5)
+		START_DATE -> byValue AA_Overdue:AA_OVERDUE_STATS__OD_STATUS__START_DATE *
+		MVMT_DATE -> byValue AA_Overdue:AA_OVERDUE_STATS__OD_STATUS__MVMT_DATE *
+		/* This field gives the total number of times the arrangement has visited a overdue status during the life of the arrangement. */
+		STATUS_COUNT : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=11.0, core=true, t24Name=STATUS.COUNT)
+		/* This field gives the total number of days the arrangement has stayed in a overdue status during the life of the arrangement. */
+		TOT_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=12.0, core=true, t24Name=TOT.DAYS)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.1)
+		/* This field indicates the overdue status average amount. This is calculated as sum of all the period averages for the overdue status divided by the total count for this overdue status. */
+		AVG_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=AVG.AMT)
+	}
+	AA_OVERDUE_STATS__OD_STATUS__START_DATE
+	{
+		/* This field signifies the start date of a period for a overdue status. */
+		START_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=3.0, core=true, t24Name=START.DATE)
+		/* This field indicates the period end date. */
+		END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=4.0, core=true, t24Name=END.DATE)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.4)
+		/* This field specifies the period average amount for a overdue status. This average amount is calculated as a daily balance average within a given period for a overdue status. */
+		PRD_AVG_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=PRD.AVG.AMT)
+	}
+	AA_OVERDUE_STATS__OD_STATUS__MVMT_DATE
+	{
+		/* This field signifies the date of either debit or credit amount movement into a overdue status. */
+		MVMT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=7.0, core=true, t24Name=MVMT.DATE)
+		/* This field specifies the credit movement of amount for an overdue status on the movement date. */
+		MVMT_CREDIT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=MVMT.CREDIT)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.3)
+		/* This field specifies the debit movement of amount for a overdue status on the movement date. */
+		MVMT_DEBIT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=MVMT.DEBIT)
+	}
+	/* After a bill is made due, the bills are subject to aging process as per the OVERDUE property setting for the arrangement. A number of options are required to define the aging periods, statuses and accounting treatment of the outstanding balance.
+
+The system can apply penalty interest and charges based on overdue and current balances. The AA module allows this to be configured in a flexible manner when creating products. */
+	AA_PRD_CAT_OVERDUE
+		@t24:i (t24Name=AA.PRD.CAT.OVERDUE, nonStop=true, level=I, type=W, allowedFunctions="L Q S", localRefAllowed=true)
+	{
+		/* This field represents the key to the product level conditions of a property class
+This field basically has three components seperated by a hyphen
+Condition id
+Currency - if the property class is currency based. By default takes up local currency
+Effective date - if the property class is dated */
+		PRODUCT_KEY -> AA_Overdue:AA_PRD_CAT_OVERDUE PK required
+			@i18n:Label (en="Product Key")
+			@i18n:Tooltip (en="Product Key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=0.0, core=true, businessType=ANY, t24Name=PRODUCT.KEY)
+		DESCRIPTION -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__DESCRIPTION *
+		RESERVED : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=2.0, core=true, t24Name=RESERVED)
+		BILL_TYPE -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE *
+		/* This field represents whether the settlement is against the total bill oustanding that is bill is considered for delinquency processing.
+Only the values BILL.TOTAL and null are allowed at present.
+If the value is BILL.TOTAL, the original repayment amount is compared with the total outstanding amount of the selected bill and if it happens to be greater than or equal to total outstanding amount, the bill is deemed to be settled. */
+		BILL_SETTLEMENT : AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_SETTLEMENT
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=29.0, core=true, t24Name=BILL.SETTLEMENT)
+		/* This field denotes whether to consider the current bill for further aging when the bill is deemed to be settled (that is Delin.os.amt in the bill is zero and Aging.status is settled)
+Validation rules
+Valid options are BILL.STATUS or SETTLE.STATUS
+BILL.STATUS allowed only BILL.SETTLEMENT has value BILL.TOTAL */
+		AGE_BILLS : AA_Overdue:AA_PRD_CAT_OVERDUE__AGE_BILLS
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=AGE.BILLS)
+		ARR_BILL_TYPE -> AA_PaymentSchedule:AA_BILL_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=31.0, core=true, businessType=A, t24Name=ARR.BILL.TYPE)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=RESERVED.1)
+		PR_ATTRIBUTE -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__PR_ATTRIBUTE *
+		/* System field - reserved for future use */
+		SYS_RESERVE7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=44.0, core=true, t24Name=SYS.RESERVE7)
+		/* System field - reserved for future use */
+		SYS_RESERVE6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=45.0, core=true, t24Name=SYS.RESERVE6)
+		/* System field - reserved for future use */
+		SYS_RESERVE5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=46.0, core=true, t24Name=SYS.RESERVE5)
+		/* System field - reserved for future use */
+		SYS_RESERVE4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=47.0, core=true, t24Name=SYS.RESERVE4)
+		/* System field - reserved for future use */
+		SYS_RESERVE3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=48.0, core=true, t24Name=SYS.RESERVE3)
+		/* System field - reserved for future use */
+		SYS_RESERVE2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=49.0, core=true, t24Name=SYS.RESERVE2)
+		/* System field - reserved for future use */
+		SYS_RESERVE1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=50.0, core=true, t24Name=SYS.RESERVE1)
+		/* Optional field - Allowed Values are RESETTING and NON-RESETTING.
+
+RESETTING - During any Renewal Activities (for eg : change.product, rollover or reset) the property conditions will be reset from the product.
+
+NON-RESETTING - During any Renewal Activities property conditions will be maintained from the Arrangement level. */
+		DEFAULT_ATTR_OPTION : AA_Overdue:AA_PRD_CAT_OVERDUE__DEFAULT_ATTR_OPTION
+			@i18n:Label (en="Default Attribute")
+			@i18n:Tooltip (en="Default Attribute")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=51.0, core=true, t24Name=DEFAULT.ATTR.OPTION)
+		/* Defines whether all attributes (fields) can be negotiable or not.
+
+Validation Rules
+This field is Mandatory
+Valid options are YES and NO */
+		DEFAULT_NEGOTIABLE : AA_Overdue:AA_PRD_CAT_OVERDUE__DEFAULT_NEGOTIABLE required
+			@i18n:Label (en="Default Negotiable")
+			@i18n:Tooltip (en="Default Negotiable")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=52.0, core=true, t24Name=DEFAULT.NEGOTIABLE)
+		NR_ATTRIBUTE -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__NR_ATTRIBUTE *
+		CHANGED_FIELDS -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__CHANGED_FIELDS *
+		NEGOTIATED_FLDS -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__NEGOTIATED_FLDS *
+		/* Contains the arrangement number, extracted from the first component of the id
+Not applicable at product level
+System updated field no input allowed */
+		ID_COMP_1 : T24BusinessTypes:A
+			@i18n:Label (en="Arrangement Id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=63.0, core=true, t24Name=ID.COMP.1)
+		/* The action that was triggered on the arrangement property
+The action is taken from ACTIVITY.CLASS record of the underlying AA.ARRANGEMENT.ACTIVITY request that caused the record to be modified. */
+		ID_COMP_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=64.0, core=true, t24Name=ID.COMP.2)
+		/* Contains the effective date of the property condition
+Not applicable at product level
+System updated field no input allowed */
+		ID_COMP_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=65.0, core=true, t24Name=ID.COMP.3)
+		/* Reserved for future use
+Not applicable at product level
+System field no input allowed */
+		ID_COMP_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=66.0, core=true, t24Name=ID.COMP.4)
+		/* Reserved for future use
+Not applicable at product level
+System field no input allowed */
+		ID_COMP_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=67.0, core=true, t24Name=ID.COMP.5)
+		/* Reserved for future use
+Not applicable at product level
+System field no input allowed */
+		ID_COMP_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=68.0, core=true, t24Name=ID.COMP.6)
+		RESERVED2_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=69.0, core=true, t24Name=RESERVED2.ID)
+		/* This field denotes the target classic product of the given property class
+
+The already existing T24 products are mapped using AA infrastructure
+These are called classic products
+These products are mapped to different property clases */
+		TARGET_PRODUCT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=70.0, core=true, t24Name=TARGET.PRODUCT)
+		STMT_NOS -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__STMT_NOS *
+		OVERRIDE -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=73.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=74.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__INPUTTER *
+		DATE_TIME -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=77.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=78.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=79.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=80.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=81.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AA_PRD_CAT_OVERDUE__DESCRIPTION
+	{
+		/* Describes this condition record and is used for enrichment.
+
+This field can be expanded to allow the User to enter the Description of the property condition in various languages. Each expansion of the field will correspond to a new Language as defined in the LANGUAGE table (Ref: GENERAL TABLES), and will indicate to the User the Language in which the Description must be entered.
+
+Validation Rules
+Up to 35 type A (alphanumeric) characters */
+		DESCRIPTION : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	AA_PRD_CAT_OVERDUE__BILL_TYPE
+	{
+		BILL_TYPE -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__BILL_TYPE *
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.14)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.13)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.12)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.11)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.10)
+		OVERDUE_STATUS -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS *
+		/* This field represents the tolerance percentage that needs to be applied on the bill's original amount.  The tolerance percentage is applied on the bill amount that was issued. It is then compared with the current outstanding amount in bill.  If the outstanding amount is within the tolerance then the bill is either not aged or will be considered as repaid based on the setting in the field TOL.ACTION.
+
+Validation rule
+Standard rate field */
+		PAY_TOLERANCE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=25.0, core=true, t24Name=PAY.TOLERANCE)
+		/* This field denotes the action to be taken when bill amount is within the tolerance set.  When this field is set to REPAY and if the bill amount is within the tolerance, it is considred as repaid. If it is set to REMAIN and if the bill amount is within the tolerance, the overdue status will not be changed and will remain in the same status.
+
+NB: Currently only REMAIN option is available.
+
+Validation rule
+Allowed values are REPAY and REMAIN */
+		TOL_ACTION : AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__TOL_ACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=26.0, core=true, t24Name=TOL.ACTION)
+		TOL_CCY -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__TOL_CCY *
+	}
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__BILL_TYPE
+	{
+		BILL_TYPE -> AA_PaymentSchedule:AA_BILL_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, businessType=A, t24Name=BILL.TYPE)
+	}
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS
+	{
+		/* This field denotes the overdue or aging status of the arrangement. The list of values allowed is equal to the list defined in EB.LOOKUP file with the ID like AA.OVERDUE.STATUS*<odStatus>. For example, if PDO is an overdue status, then a record in EB.LOOKUP.FILE should be defined as AA.OVERDUE.STATUS*PDO. */
+		OVERDUE_STATUS : AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__OVERDUE_STATUS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=OVERDUE.STATUS)
+		/* This file denotes whether the aging should be based on days or by bills. This field is associated multivalue field starting from OVERDUE.STATUS  to EFFECTIVE.DATE
+
+Allowed inputs are DAYS and BILLS.
+
+If days, the value in the field AGEING denotes number of days.
+If bills,  the value in the field AGEING denotes number of bills */
+		AGEING_TYPE : AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGEING_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=10.0, core=true, t24Name=AGEING.TYPE)
+		/* This field tells when the bill is to be moved to the specified aging status.
+
+There are two types of aging, one is by days and ther other by bills. When bills are to be aged by days, give the number of days (numeric value)  from the make due date and if it is by bills given the number followed by 'B' character. In both cases, the number defined should be in ascending order. An overdue definition should either be fully based on days or by bills, i.e., it is not possible to define a overdue status based on days and another status by bills.
+
+A value of zero in this field indicates that the bill will move the overdue status on the same day the bill was made due.
+
+This is a mandatory field.
+
+Validation Rules
+Can be either numeric value or numeric value suffixed with character 'B'. A value of zero cannot be set to more than one overdue status. */
+		AGEING : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=11.0, core=true, t24Name=AGEING)
+		/* This field represents the calendar days post to a aging status that a chaser advice to be sent.
+
+Validation rules
+Accepts any number */
+		NOTICE_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, t24Name=NOTICE.DAYS)
+		/* The field represents a frequency in which the advice to be sent for the aging status.
+
+Both Notice days and frequency can be given, in which case, the system would produce advice after the notice days and thereon based on the frequency set, advices would be sent. If Notice days are not given, system would cycle the notice dates with the base as ageing status date.
+
+Validation rules
+Should be a valid T24 freqeuncy */
+		NOTICE_FREQ : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=13.0, core=true, t24Name=NOTICE.FREQ, typeModifiers=EXTENDED)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use. */
+		MANUAL_CHANGE : AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MANUAL_CHANGE
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=19.0, core=true, t24Name=MANUAL.CHANGE)
+		/* This field is set to indicate that all bills under the arrangement should be aged to this status. Usually this field is set to YES for a higher overdue status.
+
+This is an optional field.
+
+Validation Rules
+Can take either YES or NO only. */
+		AGE_ALL_BILLS : AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGE_ALL_BILLS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=20.0, core=true, t24Name=AGE.ALL.BILLS)
+		/* This field represents whether the arrangement needs to be suspended when the current aging status is reached. */
+		SUSPEND : AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__SUSPEND
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=21.0, core=true, t24Name=SUSPEND)
+		/* This field is reserved for future use */
+		STATUS_MVMT : AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__STATUS_MVMT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=22.0, core=true, t24Name=STATUS.MVMT)
+		/* This field denotes if accounting entries are to raised for the overdue status movement. The field when set to YES would mean accounting entries are needed for status movement and the current status would be debited and previous status which has move balance set to YES or DUE balance type would be credited.
+
+Validation Rules
+Valid options are YES and NO */
+		MOVE_BALANCE : AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MOVE_BALANCE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=23.0, core=true, t24Name=MOVE.BALANCE)
+		/* This field indicates the method of finding the value date for the accounting entries as a result of ageing status movement. The allowed values are DUE, STATUS or can be Blank.
+
+DUE    - The value date will be the bill due date.
+STATUS - The value date will be the ageing status effective date.
+Blank  - The value date will be the bill's financial date.
+
+Example:
+Suppose a bill has been made DUE on 30th November and its Finanacial date is say on 02 December. Subsequently when the bill moves to GRA (Grace) overdue status , say after 5 days from the due date, that is, on 5th December. The accounting value date for various values in this field would be: -
+
+DUE            - 30th November
+STATUS         - 5th Decemeber
+When blank     - 2nd December */
+		EFFECTIVE_DATE : AA_Overdue:AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__EFFECTIVE_DATE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=24.0, core=true, t24Name=EFFECTIVE.DATE)
+	}
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__TOL_CCY
+	{
+		/* This field denotes the tolerance currency. If the currency defined in bill matches the TOL.CCY, then the tolerance amount is taken from the field TOL.AMOUNT
+
+
+Validation rule
+Standard T24 currency field */
+		TOL_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=27.0, core=true, businessType=CCY, t24Name=TOL.CCY)
+		/* This field represents the tolerance amount that can be set for the bill's outstanding amount. If the currency defined in bill matches the TOL.CCY, then the tolerance amount is taken from this field. If the outstanding amount is within the tolerance, then bill is either not aged or will be considered as repaid based on the setting in the field TOL.ACTION.
+
+
+Validation rule
+Standard T24 amount field */
+		TOL_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=28.0, core=true, t24Name=TOL.AMOUNT)
+	}
+	AA_PRD_CAT_OVERDUE__PR_ATTRIBUTE
+	{
+		/* These are set of Attributes which define the names of the rule, which will be applied on certain attributes of property classes over a period of time.
+
+Validation Rules
+Input must be a valid record from AA.PERIODIC.ATTRIBUTE */
+		PR_ATTRIBUTE -> AA_Rules:AA_PERIODIC_ATTRIBUTE
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=34.0, core=true, businessType=A, t24Name=PR.ATTRIBUTE)
+		/* This is the actual rule value, which will be applied on certain attributes of the property classes over a period of time.
+
+Validation Rules
+Input must be a valid data type defined in the corresponding
+AA.PERIODIC.ATTRIBUTE.CLASS record. */
+		PR_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=35.0, core=true, t24Name=PR.VALUE)
+		/* When a rule is broken what action needs to be taken is defined here. Currently, the various options available are
+
+Error block further processing
+Override Give an override
+Information  Record details only
+CAP the rule value is to be used as a CAP if the rule is broken
+FLOOR the rule value is to be used as a FLOOR if the rule is broken
+
+Validation Rules
+Should be one of the above valid options */
+		PR_BRK_RES : AA_Overdue:AA_PRD_CAT_OVERDUE__PR_ATTRIBUTE__PR_BRK_RES
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=36.0, core=true, t24Name=PR.BRK.RES)
+		/* Based on the PR.BRK.RES option selected, this will hold either an OVERRIDE or EB.ERROR id. By default the ids will be picked from the associated EB.COMPARISON.TYPE record. If CAP or FLOOR values are given, then the underlying AA.PERIODIC.ATTRIBUTE.CLASS should have this type defined in it.
+
+Validation Rules
+Input must be a valid OVERRIDE ID or EB.ERROR ID. */
+		PR_BRK_MSG : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=37.0, core=true, t24Name=PR.BRK.MSG)
+		/* Charge can be collected when the periodic rule is broken
+This field denotes the charge property. The property and its condition is
+defined the product designer and validated during publishing
+
+Validation Rules
+Valid charge property */
+		PR_BRK_CHARGE -> AA_ProductFramework:AA_PROPERTY
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=38.0, core=true, businessType=A, t24Name=PR.BRK.CHARGE)
+		/* System field - reserved for future use */
+		PR_RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=39.0, core=true, t24Name=PR.RESERVED.3)
+		/* System field - reserved for future use */
+		PR_RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=40.0, core=true, t24Name=PR.RESERVED.2)
+		/* System field - reserved for future use */
+		PR_RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=41.0, core=true, t24Name=PR.RESERVED.1)
+		/* This field denotes the application method that needs to be applied to the periodic rule charges.
+Allowed values are
+Due - The periodic rule charges are made due
+Capitalise - The periodic rule charges are capitalised */
+		PR_APP_METHOD : AA_Overdue:AA_PRD_CAT_OVERDUE__PR_ATTRIBUTE__PR_APP_METHOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=42.0, core=true, t24Name=PR.APP.METHOD)
+		/* This field denotes the application period for the given periodic rule charges.
+The periodic rule charges will be applied at the end of the period. If the value defined is zero, then the charges are applied immediately.
+Standard T24 period field. */
+		PR_APP_PERIOD : T24BusinessTypes:PERIOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=43.0, core=true, t24Name=PR.APP.PERIOD)
+	}
+	AA_PRD_CAT_OVERDUE__NR_ATTRIBUTE
+	{
+		/* Defines which individual attribute (field) has the negotiation rules defined in fields "Nr.Negotiable" through to "Nr.Message"
+
+Validation Rules
+Must be a valid field name within this property
+This field is part of a multi value set */
+		NR_ATTRIBUTE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=53.0, core=true, t24Name=NR.ATTRIBUTE)
+		NR_OPTIONS -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS *
+		/* System Field - Reserved for future use */
+		NR_RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=55.0, core=true, t24Name=NR.RESERVED2)
+		/* System Field - Reserved for future use */
+		NR_RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=56.0, core=true, t24Name=NR.RESERVED1)
+		/* It is possible to define negotiation rules in EB.COMPARISON.TYPE.
+
+
+Validation Rules
+Input must be a valid record from EB.STANDARD.COMPARISON */
+		NR_STD_COMP -> AA_Rules:EB_STANDARD_COMPARISON
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=57.0, core=true, businessType=A, t24Name=NR.STD.COMP)
+		NR_TYPE -> byValue AA_Overdue:AA_PRD_CAT_OVERDUE__NR_ATTRIBUTE__NR_TYPE *
+	}
+	AA_PRD_CAT_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS
+	{
+		/* Defines named values to indicate if an option applies to the associated NR.ATTRIBUTE. More than one option can be associated with the NR.ATTRIBUTE, with certain restrictions.
+
+Validation Rules
+Valid Inputs are NEGOTIABLE, NON-NEGOTIABLE, OVERRIDE, FIX-VALUE, MANDATORY as described below: -
+
+NEGOTIABLE
+The value of NEGOTIABLE will indicate that the associated NR.ATTRIBUTE can be negotiated at the arrangement level.
+
+NON-NEGOTIABLE
+The value of NON-NEGOTIABLE will indicate that the associated NR.ATTRIBUTE cannot be negotiated at the arrangement level. Both NEGOTIABLE and NON-NEGOTIABLE cannot be defined together
+
+OVERRIDE
+Specifies if a default override message should be generated if the default attribute is amended at the arrangement level. If OVERRIDE is not specified, no override will be generated.
+
+FIX-VALUE
+Specified if the field value is to be fixed at the arrangement level. If FIX-VALUE is not specified the field value will vary with the changes to the underlying product condition.
+
+MANDATORY
+Specifies if the attribute is mandatory for this product condition. Can only be specified where the attribute is not defined as mandatory in the property class. */
+		NR_OPTIONS : AA_Overdue:AA_PRD_CAT_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS__NR_OPTIONS
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=54.0, core=true, t24Name=NR.OPTIONS)
+	}
+	AA_PRD_CAT_OVERDUE__NR_ATTRIBUTE__NR_TYPE
+	{
+		/* Defines the negotiation rule that is linked to the field defined in "Nr.Attribute". If an attribute has a negotiation rule linked to it (in associated fields NR.TYPE, NR.VALUE and NR.MESSAGE) the attribute must be defined as negotiable.
+It is possible to define more than one negotiation rule for an attribute
+
+Validation Rules
+Input must be a valid record from EB.COMPARISON.TYPE
+This is a multi value set of fields */
+		NR_TYPE -> AA_Rules:EB_COMPARISON_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=58.0, core=true, businessType=A, t24Name=NR.TYPE)
+		/* Defines the value that links to the rule in field "Nr.Type" */
+		NR_VALUE : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=60, sysNumber=59.0, core=true, t24Name=NR.VALUE)
+		/* This field indicates whether to raise error or override message when rule is broken
+Allows only two values ERROR or OVERRIDE
+ERROR error message is raised
+OVERRIDE Override message is generated */
+		NR_MESSAGE : AA_Overdue:AA_PRD_CAT_OVERDUE__NR_ATTRIBUTE__NR_TYPE__NR_MESSAGE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=60.0, core=true, t24Name=NR.MESSAGE)
+	}
+	AA_PRD_CAT_OVERDUE__CHANGED_FIELDS
+	{
+		/* No input and multi value field - lists all fields that have been negotiated for each dated version of the property. For a subsequently dated property, the attributes listed in this field will appear in "Negotiated.Fields" and only newly negotiated fields will appear on "Changed.Fields" */
+		CHANGED_FIELDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=61.0, core=true, t24Name=CHANGED.FIELDS)
+	}
+	AA_PRD_CAT_OVERDUE__NEGOTIATED_FLDS
+	{
+		/* No input and multi value field that lists the attributes on the arrangement property record that have been fixed and/or negotiated. These are stored when the arrangement level record is committed. When the arrangement level record is next used all items in the NEGOTIATED.FIELDS list will be maintained.
+Once an attribute has been fixed or negotiated it will remain in negotiated field list on all subsequent dated versions of the property. */
+		NEGOTIATED_FLDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=62.0, core=true, t24Name=NEGOTIATED.FLDS)
+	}
+	AA_PRD_CAT_OVERDUE__STMT_NOS
+	{
+		/* System field - not used for property conditions */
+		STMT_NOS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=71.0, core=true, t24Name=STMT.NOS)
+	}
+	AA_PRD_CAT_OVERDUE__OVERRIDE
+	{
+		/* Standard Override field containing override messages generated by amendments to this property */
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=72.0, core=true, t24Name=OVERRIDE)
+	}
+	AA_PRD_CAT_OVERDUE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=75.0, core=true, t24Name=INPUTTER)
+	}
+	AA_PRD_CAT_OVERDUE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=76.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* After a bill is made due, the bills are subject to aging process as per the OVERDUE property setting for the arrangement. A number of options are required to define the aging periods, statuses and accounting treatment of the outstanding balance.
+
+The system can apply penalty interest and charges based on overdue and current balances. The AA module allows this to be configured in a flexible manner when creating products. */
+	AA_PRD_DES_OVERDUE
+		@t24:i (t24Name=AA.PRD.DES.OVERDUE, nonStop=true, level=I, type=H, allowedFunctions="A C D E I L Q R S", localRefAllowed=true)
+	{
+		/* This field represents the key to the product level conditions of a property class
+This field basically has three components seperated by a hyphen
+Condition id
+Currency - if the property class is currency based. By default takes up local currency
+Effective date - if the property class is dated */
+		PRODUCT_KEY -> AA_Overdue:AA_PRD_DES_OVERDUE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=0.0, core=true, businessType=ANY, t24Name=PRODUCT.KEY)
+		DESCRIPTION -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__DESCRIPTION *
+		RESERVED : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=2.0, core=true, t24Name=RESERVED)
+		BILL_TYPE -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE *
+		/* This field represents whether the settlement is against the total bill oustanding that is bill is considered for delinquency processing.
+Only the values BILL.TOTAL and null are allowed at present.
+If the value is BILL.TOTAL, the original repayment amount is compared with the total outstanding amount of the selected bill and if it happens to be greater than or equal to total outstanding amount, the bill is deemed to be settled. */
+		BILL_SETTLEMENT : AA_Overdue:AA_PRD_DES_OVERDUE__BILL_SETTLEMENT
+			@i18n:Label (en="Bill Settlement")
+			@i18n:Tooltip (en="Bill Settlement")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=29.0, core=true, t24Name=BILL.SETTLEMENT)
+		/* This field denotes whether to consider the current bill for further aging when the bill is deemed to be settled (that is Delin.os.amt in the bill is zero and Aging.status is settled)
+Validation rules
+Valid options are BILL.STATUS or SETTLE.STATUS
+BILL.STATUS allowed only BILL.SETTLEMENT has value BILL.TOTAL */
+		AGE_BILLS : AA_Overdue:AA_PRD_DES_OVERDUE__AGE_BILLS
+			@i18n:Label (en="Age Bills")
+			@i18n:Tooltip (en="Age Bills")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=AGE.BILLS)
+		ARR_BILL_TYPE -> AA_PaymentSchedule:AA_BILL_TYPE
+			@i18n:Label (en="Bill Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=31.0, core=true, businessType=A, t24Name=ARR.BILL.TYPE)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=RESERVED.1)
+		PR_ATTRIBUTE -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__PR_ATTRIBUTE *
+		/* System field - reserved for future use */
+		SYS_RESERVE7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=44.0, core=true, t24Name=SYS.RESERVE7)
+		/* System field - reserved for future use */
+		SYS_RESERVE6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=45.0, core=true, t24Name=SYS.RESERVE6)
+		/* System field - reserved for future use */
+		SYS_RESERVE5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=46.0, core=true, t24Name=SYS.RESERVE5)
+		/* System field - reserved for future use */
+		SYS_RESERVE4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=47.0, core=true, t24Name=SYS.RESERVE4)
+		/* System field - reserved for future use */
+		SYS_RESERVE3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=48.0, core=true, t24Name=SYS.RESERVE3)
+		/* System field - reserved for future use */
+		SYS_RESERVE2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=49.0, core=true, t24Name=SYS.RESERVE2)
+		/* System field - reserved for future use */
+		SYS_RESERVE1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=50.0, core=true, t24Name=SYS.RESERVE1)
+		/* Optional field - Allowed Values are RESETTING and NON-RESETTING.
+
+RESETTING - During any Renewal Activities (for eg : change.product, rollover or reset) the property conditions will be reset from the product.
+
+NON-RESETTING - During any Renewal Activities property conditions will be maintained from the Arrangement level. */
+		DEFAULT_ATTR_OPTION : AA_Overdue:AA_PRD_DES_OVERDUE__DEFAULT_ATTR_OPTION
+			@i18n:Label (en="Default Attribute Option")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=51.0, core=true, t24Name=DEFAULT.ATTR.OPTION)
+		/* Defines whether all attributes (fields) can be negotiable or not.
+
+Validation Rules
+This field is Mandatory
+Valid options are YES and NO */
+		DEFAULT_NEGOTIABLE : AA_Overdue:AA_PRD_DES_OVERDUE__DEFAULT_NEGOTIABLE required
+			@i18n:Label (en="Default Negotiable")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=52.0, core=true, t24Name=DEFAULT.NEGOTIABLE)
+		NR_ATTRIBUTE -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__NR_ATTRIBUTE *
+		CHANGED_FIELDS -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__CHANGED_FIELDS *
+		NEGOTIATED_FLDS -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__NEGOTIATED_FLDS *
+		/* Contains the arrangement number, extracted from the first component of the id
+Not applicable at product level
+System updated field no input allowed */
+		ID_COMP_1 : T24BusinessTypes:A
+			@i18n:Label (en="Arrangement Id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=63.0, core=true, t24Name=ID.COMP.1)
+		/* The action that was triggered on the arrangement property
+The action is taken from ACTIVITY.CLASS record of the underlying AA.ARRANGEMENT.ACTIVITY request that caused the record to be modified. */
+		ID_COMP_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=64.0, core=true, t24Name=ID.COMP.2)
+		/* Contains the effective date of the property condition
+Not applicable at product level
+System updated field no input allowed */
+		ID_COMP_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=65.0, core=true, t24Name=ID.COMP.3)
+		/* Reserved for future use
+Not applicable at product level
+System field no input allowed */
+		ID_COMP_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=66.0, core=true, t24Name=ID.COMP.4)
+		/* Reserved for future use
+Not applicable at product level
+System field no input allowed */
+		ID_COMP_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=67.0, core=true, t24Name=ID.COMP.5)
+		/* Reserved for future use
+Not applicable at product level
+System field no input allowed */
+		ID_COMP_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=68.0, core=true, t24Name=ID.COMP.6)
+		RESERVED2_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=69.0, core=true, t24Name=RESERVED2.ID)
+		/* This field denotes the target classic product of the given property class
+
+The already existing T24 products are mapped using AA infrastructure
+These are called classic products
+These products are mapped to different property clases */
+		TARGET_PRODUCT : T24BusinessTypes:A
+			@i18n:Label (en="Target Classic Product")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=70.0, core=true, t24Name=TARGET.PRODUCT)
+		STMT_NOS -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__STMT_NOS *
+		OVERRIDE -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=73.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=74.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__INPUTTER *
+		DATE_TIME -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=77.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=78.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=79.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=80.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=81.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AA_PRD_DES_OVERDUE__DESCRIPTION
+	{
+		/* Describes this condition record and is used for enrichment.
+
+This field can be expanded to allow the User to enter the Description of the property condition in various languages. Each expansion of the field will correspond to a new Language as defined in the LANGUAGE table (Ref: GENERAL TABLES), and will indicate to the User the Language in which the Description must be entered.
+
+Validation Rules
+Up to 35 type A (alphanumeric) characters */
+		DESCRIPTION : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	AA_PRD_DES_OVERDUE__BILL_TYPE
+	{
+		BILL_TYPE -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__BILL_TYPE *
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.14)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.13)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.12)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.11)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.10)
+		OVERDUE_STATUS -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS *
+		/* This field represents the tolerance percentage that needs to be applied on the bill's original amount.  The tolerance percentage is applied on the bill amount that was issued. It is then compared with the current outstanding amount in bill.  If the outstanding amount is within the tolerance then the bill is either not aged or will be considered as repaid based on the setting in the field TOL.ACTION.
+
+Validation rule
+Standard rate field */
+		PAY_TOLERANCE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=25.0, core=true, t24Name=PAY.TOLERANCE)
+		/* This field denotes the action to be taken when bill amount is within the tolerance set.  When this field is set to REPAY and if the bill amount is within the tolerance, it is considred as repaid. If it is set to REMAIN and if the bill amount is within the tolerance, the overdue status will not be changed and will remain in the same status.
+
+NB: Currently only REMAIN option is available.
+
+Validation rule
+Allowed values are REPAY and REMAIN */
+		TOL_ACTION : AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__TOL_ACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=26.0, core=true, t24Name=TOL.ACTION)
+		TOL_CCY -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__TOL_CCY *
+	}
+	AA_PRD_DES_OVERDUE__BILL_TYPE__BILL_TYPE
+	{
+		BILL_TYPE -> AA_PaymentSchedule:AA_BILL_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, businessType=A, t24Name=BILL.TYPE)
+	}
+	AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS
+	{
+		/* This field denotes the overdue or aging status of the arrangement. The list of values allowed is equal to the list defined in EB.LOOKUP file with the ID like AA.OVERDUE.STATUS*<odStatus>. For example, if PDO is an overdue status, then a record in EB.LOOKUP.FILE should be defined as AA.OVERDUE.STATUS*PDO. */
+		OVERDUE_STATUS : AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__OVERDUE_STATUS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=OVERDUE.STATUS)
+		/* This file denotes whether the aging should be based on days or by bills. This field is associated multivalue field starting from OVERDUE.STATUS  to EFFECTIVE.DATE
+
+Allowed inputs are DAYS and BILLS.
+
+If days, the value in the field AGEING denotes number of days.
+If bills,  the value in the field AGEING denotes number of bills */
+		AGEING_TYPE : AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGEING_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=10.0, core=true, t24Name=AGEING.TYPE)
+		/* This field tells when the bill is to be moved to the specified aging status.
+
+There are two types of aging, one is by days and ther other by bills. When bills are to be aged by days, give the number of days (numeric value)  from the make due date and if it is by bills given the number followed by 'B' character. In both cases, the number defined should be in ascending order. An overdue definition should either be fully based on days or by bills, i.e., it is not possible to define a overdue status based on days and another status by bills.
+
+A value of zero in this field indicates that the bill will move the overdue status on the same day the bill was made due.
+
+This is a mandatory field.
+
+Validation Rules
+Can be either numeric value or numeric value suffixed with character 'B'. A value of zero cannot be set to more than one overdue status. */
+		AGEING : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=11.0, core=true, t24Name=AGEING)
+		/* This field represents the calendar days post to a aging status that a chaser advice to be sent.
+
+Validation rules
+Accepts any number */
+		NOTICE_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, t24Name=NOTICE.DAYS)
+		/* The field represents a frequency in which the advice to be sent for the aging status.
+
+Both Notice days and frequency can be given, in which case, the system would produce advice after the notice days and thereon based on the frequency set, advices would be sent. If Notice days are not given, system would cycle the notice dates with the base as ageing status date.
+
+Validation rules
+Should be a valid T24 freqeuncy */
+		NOTICE_FREQ : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=13.0, core=true, t24Name=NOTICE.FREQ, typeModifiers=EXTENDED)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use. */
+		MANUAL_CHANGE : AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MANUAL_CHANGE
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=19.0, core=true, t24Name=MANUAL.CHANGE)
+		/* This field is set to indicate that all bills under the arrangement should be aged to this status. Usually this field is set to YES for a higher overdue status.
+
+This is an optional field.
+
+Validation Rules
+Can take either YES or NO only. */
+		AGE_ALL_BILLS : AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGE_ALL_BILLS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=20.0, core=true, t24Name=AGE.ALL.BILLS)
+		/* This field represents whether the arrangement needs to be suspended when the current aging status is reached. */
+		SUSPEND : AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__SUSPEND
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=21.0, core=true, t24Name=SUSPEND)
+		/* This field is reserved for future use */
+		STATUS_MVMT : AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__STATUS_MVMT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=22.0, core=true, t24Name=STATUS.MVMT)
+		/* This field denotes if accounting entries are to raised for the overdue status movement. The field when set to YES would mean accounting entries are needed for status movement and the current status would be debited and previous status which has move balance set to YES or DUE balance type would be credited.
+
+Validation Rules
+Valid options are YES and NO */
+		MOVE_BALANCE : AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MOVE_BALANCE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=23.0, core=true, t24Name=MOVE.BALANCE)
+		/* This field indicates the method of finding the value date for the accounting entries as a result of ageing status movement. The allowed values are DUE, STATUS or can be Blank.
+
+DUE    - The value date will be the bill due date.
+STATUS - The value date will be the ageing status effective date.
+Blank  - The value date will be the bill's financial date.
+
+Example:
+Suppose a bill has been made DUE on 30th November and its Finanacial date is say on 02 December. Subsequently when the bill moves to GRA (Grace) overdue status , say after 5 days from the due date, that is, on 5th December. The accounting value date for various values in this field would be: -
+
+DUE            - 30th November
+STATUS         - 5th Decemeber
+When blank     - 2nd December */
+		EFFECTIVE_DATE : AA_Overdue:AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__EFFECTIVE_DATE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=24.0, core=true, t24Name=EFFECTIVE.DATE)
+	}
+	AA_PRD_DES_OVERDUE__BILL_TYPE__TOL_CCY
+	{
+		/* This field denotes the tolerance currency. If the currency defined in bill matches the TOL.CCY, then the tolerance amount is taken from the field TOL.AMOUNT
+
+
+Validation rule
+Standard T24 currency field */
+		TOL_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=27.0, core=true, businessType=CCY, t24Name=TOL.CCY)
+		/* This field represents the tolerance amount that can be set for the bill's outstanding amount. If the currency defined in bill matches the TOL.CCY, then the tolerance amount is taken from this field. If the outstanding amount is within the tolerance, then bill is either not aged or will be considered as repaid based on the setting in the field TOL.ACTION.
+
+
+Validation rule
+Standard T24 amount field */
+		TOL_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=28.0, core=true, t24Name=TOL.AMOUNT)
+	}
+	AA_PRD_DES_OVERDUE__PR_ATTRIBUTE
+	{
+		/* These are set of Attributes which define the names of the rule, which will be applied on certain attributes of property classes over a period of time.
+
+Validation Rules
+Input must be a valid record from AA.PERIODIC.ATTRIBUTE */
+		PR_ATTRIBUTE -> AA_Rules:AA_PERIODIC_ATTRIBUTE
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=34.0, core=true, businessType=A, t24Name=PR.ATTRIBUTE)
+		/* This is the actual rule value, which will be applied on certain attributes of the property classes over a period of time.
+
+Validation Rules
+Input must be a valid data type defined in the corresponding
+AA.PERIODIC.ATTRIBUTE.CLASS record. */
+		PR_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=35.0, core=true, t24Name=PR.VALUE)
+		/* When a rule is broken what action needs to be taken is defined here. Currently, the various options available are
+
+Error block further processing
+Override Give an override
+Information  Record details only
+CAP the rule value is to be used as a CAP if the rule is broken
+FLOOR the rule value is to be used as a FLOOR if the rule is broken
+
+Validation Rules
+Should be one of the above valid options */
+		PR_BRK_RES : AA_Overdue:AA_PRD_DES_OVERDUE__PR_ATTRIBUTE__PR_BRK_RES
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=36.0, core=true, t24Name=PR.BRK.RES)
+		/* Based on the PR.BRK.RES option selected, this will hold either an OVERRIDE or EB.ERROR id. By default the ids will be picked from the associated EB.COMPARISON.TYPE record. If CAP or FLOOR values are given, then the underlying AA.PERIODIC.ATTRIBUTE.CLASS should have this type defined in it.
+
+Validation Rules
+Input must be a valid OVERRIDE ID or EB.ERROR ID. */
+		PR_BRK_MSG : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=37.0, core=true, t24Name=PR.BRK.MSG)
+		/* Charge can be collected when the periodic rule is broken
+This field denotes the charge property. The property and its condition is
+defined the product designer and validated during publishing
+
+Validation Rules
+Valid charge property */
+		PR_BRK_CHARGE -> AA_ProductFramework:AA_PROPERTY
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=38.0, core=true, businessType=A, t24Name=PR.BRK.CHARGE)
+		/* System field - reserved for future use */
+		PR_RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=39.0, core=true, t24Name=PR.RESERVED.3)
+		/* System field - reserved for future use */
+		PR_RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=40.0, core=true, t24Name=PR.RESERVED.2)
+		/* System field - reserved for future use */
+		PR_RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=41.0, core=true, t24Name=PR.RESERVED.1)
+		/* This field denotes the application method that needs to be applied to the periodic rule charges.
+Allowed values are
+Due - The periodic rule charges are made due
+Capitalise - The periodic rule charges are capitalised */
+		PR_APP_METHOD : AA_Overdue:AA_PRD_DES_OVERDUE__PR_ATTRIBUTE__PR_APP_METHOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=42.0, core=true, t24Name=PR.APP.METHOD)
+		/* This field denotes the application period for the given periodic rule charges.
+The periodic rule charges will be applied at the end of the period. If the value defined is zero, then the charges are applied immediately.
+Standard T24 period field. */
+		PR_APP_PERIOD : T24BusinessTypes:PERIOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=43.0, core=true, t24Name=PR.APP.PERIOD)
+	}
+	AA_PRD_DES_OVERDUE__NR_ATTRIBUTE
+	{
+		/* Defines which individual attribute (field) has the negotiation rules defined in fields "Nr.Negotiable" through to "Nr.Message"
+
+Validation Rules
+Must be a valid field name within this property
+This field is part of a multi value set */
+		NR_ATTRIBUTE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=53.0, core=true, t24Name=NR.ATTRIBUTE)
+		NR_OPTIONS -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS *
+		/* System Field - Reserved for future use */
+		NR_RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=55.0, core=true, t24Name=NR.RESERVED2)
+		/* System Field - Reserved for future use */
+		NR_RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=56.0, core=true, t24Name=NR.RESERVED1)
+		/* It is possible to define negotiation rules in EB.COMPARISON.TYPE.
+
+
+Validation Rules
+Input must be a valid record from EB.STANDARD.COMPARISON */
+		NR_STD_COMP -> AA_Rules:EB_STANDARD_COMPARISON
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=57.0, core=true, businessType=A, t24Name=NR.STD.COMP)
+		NR_TYPE -> byValue AA_Overdue:AA_PRD_DES_OVERDUE__NR_ATTRIBUTE__NR_TYPE *
+	}
+	AA_PRD_DES_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS
+	{
+		/* Defines named values to indicate if an option applies to the associated NR.ATTRIBUTE. More than one option can be associated with the NR.ATTRIBUTE, with certain restrictions.
+
+Validation Rules
+Valid Inputs are NEGOTIABLE, NON-NEGOTIABLE, OVERRIDE, FIX-VALUE, MANDATORY as described below: -
+
+NEGOTIABLE
+The value of NEGOTIABLE will indicate that the associated NR.ATTRIBUTE can be negotiated at the arrangement level.
+
+NON-NEGOTIABLE
+The value of NON-NEGOTIABLE will indicate that the associated NR.ATTRIBUTE cannot be negotiated at the arrangement level. Both NEGOTIABLE and NON-NEGOTIABLE cannot be defined together
+
+OVERRIDE
+Specifies if a default override message should be generated if the default attribute is amended at the arrangement level. If OVERRIDE is not specified, no override will be generated.
+
+FIX-VALUE
+Specified if the field value is to be fixed at the arrangement level. If FIX-VALUE is not specified the field value will vary with the changes to the underlying product condition.
+
+MANDATORY
+Specifies if the attribute is mandatory for this product condition. Can only be specified where the attribute is not defined as mandatory in the property class. */
+		NR_OPTIONS : AA_Overdue:AA_PRD_DES_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS__NR_OPTIONS
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=54.0, core=true, t24Name=NR.OPTIONS)
+	}
+	AA_PRD_DES_OVERDUE__NR_ATTRIBUTE__NR_TYPE
+	{
+		/* Defines the negotiation rule that is linked to the field defined in "Nr.Attribute". If an attribute has a negotiation rule linked to it (in associated fields NR.TYPE, NR.VALUE and NR.MESSAGE) the attribute must be defined as negotiable.
+It is possible to define more than one negotiation rule for an attribute
+
+Validation Rules
+Input must be a valid record from EB.COMPARISON.TYPE
+This is a multi value set of fields */
+		NR_TYPE -> AA_Rules:EB_COMPARISON_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=58.0, core=true, businessType=A, t24Name=NR.TYPE)
+		/* Defines the value that links to the rule in field "Nr.Type" */
+		NR_VALUE : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=60, sysNumber=59.0, core=true, t24Name=NR.VALUE)
+		/* This field indicates whether to raise error or override message when rule is broken
+Allows only two values ERROR or OVERRIDE
+ERROR error message is raised
+OVERRIDE Override message is generated */
+		NR_MESSAGE : AA_Overdue:AA_PRD_DES_OVERDUE__NR_ATTRIBUTE__NR_TYPE__NR_MESSAGE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=60.0, core=true, t24Name=NR.MESSAGE)
+	}
+	AA_PRD_DES_OVERDUE__CHANGED_FIELDS
+	{
+		/* No input and multi value field - lists all fields that have been negotiated for each dated version of the property. For a subsequently dated property, the attributes listed in this field will appear in "Negotiated.Fields" and only newly negotiated fields will appear on "Changed.Fields" */
+		CHANGED_FIELDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=61.0, core=true, t24Name=CHANGED.FIELDS)
+	}
+	AA_PRD_DES_OVERDUE__NEGOTIATED_FLDS
+	{
+		/* No input and multi value field that lists the attributes on the arrangement property record that have been fixed and/or negotiated. These are stored when the arrangement level record is committed. When the arrangement level record is next used all items in the NEGOTIATED.FIELDS list will be maintained.
+Once an attribute has been fixed or negotiated it will remain in negotiated field list on all subsequent dated versions of the property. */
+		NEGOTIATED_FLDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=62.0, core=true, t24Name=NEGOTIATED.FLDS)
+	}
+	AA_PRD_DES_OVERDUE__STMT_NOS
+	{
+		/* System field - not used for property conditions */
+		STMT_NOS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=71.0, core=true, t24Name=STMT.NOS)
+	}
+	AA_PRD_DES_OVERDUE__OVERRIDE
+	{
+		/* Standard Override field containing override messages generated by amendments to this property */
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=72.0, core=true, t24Name=OVERRIDE)
+	}
+	AA_PRD_DES_OVERDUE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=75.0, core=true, t24Name=INPUTTER)
+	}
+	AA_PRD_DES_OVERDUE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=76.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* After a bill is made due, the bills are subject to aging process as per the OVERDUE property setting for the arrangement. A number of options are required to define the aging periods, statuses and accounting treatment of the outstanding balance.
+
+The system can apply penalty interest and charges based on overdue and current balances. The AA module allows this to be configured in a flexible manner when creating products. */
+	AA_PRD_PRF_OVERDUE
+		@t24:i (t24Name=AA.PRD.PRF.OVERDUE, nonStop=true, level=I, type=W, allowedFunctions="L Q S", localRefAllowed=true)
+	{
+		/* This field represents the key to the product level conditions of a property class
+This field basically has three components seperated by a hyphen
+Condition id
+Currency - if the property class is currency based. By default takes up local currency
+Effective date - if the property class is dated */
+		PRODUCT_KEY -> AA_Overdue:AA_PRD_PRF_OVERDUE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=0.0, core=true, businessType=ANY, t24Name=PRODUCT.KEY)
+		DESCRIPTION -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__DESCRIPTION *
+		RESERVED : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=2.0, core=true, t24Name=RESERVED)
+		BILL_TYPE -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE *
+		/* This field represents whether the settlement is against the total bill oustanding that is bill is considered for delinquency processing.
+Only the values BILL.TOTAL and null are allowed at present.
+If the value is BILL.TOTAL, the original repayment amount is compared with the total outstanding amount of the selected bill and if it happens to be greater than or equal to total outstanding amount, the bill is deemed to be settled. */
+		BILL_SETTLEMENT : AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_SETTLEMENT
+			@i18n:Label (en="Settlement Against Outstanding Bills")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=29.0, core=true, t24Name=BILL.SETTLEMENT)
+		/* This field denotes whether to consider the current bill for further aging when the bill is deemed to be settled (that is Delin.os.amt in the bill is zero and Aging.status is settled)
+Validation rules
+Valid options are BILL.STATUS or SETTLE.STATUS
+BILL.STATUS allowed only BILL.SETTLEMENT has value BILL.TOTAL */
+		AGE_BILLS : AA_Overdue:AA_PRD_PRF_OVERDUE__AGE_BILLS
+			@i18n:Label (en="Age Bills")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=AGE.BILLS)
+		ARR_BILL_TYPE -> AA_PaymentSchedule:AA_BILL_TYPE
+			@i18n:Label (en="Bill Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=31.0, core=true, businessType=A, t24Name=ARR.BILL.TYPE)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=RESERVED.1)
+		PR_ATTRIBUTE -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__PR_ATTRIBUTE *
+		/* System field - reserved for future use */
+		SYS_RESERVE7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=44.0, core=true, t24Name=SYS.RESERVE7)
+		/* System field - reserved for future use */
+		SYS_RESERVE6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=45.0, core=true, t24Name=SYS.RESERVE6)
+		/* System field - reserved for future use */
+		SYS_RESERVE5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=46.0, core=true, t24Name=SYS.RESERVE5)
+		/* System field - reserved for future use */
+		SYS_RESERVE4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=47.0, core=true, t24Name=SYS.RESERVE4)
+		/* System field - reserved for future use */
+		SYS_RESERVE3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=48.0, core=true, t24Name=SYS.RESERVE3)
+		/* System field - reserved for future use */
+		SYS_RESERVE2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=49.0, core=true, t24Name=SYS.RESERVE2)
+		/* System field - reserved for future use */
+		SYS_RESERVE1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=50.0, core=true, t24Name=SYS.RESERVE1)
+		/* Optional field - Allowed Values are RESETTING and NON-RESETTING.
+
+RESETTING - During any Renewal Activities (for eg : change.product, rollover or reset) the property conditions will be reset from the product.
+
+NON-RESETTING - During any Renewal Activities property conditions will be maintained from the Arrangement level. */
+		DEFAULT_ATTR_OPTION : AA_Overdue:AA_PRD_PRF_OVERDUE__DEFAULT_ATTR_OPTION
+			@i18n:Label (en="Default Attribute Option")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=51.0, core=true, t24Name=DEFAULT.ATTR.OPTION)
+		/* Defines whether all attributes (fields) can be negotiable or not.
+
+Validation Rules
+This field is Mandatory
+Valid options are YES and NO */
+		DEFAULT_NEGOTIABLE : AA_Overdue:AA_PRD_PRF_OVERDUE__DEFAULT_NEGOTIABLE required
+			@i18n:Label (en="Default Negotiable")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=52.0, core=true, t24Name=DEFAULT.NEGOTIABLE)
+		NR_ATTRIBUTE -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__NR_ATTRIBUTE *
+		CHANGED_FIELDS -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__CHANGED_FIELDS *
+		NEGOTIATED_FLDS -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__NEGOTIATED_FLDS *
+		/* Contains the arrangement number, extracted from the first component of the id
+Not applicable at product level
+System updated field no input allowed */
+		ID_COMP_1 : T24BusinessTypes:A
+			@i18n:Label (en="Arrangement Id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=63.0, core=true, t24Name=ID.COMP.1)
+		/* The action that was triggered on the arrangement property
+The action is taken from ACTIVITY.CLASS record of the underlying AA.ARRANGEMENT.ACTIVITY request that caused the record to be modified. */
+		ID_COMP_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=64.0, core=true, t24Name=ID.COMP.2)
+		/* Contains the effective date of the property condition
+Not applicable at product level
+System updated field no input allowed */
+		ID_COMP_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=65.0, core=true, t24Name=ID.COMP.3)
+		/* Reserved for future use
+Not applicable at product level
+System field no input allowed */
+		ID_COMP_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=66.0, core=true, t24Name=ID.COMP.4)
+		/* Reserved for future use
+Not applicable at product level
+System field no input allowed */
+		ID_COMP_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=67.0, core=true, t24Name=ID.COMP.5)
+		/* Reserved for future use
+Not applicable at product level
+System field no input allowed */
+		ID_COMP_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=68.0, core=true, t24Name=ID.COMP.6)
+		RESERVED2_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=69.0, core=true, t24Name=RESERVED2.ID)
+		/* This field denotes the target classic product of the given property class
+
+The already existing T24 products are mapped using AA infrastructure
+These are called classic products
+These products are mapped to different property clases */
+		TARGET_PRODUCT : T24BusinessTypes:A
+			@i18n:Label (en="Target Classic Product")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=70.0, core=true, t24Name=TARGET.PRODUCT)
+		STMT_NOS -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__STMT_NOS *
+		OVERRIDE -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=73.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=74.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__INPUTTER *
+		DATE_TIME -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=77.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=78.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=79.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=80.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=81.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AA_PRD_PRF_OVERDUE__DESCRIPTION
+	{
+		/* Describes this condition record and is used for enrichment.
+
+This field can be expanded to allow the User to enter the Description of the property condition in various languages. Each expansion of the field will correspond to a new Language as defined in the LANGUAGE table (Ref: GENERAL TABLES), and will indicate to the User the Language in which the Description must be entered.
+
+Validation Rules
+Up to 35 type A (alphanumeric) characters */
+		DESCRIPTION : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	AA_PRD_PRF_OVERDUE__BILL_TYPE
+	{
+		BILL_TYPE -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__BILL_TYPE *
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.14)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.13)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.12)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.11)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.10)
+		OVERDUE_STATUS -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS *
+		/* This field represents the tolerance percentage that needs to be applied on the bill's original amount.  The tolerance percentage is applied on the bill amount that was issued. It is then compared with the current outstanding amount in bill.  If the outstanding amount is within the tolerance then the bill is either not aged or will be considered as repaid based on the setting in the field TOL.ACTION.
+
+Validation rule
+Standard rate field */
+		PAY_TOLERANCE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=25.0, core=true, t24Name=PAY.TOLERANCE)
+		/* This field denotes the action to be taken when bill amount is within the tolerance set.  When this field is set to REPAY and if the bill amount is within the tolerance, it is considred as repaid. If it is set to REMAIN and if the bill amount is within the tolerance, the overdue status will not be changed and will remain in the same status.
+
+NB: Currently only REMAIN option is available.
+
+Validation rule
+Allowed values are REPAY and REMAIN */
+		TOL_ACTION : AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__TOL_ACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=26.0, core=true, t24Name=TOL.ACTION)
+		TOL_CCY -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__TOL_CCY *
+	}
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__BILL_TYPE
+	{
+		BILL_TYPE -> AA_PaymentSchedule:AA_BILL_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, businessType=A, t24Name=BILL.TYPE)
+	}
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS
+	{
+		/* This field denotes the overdue or aging status of the arrangement. The list of values allowed is equal to the list defined in EB.LOOKUP file with the ID like AA.OVERDUE.STATUS*<odStatus>. For example, if PDO is an overdue status, then a record in EB.LOOKUP.FILE should be defined as AA.OVERDUE.STATUS*PDO. */
+		OVERDUE_STATUS : AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__OVERDUE_STATUS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=OVERDUE.STATUS)
+		/* This file denotes whether the aging should be based on days or by bills. This field is associated multivalue field starting from OVERDUE.STATUS  to EFFECTIVE.DATE
+
+Allowed inputs are DAYS and BILLS.
+
+If days, the value in the field AGEING denotes number of days.
+If bills,  the value in the field AGEING denotes number of bills */
+		AGEING_TYPE : AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGEING_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=10.0, core=true, t24Name=AGEING.TYPE)
+		/* This field tells when the bill is to be moved to the specified aging status.
+
+There are two types of aging, one is by days and ther other by bills. When bills are to be aged by days, give the number of days (numeric value)  from the make due date and if it is by bills given the number followed by 'B' character. In both cases, the number defined should be in ascending order. An overdue definition should either be fully based on days or by bills, i.e., it is not possible to define a overdue status based on days and another status by bills.
+
+A value of zero in this field indicates that the bill will move the overdue status on the same day the bill was made due.
+
+This is a mandatory field.
+
+Validation Rules
+Can be either numeric value or numeric value suffixed with character 'B'. A value of zero cannot be set to more than one overdue status. */
+		AGEING : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=11.0, core=true, t24Name=AGEING)
+		/* This field represents the calendar days post to a aging status that a chaser advice to be sent.
+
+Validation rules
+Accepts any number */
+		NOTICE_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, t24Name=NOTICE.DAYS)
+		/* The field represents a frequency in which the advice to be sent for the aging status.
+
+Both Notice days and frequency can be given, in which case, the system would produce advice after the notice days and thereon based on the frequency set, advices would be sent. If Notice days are not given, system would cycle the notice dates with the base as ageing status date.
+
+Validation rules
+Should be a valid T24 freqeuncy */
+		NOTICE_FREQ : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=13.0, core=true, t24Name=NOTICE.FREQ, typeModifiers=EXTENDED)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use. */
+		MANUAL_CHANGE : AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MANUAL_CHANGE
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=19.0, core=true, t24Name=MANUAL.CHANGE)
+		/* This field is set to indicate that all bills under the arrangement should be aged to this status. Usually this field is set to YES for a higher overdue status.
+
+This is an optional field.
+
+Validation Rules
+Can take either YES or NO only. */
+		AGE_ALL_BILLS : AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGE_ALL_BILLS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=20.0, core=true, t24Name=AGE.ALL.BILLS)
+		/* This field represents whether the arrangement needs to be suspended when the current aging status is reached. */
+		SUSPEND : AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__SUSPEND
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=21.0, core=true, t24Name=SUSPEND)
+		/* This field is reserved for future use */
+		STATUS_MVMT : AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__STATUS_MVMT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=22.0, core=true, t24Name=STATUS.MVMT)
+		/* This field denotes if accounting entries are to raised for the overdue status movement. The field when set to YES would mean accounting entries are needed for status movement and the current status would be debited and previous status which has move balance set to YES or DUE balance type would be credited.
+
+Validation Rules
+Valid options are YES and NO */
+		MOVE_BALANCE : AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MOVE_BALANCE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=23.0, core=true, t24Name=MOVE.BALANCE)
+		/* This field indicates the method of finding the value date for the accounting entries as a result of ageing status movement. The allowed values are DUE, STATUS or can be Blank.
+
+DUE    - The value date will be the bill due date.
+STATUS - The value date will be the ageing status effective date.
+Blank  - The value date will be the bill's financial date.
+
+Example:
+Suppose a bill has been made DUE on 30th November and its Finanacial date is say on 02 December. Subsequently when the bill moves to GRA (Grace) overdue status , say after 5 days from the due date, that is, on 5th December. The accounting value date for various values in this field would be: -
+
+DUE            - 30th November
+STATUS         - 5th Decemeber
+When blank     - 2nd December */
+		EFFECTIVE_DATE : AA_Overdue:AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__EFFECTIVE_DATE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=24.0, core=true, t24Name=EFFECTIVE.DATE)
+	}
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__TOL_CCY
+	{
+		/* This field denotes the tolerance currency. If the currency defined in bill matches the TOL.CCY, then the tolerance amount is taken from the field TOL.AMOUNT
+
+
+Validation rule
+Standard T24 currency field */
+		TOL_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=27.0, core=true, businessType=CCY, t24Name=TOL.CCY)
+		/* This field represents the tolerance amount that can be set for the bill's outstanding amount. If the currency defined in bill matches the TOL.CCY, then the tolerance amount is taken from this field. If the outstanding amount is within the tolerance, then bill is either not aged or will be considered as repaid based on the setting in the field TOL.ACTION.
+
+
+Validation rule
+Standard T24 amount field */
+		TOL_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=28.0, core=true, t24Name=TOL.AMOUNT)
+	}
+	AA_PRD_PRF_OVERDUE__PR_ATTRIBUTE
+	{
+		/* These are set of Attributes which define the names of the rule, which will be applied on certain attributes of property classes over a period of time.
+
+Validation Rules
+Input must be a valid record from AA.PERIODIC.ATTRIBUTE */
+		PR_ATTRIBUTE -> AA_Rules:AA_PERIODIC_ATTRIBUTE
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=34.0, core=true, businessType=A, t24Name=PR.ATTRIBUTE)
+		/* This is the actual rule value, which will be applied on certain attributes of the property classes over a period of time.
+
+Validation Rules
+Input must be a valid data type defined in the corresponding
+AA.PERIODIC.ATTRIBUTE.CLASS record. */
+		PR_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=35.0, core=true, t24Name=PR.VALUE)
+		/* When a rule is broken what action needs to be taken is defined here. Currently, the various options available are
+
+Error block further processing
+Override Give an override
+Information  Record details only
+CAP the rule value is to be used as a CAP if the rule is broken
+FLOOR the rule value is to be used as a FLOOR if the rule is broken
+
+Validation Rules
+Should be one of the above valid options */
+		PR_BRK_RES : AA_Overdue:AA_PRD_PRF_OVERDUE__PR_ATTRIBUTE__PR_BRK_RES
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=36.0, core=true, t24Name=PR.BRK.RES)
+		/* Based on the PR.BRK.RES option selected, this will hold either an OVERRIDE or EB.ERROR id. By default the ids will be picked from the associated EB.COMPARISON.TYPE record. If CAP or FLOOR values are given, then the underlying AA.PERIODIC.ATTRIBUTE.CLASS should have this type defined in it.
+
+Validation Rules
+Input must be a valid OVERRIDE ID or EB.ERROR ID. */
+		PR_BRK_MSG : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=37.0, core=true, t24Name=PR.BRK.MSG)
+		/* Charge can be collected when the periodic rule is broken
+This field denotes the charge property. The property and its condition is
+defined the product designer and validated during publishing
+
+Validation Rules
+Valid charge property */
+		PR_BRK_CHARGE -> AA_ProductFramework:AA_PROPERTY
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=38.0, core=true, businessType=A, t24Name=PR.BRK.CHARGE)
+		/* System field - reserved for future use */
+		PR_RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=39.0, core=true, t24Name=PR.RESERVED.3)
+		/* System field - reserved for future use */
+		PR_RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=40.0, core=true, t24Name=PR.RESERVED.2)
+		/* System field - reserved for future use */
+		PR_RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=41.0, core=true, t24Name=PR.RESERVED.1)
+		/* This field denotes the application method that needs to be applied to the periodic rule charges.
+Allowed values are
+Due - The periodic rule charges are made due
+Capitalise - The periodic rule charges are capitalised */
+		PR_APP_METHOD : AA_Overdue:AA_PRD_PRF_OVERDUE__PR_ATTRIBUTE__PR_APP_METHOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=42.0, core=true, t24Name=PR.APP.METHOD)
+		/* This field denotes the application period for the given periodic rule charges.
+The periodic rule charges will be applied at the end of the period. If the value defined is zero, then the charges are applied immediately.
+Standard T24 period field. */
+		PR_APP_PERIOD : T24BusinessTypes:PERIOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=43.0, core=true, t24Name=PR.APP.PERIOD)
+	}
+	AA_PRD_PRF_OVERDUE__NR_ATTRIBUTE
+	{
+		/* Defines which individual attribute (field) has the negotiation rules defined in fields "Nr.Negotiable" through to "Nr.Message"
+
+Validation Rules
+Must be a valid field name within this property
+This field is part of a multi value set */
+		NR_ATTRIBUTE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=53.0, core=true, t24Name=NR.ATTRIBUTE)
+		NR_OPTIONS -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS *
+		/* System Field - Reserved for future use */
+		NR_RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=55.0, core=true, t24Name=NR.RESERVED2)
+		/* System Field - Reserved for future use */
+		NR_RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=56.0, core=true, t24Name=NR.RESERVED1)
+		/* It is possible to define negotiation rules in EB.COMPARISON.TYPE.
+
+
+Validation Rules
+Input must be a valid record from EB.STANDARD.COMPARISON */
+		NR_STD_COMP -> AA_Rules:EB_STANDARD_COMPARISON
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=57.0, core=true, businessType=A, t24Name=NR.STD.COMP)
+		NR_TYPE -> byValue AA_Overdue:AA_PRD_PRF_OVERDUE__NR_ATTRIBUTE__NR_TYPE *
+	}
+	AA_PRD_PRF_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS
+	{
+		/* Defines named values to indicate if an option applies to the associated NR.ATTRIBUTE. More than one option can be associated with the NR.ATTRIBUTE, with certain restrictions.
+
+Validation Rules
+Valid Inputs are NEGOTIABLE, NON-NEGOTIABLE, OVERRIDE, FIX-VALUE, MANDATORY as described below: -
+
+NEGOTIABLE
+The value of NEGOTIABLE will indicate that the associated NR.ATTRIBUTE can be negotiated at the arrangement level.
+
+NON-NEGOTIABLE
+The value of NON-NEGOTIABLE will indicate that the associated NR.ATTRIBUTE cannot be negotiated at the arrangement level. Both NEGOTIABLE and NON-NEGOTIABLE cannot be defined together
+
+OVERRIDE
+Specifies if a default override message should be generated if the default attribute is amended at the arrangement level. If OVERRIDE is not specified, no override will be generated.
+
+FIX-VALUE
+Specified if the field value is to be fixed at the arrangement level. If FIX-VALUE is not specified the field value will vary with the changes to the underlying product condition.
+
+MANDATORY
+Specifies if the attribute is mandatory for this product condition. Can only be specified where the attribute is not defined as mandatory in the property class. */
+		NR_OPTIONS : AA_Overdue:AA_PRD_PRF_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS__NR_OPTIONS
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=54.0, core=true, t24Name=NR.OPTIONS)
+	}
+	AA_PRD_PRF_OVERDUE__NR_ATTRIBUTE__NR_TYPE
+	{
+		/* Defines the negotiation rule that is linked to the field defined in "Nr.Attribute". If an attribute has a negotiation rule linked to it (in associated fields NR.TYPE, NR.VALUE and NR.MESSAGE) the attribute must be defined as negotiable.
+It is possible to define more than one negotiation rule for an attribute
+
+Validation Rules
+Input must be a valid record from EB.COMPARISON.TYPE
+This is a multi value set of fields */
+		NR_TYPE -> AA_Rules:EB_COMPARISON_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=58.0, core=true, businessType=A, t24Name=NR.TYPE)
+		/* Defines the value that links to the rule in field "Nr.Type" */
+		NR_VALUE : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=60, sysNumber=59.0, core=true, t24Name=NR.VALUE)
+		/* This field indicates whether to raise error or override message when rule is broken
+Allows only two values ERROR or OVERRIDE
+ERROR error message is raised
+OVERRIDE Override message is generated */
+		NR_MESSAGE : AA_Overdue:AA_PRD_PRF_OVERDUE__NR_ATTRIBUTE__NR_TYPE__NR_MESSAGE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=60.0, core=true, t24Name=NR.MESSAGE)
+	}
+	AA_PRD_PRF_OVERDUE__CHANGED_FIELDS
+	{
+		/* No input and multi value field - lists all fields that have been negotiated for each dated version of the property. For a subsequently dated property, the attributes listed in this field will appear in "Negotiated.Fields" and only newly negotiated fields will appear on "Changed.Fields" */
+		CHANGED_FIELDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=61.0, core=true, t24Name=CHANGED.FIELDS)
+	}
+	AA_PRD_PRF_OVERDUE__NEGOTIATED_FLDS
+	{
+		/* No input and multi value field that lists the attributes on the arrangement property record that have been fixed and/or negotiated. These are stored when the arrangement level record is committed. When the arrangement level record is next used all items in the NEGOTIATED.FIELDS list will be maintained.
+Once an attribute has been fixed or negotiated it will remain in negotiated field list on all subsequent dated versions of the property. */
+		NEGOTIATED_FLDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=62.0, core=true, t24Name=NEGOTIATED.FLDS)
+	}
+	AA_PRD_PRF_OVERDUE__STMT_NOS
+	{
+		/* System field - not used for property conditions */
+		STMT_NOS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=71.0, core=true, t24Name=STMT.NOS)
+	}
+	AA_PRD_PRF_OVERDUE__OVERRIDE
+	{
+		/* Standard Override field containing override messages generated by amendments to this property */
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=72.0, core=true, t24Name=OVERRIDE)
+	}
+	AA_PRD_PRF_OVERDUE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=75.0, core=true, t24Name=INPUTTER)
+	}
+	AA_PRD_PRF_OVERDUE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=76.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* After a bill is made due, the bills are subject to aging process as per the OVERDUE property setting for the arrangement. A number of options are required to define the aging periods, statuses and accounting treatment of the outstanding balance.
+
+The system can apply penalty interest and charges based on overdue and current balances. The AA module allows this to be configured in a flexible manner when creating products. */
+	AA_SIM_OVERDUE
+		@t24:i (t24Name=AA.SIM.OVERDUE, nonStop=true, level=F, type=H, allowedFunctions="A C D E I L Q R S", localRefAllowed=true)
+	{
+		/* The key to the arrangement property condition. The key is comprised of the following components (delimited by a "-"):
+Arrangement Id
+Property name>
+Effective Date */
+		ARRANGEMENT_KEY -> AA_Overdue:AA_SIM_OVERDUE PK required
+			@i18n:Label (en="Arrangement Key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=0.0, core=true, businessType=ANY, t24Name=ARRANGEMENT.KEY)
+		/* The activity that caused this arrangement property to be updated.
+The activity is taken from the underlying AA.ARRANGEMENT.ACTIVITY request that caused the record to be modified */
+		ACTIVITY : T24BusinessTypes:A required
+			@i18n:Label (en=Activity)
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=1.0, core=true, t24Name=ACTIVITY)
+		ACTION -> byValue AA_Overdue:AA_SIM_OVERDUE__ACTION *
+		BILL_TYPE -> byValue AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE *
+		/* This field represents whether the settlement is against the total bill oustanding that is bill is considered for delinquency processing.
+Only the values BILL.TOTAL and null are allowed at present.
+If the value is BILL.TOTAL, the original repayment amount is compared with the total outstanding amount of the selected bill and if it happens to be greater than or equal to total outstanding amount, the bill is deemed to be settled. */
+		BILL_SETTLEMENT : AA_Overdue:AA_SIM_OVERDUE__BILL_SETTLEMENT
+			@i18n:Label (en="Bill Settlement")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=29.0, core=true, t24Name=BILL.SETTLEMENT)
+		/* This field denotes whether to consider the current bill for further aging when the bill is deemed to be settled (that is Delin.os.amt in the bill is zero and Aging.status is settled)
+Validation rules
+Valid options are BILL.STATUS or SETTLE.STATUS
+BILL.STATUS allowed only BILL.SETTLEMENT has value BILL.TOTAL */
+		AGE_BILLS : AA_Overdue:AA_SIM_OVERDUE__AGE_BILLS
+			@i18n:Label (en="Age Bills")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=AGE.BILLS)
+		ARR_BILL_TYPE -> AA_PaymentSchedule:AA_BILL_TYPE required
+			@i18n:Label (en="Bill Type")
+			@i18n:Tooltip (en="Bill Types That Determine The Overall Arrangement Aging Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=31.0, core=true, businessType=A, t24Name=ARR.BILL.TYPE)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=RESERVED.1)
+		PR_ATTRIBUTE -> byValue AA_Overdue:AA_SIM_OVERDUE__PR_ATTRIBUTE *
+		/* System field - reserved for future use */
+		SYS_RESERVE7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=44.0, core=true, t24Name=SYS.RESERVE7, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=45.0, core=true, t24Name=SYS.RESERVE6, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=46.0, core=true, t24Name=SYS.RESERVE5, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=47.0, core=true, t24Name=SYS.RESERVE4, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=48.0, core=true, t24Name=SYS.RESERVE3, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=49.0, core=true, t24Name=SYS.RESERVE2, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		SYS_RESERVE1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=50.0, core=true, t24Name=SYS.RESERVE1, mvSvExpansionAccess=NOEXPAND)
+		/* Optional field - Allowed Values are RESETTING and NON-RESETTING.
+
+RESETTING - During any Renewal Activities (for eg : change.product, rollover or reset) the property conditions will be reset from the product.
+
+NON-RESETTING - During any Renewal Activities property conditions will be maintained from the Arrangement level.
+
+Not used in Arrangement/Sim level. */
+		DEFAULT_ATTR_OPTION : AA_Overdue:AA_SIM_OVERDUE__DEFAULT_ATTR_OPTION
+			@i18n:Label (en="Default Attribute Options")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=51.0, core=true, t24Name=DEFAULT.ATTR.OPTION)
+		/* Not used for arrangement level conditions */
+		DEFAULT_NEGOTIABLE : AA_Overdue:AA_SIM_OVERDUE__DEFAULT_NEGOTIABLE
+			@i18n:Label (en="Default Negotiable")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=52.0, core=true, t24Name=DEFAULT.NEGOTIABLE)
+		NR_ATTRIBUTE -> byValue AA_Overdue:AA_SIM_OVERDUE__NR_ATTRIBUTE *
+		CHANGED_FIELDS -> byValue AA_Overdue:AA_SIM_OVERDUE__CHANGED_FIELDS *
+		NEGOTIATED_FLDS -> byValue AA_Overdue:AA_SIM_OVERDUE__NEGOTIATED_FLDS *
+		/* Contains the arrangement number, extracted from the first component of the id
+System updated field no input allowed */
+		ID_COMP_1 : T24BusinessTypes:A
+			@i18n:Label (en="Arrangement Id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=63.0, core=true, t24Name=ID.COMP.1)
+		/* Contains the name of the property that this arrangement level condition relates to
+Name is defined in AA.PRORERTY table
+System maintained field no input allowed */
+		ID_COMP_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=64.0, core=true, t24Name=ID.COMP.2)
+		/* Contains the Effective Date of this property condition
+System updated field no input allowed */
+		ID_COMP_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=65.0, core=true, t24Name=ID.COMP.3)
+		/* Reserved for future use
+System field no input allowed */
+		ID_COMP_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=66.0, core=true, t24Name=ID.COMP.4)
+		/* Reserved for future use
+System field no input allowed */
+		ID_COMP_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=67.0, core=true, t24Name=ID.COMP.5)
+		/* Reserved for future use
+System field no input allowed */
+		ID_COMP_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=68.0, core=true, t24Name=ID.COMP.6)
+		RESERVED2_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=69.0, core=true, t24Name=RESERVED2.ID)
+		/* This field denotes the target classic product of the given property class
+
+The already existing T24 products are mapped using AA infrastructure
+These are called classic products
+These products are mapped to different property clases */
+		TARGET_PRODUCT : T24BusinessTypes:A
+			@i18n:Label (en="Target Product")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=70.0, core=true, t24Name=TARGET.PRODUCT)
+		STMT_NOS -> byValue AA_Overdue:AA_SIM_OVERDUE__STMT_NOS *
+		OVERRIDE -> byValue AA_Overdue:AA_SIM_OVERDUE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=73.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=74.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AA_Overdue:AA_SIM_OVERDUE__INPUTTER *
+		DATE_TIME -> byValue AA_Overdue:AA_SIM_OVERDUE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=77.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=78.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=79.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=80.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=81.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AA_SIM_OVERDUE__ACTION
+	{
+		/* The activity that caused this arrangement property to be updated.
+The activity is taken from the underlying AA.ARRANGEMENT.ACTIVITY request that caused the record to be modified */
+		ACTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=2.0, core=true, t24Name=ACTION)
+	}
+	AA_SIM_OVERDUE__BILL_TYPE
+	{
+		BILL_TYPE -> byValue AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__BILL_TYPE *
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.14)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.13)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.12)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.11)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.10)
+		OVERDUE_STATUS -> byValue AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS *
+		/* This field represents the tolerance percentage that needs to be applied on the bill's original amount.  The tolerance percentage is applied on the bill amount that was issued. It is then compared with the current outstanding amount in bill.  If the outstanding amount is within the tolerance then the bill is either not aged or will be considered as repaid based on the setting in the field TOL.ACTION.
+
+Validation rule
+Standard rate field */
+		PAY_TOLERANCE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=25.0, core=true, t24Name=PAY.TOLERANCE)
+		/* This field denotes the action to be taken when bill amount is within the tolerance set.  When this field is set to REPAY and if the bill amount is within the tolerance, it is considred as repaid. If it is set to REMAIN and if the bill amount is within the tolerance, the overdue status will not be changed and will remain in the same status.
+
+NB: Currently only REMAIN option is available.
+
+Validation rule
+Allowed values are REPAY and REMAIN */
+		TOL_ACTION : AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__TOL_ACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=26.0, core=true, t24Name=TOL.ACTION)
+		TOL_CCY -> byValue AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__TOL_CCY *
+	}
+	AA_SIM_OVERDUE__BILL_TYPE__BILL_TYPE
+	{
+		BILL_TYPE -> AA_PaymentSchedule:AA_BILL_TYPE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, businessType=A, t24Name=BILL.TYPE)
+	}
+	AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS
+	{
+		/* This field denotes the overdue or aging status of the arrangement. The list of values allowed is equal to the list defined in EB.LOOKUP file with the ID like AA.OVERDUE.STATUS*<odStatus>. For example, if PDO is an overdue status, then a record in EB.LOOKUP.FILE should be defined as AA.OVERDUE.STATUS*PDO. */
+		OVERDUE_STATUS : AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__OVERDUE_STATUS required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=OVERDUE.STATUS)
+		/* This file denotes whether the aging should be based on days or by bills. This field is associated multivalue field starting from OVERDUE.STATUS  to EFFECTIVE.DATE
+
+Allowed inputs are DAYS and BILLS.
+
+If days, the value in the field AGEING denotes number of days.
+If bills,  the value in the field AGEING denotes number of bills */
+		AGEING_TYPE : AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGEING_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=10.0, core=true, t24Name=AGEING.TYPE)
+		/* This field tells when the bill is to be moved to the specified aging status.
+
+There are two types of aging, one is by days and ther other by bills. When bills are to be aged by days, give the number of days (numeric value)  from the make due date and if it is by bills given the number followed by 'B' character. In both cases, the number defined should be in ascending order. An overdue definition should either be fully based on days or by bills, i.e., it is not possible to define a overdue status based on days and another status by bills.
+
+A value of zero in this field indicates that the bill will move the overdue status on the same day the bill was made due.
+
+This is a mandatory field.
+
+Validation Rules
+Can be either numeric value or numeric value suffixed with character 'B'. A value of zero cannot be set to more than one overdue status. */
+		AGEING : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=11.0, core=true, t24Name=AGEING)
+		/* This field represents the calendar days post to a aging status that a chaser advice to be sent.
+
+Validation rules
+Accepts any number */
+		NOTICE_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, t24Name=NOTICE.DAYS)
+		/* The field represents a frequency in which the advice to be sent for the aging status.
+
+Both Notice days and frequency can be given, in which case, the system would produce advice after the notice days and thereon based on the frequency set, advices would be sent. If Notice days are not given, system would cycle the notice dates with the base as ageing status date.
+
+Validation rules
+Should be a valid T24 freqeuncy */
+		NOTICE_FREQ : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=13.0, core=true, t24Name=NOTICE.FREQ, typeModifiers=EXTENDED)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use. */
+		MANUAL_CHANGE : AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MANUAL_CHANGE
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=19.0, core=true, t24Name=MANUAL.CHANGE)
+		/* This field is set to indicate that all bills under the arrangement should be aged to this status. Usually this field is set to YES for a higher overdue status.
+
+This is an optional field.
+
+Validation Rules
+Can take either YES or NO only. */
+		AGE_ALL_BILLS : AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGE_ALL_BILLS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=20.0, core=true, t24Name=AGE.ALL.BILLS)
+		/* This field represents whether the arrangement needs to be suspended when the current aging status is reached. */
+		SUSPEND : AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__SUSPEND
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=21.0, core=true, t24Name=SUSPEND)
+		/* This field is reserved for future use */
+		STATUS_MVMT : AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__STATUS_MVMT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=22.0, core=true, t24Name=STATUS.MVMT)
+		/* This field denotes if accounting entries are to raised for the overdue status movement. The field when set to YES would mean accounting entries are needed for status movement and the current status would be debited and previous status which has move balance set to YES or DUE balance type would be credited.
+
+Validation Rules
+Valid options are YES and NO */
+		MOVE_BALANCE : AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MOVE_BALANCE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=23.0, core=true, t24Name=MOVE.BALANCE)
+		/* This field indicates the method of finding the value date for the accounting entries as a result of ageing status movement. The allowed values are DUE, STATUS or can be Blank.
+
+DUE    - The value date will be the bill due date.
+STATUS - The value date will be the ageing status effective date.
+Blank  - The value date will be the bill's financial date.
+
+Example:
+Suppose a bill has been made DUE on 30th November and its Finanacial date is say on 02 December. Subsequently when the bill moves to GRA (Grace) overdue status , say after 5 days from the due date, that is, on 5th December. The accounting value date for various values in this field would be: -
+
+DUE            - 30th November
+STATUS         - 5th Decemeber
+When blank     - 2nd December */
+		EFFECTIVE_DATE : AA_Overdue:AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__EFFECTIVE_DATE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=24.0, core=true, t24Name=EFFECTIVE.DATE)
+	}
+	AA_SIM_OVERDUE__BILL_TYPE__TOL_CCY
+	{
+		/* This field denotes the tolerance currency. If the currency defined in bill matches the TOL.CCY, then the tolerance amount is taken from the field TOL.AMOUNT
+
+
+Validation rule
+Standard T24 currency field */
+		TOL_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=27.0, core=true, businessType=CCY, t24Name=TOL.CCY)
+		/* This field represents the tolerance amount that can be set for the bill's outstanding amount. If the currency defined in bill matches the TOL.CCY, then the tolerance amount is taken from this field. If the outstanding amount is within the tolerance, then bill is either not aged or will be considered as repaid based on the setting in the field TOL.ACTION.
+
+
+Validation rule
+Standard T24 amount field */
+		TOL_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=28.0, core=true, t24Name=TOL.AMOUNT)
+	}
+	AA_SIM_OVERDUE__PR_ATTRIBUTE
+	{
+		/* These are set of Attributes which define the names of the rule, which will be applied on certain attributes of property classes over a period of time
+
+Validation Rules
+Input must be a valid record from AA.PERIODIC.ATTRIBUTE */
+		PR_ATTRIBUTE -> AA_Rules:AA_PERIODIC_ATTRIBUTE
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=34.0, core=true, businessType=A, t24Name=PR.ATTRIBUTE, mvSvExpansionAccess=NOEXPAND)
+		/* This is the actual rule value, which will be applied on certain attributes of the property classes over a period of time.
+
+Validation Rules
+Input must be a valid data type defined in the corresponding
+AA.PERIODIC.ATTRIBUTE.CLASS record. */
+		PR_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=35.0, core=true, t24Name=PR.VALUE, mvSvExpansionAccess=NOEXPAND)
+		/* When a rule is broken what action needs to be taken is defined here. Currently, the various options available are
+
+Error block further processing
+Override Give an override
+Information  Record details only
+CAP the rule value is to be used as a CAP if the rule is broken
+FLOOR the rule value is to be used as a FLOOR if the rule is broken
+
+Validation Rules
+Should be one of the above valid options */
+		PR_BRK_RES : AA_Overdue:AA_SIM_OVERDUE__PR_ATTRIBUTE__PR_BRK_RES
+			@t24:i (align=L, inputBehaviour=N, maxLength=13, sysNumber=36.0, core=true, t24Name=PR.BRK.RES, mvSvExpansionAccess=NOEXPAND)
+		/* Based on the PR.BRK.RES option selected, this will hold either an OVERRIDE or EB.ERROR id. By default the ids will be picked from the associated EB.COMPARISON.TYPE record. If CAP or FLOOR values are given, then the underlying AA.PERIODIC.ATTRIBUTE.CLASS should have this type defined in it
+
+Validation Rules
+Input must be a valid OVERRIDE ID or EB.ERROR ID */
+		PR_BRK_MSG : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=37.0, core=true, t24Name=PR.BRK.MSG, mvSvExpansionAccess=NOEXPAND)
+		/* Not used for arrangement level conditions
+
+Validation Rules
+Input not allowed. */
+		PR_BRK_CHARGE -> AA_ProductFramework:AA_PROPERTY
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=38.0, core=true, businessType=A, t24Name=PR.BRK.CHARGE, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		PR_RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=39.0, core=true, t24Name=PR.RESERVED.3, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		PR_RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=40.0, core=true, t24Name=PR.RESERVED.2, mvSvExpansionAccess=NOEXPAND)
+		/* System field - reserved for future use */
+		PR_RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=41.0, core=true, t24Name=PR.RESERVED.1, mvSvExpansionAccess=NOEXPAND)
+		/* This field denotes the application method that needs to be applied to the periodic rule charges.
+Allowed values are
+Due - The periodic rule charges are made due
+Capitalise - The periodic rule charges are capitalised
+Not inputtable at arrangement level */
+		PR_APP_METHOD : AA_Overdue:AA_SIM_OVERDUE__PR_ATTRIBUTE__PR_APP_METHOD
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=42.0, core=true, t24Name=PR.APP.METHOD, mvSvExpansionAccess=NOEXPAND)
+		/* This field denotes the application period for the given periodic rule charges.
+The periodic rule charges will be applied at the end of the period. If the value defined is zero, then the charges are applied immediately.
+Standard T24 period field.
+Not inputtable at arrangement level */
+		PR_APP_PERIOD : T24BusinessTypes:PERIOD
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=43.0, core=true, t24Name=PR.APP.PERIOD, mvSvExpansionAccess=NOEXPAND)
+	}
+	AA_SIM_OVERDUE__NR_ATTRIBUTE
+	{
+		/* System field - not used for arrangement conditions
+
+Validation Rules
+System Field NoINPUT allowed - */
+		NR_ATTRIBUTE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=53.0, core=true, t24Name=NR.ATTRIBUTE)
+		NR_OPTIONS -> byValue AA_Overdue:AA_SIM_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS *
+		/* System Field - Reserved for future use */
+		NR_RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=55.0, core=true, t24Name=NR.RESERVED2)
+		/* System Field - Reserved for future use */
+		NR_RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=56.0, core=true, t24Name=NR.RESERVED1)
+		/* Not used for Arrangement Conditions
+
+
+Validation Rules
+Input not allowed */
+		NR_STD_COMP -> AA_Rules:EB_STANDARD_COMPARISON
+			@t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=57.0, core=true, businessType=A, t24Name=NR.STD.COMP)
+		NR_TYPE -> byValue AA_Overdue:AA_SIM_OVERDUE__NR_ATTRIBUTE__NR_TYPE *
+	}
+	AA_SIM_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS
+	{
+		/* System field - not used for arrangement conditions
+
+Validation Rules
+System Field NoINPUT allowed - */
+		NR_OPTIONS : AA_Overdue:AA_SIM_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS__NR_OPTIONS
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=54.0, core=true, t24Name=NR.OPTIONS)
+	}
+	AA_SIM_OVERDUE__NR_ATTRIBUTE__NR_TYPE
+	{
+		/* System field - not used for arrangement conditions
+
+Validation Rules
+System Field NoINPUT allowed - */
+		NR_TYPE -> AA_Rules:EB_COMPARISON_TYPE
+			@t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=58.0, core=true, businessType=A, t24Name=NR.TYPE)
+		/* System field - not used for arrangement conditions
+
+Validation Rules
+System Field NoINPUT allowed - */
+		NR_VALUE : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=60, sysNumber=59.0, core=true, t24Name=NR.VALUE)
+		/* System field - not used for arrangement conditions
+
+Validation Rules
+System Field NoINPUT allowed - */
+		NR_MESSAGE : T24BusinessTypes:T
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=60.0, core=true, t24Name=NR.MESSAGE)
+	}
+	AA_SIM_OVERDUE__CHANGED_FIELDS
+	{
+		/* No input and multi value field lists all fields that have been negotiated for each dated version of the property. For a subsequently dated property, the attributes listed in this field will appear in "Negotiated.Fields" and only newly negotiated fields will appear on "Changed.Fields" */
+		CHANGED_FIELDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=61.0, core=true, t24Name=CHANGED.FIELDS)
+	}
+	AA_SIM_OVERDUE__NEGOTIATED_FLDS
+	{
+		/* No input and multi value field that lists the attributes on the arrangement property record that have been fixed and/or negotiated. These are stored when the arrangement level record is committed. When the arrangement level record is next used all items in the NEGOTIATED.FIELDS list will be maintained
+Once an attribute has been fixed or negotiated it will remain in negotiated field list on all subsequent dated versions of the property. */
+		NEGOTIATED_FLDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=62.0, core=true, t24Name=NEGOTIATED.FLDS)
+	}
+	AA_SIM_OVERDUE__STMT_NOS
+	{
+		/* Contains the key to the accounting entries raised by the activity being applied to this arrangement property */
+		STMT_NOS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=71.0, core=true, t24Name=STMT.NOS)
+	}
+	AA_SIM_OVERDUE__OVERRIDE
+	{
+		/* Standard Override field containing override messages generated by amendments to this property */
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=72.0, core=true, t24Name=OVERRIDE)
+	}
+	AA_SIM_OVERDUE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=75.0, core=true, t24Name=INPUTTER)
+	}
+	AA_SIM_OVERDUE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=76.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__OVERDUE_STATUS : mml:string
+		DEL=DEL
+		GRC=GRC
+		NAB=NAB
+	AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGEING_TYPE : mml:string
+		DAYS=DAYS
+		BILLS=BILLS
+	AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MANUAL_CHANGE : mml:string
+		YES=YES
+		NO=NO
+	AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGE_ALL_BILLS : mml:string
+		YES=YES
+		NO=NO
+	AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__SUSPEND : mml:string
+		YES=YES
+		NULL=NULL
+	AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__STATUS_MVMT : mml:string
+		YES=YES
+		NO=NO
+	AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MOVE_BALANCE : mml:string
+		YES=YES
+		NO=NO
+	AA_ARR_OVERDUE__BILL_TYPE__OVERDUE_STATUS__EFFECTIVE_DATE : mml:string
+		DUE=DUE
+		STATUS=STATUS
+	AA_ARR_OVERDUE__BILL_TYPE__TOL_ACTION : mml:string
+		REMAIN=REMAIN
+		NULL=NULL
+	AA_ARR_OVERDUE__BILL_SETTLEMENT : mml:string
+		BILL_TOTAL=BILL.TOTAL
+		NULL=NULL
+	AA_ARR_OVERDUE__AGE_BILLS : mml:string
+		BILL_STATUS=BILL.STATUS
+		SETTLE_STATUS=SETTLE.STATUS
+	AA_ARR_OVERDUE__PR_ATTRIBUTE__PR_BRK_RES : mml:string
+		ERROR=ERROR
+		OVERRIDE=OVERRIDE
+		INFORMATION=INFORMATION
+		CAP=CAP
+		FLOOR=FLOOR
+	AA_ARR_OVERDUE__PR_ATTRIBUTE__PR_APP_METHOD : mml:string
+		DUE=DUE
+		CAPITALISE=CAPITALISE
+		DEFER=DEFER
+	AA_ARR_OVERDUE__DEFAULT_ATTR_OPTION : mml:string
+		RESETTING=RESETTING
+		NON__RESETTING=NON-RESETTING
+	AA_ARR_OVERDUE__DEFAULT_NEGOTIABLE : mml:string
+		YES=YES
+		NO=NO
+	AA_ARR_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS__NR_OPTIONS : mml:string
+		FIX__VALUE=FIX-VALUE
+		MANDATORY=MANDATORY
+		NEGOTIABLE=NEGOTIABLE
+		NON__NEGOTIABLE=NON-NEGOTIABLE
+		OVERRIDE=OVERRIDE
+		RESETTING=RESETTING
+		NON__RESETTING=NON-RESETTING
+	AA_OVERDUE_STATS__OD_STATUS__OD_STATUS : mml:string
+		DEL=DEL
+		GRC=GRC
+		NAB=NAB
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__OVERDUE_STATUS : mml:string
+		DEL=DEL
+		GRC=GRC
+		NAB=NAB
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGEING_TYPE : mml:string
+		DAYS=DAYS
+		BILLS=BILLS
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MANUAL_CHANGE : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGE_ALL_BILLS : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__SUSPEND : mml:string
+		YES=YES
+		NULL=NULL
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__STATUS_MVMT : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MOVE_BALANCE : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__OVERDUE_STATUS__EFFECTIVE_DATE : mml:string
+		DUE=DUE
+		STATUS=STATUS
+	AA_PRD_CAT_OVERDUE__BILL_TYPE__TOL_ACTION : mml:string
+		REMAIN=REMAIN
+		NULL=NULL
+	AA_PRD_CAT_OVERDUE__BILL_SETTLEMENT : mml:string
+		BILL_TOTAL=BILL.TOTAL
+		NULL=NULL
+	AA_PRD_CAT_OVERDUE__AGE_BILLS : mml:string
+		BILL_STATUS=BILL.STATUS
+		SETTLE_STATUS=SETTLE.STATUS
+	AA_PRD_CAT_OVERDUE__PR_ATTRIBUTE__PR_BRK_RES : mml:string
+		ERROR=ERROR
+		OVERRIDE=OVERRIDE
+		INFORMATION=INFORMATION
+		CAP=CAP
+		FLOOR=FLOOR
+	AA_PRD_CAT_OVERDUE__PR_ATTRIBUTE__PR_APP_METHOD : mml:string
+		DUE=DUE
+		CAPITALISE=CAPITALISE
+		DEFER=DEFER
+	AA_PRD_CAT_OVERDUE__DEFAULT_ATTR_OPTION : mml:string
+		RESETTING=RESETTING
+		NON__RESETTING=NON-RESETTING
+	AA_PRD_CAT_OVERDUE__DEFAULT_NEGOTIABLE : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_CAT_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS__NR_OPTIONS : mml:string
+		FIX__VALUE=FIX-VALUE
+		MANDATORY=MANDATORY
+		NEGOTIABLE=NEGOTIABLE
+		NON__NEGOTIABLE=NON-NEGOTIABLE
+		OVERRIDE=OVERRIDE
+		RESETTING=RESETTING
+		NON__RESETTING=NON-RESETTING
+	AA_PRD_CAT_OVERDUE__NR_ATTRIBUTE__NR_TYPE__NR_MESSAGE : mml:string
+		ERROR=ERROR
+		OVERRIDE=OVERRIDE
+	AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__OVERDUE_STATUS : mml:string
+		DEL=DEL
+		GRC=GRC
+		NAB=NAB
+	AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGEING_TYPE : mml:string
+		DAYS=DAYS
+		BILLS=BILLS
+	AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MANUAL_CHANGE : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGE_ALL_BILLS : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__SUSPEND : mml:string
+		YES=YES
+		NULL=NULL
+	AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__STATUS_MVMT : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MOVE_BALANCE : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_DES_OVERDUE__BILL_TYPE__OVERDUE_STATUS__EFFECTIVE_DATE : mml:string
+		DUE=DUE
+		STATUS=STATUS
+	AA_PRD_DES_OVERDUE__BILL_TYPE__TOL_ACTION : mml:string
+		REMAIN=REMAIN
+		NULL=NULL
+	AA_PRD_DES_OVERDUE__BILL_SETTLEMENT : mml:string
+		BILL_TOTAL=BILL.TOTAL
+		NULL=NULL
+	AA_PRD_DES_OVERDUE__AGE_BILLS : mml:string
+		BILL_STATUS=BILL.STATUS
+		SETTLE_STATUS=SETTLE.STATUS
+	AA_PRD_DES_OVERDUE__PR_ATTRIBUTE__PR_BRK_RES : mml:string
+		ERROR=ERROR
+		OVERRIDE=OVERRIDE
+		INFORMATION=INFORMATION
+		CAP=CAP
+		FLOOR=FLOOR
+	AA_PRD_DES_OVERDUE__PR_ATTRIBUTE__PR_APP_METHOD : mml:string
+		DUE=DUE
+		CAPITALISE=CAPITALISE
+		DEFER=DEFER
+	AA_PRD_DES_OVERDUE__DEFAULT_ATTR_OPTION : mml:string
+		RESETTING=RESETTING
+		NON__RESETTING=NON-RESETTING
+	AA_PRD_DES_OVERDUE__DEFAULT_NEGOTIABLE : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_DES_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS__NR_OPTIONS : mml:string
+		FIX__VALUE=FIX-VALUE
+		MANDATORY=MANDATORY
+		NEGOTIABLE=NEGOTIABLE
+		NON__NEGOTIABLE=NON-NEGOTIABLE
+		OVERRIDE=OVERRIDE
+		RESETTING=RESETTING
+		NON__RESETTING=NON-RESETTING
+	AA_PRD_DES_OVERDUE__NR_ATTRIBUTE__NR_TYPE__NR_MESSAGE : mml:string
+		ERROR=ERROR
+		OVERRIDE=OVERRIDE
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__OVERDUE_STATUS : mml:string
+		DEL=DEL
+		GRC=GRC
+		NAB=NAB
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGEING_TYPE : mml:string
+		DAYS=DAYS
+		BILLS=BILLS
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MANUAL_CHANGE : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGE_ALL_BILLS : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__SUSPEND : mml:string
+		YES=YES
+		NULL=NULL
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__STATUS_MVMT : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MOVE_BALANCE : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__OVERDUE_STATUS__EFFECTIVE_DATE : mml:string
+		DUE=DUE
+		STATUS=STATUS
+	AA_PRD_PRF_OVERDUE__BILL_TYPE__TOL_ACTION : mml:string
+		REMAIN=REMAIN
+		NULL=NULL
+	AA_PRD_PRF_OVERDUE__BILL_SETTLEMENT : mml:string
+		BILL_TOTAL=BILL.TOTAL
+		NULL=NULL
+	AA_PRD_PRF_OVERDUE__AGE_BILLS : mml:string
+		BILL_STATUS=BILL.STATUS
+		SETTLE_STATUS=SETTLE.STATUS
+	AA_PRD_PRF_OVERDUE__PR_ATTRIBUTE__PR_BRK_RES : mml:string
+		ERROR=ERROR
+		OVERRIDE=OVERRIDE
+		INFORMATION=INFORMATION
+		CAP=CAP
+		FLOOR=FLOOR
+	AA_PRD_PRF_OVERDUE__PR_ATTRIBUTE__PR_APP_METHOD : mml:string
+		DUE=DUE
+		CAPITALISE=CAPITALISE
+		DEFER=DEFER
+	AA_PRD_PRF_OVERDUE__DEFAULT_ATTR_OPTION : mml:string
+		RESETTING=RESETTING
+		NON__RESETTING=NON-RESETTING
+	AA_PRD_PRF_OVERDUE__DEFAULT_NEGOTIABLE : mml:string
+		YES=YES
+		NO=NO
+	AA_PRD_PRF_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS__NR_OPTIONS : mml:string
+		FIX__VALUE=FIX-VALUE
+		MANDATORY=MANDATORY
+		NEGOTIABLE=NEGOTIABLE
+		NON__NEGOTIABLE=NON-NEGOTIABLE
+		OVERRIDE=OVERRIDE
+		RESETTING=RESETTING
+		NON__RESETTING=NON-RESETTING
+	AA_PRD_PRF_OVERDUE__NR_ATTRIBUTE__NR_TYPE__NR_MESSAGE : mml:string
+		ERROR=ERROR
+		OVERRIDE=OVERRIDE
+	AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__OVERDUE_STATUS : mml:string
+		DEL=DEL
+		GRC=GRC
+		NAB=NAB
+	AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGEING_TYPE : mml:string
+		DAYS=DAYS
+		BILLS=BILLS
+	AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MANUAL_CHANGE : mml:string
+		YES=YES
+		NO=NO
+	AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__AGE_ALL_BILLS : mml:string
+		YES=YES
+		NO=NO
+	AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__SUSPEND : mml:string
+		YES=YES
+		NULL=NULL
+	AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__STATUS_MVMT : mml:string
+		YES=YES
+		NO=NO
+	AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__MOVE_BALANCE : mml:string
+		YES=YES
+		NO=NO
+	AA_SIM_OVERDUE__BILL_TYPE__OVERDUE_STATUS__EFFECTIVE_DATE : mml:string
+		DUE=DUE
+		STATUS=STATUS
+	AA_SIM_OVERDUE__BILL_TYPE__TOL_ACTION : mml:string
+		REMAIN=REMAIN
+		NULL=NULL
+	AA_SIM_OVERDUE__BILL_SETTLEMENT : mml:string
+		BILL_TOTAL=BILL.TOTAL
+		NULL=NULL
+	AA_SIM_OVERDUE__AGE_BILLS : mml:string
+		BILL_STATUS=BILL.STATUS
+		SETTLE_STATUS=SETTLE.STATUS
+	AA_SIM_OVERDUE__PR_ATTRIBUTE__PR_BRK_RES : mml:string
+		ERROR=ERROR
+		OVERRIDE=OVERRIDE
+		INFORMATION=INFORMATION
+		CAP=CAP
+		FLOOR=FLOOR
+	AA_SIM_OVERDUE__PR_ATTRIBUTE__PR_APP_METHOD : mml:string
+		DUE=DUE
+		CAPITALISE=CAPITALISE
+		DEFER=DEFER
+	AA_SIM_OVERDUE__DEFAULT_ATTR_OPTION : mml:string
+		RESETTING=RESETTING
+		NON__RESETTING=NON-RESETTING
+	AA_SIM_OVERDUE__DEFAULT_NEGOTIABLE : mml:string
+		YES=YES
+		NO=NO
+	AA_SIM_OVERDUE__NR_ATTRIBUTE__NR_OPTIONS__NR_OPTIONS : mml:string
+		FIX__VALUE=FIX-VALUE
+		MANDATORY=MANDATORY
+		NEGOTIABLE=NEGOTIABLE
+		NON__NEGOTIABLE=NON-NEGOTIABLE
+		OVERRIDE=OVERRIDE
+		RESETTING=RESETTING
+		NON__RESETTING=NON-RESETTING
+}

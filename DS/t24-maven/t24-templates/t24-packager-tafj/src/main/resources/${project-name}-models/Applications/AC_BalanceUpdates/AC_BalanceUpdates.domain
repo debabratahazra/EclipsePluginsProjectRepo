@@ -1,0 +1,410 @@
+# UTF-8
+# UTF-8
+/* Balance Updates for Accounts */
+Domain AC_BalanceUpdates
+	@t24:i (module=AC)
+	@java:Package (value=com.temenos.t24.datamodel.ac.ac_balanceupdates)
+namespace "http://www.temenos.com/t24/AC_BalanceUpdates"
+metamodelVersion 1.30.6
+Classes {
+	AC_FWD_UNAU_ENTRY
+		@t24:i (t24Name=AC.FWD.UNAU.ENTRY, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		ACCOUNT_NO -> AC_BalanceUpdates:AC_FWD_UNAU_ENTRY PK required
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Indicates Customer Account Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=0.0, core=true, businessType=ANT, t24Name=ACCOUNT.NO)
+		ENTRY_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=ENTRY.KEY)
+	}
+	AC_FWD_UNAU_TRANSACTION
+		@t24:i (t24Name=AC.FWD.UNAU.TRANSACTION, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		TRANSACTION_REF -> AC_BalanceUpdates:AC_FWD_UNAU_TRANSACTION PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=TRANSACTION.REF)
+		ACCOUNT_ID : T24BusinessTypes:A
+			@i18n:Label (en="Account No")
+			@i18n:Tooltip (en="Indicates the Account Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=ACCOUNT.ID)
+	}
+	AC_UNAUTH_ENTRY
+		@t24:i (t24Name=AC.UNAUTH.ENTRY, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		ACCOUNT_NO -> AC_BalanceUpdates:AC_UNAUTH_ENTRY PK required
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Indicates Customer Account Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=0.0, core=true, businessType=ANT, t24Name=ACCOUNT.NO)
+		ENTRY_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=ENTRY.KEY)
+	}
+	AC_UNAUTH_TRANSACTION
+		@t24:i (t24Name=AC.UNAUTH.TRANSACTION, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		TRANSACTION_REF -> AC_BalanceUpdates:AC_UNAUTH_TRANSACTION PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=TRANSACTION.REF)
+		ACCOUNT_ID : T24BusinessTypes:A
+			@i18n:Label (en="Account No")
+			@i18n:Tooltip (en="Indicates the Account Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=ACCOUNT.ID)
+	}
+	/* This is an internal file containing details of overdrawn accounts which are not covered by a credit limit and credit limits which have been exceeded.
+The details include the amount of the overdraft or excess, the date on which it first became overdrawn and whether or not the balance or excess has changed.
+It is updated during the Limits and Accounts end of day processing.
+The T24 Report Generator is used to print a report containing information from this file. */
+	ACCOUNT_OVERDRAWN
+		@t24:i (t24Name=ACCOUNT.OVERDRAWN, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the number of a LIMIT which has been exceeded, or an overdrawn ACCOUNT where no limit has been allocated.
+Validation Rules
+19 character Limit number formatted as follows: LLLLLL.RRRRRRR.SS where LLLLLL is the Liability number, RRRRRRR is the Limit Reference and SS is the sequence number.  or  Standard account format. */
+		LIMIT_ACCOUNT -> AC_BalanceUpdates:ACCOUNT_OVERDRAWN PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=0.0, core=true, businessType=A, t24Name=LIMIT.ACCOUNT)
+		LIMIT_NARRATIVE -> byValue AC_BalanceUpdates:ACCOUNT_OVERDRAWN__LIMIT_NARRATIVE *
+	}
+	ACCOUNT_OVERDRAWN__LIMIT_NARRATIVE
+	{
+		/* Validation Rules */
+		LIMIT_NARRATIVE : T24BusinessTypes:AAA
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=1.0, core=true, t24Name=LIMIT.NARRATIVE)
+		/* ID of the Account Officer from the Customer whose account or limit is overdrawn is defaulted here.
+Validation Rules
+
+No input. System generated field. */
+		ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=2.0, core=true, businessType=A, t24Name=ACCOUNT.OFFICER)
+		/* ID of the customer whose account or limit is overdrawn is populated here.
+Validation Rules
+
+No input. System generated field. */
+		CUSTOMER -> ST_Customer:CUSTOMER required
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=3.0, core=true, businessType=CUS, t24Name=CUSTOMER)
+		/* For account overdrafts without a limit, this is the CURRENCY of the ACCOUNT.
+For limit excesses, it is the CURRENCY in which the LIMIT has been specified.
+Validation Rules
+3 numeric characters Currency code.
+Multivalue field associated with fields 1-10 */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* This field holds the on line limit amount of the limit which is exceeded. However for an account without a limit this field holds the overdrawn balance as on the previous day.
+Validation Rules
+
+No input. System generated field. */
+		CLRD_BAL_LIMIT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=CLRD.BAL.LIMIT, typeModifiers="-4.XD")
+		/* This fields holds the actual outstanding in the account or the limit which is exceeded.
+Validation Rules
+
+No input. System generated field. */
+		ACT_BAL_TOT_OUT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=ACT.BAL.TOT.OUT, typeModifiers="-4.XD")
+		/* This field indicates the date on which the present exceeding first occurred.
+Validation Rules
+
+No input. System generated field. */
+		DATE_FIRST_OD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=DATE.FIRST.OD)
+		/* The date on which last movement occurred in the overdrawn account/limit is recorded in this field.
+Validation Rules
+
+No input. System generated field. */
+		DATE_LAST_MOVE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=DATE.LAST.MOVE)
+		/* A narrative describing how the movement on the date given in the field DATE.LAST.MOVE affected the overdrawn account/limit.
+Validation Rules
+
+No input . System generated field. */
+		OD_EXCESS_NARR : T24BusinessTypes:AAA
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=OD.EXCESS.NARR)
+		/* This field indicates whether there is any change in the overdrawn status.
+Validation Rules
+
+No input. System generated field. */
+		MOVED_NARR : T24BusinessTypes:AAA
+			@t24:i (align=L, inputBehaviour=I, maxLength=9, sysNumber=10.0, core=true, t24Name=MOVED.NARR)
+	}
+	/* This is an internal file containing details of Account Balances and Activity used to calculate interest and charges (see explanation about Value Dated Balances below).
+Details are held in separate records for each Account for each month in which there has been any Activity over the Account or in which the Value Dated Balance changes.
+The details held in this file for the calculation of interest include Value Dated Balances and total Debit and Credit Turnover for each Value Date.
+The details held for the calculation of charges include the total number of entries with each different Transaction Code processed during the month, and the total value of the entries with each Transaction Code. These details are held in the record for the month in which the entries are processed, regardless of the Value Dates of the entries.
+The Value Dated Balances are also used for the calculation of Balance Requirement charges and for determining whether a high enough Balance has been maintained for waiving charges and for calculating Credit interest to offset charges.
+VALUE DATED BALANCES
+Interest is calculated on Value Dated Balances.  All entries over an Account are considered to have a Value Date, which is the date on which the entry affects the (value dated) balance for interest purposes.
+If no Value Date is entered in a transaction, it may be added automatically by the system, depending on rules specified in the Transaction Code table (TRANSACTION), or rules specified in the application which generated the transaction (e.g.Money Market).
+If no Value Date has been entered or generated in an entry, a default of the Booking Date is assumed, i.e. the entry is considered to affect the balance for interest purposes on the same day as it is processed.
+END OF DAY PROCESSING
+This file is updated during the end of day process EOD.ACCT.ACTIVITY with the details of every entry which has been generated during the day and also during the end of day Capitalisation processes, EOD.CAPITALIS.CORR and (unless next day posting is specified in the Account Accrual table) EOD.CAPITALISATION.
+A new Account Activity record is generated every time an entry is encountered with a Value Date or Booking Date in a month in which the Account has not previously had any entries.
+If an entry has a Value Date in a different month from the Booking Date, at least 2 Account Activity records are updated, one containing the Value Dated Balances for interest purposes, the other containing the numbers and amounts of transactions for charges purposes.
+If an entry has a Value Date earlier than entries which have previously been processed for the same Account, all subsequent Value Dated Balances are updated.  This may involve updating several Account Activity records.
+Only the See, Print and List functions may be used in this Application. */
+	ACCT_ACTIVITY
+		@t24:i (t24Name=ACCT.ACTIVITY, level=F, type=L, allowedFunctions="L S", localRefAllowed=false)
+	{
+		/* Specifies the Account over which the activity detailed in the rest of the record was processed and the month in which the activity belongs for interest and charges calculations.
+Each record contains every change to the Value Dated Balance during that month and statistics about all entries processed during that month.
+Validation Rules
+a. Standard Account format. b. '-'    Prime Sites '.' c. Up to 6 numeric characters Date in format YYYYMM.    (Account number mandatory. Date optional, default is today's    date.) The Account number must refer to an existing record on the ACCOUNT file. */
+		ACCT_NO_YEAR_MONTH -> AC_BalanceUpdates:ACCT_ACTIVITY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=ACCT.NO.YEAR.MONTH, mask="R########################################### # ####-##")
+		DAY_NO -> byValue AC_BalanceUpdates:ACCT_ACTIVITY__DAY_NO *
+		TRANSACT_CODE -> byValue AC_BalanceUpdates:ACCT_ACTIVITY__TRANSACT_CODE *
+		VALUE_DAY -> byValue AC_BalanceUpdates:ACCT_ACTIVITY__VALUE_DAY *
+		BK_DAY_NO -> byValue AC_BalanceUpdates:ACCT_ACTIVITY__BK_DAY_NO *
+		BOOKING_DAY -> byValue AC_BalanceUpdates:ACCT_ACTIVITY__BOOKING_DAY *
+	}
+	ACCT_ACTIVITY__DAY_NO
+	{
+		/* Specifies the value date of the entries which generated the credit and debit turnover and resulting balance in the corresponding field range TURNOVER.CREDIT to BALANCE.
+The multivalue associated group of field range DAY.NO to BALANCE contain the total amount of credit entries, the total amount of debit entries and the resulting Balance for each Value Date for which there have been entries.  The group is repeated for each different Value Date.
+Validation Rules
+2 numeric characters. Multivalue field associated with field range TURNOVER.CREDIT to BALANCE. Internal file. This is a NOINPUT field. */
+		DAY_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, t24Name=DAY.NO)
+		/* Specifies total amount of credit entries with the Value Date specified in the corresponding DAY.NO field.
+The multivalue associated group of fields DAY.NO to BALANCE contain the total amount of credit entries, the total amount of debit entries and the resulting Balance for each Value Date for which there have been entries.  The group is repeated for each different Value Date.
+Validation Rules
+Standard amount format. Multivalue field associated with field range DAY.NO to BALANCE. Internal file. This is a NOINPUT field. */
+		TURNOVER_CREDIT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=TURNOVER.CREDIT, typeModifiers=-)
+		/* Specifies total amount of debit entries with the Value Date specified in the corresponding DAY.NO.
+The multivalue associated group of fields DAY.NO to BALANCE contain the total amount of credit entries, the total amount of debit entries and the resulting Balance for each Value Date for which there have been entries. The group is repeated for each different Value Date.
+Validation Rules
+Standard amount format. Multivalue field associated with field range DAY.NO to BALANCE. Internal file. This is a NOINPUT field. */
+		TURNOVER_DEBIT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=TURNOVER.DEBIT, typeModifiers=-)
+		/* Specifies the Balance for interest purposes starting from the Value Date specified in the corresponding DAY.NO.
+The multivalue associated group of field range DAY.NO to BALANCE contains the total amount of credit entries, the total amount of debit entries and the resulting Balance for each Value Date for which there have been entries.  The group is repeated for each different Value Date.
+Validation Rules
+Standard date format. Multivalue field associated with field range DAY.NO to BALANCE. Internal file. This is a NOINPUT field. */
+		BALANCE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=BALANCE, typeModifiers=-)
+	}
+	ACCT_ACTIVITY__TRANSACT_CODE
+	{
+		/* Specifies the Transaction Code of the entries for which the total number and amount are held in the corresponding NO.OF.TRANSACT and TRANSACT.AMT.
+The multivalue associated group of fields TRANSACT.CODE to TRANSACT.AMT contain the number of entries and the total amount of entries with each different Transaction Code which have been processed during the month specified in ACCT.NO.YEAR.MONTH.  The group is repeated for each different Transaction Code.
+These details are used for calculating activity charges based on the number or amount of transactions processed.
+Validation Rules
+1-3 numeric characters. Multivalue field associated with fields NO.OF.TRANSACT and TRANSACT.AMT. Internal file. This is a NOINPUT field. */
+		TRANSACT_CODE -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=TRANSACT.CODE)
+		/* Contains the number of entries with the Transaction Code specified in the corresponding field TRANSACT.CODE which have been processed during the month specified in ACCT.NO.YEAR.MONTH.
+The multivalue associated group of field range TRANSACT.CODE to TRANSACT.AMT contain the number of entries and the total amount of entries with each different Transaction Code which have been processed during the month specified in ACCT.NO.YEAR.MONTH.  The group is repeated for each different Transaction Code.
+These details are used for calculating activity charges based on the number or amount of transactions processed.
+Note: The number and amount of any reversal entries are subtracted from       the figures in fields NO.OF.TRANSACT and TRANSACT.AMT.
+Validation Rules
+1-6 numeric characters. Multivalue field associated with fields TRANSACT.CODE and TRANSACT.AMT. Internal file. This is a NOINPUT field. */
+		NO_OF_TRANSACT : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=6.0, core=true, t24Name=NO.OF.TRANSACT)
+		/* Contains the total amount of entries with the Transaction Code specified in the corresponding field TRANSACT.CODE which have been processed during the month specified in ACCT.NO.YEAR.MONTH.
+The multivalue associated group of field range TRANSACT.CODE to ACCT.NO.YEAR.MONTH contains the number of entries and the total amount of entries with each different Transaction Code which have been processed during the month specified in ACCT.NO.YEAR.MONTH.  The group is repeated for each different Transaction Code.
+These details are used for calculating activity charges based on the number or amount of transactions processed.
+Note: The number and amount of any reversal entries are subtracted from       the figures in fields NO.OF.TRANSACT and TRANSACT.AMT.
+Validation Rules
+1-6 numeric characters. Multivalue field associated with fields TRANSACT.CODE and NO.OF.TRANSACT. Internal file. This is a NOINPUT field. */
+		TRANSACT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=TRANSACT.AMT, typeModifiers=-)
+	}
+	ACCT_ACTIVITY__VALUE_DAY
+	{
+		/* Specifies the value date of the entries which generated the credit and debit turnover in the corresponding fields BOOK.TOVR.CR and BOOK.TOVR.DB. These fields are populated only when an entry is raised which has a booking date different to the value date of the entry.
+The multivalue associated group of fields VALUE.DAY to BOOK.TOVR.DB contain the total amount of credit and debit entries for each value date for which there have been entries booked on a different date to their value date.
+The group is repeated for each different VALUE.DAY and fields BOOKING.DATE to BOOK.TOVR.DB are additionally subvalued by BOOKING.DATE.
+Validation Rules
+2 numeric characters. Multivalue field associated with fields BOOKING.DATE to BOOK.TOVR.DB. Internal file. This is a NOINPUT field. */
+		VALUE_DAY : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=8.0, core=true, t24Name=VALUE.DAY)
+		BOOKING_DATE -> byValue AC_BalanceUpdates:ACCT_ACTIVITY__VALUE_DAY__BOOKING_DATE *
+		TRADE_DATE -> byValue AC_BalanceUpdates:ACCT_ACTIVITY__VALUE_DAY__TRADE_DATE *
+	}
+	ACCT_ACTIVITY__VALUE_DAY__BOOKING_DATE
+	{
+		/* Specifies the booking date of the entries which generated the credit and debit turnover in the corresponding fields BOOK.TOVR.CR and BOOK.TOVR.DB. These fields are populated only when an entry is raised which has a booking date different to the value date of the entry.
+The multivalue associated group of fields VALUE.DAY to BOOK.TOVR.DB contain the total amount of credit and debit entries for each value date for which there have been entries booked on a different date to their value date.
+The group is repeated for each different VALUE.DAY and fields BOOKING.DATE to BOOK.TOVR.DB are additionally sub - valued by BOOKING.DATE.
+Validation Rules
+2 numeric characters. Multivalue field associated with field range VALUE.DAY to BOOK.TOVR.DB. Internal file. This is a NOINPUT field. */
+		BOOKING_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=BOOKING.DATE)
+		/* Specifies total amount of credit entries with the booking date specified in the corresponding BOOKING.DATE field and value date specified in the corresponding VALUE.DAY field.
+Validation Rules
+Standard amount format. Multivalue field associated with field range DAY.NO to BALANCE. Internal file. This is a NOINPUT field. */
+		BOOK_TOVR_CR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=BOOK.TOVR.CR)
+		/* Specifies total amount of debit entries with the booking date specified in the corresponding BOOKING.DATE field and value date specified in the corresponding VALUE.DAY field.
+Validation Rules
+Standard amount format. Multivalue field associated with field range DAY.NO to BALANCE. Internal file. This is a NOINPUT field. */
+		BOOK_TOVR_DB : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=11.0, core=true, t24Name=BOOK.TOVR.DB)
+	}
+	ACCT_ACTIVITY__VALUE_DAY__TRADE_DATE
+	{
+		/* The TRADE.DATE supplied that is different to the entry processing date. This is a date field that is no input. */
+		TRADE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=12.0, core=true, t24Name=TRADE.DATE)
+		/* Credit adjustment for trade date on assiciated booking day. This is an amount field that is no input. */
+		TRADE_TOVR_CR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=13.0, core=true, t24Name=TRADE.TOVR.CR)
+		/* Debit adjustment for trade date on associated booking day. This is an amount field that is no input. */
+		TRADE_TOVR_DB : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=14.0, core=true, t24Name=TRADE.TOVR.DB)
+	}
+	ACCT_ACTIVITY__BK_DAY_NO
+	{
+		/* The Day number in the month for the booking dated balance. */
+		BK_DAY_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=15.0, core=true, t24Name=BK.DAY.NO)
+		/* Booking dated balance for BK.DAY.NO. This is an amount field and can be left blank. */
+		BK_BALANCE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=16.0, core=true, t24Name=BK.BALANCE, typeModifiers=-)
+		/* Credit movement for  BK.DAY.NO. This is an amount field and can be left blank. */
+		BK_CREDIT_MVMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=BK.CREDIT.MVMT, typeModifiers=-)
+		/* Debit movement for BK.DAY.NO. This is an amount field and can be left blank. */
+		BK_DEBIT_MVMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=BK.DEBIT.MVMT, typeModifiers=-)
+	}
+	ACCT_ACTIVITY__BOOKING_DAY
+	{
+		/* The booking day number for which the following trade dated adjustments have been made. */
+		BOOKING_DAY : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=19.0, core=true, t24Name=BOOKING.DAY)
+		BK_TRADE_DATE -> byValue AC_BalanceUpdates:ACCT_ACTIVITY__BOOKING_DAY__BK_TRADE_DATE *
+	}
+	ACCT_ACTIVITY__BOOKING_DAY__BK_TRADE_DATE
+	{
+		/* The TRADE.DATE supplied that is different to the entry processing date. This is a date field that is no input. */
+		BK_TRADE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=20.0, core=true, t24Name=BK.TRADE.DATE)
+		/* Credit adjustment for trade date on the booking day. This is an amount field that is no input. */
+		BK_TRADE_TOVR_CR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=21.0, core=true, t24Name=BK.TRADE.TOVR.CR)
+		/* Debit adjustment for trade date on associated booking day. This is an amount field that is no input. */
+		BK_TRADE_TOVR_DB : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=22.0, core=true, t24Name=BK.TRADE.TOVR.DB)
+	}
+	ACCT_AVAILABILITY
+		@t24:i (t24Name=ACCT.AVAILABILITY, level=F, type=L, allowedFunctions="L S", localRefAllowed=false)
+	{
+		/* The account number for which this availability ladder has been maintained.
+Validation Rules
+A valid account number. */
+		ACCOUNT_NUMBER -> AC_BalanceUpdates:ACCT_AVAILABILITY PK required
+			@i18n:Label (en="Account Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=ANT, t24Name=ACCOUNT.NUMBER)
+		VALUE_DATE -> byValue AC_BalanceUpdates:ACCT_AVAILABILITY__VALUE_DATE *
+	}
+	ACCT_AVAILABILITY__VALUE_DATE
+	{
+		/* This field will contain the value date of the transaction that exists in the list of valid deposit or withdrawal transactions on the ACCT.GROUP.CONDITION record for this account.
+Validation Rules
+This is a NOINPUT field. */
+		VALUE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=VALUE.DATE)
+		/* This field will contain the total amount of deposits that occured on the date indicated by the VALUE.DATE.
+Validation Rules
+This is a NOINPUT field. */
+		TOT_AMT_DEPS : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=TOT.AMT.DEPS)
+		/* This field will contain the total amount of withdrawals that occured on the date indicated by the VALUE.DATE.
+Validation Rules
+This is a NOINPUT field. */
+		TOT_AMT_WDLS : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=TOT.AMT.WDLS)
+		/* This field will contain the total amount available to withdraw at a particular point in time determined by the VALUE.DATE. The field will be updated on-line as and when transactions take place on the account.
+Validation Rules
+This is a NOINPUT field. */
+		AVAILABLE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=AVAILABLE.AMT)
+		REV_MARKER -> byValue AC_BalanceUpdates:ACCT_AVAILABILITY__VALUE_DATE__REV_MARKER *
+	}
+	ACCT_AVAILABILITY__VALUE_DATE__REV_MARKER
+	{
+		/* Defines whether the corresponding amount was a reversal or not.
+Validation Rules
+This is a NOINPUT field. */
+		REV_MARKER : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=17, sysNumber=5.0, core=true, t24Name=REV.MARKER)
+		/* Amount on the transaction.
+Validation Rules
+This is a NOINPUT field. */
+		TXN_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=TXN.AMT)
+		/* This field contains the transaction code.
+Validation Rules
+This is a NOINPUT field. */
+		TXN_CODE -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, t24Name=TXN.CODE)
+		/* This field signifies the date on which a deposit matures.
+Validation Rules
+This is a NOINPUT field. */
+		MATURITY_DTE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=MATURITY.DTE)
+	}
+	/* ACCT.BALANCE.ACTIVITY holds ACCT.ACTIVITY data by account balance type. See ACCT.ACTIVITY for details of the information in this data. */
+	ACCT_BALANCE_ACTIVITY
+		@t24:i (t24Name=ACCT.BALANCE.ACTIVITY, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Specifies the Account over which the activity detailed in the rest of the record was processed and the month in which the activity belongs for interest and charges calculations.
+Validation Rules
+a. Standard Account format. b. '-'    Prime Sites '.' c. Up to 6 numeric characters Date in format YYYYMM.    (Account number mandatory. Date optional, default is today's    date.) The Account number must refer to an existing record on the ACCOUNT file. */
+		ACCT_NO_YEAR_MONTH -> AC_BalanceUpdates:ACCT_BALANCE_ACTIVITY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=ACCT.NO.YEAR.MONTH, mask="R########################################### # ####-##")
+		BAL_TYPE -> byValue AC_BalanceUpdates:ACCT_BALANCE_ACTIVITY__BAL_TYPE *
+	}
+	ACCT_BALANCE_ACTIVITY__BAL_TYPE
+	{
+		/* The list of balance types contained in the record. */
+		BAL_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=1.0, core=true, t24Name=BAL.TYPE)
+		/* The ACCT.ACTIVITY data for the associated BAL.TYPE. See ACCT.ACTIVITY for details of the information in this data. */
+		ACTIVITY_DATA : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=2.0, core=true, t24Name=ACTIVITY.DATA)
+	}
+	/* This table keeps historical details of overdarwn account balances and is update from account overdrawn.
+It is used in the calculation of overdraft fees.
+It is keyed on account numner "_" and year month */
+	OD_ACCT_ACTIVITY
+		@t24:i (t24Name=OD.ACCT.ACTIVITY, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* THe key to the table, which is the same as that of ACCT.ACTIVITY.
+ACCOUNT.NUMBER-YYMM */
+		ACCT_NO_YM -> AC_BalanceUpdates:OD_ACCT_ACTIVITY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=41, sysNumber=0.0, core=true, businessType=A, t24Name=ACCT.NO.YM)
+		DAY_NO -> byValue AC_BalanceUpdates:OD_ACCT_ACTIVITY__DAY_NO *
+		/* The account number component of the record key */
+		ACCT_NUMBER : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, core=false, t24Name=ACCT.NUMBER, genOperation="FIELD(ACCT.NO.YM,\'-\',1)")
+		/* THe year and month component of the record key */
+		YEAR_MON : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, core=false, t24Name=YEAR.MON, genOperation="FIELD(ACCT.NO.YM,\'-\',2)")
+	}
+	OD_ACCT_ACTIVITY__DAY_NO
+	{
+		/* The day of the month */
+		DAY_NO : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, t24Name=DAY.NO)
+		/* The balance of the account */
+		BALANCE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=BALANCE)
+		/* The overdraft limit amount on that day */
+		LIMIT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=LIMIT.AMT)
+		/* The overdrawn amount in the currency of the limit */
+		OVERDRAWN_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=OVERDRAWN.AMT)
+		/* The overdraft amount in account currency */
+		OD_IN_AC_CCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=OD.IN.AC.CCY)
+		/* The amount the overdraft increased that day */
+		INCR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=INCR.AMT)
+		/* The date the account was first overdrawn */
+		DATE_FIRST_OD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=DATE.FIRST.OD)
+	}
+}

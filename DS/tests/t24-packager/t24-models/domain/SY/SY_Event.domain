@@ -1,0 +1,1046 @@
+# UTF-8
+ /* Template Servicing of Structured Products */ 
+ Domain SY_Event 
+ @t24:i (module=SY) 
+ @java:Package (value=com.temenos.t24.datamodel.sy.sy_event) 
+ namespace "http://www.temenos.com/t24/SY_Event" 
+ metamodelVersion 4.3.0.20110527 
+ Classes { 
+ /* This application allows the user to define an event in the lifecycle of a structured product.         Instance of SY.EVENT.DEFINITION */ 
+ SY_EVENT 
+ @t24:i (nonStop=true, level=F, type=H, localRefAllowed=true) 
+ { 
+ /* Holds the ID of the event. */ 
+ EVENT_ID : mml:string PK required 
+ @i18n:Label (en="Event Id") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=41, sysNumber=0.0, t24Name=EVENT.ID) 
+ 
+ /* Holds the valid ID of SY.EVENT.DEFINITION record.         This is a NOINPUT field. */ 
+ EVENT_DEFINITION : mml:string 
+ @i18n:Label (en="Event Definition") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=1.0, t24Name=EVENT.DEFINITION) 
+ 
+ /* Holds the valid ID of SY.TRANSACTION.         This is a NOINPUT field. */ 
+ TRANSACTION : mml:string 
+ @i18n:Label (en=Transaction) 
+ @i18n:Tooltip (en="The reference number of the Transaction") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=2.0, t24Name=TRANSACTION) 
+ 
+ /* This is a NOINPUT field.  This field is used in SY.EVENT.LOG only. */ 
+ INSTANCE : mml:string 
+ @i18n:Label (en=Instance) 
+ @i18n:Tooltip (en=Instance) 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=3.0, t24Name=INSTANCE) 
+ 
+ RESERVED_22 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=4.0, t24Name=RESERVED.22) 
+ 
+ SHORT_NAME -> byValue SY_Event:SY_EVENT__SHORT_NAME * 
+ 
+ DESCRIPTION -> byValue SY_Event:SY_EVENT__DESCRIPTION * 
+ 
+ RESERVED_21 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=7.0, t24Name=RESERVED.21) 
+ 
+ RESERVED_20 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=8.0, t24Name=RESERVED.20) 
+ 
+ RESERVED_19 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=9.0, t24Name=RESERVED.19) 
+ 
+ /* Defines if this event is tracking or non-tracking. */ 
+ TRACKING : SY_Event:SY_EVENT__TRACKING required 
+ @i18n:Label (en=Tracking) 
+ @i18n:Tooltip (en="Does the record Track from the Parent record") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=10.0, t24Name=TRACKING) 
+ 
+ /* This classifies the type of event.              Some event types relate directly to a T24 function being applied to the Structured Product:                              Input              Authorise             Delete             Reverse             Scheduled - To be actioned on a predetermined date)             Rolling - To be repeated at predetermined intervals)              Add-Hoc - This will be triggered manually          The event type chosen determines which additional fields are required:             For Scheduled events, one of DATE or DATE.RULES must be entered with COB.PHASE                                     optional.             For Rolling events, FREQUENCY and COB.PHASE are mandatory and DATE.RULES is optional.             For the other events these fields must not be used. */ 
+ EVENT_TYPE : SY_Event:SY_EVENT__EVENT_TYPE 
+ @i18n:Label (en="Event type") 
+ @i18n:Tooltip (en="Type of event - Dividend Payment/Bonus etc.") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=11.0, t24Name=EVENT.TYPE) 
+ 
+ /* Is the user able to re-run an event after it has been run (successfully) at least once. */ 
+ ALLOW_RERUN : SY_Event:SY_EVENT__ALLOW_RERUN 
+ @i18n:Label (en="Allow Rerun") 
+ @i18n:Tooltip (en="Can this event be run more than once") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=12.0, t24Name=ALLOW.RERUN) 
+ 
+ RESERVED_18 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=13.0, t24Name=RESERVED.18) 
+ 
+ RESERVED_17 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=14.0, t24Name=RESERVED.17) 
+ 
+ RESERVED_16 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=15.0, t24Name=RESERVED.16) 
+ 
+ /* This is the date on which an event will be processed. */ 
+ DATE : mml:string 
+ @i18n:Label (en=Date) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, t24Name=DATE) 
+ 
+ /* This defines the date rules for and event, defining the date in terms of the process date.   T24 uses a range of keywords, codes and modifiers to represent the exchange rules when determining the dates.             Keyword     Meaning  Comments             MO          Monday             TU          Tuesday             WE          Wednesday             TH          Thursday             FR          Friday             SA          Saturday             SU          Sunday             M          Month  Only valid with multiplier/operator in same field             W          Week  Only valid with multiplier/operator in same field             CD          Calendar days  Only valid with multiplier/operator in same field             BD          Business days  Only valid with multiplier/operator in same field             LBD          Last business day of the month  Not valid with multiplier/operator in same field             LCD          Last calendar day of the month  Not valid with multiplier/operator in same field             FBD          First business day of the month  Not valid with multiplier/operator in same field             FCD          First calendar day of the month  Not valid with multiplier/operator in same field             MF*          Move forward.  If the date obtained is not a business day, the move forward until a business date is found.             MB*          Move backward  If the date obtained is not a business day, then move backwards until a business date is found.             CAL*          Calendar Date  Return the date obtained,            .         Operators and multipliers can then be applied to any of the above "keywords", subject to the                    rules shown in the table.         For example, +3BD indicates add 3 business days.         Some keywords are only valid in the presence of operators or multipliers. It makes no sense                       to put the keyword 'BD' into a field since it is only useful when describing a date offset,                  i.e. +3BD or -2BD.         Conversely, keywords such as FBD and LCD describe fixed points in a month and are                               meaningless when combined with operators or multipliers.         It is important to note that the scenario the first business day in the month 2 months forward                    is represented by +2M,FBD and not +2FBD. */ 
+ DATE_RULES : mml:string 
+ @i18n:Label (en="Date Rules") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=17.0, t24Name=DATE.RULES) 
+ 
+ /* Defines the frequency of a rolling event. */ 
+ FREQUENCY : mml:string 
+ @i18n:Label (en=Frequency) 
+ @i18n:Tooltip (en=Frequency) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=18.0, t24Name=FREQUENCY) 
+ 
+ /* If set, for rolling events, the first instance of the event being triggered is on the day that it is created (CREATE.DATE) or the start date (calculated from DATE and DATE.RULES) if specified; otherwise, the first instance of the event being triggered is the next date after that, according to the rolling interval chosen (FREQUENCY). */ 
+ INCLUDE_FIRST_DATE : SY_Event:SY_EVENT__INCLUDE_FIRST_DATE 
+ @i18n:Label (en="Incl First Dt") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=19.0, t24Name=INCLUDE.FIRST.DATE) 
+ 
+ RESERVED_15 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=20.0, t24Name=RESERVED.15) 
+ 
+ RESERVED_14 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=21.0, t24Name=RESERVED.14) 
+ 
+ RESERVED_13 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=22.0, t24Name=RESERVED.13) 
+ 
+ /* Defines if this event is the last event in a products lifecylcle. Once this event is processed no further events can be processed for the deal. */ 
+ TERMINATOR_CASE : SY_Event:SY_EVENT__TERMINATOR_CASE 
+ @i18n:Label (en="Terminator Case") 
+ @i18n:Tooltip (en="Will the occurance of this event Terminate the deal") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=23.0, t24Name=TERMINATOR.CASE) 
+ 
+ /* For Scheduled and/or rolling events the Close of buiness processing will be invoked. This defined when during the COB the event will be processed.  If set to 'Close of Business', event will be processed before system date change.  If set to 'Start of Day', event will be processed after system date change.  If set to 'Online', event will be processed after system date change during ONLINE phase. */ 
+ COB_PHASE : SY_Event:SY_EVENT__COB_PHASE 
+ @i18n:Label (en="Cob Phase") 
+ @i18n:Tooltip (en="COB Phase?") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=24.0, t24Name=COB.PHASE) 
+ 
+ NOTES -> byValue SY_Event:SY_EVENT__NOTES * 
+ 
+ RESERVED_12 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=26.0, t24Name=RESERVED.12) 
+ 
+ RESERVED_11 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=27.0, t24Name=RESERVED.11) 
+ 
+ RESERVED_10 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=28.0, t24Name=RESERVED.10) 
+ 
+ /* This field is used to manually trigger the processing of an event. */ 
+ PROCESS : SY_Event:SY_EVENT__PROCESS 
+ @i18n:Label (en="Process Id") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=29.0, t24Name=PROCESS) 
+ 
+ /* The date on which this event was created.System-generated field only. */ 
+ CREATE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=30.0, t24Name=CREATE.DATE) 
+ 
+ /* The last run date for the event. */ 
+ LAST_RUN_DATE : mml:string 
+ @i18n:Label (en="Last Payment") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=31.0, t24Name=LAST.RUN.DATE) 
+ 
+ LOG_ID -> byValue SY_Event:SY_EVENT__LOG_ID * 
+ 
+ /* This is a system-generated field only - shows whether this event has been terminated. */ 
+ TERMINATED : SY_Event:SY_EVENT__TERMINATED 
+ @i18n:Label (en="Terminated?") 
+ @i18n:Tooltip (en="Has the product/item been terminated") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=33.0, t24Name=TERMINATED) 
+ 
+ RESERVED_9 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=34.0, t24Name=RESERVED.9) 
+ 
+ RESERVED_8 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=35.0, t24Name=RESERVED.8) 
+ 
+ RESERVED_7 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=36.0, t24Name=RESERVED.7) 
+ 
+ ACTIVITY_CODE -> byValue SY_Event:SY_EVENT__ACTIVITY_CODE * 
+ 
+ RESERVED_6 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=41.0, t24Name=RESERVED.6) 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=42.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=43.0, t24Name=RESERVED.4) 
+ 
+ /* For System use only - Not Inputtable by users.   Defines if a background cleanup is required. */ 
+ CLEAR_UP : SY_Event:SY_EVENT__CLEAR_UP 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=44.0, t24Name=CLEAR.UP) 
+ 
+ /* Defines if this event is critical in the products lifecycle and will prevent the user from reversing the deal. */ 
+ CRITICAL : SY_Event:SY_EVENT__CRITICAL 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=45.0, t24Name=CRITICAL) 
+ 
+ /* Defines if this event should block the amendment of the deal. */ 
+ NO_CHANGE : SY_Event:SY_EVENT__NO_CHANGE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=46.0, t24Name=NO.CHANGE) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=47.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=48.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=49.0, t24Name=RESERVED.1) 
+ 
+ /* This is a NOINPUT field.  This field is only for internal system use. */ 
+ INTERNAL_USE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=50.0, t24Name=INTERNAL.USE) 
+ 
+ OVERRIDE -> byValue SY_Event:SY_EVENT__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=53.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=54.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue SY_Event:SY_EVENT__INPUTTER * 
+ 
+ DATE_TIME -> byValue SY_Event:SY_EVENT__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=57.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=58.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=59.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=60.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=61.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ SY_EVENT__SHORT_NAME 
+ { 
+ /* A short description of the event. */ 
+ SHORT_NAME : mml:string required 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, multiLanguage=true, sysNumber=5.0, t24Name=SHORT.NAME) 
+ } 
+ SY_EVENT__DESCRIPTION 
+ { 
+ /* This is a description of the purpose of this event. */ 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=6.0, t24Name=DESCRIPTION) 
+ } 
+ SY_EVENT__NOTES 
+ { 
+ /* Any notes that the user wishes to store. */ 
+ NOTES : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=25.0, t24Name=NOTES) 
+ } 
+ SY_EVENT__LOG_ID 
+ { 
+ /* This is a NOINPUT field.  Used in SY.EVENT.LOG only. */ 
+ LOG_ID : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=32.0, t24Name=LOG.ID) 
+ } 
+ SY_EVENT__ACTIVITY_CODE 
+ { 
+ /* System-generated field only.  Used in SY.EVENT.LOG only. */ 
+ ACTIVITY_CODE -> EB_Delivery:EB_ACTIVITY 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=37.0, t24Name=ACTIVITY.CODE) 
+ 
+ RESERVED_62 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=38.0, t24Name=RESERVED.62) 
+ 
+ RESERVED_61 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=39.0, t24Name=RESERVED.61) 
+ 
+ /* This is a NOINPUT field.  Used in SY.EVENT.LOG only. */ 
+ MESSAGE_REF : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=40.0, t24Name=MESSAGE.REF) 
+ } 
+ SY_EVENT__OVERRIDE 
+ { 
+ /* System-generated overrides are displayed in this field.  System-generated field only. */ 
+ OVERRIDE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=52.0, t24Name=OVERRIDE) 
+ } 
+ SY_EVENT__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=55.0, t24Name=INPUTTER) 
+ } 
+ SY_EVENT__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=56.0, t24Name=DATE.TIME) 
+ } 
+ /* Holds the State of SY.EVENT when it happens */ 
+ SY_EVENT_LOG 
+ @t24:i (level=F, type=L, localRefAllowed=true) 
+ { 
+ /* Key to the SY.EVENT.LOG record.Consists of event definition, transaction and instance, separated by the '.' character. */ 
+ EVENT_LOG_ID : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=46, sysNumber=0.0, t24Name=EVENT.LOG.ID) 
+ 
+ /* Holds the valid ID of SY.EVENT.DEFINITION record.      This is a NOINPUT field. */ 
+ EVENT_DEFINITION : mml:string 
+ @i18n:Label (en="Event Definition") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=1.0, t24Name=EVENT.DEFINITION) 
+ 
+ /* Holds the valid ID of SY.TRANSACTION.      This is a NOINPUT field. */ 
+ TRANSACTION : mml:string 
+ @i18n:Label (en=Transaction) 
+ @i18n:Tooltip (en="The reference number of the Transaction") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=2.0, t24Name=TRANSACTION) 
+ 
+ /* This is a NOINPUT field. */ 
+ INSTANCE : mml:string 
+ @i18n:Label (en=Instance) 
+ @i18n:Tooltip (en=Instance) 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=3.0, t24Name=INSTANCE) 
+ 
+ RESERVED_22 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=4.0, t24Name=RESERVED.22) 
+ 
+ SHORT_NAME -> byValue SY_Event:SY_EVENT_LOG__SHORT_NAME * 
+ 
+ DESCRIPTION -> byValue SY_Event:SY_EVENT_LOG__DESCRIPTION * 
+ 
+ RESERVED_21 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=7.0, t24Name=RESERVED.21) 
+ 
+ RESERVED_20 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=8.0, t24Name=RESERVED.20) 
+ 
+ RESERVED_19 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=9.0, t24Name=RESERVED.19) 
+ 
+ /* Defines if this event is tracking or non-tracking. */ 
+ TRACKING : SY_Event:SY_EVENT_LOG__TRACKING required 
+ @i18n:Label (en=Tracking) 
+ @i18n:Tooltip (en="Does the record Track from the Parent record") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=10.0, t24Name=TRACKING) 
+ 
+ /* This classifies the type of event.           Some event types relate directly to a T24 function being applied to the Structured Product:                           Input           Authorise          Delete          Reverse          Scheduled - To be actioned on a predetermined date)          Rolling - To be repeated at predetermined intervals)           Add-Hoc - This will be triggered manually       The event type chosen determines which additional fields are required:          For Scheduled events, one of DATE or DATE.RULES must be entered with COB.PHASE                                     optional.          For Rolling events, FREQUENCY and COB.PHASE are mandatory and DATE.RULES is optional.          For the other events these fields must not be used. */ 
+ EVENT_TYPE : SY_Event:SY_EVENT_LOG__EVENT_TYPE 
+ @i18n:Label (en="Event type") 
+ @i18n:Tooltip (en="Type of event - Dividend Payment/Bonus etc.") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=11.0, t24Name=EVENT.TYPE) 
+ 
+ /* Is the user able to re-run an event after it has been run (successfully) at least once. */ 
+ ALLOW_RERUN : SY_Event:SY_EVENT_LOG__ALLOW_RERUN 
+ @i18n:Label (en="Allow Rerun") 
+ @i18n:Tooltip (en="Can this event be run more than once") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=12.0, t24Name=ALLOW.RERUN) 
+ 
+ RESERVED_18 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=13.0, t24Name=RESERVED.18) 
+ 
+ RESERVED_17 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=14.0, t24Name=RESERVED.17) 
+ 
+ RESERVED_16 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=15.0, t24Name=RESERVED.16) 
+ 
+ /* This is the date on which an event will be processed. */ 
+ DATE : mml:string 
+ @i18n:Label (en=Date) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, t24Name=DATE) 
+ 
+ /* This defines the date rules for and event, defining the date in terms of the process date.         T24 uses a range of keywords, codes and modifiers to represent the exchange rules when determining the dates.         .         Keyword  Meaning  Comments          MO          Monday          TU          Tuesday          WE          Wednesday          TH          Thursday          FR          Friday          SA          Saturday          SU          Sunday          M          Month  Only valid with multiplier/operator in same field          W          Week  Only valid with multiplier/operator in same field          CD          Calendar days  Only valid with multiplier/operator in same field          BD          Business days  Only valid with multiplier/operator in same field          LBD          Last business day of the month  Not valid with multiplier/operator in same field          LCD          Last calendar day of the month  Not valid with multiplier/operator in same field          FBD          First business day of the month  Not valid with multiplier/operator in same field          FCD          First calendar day of the month  Not valid with multiplier/operator in same field          MF*          Move forward.  If the date obtained is not a business day, the move forward until a business date is found.          MB*          Move backward  If the date obtained is not a business day, then move backwards until a business date is found.          CAL*          Calendar Date  Return the date obtained,         .      Operators and multipliers can then be applied to any of the above "keywords", subject to the                    rules shown in the table.      For example, +3BD indicates add 3 business days.      Some keywords are only valid in the presence of operators or multipliers. It makes no sense                       to put the keyword 'BD' into a field since it is only useful when describing a date offset,                  i.e. +3BD or -2BD.      Conversely, keywords such as FBD and LCD describe fixed points in a month and are                               meaningless when combined with operators or multipliers.      It is important to note that the scenario the first business day in the month 2 months forward                    is represented by +2M,FBD and not +2FBD. */ 
+ DATE_RULES : mml:string 
+ @i18n:Label (en="Date Rules") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=17.0, t24Name=DATE.RULES) 
+ 
+ /* Defines the frequency of a rolling event. */ 
+ FREQUENCY : mml:string 
+ @i18n:Label (en=Frequency) 
+ @i18n:Tooltip (en=Frequency) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=18.0, t24Name=FREQUENCY) 
+ 
+ /* This flag indicates that a rolling event was first processed on the CREATE.DATE. */ 
+ INCLUDE_FIRST_DATE : SY_Event:SY_EVENT_LOG__INCLUDE_FIRST_DATE 
+ @i18n:Label (en="Incl First Dt") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=19.0, t24Name=INCLUDE.FIRST.DATE) 
+ 
+ RESERVED_15 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=20.0, t24Name=RESERVED.15) 
+ 
+ RESERVED_14 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=21.0, t24Name=RESERVED.14) 
+ 
+ RESERVED_13 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=22.0, t24Name=RESERVED.13) 
+ 
+ /* Defines if this event is the last event in a products lifecylcle. Once this event is processed                    no further events can be processed for the deal. */ 
+ TERMINATOR_CASE : SY_Event:SY_EVENT_LOG__TERMINATOR_CASE 
+ @i18n:Label (en="Terminator Case") 
+ @i18n:Tooltip (en="Will the occurance of this event Terminate the deal") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=23.0, t24Name=TERMINATOR.CASE) 
+ 
+ /* For Scheduled and/or rolling events the Close of buiness processing will be invoked. This defined when during the COB the event will be processed.If set to 'Close of Business', event will be processed before system date change.If set to 'Start of Day', event will be processed after system date change.If set to 'Online', event will be processed after system date change during ONLINE phase. */ 
+ COB_PHASE : SY_Event:SY_EVENT_LOG__COB_PHASE 
+ @i18n:Label (en="Cob Phase") 
+ @i18n:Tooltip (en="COB Phase?") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=24.0, t24Name=COB.PHASE) 
+ 
+ NOTES -> byValue SY_Event:SY_EVENT_LOG__NOTES * 
+ 
+ RESERVED_12 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=26.0, t24Name=RESERVED.12) 
+ 
+ RESERVED_11 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=27.0, t24Name=RESERVED.11) 
+ 
+ RESERVED_10 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=28.0, t24Name=RESERVED.10) 
+ 
+ /* Used to manually trigger event processing. */ 
+ PROCESS : SY_Event:SY_EVENT_LOG__PROCESS 
+ @i18n:Label (en="Process Id") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=29.0, t24Name=PROCESS) 
+ 
+ /* This is the date that the event was created. */ 
+ CREATE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=30.0, t24Name=CREATE.DATE) 
+ 
+ /* The last run date for the event. */ 
+ LAST_RUN_DATE : mml:string 
+ @i18n:Label (en="Last Payment") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=31.0, t24Name=LAST.RUN.DATE) 
+ 
+ LOG_ID -> byValue SY_Event:SY_EVENT_LOG__LOG_ID * 
+ 
+ /* Indicates that the event has been terminated. */ 
+ TERMINATED : SY_Event:SY_EVENT_LOG__TERMINATED 
+ @i18n:Label (en="Terminated?") 
+ @i18n:Tooltip (en="Has the product/item been terminated") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=33.0, t24Name=TERMINATED) 
+ 
+ RESERVED_9 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=34.0, t24Name=RESERVED.9) 
+ 
+ RESERVED_8 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=35.0, t24Name=RESERVED.8) 
+ 
+ RESERVED_7 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=36.0, t24Name=RESERVED.7) 
+ 
+ ACTIVITY_CODE -> byValue SY_Event:SY_EVENT_LOG__ACTIVITY_CODE * 
+ 
+ RESERVED_6 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=41.0, t24Name=RESERVED.6) 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=42.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=43.0, t24Name=RESERVED.4) 
+ 
+ /* For System use only - Not Inputtable by users. Defines if a background cleanup is required. */ 
+ CLEAR_UP : SY_Event:SY_EVENT_LOG__CLEAR_UP 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=44.0, t24Name=CLEAR.UP) 
+ 
+ /* Defines if this event is critical in the products lifecycle and will prevent the user from reversing the deal. Not used in this application. */ 
+ CRITICAL : SY_Event:SY_EVENT_LOG__CRITICAL 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=45.0, t24Name=CRITICAL) 
+ 
+ /* Defines if this event should block the ammendment of the deal. Not used in this application. */ 
+ NO_CHANGE : SY_Event:SY_EVENT_LOG__NO_CHANGE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=46.0, t24Name=NO.CHANGE) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=47.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=48.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=49.0, t24Name=RESERVED.1) 
+ 
+ /* Not used in SY.EVENT.LOG.  This field is for internal use only. */ 
+ INTERNAL_USE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=50.0, t24Name=INTERNAL.USE) 
+ 
+ OVERRIDE -> byValue SY_Event:SY_EVENT_LOG__OVERRIDE * 
+ } 
+ SY_EVENT_LOG__SHORT_NAME 
+ { 
+ /* A short description of the event. */ 
+ SHORT_NAME : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=5.0, t24Name=SHORT.NAME) 
+ } 
+ SY_EVENT_LOG__DESCRIPTION 
+ { 
+ /* This is a description of the purpose of this event. */ 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=6.0, t24Name=DESCRIPTION) 
+ } 
+ SY_EVENT_LOG__NOTES 
+ { 
+ /* Any notes that the user wishes to store. */ 
+ NOTES : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=25.0, t24Name=NOTES) 
+ } 
+ SY_EVENT_LOG__LOG_ID 
+ { 
+ /* Reserved for future use.      This is a NOINPUT field. */ 
+ LOG_ID : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=32.0, t24Name=LOG.ID) 
+ } 
+ SY_EVENT_LOG__ACTIVITY_CODE 
+ { 
+ /* This field contains the EB.ACTIVITY record id(s) for the delivery message(s) generated   System-generated field only. */ 
+ ACTIVITY_CODE -> EB_Delivery:EB_ACTIVITY 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=37.0, t24Name=ACTIVITY.CODE) 
+ 
+ RESERVED_62 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=38.0, t24Name=RESERVED.62) 
+ 
+ RESERVED_61 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=39.0, t24Name=RESERVED.61) 
+ 
+ /* This field holds the message reference returned from the delivery sub-system for the delivery messages generated.   System-generated field only. */ 
+ MESSAGE_REF : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=40.0, t24Name=MESSAGE.REF) 
+ } 
+ SY_EVENT_LOG__OVERRIDE 
+ { 
+ /* This field is used to hold any overrides generated on committing this record.   System-generated field only. */ 
+ OVERRIDE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=52.0, t24Name=OVERRIDE) 
+ } 
+ /* This is a live file holding the SY.EVENT error details. */ 
+ SY_EVENT_ERRORS 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This is the key to this SY.EVENT.ERRORS record. */ 
+ TABLE_NAME_ID : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, t24Name=TABLE.NAME.ID) 
+ 
+ /* The event that has failed. */ 
+ EVENT_ID : mml:string 
+ @i18n:Label (en="Event Id") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=1.0, t24Name=EVENT.ID) 
+ 
+ /* The event definition key for this event. */ 
+ EVENT_DEFINITION : mml:string 
+ @i18n:Label (en="Event Definition") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=2.0, t24Name=EVENT.DEFINITION) 
+ 
+ /* The transaction key for this event. */ 
+ TRANSACTION : mml:string 
+ @i18n:Label (en=Transaction) 
+ @i18n:Tooltip (en="The reference number of the Transaction") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=3.0, t24Name=TRANSACTION) 
+ 
+ /* The COB phase in which this event failed. */ 
+ COB_PHASE : mml:string 
+ @i18n:Label (en="Cob Phase") 
+ @i18n:Tooltip (en="COB Phase?") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=4.0, t24Name=COB.PHASE) 
+ 
+ /* The last time this event ran successfully. */ 
+ LAST_RUN_DATE : mml:string 
+ @i18n:Label (en="Last Payment") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=5.0, t24Name=LAST.RUN.DATE) 
+ 
+ /* The system (T24) date at the time the error was generated.  Note that this may not be the same as DATE. */ 
+ SYSTEM_DATE : mml:string 
+ @i18n:Label (en="System Date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=6.0, t24Name=SYSTEM.DATE) 
+ 
+ /* The agent number which was processing this event. */ 
+ AGENT : mml:string 
+ @i18n:Label (en=Agent) 
+ @i18n:Tooltip (en="Agent through whom the order is being placed") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=7.0, t24Name=AGENT) 
+ 
+ /* The key to the output (COMO) file generated for this agent and job. */ 
+ COMO : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=8.0, t24Name=COMO) 
+ 
+ /* The actual (server) date on which this error occurred.  Note that this may not be the same as SYSTEM.DATE. */ 
+ DATE : mml:string 
+ @i18n:Label (en=Date) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=9.0, t24Name=DATE) 
+ 
+ /* The time at which this error occurred. */ 
+ TIME : mml:string 
+ @i18n:Label (en=Time) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=55, sysNumber=10.0, t24Name=TIME) 
+ 
+ ERROR -> byValue SY_Event:SY_EVENT_ERRORS__ERROR * 
+ } 
+ SY_EVENT_ERRORS__ERROR 
+ { 
+ /* If the field MAINT.MSG.DETS is set to 'Y' in the OFS.SOURCE record as specified in SY.PARAMETER, this field will show the originating error message from the underlying application. */ 
+ ERROR : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=11.0, t24Name=ERROR) 
+ 
+ /* If the field MAINT.MSG.DETS is set to 'Y' in the OFS.SOURCE record as specified in SY.PARAMETER, this field will link to an OFS.REQUEST.DETAILS record showing the originating error message from the underlying application. */ 
+ OFS_REF : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=12.0, t24Name=OFS.REF) 
+ } 
+ /* This application allows the user to define an event in the lifecycle of a structured product. */ 
+ SY_EVENT_DEFINITION 
+ @t24:i (level=I, type=H, localRefAllowed=true) 
+ { 
+ /* This is the ID of the record, and is userdefinable. */ 
+ EVENT_DEFINITION_ID : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, t24Name=EVENT.DEFINITION.ID) 
+ 
+ /* This is a link to event definition for this event. This will be the same as the ID */ 
+ EVENT_DEFINITION : mml:string 
+ @i18n:Label (en="Event Definition") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=1.0, t24Name=EVENT.DEFINITION) 
+ 
+ /* Not used in this application. Used in SY.EVENT & SY.EVENT.LOG only. */ 
+ TRANSACTION : mml:string 
+ @i18n:Label (en=Transaction) 
+ @i18n:Tooltip (en="The reference number of the Transaction") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=2.0, t24Name=TRANSACTION) 
+ 
+ /* Not used in this application. Used in SY.EVENT.LOG only. */ 
+ INSTANCE : mml:string 
+ @i18n:Label (en=Instance) 
+ @i18n:Tooltip (en=Instance) 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=3.0, t24Name=INSTANCE) 
+ 
+ RESERVED_22 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=4.0, t24Name=RESERVED.22) 
+ 
+ SHORT_NAME -> byValue SY_Event:SY_EVENT_DEFINITION__SHORT_NAME * 
+ 
+ DESCRIPTION -> byValue SY_Event:SY_EVENT_DEFINITION__DESCRIPTION * 
+ 
+ RESERVED_21 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=7.0, t24Name=RESERVED.21) 
+ 
+ RESERVED_20 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=8.0, t24Name=RESERVED.20) 
+ 
+ RESERVED_19 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=9.0, t24Name=RESERVED.19) 
+ 
+ /* Defines if this event definition is tracking or non-tracking. Tracking events always refer to the definition on the event definition table. Any changes made to the event definition will affect all deals in the system. */ 
+ TRACKING : SY_Event:SY_EVENT_DEFINITION__TRACKING required 
+ @i18n:Label (en=Tracking) 
+ @i18n:Tooltip (en="Does the record Track from the Parent record") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=10.0, t24Name=TRACKING) 
+ 
+ /* This classifies the type of event.          Some event types relate directly to a T24 function being applied to the Structured Product:          Input          Authorise         Delete         Reverse         Scheduled - To be actioned on a predetermined date)         Rolling - To be repeated at predetermined intervals)          Add-Hoc - This will be triggered manually      The event type chosen determines which additional fields are required:         For Scheduled events, one of DATE or DATE.RULES must be entered with COB.PHASE optional.         For Rolling events, FREQUENCY and COB.PHASE are mandatory and DATE.RULES is optional.         For the other events these fields must not be used. */ 
+ EVENT_TYPE : SY_Event:SY_EVENT_DEFINITION__EVENT_TYPE 
+ @i18n:Label (en="Event type") 
+ @i18n:Tooltip (en="Type of event - Dividend Payment/Bonus etc.") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=11.0, t24Name=EVENT.TYPE) 
+ 
+ /* Is the user able to re-run an event after it has been run (succesully) at least once. */ 
+ ALLOW_RERUN : SY_Event:SY_EVENT_DEFINITION__ALLOW_RERUN 
+ @i18n:Label (en="Allow Rerun") 
+ @i18n:Tooltip (en="Can this event be run more than once") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=12.0, t24Name=ALLOW.RERUN) 
+ 
+ RESERVED_18 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=13.0, t24Name=RESERVED.18) 
+ 
+ RESERVED_17 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=14.0, t24Name=RESERVED.17) 
+ 
+ RESERVED_16 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=15.0, t24Name=RESERVED.16) 
+ 
+ /* This is the date on which an event will be processed. */ 
+ DATE : mml:string 
+ @i18n:Label (en=Date) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, t24Name=DATE) 
+ 
+ /* This defines the date rules for and event, defining the date in terms of the process date.        T24 uses a range of keywords, codes and modifiers to represent the exchange rules when determining the dates.        .        Keyword  Meaning  Comments         MO          Monday         TU          Tuesday         WE          Wednesday         TH          Thursday         FR          Friday         SA          Saturday         SU          Sunday         M          Month  Only valid with multiplier/operator in same field         W          Week  Only valid with multiplier/operator in same field         CD          Calendar days  Only valid with multiplier/operator in same field         BD          Business days  Only valid with multiplier/operator in same field         LBD          Last business day of the month  Not valid with multiplier/operator in same field         LCD          Last calendar day of the month  Not valid with multiplier/operator in same field         FBD          First business day of the month  Not valid with multiplier/operator in same field         FCD          First calendar day of the month  Not valid with multiplier/operator in same field         MF*          Move forward.  If the date obtained is not a business day, the move forward until a business date is found.         MB*          Move backward  If the date obtained is not a business day, then move backwards until a business date is found.         CAL*          Calendar Date  Return the date obtained,        .        Operators and multipliers can then be applied to any of the above “keywords”, subject to the rules shown in the table. For example, +3BD indicates add 3 business days.         Some keywords are only valid in the presence of operators or multipliers. It makes no sense to put the keyword ‘BD’ into a field since it is only useful when describing a date offset, i.e. +3BD or –2BD.         Conversely, keywords such as FBD and LCD describe fixed points in a month and are meaningless when combined with operators or multipliers. It is important to note that the scenario the first business day in the month 2 months forward” is represented by “+2M,FBD” and not “+2FBD”.        .        Description  Formula         Last business day of the delivery month  LBD         Third Wednesday of the month prior to the delivery month  -1M, +3WE         The Saturday following the third Friday of the delivery month  +3FR, +1SA         Ninth business day prior to the twentieth of the delivery month  +20CD, -9BD */ 
+ DATE_RULES : mml:string 
+ @i18n:Label (en="Date Rules") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=17.0, t24Name=DATE.RULES) 
+ 
+ /* Defines the frequency of a rolling event. */ 
+ FREQUENCY : mml:string 
+ @i18n:Label (en=Frequency) 
+ @i18n:Tooltip (en=Frequency) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=18.0, t24Name=FREQUENCY) 
+ 
+ /* This field is used for rolling events only.  If set to YES, the event will be processed on the CREATE.DATE as well as subsequent dates as per the FREQUENCY field, otherwise the event will be processed on the subsequent dates as per FREQUENCY field only. */ 
+ INCLUDE_FIRST_DATE : SY_Event:SY_EVENT_DEFINITION__INCLUDE_FIRST_DATE 
+ @i18n:Label (en="Incl First Dt") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=19.0, t24Name=INCLUDE.FIRST.DATE) 
+ 
+ RESERVED_15 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=20.0, t24Name=RESERVED.15) 
+ 
+ RESERVED_14 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=21.0, t24Name=RESERVED.14) 
+ 
+ RESERVED_13 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=22.0, t24Name=RESERVED.13) 
+ 
+ /* Defines if this event is the last event in a products lifecylcle. Once this event is processed no further events can be processed for the deal. */ 
+ TERMINATOR_CASE : SY_Event:SY_EVENT_DEFINITION__TERMINATOR_CASE 
+ @i18n:Label (en="Terminator Case") 
+ @i18n:Tooltip (en="Will the occurance of this event Terminate the deal") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=23.0, t24Name=TERMINATOR.CASE) 
+ 
+ /* For Scheduled and/or rolling events the Close of buiness processing will be invoked. This defined when during the COB the event will be processed.If set to 'Close of Business', event will be processed before system date change.If set to 'Start of Day', event will be processed after system date change.If set to 'Online', event will be processed after system date change during ONLINE phase. */ 
+ COB_PHASE : SY_Event:SY_EVENT_DEFINITION__COB_PHASE 
+ @i18n:Label (en="Cob Phase") 
+ @i18n:Tooltip (en="COB Phase?") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=24.0, t24Name=COB.PHASE) 
+ 
+ NOTES -> byValue SY_Event:SY_EVENT_DEFINITION__NOTES * 
+ 
+ RESERVED_12 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=26.0, t24Name=RESERVED.12) 
+ 
+ RESERVED_11 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=27.0, t24Name=RESERVED.11) 
+ 
+ RESERVED_10 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=28.0, t24Name=RESERVED.10) 
+ 
+ /* Not used in this application. Used in SY.EVENT & SY.EVENT.LOG only. */ 
+ PROCESS : SY_Event:SY_EVENT_DEFINITION__PROCESS 
+ @i18n:Label (en="Process Id") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=29.0, t24Name=PROCESS) 
+ 
+ /* System-generated field only.  Used in SY.EVENT & SY.EVENT.LOG only. */ 
+ CREATE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=30.0, t24Name=CREATE.DATE) 
+ 
+ /* System-generated field only.  Used in SY.EVENT & SY.EVENT.LOG only. */ 
+ LAST_RUN_DATE : mml:string 
+ @i18n:Label (en="Last Payment") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=31.0, t24Name=LAST.RUN.DATE) 
+ 
+ LOG_ID -> byValue SY_Event:SY_EVENT_DEFINITION__LOG_ID * 
+ 
+ /* Not used in this application. Used in SY.EVENT & SY.EVENT.LOG only. */ 
+ TERMINATED : SY_Event:SY_EVENT_DEFINITION__TERMINATED 
+ @i18n:Label (en="Terminated?") 
+ @i18n:Tooltip (en="Has the product/item been terminated") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=33.0, t24Name=TERMINATED) 
+ 
+ RESERVED_9 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=34.0, t24Name=RESERVED.9) 
+ 
+ RESERVED_8 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=35.0, t24Name=RESERVED.8) 
+ 
+ RESERVED_7 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=36.0, t24Name=RESERVED.7) 
+ 
+ ACTIVITY_CODE -> byValue SY_Event:SY_EVENT_DEFINITION__ACTIVITY_CODE * 
+ 
+ RESERVED_6 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=41.0, t24Name=RESERVED.6) 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=42.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=43.0, t24Name=RESERVED.4) 
+ 
+ /* For Internal Use Only. Not Accessible by Users. Triggers a clear-up of the event processing. */ 
+ CLEAR_UP : SY_Event:SY_EVENT_DEFINITION__CLEAR_UP 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=44.0, t24Name=CLEAR.UP) 
+ 
+ /* Reversal of the users deal will not be possible once this event has been triggered. */ 
+ CRITICAL : SY_Event:SY_EVENT_DEFINITION__CRITICAL 
+ @i18n:Label (en=Critical) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=45.0, t24Name=CRITICAL) 
+ 
+ /* Is input/amendment possible to the users contract once this event has been processed. */ 
+ NO_CHANGE : SY_Event:SY_EVENT_DEFINITION__NO_CHANGE 
+ @i18n:Label (en="No Change") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=46.0, t24Name=NO.CHANGE) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=47.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=48.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=49.0, t24Name=RESERVED.1) 
+ 
+ /* For System use only - Not Inputtable by users. */ 
+ INTERNAL_USE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=50.0, t24Name=INTERNAL.USE) 
+ 
+ OVERRIDE -> byValue SY_Event:SY_EVENT_DEFINITION__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=53.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=54.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue SY_Event:SY_EVENT_DEFINITION__INPUTTER * 
+ 
+ DATE_TIME -> byValue SY_Event:SY_EVENT_DEFINITION__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=57.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=58.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=59.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=60.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=61.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ SY_EVENT_DEFINITION__SHORT_NAME 
+ { 
+ /* A short description of the event. */ 
+ SHORT_NAME : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=5.0, t24Name=SHORT.NAME) 
+ } 
+ SY_EVENT_DEFINITION__DESCRIPTION 
+ { 
+ /* This is a description of the purpose of this event. */ 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=6.0, t24Name=DESCRIPTION) 
+ } 
+ SY_EVENT_DEFINITION__NOTES 
+ { 
+ /* Any notes that the user wishes to store. */ 
+ NOTES : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=25.0, t24Name=NOTES) 
+ } 
+ SY_EVENT_DEFINITION__LOG_ID 
+ { 
+ /* Not used in this application. Used in SY.EVENT.LOG only. */ 
+ LOG_ID : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=32.0, t24Name=LOG.ID) 
+ } 
+ SY_EVENT_DEFINITION__ACTIVITY_CODE 
+ { 
+ /* System-generated field only.  Used in SY.EVENT.LOG only. */ 
+ ACTIVITY_CODE -> EB_Delivery:EB_ACTIVITY 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=37.0, t24Name=ACTIVITY.CODE) 
+ 
+ RESERVED_62 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=38.0, t24Name=RESERVED.62) 
+ 
+ RESERVED_61 : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=39.0, t24Name=RESERVED.61) 
+ 
+ /* System-generated field only.  Used in SY.EVENT.LOG only. */ 
+ MESSAGE_REF : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=40.0, t24Name=MESSAGE.REF) 
+ } 
+ SY_EVENT_DEFINITION__OVERRIDE 
+ { 
+ /* Standard T24 Override field. */ 
+ OVERRIDE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=52.0, t24Name=OVERRIDE) 
+ } 
+ SY_EVENT_DEFINITION__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=55.0, t24Name=INPUTTER) 
+ } 
+ SY_EVENT_DEFINITION__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=56.0, t24Name=DATE.TIME) 
+ } 
+ } 
+ Enumerations { 
+ SY_EVENT__TRACKING : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ SY_EVENT__EVENT_TYPE : mml:string 
+ Input=Input 
+ Reverse=Reverse 
+ Authorise=Authorise 
+ Delete=Delete 
+ Rolling=Rolling 
+ Adhoc=Adhoc 
+ Scheduled=Scheduled 
+ Create=Create 
+ AuthoriseReversal=AuthoriseReversal 
+ DeleteAmendment=DeleteAmendment 
+ 
+ SY_EVENT__ALLOW_RERUN : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT__INCLUDE_FIRST_DATE : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT__TERMINATOR_CASE : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT__COB_PHASE : mml:string 
+ Start_of_Day="Start of Day" 
+ Close_of_Business="Close of Business" 
+ Online=Online 
+ 
+ SY_EVENT__PROCESS : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT__TERMINATED : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT__CLEAR_UP : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT__CRITICAL : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT__NO_CHANGE : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_LOG__TRACKING : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ SY_EVENT_LOG__EVENT_TYPE : mml:string 
+ Input=Input 
+ Reverse=Reverse 
+ Authorise=Authorise 
+ Delete=Delete 
+ Rolling=Rolling 
+ Adhoc=Adhoc 
+ Scheduled=Scheduled 
+ Create=Create 
+ AuthoriseReversal=AuthoriseReversal 
+ DeleteAmendment=DeleteAmendment 
+ 
+ SY_EVENT_LOG__ALLOW_RERUN : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_LOG__INCLUDE_FIRST_DATE : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_LOG__TERMINATOR_CASE : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_LOG__COB_PHASE : mml:string 
+ Start_of_Day="Start of Day" 
+ Close_of_Business="Close of Business" 
+ Online=Online 
+ 
+ SY_EVENT_LOG__PROCESS : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_LOG__TERMINATED : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_LOG__CLEAR_UP : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_LOG__CRITICAL : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_LOG__NO_CHANGE : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_DEFINITION__TRACKING : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ SY_EVENT_DEFINITION__EVENT_TYPE : mml:string 
+ Input=Input 
+ Reverse=Reverse 
+ Authorise=Authorise 
+ Delete=Delete 
+ Rolling=Rolling 
+ Adhoc=Adhoc 
+ Scheduled=Scheduled 
+ Create=Create 
+ AuthoriseReversal=AuthoriseReversal 
+ DeleteAmendment=DeleteAmendment 
+ 
+ SY_EVENT_DEFINITION__ALLOW_RERUN : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_DEFINITION__INCLUDE_FIRST_DATE : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_DEFINITION__TERMINATOR_CASE : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_DEFINITION__COB_PHASE : mml:string 
+ Start_of_Day="Start of Day" 
+ Close_of_Business="Close of Business" 
+ Online=Online 
+ 
+ SY_EVENT_DEFINITION__PROCESS : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_DEFINITION__TERMINATED : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_DEFINITION__CLEAR_UP : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_DEFINITION__CRITICAL : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ SY_EVENT_DEFINITION__NO_CHANGE : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ } 

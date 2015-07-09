@@ -1,0 +1,1354 @@
+# UTF-8
+# UTF-8
+/* Settlement Processing of Securities */
+Domain SCT_Settlement
+	@t24:i (module=SC)
+	@java:Package (value=com.temenos.t24.datamodel.sc.sct_settlement)
+namespace "http://www.temenos.com/t24/SCT_Settlement"
+metamodelVersion 1.30.6
+Classes {
+	SC_HOLD_POS
+		@t24:i (t24Name=SC.HOLD.POS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Composite key, combining value date and SECURITY.TRANSFER id. */
+		VALUE_DATE_TXN_REF -> SCT_Settlement:SC_HOLD_POS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=29, sysNumber=0.0, core=true, businessType=A, t24Name=VALUE.DATE.TXN.REF)
+		/* Value date of the associated SECURITY.TRANSFER. */
+		VALUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, t24Name=VALUE.DATE)
+		/* SECURITY.TRANSFER transaction id. */
+		TRANS_REF : T24BusinessTypes:A
+			@i18n:Label (en="Transaction No")
+			@i18n:Tooltip (en="Indicates the transaction reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=2.0, core=true, t24Name=TRANS.REF)
+	}
+	SC_MANUAL_SETTLEMENT
+		@t24:i (t24Name=SC.MANUAL.SETTLEMENT, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Transaction reference number. */
+		REFERENCE_NUMBER -> SCT_Settlement:SC_MANUAL_SETTLEMENT PK required
+			@i18n:Label (en=Reference)
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=0.0, core=true, businessType=S, t24Name=REFERENCE.NUMBER)
+		TRANSACTION_REF -> byValue SCT_Settlement:SC_MANUAL_SETTLEMENT__TRANSACTION_REF *
+	}
+	SC_MANUAL_SETTLEMENT__TRANSACTION_REF
+	{
+		/* Transaction reference number. */
+		TRANSACTION_REF : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=1.0, core=true, t24Name=TRANSACTION.REF)
+		/* Unsettled nominal credit. */
+		UNSETT_NOM_CR : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=2.0, core=true, t24Name=UNSETT.NOM.CR)
+		/* Unsettled nominal debit. */
+		UNSETT_NOM_DR : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, t24Name=UNSETT.NOM.DR)
+	}
+	SC_SETTLE_CUST
+		@t24:i (t24Name=SC.SETTLE.CUST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Transaction reference of the outstanding settlement. */
+		SETTLEMENT_ID -> SCT_Settlement:SC_SETTLE_CUST PK required
+			@i18n:Label (en="Settlement ID")
+			@t24:i (align=L, inputBehaviour=I, maxLength=55, sysNumber=0.0, core=true, businessType=A, t24Name=SETTLEMENT.ID)
+		SEC_POS_KEY -> byValue SCT_Settlement:SC_SETTLE_CUST__SEC_POS_KEY *
+		/* Trade currency of the transaction. */
+		TRADE_CCY : T24BusinessTypes:CCY
+			@i18n:Label (en="Trade Currency")
+			@i18n:Tooltip (en="Identifies the currency of the transaction")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, t24Name=TRADE.CCY)
+		/* Indicates whether settlement is complete or not. */
+		SETTLED_Y_N : SCT_Settlement:SC_SETTLE_CUST__SETTLED_Y_N
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=8.0, core=true, t24Name=SETTLED.Y.N)
+		/* Security number for the transaction. */
+		SECURITY_NUMBER : mml:Integer
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates the security number")
+			@t24:i (align=R, inputBehaviour=N, maxLength=6, sysNumber=9.0, core=true, t24Name=SECURITY.NUMBER)
+		/* Value date of the outstanding settlement. */
+		VALUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=10.0, core=true, t24Name=VALUE.DATE)
+		CUSTOMER : mml:Integer
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, core=false, t24Name=CUSTOMER, genOperation="FIELDS(SEC.POS.KEY,\'-\',1,1)")
+		CU_PORTFOLIO : mml:Integer
+			@i18n:Label (en="Portfolio No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, core=false, t24Name=CU.PORTFOLIO, genOperation="FIELDS(SEC.POS.KEY,\'.\',1,1)")
+		DEPOSITORY : T24BusinessTypes:CUS
+			@i18n:Label (en=Depository)
+			@i18n:Tooltip (en="Depository the Security to be delivered from/to")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, core=false, t24Name=DEPOSITORY, genOperation="SUBR(\"ENQ.TRANS\", \"SC.SETTLEMENT\",@ID, \"DEPOSITORY\"); SUBR(\"ENQ.TRANS\", \"SC.SETTLEMENT$NAU\", @ID, \"DEPOSITORY\"); IF @1 EQ \"\" THEN @2 ELSE @1")
+		BROKER_NO -> byValue SCT_Settlement:SC_SETTLE_CUST__BROKER_NO *
+		UNSETT_FLAG -> byValue SCT_Settlement:SC_SETTLE_CUST__UNSETT_FLAG *
+		STP_ORD_CHK : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=100, core=false, t24Name=STP.ORD.CHK, genOperation="ORD.NO>SEC.OPEN.ORDER>CONFIRMATION")
+		ORD_NO : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=100, core=false, t24Name=ORD.NO, genOperation="@ID>SEC.TRADE>CU.ORDER.NOS")
+	}
+	SC_SETTLE_CUST__SEC_POS_KEY
+	{
+		/* Multi-valued field associated with the UNSETT.NOM.CR, UNSETT.AMT.CR, UNSETT.NOM.DR, UNSETT.AMT.DR and SEC.TRANS.ID fields. This field will comtain the ID of all the SECURITY.POSITION records that have been updated by this SC.SETTLEMENT and remain unsettled.
+Validation Rules
+
+No input, system generated field */
+		SEC_POS_KEY : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=1.0, core=true, t24Name=SEC.POS.KEY)
+		/* Multi-valued field associated with the SEC.POS.KEY, UNSETT.AMT.CR, UNSETT.NOM.DR, UNSETT.AMT.DR and SEC.TRANS.ID fields. This field will contain the unsettled nominal in the security position it is associated with.
+Validation Rules
+
+No input, system generated field */
+		UNSETT_NOM_CR : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=2.0, core=true, t24Name=UNSETT.NOM.CR)
+		/* Multi-valued field associated with the SEC.POS.KEY, UNSETT.NOM.CR, UNSETT.NOM.DR, UNSETT.AMT.DR and SEC.TRANS.ID fields. This field will contain the unsettled cash in the security position it is associated with.
+Validation Rules
+
+No input, system generated field */
+		UNSETT_AMT_CR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, t24Name=UNSETT.AMT.CR, typeModifiers="7D")
+		/* Multi-valued field associated with the SEC.POS.KEY, UNSETT.NOM.CR, UNSETT.AMT.CR, UNSETT.AMT.DR and SEC.TRANS.ID fields. This field will contain the unsettled nominal in the security position it is associated with.
+Validation Rules
+
+No input, system generated field */
+		UNSETT_NOM_DR : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=4.0, core=true, t24Name=UNSETT.NOM.DR)
+		/* Multi-valued field associated with the SEC.POS.KEY, UNSETT.NOM.CR, UNSETT.AMT.CR, UNSETT.NOM.DR, and SEC.TRANS.ID fields. This field will contain the unsettled cash in the security position it is associated with.
+Validation Rules
+
+No input, system generated field */
+		UNSETT_AMT_DR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=5.0, core=true, t24Name=UNSETT.AMT.DR, typeModifiers="7D")
+		SEC_TRANS_ID -> byValue SCT_Settlement:SC_SETTLE_CUST__SEC_POS_KEY__SEC_TRANS_ID *
+	}
+	SC_SETTLE_CUST__SEC_POS_KEY__SEC_TRANS_ID
+	{
+		/* ID of the SECURITY.TRANS record that updated the SECURITY.POSITION record from the transaction.
+Validation Rules
+
+No input, system generated field */
+		SEC_TRANS_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=22, sysNumber=6.0, core=true, t24Name=SEC.TRANS.ID)
+	}
+	SC_SETTLE_CUST__BROKER_NO
+	{
+		BROKER_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, core=false, t24Name=BROKER.NO, genOperation="SUBR(\"ENQ.TRANS\", \"SC.SETTLEMENT\",@ID, \"BROKER.NO\"); SUBR(\"ENQ.TRANS\", \"SC.SETTLEMENT$NAU\", @ID, \"BROKER.NO\"); IF @1 EQ \"\" THEN @2 ELSE @1")
+	}
+	SC_SETTLE_CUST__UNSETT_FLAG
+	{
+		UNSETT_FLAG : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=25, core=false, t24Name=UNSETT.FLAG, genOperation="SUBR(\"E.MB.GET.UNSETT.FLG\",@ID,\'\')")
+	}
+	SC_SETTLEMENT
+		@t24:i (t24Name=SC.SETTLEMENT, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Unique transaction reference. */
+		TRANS_REF -> SCT_Settlement:SC_SETTLEMENT PK required
+			@i18n:Label (en="Transaction No")
+			@i18n:Tooltip (en="Indicates the transaction reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=97, sysNumber=0.0, core=true, businessType=A, t24Name=TRANS.REF)
+		/* Identifies the Security to be settled.
+Each security involved in the original transaction will have a separate settlement record.
+Therefore there will be only one settlement record from transactions in SEC.TRADE and SECURITY.TRANSFER that have requested actual settlement.
+Transactions from DIARY and ENTITLEMENT may create more than one settlement record.
+Transactions from POSITION.TRANSFER will create two settlement records, one each for the transfer of stock out of one depository and the transfer into another depository.
+Validation Rules
+
+
+Internally generated field. Defaulted from the         transaction which created this settlement record. */
+		SECURITY_NUMBER -> SCO_SecurityMasterMaintenance:SECURITY_MASTER
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates the security number")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=1.0, core=true, businessType=SEC, t24Name=SECURITY.NUMBER)
+		/* Identifies the Depository that holds or is to receive the Security concerned.
+In the case of POSITION.TRANSFER, two records are created for each security involved with the depository field differing in the two records as the DEPOSITORY.FROM and the DEPOSITORY.TO from the POSITION.TRANSFER record.
+
+
+
+
+Internally generated field. Defaulted from the         transaction which created this settlement record.
+Cannot contain the value 'ALL' for a rights issue. */
+		DEPOSITORY -> SC_Config:CUSTOMER_SECURITY
+			@i18n:Label (en=Depository)
+			@i18n:Tooltip (en="Depository the Security to be delivered from/to")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=2.0, core=true, businessType=CUS, t24Name=DEPOSITORY)
+		/* Date of the trade. Deal Date. Tax Point.
+
+
+
+
+Internally generated field. Defaulted from the         transaction which created this settlement record. */
+		TRADE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Trade Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=3.0, core=true, t24Name=TRADE.DATE)
+		/* Value date of the trade i.e. date after which the transaction can be settled.
+
+
+
+
+Internally generated field. Defaulted from the         transaction which created this settlement record. */
+		VALUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=4.0, core=true, t24Name=VALUE.DATE)
+		/* Currency that the trade is to be settled in.
+
+
+
+
+Internally generated field. Defaulted from the         transaction which created this settlement record. */
+		TRADE_CCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en="Trade Currency")
+			@i18n:Tooltip (en="Identifies the currency of the transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=5.0, core=true, businessType=CCY, t24Name=TRADE.CCY)
+		/* Total number of shares for settlement for the security specified in the field
+Where Multi Client/Multi Broker transactions have been input, the system will calculate the total per broker to be received or delivered and populate the appropriate fields at the time of creation of the settlement record.
+At this level we are not concerned with the Customer/Broker breakdown, merely the Net amount of stock to be settled.
+
+
+
+
+Internally calculated at the time of creation of the         record. */
+		TOTAL_NOMINAL : T24BusinessTypes:NOMAMT
+			@i18n:Label (en="Total Nominal")
+			@i18n:Tooltip (en="Total Nominal")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=6.0, core=true, t24Name=TOTAL.NOMINAL)
+		/* The total amout of cash to be Credited to or Debited from the brokers in this transaction.
+Validation Rules
+
+
+Internally calculated at the time of creation of the         record. */
+		TOTAL_BROKER_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Broker Amount")
+			@i18n:Tooltip (en="Total Broker Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=7.0, core=true, t24Name=TOTAL.BROKER.AMT, typeModifiers="5D")
+		/* Total amount of cash to be Debited from or Credited to the Customers on this transaction.
+Validation Rules
+
+
+Internally calculated at the time of creation of the         record. */
+		TOTAL_CUST_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Cust Amount")
+			@i18n:Tooltip (en="Total Customer Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=8.0, core=true, t24Name=TOTAL.CUST.AMT, typeModifiers="5D")
+		/* Total number of nominals settled as a result of current input to the Broker side of this transaction.
+Validation Rules
+
+
+Internally calculated field.
+Updated as soon as data is input in */
+		TOTAL_NOM_SETTLED : T24BusinessTypes:NOMAMT
+			@i18n:Label (en="Total Nom Settled")
+			@i18n:Tooltip (en="Total Nominal Settled")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=9.0, core=true, t24Name=TOTAL.NOM.SETTLED)
+		/* Total number of nominals reversed (unsettled) as a result of the current input to the Broker side on this transaction.
+Validation Rules
+
+
+Internally generated field.
+Updated as soon as data is input at BR.REVERSE.NOM. */
+		TOTAL_NOM_REVERSED : T24BusinessTypes:NOMAMT
+			@i18n:Label (en="Total Nom Reversed")
+			@i18n:Tooltip (en="Total Nominal Reversed")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=10.0, core=true, t24Name=TOTAL.NOM.REVERSED)
+		/* This field holds the number of nominals yet to be settled on the customer's side.
+This field will be updated at the same time as
+The value in this field will start with the value in
+Validation Rules
+
+
+Internally calculated field.
+Updated as soon as data is input at
+Must be zero at the time of committment. */
+		NOMINAL_TO_SETTLE : T24BusinessTypes:NOMAMT
+			@i18n:Label (en="Nominal To Settle")
+			@i18n:Tooltip (en="Nominal To Settle")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=11.0, core=true, t24Name=NOMINAL.TO.SETTLE)
+		/* This field holds the number of nominals yet to be reversed on the customer's side.
+This field will be updated at the same time as
+The value in this field starts with the value of
+Validation Rules
+
+
+Internally generated field.
+Updated as soon as data is input at
+Must be zero at the time of committment. */
+		NOMINAL_TO_REVERSE : T24BusinessTypes:NOMAMT
+			@i18n:Label (en="Nominal To Rev")
+			@i18n:Tooltip (en="Nominal To Reverse")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=12.0, core=true, t24Name=NOMINAL.TO.REVERSE)
+		/* This field holds the total amount of cash settled as a result of current input to the Broker side in this transaction.
+Validation Rules
+
+
+Internally generated field.
+Updated as soon as data is input at
+The value in this field is cleared at authorisation. */
+		BRK_AMT_SETTLED : T24BusinessTypes:AMT
+			@i18n:Label (en="Broker Amount Settled")
+			@i18n:Tooltip (en="Total amount of cash settled for the broker")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=13.0, core=true, t24Name=BRK.AMT.SETTLED, typeModifiers="5D")
+		/* This is the total amount of cash reversed(unsettled) as a result of the current input to the Broker side in this transaction.
+Validation Rules
+
+
+Internally generated field.
+Updated as soon as data is input at
+The value in this field is cleared at authorisation. */
+		BRK_AMT_REVERSED : T24BusinessTypes:AMT
+			@i18n:Label (en="Broker Amt Rev")
+			@i18n:Tooltip (en="Broker Amount Reversed")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=14.0, core=true, t24Name=BRK.AMT.REVERSED, typeModifiers="5D")
+		/* This field holds the total amount of cash settled as a result of the current input to the Customer side in this transaction.
+Validation Rules
+
+
+Internally generated field.
+Updated as soon as data is input at
+The value in this field is cleared at authorisation. */
+		CUS_AMT_SETTLED : T24BusinessTypes:AMT
+			@i18n:Label (en="Customer Amount Settled")
+			@i18n:Tooltip (en="Indicates the total amount of cash settled ")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=15.0, core=true, t24Name=CUS.AMT.SETTLED, typeModifiers="5D")
+		/* This field holds the total amount of cash reversed(unsettled) as a result of the current input to the Customer side in this transaction.
+Validation Rules
+
+
+Internally generated field.
+Updated as soon as data is input at
+The value in this field is cleared at authorisation. */
+		CUS_AMT_REVERSED : T24BusinessTypes:AMT
+			@i18n:Label (en="Cust Amt Reversed")
+			@i18n:Tooltip (en="Customer Amount Reversed")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=16.0, core=true, t24Name=CUS.AMT.REVERSED, typeModifiers="5D")
+		BROKER_NO -> byValue SCT_Settlement:SC_SETTLEMENT__BROKER_NO *
+		CU_PORTFOLIO -> byValue SCT_Settlement:SC_SETTLEMENT__CU_PORTFOLIO *
+		/* This field indicates whether or not counterparty limit checking is taking place.
+If this field is set to "YES", then counterparty limit is associated with the first broker and the BR.AMT.OUTSTAND field will be used to update the counterparty limit.
+Counterparty limit would work with single broker.
+Validation Rules */
+		CPTY_LIMIT : T24BusinessTypes:A
+			@i18n:Label (en="Counterparty Limit")
+			@i18n:Tooltip (en="Counterparty Limit")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=75.0, core=true, t24Name=CPTY.LIMIT)
+		/* Holds the limit reference, if this transaction has updated counterparty limit.
+Validation Rules */
+		CPTY_LIMIT_REF : T24BusinessTypes:A
+			@i18n:Label (en="Cpty Limit Ref")
+			@i18n:Tooltip (en="Counterpary Limit Reference")
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=76.0, core=true, t24Name=CPTY.LIMIT.REF)
+		/* Picks up the date when the settlement is completed.
+Validation Rules
+
+
+Internally generated field.
+Updated with today's date when settlement is complete. ie         when the outstanding nominals and amounts are zero. */
+		SETTLEMENT_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Settlement Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=77.0, core=true, t24Name=SETTLEMENT.DATE)
+		/* Holds the SC Transaction code of the Customer side.
+If the
+Validation Rules
+
+
+Internally generated field.
+Obtained from the transaction which has created the         particular
+Will comprise a valid */
+		TRANS_CODE -> SC_Config:SC_TRANS_NAME
+			@i18n:Label (en="Trans Code")
+			@i18n:Tooltip (en="Indicates the Transaction Code")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=78.0, core=true, businessType=S, t24Name=TRANS.CODE)
+		/* The value to this field is populated from the field PARENT.TXN.ID of SECURITY.TRANSFER record. This field is a no-input field and is updated only for those transaction that come from REPO.
+
+Validation Rules
+
+No input, Updated from Security Transfer record */
+		PARENT_TXN_ID : T24BusinessTypes:A
+			@i18n:Label (en="Parent Trans Ref")
+			@i18n:Tooltip (en="Parent Transaction Id")
+			@t24:i (align=L, inputBehaviour=E, maxLength=35, sysNumber=79.0, core=true, t24Name=PARENT.TXN.ID)
+		/* Shows the service agent reference from which the transaction originated. */
+		THREAD_KEY : T24BusinessTypes:A
+			@i18n:Label (en="Thread Key")
+			@i18n:Tooltip (en="Holds the thread Key for service based orders")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=80.0, core=true, t24Name=THREAD.KEY)
+		PARENT : SCT_Settlement:SC_SETTLEMENT__PARENT
+			@i18n:Label (en=Parent)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=81.0, core=true, t24Name=PARENT)
+		PARENT_REFERENCE : T24BusinessTypes:ANY
+			@i18n:Label (en="Parent Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=82.0, core=true, t24Name=PARENT.REFERENCE)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=83.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=84.0, core=true, t24Name=RESERVED.1)
+		STATEMENT_NOS -> byValue SCT_Settlement:SC_SETTLEMENT__STATEMENT_NOS *
+		OVERRIDE -> byValue SCT_Settlement:SC_SETTLEMENT__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=88.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=89.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_Settlement:SC_SETTLEMENT__INPUTTER *
+		DATE_TIME -> byValue SCT_Settlement:SC_SETTLEMENT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=92.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=93.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=94.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=95.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=96.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		CUSTOMER : mml:Integer
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, core=false, t24Name=CUSTOMER, genOperation="FIELD(CU.PORTFOLIO,\"-\",1,1)")
+		UNSETT_FLAG : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=25, core=false, t24Name=UNSETT.FLAG, genOperation="SUBR(\"E.MB.GET.UNSETT.FLG\",@ID,\"\")")
+	}
+	SC_SETTLEMENT__BROKER_NO
+	{
+		/* Broker involved in the transaction.
+Validation Rules
+
+
+Internally generated field. Defaulted from the         transaction which created this settlement record. */
+		BROKER_NO -> SC_Config:CUSTOMER_SECURITY
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=17.0, core=true, businessType=CUS, t24Name=BROKER.NO, mvSvExpansionAccess=NOMODIFY)
+		/* Delivery instructions for the original transaction.
+Validation Rules
+
+
+Internally generated field. Defaulted from the         transaction which created this settlement record. */
+		BR_DEL_INSTR -> SC_Config:SC_DEL_INSTR
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=18.0, core=true, businessType=S, t24Name=BR.DEL.INSTR)
+		/* Number of nominals settled so far for the associated Broker.
+Thisvalue in this field will be
+Validation Rules
+
+
+This field is updated at Authorisation. */
+		BR_NOM_SETTLED : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=19.0, core=true, t24Name=BR.NOM.SETTLED)
+		/* Total outstanding (unsettled) securities for the associated Broker.
+The value in this field is
+Validation Rules
+
+
+Internally calculated field.
+Updated as soon as data is input in */
+		BR_NOM_OUTSTAND : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=20.0, core=true, t24Name=BR.NOM.OUTSTAND)
+		/* Allows the user to input the number of stock to be settled.
+Input into this field
+Validation Rules
+
+
+This field and
+The value in this cannot be greater than
+At Authorisation the value starting from this field to */
+		BR_NOM_RECD_DEL : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, core=true, t24Name=BR.NOM.RECD.DEL, typeModifiers=-)
+		/* Allows the user to reverse(unsettle) stock which was previously settled in this transaction.
+An input into this field
+Validation Rules
+
+
+This field and
+The value in this field cannot be greater than */
+		BR_REVERSE_NOM : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=BR.REVERSE.NOM, typeModifiers=-)
+		/* Date on which the security was settled/ unsettled.
+Defaults to the value of
+Validation Rules
+
+
+The value in this field cannot be greater than today. */
+		BR_NOM_VAL_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=BR.NOM.VAL.DATE)
+		/* The delivery reference of the incoming message that settled/unsettled the nominal.
+Validation Rules
+
+
+For future use. */
+		BR_NOM_DEL_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=24.0, core=true, t24Name=BR.NOM.DEL.REF)
+		/* Holds the total amount of cash settled so far for the associated Broker.
+The value in this field is
+Validation Rules
+
+
+This field is updated at Input stage. */
+		BR_AMT_SETTLED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=25.0, core=true, t24Name=BR.AMT.SETTLED, typeModifiers="-5D")
+		/* Total amount of outstanding(unsettled) cash for the associated broker.
+The value in this field is
+Validation Rules
+
+
+This field is updated at Input stage. */
+		BR_AMT_OUTSTAND : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=26.0, core=true, t24Name=BR.AMT.OUTSTAND, typeModifiers="-5D")
+		/* Allows the user to input the amount of cash to be settled for the broker.
+When data is input into the
+Input into this field immediately updates the following fields
+Validation Rules
+
+
+This field is mutually exclusive with
+The value in this field cannot be greater than
+At Authorisation the value starting from this field to */
+		BR_AMT_REC_PAID : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=27.0, core=true, t24Name=BR.AMT.REC.PAID, typeModifiers="-5D")
+		/* Allows the user to reverse (unsettle) cash amounts for the broker.
+When data is input into the BR.REVERSE.NOM field, a suggested amount for reversal is defaulted into this field using the formula BR
+An input into this field immediately updates the TOTAL.AMT.REVERSED and AMOUNT.TO.REVERSE fields, increasing them.
+Validation Rules
+
+
+This field and BR.AMT.REC.PAID are mutually exclusive.
+Cannot be greater than the value in BR.AMT.SETTLED. */
+		BR_REVERSE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=28.0, core=true, t24Name=BR.REVERSE.AMT, typeModifiers="-5D")
+		/* Date on which the amount was settled/ unsettled.
+Defaults to the value on VALUE.DATE if null and if data exists in BR.AMT.REC.PAID or BR.REVERSE.AMT
+Validation Rules
+
+
+Cannot be greater than today. */
+		BR_AMT_VAL_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=29.0, core=true, t24Name=BR.AMT.VAL.DATE)
+		/* Holds the delivery instruction of the incoming message that settled/ unsettled the nominal.
+Validation Rules
+
+
+For future use. */
+		BR_AMT_DEL_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=30.0, core=true, t24Name=BR.AMT.DEL.REF)
+		/* This field holds incoming MT544-547 delivery reference.
+system updated field
+Validation Rules
+Up to 35 characters in length */
+		DEPO_CONF_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=31.0, core=true, t24Name=DEPO.CONF.REF)
+		/* Shows whether the broker settlement is automatic (Y) or not. */
+		BR_AUTO_SETT : SCT_Settlement:SC_SETTLEMENT__BROKER_NO__BR_AUTO_SETT
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=32.0, core=true, t24Name=BR.AUTO.SETT)
+		/* This field will contain the Local Currency Equivalent of Broker's Outstanding Amount.
+Validation Rules
+
+
+This is a NOINPUT field. */
+		BR_EXPOSURE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=33.0, core=true, t24Name=BR.EXPOSURE)
+		/* Field which is used to store any comments or free format narrative concerning the Broker or the transaction.
+Validation Rules
+
+
+Free Format narrative text. Up to 35 maximum characters. */
+		BR_NARRATIVE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=34.0, core=true, t24Name=BR.NARRATIVE)
+		/* Shows the amount posted to the settlement tolerances internal account, only shown when full settlement of nominal is made and only if settlement tolerances are setup for the depository involved. */
+		BR_TOL_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=35.0, core=true, t24Name=BR.TOL.AMT, typeModifiers="-5D")
+		BR_RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=36.0, core=true, t24Name=BR.RESERVED4)
+		BR_RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=37.0, core=true, t24Name=BR.RESERVED3)
+		BR_RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=38.0, core=true, t24Name=BR.RESERVED2)
+		BR_RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=39.0, core=true, t24Name=BR.RESERVED1)
+	}
+	SC_SETTLEMENT__CU_PORTFOLIO
+	{
+		/* Portfolio which holds the unsettled cash/stock.
+Validation Rules
+
+
+Internally generated field. Copied from the Transaction         which has created the particular
+The value in this field must exist in the */
+		CU_PORTFOLIO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER
+			@t24:i (align=L, inputBehaviour=N, maxLength=18, sysNumber=40.0, core=true, businessType=SAM, t24Name=CU.PORTFOLIO)
+		/* Nominee for the unsettled stock/ cash.
+This field contains the value that is part of the
+Validation Rules
+
+
+Internally generated field. Copied from the Transaction         which has created the particular
+An input to this field must exist in */
+		CU_NOMINEE -> SC_Config:NOMINEE_CODE
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=41.0, core=true, businessType=S, t24Name=CU.NOMINEE)
+		/* Holds the total nominals settled so far for the associated portfolio.
+The value in this field is
+Validation Rules
+
+
+This field would be updated at Input stage. */
+		CU_NOM_SETTLED : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=42.0, core=true, t24Name=CU.NOM.SETTLED)
+		/* Total number of outstanding(unsettled) nominals with the associated portfolio.
+The value in this field would be
+Validation Rules
+
+
+This field is updated at Input stage. */
+		CU_NOM_OUTSTAND : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=43.0, core=true, t24Name=CU.NOM.OUTSTAND)
+		/* Allows the user to input the number of stock to be settled.
+Input into this field immediately updates
+Validation Rules
+
+
+This field and
+The value in this field cannot be greater than
+The value in this field would be cleared including the         fields upto */
+		CU_NOM_RECD_DEL : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=44.0, core=true, t24Name=CU.NOM.RECD.DEL, typeModifiers=-)
+		/* Allows the user to reverse(unsettle) stock for the customer.
+An input into this field
+Validation Rules
+
+
+This field and
+The value in this field cannot be greater than */
+		CU_REVERSE_NOM : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=45.0, core=true, t24Name=CU.REVERSE.NOM, typeModifiers=-)
+		/* Value date of the settled/ unsettled nominals.
+If data in input in the
+Validation Rules
+
+
+The value in this field cannot be greater than today. */
+		CU_NOM_VAL_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=46.0, core=true, t24Name=CU.NOM.VAL.DATE)
+		/* Delivery reference of the incoming message that settled/unsettled the nominal.
+Validation Rules
+
+
+For future use. */
+		CU_NOM_DEL_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=47.0, core=true, t24Name=CU.NOM.DEL.REF)
+		/* Holds the total amount of cash settled so far, for the associated portfolio.
+The value in this field is
+Validation Rules
+
+
+This field is updated at Authorisation. */
+		CU_AMT_SETTLED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=48.0, core=true, t24Name=CU.AMT.SETTLED, typeModifiers="-5D")
+		/* Holds the total amount of outstanding(unsettled) cash for the associated portfolio.
+The value in this field is
+Validation Rules
+
+
+This field is updated at Input stage. */
+		CU_AMT_OUTSTAND : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=49.0, core=true, t24Name=CU.AMT.OUTSTAND, typeModifiers="-5D")
+		/* Allows the user to input the amount of cash to be settled for the porfolio.
+When data is input into the
+Input into this field updates
+Validation Rules
+
+
+This field is mutually exclusive with
+The value in this field cannot be greater than the value         in
+The value starting from this field to */
+		CU_AMT_REC_PAID : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=50.0, core=true, t24Name=CU.AMT.REC.PAID, typeModifiers="-5D")
+		/* Allows the user to reverse(unsettle) the cash amount that was previously settled.
+When data is input into the
+An input into this field updates the
+Validation Rules
+
+
+This field is mutually exclusive with
+The value in this field cannot be greater than the value         in */
+		CU_REVERSE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=51.0, core=true, t24Name=CU.REVERSE.AMT, typeModifiers="-5D")
+		/* Value date of the settled/ unsettled amount.
+If data is input in the
+Validation Rules
+
+
+The value in this field cannot be greater than today. */
+		CU_AMT_VAL_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=52.0, core=true, t24Name=CU.AMT.VAL.DATE)
+		/* The delivery reference of the incoming message that settled/unsettled the nominal.
+Validation Rules
+
+
+For future use */
+		CU_AMT_DEL_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=53.0, core=true, t24Name=CU.AMT.DEL.REF)
+		/* Holds the currency on the settlement account.
+Validation Rules
+
+
+No input field. */
+		CU_ACC_CCY : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=54.0, core=true, t24Name=CU.ACC.CCY)
+		/* Holds the amount to be credited/ debited to the settlement account.
+Validation Rules
+
+
+No input field. */
+		CU_AMT_ACY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=55.0, core=true, t24Name=CU.AMT.ACY, typeModifiers="54.XD")
+		/* This shows the exchange rate between the account currency and the trade currency.
+Validation Rules
+
+
+No input field. */
+		CU_XRATE_ACY : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=56.0, core=true, t24Name=CU.XRATE.ACY)
+		/* Shows whether the customer settlement is automatic (Y) or not. */
+		CU_AUTO_SETT : SCT_Settlement:SC_SETTLEMENT__CU_PORTFOLIO__CU_AUTO_SETT
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=57.0, core=true, t24Name=CU.AUTO.SETT)
+		/* Field which is used to store any comments or free format narrative concerning the customer or the transaction.
+Validation Rules
+
+
+Free Format narrative text. Up to 35 maximum characters. */
+		CU_NARRATIVE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=58.0, core=true, t24Name=CU.NARRATIVE)
+		/* Validation Rules
+
+
+No input field. */
+		CU_MC_RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=59.0, core=true, t24Name=CU.MC.RESERVED1)
+		/* This field is similar to CU.AMT.SETTLED and stores the borrow amount settled till date. */
+		BW_AMT_SETTLED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=60.0, core=true, t24Name=BW.AMT.SETTLED, typeModifiers="-5D")
+		/* This field  stores the borrow amount to be settled. This field is mapped  from the BORROW.AMT field of ENTITLEMENT */
+		BW_AMT_OUTSTAND : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=61.0, core=true, t24Name=BW.AMT.OUTSTAND, typeModifiers="-5D")
+		/* This field is similar to CU.AMT.REC.PAID and is used to capture the customer borrow amount being settled. */
+		BW_AMT_REC_PAID : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=62.0, core=true, t24Name=BW.AMT.REC.PAID, typeModifiers="-5D")
+		/* This field is similar to CU.REVERSE.AMT and is used to capture the customer settled borrow amout being reversed. */
+		BW_REV_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=63.0, core=true, t24Name=BW.REV.AMT, typeModifiers="-5D")
+		/* This field is similar to CU.AMT.VAL.DATE and is used to capture the settlement/reversal date for the borrow amount. */
+		BW_AMT_VAL_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=64.0, core=true, t24Name=BW.AMT.VAL.DT)
+		/* This field is similar to CU.AMT.SETTLED and stores the lending amount settled till date. */
+		LT_AMT_SETTLED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=65.0, core=true, t24Name=LT.AMT.SETTLED, typeModifiers="-5D")
+		/* This field stores the lending amount to be settled.  This field is mapped  from the LENT.AMT field of ENTITLEMENT. */
+		LT_AMT_OUTSTAND : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=66.0, core=true, t24Name=LT.AMT.OUTSTAND, typeModifiers="-5D")
+		/* This field is similar to CU.AMT.REC.PAID and is used to capture the customer lending amount being settled. */
+		LT_AMT_REC_PAID : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=67.0, core=true, t24Name=LT.AMT.REC.PAID, typeModifiers="-5D")
+		/* This field is similar to CU.REVERSE.AMT and is used to capture the customer settled lending amount being reversed. */
+		LT_AMT_REV : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=68.0, core=true, t24Name=LT.AMT.REV, typeModifiers="-5D")
+		/* This field is similar to CU.AMT.VAL.DATE and is used to capture the settlement/reversal date for the lending amount. */
+		LT_AMT_VAL_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=69.0, core=true, t24Name=LT.AMT.VAL.DT)
+		/* Specifies whether MT544-547 Confirmation of Delivery advice should be generated for the Customer. This field gets populated from GEN.SETT.DEL field in CUSTOMER.SECURITY for the particular customer which can be overridden at the tranasction level.
+
+Validation Rules
+Single value field within the customer mutli value set which would accept ‘YES' or null as a valid value. */
+		GEN_SETT_DEL : SCT_Settlement:SC_SETTLEMENT__CU_PORTFOLIO__GEN_SETT_DEL
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=70.0, core=true, t24Name=GEN.SETT.DEL)
+		/* Single value field within the customer multi value set which will store the outward MT544-547 delivery reference key generated by the system.
+
+Validation Rules
+No input field */
+		CU_DEL_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=71.0, core=true, t24Name=CU.DEL.REF)
+		CU_RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=72.0, core=true, t24Name=CU.RESERVED3)
+		CU_RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=73.0, core=true, t24Name=CU.RESERVED2)
+		CU_RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=74.0, core=true, t24Name=CU.RESERVED1)
+	}
+	SC_SETTLEMENT__STATEMENT_NOS
+	{
+		/* A number Generated automatically by the system after authorisation which identifies either a statement entry or a category entry in respect of a transaction. After validation but before authorisation, the value 'VAL' will be inserted in this field to indicate that the transaction has been validated successfully but is still waiting authorisation.
+After authorisation of a Funds Transfer transaction, the system will automatically insert a number into this field and this number may refer to a statement entry or a category entry depending on the value contained in the corresponding multivalue fields. The following examples will illustrate the use of this field.
+Example 1:
+On the execution date of a transaction there will normally be an entry on a Customer account and the following type of number will be generated at this field:
+92.1 STMT.NO  673732684.48 92.2 STMT.NO  1
+The number automatically generated in field 92.1 is unique to the transaction in question and is built in the following way:
+1. The first four digits '6737' indicate the number of days since the 1st of January 1968. In our example, it corresponds to the 11th of June 1986.
+2. The next five digits '32684' indicate the number of seconds since midnight. In our example, it corresponds to an entry generated on line at 09:04:44 AM.
+3. The last two digits '48' indicate the number of hundreds of seconds.
+The value assigned (again automatically) to field 92.2 identifies the number in 92.1 as a statement entry number. If the User wishes to call this statement entry record on to the screen the User will invoke the STMT.ENTRY Application and the type the following at 'Awaiting ID' :-
+673732684.480001
+where the suffix '0001' identifies it as the first statement entry (there will normally be more than one as the next example will illustrate).
+Example 2:
+A second example outlined here is similar to that in example 1, in that there is a statement entry on value date for both the our account and the customer account. The system handles this case as follows:
+92.1 STMT.NO  673732684.48 92.2 STMT.NO  1-2
+Once again field 92.1 contains the identification number automatically generated by the system while field 92.2 now contains two separate numbers signifying that there are infact two separate statement entries, one in respect of the our account pay and one in respect of the our account receive. If the User wishes to see either of these he must first of all invoke STMT.ENTRY followed by the desired function and then at 'Awaiting ID' type EITHER:
+673732684.480001
+where the addition of the suffix '0001' identifies the statement entry in respect of the our account OR
+673732684.480002
+where the addition of the suffix '0002' identifies the statement entry in respect of the customer account.
+Example 3:
+A third example might be that of a category entry generated at initiation of a transaction where commission or charges have been debited to the customer and credited to a profit and loss category code. In this case the following entries are generated on the transaction:
+92.1 STMT.NO  673732684.48 92.3 STMT.NO  1
+Once again the standard type number is generated and inserted at field 92.1
+Now, however, field 92.2 is replaced by field 92.3 which now identifies the number in 92.1 as a category entry and not a statement entry.
+To call this category entry record onto the screen the User must now type:
+CATEG.ENTRY at 'Awaiting Application'
+followed by:
+673732684.480001 at 'Awaiting ID'.
+
+
+
+
+Internal Multivalue field. */
+		STATEMENT_NOS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=86.0, core=true, t24Name=STATEMENT.NOS)
+	}
+	SC_SETTLEMENT__OVERRIDE
+	{
+		/* Contains details of any overrides applicable to this transaction.
+
+
+
+
+Up to 35 type A (alphanumeric) characters.
+Multivalue field. (Internal field.) */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=87.0, core=true, t24Name=OVERRIDE)
+	}
+	SC_SETTLEMENT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=90.0, core=true, t24Name=INPUTTER)
+	}
+	SC_SETTLEMENT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=91.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Live file for holding details of unsettled transactions and the contra settlement record in
+the original security for a Stock Conversion event */
+	SC_UNSETTL_TXNS
+		@t24:i (t24Name=SC.UNSETTL.TXNS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Record key containing
+
+Entitlement id '*' Transaction Ref incase the record holds detail of unsettled transactions.
+or
+The Contra Settlement Record id if the records holds the contra settlement record detail. */
+		UNSETT_TXN_ID -> SCT_Settlement:SC_UNSETTL_TXNS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=85, sysNumber=0.0, core=true, businessType=A, t24Name=UNSETT.TXN.ID)
+		/* Flag to indicate that the record is already processed to avoid the same record getting selected for processing next time. */
+		VALUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=VALUE.DATE)
+		BROKER -> byValue SCT_Settlement:SC_UNSETTL_TXNS__BROKER *
+		/* Portfolio for which entitlement is created. */
+		PORTFOLIO_NO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER
+			@i18n:Label (en="Portfoio No")
+			@i18n:Tooltip (en="Indicates the Portfolio Account of the customer")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=7.0, core=true, businessType=S, t24Name=PORTFOLIO.NO)
+		/* Unsettled nominal for the customer in the underlying transaction. */
+		CU_NOM_OUTSTAND : T24BusinessTypes:NOMAMT
+			@i18n:Label (en="Cus Nom Outstanding")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=8.0, core=true, t24Name=CU.NOM.OUTSTAND)
+		/* Settled nominal(out of the unsettled nominal in the CU.NOM.OUTSTAND field) for the customer in the underlying transaction. */
+		CU_NOM_SETTLED : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=9.0, core=true, t24Name=CU.NOM.SETTLED)
+		/* Unsettled cash for the customer in the underlying transaction. */
+		CU_CASH_OUTSTAND : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=10.0, core=true, t24Name=CU.CASH.OUTSTAND)
+		/* Settled cash(out of the unsettled cash in the CU.CASH.OUTSTAND field) for the customer
+in the underlying transaction. */
+		CU_CASH_SETTLED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=11.0, core=true, t24Name=CU.CASH.SETTLED)
+		/* Flag to indicate if Diary is processed under Actual Settlement or not.
+Holds the value of the field SEC.HOLD.SETTLE from DIARY record. */
+		DIARY_ACT_SETT : SCT_Settlement:SC_UNSETTL_TXNS__DIARY_ACT_SETT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, t24Name=DIARY.ACT.SETT)
+		/* Flag to indicate the Reversal if Entitlement record is reversed. */
+		REVERSAL_MARKER : SCT_Settlement:SC_UNSETTL_TXNS__REVERSAL_MARKER
+			@i18n:Label (en="Rev Marker")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=13.0, core=true, t24Name=REVERSAL.MARKER)
+		/* Flag to indicate that the record is already processed to avoid the same record getting selected for processing next time. */
+		PROCESSED : SCT_Settlement:SC_UNSETTL_TXNS__PROCESSED
+			@i18n:Label (en=Processed)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=14.0, core=true, t24Name=PROCESSED)
+	}
+	SC_UNSETTL_TXNS__BROKER
+	{
+		/* Broker ID (Associated multivalue - fields BROKER to CASH.SETTLED) */
+		BROKER -> SC_Config:CUSTOMER_SECURITY
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=2.0, core=true, businessType=CUS, t24Name=BROKER)
+		/* Unsettled nominal for the broker in the underlying transaction for the specific customer for whom entitlement is created.
+
+(Associated multivalue - fields BROKER to CASH.SETTLED) */
+		NOM_OUTSTAND : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, t24Name=NOM.OUTSTAND)
+		/* Settled nominal (out of the unsettled nominals in the NOM.OUTSTAND field) for the broker in the underlying transaction for the specific customer for whom entitlement is created.
+
+(Associated multivalue - fields BROKER to CASH.SETTLED) */
+		NOM_SETTLED : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=4.0, core=true, t24Name=NOM.SETTLED)
+		/* Unsettled amount for the broker in the underlying trade for the specific customer
+for whom entitlement is created.
+
+(Associated multivalue - fields BROKER to CASH.SETTLED) */
+		CASH_OUTSTAND : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=5.0, core=true, t24Name=CASH.OUTSTAND)
+		/* Settled cash (out of the unsettled cash in the CASH.OUTSTAND field) for the broker
+in the underlying transaction for the specific customer for whom entitlement is created.
+
+(Associated multivalue - fields BROKER to CASH.SETTLED) */
+		CASH_SETTLED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=6.0, core=true, t24Name=CASH.SETTLED)
+	}
+	SC_UNSETTLE_SEC_POS
+		@t24:i (t24Name=SC.UNSETTLE.SEC.POS, level=F, type=H, allowedFunctions="A C D E I L P Q S", localRefAllowed=true)
+	{
+		/* Record key. */
+		KEY -> SCT_Settlement:SC_UNSETTLE_SEC_POS PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=0.0, core=true, businessType=S, t24Name=KEY)
+		/* Field to indicate whether this transaction will be flagging the position as settled or unsettled.
+Validation Rules
+
+Only input of 'SETTLE' or 'UNSETTLE' allowed.
+Mandatory field. */
+		TRANSACTION_TYPE : SCT_Settlement:SC_UNSETTLE_SEC_POS__TRANSACTION_TYPE required
+			@i18n:Label (en="Transaction Type")
+			@i18n:Tooltip (en="Indicates the Transaction Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, t24Name=TRANSACTION.TYPE)
+		/* The number of the portfolio to which the position to be flagged as settled or unsettled belongs.
+
+
+Standard Sec.Acc.Master id.
+
+Must be an existing Sec.Acc.Master record.
+
+Mandatory Field. */
+		SECURITY_ACCOUNT -> SCO_PortfolioMaintenance:SEC_ACC_MASTER required
+			@i18n:Label (en=Portfolio)
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=2.0, core=true, businessType=A, t24Name=SECURITY.ACCOUNT)
+		/* The security number of the stock that will be flagged as settled or unsettled.
+Validation Rules
+
+Must be the ID of a valid Security.Master file record.
+
+Mandatory Field. */
+		SECURITY_NUMBER -> SCO_SecurityMasterMaintenance:SECURITY_MASTER required
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates the security number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=3.0, core=true, businessType=SEC, t24Name=SECURITY.NUMBER)
+		/* The depository where the position to be flagged as settled or unsettled is held.
+Validation Rules
+
+1-10 numeric character Customer ID number.
+
+Must be a valid Customer for whom the Customer.Security         file record (Field - Customer.Type) equals 'D' (Depository)
+
+Mandatory Field. */
+		DEPOSITORY -> SC_Config:CUSTOMER_SECURITY required
+			@i18n:Label (en=Depository)
+			@i18n:Tooltip (en="Depository the Security to be delivered from/to")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=4.0, core=true, businessType=CUS, t24Name=DEPOSITORY)
+		/* The nominee code of the position if the position is held by nominee.
+Validation Rules
+
+1-5 type S (uppercase alpha or numeric) character Nominee.Code.
+
+Must be a valid Nominee.Code
+
+Optional field. */
+		NOMINEE_CODE -> SC_Config:NOMINEE_CODE
+			@i18n:Label (en="Nominee Code")
+			@i18n:Tooltip (en="Identifies the Nominee Company ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=5.0, core=true, businessType=A, t24Name=NOMINEE.CODE)
+		/* The maturity date of the stock if the stock is a Kassenobligationen stock.
+Validation Rules
+
+Up to 11 type D date characters (Standard Date format).
+
+Optional Field. */
+		MATURITY_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=MATURITY.DATE)
+		/* The interest rate of the stock if the stock is a Kassenobligationen stock.
+Validation Rules
+
+0 - 11 Numeric characters.
+
+Optional Field. */
+		INTEREST_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Interest Rate")
+			@i18n:Tooltip (en="Indicates interest rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=INTEREST.RATE)
+		/* Sub account of the unsettled position */
+		SUB_ACCOUNT : mml:Integer
+			@i18n:Label (en="Sub Account")
+			@t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=8.0, core=true, t24Name=SUB.ACCOUNT)
+		/* Unsettled nominal credit */
+		NOMINAL_CR : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=9.0, core=true, t24Name=NOMINAL.CR)
+		/* Unsettled nominal debit */
+		NOMINAL_DR : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=10.0, core=true, t24Name=NOMINAL.DR)
+		/* The nominal amount of the stock to be unsettled or settled.
+
+
+1-18 numeric characters (including up to 6 decimal places).
+
+Mandatory Field. */
+		NARRATIVE : T24BusinessTypes:A
+			@i18n:Label (en=Narrative)
+			@i18n:Tooltip (en="Any narrative to be input for user information")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=NARRATIVE)
+		/* Free format narrative field.
+Validation Rules
+
+Allows to input the reason the position has been flagged         as unsettled. Input of up to 35 characters. */
+		VALUE_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=VALUE.DATE)
+		/* The date that the position should be unsettled from.
+Validation Rules
+
+Up to 11 type D date characters (Standard Date Format)
+
+Mandatory Field. */
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=13.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=14.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=15.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=16.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue SCT_Settlement:SC_UNSETTLE_SEC_POS__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_Settlement:SC_UNSETTLE_SEC_POS__INPUTTER *
+		DATE_TIME -> byValue SCT_Settlement:SC_UNSETTLE_SEC_POS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=25.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=27.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=28.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_UNSETTLE_SEC_POS__OVERRIDE
+	{
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=OVERRIDE)
+	}
+	SC_UNSETTLE_SEC_POS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=INPUTTER)
+	}
+	SC_UNSETTLE_SEC_POS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=23.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Security delivery control is an automated delivery control application within the securities module.
+It receives data regarding how much stock is to be received or delivered from broker A or B and whether that is against payment or free of any payment and the effective value date of the particular transaction.
+Having copied across all the relevant details necessary for the user to identify the individual transaction and the relevant broker details; it allows the user to perform stock delivery entries against that particular transaction; along with an effective date and any consideration which may have been paid or received; again with an effective date.
+A user reference number can be attached to each of these part delivery/payments and the record remains in an unauthorised state until the totals agree i.e. amount to be received = amount received and amount to be paid = amount paid. */
+	SEC_DEL_CONTROL
+		@t24:i (t24Name=SEC.DEL.CONTROL, nonStop=true, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Identifies uniquely each Security Delivery Control and is made up of the Security Number, Depository concerned, transaction ID. and the Broker reference number.
+Validation Rules
+The detail key is made up of the following format:- NNNNNN-NNN - 6 numeric character Security Master number. NNNNNN - 1-6 numeric character Customer Security number SECTSCYYDDD - 5 numeric digit Security Transfer NNNNN - number, prefixed by (SECTSC) YY (Year) DDD Julian Day. NNNNNN - 1-6 Customer Security number. (type Broker) Examples:  Where customer A has bought Securities through Broker B against payment of Nominal Consideration. The Sec. Deb. Control will specify the amount of stock expected and the Consideration to be paid away. */
+		REFERENCE -> SCT_Settlement:SEC_DEL_CONTROL PK required
+			@i18n:Label (en="Search by Referece")
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=REFERENCE)
+		/* Identifies the Security involved in the transaction i.e. the security to be settled.
+Validation Rules
+No input. Internally generated field. Copied from the Transaction which has created the particular SEC. DEL. CONTROL Record. */
+		SECURITY_NUMBER -> SCO_SecurityMasterMaintenance:SECURITY_MASTER
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates the security number")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=1.0, core=true, businessType=SEC, t24Name=SECURITY.NUMBER)
+		/* Identifies which Depository holds the securities or is to hold the Security concerned.
+Validation Rules
+No input.  Internally generated field. Copied across from the transaction concerned.
+To have been accepted at transaction level it must have been a valid Depositary Account */
+		DEPOSITORY -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Depository)
+			@i18n:Tooltip (en="Depository the Security to be delivered from/to")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=2.0, core=true, businessType=CUS, t24Name=DEPOSITORY)
+		/* Identifies the Security Transaction involved in the open delivery area.
+May have been a Purchase Sale of Securities or a Transfer in of securities or it may have been created by a Capital Increase type of transaction.
+Examples:  Each Reference will have a transaction            type prefix which will identify the            individual applicable concerned.
+Validation Rules
+No input.  Internally generated field. Copied over from the transaction concerned. */
+		REFERENCE_NO : T24BusinessTypes:A
+			@i18n:Label (en="Reference No")
+			@i18n:Tooltip (en="Unique reference which identifies the transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=3.0, core=true, t24Name=REFERENCE.NO)
+		/* Identifies the Broker involved in the transaction.
+Validation Rules
+No input.  Internally generated field and copied over from the transaction details
+To have been allowed at Transaction level it must have been a valid Broker no. in existence as a Broker type Customer on the Customer Security File. */
+		BROKER_NUMBER -> ST_Customer:CUSTOMER required
+			@i18n:Label (en="Broker No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=4.0, core=true, businessType=CUS, t24Name=BROKER.NUMBER)
+		/* Defines the date of the trade. Deal Date. Tax Point.
+Validation Rules
+No input. Internally generated field. Copied over from the transaction record. */
+		TRADE_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Trade Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=5.0, core=true, t24Name=TRADE.DATE)
+		/* Defines the value date of the trade i.e. date at which the transaction should have settled.
+Validation Rules
+No input.  Internally generated field. Copied over from the transaction details. */
+		VALUE_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=6.0, core=true, t24Name=VALUE.DATE)
+		/* Defines the type of Transaction which has created this control record.
+A Security Transfer may well be identified system wide as e.g. SECTFR with the Julian date and an automatically generated ID No.  However the Transaction Type will identify the type of Security Transfer involved. EG. Transfer IN/OUT AGAINST/FREE PAYMENT.
+Validation Rules
+No input. Internally generated field. Copied over from the transaction details.
+Must have existed on the Transaction Type File to have been used in the Transaction details. */
+		TRANSACTION_TYPE -> SC_Config:SC_TRANS_NAME required
+			@i18n:Label (en="Transaction Type")
+			@i18n:Tooltip (en="Indicates the Transaction Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=7.0, core=true, businessType=S, t24Name=TRANSACTION.TYPE)
+		/* Defines if the transaction has a payment of funds involved.  i.e. is it a Receive Stock against payment type transaction or a Deliver Free of Payment type transaction.
+Validation Rules
+No input.  Internally generated field. Copied over from the transaction details Delivery instructions where the payment Flag is linked to the Delivery instructions. Examples:  Suggested delivery type codes and normal payment type indicators. TRIP = Transfer In against Payment TRIO = Transfer Out against Payment */
+		WITH_PAYMENT_FLAG : SCT_Settlement:SEC_DEL_CONTROL__WITH_PAYMENT_FLAG required
+			@i18n:Label (en=Payment)
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=8.0, core=true, t24Name=WITH.PAYMENT.FLAG)
+		/* Specifies the currency of the security being delivered or received, which defaults to the Static Information Files maintained on each security SECURITY MASTER.
+Validation Rules
+No input.  Internally generated field. */
+		SECURITY_CCY -> FIN_CurrencyConfig:CURRENCY required
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=9.0, core=true, businessType=CCY, t24Name=SECURITY.CCY)
+		/* Defines the type of price i.e. Bond share etc. which has been used in the calculation of Gross and Net Amounts in the Transaction awaiting settlement.
+Validation Rules
+No input.  Internally generated field. Copied over from the Transaction (STATIC) details. */
+		PRICE_TYPE -> SCT_PriceTypeUpdateAndProcessing:PRICE_TYPE required
+			@i18n:Label (en="Price Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, businessType=S, t24Name=PRICE.TYPE)
+		/* Defines the currency that the trade is to be settled in
+Validation Rules
+No input.  Internally generated field. Copied over from Transaction details. */
+		TRADE_CCY -> FIN_CurrencyConfig:CURRENCY required
+			@i18n:Label (en="Trade Currency")
+			@i18n:Tooltip (en="Identifies the currency of the transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=11.0, core=true, businessType=CCY, t24Name=TRADE.CCY)
+		/* Number of shares involved in the Transaction awaiting settlement
+Where Multi Client transactions have been input the SYSTEM will amalgamate the totals per broker to be received or delivered.  At this level we are not concerned with the Customer break down, merely the Net amount of stock to be settled.
+Validation Rules
+No input. Internally generated field. Copied over from the Broker details input at Transaction Level. */
+		TOTAL_NO_NOMINAL : T24BusinessTypes:NOMAMT required
+			@i18n:Label (en="Total Nominal")
+			@i18n:Tooltip (en="Indicates the total nominal for the transaction")
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=12.0, core=true, t24Name=TOTAL.NO.NOMINAL)
+		/* Defines the current nominal outstanding amount ie. The TOTAL.NO.NOMINAL amount minus the     NO.NOM.RECD.DEL amount. */
+		NOMINAL_OUTST : T24BusinessTypes:NOMAMT
+			@i18n:Label (en="Nom O/s")
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=13.0, core=true, t24Name=NOMINAL.OUTST)
+		/* Total Monies to be settled against an individual broker for Stock Received or Delivered i.e. Broker Net Amount awaiting Settlement.
+Again at this application we are not concerned with Customer details.  Merely with the amount of money outstanding with any particular Broker.
+Validation Rules
+No input. Internally generated field. Copied over from Broker details at Transaction level. */
+		TOTAL_AMOUNT_DUE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=14.0, core=true, t24Name=TOTAL.AMOUNT.DUE, typeModifiers="11D")
+		/* Defines the current amount outstanding ie. The TOTAL.AMOUNT.DUE minus the     AMT.RECD.PAID. */
+		AMOUNT_OUTST : T24BusinessTypes:AMT
+			@i18n:Label (en="Amt O/s")
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=15.0, core=true, t24Name=AMOUNT.OUTST)
+		NO_NOM_RECD_DEL -> byValue SCT_Settlement:SEC_DEL_CONTROL__NO_NOM_RECD_DEL *
+		AMT_RECD_PAID -> byValue SCT_Settlement:SEC_DEL_CONTROL__AMT_RECD_PAID *
+		/* This field is not used at present.
+Validation Rules
+
+No input field. */
+		EXPIRY_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Expiry Date")
+			@i18n:Tooltip (en="Indicates the Expiry Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=22.0, core=true, t24Name=EXPIRY.DATE)
+		/* A value of  Y indicates that counterparty (broker) limit checking is to take place.
+If limit checking is to take place then even for deals which are free of payment the TOTAL.AMOUNT.DUE and TOTAL.AMOUNT.OUSTANDING (which indicates the limit exposure)  will be updated.
+When delivery takes place and  the amounts received fields are updated then these values will be used to update the counterparty limit, i.e. the amount will be backed out of the current counterparty limit.
+Partial deliveriees can be catered for in this way.
+Until the amount oustanding is reduced to zero the limit will remain.
+If the delivery is set for automatic settlement then during the batch relating to the value date of the SEC.TRADE deal then delivery will be automatically settlled and the amount oustanding backed out of limits.
+Validation Rules
+No input field. */
+		COUNTERPARTY_LIMIT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=23.0, core=true, t24Name=COUNTERPARTY.LIMIT)
+		/* A value of Y Indicates that automatic settlement of delivery will take place during the batch relating to the value date of the contract.
+This can only relate to SEC.TRADE deals subject to counterparty limit checking with delivery instructions indicating automatic settlement.
+The record will be updated as if complete delivery has taken place, limits will be backed out and the contract will be authorised.
+Validation Rules
+No input field. */
+		AUTO_SETTLEMENT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=24.0, core=true, t24Name=AUTO.SETTLEMENT)
+		/* The limit reference of the associated SEC.TRADE contract.
+Validation Rules
+No Input. */
+		CPTY_LIMIT_REF : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=25.0, core=true, t24Name=CPTY.LIMIT.REF)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=26.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=27.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=28.0, core=true, t24Name=RESERVED.2)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=30.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=31.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_Settlement:SEC_DEL_CONTROL__INPUTTER *
+		DATE_TIME -> byValue SCT_Settlement:SEC_DEL_CONTROL__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=34.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=35.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=36.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=37.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=38.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SEC_DEL_CONTROL__NO_NOM_RECD_DEL
+	{
+		/* Specifies the nominal number of the securities to be received/delivered.
+Multivalue field to cater for part deliveries and part payment of transactions.
+Occasionally owing to market conditions it will not be possible for a counterparty to deliver all of an outstanding Stock position.  It is Standard practice sometimes in the UK.  For example for a Broker upon confirmation from his Client to delivery part of the Stock against a Nominal Consideration.
+The Delivery Control Record will not be removed until the nominals and amounts to be delivered and paid agree.
+Validation Rules
+1-14 characters, standard amount format. Optional input. (Multi value field.) */
+		NO_NOM_RECD_DEL : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=16.0, core=true, t24Name=NO.NOM.RECD.DEL, typeModifiers="1")
+		/* The date delivery has taken place. A multi-value to cater for partial deliveries and receipts. Associated with fields NO.NOM.RECEIVED.DEL and  NO.NOM.REF.NO
+Although not a mandatory field, it should be used to record the date on which actual delivery/receipt has been effected. Historical data is retained for the SEC.DEL.CONTROL file and therefore completing this information can provide you with such information as late deliveries when this file is interrogated  using a suitable enquiry.
+
+Validation Rules
+Standard date format. Optional input. (Multi value field.) */
+		NO_NOM_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=NO.NOM.DATE)
+		/* Each separate delivery receipt of Stock will be assigned a separate Ref. No.
+Multi value to allow for part deliveries and part payment.
+It is envisaged that the User will enter a unique Ref. No. at this point to identify the past delivery (suggested Ref. Number could be the Brokers own reference, for easy reconciliation
+Validation Rules
+Multi Value Associated Fields linked to FIELDS 14 NOMINAL RECEIVED/DELIVERED AND 15 EFFECTIVE DATE OF RECEIPT OR DELIVERY 8 CHARACTER UPPERCASE ALPHA REF. NO. Optional input. (Multi value field) */
+		NO_NOM_REF_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=18.0, core=true, t24Name=NO.NOM.REF.NO)
+	}
+	SEC_DEL_CONTROL__AMT_RECD_PAID
+	{
+		/* Specifies the amount to be received or paid for the security transaction involved.
+Multi value to allow for part payment in or out. Associated with fields 18 and 19.
+Validation Rules
+1-14 characters standard amount format. Optional input (Multi value field) */
+		AMT_RECD_PAID : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=19.0, core=true, t24Name=AMT.RECD.PAID, typeModifiers="11D")
+		/* Associated with Multi value at Field 17 and defines the date at which the payment signified at Field 17 was made.
+Validation Rules
+Standard date format. Optional input. (Multi value field.) */
+		AMOUNT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=20.0, core=true, t24Name=AMOUNT.DATE)
+		/* Associated with Fields 17 and 18 this allows the User to enter an unique reference number relating to the payment made.  User defined.
+Validation Rules
+8 Character Upper case Alpha Ref. Number. Optional input. (Multi value field.) */
+		AMOUNT_REF_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=21.0, core=true, t24Name=AMOUNT.REF.NO)
+	}
+	SEC_DEL_CONTROL__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=32.0, core=true, t24Name=INPUTTER)
+	}
+	SEC_DEL_CONTROL__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=33.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	SC_SETTLE_CUST__SETTLED_Y_N : mml:string
+		N=N
+		Y=Y
+	SC_SETTLEMENT__BROKER_NO__BR_AUTO_SETT : mml:string
+		YES=YES
+		NO=NO
+	SC_SETTLEMENT__CU_PORTFOLIO__CU_AUTO_SETT : mml:string
+		YES=YES
+		NO=NO
+	SC_SETTLEMENT__CU_PORTFOLIO__GEN_SETT_DEL : mml:string
+		YES=YES
+	SC_SETTLEMENT__PARENT : mml:string
+		YES=YES
+	SC_UNSETTL_TXNS__DIARY_ACT_SETT : mml:string
+		YES=YES
+		NO=NO
+	SC_UNSETTL_TXNS__REVERSAL_MARKER : mml:string
+		Y=Y
+		NULL=NULL
+	SC_UNSETTL_TXNS__PROCESSED : mml:string
+		YES=YES
+		NO=NO
+	SC_UNSETTLE_SEC_POS__TRANSACTION_TYPE : mml:string
+		SETTLE=SETTLE
+		UNSETTLE=UNSETTLE
+	SEC_DEL_CONTROL__WITH_PAYMENT_FLAG : mml:string
+		Y=Y
+		NO=NO
+}

@@ -1,0 +1,126 @@
+<project name="designstudio" default="build" xmlns:jacoco="antlib:org.jacoco.ant">
+
+    <property environment="env"/>
+    <property file="../../version.properties"/>
+    
+    <property name="documentation.dir" value="${basedir}/../../${docs.plan.dir}" />
+	<property name="designstudio.dir" value="${basedir}/../../designstudio"/>
+    <property name="doc.dependencies"  value="${documentation.dir}/delivery/${ds.release}.${ds.patch}"/>
+    <property name="delivery.dir"      value="${basedir}/delivery"/>
+
+    <property name="eclipse.buildType" value="R"/>
+    <property name="p2.postfix" value=""/>
+
+	<property name="ds.maven.extra.args" value=""/> <!-- allow to append extra args to the maven commands -->
+
+    <tstamp>
+        <format property="buildId" pattern="yyyyMMddHHmmss'${eclipse.buildType}'" />
+    </tstamp>
+
+    <target name="build" depends="project-clean, project-build, project-delivery, project-publish"/>
+
+    <target name="build-local" depends="project-clean, project-build, project-delivery, project-publish-local"/>
+
+    <target name="project-clean">
+			<delete failonerror="false" dir="${delivery.dir}" />
+    </target>
+
+    <target name="project-build">
+				<!-- we have to manually set the buildId in the products (see DS-2220), there is no way in Tycho to do this (yet). -->
+				<replace dir="${basedir}/products/com.odcgroup.workbench.products.generator" token="@buildId@" value="${ds.release}.${ds.patch}.${buildId}">
+					<include name="*.product" />
+				</replace>
+
+        <!-- first build the Eclipse products through Maven -->
+		<!-- will also produce a .b2 folder (similar to maven target folder) which contains, amongst (many) other things,
+		     a p2 repository of the build.
+			The outputs are
+			1. The DS product (without binaries) in ${basedir}/products/.b2/products/designstudio/target/products/designstudio-win32.win32.x86.zip
+			2. The EDS product in ${basedir}/products/.b2/products/eds/target/products/eds-win32.win32.x86.zip
+			3. The generator product in ${basedir}/products/.b2/products/dsgenerator/target/products/dsgenerator-win32.win32.x86.zip
+			4. The p2 repository used to update Design Studio via Help>Check for Update in ${basedir}/products/.b2/products/designstudio/target/repository
+		-->
+		<echo message="Running Maven/Tycho build for Design Studio RCP products with the maven file used ${ds.maven}" />
+			<exec executable="${env.M2_HOME}/bin/${ds.maven}" failonerror="true" dir="${basedir}" >
+<!--			    things might be faster if we do not insist on the clean here-->
+				<arg value="clean"/>
+				<arg value="install"/>
+				<arg value="-P buildProducts"/>
+				<arg value="-Dds.release=${ds.release}"/>
+				<arg value="-Dds.patch=${ds.patch}"/>
+				<arg value="-Dds.marketingversion=${ds.marketingversion}"/>
+				<arg value="-Dds.target.platform.version=${ds.target.platform.version}"/>
+				<arg value="-Dds.resource.cache.maxsize=${ds.resource.cache.maxsize}"/>	
+				<arg value="-Dds.p2cache.location=${ds.p2cache.location}"/>
+				<arg value="-Ddesignstudio.dir=${designstudio.dir}"/>
+				<arg value="-Dp2.postfix=${p2.postfix}"/>
+				<arg value="-DbuildId=${buildId}"/>
+				<arg line="${ds.maven.extra.args}"/>
+			</exec>
+
+	</target>
+
+<!--******************************************************************************
+    **** Generate final distribution     				 
+    *******************************************************************************-->
+    <target name="project-delivery">
+        <!-- Create final artifacts in delivery dir -->
+        <mkdir dir="${delivery.dir}"/>
+
+		<!-- the DS TAP generator edition used for in-house Maven build only --> 
+		<zip destfile="${delivery.dir}/DesignStudioTAP-GeneratorEdition-${ds.release}.${ds.patch}.zip">
+			<zipfileset src="${basedir}/products/.b2/products/dsgenerator/target/products/dsgenerator-win32.win32.x86_64.zip" excludes="*.exe"/>
+			<fileset dir="${basedir}/rootfiles" /> 
+		</zip>
+
+		<!-- the DS T24 generator edition used for in-house Maven build only --> 
+		<zip destfile="${delivery.dir}/DesignStudioT24-GeneratorEdition-${ds.release}.${ds.patch}.zip">
+			<zipfileset src="${basedir}/products/.b2/products/dsgeneratorT24/target/products/dsgeneratorT24-win32.win32.x86_64.zip" excludes="*.exe"/>
+			<fileset dir="${basedir}/rootfiles" /> 
+		</zip>
+    </target>
+
+    <target name="project-publish">
+        <property name="remote.dir" value="//oams.com/Software/Incoming Packages/tmp/SDK-DS/${p2.postfix}"/>
+        <property name="p2.dist.remote.dir" value="//p2/p2/dist/latest/${ds.release}/before-automated-tests"/>
+
+        <copy file="${delivery.dir}/DesignStudioTAP-GeneratorEdition-${ds.release}.${ds.patch}.zip" tofile="${remote.dir}/dsgenerator.zip" />
+
+		<!-- unzip the generator edition to the share to allow running tests on other machines -->
+        <delete dir="${remote.dir}/ds-generator"/>
+		<unzip src="${delivery.dir}/DesignStudioTAP-GeneratorEdition-${ds.release}.${ds.patch}.zip" dest="${remote.dir}/ds-generator" />
+		
+        <delete dir="${p2.dist.remote.dir}/t24-generator"/>
+		<unzip src="${delivery.dir}/DesignStudioT24-GeneratorEdition-${ds.release}.${ds.patch}.zip" dest="${p2.dist.remote.dir}/t24-generator" />
+		
+		<mkdir dir="${p2.dist.remote.dir}"/>
+		<copy todir="${p2.dist.remote.dir}">
+            <fileset dir="${delivery.dir}">
+                <include name="*T24*.zip"/>
+            	<include name="*.tar.gz"/>
+            </fileset>
+		</copy>
+
+    </target>
+
+    <target name="project-publish-local">
+		<property name="local.generators.delivery.dir" value="${local.delivery.dir}/product/generators"/>
+		<mkdir dir="${local.generators.delivery.dir}"/>
+		<copy todir="${local.generators.delivery.dir}">
+            <fileset dir="${delivery.dir}">
+                <include name="*T24*.zip"/>
+            	<include name="*.tar.gz"/>
+            </fileset>
+		</copy>
+
+        <copy file="${delivery.dir}/DesignStudioTAP-GeneratorEdition-${ds.release}.${ds.patch}.zip" tofile="${local.generators.delivery.dir}/dsgenerator.zip" />
+
+		<!-- unzip the generator edition to the share to allow running tests on other machines -->
+        <delete dir="${local.generators.delivery.dir}/ds-generator"/>
+		<unzip src="${delivery.dir}/DesignStudioTAP-GeneratorEdition-${ds.release}.${ds.patch}.zip" dest="${local.generators.delivery.dir}/ds-generator" />
+		
+        <delete dir="${local.generators.delivery.dir}/t24-generator"/>
+		<unzip src="${delivery.dir}/DesignStudioT24-GeneratorEdition-${ds.release}.${ds.patch}.zip" dest="${local.generators.delivery.dir}/t24-generator" />
+	</target>
+
+</project>

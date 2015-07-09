@@ -1,0 +1,246 @@
+* Version 38 18/10/00  GLOBUS Release No. G15.0.01 31/08/04
+REM "I_COMMON",840421-001 * INSERT COMMON
+*
+* C a u t i o n :   After a change of this routine, don't forget to
+*                   move it to RG.BP for use of report generator
+*
+*------------------------------------------------------------------------
+*              M O D I F I C A T I O N S
+*
+* 20/08/90 - GB9000193
+*            Changed OLD.UPDATE.MODE to R.INTERCO.PARAMETER
+*
+* 08-03-94 - GB9400200
+*            R.USER is now a dynamic array
+*
+* 13/09/94 - GB9401028
+*            C$.UNIVERSE.RELEASE (universe release level) added.
+*
+* 16/02/96 - GB9600193
+*            Change G.SPARE47 to C$.USE.CCY.CACHE.
+*
+* 10/02/98 - GB9800123
+*             Store the LOCAL.CURRENCY record as C$R.LCCY
+! 21.04.98 - GB9800002
+!            GBS changes. Changed G.SPARE45 to C$BA.PARAMETER
+*
+* 12/02/99 - GB9801223
+*             OFS Changes.  Changed G.SPARE44 to C$EB.PHANTOM.ID
+*
+* 15/12/99 - GB9901796
+*            Change the Dimensioned arrays from being dimensioned to
+*            a unhealthy mixture of 200 and 500 to using a equated
+*            value (C$SYSDIM)
+*
+* 02/03/00 - GB0000202
+*            New common variable to hold the post closing period date
+* 13/03/00 - GB0000406
+*            Change G.SPARE42 to RUNNING.IN.JBASE , Common variable
+*            is ment for checking whether GLOBUS is running under
+*            JBASE or UNIVERSE.
+*
+* 05/04/00 - GB0000709
+*            Setup CHARX() table which hold ASCII or EBCDIC values
+*            in new common /ASCIIEBCDIC/
+*
+*            Define a new function SEQX
+*
+* 18/04/00 - GB0001078
+*            Define a new function CHARX and return the
+*            variable CHARX to be a spare variable.
+*
+* 17/05/00 - GB0001258
+*            Initialise PASSED.NO and PASSED.CHAR.
+*
+* 02/05/00 - GB001386
+*            Common changed to labelled.
+*
+* 04/07/00 - GB0001702
+*            Define new functions CHARSX & SEQSX
+*            to replace CHARS & SEQS
+*
+*
+* 18/10/20 - GB0002667
+*            Put the precision setting here as it relies on RUNNING.IN .JBASE
+*
+* 25/09/01 - GLOBUS_EN_10000172
+*            In jGLOBUS PRECISION should be set to 13. This is
+*            done in I_COMMON and OVERLAY.EX
+*
+* 17/12/2002 - GLOBUS_EN_10001548
+*              Set running in UTF8 varaible
+*
+* 28/05/03 EN_1850
+*          Add new variable for C$FUNCTION.LIST
+*          format <1,x> Function id e.g. A I E
+*                 <2,x> Local language value for the function e.g. for I you may use X
+*                 <3,x> enrichment of funciton in local language
+*          C$MULTI.BOOK true if runnin multi-book
+*          C$COMP.EOD.LIST Companies where we are running the end of day in a GP environment
+*          format <1,x> Company Id
+*                 <2,x> Mnemonic
+*
+* 02/06/05 - CI_100030780
+*            New variable to control NS operation in applications
+*            C$NS.OPERATION
+*            "ALL" - NS allowed if installed
+*            "NEW" - New deals only if NS installed
+*            "NOD" - NS allowed if .NOD in PGM.FILE
+*************************************************************************
+
+*
+* GB9901796
+* This is the Value that will drive all the dimensioned arrays in Globus
+* the are record related (R.XXX, N, T etc.).
+*
+*
+* 19/03/04 - BG_100002624
+*            Store the initial dates details of the system when the
+*            record is read. This can be compared in AUTH and UNAUTH
+*            write to check that the COB has not begun
+*
+* 15/04/04 - EN_10002225
+*            Enlarged EU Impacts
+*            New variable C$DE.EU.LIST introduced replacing G.SPARE34.
+*
+* 19/04/04 - GLOBUS_EN_10002238
+*            Provide Integrity check for local developments to ensure
+*            that the system is not corrupted. New variable SENSITIVITY introduced
+*            replacing G.SPARE33
+*            SAR Ref.No.SAR-2003-11-21-0008
+*
+* 28/12/05 - EN_10002746
+*            Date display format for japanese market.
+*
+* 19/02/07 - EN_10003196
+*            Add method calls to the template. Common variable V$ACTION
+*            holds action to be executed and C$ACTION.DETAIL allows
+*            context details to be supplied
+*
+* 04/01/08 - GLOBUS_EN_10003581 - dgearing@temenos.com
+*            replace g.spare25 with c$sc.fee.recalc to allow local
+*            devs to re-run a core batch job which should not normally
+*            be re-runnable after fees have been generated
+*
+* 30/08/08 - EN_10003814
+*            Added WRITE.CACHE variable
+*
+* 25/11/09 - BG_100025913
+*            Soft code the folder named T24.BP
+*
+* 28/09/09 - EN_10004373
+*            Added T24 session common variable
+*
+* 1/11/20011 - EN-185375 / Task-297323
+*            New common C$USE.T24.LOG introduced to decide whether to use either 
+*            T24 level log or TAFC logs depends on INT.LOG.FILE field in SPF.
+*
+* 08/08/12 - Epic:6066/Story:28564
+*            Implementation of User Roles functionality in T24, introduced USER.ROLE
+*
+* 04/01/2013 - Epic : 539391 / Story : 539393
+*              Process running in TAFJ platform is indicated with the flag 'RUNNING.IN.TAFJ'
+*
+* 23/01/2014 - Defect 809526/ Task-894923
+*             Deadlock handling for SEAT framework
+*
+*------------------------------------------------------------------------
+    EQU C$SYSDIM TO 500
+    EQU T24$BP TO 'T24.BP'
+
+*************************************************************************
+REM "MATRICES:
+*     C A U T I O N:  because of a bug in info-basic it's not possible
+*     to separate the following line (except using an additional line
+*     without COM - but this does not work with IBM-basic)
+*     C A U T I O N:  Definition 200
+*     must be changed when one (!) pgm needs more fields  !!!!!!!!!
+*     ... and ... R.NEW(500) must be changed when one table file has
+*     more fields ..................................................
+*************************************************************************
+REM "SIMPLE VARIABLES:
+
+    COM /THE.GLOBUS.COMMON/ CHECKFILE(C$SYSDIM), R.COMPANY(C$SYSDIM),
+    CONCATFILE(C$SYSDIM), R.DATES(C$SYSDIM),
+    F(C$SYSDIM), N(C$SYSDIM), R.NEW(C$SYSDIM),
+    R.NEW.LAST(C$SYSDIM), R.OLD(C$SYSDIM), R.OPF(C$SYSDIM),
+    R(C$SYSDIM), T(C$SYSDIM), T.REMTEXT(C$SYSDIM),
+    C$SPARE(C$SYSDIM), R.VERSION(C$SYSDIM),
+    A, AF, AUTH.NO, ANY.INPUT, APPLICATION, AS, F.JOURNAL,
+    AUTH.QUALITY, AV,
+    C, COMI, COMI.ENRI,
+    CONTROLWORD.OK , PRT.PARAMS,
+    V$DISPLAY,
+    E, ECOMI, END.ERROR, ETEXT,
+    FILE.TYPE, FULL.FNAME, V$FUNCTION,
+    HIST.NO,
+    ID.ALL, ID.AUT, ID.CHECKFILE, R.INTERCO.PARAMETER, ID.COMPANY,
+    ID.CONCATFILE, ID.ENRI, ID.ETEXT, ID.F, ID.N, ID.NEW,
+    ID.NEW.LAST, ID.OLD, ID.POINTER, ID.R, ID.T, JOURNAL.BYPASS,
+    INPUT.BUFFER,
+    L, L.MULTI, L1ST, LASTA, LASTL.MULTI, OVERRIDE.FLAG, LASTP,
+    LCCY, LEVEL.NO, LEVEL.STATUS, LNGG, LOCAL.REF.FIELD,
+    MESSAGE, MULTI.POSSIBLE, MTHPOS,
+    OPERATOR, OPF.NO,
+    P, PGM.TYPE, PGM.TYPE.NEXT, PGM.VERSION, PHNO, PREFIX,
+    PRINTER.STATUS,
+    RETURN.COMI,
+    SCREEN.MODE, SCREEN.TITLE, T.OV.CLASS,
+    TEXT, TIME.STAMP, TNO, TODAY, R.ACCOUNT.PARAMETER, TTYPE,
+    V, VAL.TEXT,
+    T.AUTH.PAGE,
+    R.SPF.SYSTEM,
+    T.CAT, T.CCY, CLEAR.SCREEN, T.CONTROLWORD,
+    T.ENRI, T.ETEXT,
+    T.FIELDNO, T.FUNCTION,
+    T.LANGUAGE, FILE.CLASS, CACHE.OFF, T.LOCREF,
+    T.MTH, T.MTH.DAY,
+    T.MULTI.PAGE, F.SPF, CONTROL.MODULO,
+    LEVELS.NOT.ALLOWED, T.MULTI.TEXT, LIMIT.NETTING.IND,
+    T.OPF,
+    T.PWD, T.PWP,
+    T.RAT, T.RETURN.DATA,
+    T.SEQU, T.SUB.ASSOC,
+    BATCH.DETAILS, T.TRS,
+    CACHE.TEXT.TABLE,
+    F.ACTIVITY,
+    F.FILE, F.FILE$HIS, F.FILE$NAU,
+    F.LOCKING,
+    F.PROTOCOL,
+    F.CURRENCY,
+    LIVE.RECORD.MANDATORY, LANG.NO,
+    F.DYNAMIC.TEXT, F.STATIC.TEXT, F.FILE.CONTROL,
+    T.VAL.ASSOC,
+    LOCAL1, LOCAL2, LOCAL3, LOCAL4,
+    LOCAL5, LOCAL6, LOCAL7, LOCAL8,
+    F.IDS.LATEST, RUNNING.UNDER.BATCH, T.DEF.BASE, T.DEF.BASE.TARGET,
+    COMI.DEFAULT, CMD$STACK, T.SELECT, LINK.DATA , WRITE.CACHE
+
+*************************************************************************
+* GB9400200
+    COMMON /GLOBUS1/R.USER, C$INT.MOVEMENT.PARAM, R.BANK.RETURN.PARAMS,
+    C$.UNIVERSE.RELEASE, C$.USE.CCY.CACHE, C$R.LCCY, C$BA.PARAMETER,
+    C$EB.PHANTOM.ID, C$PC.CLOSING.DATE, RUNNING.IN.JBASE, USING.EBCDIC,
+    C$SEQX, RUNNING.IN.UTF8, C$MULTI.BOOK, C$FUNCTION.LIST, C$COMP.EOD.LIST, C$APP.STORE.DATA,
+    C$DE.EU.LIST, SENSITIVITY, T.OPF.MAX, T.OPF.FN, T.OPF.FC, C$NS.OPERATION,   ;*EN_10002238 S/E
+    USER.DATE.FORMAT, V$ACTION, C$ACTION.DETAIL, C$SC.FEE.RECALC, C$T24.SESSION.NO, F.T24.SESSION,
+    C$PORT.NO, C$USE.T24.LOG, USER.ROLE, RUNNING.IN.TAFJ, DEADLOCK.REC, DEADLOCK.TXN, DEADLOCK.KEY,
+    G.SPARE15, G.SPARE14, G.SPARE13, G.SPARE12, G.SPARE11,
+    G.SPARE10, G.SPARE9, G.SPARE8, G.SPARE7, G.SPARE6, G.SPARE5,
+    G.SPARE4, G.SPARE3, G.SPARE2, G.SPARE1
+*************************************************************************
+    COMMON /ASCIIEBCIDIC/ C$CHARX(255)
+
+    PASSED.NO = ''  ;* GB0001258
+    PASSED.CHAR = ''          ;* GB0001258
+    DEFFUN SEQX(PASSED.CHAR)  ;* GB0000709
+    DEFFUN CHARX(PASSED.NO)   ;* GB0001078
+    DEFFUN CHARSX(PASSED.NO)  ;* GB0001702
+    DEFFUN SEQSX(PASSED.CHAR) ;* GB0001702
+************************************************************************
+    IF RUNNING.IN.JBASE THEN  ;* GB0002667
+        PRECISION 13          ;* GLOBUS_EN_10000172 S/E
+    END ELSE
+        PRECISION 6
+    END
+************************************************************************

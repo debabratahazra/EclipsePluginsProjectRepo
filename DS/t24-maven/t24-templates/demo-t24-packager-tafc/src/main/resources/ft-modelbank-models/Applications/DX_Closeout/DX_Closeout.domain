@@ -1,0 +1,1258 @@
+# UTF-8
+# UTF-8
+/* Closeout Infrastructure of Derivatives */
+Domain DX_Closeout
+	@t24:i (module=DX)
+	@java:Package (value=com.temenos.t24.datamodel.dx.dx_closeout)
+namespace "http://www.temenos.com/t24/DX_Closeout"
+metamodelVersion 1.30.6
+Classes {
+	/* New Closeouts cannot be created using this application.
+Closeouts (or settlements) are used to match opposing buy and sell positions within the same contract to effectively close the open positions and realise any profit or loss due.
+Once the settlement has occurred the position will be closed-out and any profit/loss will be realised. Commission and charges also due to be paid at settlement time will also be posted.
+Within the derivatives module there are three methods of closing out trades;
+
+The first involves matching opposing buy and sell         positions within the same contract to effectively close         the open positions and realise any profit or loss due.
+The second form of closeout occurs when a position is         held until maturity. This also results in a position         being closed and subsequent cash or physical delivery         taking place, this is also known as a "cash" or         "maturity" settlement. In this case the open         trades are in effect settled against a pseudo trade. For         futures this trade would be performed at the EDSP         (Exchange Delivery Settlement Price). For options no         psuedo trades are created, for trades where premium was         not paid a trade the trades/transactions are closed out         against each other on the same way as a manual closeout,         where the premium has already been paid these are Cash         Settled against the Original Premium Price.
+Automatic settlement is performed by entering a series of         selection criteria into the DX.CO.AUTO.INPUT application.         Using the selection criteria the system will attempt to         create a closeout or a series of closeout records which         match lots again lot. The method by which the system does         this can be setup in the DX.CLOSEOUT.METHOD application         and each customers closeout method can be defined on         their DX.CUSTOMER record. If no method is defined then no         automatic settlement will be perform. */
+	DX_CLOSEOUT
+		@t24:i (t24Name=DX.CLOSEOUT, nonStop=true, level=F, type=H, additionalInfo="UNP OEU NUH", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The records held within this file are created using the closeout input feeds from the closeout enquiries.
+
+New Closeouts cannot be created using this application.
+Validation Rules
+
+This must be a vaild key held on the DX.CLOSEOUT file.
+New Closeouts cannot be created using this         application.
+Key Format DXCOyydddnnnnn eg DXCO0100200077 */
+		KEY -> DX_Closeout:DX_CLOSEOUT PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* The status of this close out. Maybe one of the following
+
+
+RUNNING. The closeout is         currently taking place.
+
+ACTIVE. The closeout has         occurred.          I.e the trades have been matched and the close out is now         waiting for authorisation.
+
+DELETED. The closeout has         been reversed/bust */
+		STATUS : DX_Closeout:DX_CLOSEOUT__STATUS
+			@i18n:Label (en=Status)
+			@t24:i (align=L, inputBehaviour=N, maxLength=7, sysNumber=1.0, core=true, t24Name=STATUS)
+		/* This field identifies the type of close out.
+Type#Meaning#Creation##
+SETTLEMENT#A closeout matching lot against lot.#MANUAL/AUTOMATIC/SYSTEM##
+MATURITY#An Manual settlement maturing         individual trades.#MANUAL##
+EXERCISE#The Exercising of an Option#MANUAL/AUTOMATIC/SYSTEM##
+EXPIRY#The Expiry of a Option.#MANUAL/AUTOMATIC/SYSTEM##
+ASSIGNMENT#The Assignment of         a Option.#MANUAL/AUTOMATIC##
+FIXING#The Fixing of a IRS Option#MANUAL##
+Validation Rules
+
+
+Can only be one of the following :
+SETTLEMENT, MATURITY, EXERCISE, EXPIRY         or ASSIGNMENT */
+		TYPE : DX_Closeout:DX_CLOSEOUT__TYPE
+			@i18n:Label (en=Type)
+			@i18n:Tooltip (en=Type)
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=2.0, core=true, t24Name=TYPE)
+		/* How the close out was created.
+
+
+MANUAL - As part of a manual/maturity closeout      from using a series of selection criteria.
+
+
+
+AUTOMATIC - The automatic closeout of a customer      or a customers positions.
+
+
+
+SYSTEM - A system closeout carried out under      instruction of the end of day or end of exchange.
+
+
+
+BACK2BACK &#8211; Back to back closeout triggered for      a secondary customer
+
+
+Validation Rules
+
+
+
+Can only beMANUAL, AUTOMATIC, SYSTEM
+or BACK2BACK */
+		CREATION : DX_Closeout:DX_CLOSEOUT__CREATION
+			@i18n:Label (en=Creation)
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=3.0, core=true, t24Name=CREATION)
+		/* The automatic settlement type selected by the system for this closeout.
+Validation Rules
+
+Must exisit on the DX.CLOSEOUT.METHOD field
+Must be defined as the closeout method for this customer. */
+		SETT_TYPE -> DX_Closeout:DX_CLOSEOUT_METHOD
+			@i18n:Label (en="Settlement Type")
+			@i18n:Tooltip (en="Type of settlement used for the closeout")
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=4.0, core=true, businessType=A, t24Name=SETT.TYPE)
+		DELIVERY_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=5.0, core=true, businessType=CCY, t24Name=DELIVERY.CCY)
+		/* The customer for who the close out occurred. May be the Bank's own book or an external customer or broker
+Validation Rules
+
+A valid T24 customer.
+Must exist as a valid record within the DX.CUSTOMER and         CUSTOMER File. */
+		CUSTOMER -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=6.0, core=true, businessType=CUS, t24Name=CUSTOMER)
+		/* The portfolio for which this closeout is taking place. In the case of brokers this will be the same as there customer no.
+Validation Rules
+
+Must exist as a valid portfolio on SEC.ACC.MASTER */
+		PORTFOLIO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER
+			@i18n:Label (en=Portfolio)
+			@t24:i (align=L, inputBehaviour=N, maxLength=14, sysNumber=7.0, core=true, businessType=A, t24Name=PORTFOLIO)
+		/* Identifies the Account over which financial entries relating to the customer for the closeout, are to be passed.
+Validation Rules
+
+None */
+		ACCOUNT : T24BusinessTypes:ANT
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Identifies the customer account")
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=8.0, core=true, t24Name=ACCOUNT)
+		/* The Contract code for this closeout.  All transactions and trades associated with this Closeout will be of this contract type.
+Validation Rules
+
+None */
+		CONTRACT_CODE -> DX_Configuration:DX_CONTRACT_MASTER
+			@i18n:Label (en=Contract)
+			@i18n:Tooltip (en="Identifies the contract code of the transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=9.0, core=true, businessType=A, t24Name=CONTRACT.CODE)
+		/* The delivery period or prompt date of the contract transacted. All transactions associated with this closeout will have matching maturity dates.
+Validation Rules
+
+None */
+		MATURITY_DATE : T24BusinessTypes:A
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=10.0, core=true, t24Name=MATURITY.DATE)
+		/* The delivery period or prompt date of the contract transacted, in the format entered by the user. All transactions associated with this closeout will have matching maturity dates.
+Validation Rules
+
+None */
+		INP_MAT_DATE : T24BusinessTypes:A
+			@i18n:Label (en="Delivery Period")
+			@i18n:Tooltip (en="Indicates the delivery period of the contract")
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, t24Name=INP.MAT.DATE)
+		/* The
+type of trades that are being closed out.
+
+FUTURE - A futures contract STOCK - A stock contract OPTION - An Options Contract
+Validation Rules
+
+None */
+		TRADE_TYPE : DX_Closeout:DX_CLOSEOUT__TRADE_TYPE
+			@i18n:Label (en="Trade Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=12.0, core=true, t24Name=TRADE.TYPE)
+		/* Only applicable for option close outs.
+
+The option type of the trades/transactions which constiute this closout
+Validation Rules
+
+Only CALL or PUT */
+		OPTION_TYPE : DX_Closeout:DX_CLOSEOUT__OPTION_TYPE
+			@i18n:Label (en="Call or Put")
+			@i18n:Tooltip (en="Type of option to be chosen like call or put")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=OPTION.TYPE)
+		/* Only applicable for option close outs.
+The price at which an option holder has the right to buy (Call Options) or sell (Put Options) the underlying instrument, or to cash-settle the option if appropriate, to exercise the option.
+All trades and transaction associated with this closeout will have the same Strike Price
+Validation Rules
+
+None */
+		STRIKE_PRICE : T24BusinessTypes:AMT
+			@i18n:Label (en=Strike)
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=14.0, core=true, t24Name=STRIKE.PRICE)
+		/* This field represents the strike price in internal format for T24 calculation.
+Validation Rules
+
+None */
+		INT_STRIKE_PRICE : T24BusinessTypes:AMT
+			@i18n:Label (en="Internal Strike Price")
+			@i18n:Tooltip (en="Strike price in internal format ")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=15.0, core=true, t24Name=INT.STRIKE.PRICE)
+		/* The currency of the profit or loss created by this close out.
+Validation Rules
+
+None */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=16.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* The total number of lots being closed out by this closeout.
+Validation Rules
+
+None */
+		TOTAL_LOTS : mml:Integer
+			@i18n:Label (en="Total lots")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=17.0, core=true, t24Name=TOTAL.LOTS)
+		/* The total value of the profit and loss for this closeout. The figure is held in the CURRENCY currecy.
+Validation Rules
+
+None */
+		TOTAL_PANDL : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Profit Loss")
+			@i18n:Tooltip (en="Total value of profit and loss for this closeout")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=18.0, core=true, t24Name=TOTAL.PANDL, typeModifiers="16")
+		/* The total value of the lots bought, stored in the closeout currency.
+Validation Rules
+
+None */
+		BUY_VALUE : T24BusinessTypes:AMT
+			@i18n:Label (en="Buy Value")
+			@i18n:Tooltip (en="Total value of lots bought in closeout currency")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=19.0, core=true, t24Name=BUY.VALUE, typeModifiers="16")
+		/* The total value of the lots sold, stored in the closeout currency.
+Validation Rules
+
+None */
+		SELL_VALUE : T24BusinessTypes:AMT
+			@i18n:Label (en="Sell Value")
+			@i18n:Tooltip (en="Total value of the lots sold in closout currency")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=20.0, core=true, t24Name=SELL.VALUE, typeModifiers="16")
+		/* Total Commission - not currently used
+Validation Rules
+
+Rule 1
+Rule 2 */
+		CSN_TOTAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=21.0, core=true, t24Name=CSN.TOTAL, typeModifiers="22")
+		/* Commission Curreny - not currently used
+Validation Rules
+
+Rule 1
+Rule 2 */
+		CSN_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=22.0, core=true, businessType=A, t24Name=CSN.CCY)
+		/* Price at maturity of the contracts traded and associated with this closeout. For 'OPTION' trades, this is the Maturity 'PREMIUM' price.
+Validation Rules
+
+None */
+		MATURITY_PRICE : T24BusinessTypes:A
+			@i18n:Label (en="Maturity Price")
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=23.0, core=true, t24Name=MATURITY.PRICE)
+		/* The maturity price in standard T24 derivatives internal price format.
+Validation Rules
+
+None */
+		INT_MATURITY_PRICE : T24BusinessTypes:AMT
+			@i18n:Label (en="Internal Maturity Price")
+			@i18n:Tooltip (en="Maturity price in internal format ")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=24.0, core=true, t24Name=INT.MATURITY.PRICE)
+		/* If set to "YES" then reversals are not allowed for this closeout. */
+		BLOCK_REV : DX_Closeout:DX_CLOSEOUT__BLOCK_REV
+			@i18n:Label (en="Block Reversal")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=25.0, core=true, t24Name=BLOCK.REV)
+		/* If BLOCK.REV is set to yes then this field explains why */
+		NO_REV_REASON : T24BusinessTypes:A
+			@i18n:Label (en="No Reversal Reason")
+			@i18n:Tooltip (en="Specifies the reason for no reversal")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=26.0, core=true, t24Name=NO.REV.REASON)
+		/* An valid ID from the DX.DIARY application. */
+		DIARY_EVENT -> DX_CorporateActions:DX_DIARY
+			@i18n:Label (en="Diary Event")
+			@i18n:Tooltip (en="Identifies the derivatives diary ID")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=27.0, core=true, t24Name=DIARY.EVENT)
+		/* Specifies the price at which the trade is being done
+Validation Rules
+
+No input field
+Upto 19 numeric values */
+		PRICE_TRADED : T24BusinessTypes:AMT
+			@i18n:Label (en="Price Traded")
+			@i18n:Tooltip (en="The price at which the trade is being done")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=28.0, core=true, t24Name=PRICE.TRADED)
+		/* Set to YES if fee is required else set to NO
+Validation Rules
+
+No input field
+Upto 3 alphanumeric values
+Valid inputs are either YES or NO */
+		FEE : T24BusinessTypes:A
+			@i18n:Label (en=Fee)
+			@i18n:Tooltip (en="Indicates whether fee is required or not")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=29.0, core=true, t24Name=FEE)
+		/* Set to YES if a transfer advice is to be produced else set to NO
+Validation Rules
+
+No input field
+Upto 3 alphanumeric values
+Valid inputs are either YES or NO */
+		ADVICE : T24BusinessTypes:A
+			@i18n:Label (en=Advice)
+			@i18n:Tooltip (en="Specifies the link to a record in EB.ADVICES")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=30.0, core=true, t24Name=ADVICE)
+		B2B_CO_ID -> byValue DX_Closeout:DX_CLOSEOUT__B2B_CO_ID *
+		B2B_PAR_ID -> byValue DX_Closeout:DX_CLOSEOUT__B2B_PAR_ID *
+		/* Reserved For Future Use
+Validation Rules
+
+None */
+		RESERVED17 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=33.0, core=true, t24Name=RESERVED17)
+		CHILD_TRADE_ID -> byValue DX_Closeout:DX_CLOSEOUT__CHILD_TRADE_ID *
+		TRADE_ID -> byValue DX_Closeout:DX_CLOSEOUT__TRADE_ID *
+		/* Specifies the internal recipient customer
+Validation Rules
+
+Upto 10 numeric values
+Must be a valid record in CUSTOMER application */
+		DEST_CUST : T24BusinessTypes:CUS
+			@i18n:Label (en="Destination Customer")
+			@i18n:Tooltip (en="Specifies the internal recipient customer")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=55.0, core=true, t24Name=DEST.CUST)
+		/* Specifies the external recipient customer portfolio reference if any
+Validation Rules
+
+No input field
+Upto 18 alphanumeric values */
+		DEST_PORTFOLIO : T24BusinessTypes:A
+			@i18n:Label (en="Portfolio Number")
+			@i18n:Tooltip (en="Indicates the Portfolio Account of the customer")
+			@t24:i (align=L, inputBehaviour=N, maxLength=18, sysNumber=56.0, core=true, t24Name=DEST.PORTFOLIO)
+		/* A valid id from the CUSTOMER table. */
+		DEST_CUST_PORT : T24BusinessTypes:CUS
+			@i18n:Label (en="Portfolio Number")
+			@i18n:Tooltip (en="Indicates the Portfolio Account of the customer")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=57.0, core=true, t24Name=DEST.CUST.PORT)
+		/* A valid id from the CUSTOMER table. */
+		CUST_CPARTY : T24BusinessTypes:CUS
+			@i18n:Label (en="Customer Counterparty")
+			@i18n:Tooltip (en="Specifies receiver counterparty")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=58.0, core=true, t24Name=CUST.CPARTY)
+		/* The name of the customers bank. */
+		CUST_BNK_NME : T24BusinessTypes:A
+			@i18n:Label (en="Customer Bank Name")
+			@i18n:Tooltip (en="Specifies the receiver bank name")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=59.0, core=true, t24Name=CUST.BNK.NME)
+		/* The address of the customers bank. */
+		CUST_BNK_ADD : T24BusinessTypes:A
+			@i18n:Label (en="Customer Bank Address")
+			@i18n:Tooltip (en="Specifies the receiver bank address")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=60.0, core=true, t24Name=CUST.BNK.ADD)
+		/* The sort code of the customers bank. */
+		CUST_BNK_SORT_CDE : T24BusinessTypes:A
+			@i18n:Label (en="Customer Bank Sort Code")
+			@i18n:Tooltip (en="Specifies the receiver bank\'s sort code")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=61.0, core=true, t24Name=CUST.BNK.SORT.CDE)
+		/* This will can be set to HEDGE or TRADE. */
+		PRI_HEDGE_TRADE : T24BusinessTypes:A
+			@i18n:Label (en="Hedge or Trade")
+			@i18n:Tooltip (en="Whether it is a hedge or transaction transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=62.0, core=true, t24Name=PRI.HEDGE.TRADE)
+		TAX_CODE -> byValue DX_Closeout:DX_CLOSEOUT__TAX_CODE *
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=67.0, core=true, t24Name=RESERVED05)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=68.0, core=true, t24Name=RESERVED04)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=69.0, core=true, t24Name=RESERVED03)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=70.0, core=true, t24Name=RESERVED02)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=71.0, core=true, t24Name=RESERVED01)
+		OVERRIDE -> byValue DX_Closeout:DX_CLOSEOUT__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=74.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=75.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Closeout:DX_CLOSEOUT__INPUTTER *
+		DATE_TIME -> byValue DX_Closeout:DX_CLOSEOUT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=78.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=79.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=80.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=81.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=82.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_CLOSEOUT__B2B_CO_ID
+	{
+		/* This field holds the list of ids of closeout records created for a secondary customer during back to back closeout processing. This field will be updated only in the closeout records relating to Primary Customers
+Validation Rules
+
+No input field */
+		B2B_CO_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=31.0, core=true, t24Name=B2B.CO.ID)
+	}
+	DX_CLOSEOUT__B2B_PAR_ID
+	{
+		/* This field gets updated only in the closeout records relating to secondary customers. This holds the parent closeout record id in relation to which this BACK2BACK closeout record got created
+Validation Rules
+
+No input field */
+		B2B_PAR_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=32.0, core=true, t24Name=B2B.PAR.ID)
+	}
+	DX_CLOSEOUT__CHILD_TRADE_ID
+	{
+		/* Holds ids of DX.TRADE records created as part of an EXERCISE.  Held so that if the closeout is reversed, these trades are also reversed. */
+		CHILD_TRADE_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=17, sysNumber=34.0, core=true, t24Name=CHILD.TRADE.ID)
+	}
+	DX_CLOSEOUT__TRADE_ID
+	{
+		/* Multivalued list of trades in this closeout.
+This may include PSEUDO trades. These trades do not exist on the DX.TRADE files and only exist as part of an individual maturity style closeout.
+Validation Rules
+
+None */
+		TRADE_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=17, sysNumber=35.0, core=true, t24Name=TRADE.ID)
+		/* Mutlivalued list of trade transactions, from the DX.TRANSACTION file, that are associated with this closeout.
+This may include PSEUDO transactions.
+N.B. These transactions do not exist on the DX.TRANSACTION files and only exist as part of a individual maturity style closeout.
+Validation Rules
+
+None */
+		TRANS_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=36.0, core=true, t24Name=TRANS.ID)
+		/* The number of buy lots in each transaction that is being closed out.
+Validation Rules
+
+None */
+		TRA_BUY_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=37.0, core=true, t24Name=TRA.BUY.LOTS)
+		/* The number of sell lots in each transaction that are being closed out.
+Validation Rules
+
+None */
+		TRA_SELL_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=38.0, core=true, t24Name=TRA.SELL.LOTS)
+		/* The buy value of each transaction in the close out.
+Validation Rules
+
+None */
+		TRA_BUY_VALUE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=39.0, core=true, t24Name=TRA.BUY.VALUE)
+		/* The sell value of each transaction in the close out.
+Validation Rules
+
+None */
+		TRA_SELL_VALUE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=40.0, core=true, t24Name=TRA.SELL.VALUE)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED15 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=41.0, core=true, t24Name=RESERVED15)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED14 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=42.0, core=true, t24Name=RESERVED14)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED13 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=43.0, core=true, t24Name=RESERVED13)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED12 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=44.0, core=true, t24Name=RESERVED12)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=45.0, core=true, t24Name=RESERVED11)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=46.0, core=true, t24Name=RESERVED10)
+		DET_LOTS -> byValue DX_Closeout:DX_CLOSEOUT__TRADE_ID__DET_LOTS *
+	}
+	DX_CLOSEOUT__TRADE_ID__DET_LOTS
+	{
+		/* Sub mulitvalued list of the number of lots corresponding to the following types of trade, for commission purposes.  Only used if the TYPE of closeout is SETTLEMENT.
+(Phase 2 development.)
+Validation Rules
+
+None */
+		DET_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=47.0, core=true, t24Name=DET.LOTS)
+		/* Sub mulitivalued list corresponding to the lots in DET.LOTS indicating whether these lots were opening or closing a position.
+(Phase 2 development)
+Validation Rules
+
+None */
+		O_C : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=48.0, core=true, t24Name=O.C)
+		/* Sub mulitivalued list corresponding to the lots on DET.LOTS indicating whether these lots were DAY trades or SCRATCH trades.
+
+(Phase 2 development)
+Validation Rules
+
+None */
+		D_S : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=7, sysNumber=49.0, core=true, t24Name=D.S)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		DET_RES05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=50.0, core=true, t24Name=DET.RES05)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		DET_RES04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=51.0, core=true, t24Name=DET.RES04)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		DET_RES03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=52.0, core=true, t24Name=DET.RES03)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		DET_RES02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=53.0, core=true, t24Name=DET.RES02)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		DET_RES01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=54.0, core=true, t24Name=DET.RES01)
+	}
+	DX_CLOSEOUT__TAX_CODE
+	{
+		/* The Tax Code for this closeout.
+This field is populated by the API specified in the CLOSEOUT.API field of DX.PARAMETER.
+Must be a valid entry in the TXN.TAX.CODE table. */
+		TAX_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=63.0, core=true, t24Name=TAX.CODE)
+		/* The tax type to be applied this closeout.
+This field is populated by the API specified in the CLOSEOUT.API field of DX.PARAMETER.
+Mandatory when a tax amount or tax code has been specified. */
+		TAX_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=64.0, core=true, t24Name=TAX.TYPE)
+		/* Tax amount in account currency.
+This field is populated by the API specified in the CLOSEOUT.API field of DX.PARAMETER. */
+		TAX_AMT_ACY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=65.0, core=true, t24Name=TAX.AMT.ACY)
+		/* Tax Amount in trade currency.
+This field is populated by the API specified in the CLOSEOUT.API field of DX.PARAMETER. */
+		TAX_AMT_TCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=66.0, core=true, t24Name=TAX.AMT.TCY)
+	}
+	DX_CLOSEOUT__OVERRIDE
+	{
+		/* This is a multi valued field. Standard T24 alphanumeric field.
+Validation Rules
+
+A maximum of 35 characters may be entered.
+This is a NOINPUT field. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=73.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_CLOSEOUT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=76.0, core=true, t24Name=INPUTTER)
+	}
+	DX_CLOSEOUT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=77.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_CLOSEOUT_METHOD
+		@t24:i (t24Name=DX.CLOSEOUT.METHOD, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This is the record key to this DX.CLOSEOUT.METHOD record. */
+		METHOD -> DX_Closeout:DX_CLOSEOUT_METHOD PK required
+			@i18n:Label (en=Method)
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=METHOD)
+		NAME -> byValue DX_Closeout:DX_CLOSEOUT_METHOD__NAME *
+		/* This field contains the short name for DX.Closeout.Method
+Validation Rules
+
+Upto 12 alphanumeric characters
+Mandatory field */
+		SHORT_NAME : T24BusinessTypes:A required
+			@i18n:Label (en="Short name")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=2.0, core=true, t24Name=SHORT.NAME)
+		/* This is the name of the routine used to closeout the DX trades
+Validation Rules
+
+
+Upto 35 alphanumeric Characters */
+		ROUTINE_NAME -> DX_Foundation:DX_OBJECT_LIBRARY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, businessType=A, t24Name=ROUTINE.NAME)
+		RESERVED8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=4.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=5.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=6.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=7.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=8.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=9.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=10.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=11.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue DX_Closeout:DX_CLOSEOUT_METHOD__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Closeout:DX_CLOSEOUT_METHOD__INPUTTER *
+		DATE_TIME -> byValue DX_Closeout:DX_CLOSEOUT_METHOD__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=19.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=21.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=22.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_CLOSEOUT_METHOD__NAME
+	{
+		/* This field contains the name for DX.Closeout. Method
+Validation Rules
+
+Upto 35 alphanumeric characters
+Mandatory input */
+		NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=NAME)
+	}
+	DX_CLOSEOUT_METHOD__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=13.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_CLOSEOUT_METHOD__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=INPUTTER)
+	}
+	DX_CLOSEOUT_METHOD__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=17.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Closeouts (or settlements) are used to match opposing buy and sell positions within the same contract to effectively close the open positions and realise any profit or loss due.
+Once the settlement has occurred the position will be closed-out and any profit/loss will be realised. Commission and charges also due to be paid at settlement time will also be posted.
+Within the derivatives module there are three methods of closing out trades;
+
+The first involves matching opposing buy and sell positions within the same contract to effectively close the open positions and realise any profit or loss due.
+The second form of closeout occurs when a position is held until maturity. This also results in a position being closed and subsequent cash or physical delivery taking place, this is also known as a "cash" or "maturity" settlement. In this case the open trades are in effect settled against a pseudo trade. For futures this trade would be performed at the EDSP (Exchange Delivery Settlement Price). For options no psuedo trades are created, for trades where premium was not paid a trade the trades/transactions are closed out against each other on the same way as a manual closeout, where the premium has already been paid these are Cash Settled against the Original Premium Price.
+Automatic settlement is performed by entering a series of selection criteria into the DX.CO.AUTO.INPUT application. Using the selection criteria the system will attempt to create a closeout or a series of closeout records which match lots again lot. The method by which the system does this can be setup in the DX.CLOSEOUT.METHOD application and each customers closeout method can be defined on their DX.CUSTOMER record. If no method is defined then no         automatic settlement will be performed. */
+	DX_CO_CONTROL_HIST
+		@t24:i (t24Name=DX.CO.CONTROL.HIST, nonStop=true, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* The records held within this file are created using the closeout input feeds from the closeout enquiries.
+
+
+Validation Rules
+
+This must be a vaild key held on the DX.CLOSEOUT file.
+
+Key Format DXCOyydddnnnnn eg DXCO0100200077 */
+		KEY -> DX_Closeout:DX_CO_CONTROL_HIST PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* The status of this close out. Maybe one of the following
+
+
+RUNNING. The closeout is currently taking place.
+
+ACTIVE. The closeout has occurred. I.e the trades have been matched and the close out is now waiting for authorisation.
+
+DELETED. The closeout has         been reversed/bust */
+		STATUS : DX_Closeout:DX_CO_CONTROL_HIST__STATUS
+			@i18n:Label (en=Status)
+			@t24:i (align=L, inputBehaviour=N, maxLength=7, sysNumber=1.0, core=true, t24Name=STATUS)
+		/* This field identifies the type of close out.
+
+SETTLEMENT - A closeout matching lot against lot(MANUAL/AUTOMATIC/SYSTEM).
+
+MATURITY - A Manual settlement maturing individual trades (MANUAL).
+
+EXERCISE - The Exercising of an Option (MANUAL/AUTOMATIC/SYSTEM).
+
+EXPIRY - The Expiry of a Option (MANUAL/AUTOMATIC/SYSTEM).
+
+ASSIGNMENT - The Assignment of an Option (MANUAL/AUTOMATIC).
+
+FIXING - The Fixing of a IRS Option (MANUAL)
+
+Validation Rules
+
+
+Can only be one of the following :
+SETTLEMENT, MATURITY, EXERCISE, EXPIRY or ASSIGNMENT */
+		TYPE : DX_Closeout:DX_CO_CONTROL_HIST__TYPE
+			@i18n:Label (en=Type)
+			@i18n:Tooltip (en=Type)
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=2.0, core=true, t24Name=TYPE)
+		/* How the close out was created.
+
+
+MANUAL - As part of a manual/maturity closeout from using a series of selection criteria.
+
+
+
+AUTOMATIC - The automatic closeout of a customer or a customers positions.
+
+
+
+SYSTEM - A system closeout carried out under instruction of the end of day or end of exchange.
+
+
+
+BACK2BACK - Back to back closeout triggered for a secondary customer
+
+
+Validation Rules
+
+
+
+MANUAL, AUTOMATIC, SYSTEM or BACK2BACK */
+		CREATION : DX_Closeout:DX_CO_CONTROL_HIST__CREATION
+			@i18n:Label (en=Creation)
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=3.0, core=true, t24Name=CREATION)
+		/* The automatic settlement type selected by the system for this closeout.
+Validation Rules
+
+Must exisit on the DX.CLOSEOUT.METHOD field
+Must be defined as the closeout method for this customer. */
+		SETT_TYPE -> DX_Closeout:DX_CLOSEOUT_METHOD
+			@i18n:Label (en="Settlement Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=4.0, core=true, businessType=A, t24Name=SETT.TYPE)
+		DELIVERY_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=5.0, core=true, businessType=CCY, t24Name=DELIVERY.CCY)
+		/* The customer for who the close out occurred. May be the Bank's own book or an external customer or broker
+Validation Rules
+
+A valid T24 customer.
+Must exist as a valid record within the DX.CUSTOMER and CUSTOMER File. */
+		CUSTOMER -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=6.0, core=true, businessType=CUS, t24Name=CUSTOMER)
+		/* The portfolio for which this closeout is taking place. In the case of brokers this will be the same as there customer no.
+Validation Rules
+
+Must exist as a valid portfolio on SEC.ACC.MASTER */
+		PORTFOLIO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER
+			@i18n:Label (en=Portfolio)
+			@t24:i (align=L, inputBehaviour=N, maxLength=14, sysNumber=7.0, core=true, businessType=A, t24Name=PORTFOLIO)
+		/* Identifies the Account over which financial entries relating to the customer for the closeout, are to be passed.
+Validation Rules
+
+None */
+		ACCOUNT : T24BusinessTypes:ANT
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Identifies the customer account")
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=8.0, core=true, t24Name=ACCOUNT)
+		/* The Contract code for this closeout.  All transactions and trades associated with this Closeout will be of this contract type.
+Validation Rules
+
+None */
+		CONTRACT_CODE -> DX_Configuration:DX_CONTRACT_MASTER
+			@i18n:Label (en=Contract)
+			@i18n:Tooltip (en="Identifies the contract code of the transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=9.0, core=true, businessType=A, t24Name=CONTRACT.CODE)
+		/* The delivery period or prompt date of the contract transacted. All transactions associated with this closeout will have matching maturity dates.
+Validation Rules
+
+None */
+		MATURITY_DATE : T24BusinessTypes:A
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=10.0, core=true, t24Name=MATURITY.DATE)
+		/* The delivery period or prompt date of the contract transacted, in the format entered by the user. All transactions associated with this closeout will have matching maturity dates.
+Validation Rules
+
+None */
+		INP_MAT_DATE : T24BusinessTypes:A
+			@i18n:Label (en="Delivery Period")
+			@i18n:Tooltip (en="Indicates the delivery period of the contract")
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, t24Name=INP.MAT.DATE)
+		/* The
+type of trades that are being closed out.
+
+FUTURE - A futures contract STOCK - A stock contract OPTION - An Options Contract
+Validation Rules
+
+None */
+		TRADE_TYPE : DX_Closeout:DX_CO_CONTROL_HIST__TRADE_TYPE
+			@i18n:Label (en="Trade Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=12.0, core=true, t24Name=TRADE.TYPE)
+		/* Only applicable for option close outs.
+
+The option type of the trades/transactions which constiute this closout
+Validation Rules
+
+Only CALL or PUT */
+		OPTION_TYPE : DX_Closeout:DX_CO_CONTROL_HIST__OPTION_TYPE
+			@i18n:Label (en="Call or Put")
+			@i18n:Tooltip (en="Type of option to be chosen like call or put")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=OPTION.TYPE)
+		/* Only applicable for option close outs.
+The price at which an option holder has the right to buy (Call Options) or sell (Put Options) the underlying instrument, or to cash-settle the option if appropriate, to exercise the option.
+All trades and transaction associated with this closeout will have the same Strike Price
+Validation Rules
+
+None */
+		STRIKE_PRICE : T24BusinessTypes:AMT
+			@i18n:Label (en=Strike)
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=14.0, core=true, t24Name=STRIKE.PRICE)
+		/* This field represents the strike price in internal format for T24 calculation.
+Validation Rules
+
+None */
+		INT_STRIKE_PRICE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=15.0, core=true, t24Name=INT.STRIKE.PRICE)
+		/* The currency of the profit or loss created by this close out.
+Validation Rules
+
+None */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=16.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* The total number of lots being closed out by this closeout.
+Validation Rules
+
+None */
+		TOTAL_LOTS : mml:Integer
+			@i18n:Label (en="Total lots")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=17.0, core=true, t24Name=TOTAL.LOTS)
+		/* The total value of the profit and loss for this closeout. The figure is held in the CURRENCY currecy.
+Validation Rules
+
+None */
+		TOTAL_PANDL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=18.0, core=true, t24Name=TOTAL.PANDL, typeModifiers="16")
+		/* The total value of the lots bought, stored in the closeout currency.
+Validation Rules
+
+None */
+		BUY_VALUE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=19.0, core=true, t24Name=BUY.VALUE, typeModifiers="16")
+		/* The total value of the lots sold, stored in the closeout currency.
+Validation Rules
+
+None */
+		SELL_VALUE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=20.0, core=true, t24Name=SELL.VALUE, typeModifiers="16")
+		/* Total Commission - not currently used
+Validation Rules
+
+Rule 1
+Rule 2 */
+		CSN_TOTAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=21.0, core=true, t24Name=CSN.TOTAL, typeModifiers="22")
+		/* Commission Curreny - not currently used
+Validation Rules
+
+Rule 1
+Rule 2 */
+		CSN_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=22.0, core=true, businessType=A, t24Name=CSN.CCY)
+		/* Price at maturity of the contracts traded and associated with this closeout. For 'OPTION' trades, this is the Maturity 'PREMIUM' price.
+Validation Rules
+
+None */
+		MATURITY_PRICE : T24BusinessTypes:A
+			@i18n:Label (en="Maturity Price")
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=23.0, core=true, t24Name=MATURITY.PRICE)
+		/* The maturity price in standard T24 derivatives internal price format.
+Validation Rules
+
+None */
+		INT_MATURITY_PRICE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=24.0, core=true, t24Name=INT.MATURITY.PRICE)
+		/* If set to "YES" then reversals are not allowed for this closeout. */
+		BLOCK_REV : DX_Closeout:DX_CO_CONTROL_HIST__BLOCK_REV
+			@i18n:Label (en="Block Reversal")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=25.0, core=true, t24Name=BLOCK.REV)
+		/* If BLOCK.REV is set to yes then this field explains why */
+		NO_REV_REASON : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=26.0, core=true, t24Name=NO.REV.REASON)
+		/* An valid ID from the DX.DIARY application. */
+		DIARY_EVENT -> DX_CorporateActions:DX_DIARY
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=27.0, core=true, t24Name=DIARY.EVENT)
+		/* Specifies the price at which the trade is being done
+Validation Rules
+
+No input field
+Upto 19 numeric values */
+		PRICE_TRADED : T24BusinessTypes:AMT
+			@i18n:Label (en="Price Traded")
+			@i18n:Tooltip (en="The price at which the trade is being done")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=28.0, core=true, t24Name=PRICE.TRADED)
+		/* Set to YES if fee is required else set to NO
+Validation Rules
+
+No input field
+Upto 3 alphanumeric values
+Valid inputs are either YES or NO */
+		FEE : T24BusinessTypes:A
+			@i18n:Label (en=Fee)
+			@i18n:Tooltip (en="Indicates whether fee is required or not")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=29.0, core=true, t24Name=FEE)
+		/* Set to YES if a transfer advice is to be produced else set to NO
+Validation Rules
+
+No input field
+Upto 3 alphanumeric values
+Valid inputs are either YES or NO */
+		ADVICE : T24BusinessTypes:A
+			@i18n:Label (en=Advice)
+			@i18n:Tooltip (en="Specifies the link to a record in EB.ADVICES")
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=30.0, core=true, t24Name=ADVICE)
+		B2B_CO_ID -> byValue DX_Closeout:DX_CO_CONTROL_HIST__B2B_CO_ID *
+		B2B_PAR_ID -> byValue DX_Closeout:DX_CO_CONTROL_HIST__B2B_PAR_ID *
+		RESERVED17 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=33.0, core=true, t24Name=RESERVED17)
+		CHILD_TRADE_ID -> byValue DX_Closeout:DX_CO_CONTROL_HIST__CHILD_TRADE_ID *
+		TRADE_ID -> byValue DX_Closeout:DX_CO_CONTROL_HIST__TRADE_ID *
+		/* Specifies the internal recipient customer
+Validation Rules
+
+Upto 10 numeric values
+Must be a valid record in CUSTOMER application */
+		DEST_CUST : T24BusinessTypes:CUS
+			@i18n:Label (en="Destination Customer")
+			@i18n:Tooltip (en="Specifies the internal recipient customer")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=55.0, core=true, t24Name=DEST.CUST)
+		/* Specifies the external recipient customer portfolio reference if any
+Validation Rules
+
+No input field
+Upto 18 alphanumeric values */
+		DEST_PORTFOLIO : T24BusinessTypes:A
+			@i18n:Label (en="Portfolio Number")
+			@i18n:Tooltip (en="Indicates the Portfolio Account of the customer")
+			@t24:i (align=L, inputBehaviour=N, maxLength=18, sysNumber=56.0, core=true, t24Name=DEST.PORTFOLIO)
+		/* A valid id from the CUSTOMER table. */
+		DEST_CUST_PORT : T24BusinessTypes:CUS
+			@i18n:Label (en="Portfolio Number")
+			@i18n:Tooltip (en="Indicates the Portfolio Account of the customer")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=57.0, core=true, t24Name=DEST.CUST.PORT)
+		/* A valid id from the CUSTOMER table. */
+		CUST_CPARTY : T24BusinessTypes:CUS
+			@i18n:Label (en="Customer Counterparty")
+			@i18n:Tooltip (en="Specifies receiver counterparty")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=58.0, core=true, t24Name=CUST.CPARTY)
+		/* The name of the customers bank. */
+		CUST_BNK_NME : T24BusinessTypes:A
+			@i18n:Label (en="Customer Bank Name")
+			@i18n:Tooltip (en="Specifies the receiver bank name")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=59.0, core=true, t24Name=CUST.BNK.NME)
+		/* The address of the customers bank. */
+		CUST_BNK_ADD : T24BusinessTypes:A
+			@i18n:Label (en="Customer Bank Address")
+			@i18n:Tooltip (en="Specifies the receiver bank address")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=60.0, core=true, t24Name=CUST.BNK.ADD)
+		/* The sort code of the customers bank. */
+		CUST_BNK_SORT_CDE : T24BusinessTypes:A
+			@i18n:Label (en="Customer Bank Sort Code")
+			@i18n:Tooltip (en="Specifies the receiver bank\'s sort code")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=61.0, core=true, t24Name=CUST.BNK.SORT.CDE)
+		/* This will can be set to HEDGE or TRADE. */
+		PRI_HEDGE_TRADE : T24BusinessTypes:A
+			@i18n:Label (en="Hedge or Trade")
+			@i18n:Tooltip (en="Whether it is a hedge or transaction transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=62.0, core=true, t24Name=PRI.HEDGE.TRADE)
+		TAX_CODE -> byValue DX_Closeout:DX_CO_CONTROL_HIST__TAX_CODE *
+		RESERVED05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=67.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=68.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=69.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=70.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=71.0, core=true, t24Name=RESERVED01)
+		OVERRIDE -> byValue DX_Closeout:DX_CO_CONTROL_HIST__OVERRIDE *
+	}
+	DX_CO_CONTROL_HIST__B2B_CO_ID
+	{
+		/* This field holds the list of ids of closeout records created for a secondary customer during back to back closeout processing. This field will be updated only in the closeout records relating to Primary Customers
+Validation Rules
+
+No input field */
+		B2B_CO_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=31.0, core=true, t24Name=B2B.CO.ID)
+	}
+	DX_CO_CONTROL_HIST__B2B_PAR_ID
+	{
+		/* This field gets updated only in the closeout records relating to secondary customers. This holds the parent closeout record id in relation to which this BACK2BACK closeout record got created
+Validation Rules
+
+No input field */
+		B2B_PAR_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=32.0, core=true, t24Name=B2B.PAR.ID)
+	}
+	DX_CO_CONTROL_HIST__CHILD_TRADE_ID
+	{
+		/* Holds ids of DX.TRADE records created as part of an EXERCISE.  Held so that if the closeout is reversed, these trades are also reversed. */
+		CHILD_TRADE_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=17, sysNumber=34.0, core=true, t24Name=CHILD.TRADE.ID)
+	}
+	DX_CO_CONTROL_HIST__TRADE_ID
+	{
+		/* Multivalued list of trades in this closeout.
+This may include PSEUDO trades. These trades do not exist on the DX.TRADE files and only exist as part of an individual maturity style closeout.
+Validation Rules
+
+None */
+		TRADE_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=17, sysNumber=35.0, core=true, t24Name=TRADE.ID)
+		/* Mutlivalued list of trade transactions, from the DX.TRANSACTION file, that are associated with this closeout.
+This may include PSEUDO transactions.
+N.B. These transactions do not exist on the DX.TRANSACTION files and only exist as part of a individual maturity style closeout.
+Validation Rules
+
+None */
+		TRANS_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=36.0, core=true, t24Name=TRANS.ID)
+		/* The number of buy lots in each transaction that is being closed out.
+Validation Rules
+
+None */
+		TRA_BUY_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=37.0, core=true, t24Name=TRA.BUY.LOTS)
+		/* The number of sell lots in each transaction that are being closed out.
+Validation Rules
+
+None */
+		TRA_SELL_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=38.0, core=true, t24Name=TRA.SELL.LOTS)
+		/* The buy value of each transaction in the close out.
+Validation Rules
+
+None */
+		TRA_BUY_VALUE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=39.0, core=true, t24Name=TRA.BUY.VALUE)
+		/* The sell value of each transaction in the close out.
+Validation Rules
+
+None */
+		TRA_SELL_VALUE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=40.0, core=true, t24Name=TRA.SELL.VALUE)
+		RESERVED15 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=41.0, core=true, t24Name=RESERVED15)
+		RESERVED14 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=42.0, core=true, t24Name=RESERVED14)
+		RESERVED13 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=43.0, core=true, t24Name=RESERVED13)
+		RESERVED12 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=44.0, core=true, t24Name=RESERVED12)
+		RESERVED11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=45.0, core=true, t24Name=RESERVED11)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=46.0, core=true, t24Name=RESERVED10)
+		DET_LOTS -> byValue DX_Closeout:DX_CO_CONTROL_HIST__TRADE_ID__DET_LOTS *
+	}
+	DX_CO_CONTROL_HIST__TRADE_ID__DET_LOTS
+	{
+		/* Sub mulitvalued list of the number of lots corresponding to the following types of trade, for commission purposes.  Only used if the TYPE of closeout is SETTLEMENT.
+(Phase 2 development.)
+Validation Rules
+
+None */
+		DET_LOTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=47.0, core=true, t24Name=DET.LOTS)
+		/* Sub mulitivalued list corresponding to the lots in DET.LOTS indicating whether these lots were opening or closing a position.
+(Phase 2 development)
+Validation Rules
+
+None */
+		O_C : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=48.0, core=true, t24Name=O.C)
+		/* Sub mulitivalued list corresponding to the lots on DET.LOTS indicating whether these lots were DAY trades or SCRATCH trades.
+
+(Phase 2 development)
+Validation Rules
+
+None */
+		D_S : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=7, sysNumber=49.0, core=true, t24Name=D.S)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		DET_RES05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=50.0, core=true, t24Name=DET.RES05)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		DET_RES04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=51.0, core=true, t24Name=DET.RES04)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		DET_RES03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=52.0, core=true, t24Name=DET.RES03)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		DET_RES02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=53.0, core=true, t24Name=DET.RES02)
+		/* Reserved for future use.
+Validation Rules
+
+None */
+		DET_RES01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=54.0, core=true, t24Name=DET.RES01)
+	}
+	DX_CO_CONTROL_HIST__TAX_CODE
+	{
+		/* The Tax Code for the side of the trade that was closed out.
+This is a key to a record on the TXN.TAX.CODE table. */
+		TAX_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=63.0, core=true, t24Name=TAX.CODE)
+		/* The tax type applied to the side of the trade that was closed out. */
+		TAX_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=64.0, core=true, t24Name=TAX.TYPE)
+		/* Tax amount in account currency. */
+		TAX_AMT_ACY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=65.0, core=true, t24Name=TAX.AMT.ACY)
+		/* Tax Amount in trade currency. */
+		TAX_AMT_TCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=66.0, core=true, t24Name=TAX.AMT.TCY)
+	}
+	DX_CO_CONTROL_HIST__OVERRIDE
+	{
+		/* This is a multi valued field. Standard T24 alphanumeric field.
+Validation Rules
+
+A maximum of 35 characters may be entered.
+This is a NOINPUT field. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=73.0, core=true, t24Name=OVERRIDE)
+	}
+}
+Enumerations {
+	DX_CLOSEOUT__STATUS : mml:string
+		RUNNING=RUNNING
+		ACTIVE=ACTIVE
+		DELETED=DELETED
+	DX_CLOSEOUT__TYPE : mml:string
+		SETTLEMENT=SETTLEMENT
+		MATURITY=MATURITY
+		EXCERCISE=EXCERCISE
+		EXPIRY=EXPIRY
+		ASSIGNMENT=ASSIGNMENT
+		FIXING=FIXING
+		TRANSFER=TRANSFER
+	DX_CLOSEOUT__CREATION : mml:string
+		MANUAL=MANUAL
+		AUTO=AUTO
+		SYSTEM=SYSTEM
+		BACK2BACK=BACK2BACK
+	DX_CLOSEOUT__TRADE_TYPE : mml:string
+		FUTURE=FUTURE
+		STOCK=STOCK
+		OPTION=OPTION
+	DX_CLOSEOUT__OPTION_TYPE : mml:string
+		CALL=CALL
+		PUT=PUT
+	DX_CLOSEOUT__BLOCK_REV : mml:string
+		NULL=NULL
+		YES=YES
+	DX_CO_CONTROL_HIST__STATUS : mml:string
+		RUNNING=RUNNING
+		ACTIVE=ACTIVE
+		DELETED=DELETED
+	DX_CO_CONTROL_HIST__TYPE : mml:string
+		SETTLEMENT=SETTLEMENT
+		MATURITY=MATURITY
+		EXCERCISE=EXCERCISE
+		EXPIRY=EXPIRY
+		ASSIGNMENT=ASSIGNMENT
+		FIXING=FIXING
+		TRANSFER=TRANSFER
+	DX_CO_CONTROL_HIST__CREATION : mml:string
+		MANUAL=MANUAL
+		AUTO=AUTO
+		SYSTEM=SYSTEM
+		BACK2BACK=BACK2BACK
+	DX_CO_CONTROL_HIST__TRADE_TYPE : mml:string
+		FUTURE=FUTURE
+		STOCK=STOCK
+		OPTION=OPTION
+	DX_CO_CONTROL_HIST__OPTION_TYPE : mml:string
+		CALL=CALL
+		PUT=PUT
+	DX_CO_CONTROL_HIST__BLOCK_REV : mml:string
+		NULL=NULL
+		YES=YES
+}

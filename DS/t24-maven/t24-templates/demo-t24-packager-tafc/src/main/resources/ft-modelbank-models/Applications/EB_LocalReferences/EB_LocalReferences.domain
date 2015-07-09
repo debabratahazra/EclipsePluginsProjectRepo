@@ -1,0 +1,502 @@
+# UTF-8
+# UTF-8
+/* Local Reference Creation and Management */
+Domain EB_LocalReferences
+	@t24:i (module=EB)
+	@java:Package (value=com.temenos.t24.datamodel.eb.eb_localreferences)
+namespace "http://www.temenos.com/t24/EB_LocalReferences"
+metamodelVersion 1.30.6
+Classes {
+	/* The purpose of this table is to specify the names of any Applications that are to include any previously defined Local Table elements as Input fields and the order in which they are to appear on the screen.
+Up to 999 elements may be specified for each Application which allows Local Reference fields. */
+	LOCAL_REF_TABLE
+		@t24:i (t24Name=LOCAL.REF.TABLE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* This is the Application code by which the Local Reference Table details can be identified.
+his field identifies the Application for which the Local Table elements are being referenced.
+Validation Rules
+2-25 type SS (uppercase alpha or numeric, first character alpha) character Application name (or Abbreviation). (Mandatory input) */
+		APPLICATION -> EB_LocalReferences:LOCAL_REF_TABLE PK required
+			@i18n:Label (en=Table)
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=0.0, core=true, businessType=PG, t24Name=APPLICATION, typeModifiers=HULW)
+		LOCAL_TABLE_NO -> byValue EB_LocalReferences:LOCAL_REF_TABLE__LOCAL_TABLE_NO *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=3.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=4.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_LocalReferences:LOCAL_REF_TABLE__INPUTTER *
+		DATE_TIME -> byValue EB_LocalReferences:LOCAL_REF_TABLE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=7.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=8.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=10.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=11.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LOCAL_REF_TABLE__LOCAL_TABLE_NO
+	{
+		/* LOCAL.REF.TABLE
+
+Validation Rules
+
+1-4      Alphanumeric character, Local Table code. Multivalue field. (Mandatory input)      It must contain an existing id on the LOCAL.TABLE .
+Alternatively, 1 &#8211; 40 alphabetic string representing SHORT.NAME on
+
+
+LOCAL.TABLE. This short name must exist on the LTA.SHORT.NAME file,
+which is automatically updated when the LOCAL.TABLE record is authorised.
+
+
+LOCAL.TABLE      items with CHAR.TYPE = AMTLCCY cannot be used in applications with a file      classification other than FIN or CCY.
+
+
+
+LOCAL.TABLE
+
+Validation Rules
+
+
+
+1 - 999 numeric field, maximum 7 characters optionally separated by '/'. Optional Input - mandatory if input in APPLICATION -field 8)
+
+
+1-40 alphabetic string consisting of field name.
+
+
+LOCAL.REF fields can be entered as follows:LOCAL.REF-n &#8211; where &#8216;n&#8217; represents the position of the LOCAL.REF field as set up on LOCAL.REF.TABLE.
+Or
+LOCAL.REF-name &#8211; where name is the SHORT.NAME of the LOCAL.REF field.
+Or
+N.n &#8211; where &#8216;N&#8217; represents the LOCAL.REF field number on the application and &#8216;n&#8217; is the position of the LOCAL.REF field as set up on LOCAL.REF.TABLE. */
+		LOCAL_TABLE_NO -> EB_LocalReferences:LOCAL_TABLE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, businessType=A, t24Name=LOCAL.TABLE.NO)
+		/* Specifies whether a local reference field for an application is single value, multivalue, or subvalue, and the other local reference fields that are associated.
+For each application that uses this local reference the user may specify if the field is single value, multivalue, or subvalue. In addition they may also specify that other local references for the same application are associated.
+Example: a) Single value
+1.1 1 LOCAL REF 1 2.1 left blank
+1.2 2 LOCAL REF 2 2.2 left blank
+1.3 3 LOCAL REF 3 2.3 left blank
+result on application:
+157.1 LOCAL REF 1 ....... 157.2 LOCAL REF 2 ....... 157.3 LOCAL REF 3 .......
+Fields cannot be expanded, only single value allowed for each local reference.
+b) Multivalue
+1.1 1 LOCAL REF 1 2.1 XX.
+1.2 2 LOCAL REF 2 2.2 XX.
+1.3 3 LOCAL REF 3 2.3 XX.
+result on application:
+157.1.1 LOCAL REF 1 ....... 157.1.2 LOCAL REF 1 ....... 157.2.1 LOCAL REF 2 ....... 157.3.1 LOCAL REF 3 .......
+Fields can be expanded separately to allow multiple input in each local reference. In this example only 157.1.1 LOCAL REF 1 has been expanded.
+c) Associated subvalue
+1.1 1 LOCAL REF 1 2.1 XX< (XX< denotes start of association)
+1.2 2 LOCAL REF 2 2.2 XX- (XX- denotes part of association)
+1.3 3 LOCAL REF 3 2.3 XX> (XX> denotes end of association)
+result on application:
+157.1.1 LOCAL REF 1 ....... 157.1.2 LOCAL REF 1 .......
+157.2.1 LOCAL REF 2 ....... 157.2.2 LOCAL REF 2 .......
+157.3.1 LOCAL REF 3 ....... 157.3.2 LOCAL REF 3 .......
+Fields are expanded together to allow multiple input for all local references.
+Validation Rules
+
+1 - 3 alpha characters. Multivalue field (Optional Input) */
+		SUB_ASSOC_CODE : EB_LocalReferences:LOCAL_REF_TABLE__LOCAL_TABLE_NO__SUB_ASSOC_CODE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=SUB.ASSOC.CODE)
+	}
+	LOCAL_REF_TABLE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=5.0, core=true, t24Name=INPUTTER)
+	}
+	LOCAL_REF_TABLE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=6.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Local elements may be defined for Applications which have a Local Reference field, (e.g. the CURRENCY file), and enable you to create additional Input fields which may be needed to meet local requirements.
+This table allows the specific details of such fields to be defined, including, the name of the Input field, the minimum and maximum number of characters, the type of characters, all possible Input values and whether the Input is to be Validated against the key of another table. */
+	LOCAL_TABLE
+		@t24:i (t24Name=LOCAL.TABLE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* This is the code by which the Local Table element details can be identified.
+his field is used to identify the LOCAL.TABLE details so that individual elements may be accessed in the LOCAL.REF.TABLE Application.
+Validation Rules
+1-4 numeric characters. (Mandatory input) */
+		TABLE_NO -> EB_LocalReferences:LOCAL_TABLE PK required
+			@i18n:Label (en=Field)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=TABLE.NO)
+		DESCRIPTION -> byValue EB_LocalReferences:LOCAL_TABLE__DESCRIPTION *
+		SHORT_NAME -> byValue EB_LocalReferences:LOCAL_TABLE__SHORT_NAME *
+		/* Indicates the maximum number of characters that may be entered in this Local Table element.
+This field is used to control the maximum number of characters (up to 35) allowed for this Local Table element. If the format is an amount, note that 6 of these characters are accounted for as decimals.
+To allow leading spaces, and free text where more than one space is allowed between characters, the max characters should be prefixed with a space.
+To allow zero as an amount, this field should be prefixed with a zero. To allow leading zeroes in a number, prefix the max. length with two zeroes.
+If Field 18 (APPLICATION VET) is entered, then any input to this field must comply with the requirements of the specified Application e.g. if Field 18 is Country, which has a 2 character key, Field 3 is only allowed to be 2 characters.
+If this field is left blank when Field 18 (APPLICATION VET) is entered, the maximum allowed number of characters for the key of that Application will be generated.
+Validation Rules
+1-4 numeric characters in the range 1 to 35, a leading space or zeroes may be entered. [Mandatory input when APPLICATION VET (Field 18) left blank. No default unless Field 18 is entered in which case the maximum number of characters for the ID of that Application will be generated.] */
+		MAXIMUM_CHAR : mml:Integer
+			@i18n:Label (en="Width (Max / Min)")
+			@i18n:Tooltip (en="Width (Max / Min)")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=3.0, core=true, t24Name=MAXIMUM.CHAR)
+		/* Indicates the minimum number of characters that may be entered in this Local Table element.
+This field is used to control the minimum number of characters (up to 35) allowed for this Local Table element.  Any input to this field will have the effect of making this Local Table element a mandatory field.
+If Field 18 (APPLICATION VET) is entered, then any input to this field must comply with the requirements of the specified Application e.g. if Field 8 is Country, which has a 2 character key, Field 4 is only allowed to be 2 characters.
+Use with version: Versions in existence prior to use of Local Reference within an application may not treat the Local Reference as Mandatory if this field has an input. The appropriate version will require the field numbers of Local Reference to be created by the system at the end of the version record. This will be done automatically when the next change is made to the version.
+Validation Rules
+Up to 2 numeric characters in the range 1 to 35. (Optional input.  No default unless Field 18 is entered.  In this case, the minimum number of characters for the ID of that Application will be applicable.)
+The number of characters defined in this field must be smaller or equal to the number of characters defined in MAXIMUM CHARACTERS (Field 3).
+No input if DEFAULT POSSIBLE (field 16) is equal to "YES". */
+		MINIMUM_CHAR : mml:Integer
+			@i18n:Label (en=Minimum)
+			@i18n:Tooltip (en=Minimum)
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=4.0, core=true, t24Name=MINIMUM.CHAR)
+		/* Specifies the type of characters that may be entered for this Local Table element.
+This field can be used to control the type of characters allowed for this Local Table element.
+A = Alphanumeric characters, A to Z, a to z, 0 to 9, space or ! " # $ % & ' ( ) * + , - . / [ \ ]
+AA = As for A except the first character must be A to Z or a to z.
+AAA = Any character in the range A to Z or a to z.
+AMTLCCY = Amount in local currency. Amount will be formatted as per local currency.
+AMTCCY = Amount and currency entered in the same line. The currency code is entered first followed by the amount. Negative amounts are allowed D = A valid date format with the year between 1950 and 9999. DD = As for D, but with the year between 1000 and 2049. R = Up to 16 characters, in the range 0 to 9 but with a maximum of 6 integers or 9 decimals.
+S = Any character in the range A to Z, 0 to 9 or . ( ) +, - ( - cannot be the first character.)
+SS = As for S, except the first character must be in the range A to Z.
+SSS = Any Character in the range A to Z only.
+blank = Any Character in the range 0 to 9 or '.' only.
+TIME = A valid time which will be displayed in the 24-hour format with hours and minutes separated by a colon (:).
+TIMES = As above but also with seconds displayed.
+TIMEH = A valid time which will be displayed in the 12-hour format with hours and minutes separated by a colon (:) and also a suffix of 'am' or 'pm'.
+TIMEHS = As above but also with seconds displayed.
+If Field 18 (APPLICATION VET) is entered, then any input to this field must comply with the requirement of the specified Application e.g. if Field 18 is Country, which has a SWIFT character key, then this field is only allowed to be 'SSS'.
+Validation Rules
+
+For a list of character types see Details below.         (Optional input. Default to any character in the range         0-9 or '.' only, unless Field 8 is entered, in which case         the Character Type for the ID of that Application will be         generated.) */
+		CHAR_TYPE : EB_LocalReferences:LOCAL_TABLE__CHAR_TYPE
+			@i18n:Label (en=Type)
+			@i18n:Tooltip (en=Type)
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=5.0, core=true, t24Name=CHAR.TYPE)
+		VETTING_TABLE -> byValue EB_LocalReferences:LOCAL_TABLE__VETTING_TABLE *
+		/* Specifies whether input in this local reference can differ from the decision rules.
+If input is 'Y' then the user may input a local reference that does not meet the decision criteria in this table. The system will prefix the enrichment with "OV!" and prompt the inputter for an override.
+If the input is blank then the value must meet the decision criteria.
+Validation Rules
+Y or blank. (Optional Input)
+No input if no Decisions are defined. */
+		OVERRIDE_POSSIBLE : EB_LocalReferences:LOCAL_TABLE__OVERRIDE_POSSIBLE
+			@i18n:Label (en="Allow Override")
+			@i18n:Tooltip (en="Allow Override")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=15.0, core=true, t24Name=OVERRIDE.POSSIBLE)
+		/* Specifies whether the system should default the value in VETTING TABLE.
+If the input is 'Y' the system will provide the input for the user at validation according to the decision criteria.
+If the field is left blank then the user must input a matching value in the local reference field.
+Validation Rules
+Y or blank
+Valid only if VETTING TABLE is defined.
+No input when MINIMUM CHAR is defined. */
+		DEFAULT_POSSIBLE : EB_LocalReferences:LOCAL_TABLE__DEFAULT_POSSIBLE
+			@i18n:Label (en="Default Value")
+			@i18n:Tooltip (en="Default Value")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=16.0, core=true, t24Name=DEFAULT.POSSIBLE)
+		/* Indicates whether the local reference field can be input by the user or amended by the user.
+The local reference field can be set as 'NOINPUT' ie. the system will provide input, or 'NOCHANGE' where the user cannot amend the field after authorisation.
+Validation Rules
+Either 'NOINPUT', 'NOCHANGE', or blank.
+Cannot be 'NOINPUT' when MINIMUM CHARS is defined. */
+		NOINPUT_CHANGE_FLD : EB_LocalReferences:LOCAL_TABLE__NOINPUT_CHANGE_FLD
+			@i18n:Label (en="No Input/Change")
+			@i18n:Tooltip (en="No Input/Change")
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=17.0, core=true, t24Name=NOINPUT.CHANGE.FLD)
+		/* Identifies the Application against the key of which the input to this field is to be Validated, unless actual values of input allowed have been specified in Field 6, VETTING TABLE.
+This field is used to identify the Application against the key of which the input to this field is to be validated.
+e.g. If Field 18 (APPLICATION VET) is Country, then any input to this Local Table element must exist in the COUNTRY table (ref: General Tables).
+Validation Rules
+Up to 25 type SS (uppercase alpha or numeric, first character alpha) characters Application name (or Abbreviation). (Optional input if Field 6.1 Vetting Table is blank, otherwise input to this field is not allowed.)
+It must be an existing Application (or Abbreviation).
+Input in this field is not allowed when VETTING TABLE (Field 6) has been input. */
+		APPLICATION_VET -> EB_SystemTables:PGM_FILE
+			@i18n:Label (en="Linked Table")
+			@i18n:Tooltip (en="Linked T able")
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=18.0, core=true, businessType=PG, t24Name=APPLICATION.VET, typeModifiers=HULD)
+		/* Indicates which field of the Application defined in Field 18 (APPLICATION VET) is to be used for on line enrichment when an Application Vet has been specified.
+Validation Rules
+Up to 3 numeric characters (corresponding to the field number). (Mandatory input when Application Vetting has been defined, otherwise not allowed.)
+The field number defined in this field must exist in the corresponding Application.
+Input in this field is mandatory when APPLICATION VET (Field 18) has been defined.
+Input in this field is not allowed when APPLICATION VET (Field 18) has not been defined. */
+		APPL_ENRICHM_FIELD : mml:Integer
+			@i18n:Label (en=Enrichment)
+			@i18n:Tooltip (en=Enrichment)
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=19.0, core=true, t24Name=APPL.ENRICHM.FIELD)
+		/* Virtual table that is used for EB.LOOKUP.
+A maximum of 35 alphanumeric characters may be entered.
+Not a mandatory field.
+Input only allowed if VETTING.TABLE and APPLICATION.VET is not present.
+If VIRTUAL.TABLE value is not present in any of the EB.LOOKUP record then this field will be the NOINPUT field. */
+		VIRTUAL_TABLE : T24BusinessTypes:A
+			@i18n:Label (en="Virtual Table")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, t24Name=VIRTUAL.TABLE)
+		FEATURE_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=21.0, core=true, t24Name=FEATURE.NAME)
+		RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=22.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=23.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=24.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=25.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=26.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=27.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=28.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=29.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=30.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=31.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=32.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_LocalReferences:LOCAL_TABLE__INPUTTER *
+		DATE_TIME -> byValue EB_LocalReferences:LOCAL_TABLE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=35.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=36.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=37.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=38.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=39.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LOCAL_TABLE__DESCRIPTION
+	{
+		/* Describes the Local Table element.
+his field is a description of the LOCAL.TABLE, in the specified Language, which can be used for reporting.
+Validation Rules
+Up to 35 type A (alphanumeric) characters. Multilanguage field. (Optional input.  No default value) */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	LOCAL_TABLE__SHORT_NAME
+	{
+		/* Describes in a short form the Local Table element in any language being used by the System.  This is then used as the screen prompt for the Input field.
+his field is used as the field description on the Input screen for Applications which reference this Local Table element, therefore you should ensure that a meaningful Short Name is input.
+Validation Rules
+3-15 type SS (uppercase alpha or numeric, first character must be alpha) characters. XX.LL Multilanguage field. (Mandatory input) */
+		SHORT_NAME : T24BusinessTypes:SS required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.NAME)
+	}
+	LOCAL_TABLE__VETTING_TABLE
+	{
+		/* Specifies the possible Input values allowed in this Local Table element (only allowed if it is not to be validated against another Application.)
+This field may be used to define all Input values which are allowed for this Local Table element.  However, these values may only be specified when the input is not being checked against another Application (Field 18).
+e.g. If the only possible input is Y or N, then Y can be entered in Field 6.1 and N in Field 6.2.  Any other input to this Local Table element would then be invalid.
+Validation Rules
+Up to 18 characters, according to the number of characters indicated in Fields 3 and 4 and the character type specified in Field 5. Multivalue field. (Optional if no Application name has been entered in Field 18. Not allowed if an Application name is specified in Field 18.)
+Duplicates are not allowed.
+The type and number of characters input by the User will be checked with the values defined in MAXIMUM CHAR (Field 3), MINIMUM CHAR (Field 4) and CHAR TYPE (Field 5).
+Input in this field will not be allowed together with input in APPLICATION VET (Field 18). */
+		VETTING_TABLE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=VETTING.TABLE)
+		REMARK -> byValue EB_LocalReferences:LOCAL_TABLE__VETTING_TABLE__REMARK *
+		/* Specifies an application name (or abbreviation) that the Local Reference will appear on. This will be used to check for conditions applicable to this local reference.
+The user may specify conditional checks that may be required for an application to either use or default a value in a local reference field. This is the application name that the local reference will use. See DECIS FIELD (Field 9.1) for examples.
+Validation Rules
+
+2 - 25 type 'SS' (uppercase alpha or numeric, first         character alpha) characters. Application name (or         Abbreviation). Optional Input.
+Must be a valid application.
+Must have a value in VETTING TABLE, otherwise not         allowed. */
+		APPLICATION -> EB_SystemTables:PGM_FILE
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=8.0, core=true, businessType=PG, t24Name=APPLICATION, typeModifiers=HULW)
+		DECIS_FIELD -> byValue EB_LocalReferences:LOCAL_TABLE__VETTING_TABLE__DECIS_FIELD *
+	}
+	LOCAL_TABLE__VETTING_TABLE__REMARK
+	{
+		/* Describes the corresponding input to Field 6, VETTING TABLE.  This field will also provide the on-line enrichment for the VETTING TABLE defined in Field 6.
+his field is used as a description of the VETTING TABLE (Field 6) and will provide on-line enrichment.
+e.g. If Field 6.1 is Y, then Field 7.1 may be YES.
+Validation Rules
+Up to 35 type A (alphanumeric) characters. (Optional input) */
+		REMARK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=7.0, core=true, t24Name=REMARK)
+	}
+	LOCAL_TABLE__VETTING_TABLE__DECIS_FIELD
+	{
+		/* Specifies the field number/name from APPLICATION (field 8.1) used to check for matching criteria required for this local reference.
+The local reference in VETTING TABLE is to be defaulted or checked against certain criteria in APPLICATION.
+Note: 2 values separated by a '/' may be input to check the number of days difference between two date fields.
+Examples: a) Local reference 1 = 'ASSET TYPE' set up for MM.MONEY.MARKET and will be set as follows:-
+i) "DEPOSIT" if value in field CATEGORY of MM.MONEY.MARKET IS IN RANGE 21-001 TO 21-039.
+ii) "LOAN" if value in field CATEGORY of MM.MONEY.MARKET is in range 21-050 to 21-074.
+Input fields as follows:-
+FIELD INPUT ENRICHMENT
+6.1 VETTING.TABLE DEPOSIT -
+7.1.1 GB.REMARK COMMERCIAL DEPOSIT -
+8.1 APPLICATION MM.MONEY.MARKET MONEY MARKET
+9.1.1 DECIS.FIELD 7 CATEGORY
+12.1.1 DECISION EQ -
+13.1.1 DECISION.FR 21001 -
+14.1.1 DECISION.TO 21039 -
+6.2 VETTING.TABLE LOAN -
+7.2.1 GB.REMARK COMMERCIAL LOAN -
+8.2 APPLICATION MM.MONEY.MARKET MONEY MARKET
+9.2.1 DECIS.FIELD 7 CATEGORY
+12.2.1 DECISION EQ -
+13.2.1 DECISION.FR 21050 -
+14.2.1 DECISION.TO 21074 -
+b) Local reference 2 = "BUSINESS" set up for MM.MONEY.MARKET and will be set as follows:- i) "BANK" if customer of MM contract has a sector code of 1000 (BANKS) on his customer file.
+Input fields as follows:-
+FIELD INPUT ENRICHMENT
+6.1 VETTING.TABLE BANK -
+7.1.1 GB.REMARK BANKING -
+8.1 APPLICATION MM.MONEY.MARKET MONEY MARKET
+9.1.1 DECIS.FIELD 1 CUSTOMER ID
+10.1.1 REPLACE.FILE CUSTOMER -
+11.1.1 REPLACE.FLD 10 SECTOR
+12.1.1 DECISION EQ -
+13.1.1 DECISION.FR 1000 -
+Validation Rules
+
+
+
+
+-1-40 alphabetic string consisting of field name.
+- LOCAL.REF fields can be entered as follows:
+&#145;LOCAL.REF-n&#146; &#150; where &#145;n&#146; represents the position of the LOCAL.REF field as set up on LOCAL.REF.TABLE.
+Or
+&#145;LOCAL.REF-name&#146; &#150; where name is the SHORT.NAME of the LOCAL.REF field.
+Or
+&#145;N.n&#146; &#150; where &#145;N&#146; represents the number of the LOCAL.REF fields on the application and &#145;n&#146; is the position of the LOCAL.REF field as set up on LOCAL.REF.TABLE. */
+		DECIS_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=9.0, core=true, t24Name=DECIS.FIELD)
+		/* Specifies an external file, the value of whose fields will be checked for matching conditions to provide a default local reference or for verifying user Input.
+When used in conjunction with fields;
+APPLICATION           DECIS FIELD           REPLACE FLD           DECISION           DECISION FR           DECISION TO
+it is possible to provide a default local reference or to verify the user input from file external to the application that the local reference is being used for.
+See DECIS FIELD for examples.
+Validation Rules
+2 - 25 type 'SS' (uppercase alpha or numeric, first character alpha) characters. Application name (or Abbreviation).
+Must be a valid application name. */
+		REPLACE_FILE : T24BusinessTypes:PG
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=10.0, core=true, t24Name=REPLACE.FILE, typeModifiers=HUL)
+		/* Specifies the field(s) from an external file whose value will be checked to provide a default or to verify a user input local reference.
+When used in conjunction with fields;
+APPLICATION, DECIS.FIELD, REPLACE.FLD, DECISION, DECISION.FR, DECISION.TO
+it is possible to provide a default local reference or to verify the user input from file external to the application that the local reference is being used for.
+See DECIS FIELD for examples.
+Validation Rules
+
+1 - 999 numeric field with a maximum of 3 characters.
+Must be a valid field in REPLACE FILE. */
+		REPLACE_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=23, sysNumber=11.0, core=true, t24Name=REPLACE.FLD)
+		/* Specifies the standard decision formats used to check for matching/non-matching values in either DECIS FIELD or REPLACE FLD.
+The value of the field in either DECIS FIELD or REPLACE FIELD will be checked according to this decision ie:
+MM.MONEY.MARKET Field 7 'EQ' 21001
+For examples see DECIS FIELD.
+Validation Rules
+2 alpha characters ie. 'EQ', 'GE', 'GT', 'LE', 'LK', 'LT', 'NE', or 'UL'. (Optional Input - mandatory if value is present in DECIS FIELD)
+Input must be one of the following; 'EQ', 'GE', 'GT', 'LE', 'LK', 'LT', 'NE', or 'UL'.
+Input not allowed if there has been no input in DECIS FIELD. */
+		DECISION : EB_LocalReferences:LOCAL_TABLE__VETTING_TABLE__DECIS_FIELD__DECISION
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=12.0, core=true, t24Name=DECISION)
+		/* Specifies the value of a decision or the start of a range.
+The value in this field is the start of a range when DECISION is 'EQ' or the only value required for DECISION  'EQ', 'GE', 'GT', 'LE', 'LK', 'LT', 'NE', or 'UL'.
+Validation Rules
+In accordance with the field definitions in the specified application in APPLICATION or REPLACE FILE.
+Must be input if DECISION is defined.
+Must begin and/or end with 3 dots ('.') when 'LK' or 'UL' is input in DECISION.
+Must be 1 - 9999 when using 2 date fields in DECIS FIELD. */
+		DECISION_FR : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=DECISION.FR)
+		/* Specifies the end of a decision range.
+The value in this field represents the end of a decision range.
+Validation Rules
+In accordance with the field definitions in the specified application in APPLICATION or REPLACE FILE. (Optional Input)
+Only allowed if DECISION FR is 'EQ' or 'NE'.
+Value must be greater than DECISION FR. */
+		DECISION_TO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=14.0, core=true, t24Name=DECISION.TO)
+	}
+	LOCAL_TABLE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=33.0, core=true, t24Name=INPUTTER)
+	}
+	LOCAL_TABLE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=34.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	LOCAL_REF_TABLE__LOCAL_TABLE_NO__SUB_ASSOC_CODE : mml:string
+		XX_=XX.
+		XX_LT="XX<"
+		XX__=XX-
+		XX_GT="XX>"
+	LOCAL_TABLE__CHAR_TYPE : mml:string
+		A=A
+		AA=AA
+		AAA=AAA
+		ANY=ANY
+		D=D
+		DD=DD
+		R=R
+		S=S
+		SS=SS
+		SSS=SSS
+		TIME=TIME
+		TIMES=TIMES
+		TIMEH=TIMEH
+		TIMEHS=TIMEHS
+		AMTLCCY=AMTLCCY
+		AMTCCY=AMTCCY
+		TEXT=TEXT
+		FQU=FQU
+		PASSWD=PASSWD
+		PERIOD=PERIOD
+	LOCAL_TABLE__VETTING_TABLE__DECIS_FIELD__DECISION : mml:string
+		EQ=EQ
+		GE=GE
+		GT=GT
+		LE=LE
+		LK=LK
+		LT=LT
+		NE=NE
+		UL=UL
+	LOCAL_TABLE__OVERRIDE_POSSIBLE : mml:string
+		Y=Y
+		NULL=NULL
+	LOCAL_TABLE__DEFAULT_POSSIBLE : mml:string
+		Y=Y
+		NULL=NULL
+	LOCAL_TABLE__NOINPUT_CHANGE_FLD : mml:string
+		NOCHANGE=NOCHANGE
+		NOINPUT=NOINPUT
+}

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XML Spy v4.3 U (http://www.xmlspy.com) by ODYSSEY ASSET MANAGEMENT (ODYSSEY ASSET MANAGEMENT) -->
+<xs:schema targetNamespace="http://www.odcgroup.com/workflow" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:workflow="http://www.odcgroup.com/workflow" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
+    <xs:simpleType name="JavaClassName">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|_)*(\.([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|_)*)*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="JavaClass">
+        <xs:sequence>
+            <xs:element name="property" type="workflow:Property" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation><xs:documentation>DEPRECATED! Use a workflow:service instead a workflow:class.  (Property to set on Java class, must have accordingly named setter method.)</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:group ref="workflow:ClassPathGroup"/>
+        </xs:sequence>
+        <xs:attribute name="class-name" type="workflow:JavaClassName" use="required">
+            <xs:annotation><xs:documentation>DEPRECATED! Use a workflow:service instead a workflow:class.  (Fully-qualified name of Java class.)</xs:documentation></xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="ClassPath">
+        <xs:sequence>
+            <xs:element name="location" type="xs:anyURI" maxOccurs="unbounded">
+                <xs:annotation><xs:documentation>DEPRECATED! Use a workflow:service instead a workflow:class. (URL of JAR file containing Java class, usually file:/....jar)</xs:documentation></xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:group name="ClassPathGroup">
+        <xs:sequence>
+            <xs:element name="class-path" type="workflow:ClassPath" minOccurs="0">
+                <xs:annotation><xs:documentation>DEPRECATED! Use a workflow:service instead a workflow:class.</xs:documentation></xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
+    <xs:complexType name="Service">
+        <xs:sequence>
+            <xs:element name="property" type="workflow:Property" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation><xs:documentation>Property to set on Java service, must have accordingly named setter method.</xs:documentation></xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="href" type="xs:anyURI" use="required">
+            <xs:annotation><xs:documentation>Name of a an OTF Service (listed in otf-services.xml; standard service-locator, not a singleton or a cache)</xs:documentation></xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="WorkflowItem" abstract="true">
+        <xs:attribute name="name" type="xs:ID" use="required"/>
+        <xs:attribute name="displayName" type="xs:string" use="required"/>
+        <xs:attribute name="description" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="Property">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:NMTOKEN" use="required">
+                    <xs:annotation><xs:documentation>Name of Java service property.  Implementing class must have a setter method for this property.</xs:documentation></xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="Application">
+        <xs:choice>
+            <xs:element name="url" type="xs:anyURI">
+                <xs:annotation><xs:documentation>Indicates that the activity is a pageflow.  Can be an external static URL (will then have to use the interaction API of the Workflow Engine to terminate the activity, or use the events via messaging), or an OCS pageflow in the format "pageflow:{pageflow config file}#{pageflow name}"</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="class" type="workflow:ApplicationJavaClass">
+                <xs:annotation><xs:documentation>DEPRECATED! Use a workflow:service instead a workflow:class.</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="process-ref" type="xs:string">
+                <xs:annotation><xs:documentation>Indicates that the activity is a sub-process. The Workflow Engine will start the referenced process and check in the activity when the process has completed, allowing the current process to continue.</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="service" type="workflow:ApplicationService">
+                <xs:annotation><xs:documentation>Indicates that the activity is a call of a service. The definition contains the name of the service and the workflow engine will lookup the service through otf-services. The service has to implement the com.odcgroup.workflow.engine.Application interface.</xs:documentation></xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="AssigneeRef">
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation><xs:documentation>User or group name(s), comma separated (clearer to put several assignees elements).  Typically something like "gcl:/user/User1", or "aaa:role/Assistant,aaa:role/HeadManager", hard-coded.  Use a service element for a dynamic assignee getter.</xs:documentation></xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="Condition">
+        <xs:sequence>
+            <xs:element name="completed" type="workflow:Completed" maxOccurs="unbounded">
+                <xs:annotation><xs:documentation>Another activity</xs:documentation></xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="type" use="required">
+            <xs:annotation><xs:documentation>OR or AND</xs:documentation></xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="OR"/>
+                    <xs:enumeration value="AND"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="PreSelector">
+        <xs:choice>
+            <xs:element name="condition" type="workflow:Condition">
+                <xs:annotation><xs:documentation>AND or OR pre-selector that are waiting on some of the previous activities.</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="script" type="workflow:Script">
+                <xs:annotation><xs:documentation>NOT SUPPORTED.</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="class" type="workflow:JavaClass">
+                <xs:annotation><xs:documentation>DEPRECATED! Use a workflow:service instead a workflow:class. It has to implement the com.odcgroup.workflow.engine.selection.PreSelector interface.</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="service" type="workflow:Service">
+                <xs:annotation><xs:documentation>Pre-selector OTF service (as listed in otf-services.xml).  It has to implement the com.odcgroup.workflow.engine.selection.PreSelector interface.</xs:documentation></xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="Completed">
+        <xs:attribute name="activity" type="xs:IDREF" use="required">
+            <xs:annotation><xs:documentation>Name of activity (defined in this file)</xs:documentation></xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="Next">
+        <xs:attribute name="activity" type="xs:IDREF" use="required">
+            <xs:annotation><xs:documentation>Name of activity (defined in this file)</xs:documentation></xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="unconditional" type="xs:boolean" use="optional">
+            <xs:annotation><xs:documentation>If set to true, this indicates to the workflow engine that the selector does not affect this next activity, it has to make it ready (of course, depending on the pre-selector of the next one...).</xs:documentation></xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="Selector">
+        <xs:choice>
+            <xs:element name="script" type="workflow:Script">
+                <xs:annotation><xs:documentation>Which next activity to run.  Two variables are available to the script: output (which holds the output of the activity) and selection (which permits to select next activities).</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="class" type="workflow:JavaClass">
+                <xs:annotation><xs:documentation>DEPRECATED! Use a workflow:service instead a workflow:class.</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="service" type="workflow:Service">
+                <xs:annotation><xs:documentation>Selector OTF service (as listed in otf-services.xml).  It has to implement the com.odcgroup.workflow.engine.selection.Selector interface.</xs:documentation></xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="Transfer">
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation><xs:documentation>OTF security user name; e.g. aaa:manager/mr_manager.</xs:documentation></xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="Script">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="language" type="xs:string" use="optional" default="Python"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="Alert">
+        <xs:sequence>
+            <xs:element name="transfer-to" type="workflow:Transfer" minOccurs="0">
+                <xs:annotation><xs:documentation>Specify a maximum duration for the activity and potentially transfer the activity to another user.</xs:documentation></xs:annotation>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="max-duration" use="required">
+            <xs:annotation><xs:documentation>Maximum duration, in seconds.</xs:documentation></xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:long">
+                    <xs:minExclusive value="0"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="Input">
+        <xs:attribute name="class" type="workflow:JavaClassName" use="required">
+            <xs:annotation><xs:documentation>DEPRECATED!</xs:documentation></xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="Activity">
+        <xs:complexContent>
+            <xs:extension base="workflow:WorkflowItem">
+                <xs:sequence>
+                    <xs:element name="application" type="workflow:Application">
+                        <xs:annotation><xs:documentation>Defines what the Activity is supposed to do.</xs:documentation></xs:annotation>
+                    </xs:element>
+                    <xs:element name="assignees" type="workflow:Assignees" minOccurs="0">
+                        <xs:annotation><xs:documentation>Potential owners of the activity.</xs:documentation></xs:annotation>
+                    </xs:element>
+                    <xs:element name="pre-selector" type="workflow:PreSelector" minOccurs="0">
+                        <xs:annotation><xs:documentation>Permits to define when an activity will be ready for ownership. This is used when there are several previous activities that are running concurrently in the process.</xs:documentation></xs:annotation>
+                    </xs:element>
+                    <xs:element name="next" type="workflow:Next" minOccurs="0" maxOccurs="unbounded">
+                        <xs:annotation><xs:documentation>Defines what the possible next activities of the current activity are.</xs:documentation></xs:annotation>
+                    </xs:element>
+                    <xs:element name="selector" type="workflow:Selector" minOccurs="0" maxOccurs="unbounded">
+                        <xs:annotation><xs:documentation>Permits to select which next activity will run after the current one. There can be several activities selected of course, so that they will run concurrently.</xs:documentation></xs:annotation>
+                    </xs:element>
+                    <xs:element name="alert" type="workflow:Alert" minOccurs="0">
+                        <xs:annotation><xs:documentation>Permits to set a maximum duration for the activity and to potentially transfer the activity to another user if the activity is not completed.</xs:documentation></xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute name="initial" type="xs:boolean" use="optional">
+                    <xs:annotation><xs:documentation>Indicating whether when the process starts the activity should be made ready. There can be several initial activities in the same process but there has to be at least one.</xs:documentation></xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="personal" type="xs:boolean" use="optional" default="false">
+                    <xs:annotation><xs:documentation>Indicating whether the activity is personal. If true, it will not be possible to transfer the activity to someone else.</xs:documentation></xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="group" type="xs:string" use="optional">
+                    <xs:annotation><xs:documentation>NOT SUPPORTED.</xs:documentation></xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Process">
+        <xs:complexContent>
+            <xs:extension base="workflow:WorkflowItem">
+                <xs:sequence>
+                    <xs:element name="version-comment" type="xs:string" minOccurs="0">
+                        <xs:annotation><xs:documentation>Allows to set a comment related to this version of the workflow model, only informative.</xs:documentation></xs:annotation>
+                    </xs:element>
+                    <xs:element name="input" type="workflow:Input" minOccurs="0">
+                        <xs:annotation><xs:documentation>DEPRECATED!</xs:documentation></xs:annotation>
+                    </xs:element>
+                    <xs:element name="activity" type="workflow:Activity" maxOccurs="unbounded">
+                        <xs:annotation>
+                            <xs:documentation></xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Workflow">
+        <xs:sequence>
+            <xs:element name="process" type="workflow:Process" maxOccurs="unbounded">
+                <xs:annotation><xs:documentation></xs:documentation></xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="workflow" type="workflow:Workflow">
+        <xs:annotation><xs:documentation></xs:documentation></xs:annotation>
+    </xs:element>
+    <xs:complexType name="Assignees">
+        <xs:choice>
+            <xs:element name="assignee-ref" type="workflow:AssigneeRef" maxOccurs="unbounded">
+                <xs:annotation><xs:documentation>Fixed OTF Security user or group. The name attribute is typically something like "gcl:/user/User1", hard-coded.  In the case of groups, any user that is part of this group will see the activity in his workitems list and be able to check it out.</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="class" type="workflow:JavaClass">
+                <xs:annotation><xs:documentation>DEPRECATED! Use a workflow:service instead a workflow:class.</xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="service" type="workflow:Service">
+                <xs:annotation><xs:documentation>Name of OTF service to use for this AssigneeGetter.  Must reference a service listed in otf-services.xml which implements the com.odcgroup.workflow.engine.AssigneeGetter interface, and is a standard service-locator, not a singleton or a cache.</xs:documentation></xs:annotation>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="ApplicationJavaClass">
+        <xs:complexContent>
+            <xs:extension base="workflow:JavaClass">
+                <xs:attribute name="owner" type="xs:anyURI" use="required">
+                    <xs:annotation><xs:documentation>DEPRECATED! Use a workflow:service instead a workflow:class.</xs:documentation></xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ApplicationService">
+        <xs:complexContent>
+            <xs:extension base="workflow:Service">
+                <xs:attribute name="owner" type="xs:anyURI" use="required">
+                    <xs:annotation><xs:documentation>Fixed OTF Security user who will be owner.  Because it is the Workflow Engine that checks out and checks in the activity, this indicates the owner to use.  For example, owner="gcl:user/b4a393250a14641e0067d59a00000004"</xs:documentation></xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+</xs:schema>

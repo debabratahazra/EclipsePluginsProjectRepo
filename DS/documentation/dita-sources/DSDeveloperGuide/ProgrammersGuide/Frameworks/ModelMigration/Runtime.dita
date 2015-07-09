@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "http://docs.oasis-open.org/dita/dtd/concept.dtd">
+<concept id="devguide_programmersguide_frameworks_modelmigration_runtime">
+	<title>Runtime</title>
+	<prolog>
+		<author type="creator">Kai Kreuzer</author>
+
+		<metadata>
+			<keywords>
+				<indexterm>migration</indexterm>
+				<indexterm>runtime</indexterm>
+			</keywords>
+		</metadata>
+	</prolog>
+	<conbody>
+			<p>
+				The Migration Framework has several impacts to the Design Studio runtime.
+			</p>
+		<section>
+		<title>Model Access</title>
+		<p>
+			First of all, a model's meta-model version is checked upon every access request. The method <codeph>IOfsModelResource.getEMFModel()</codeph>
+			now throws an <codeph>InvalidMetamodelVersionException</codeph> whenever it finds a meta-model version that is either too old or too new.
+			This must be considered anywhere in the Design Studio code and a proper error handling must be implemented.
+		</p>
+		<p>
+			The "open" action in the DS Navigator also performs a meta-model version check. If this check fails, an error dialog is shown to
+			the user, asking him either to perform a model migration or to update Design Studio.
+		</p>
+		</section>
+		<section>
+		<title>Launching the Model Migration</title>
+		<p>
+			The Migration Framework registers a <codeph>ProjectInitializer</codeph> with the project configuration builder and adds a problem marker
+			to the project, if it contains at least one project with an outdated meta-model version. A quick fix is available for this problem
+			marker, which will then launch the migration for the relevant project.
+		</p>
+		<p>
+			The migration is executed by the method <codeph>MigrationCore.migrate(project, monitor)</codeph>. This entry point will collect all
+			required migration logics from the extension point, order them and execute all of them, so that all models of this project are
+			migrated afterwards.
+		</p>
+		</section>
+		<section>
+		<title>Headless Generation</title>
+		<p>
+			The headless generation now first runs a project configuration update to make sure that all project structures are correct. Afterwards
+			an automatic migration is performed before all models are validated.
+		</p>
+		<p>
+			Only if no validation errors exist after this procedure, the code generation is executed - otherwise an error message is logged to the
+			console and the generator terminates.
+		</p>
+		</section>
+	</conbody>
+
+</concept>

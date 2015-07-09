@@ -1,0 +1,1524 @@
+# UTF-8
+# UTF-8
+/* Payment netting for Nostro accounts */
+Domain AC_PaymentNetting
+	@t24:i (module=AC)
+	@java:Package (value=com.temenos.t24.datamodel.ac.ac_paymentnetting)
+namespace "http://www.temenos.com/t24/AC_PaymentNetting"
+metamodelVersion 1.30.6
+Classes {
+	/* This application takes accounting entries for transaction that are covered by a NETTING.AGREEMENT and groups them together (see NETTING).
+Transactions elected for NETTING will be built into groups using the 'V' FUNCTION.
+The selection will be based on:
+CURRENCY, COUNTERPARTY AND VALUE.DATE (for FOREX transactions)
+CURRENCY,COUNTERPARTY, VALUE.DATE, SYSTEM.ID,SEND.CORR.BK,REC.CORR.Bk and OPERATION.CODE (For FT transaction )
+
+Please note NETTING application is used by FT to generate MT102 and MT203. I.e., No Accounting entries at Netting Level for FT. */
+	CREATE_NETTING
+		@t24:i (t24Name=CREATE.NETTING, level=F, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* This is an identification code.
+It should be use to ease identification of the criteria contained in the associated CREATE.NETTING record.
+Use a convention that obeys the rules below.
+Validation Rules
+1-10 alphanumeric characters.  (Mandatory input) */
+		CREATE_NETTING -> AC_PaymentNetting:CREATE_NETTING PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=A, t24Name=CREATE.NETTING)
+		/* Identifies the currency of transactions used is association with VALUE.DATE and COUNTERPARTY as selection criteria. Will be used to select transactions for propagation to the NETTING file for agreement.
+Validation Rules
+Optional input. */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=A, t24Name=CURRENCY)
+		/* Identifies the Counterparty of transactions used is association with VALUE.DATE and CURRENCY as selection criteria. Will be used to select transactions for propagation to the NETTING file for agreement.
+Validation Rules
+
+Mandatory input. */
+		COUNTERPARTY -> ST_Customer:CUSTOMER required
+			@i18n:Label (en=Counterparty)
+			@i18n:Tooltip (en="Counterparty with whom the deal is made")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=2.0, core=true, businessType=CUS, t24Name=COUNTERPARTY)
+		/* Identifies the value date of transactions used in association with CURRENCY and COUNTERPARTY as selection criteria. The value date represents the start of a range of value dates that will be used to select transactions for propagation to the NETTING file. The parameter NETTING.PARAMETERS - DAYS.AHEAD will be summed with this date to provide the final value date in the range.
+Validation Rules
+Optional input. */
+		VALUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=VALUE.DATE)
+		SYSTEM_ID -> byValue AC_PaymentNetting:CREATE_NETTING__SYSTEM_ID *
+		/* Identifies the Sender Correspondent Bank (tag 53) in Funds transfer application and details entered here along with COUNTERPARTY, SYSTEM.ID, REC.CORR.BANK,VALUE.DATE, CURRENCY and OPERATION.CODE  is be used to select transactions for propagation to the NETTING file to generate MT102 and MT203.
+To create netting for Forex application CURRENCY,COUNTERPARTY, and VALUE.DATE is alone used to for selection Criteria and Input in this field not allowed.
+Validation Rules
+
+Input allowed only when SYSTEM.ID = FT */
+		SEND_CORR_BK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=SEND.CORR.BK)
+		/* Identifies the Receiver Correspondent Bank (tag 54) in Funds transfer application and details entered here along with COUNTERPARTY, SYSTEM.ID, SEND.CORR.BANK, VALUE.DATE, CURRENCY and OPERATION.CODE is be used to select transactions for propagation to the NETTING file to generate MT102 and MT203.
+To create netting for Forex application CURRENCY, COUNTERPARTY, and VALUE.DATE is alone used to for selection Criteria and Input in this field not allowed.
+Validation Rules
+
+Input allowed only when SYSTEM.ID = FT */
+		REC_CORR_BK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=REC.CORR.BK)
+		/* This field will hold the message type for which netting to be done.
+Validation Rules
+
+Valid Swift Message Type as defined in DE.MESSAGE.
+This field if valid only if System.Id has value 'FT'
+Now the allowed message type are 102 and 203 */
+		MSG_TYPE : AC_PaymentNetting:CREATE_NETTING__MSG_TYPE
+			@i18n:Label (en="Message Type")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=7.0, core=true, t24Name=MSG.TYPE)
+		/* When CHQB is given in this field, the system will try to net payments, which have been instructed to be paid by CHEQUE to beneficiary. When CREDIT is given, the credit transfers should be processed according to the netting agreement between sender and receiver.
+Validation Rules
+
+Optional Input
+Valid values are CREDIT and CHQB
+Mandatory for MSG.TYPE 102 */
+		OPERATION_CODE : AC_PaymentNetting:CREATE_NETTING__OPERATION_CODE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=8.0, core=true, t24Name=OPERATION.CODE)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=9.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=11.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AC_PaymentNetting:CREATE_NETTING__INPUTTER *
+		DATE_TIME -> byValue AC_PaymentNetting:CREATE_NETTING__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=15.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=17.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=18.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CREATE_NETTING__SYSTEM_ID
+	{
+		/* Identifies the System.Id for which Netting details to be created. Details entered here along with COUNTERPARTY, SYSTEM.ID, REC.CORR.BANK, SEND.CORR.BANK, VALUE.DATE,  CURRENCY and OPERATION.CODE is be used to select criteria for propagation to the NETTING file to generate MT102 / MT203 instead of MT103 / MT202 respectively.
+To create netting for FOREX application CURRENCY, COUNTER.PARTY, and VALUE.DATE is alone used to for selection Criteria and Input in this field not allowed.
+This field is made as multi value field for future use.
+
+
+Validation Rules
+
+FT or FX
+Mandatory input. */
+		SYSTEM_ID -> EB_SystemTables:EB_SYSTEM_ID required
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=SYSTEM.ID, mvSvExpansionAccess=NOEXPAND)
+	}
+	CREATE_NETTING__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=INPUTTER)
+	}
+	CREATE_NETTING__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=13.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Payment netting consolidates payments with the same value date and currency for any counterparty with whom we have a NETTING.AGREEMENT.
+
+SUMMARY OF PAYMENT NETTING
+Payment netting is only possible where we have an active NETTING.AGREEMENT with a counterparty. The netting agreement has a finite life and specifies which currencies may be net and which types of contracts may give rise to net payments.
+When a payment is a valid candidate for netting, T24 will pass the entry to a suspense account instead of the nostro account and will not create a payment message in Delivery. A record will be written to the NETTING.ENTRY application for the contract and the status of the entry may be monitored here.
+The CREATE.NETTING application may then be used to consolidate the outstanding payments together. These will be written to the NETTING application. There is one NETTING record for each net payment (i.e. a NETTING record is for a single customer, currency, and value date).
+The NETTING record is initially placed on hold. The record may now be maintained to add settlement details, confirmation details and, if required, individual payments may be dropped from the net payment.
+Upon authorisation a net payment (or receipt) message will be generated. The suspense account will be debited and the nostro will be credited.
+
+PROCESSING OF FORWARD NET PAYMENTS
+Payments arising from forward deals or from the maturity of contracts may also be netted. During the overnight batch T24 will check for net payments being made in the near future (as specified on NETTING.PARAMETERS). It will automatically create NETTING records ready for maintenance the following morning.
+
+PARAMETERS FOR PAYMENT NETTING.
+The NETTING.PARAMETERS application defines various high level specifications for netting including the transaction codes to be used for netting movements, the number of days ahead for the creation of forward netting payments, etc.
+The ACCOUNT.CLASS application defines the payment netting suspense accounts on the record 'NETTING'.
+The ACCOUNT.PARAMETER application defines whether the site requires netting.
+
+PARAMETERS FOR PAYMENT NETTING TO GENERATE MT102 and MT203 FROM FUNDS TRANSFER APPLICATION
+
+From Funds Transfer application instead of raising individual MT103 and MT202, messages can be grouped and MT102 & MT203 respectively can be sent using NETTING application. For this DE.PARM and DE.MESSAGE , Netting.Allowed flag should be set to "Yes". Based on the Value entered in Netting.Status in Funds.Transfer application, NETTING.ENTRY is created with system id as FT.
+
+The CREATE.NETTING application may then be used to consolidate the outstanding payments together. These will be written to the NETTING application. There is one NETTING record for each net payment (i.e. a NETTING record is for a single customer, currency, and value date combination). Incase the MT202 details exceed 1 then MT203 is sent otherwise MT202 is sent. Incase the 202 records exceeds 10, then for every 10 records, single MT203 is sent.
+
+When System.Id is FT then in NETTING application only Netting & Bk.To.Bk.102 and Bk.To.Bk.203  fields are allowed for input and the details required for the messages are defaulted from the corresponding Funds Transfer Contract. */
+	NETTING
+		@t24:i (t24Name=NETTING, level=F, type=H, additionalInfo="NOH UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* System generated.
+Unauthorised records are generated by the CREATE.NETTING application. NETTING records CAN NOT be input from scratch.
+
+Use      E - for list of Exception records       or          L - for list of Authorised records       or          Enter valid NETTING reference number          (See below)
+The reference number has the following format NPYYDDDNNNNN where:
+NP    =    Application indicator for the NETTING application.
+YY    =    The last two digits of the year when the transaction            is processed
+DDD   =    Julian day number within year when the FX is            processed.
+NNNNN =    Five digit sequential number.
+Validation Rules
+10 numeric characters, prefixed by NP: NPyydddnnnnn NP followed by 10 numbers (See Details) */
+		NETTING_ID -> AC_PaymentNetting:NETTING PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=A, t24Name=NETTING.ID)
+		/* To be defined locally.
+No input system updated field.
+Validation Rules
+(Display only) */
+		AGREEMENT_NO : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=1.0, core=true, t24Name=AGREEMENT.NO)
+		/* Identifies the counterparty with whom the Bank makes an agreement.
+This is the identification assigned to the Customer on first contact with the bank.  The customer will be referred to by this identification in all subsequent operations with the Bank.
+No input system updated field.
+Validation Rules
+(Display only) */
+		CUSTOMER -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Counterparty)
+			@i18n:Tooltip (en=Counterparty)
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=2.0, core=true, t24Name=CUSTOMER)
+		/* Identifies the Currency of the netted amounts.
+No input system updated field.
+Validation Rules
+(Display only) */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=3.0, core=true, businessType=A, t24Name=CURRENCY)
+		/* Details the amount received under this netting agreement.
+No input system updated field.
+Validation Rules
+(Display only) */
+		TOTAL_AMT_REC : T24BusinessTypes:AMT
+			@i18n:Label (en="Net Amount To Be Received")
+			@i18n:Tooltip (en="Net Amt Received")
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=4.0, core=true, t24Name=TOTAL.AMT.REC, typeModifiers=-)
+		/* Details the amount payed under this netting agreement.
+No input system updated field.
+Validation Rules
+(Display only) */
+		TOTAL_AMT_PAY : T24BusinessTypes:AMT
+			@i18n:Label (en="Net Amount To Be Paid")
+			@i18n:Tooltip (en="Net Amount To Be Paid")
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=5.0, core=true, t24Name=TOTAL.AMT.PAY, typeModifiers=-)
+		/* Indicates the net settlement amount.
+No input system updated field.
+Validation Rules
+(Display only) */
+		NETT_AMT_SETTLE : T24BusinessTypes:AMT
+			@i18n:Label (en="Nett Amount to be Settled")
+			@i18n:Tooltip (en="Net Amt to Settle")
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=6.0, core=true, t24Name=NETT.AMT.SETTLE, typeModifiers=-)
+		/* Defines the identity of the default Account number that will be used for settlement.
+Validation Rules
+
+Standard Account number or mnemonic. (Mandatory input)
+If entered as an account number or mnemonic, the account must be in the appropriate currency. */
+		SETTLE_ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Settlement Acct")
+			@i18n:Tooltip (en="Settlement Account")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, businessType=ACC, t24Name=SETTLE.ACCOUNT)
+		/* Indicates the date when the payment was agreed with the customer.
+Validation Rules
+Standard date format. (Optional input) */
+		AGREED_ON : T24BusinessTypes:D
+			@i18n:Label (en="Netting Agreed On")
+			@i18n:Tooltip (en="Netting Agreed On")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=AGREED.ON)
+		/* The Customer contact name with whom the paymnet was confirmed.
+Validation Rules
+1 to 11 alphnumeric characters (Optional input) */
+		CONFIRMED_WITH : T24BusinessTypes:A
+			@i18n:Label (en="Netting Confirmed with")
+			@i18n:Tooltip (en="Netting Confirmed with")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=CONFIRMED.WITH)
+		/* This field indicates the status of the contracts linked to this NETTING record.
+It is an internal field and input here is automatically generated by the system.
+The following values have been defined:-
+i)   FWD  =  forward value            ii)  MAT  =  matured
+iii) CUR  =  current    }            iv)  HLD  =  held       } reserved for future use            v)   CLS  =  closed     }
+Validation Rules
+System generated field 3 digit alpha field
+(Display only) */
+		NETTING_STATUS : T24BusinessTypes:A
+			@i18n:Label (en=Status)
+			@i18n:Tooltip (en=Status)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=10.0, core=true, t24Name=NETTING.STATUS)
+		/* Indicates the value date applicable to the transactions contained in this Payment NETTING record.
+No input system updated field.
+Validation Rules
+(Display only) */
+		VALUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, t24Name=VALUE.DATE)
+		TRANS_REF -> byValue AC_PaymentNetting:NETTING__TRANS_REF *
+		BK_TO_BK_100 -> byValue AC_PaymentNetting:NETTING__BK_TO_BK_100 *
+		BK_TO_BK_202 -> byValue AC_PaymentNetting:NETTING__BK_TO_BK_202 *
+		BK_TO_BK_210 -> byValue AC_PaymentNetting:NETTING__BK_TO_BK_210 *
+		/* The institution (usually a bank) who will be the receiver of a payment instruction message if a cover payment is required.
+Input to this field will cause two payment messages to be generated, a payment request and a cover payment request. The payment request will be sent to the bank input in this field. The cover payment will be sent to our nostro (in the SETTLE.ACCOUNT field) in the normal way.
+
+
+EXAMPLE
+We are paying French Francs to ABC Limited at their account at Credit Lyonnais in Paris. Our FRF nostro is BNP Paris and Credit Lyonnais take cover at Credit Agricole Paris.
+We would send two messages:
+An MT100 to Credit Lyonnais requesting them to credit the account of ABC Limited.
+An MT202 to BNP Paris requesting them to make a payment from our account to the account of Credit Lyonnais at Credit Agricole.
+The contents of the fields on the NETTING record would be:
+SETTLE.ACCOUNT  Nostro at BNP RECEIVER.BNK    Credit Lyonnais REC.CORR.BNK    Creidt Agricole BENEFICIARY     ABC Limited
+Validation Rules
+Optional input. If input then two payment messages will be sent.
+Number of mnemonic of customer on CUSTOMER file. */
+		RECEIVER_BNK -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, businessType=CUS, t24Name=RECEIVER.BNK)
+		REC_CORR_BNK -> byValue AC_PaymentNetting:NETTING__REC_CORR_BNK *
+		/* Identifies the Customer code of any intermediary bank involved in the contract.  This will be specified by the counterparty.
+If the intermediary is known (ie. there is an associated customer record), the customer number of the intermediary bank will be entered.  If not, details should be entered into the INTERM.ADD field.
+Validation Rules
+1 to 6 Numeric character Customer code, or, 3 to 10 character Customer mnemonic. (Optional input.  Default = See Details.)
+No input allowed if INTERMED.ADD is defined. */
+		INTERMED_BNK -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, businessType=CUS, t24Name=INTERMED.BNK)
+		INTERMED_ADD -> byValue AC_PaymentNetting:NETTING__INTERMED_ADD *
+		/* The bank where the beneficiary maintains their account.
+Corresponds to field 57 on SWIFT messages.
+If we will be sending a single payment (i.e. one without cover) then this field will be used in field 57 (or its equivalent) of the payment message.
+If we are sending two payments (i.e. one payment and one cover payment) then this field will be used in field 57 of the payment message (i.e. the one sent to the RECEIVER.BANK). See the help text for the receiver bank for more information on sending two payment messages.
+This field is optional. If not input then it will default to instructions held on the AGENCY file for the beneficiary.
+This field should always be input unless the beneficiary maintains their account at the same bank as the receiver (usually this means that they have an account at the same bank as our nostro account).
+Validation Rules
+1 to 6 Numeric character Customer code, or 3 to 10 Customer mnemonic. (Optional input) */
+		ACC_WITH_BNK -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=24.0, core=true, businessType=CUS, t24Name=ACC.WITH.BNK)
+		ACC_WITH_ADD -> byValue AC_PaymentNetting:NETTING__ACC_WITH_ADD *
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 10 characters may be entered.
+Must be the key to a valid entry on the CUSTOMER file. */
+		BENEFICIARY_BANK -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=26.0, core=true, businessType=CUS, t24Name=BENEFICIARY.BANK)
+		BENFCY_ADD_BANK -> byValue AC_PaymentNetting:NETTING__BENFCY_ADD_BANK *
+		/* The account number of the beneficiary at their bank.
+Optional input.
+Will default from the standard instructions on the AGENCY file for the beneficiary if no input is made.
+
+EXAMPLE
+The beneficiary of this USD payment is ABC COMPANY. They have asked us to credit their USD account 123456 at INTERSTATE BANK NEW YORK.
+The following should be input:
+BENEFICIARY    ABC COMPANY ACC.WITH.BNK   INTERSTATE BANK NEW YORK BEN.ACCOUNT    123456
+causing SWIFT fields as follows:
+57A      IBNYUS33 58D      /123456          ABC COMPANY          520 MADISON AVENUE          NEW YORK
+Validation Rules
+1 to 35 Type S Alphanumeric characters. (Mandatory when ACC.WITH.BNK or ACC.WITH.ADD has been  specified.  Default = ).
+Will default from AGENCY */
+		BEN_ACCOUNT : T24BusinessTypes:A
+			@i18n:Label (en="Beneficiary Account")
+			@i18n:Tooltip (en="Account details of the Beneficiary")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=28.0, core=true, t24Name=BEN.ACCOUNT)
+		PAYMENT_DETAILS -> byValue AC_PaymentNetting:NETTING__PAYMENT_DETAILS *
+		/* This field defines how the receiver of a Payment Cable should collect its own charges.
+This field will define if the Receiver Bank charges are to be borne by the Beneficiary 'BEN' or if they are for the Account of the Sending Bank.
+When 'OUR' has been input, the Recipient Bank will normally send a Claim Charges Advice for the amount of their charges to the Sending Bank which in turn will collect the amount from the Ordering Customer.
+This field corresponds to field 71 in S.W.I.F.T. message.
+Validation Rules
+Only allowed values : "BEN" or "OUR".  (Optional input) */
+		CHARGES_FOR : T24BusinessTypes:DEF
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=30.0, core=true, t24Name=CHARGES.FOR)
+		DELIVERY_MSG -> byValue AC_PaymentNetting:NETTING__DELIVERY_MSG *
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 10 characters may be entered.
+Must be the key to a valid entry on the CUSTOMER file. */
+		BENEFICIARY_CUST -> ST_Customer:CUSTOMER
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=34.0, core=true, businessType=A, t24Name=BENEFICIARY.CUST)
+		BENFCY_ADD_CUST -> byValue AC_PaymentNetting:NETTING__BENFCY_ADD_CUST *
+		SYSTEM_ID : T24BusinessTypes:A
+			@i18n:Label (en="System id")
+			@i18n:Tooltip (en="Shows the system id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=36.0, core=true, t24Name=SYSTEM.ID)
+		BK_TO_BK_203 -> byValue AC_PaymentNetting:NETTING__BK_TO_BK_203 *
+		SND_CORR_BK_203 -> byValue AC_PaymentNetting:NETTING__SND_CORR_BK_203 *
+		REC_CORR_BK_203 -> byValue AC_PaymentNetting:NETTING__REC_CORR_BK_203 *
+		TIME_IND -> byValue AC_PaymentNetting:NETTING__TIME_IND *
+		RESERVED10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=41.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=42.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=43.0, core=true, t24Name=RESERVED8)
+		BK_TO_BK_102 -> byValue AC_PaymentNetting:NETTING__BK_TO_BK_102 *
+		SND_CORR_BK_102 -> byValue AC_PaymentNetting:NETTING__SND_CORR_BK_102 *
+		REC_CORR_BK_102 -> byValue AC_PaymentNetting:NETTING__REC_CORR_BK_102 *
+		/* Message type is populated here from the Funds transfer contract. This can have the value 102 or 203.
+Validation Rules
+
+No Input field-Updated by System. */
+		MSG_TYPE : mml:Integer
+			@i18n:Label (en="Message Type")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=47.0, core=true, t24Name=MSG.TYPE)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=48.0, core=true, t24Name=RESERVED7)
+		/* Bank operation code is populated here from the Funds transfer contract. This can have the value CREDIT or CHQB
+Validation Rules
+
+
+No Input field-Updated by System. */
+		OPERATION_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=49.0, core=true, t24Name=OPERATION.CODE)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=50.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=51.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=52.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=53.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=54.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=55.0, core=true, t24Name=RESERVED1)
+		STMT_NO -> byValue AC_PaymentNetting:NETTING__STMT_NO *
+		OVERRIDE -> byValue AC_PaymentNetting:NETTING__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=59.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=60.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AC_PaymentNetting:NETTING__INPUTTER *
+		DATE_TIME -> byValue AC_PaymentNetting:NETTING__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=63.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=64.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=65.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=66.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=67.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	NETTING__TRANS_REF
+	{
+		/* Contains the reference number by which the originating transaction may be accessed in the front end application.
+No input system updated field.
+Validation Rules
+(Display only) */
+		TRANS_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=12.0, core=true, t24Name=TRANS.REF, mvSvExpansionAccess=NOMODIFY)
+		/* The transaction amount.
+No input system updated field.
+Validation Rules
+(Display only) */
+		AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=13.0, core=true, t24Name=AMOUNT, typeModifiers="-3")
+		/* Defines the identity of the Account record which is to be the default wash account.
+No input system updated field.
+Validation Rules
+(Display only) */
+		NETT_ACCOUNT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=14.0, core=true, t24Name=NETT.ACCOUNT)
+		/* Defines the identity of the NOSTRO Account number from the original STMT.ENTRY of the underlying deal.
+Provided for information ONLY.
+No input system updated field.
+Validation Rules
+(Display only) */
+		NOSTRO_ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=15.0, core=true, businessType=ACC, t24Name=NOSTRO.ACCOUNT)
+		/* Specifies if the transaction will be included in this group as a netted payment. Y = YES, N = NO (payment will not be net under this grouping)
+Validation Rules
+(Mandatory input, Default = YES) */
+		NETTING : AC_PaymentNetting:NETTING__TRANS_REF__NETTING
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=16.0, core=true, t24Name=NETTING)
+	}
+	NETTING__BK_TO_BK_100
+	{
+		/* Bank to Bank information for MT100 payment messages.
+Corresponds to field 72 on SWIFT.
+Provides instructions or additional information for the receiver from ourselves (the sender).
+Optional
+Validation Rules
+Up to 35 characters (uppercase alpha or numeric) - Type S. Multivalue field.  A maximum of 6 lines of 35 characters each will be allowed.
+If this field is used, the first multivalue must contain a code word followed by further information.
+All code words must be present on the SWIFT.CODE.WORDS files, and must be enclosed between slashes '/' at the beginning of the line.
+Further code words and information can be entered in subsequent multivalues, but additional information continued on a new line must be preceded by double slashes '//'. */
+		BK_TO_BK_100 : T24BusinessTypes:SW
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=17.0, core=true, t24Name=BK.TO.BK.100)
+	}
+	NETTING__BK_TO_BK_202
+	{
+		/* Bank to bank information for 202 messages.
+Corresponds to field 72 on the SWIFT message.
+Provides instructions from ourselves (the sender) for the receiver of the SWIFT 202 message, usually the bank where our nostro account is held.
+Validation Rules
+Up to 35 characters (uppercase alpha or numeric) - Type S. Multivalue field.  A maximum of 6 lines of 35 characters each will be allowed.
+If this field is used, the first multivalue must contain a code word followed by further information.
+All code words must be present on the SWIFT.CODE.WORDS files, and must be enclosed between slashes '/' at the beginning of the line.
+Further code words and information can be entered in subsequent multivalues, but additional information continued on a new line must be preceded by double slashes '//'. */
+		BK_TO_BK_202 : T24BusinessTypes:SW
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=18.0, core=true, t24Name=BK.TO.BK.202)
+	}
+	NETTING__BK_TO_BK_210
+	{
+		/* Provides instructions or additional information for this message type.
+Any details input by the user will be relayed to the receiver.
+Whenever this field is used in a message transmitted between countries with different languages, it is recommended that English is used.
+This field corresponds to field 72 on SWIFT messages, and must never be used for information for which another field is intended, or for instructions not required in a message.
+Validation Rules
+Up to 35 characters (uppercase alpha or numeric) - Type S. Multivalue field.  A maximum of 6 lines of 35 characters each will be allowed.
+If this field is used, the first multivalue must contain a code word followed by further information.
+All code words must be present on the SWIFT.CODE.WORDS files, and must be enclosed between slashes '/' at the beginning of the line.
+Further code words and information can be entered in subsequent multivalues, but additional information continued on a new line must be preceded by double slashes '//'. */
+		BK_TO_BK_210 : T24BusinessTypes:SW
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=BK.TO.BK.210)
+	}
+	NETTING__REC_CORR_BNK
+	{
+		/* The correspondant bank of the receiver bank. This field may only be entered if a receiver bank has been entered. Therefore it is only used when two payment messages are required - a payment and a cover payment.
+If this field is not entered then it will default from the AGENCY record for the receiver bank. This is where we store the account and the bank where we normally pay funds in this currency for this receiver.
+This field corresponds to field 54 in SWIFT messages.
+
+
+EXAMPLE
+See the helptext for RECEIVER.BANK for an example of the use of REC.CORR.BANK.
+Validation Rules
+May be a CUSTOMER or four lines of narrative. */
+		REC_CORR_BNK : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=21.0, core=true, t24Name=REC.CORR.BNK)
+	}
+	NETTING__INTERMED_ADD
+	{
+		/* Defines the address of the intermediary address.
+If an intermediary bank is used and the customer number of the intermediary is not known (INTERMED.BNK), this multi-valued field should contain the name and address of the intermediary.
+Validation Rules
+3 to 35 alphanumeric S.W.I.F.T characters. (Optional input).
+No input allowed if INTERMED.BNK has been defined.
+A maximun of four lines is allowed. */
+		INTERMED_ADD : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=INTERMED.ADD)
+	}
+	NETTING__ACC_WITH_ADD
+	{
+		/* A narrative alternative to the account with bank (ACC.WITH.BNK).
+Used if the account with bank is not regularly used and thus has not been recorded on the CUSTOMER application.
+Corresponds to field 57D on SWIFT messages.
+Validation Rules
+3 to 35 alphanumeric S.W.I.F.T characters (Optional input).
+No input allowed should ACC.WITH.BNK be defined.
+A maximum of four lines is allowed. */
+		ACC_WITH_ADD : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=25.0, core=true, t24Name=ACC.WITH.ADD)
+	}
+	NETTING__BENFCY_ADD_BANK
+	{
+		/* This is a multi valued field. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 35 characters may be entered. */
+		BENFCY_ADD_BANK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=27.0, core=true, t24Name=BENFCY.ADD.BANK)
+	}
+	NETTING__PAYMENT_DETAILS
+	{
+		/* Allows details of the transfer to be input for inclusion on the Payments and Advices.
+This field should contain reference information for the Beneficiary as supplied by the Ordering Customer.  Typical examples are Reference and invoice numbers.
+Payment Details should not contain payment instructions.
+This field corresponds to field 70 in S.W.I.F.T messages.
+For local clearing validation rules see the section 'Local Clearing Rules' under the relevant clearing system.
+Validation Rules
+Up to 35 characters (uppercase alpha or numeric) - Type  S. Multivalue Field. A maximum of four lines, of 35 characters each, will be allowed. (Optional input.) */
+		PAYMENT_DETAILS : T24BusinessTypes:SW
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=29.0, core=true, t24Name=PAYMENT.DETAILS)
+	}
+	NETTING__DELIVERY_MSG
+	{
+		/* Confirmation that the contract details have been passed over to the Delivery system for onward communication to the counterparty.
+This field is defaulted to the Delivery message Id (DE.MESSAGE) of the message sent to the Delivery system.
+Validation Rules
+3 Numeric character. (Display only, Default = DE.MESSAGE Id) */
+		DELIVERY_MSG -> DE_Config:DE_MESSAGE
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=31.0, core=true, t24Name=DELIVERY.MSG)
+		/* Identifies the date that the associated Delivery message was produced or "NOT PRODUCED" for messages not yet made.
+Validation Rules
+12 Alphanumeric characters. (Display only,  Default = See details)
+Must be a valid date or "NOT PRODUCED". */
+		DELIVERY_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=12, sysNumber=32.0, core=true, t24Name=DELIVERY.DATE)
+		/* Confirmation that the contract details have been passed over to the Delivery system for onward communication to the counterparty.
+The Delivery system acknowledges receipt by returning the Id of the Delivery reference that has been generated for the message.
+The Id takes the following form :
+o  D19950103-392226
+where "D" signifies a delivered message (as opposed to "R" for a message received), "1995" the year, "01" the month, "03" the day in the month, and the code "392226" is the number of hundreds of seconds since midnight on that day.
+Validation Rules
+16 Alpha-numeric system generated characters. (Display only,  Default = Delivery reference) */
+		DELIVERY_REF : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=33.0, core=true, t24Name=DELIVERY.REF)
+	}
+	NETTING__BENFCY_ADD_CUST
+	{
+		/* This is a multi valued field. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 35 characters may be entered. */
+		BENFCY_ADD_CUST : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=35.0, core=true, t24Name=BENFCY.ADD.CUST)
+	}
+	NETTING__BK_TO_BK_203
+	{
+		/* Bank to Bank information for MT203 message can be given here and same is mapped to tag 72 of A Sequence
+Provides instructions or additional information for the receiver from ourselves (the sender).
+Validation Rules
+
+Up to 35 characters (uppercase alpha or numeric) - Type S. Multivalue     field. A maximum of 6 lines of 35 characters each will be allowed.
+If this field is used, the first multivalue must contain a code word     followed by further information.
+All code words must be present on the SWIFT.CODE.WORDS files, and must be     enclosed between slashes '/' at the beginning of the line.
+Further code words and information can be entered in subsequent     multivalues, but additional information continued on a new line must be     preceded by double slashes '// */
+		BK_TO_BK_203 : T24BusinessTypes:SW
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=37.0, core=true, t24Name=BK.TO.BK.203)
+	}
+	NETTING__SND_CORR_BK_203
+	{
+		/* The correspondent bank of the Sender bank is populated here from the corresponding Funds Transfer contract and this field corresponds to tag 53 in SWIFT messages.
+This fields are updated by system when MT203 to be generated from FT
+Validation Rules
+
+No Input field-Updated by System */
+		SND_CORR_BK_203 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=38.0, core=true, t24Name=SND.CORR.BK.203)
+	}
+	NETTING__REC_CORR_BK_203
+	{
+		/* The correspondent bank of the Receiver bank is populated here from the corresponding Funds Transfer contract and this field corresponds to tag 54 in SWIFT messages.
+This fields are updated by system when MT203 to be generated from FT
+Validation Rules
+
+No Input field-Updated by System */
+		REC_CORR_BK_203 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=39.0, core=true, t24Name=REC.CORR.BK.203)
+	}
+	NETTING__TIME_IND
+	{
+		/* Specify the Time indication detail here, which will be mapped to tag 13C of MT102
+
+Time indication has 3 components i.e. SWIFT.CODE.WORD, TIME.INDICATION and TIME.OFFSET.
+
+Swift.Code.word and time indication has to be specified here.
+
+TIME.OFFSET will get defaulted from field CET.TIME.DIFF in DE.PARM. If no value is given in DE.PARM, then defaulted to +0000FOR EXAMPLE:
+
+In DE.PARM application, field CET.TIME.DIFF is set as +1000 and in FT, for field TIME.IND is given as /CLSTIME/1220, then 13C tag of swift message will be /CLSTIME/1220+1000
+Validation Rules
+
+Optional field
+
+SWIFT.CODE.WORD entered     should be a valid record in SWIFT.CODE.WORDS for the application and message     type.
+
+Time indication related code     words-CLSTIME, SNDTIME, RNCTIME can be used.
+
+Code words should be given     between two slashes. I.e. /CLSTIME/
+
+Time details given should be     a valid HHMM format and HH should be between 00 to 23 and MM should be     between 00 to 59
+
+Duplicate SWIFT.CODE.WORDS     not allowed for a same RELATED.MSG.
+
+If entered Minimum and     maximum number of characters is 13. */
+		TIME_IND : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=40.0, core=true, t24Name=TIME.IND)
+	}
+	NETTING__BK_TO_BK_102
+	{
+		/* Bank to Bank information for MT102 message can be given here and same is mapped to tag 72 of  Sequence C
+
+Provides instructions or additional information for the receiver from ourselves (the sender).
+
+
+
+Validation Rules
+
+Up     to 35 characters (uppercase alpha or numeric) - Type S. Multivalue field. A     maximum of 6 lines of 35 characters each will be allowed.
+
+If     this field is used, the first multivalue must contain a code word followed     by further information.
+
+All     code words must be present on the SWIFT.CODE.WORDS files, and must be     enclosed between slashes '/' at the beginning of the line.
+
+Further code words and     information can be entered in subsequent multivalues, but additional     information continued on a new line must be preceded by double slashes '// */
+		BK_TO_BK_102 : T24BusinessTypes:SW
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=44.0, core=true, t24Name=BK.TO.BK.102)
+	}
+	NETTING__SND_CORR_BK_102
+	{
+		/* The correspondent bank of the Sender bank is populated here from the corresponding Funds Transfer contract and this field corresponds to tag 53 in SWIFT messages.
+
+This fields are updated by system when MT102 to be generated from FT
+
+Validation Rules
+
+
+No Input field-Updated by System */
+		SND_CORR_BK_102 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=45.0, core=true, t24Name=SND.CORR.BK.102)
+	}
+	NETTING__REC_CORR_BK_102
+	{
+		/* The correspondent bank of the Receiver bank is populated here from the corresponding Funds Transfer contract and this field corresponds to tag 54 in SWIFT messages.
+
+This fields are updated by system when MT102 to be generated from FT
+
+Validation Rules
+
+
+No Input field-Updated by System */
+		REC_CORR_BK_102 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=46.0, core=true, t24Name=REC.CORR.BK.102)
+	}
+	NETTING__STMT_NO
+	{
+		/* A number Generated automatically by the system after authorisation which identifies either a statement entry or a category entry in respect of a transaction. After validation but before authorisation, the value 'VAL' will be inserted in this field to indicate that the transaction has been validated successfully but is still waiting authorisation.
+After authorisation of a Teller transaction, the system will automatically insert a number into this field and this number may refer to a statement entry or a category entry depending on the value contained in the corresponding multivalue fields. The following examples will illustrate the use of this field.
+Example 1:
+On the execution date of a transaction there will normally be an entry on a Customer account and the following type of number will be generated at this field:
+39.1  STMT.NO ............ 673732684.48           39.2  STMT.NO ............ 1
+The number automatically generated in field 39.1 is unique to the transaction in question and is built in the following way:
+1.        The first four digits '6737' indicate the number of days           since the 1st of January 1968. In our example, it           corresponds to the 11th of June 1986.
+2.        The next five digits '32684' indicate the number of seconds           since midnight. In our example, it corresponds to an entry           generated on line at 09:04:44 AM.
+3.        The last two digits '48' indicate the number of hundreds of           seconds.
+The value assigned (again automatically) to field 39.2 identifies the number in 39.1 as a statement entry number. If the User wishes to call this statement entry record on to the screen the User will invoke the STMT.ENTRY Application and the type the following at 'Awaiting ID' :-
+673732684.480001
+where the suffix '0001' identifies it as the first statement entry (there will normally be more than one as the next example will illustrate).
+Example 2:
+A second example outlined here is similar to that in example 1, in that there is a statement entry on value date for both the our account and the customer account. The system handles this case as follows:
+39.1  STMT.NO .......... 673732684.48                 39.2  STMT.NO .......... 1-2
+Once again field 39.1 contains the identification number automatically generated by the system while field 39.2 now contains two separate numbers signifying that there are infact two separate statement entries, one in respect of the our account pay and one in respect of the our account receive. If the User wishes to see either of these he must first of all invoke STMT.ENTRY followed by the desired function and then at 'Awaiting ID' type EITHER:
+673732684.480001
+where the addition of the suffix '0001' identifies the statement entry in respect of the our account OR
+673732684.480002
+where the addition of the suffix '0002' identifies the statement entry in respect of the customer account.
+Example 3:
+A third example might be that of a category entry generated at initiation of a transaction where commission or charges have been debited to the customer and credited to a profit and loss category code. In this case the following entries are generated on the transaction:
+39.1  STMT.NO .......... 673732684.48                 39.3  STMT.NO .......... 1
+Once again the standard type number is generated and inserted at field 39.1
+Now, however, field 39.2 is replaced by field 39.3 which now identifies the number in 39.1 as a category entry and not a statement entry.
+To call this category entry record onto the screen the User must now type:
+CATEG.ENTRY at 'Awaiting Application'
+followed by:
+673732684.480001 at 'Awaiting ID'.
+Validation Rules
+Internal Multivalue field. */
+		STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=29, sysNumber=57.0, core=true, t24Name=STMT.NO)
+	}
+	NETTING__OVERRIDE
+	{
+		/* Contains all the Override messages which the user agreed to during Input.
+During the validation stage of the netting process the system may provide the user with a series of screen override messages to indicate an anomaly.
+In the event that the user confirms the Override, the full text of the actual Override Message will be stored, for reference purposes only, in this multivalue field.
+Validation Rules
+Internal field, multivalue. (Display only) */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=58.0, core=true, t24Name=OVERRIDE)
+	}
+	NETTING__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=61.0, core=true, t24Name=INPUTTER)
+	}
+	NETTING__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=62.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Payment NETTING -
+(Maintenance file)
+Used to define the NETTING agreement that exists between the bank and customer.
+Each agreement will be identified by its AGREEMENT.NO during the NETTING process.
+Validation Rules
+A single agreement for each Customer record. */
+	NETTING_AGREEMENT
+		@t24:i (t24Name=NETTING.AGREEMENT, level=C, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This can be either a customer code or customer mnemonic, followed by a "." & then the module or message type the Netting agreement is for (e.g. 100500.RP, 100500.102)
+
+For each customer.module/Message type defined in the customer file an agreement can be established for the netting of transactions.
+
+To define a Message netting for FT application (ie. to group MT103 / MT202's & send a single MT102 / MT203 in lieu of it) , the Netting.Payment field in DE.PARM & the Netting.Allowed field DE.MESSAGE should be set to "Yes"- Otherwise Not allowed.
+Validation Rules
+
+1 to     6 Numeric character Customer Number or 3 to 10 character customer mnemonic +     "." + Module or Message Type.
+Module     FT can not be given, instead message type(101,102,203) can be given */
+		NETTING_AGREEMENT -> AC_PaymentNetting:NETTING_AGREEMENT PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=A, t24Name=NETTING.AGREEMENT)
+		/* The netting agreement number given by the customer.
+Validation Rules
+
+3-16 Alpha numeric characters.
+Mandatory input */
+		AGREEMENT_NO : T24BusinessTypes:S required
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=1.0, core=true, t24Name=AGREEMENT.NO)
+		/* Indicates the start date applicable to this agreement.
+Validation Rules
+
+Date to be entered in the standard date format.
+Mandatory input */
+		START_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Start Date")
+			@i18n:Tooltip (en="Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=START.DATE)
+		/* Indicates the final date covered by this netting agreement.
+Any contracts value after this date will NOT be eligible for netting under this agreement.
+Any contracts from START.DATE to END.DATE will default to Y in the NETTING.STATUS field on the transaction.
+Leaving this field blank indicates that the agreement is open ended.
+Validation Rules
+
+Enter date in standard date format. */
+		END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="End Date")
+			@i18n:Tooltip (en="End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=END.DATE)
+		EXCLUDED_CCY -> byValue AC_PaymentNetting:NETTING_AGREEMENT__EXCLUDED_CCY *
+		RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=5.0, core=true, t24Name=RESERVED.10)
+		INCLUDED_CCY -> byValue AC_PaymentNetting:NETTING_AGREEMENT__INCLUDED_CCY *
+		AGREED_CUSTS -> byValue AC_PaymentNetting:NETTING_AGREEMENT__AGREED_CUSTS *
+		SETTLEMENT_CCY -> byValue AC_PaymentNetting:NETTING_AGREEMENT__SETTLEMENT_CCY *
+		/* This field identifies the type of operation. If this field is null then the agreement is valid for both CREDIT and CHQB.
+
+
+This field is inputable if the Netting Agreement Id has message type 102.
+
+
+Validation Rules
+
+
+Up to 12 type AMT (Standard Amount Format)       characters plus a decimal point.
+
+It       is associated to SETTLEMENT.CCY field. This field is allowed only when       currency is given. */
+		OPERATION_CODE : AC_PaymentNetting:NETTING_AGREEMENT__OPERATION_CODE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=10.0, core=true, t24Name=OPERATION.CODE)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=11.0, core=true, t24Name=RESERVED.6)
+		/* Reserved for future use. */
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=12.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use. */
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=13.0, core=true, t24Name=RESERVED.4)
+		/* Reserved for future use. */
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=14.0, core=true, t24Name=RESERVED.3)
+		/* Reserved for future use. */
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=15.0, core=true, t24Name=RESERVED.2)
+		/* Reserved for future use. */
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=16.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue AC_PaymentNetting:NETTING_AGREEMENT__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AC_PaymentNetting:NETTING_AGREEMENT__INPUTTER *
+		DATE_TIME -> byValue AC_PaymentNetting:NETTING_AGREEMENT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=24.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=26.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=27.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	NETTING_AGREEMENT__EXCLUDED_CCY
+	{
+		/* Identify the currencies that will be excluded from the netting process.
+A combination of included and excluded currencies is not allowed (either one or the other)
+Validation Rules
+
+3 characters (uppercase alpha) - type SSS or 1 to 3         numeric characters Currency Code. */
+		EXCLUDED_CCY -> FIN_CurrencyConfig:CURRENCY_PARAM
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, businessType=CCY, t24Name=EXCLUDED.CCY)
+	}
+	NETTING_AGREEMENT__INCLUDED_CCY
+	{
+		/* Identify the currencies that will be included in the netting process.
+A combination of included and excluded currencies is not allowed (either one or the other)
+Validation Rules
+
+3 characters (uppercase alpha) - type SSS or 1 to 3         numeric characters Currency Code . */
+		INCLUDED_CCY -> FIN_CurrencyConfig:CURRENCY_PARAM
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, businessType=CCY, t24Name=INCLUDED.CCY)
+	}
+	NETTING_AGREEMENT__AGREED_CUSTS
+	{
+		/* Specify the Customer BIC code for which there is an agreement to debit the account as mentioned in Inward MT101 message.
+MT101 message requires Message User Group (MUG) registration and hence the registration is required between the Sender of the message and Ordering Customer with Receiver of MT101. To check this during Inward message processing, details can be specified here by creating a Agreement record for the Sender of MT101 (ID) and ordering Customer details (50G) in Agreed.Custs.
+When Check.Agreement  is set to "YES" in DE.MESSAGE for message MT101, then Incoming MT101 message will be moved to Repair incase the Agreement does not exist for the Sender or Ordering Customer BIC code is not available in Agreed.Custs. This processing is applicable for only MT101 message processed through OFS.GLOBUS.MANAGER.
+If Check.Agreement is not specified or Incoming MT101 Message contains tag 50H (Name & Address) then agreement checking will be skipped.
+Validation Rules
+
+
+
+Input       allowed only when the ID has message type 101 otherwise Not allowed.
+Should be a Valid BIC code 8,9,12,11 Characters. */
+		AGREED_CUSTS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=7.0, core=true, t24Name=AGREED.CUSTS)
+	}
+	NETTING_AGREEMENT__SETTLEMENT_CCY
+	{
+		/* The currency for which the agreement is valid. If it is null, the agreement is for all currencies.
+
+Validation Rules
+
+This     field is inputable if the Netting Agreement Id has message type 102.
+
+3 characters     (uppercase alpha) - type SSS or 1 to 3 numeric characters Currency Code. */
+		SETTLEMENT_CCY -> FIN_CurrencyConfig:CURRENCY_PARAM
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, businessType=CCY, t24Name=SETTLEMENT.CCY)
+		/* Maximum total settlement amount for the associated currency. The total settlement amount in the netted entries should be less than or equal to the amount specified in this field. If not, the message MT102 will not be processed.
+
+This field will be allowed for input only if the Netting Agreement Id has message type 102.
+
+
+Validation Rules
+
+Up to 12 type AMT (Standard       Amount Format) characters plus a decimal point.
+It is associated to       SETTLEMENT.CCY field. This field is allowed only when currency is given. */
+		SETTLEMENT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, core=true, t24Name=SETTLEMENT.AMT, typeModifiers="8.X")
+	}
+	NETTING_AGREEMENT__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=OVERRIDE)
+	}
+	NETTING_AGREEMENT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, core=true, t24Name=INPUTTER)
+	}
+	NETTING_AGREEMENT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=22.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This is the internal file which contains details of all NETTED entries.
+Entries are generated in this file by every on-line and batch process which involves NETTING payments.
+This file is used by CREATE.NETTING to create NETTING records.
+Only the See, Print and List functions may be used in this Application. */
+	NETTING_ENTRY
+		@t24:i (t24Name=NETTING.ENTRY, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The transaction identifier by which the Entry (and associated transaction) can be identified.
+Generated by the system.
+Validation Rules
+12 Character transaction reference. (Internal file, No input) */
+		NETTING_ENTRY_ID -> AC_PaymentNetting:NETTING_ENTRY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=0.0, core=true, businessType=A, t24Name=NETTING.ENTRY.ID)
+		VALUE_DATE -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE *
+	}
+	NETTING_ENTRY__VALUE_DATE
+	{
+		/* The value date of this payment.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK,AWB.ACCT,BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction. */
+		VALUE_DATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=1.0, core=true, t24Name=VALUE.DATE)
+		/* The currency of this payment.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		CURRENCY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=2.0, core=true, t24Name=CURRENCY)
+		/* The netting account of this payment. This is the account against which the payment entry has been passed.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		NETTING_ACCOUNT : T24BusinessTypes:ANT
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=3.0, core=true, t24Name=NETTING.ACCOUNT)
+		/* The amount of this payment.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=4.0, core=true, t24Name=AMOUNT, typeModifiers="-2")
+		/* The entry type of this payment. "S203" indicates that the record is created by FT application.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		ENTRY_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=5.0, core=true, t24Name=ENTRY.TYPE)
+		/* The countparty for this payment. Valid customer number on the CUSTOMER application.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		COUNTERPARTY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=COUNTERPARTY)
+		/* The reference of the NETTING transaction where this payment has been netted.
+Initially this field contains no value, however the payment will be included in a net payment on the NETTING application and once this net payment is authorised then the reference will be written to this field.
+Consequently any payment on this file where the NP.REF is empty is a payment waiting to be netted.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, xBEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input allowed. */
+		NP_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=7.0, core=true, t24Name=NP.REF)
+		/* Fields VALUE.DATE toBk.To.Bk form a related multi value set. Standard T24 acount field.
+Validation Rules
+
+This is a NOINPUT field-System update */
+		NOSTRO_ACCOUNT : T24BusinessTypes:ACC
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=8.0, core=true, t24Name=NOSTRO.ACCOUNT)
+		RELATED_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RELATED.REF)
+		/* The Sender Correspondent bank (tag 53) for this payment.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		SEND_CORR_BK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=SEND.CORR.BK)
+		/* The Receiver Correspondent bank (tag 54) for this payment.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		REC_CORR_BK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=REC.CORR.BK)
+		INTERMED_BK -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE__INTERMED_BK *
+		INTERM_ACCT -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE__INTERM_ACCT *
+		ACCT_WITH_BK -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE__ACCT_WITH_BK *
+		AWB_ACCT -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE__AWB_ACCT *
+		BEN_CUST -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE__BEN_CUST *
+		BEN_ACCT_NO -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE__BEN_ACCT_NO *
+		BK_TO_BK -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE__BK_TO_BK *
+		ORDER_CUST -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE__ORDER_CUST *
+		ORDER_BANK -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE__ORDER_BANK *
+		/* This field hold the Swift charge detail (Tag 71) of the payment . This can have the value BEN or OUR or SHA.
+Part of a multi value group starting from VALUE.DATE to REMITT.INFO.
+Each group contains the details for one payment that is to be netted.
+Validation Rules
+
+
+System generated. No input. */
+		SWIFT_CHG_DETS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=21.0, core=true, t24Name=SWIFT.CHG.DETS)
+		SENDER_CHG -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE__SENDER_CHG *
+		/* This field specifies the currency and amount of the transaction charges due to the Receiver. This field is mapped to Tag 71G in MT102.
+Part of a multi value group starting from VALUE.DATE to REMITT.INFO. Each group contains the details for one payment that is to be netted.
+
+
+Validation Rules
+
+
+System       generated. No input. */
+		RECEIVER_CHG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=18, sysNumber=23.0, core=true, t24Name=RECEIVER.CHG)
+		/* This field specifies Exchange rate used to convert the instructed amount.
+
+This field is mapped to Tag 36 in MT102
+
+Part of a multi value group starting from VALUE.DATE to REMITT.INFO. Each group contains the details for one payment that is to be netted.
+Validation Rules
+
+System generated. No input. */
+		EXCHANGE_RATE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=EXCHANGE.RATE)
+		/* This field specifies the currency for instructed amount. This field is mapped to tag 33.
+
+Part of a multi value group starting from VALUE.DATE to REMITT.INFO. Each group contains the details for one payment that is to be netted.
+
+Validation Rules
+
+
+System       generated. No input. */
+		INSTRUCTED_CCY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=25.0, core=true, t24Name=INSTRUCTED.CCY)
+		/* This field specifies the instructed amount in the Funds transfer contract. This field is mapped to tag 33
+
+.Part of a multi value group starting from VALUE.DATE to REMITT.INFO. Each group contains the details for one payment that is to be netted.
+Validation Rules
+
+System generated. No input. */
+		INSTRUCTED_AMT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=26.0, core=true, t24Name=INSTRUCTED.AMT)
+		/* This field specifies bank operation code from Funds transfer contract. This field is mapped to tag 23.
+Part of a multi value group starting from VALUE.DATE to REMITT.INFO. Each group contains the details for one payment that is to be netted.
+Validation Rules
+
+System generated. No input. */
+		OPERATION_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=27.0, core=true, t24Name=OPERATION.CODE)
+		REMITT_INFO -> byValue AC_PaymentNetting:NETTING_ENTRY__VALUE_DATE__REMITT_INFO *
+		ORD_CUST_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=ORD.CUST.CODE)
+		DRAWDOWN_ACC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=30.0, core=true, t24Name=DRAWDOWN.ACC)
+	}
+	NETTING_ENTRY__VALUE_DATE__INTERMED_BK
+	{
+		/* The Intermediary Bank details as entered in the corresponding Funds Transfer contract is stored here (tag 56) .
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input */
+		INTERMED_BK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=INTERMED.BK)
+	}
+	NETTING_ENTRY__VALUE_DATE__INTERM_ACCT
+	{
+		/* The Account Number of the Intermediary Bank as entered in the corresponding Funds Transfer contract is stored here (tag 56) .
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		INTERM_ACCT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=INTERM.ACCT)
+	}
+	NETTING_ENTRY__VALUE_DATE__ACCT_WITH_BK
+	{
+		/* The Account with Bank (tag 57) for this payment.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		ACCT_WITH_BK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=ACCT.WITH.BK)
+	}
+	NETTING_ENTRY__VALUE_DATE__AWB_ACCT
+	{
+		/* The Account Number of the Account with Bank as entered in the corresponding Funds Transfer contract is stored here.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rule
+
+System generated. No input. */
+		AWB_ACCT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=AWB.ACCT)
+	}
+	NETTING_ENTRY__VALUE_DATE__BEN_CUST
+	{
+		/* The Beneficiary Customer (tag 58) for this payment.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		BEN_CUST : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=BEN.CUST)
+	}
+	NETTING_ENTRY__VALUE_DATE__BEN_ACCT_NO
+	{
+		/* The Beneficiary account No as given in the corresponding  Funds transfer contract is stored here.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		BEN_ACCT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=BEN.ACCT.NO)
+	}
+	NETTING_ENTRY__VALUE_DATE__BK_TO_BK
+	{
+		/* The Bk.To.Bk information (tag 72) given in the corresponding Funds Transfer Contract is stored here.
+Part of a multi value group with the following fields:
+VALUE.DATE CURRENCY NETTING.ACCOUNT AMOUNT ENTRY.TYPE COUNTERPARTY,NP.REF, NOSTRO.ACCOUNT, RELATED.REF,SEND.CORR.BK, REC.CORR.BK,INTERMED.BK, INTERM.ACCT, ACCT.WITH.BK, AWB.ACCT, BEN.CUST,BEN.ACCT.NO,BK.TO.BK
+Each group contains the details for one payment that is to be netted. There may be more than one payment for a transaction.
+Validation Rules
+
+System generated. No input. */
+		BK_TO_BK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=BK.TO.BK)
+	}
+	NETTING_ENTRY__VALUE_DATE__ORDER_CUST
+	{
+		/* The ordering Customer (tag 50) for this payment.
+
+Part of a multi value group starting from VALUE.DATE to REMITT.INFO. Each group contains the details for one payment that is to be netted.
+
+Validation Rules
+
+System generated. No input. */
+		ORDER_CUST : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=ORDER.CUST)
+	}
+	NETTING_ENTRY__VALUE_DATE__ORDER_BANK
+	{
+		/* The ordering Bank (tag 52) for this payment
+
+Each group starting from field VALUE.DATE to REMITT.INFO contains the details for one payment that is to be netted.
+
+Validation Rules
+
+System generated. No input. */
+		ORDER_BANK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=ORDER.BANK)
+	}
+	NETTING_ENTRY__VALUE_DATE__SENDER_CHG
+	{
+		/* This field specifies the currency and amount of Funds Transfer contract charges deducted by the Sender and by previous banks in the transaction chain. This field is mapped to Tag 71F in MT102.
+Part of a multi value group starting from VALUE.DATE to REMITT.INFO. Each group contains the details for one payment that is to be netted.
+Validation Rules
+
+System generated. No input. */
+		SENDER_CHG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=18, sysNumber=22.0, core=true, t24Name=SENDER.CHG)
+	}
+	NETTING_ENTRY__VALUE_DATE__REMITT_INFO
+	{
+		/* This field specifies remittance information from Funds transfer contract. This field is mapped to tag 70.
+
+
+Part of a multi value group starting from VALUE.DATE to REMITT.INFO. Each group contains the details for one payment that is to be netted.
+Validation Rules
+
+System generated. No input. */
+		REMITT_INFO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, core=true, t24Name=REMITT.INFO)
+	}
+	/* Payment NETTING -
+(Maintenance file)
+Within this file are defined parameters which determine some of the controls by which the system operates. These are as follows;
+1.          Classification of the transaction codes used on the             debit and credit netted entries.
+2.          The range of value dates used to propagate transactions             to the NETTING file for agreement.
+3.          Establish when NETTING file records are purged             to history.
+
+Validation Rules
+This file contains a single record named SYSTEM. */
+	NETTING_PARAMETERS
+		@t24:i (t24Name=NETTING.PARAMETERS, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Identifier for the record.
+Validation Rules
+Input must be SYSTEM. (Mandatory input) */
+		NETTING_PARAMETERS -> AC_PaymentNetting:NETTING_PARAMETERS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, businessType=A, t24Name=NETTING.PARAMETERS)
+		/* Defines the transaction code to be used on the credit entry generated by the NETTING sub-system when NETTING payments.
+Validation Rules
+1 to 3 numeric character Transaction code. (Mandatory input) */
+		NETTING_TRANS_CR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Netting Trans Cr")
+			@i18n:Tooltip (en="Netting Trans Cr")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=NETTING.TRANS.CR)
+		/* Defines the transaction code to be used on the debit entry by the NETTING sub-system for the NETTING of payments.
+Validation Rules
+1 to 3 numeric character Transaction code. (Mandatory input) */
+		NETTING_TRANS_DR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Netting Trans Dr")
+			@i18n:Tooltip (en="Netting Trans Dr")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=NETTING.TRANS.DR)
+		/* Defines the number of days ahead of today that will be used as the selection criteria in CREATE.NETTING.
+If no value supplied CREATE.NETTING will automatically build netting groups TWO WORKING DAYS ahead.
+Validation Rules
+Format nnC or nnW where  nn = 1 to 2 numeric characters W  = Working days C  = Calender days  (Optional input) */
+		DAYS_AHEAD : T24BusinessTypes:A
+			@i18n:Label (en="Days Ahead")
+			@i18n:Tooltip (en="Days Ahead")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=DAYS.AHEAD)
+		/* Defines the number of days before TODAY that the BATCH procedure will purge NETTING records to history.
+The purge will only occur if a value is supplied for this field.
+Validation Rules
+Format nnnC or nnnW where  nnn = 1 to 3 numeric characters W   = Working days C   = Calender days  (Optional input) */
+		PURGE_DAYS : T24BusinessTypes:A
+			@i18n:Label (en="Purge Days")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=4.0, core=true, t24Name=PURGE.DAYS)
+		/* Reserved for future use. */
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=5.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use. */
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.4)
+		/* Reserved for future use. */
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=7.0, core=true, t24Name=RESERVED.3)
+		/* Reserved for future use. */
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=9, sysNumber=8.0, core=true, t24Name=RESERVED.2)
+		/* Reserved for future use. */
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=9, sysNumber=9.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=11.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AC_PaymentNetting:NETTING_PARAMETERS__INPUTTER *
+		DATE_TIME -> byValue AC_PaymentNetting:NETTING_PARAMETERS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=15.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=17.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=18.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	NETTING_PARAMETERS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=INPUTTER)
+	}
+	NETTING_PARAMETERS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=13.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This file records the withdrawal notice given by the holder of a savings account.
+It stores the amount that can be withdrawn and the dates when the funds are available. When a withdrawal is made on this account this information is checked and an override message displayed if the conditions are not met.
+Note: Muliple withdrawal notices for the same account can be stored. */
+	NOTICE_WITHDRAWAL
+		@t24:i (t24Name=NOTICE.WITHDRAWAL, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Savings account number for which notice of withdrawal is being given.
+When the customer gives notice of a withdrawal it is recorded in this file using the account number as the key.
+Validation Rules
+16 Numeric characters (i Must be a valid savings account ie the account category must be defined on the SAVINGS record of ACCOUNT.CLASS. */
+		ACCOUNT_NUMBER -> AC_PaymentNetting:NOTICE_WITHDRAWAL PK required
+			@i18n:Label (en="Account Number")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=ACC, t24Name=ACCOUNT.NUMBER)
+		NOTICE_DATE -> byValue AC_PaymentNetting:NOTICE_WITHDRAWAL__NOTICE_DATE *
+		/* This field is reserved for future use. */
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=8.0, core=true, t24Name=RESERVED.5)
+		/* This field is reserved for future use. */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=9.0, core=true, t24Name=RESERVED.4)
+		/* This field is reserved for future use. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=10.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=11.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=12.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AC_PaymentNetting:NOTICE_WITHDRAWAL__INPUTTER *
+		DATE_TIME -> byValue AC_PaymentNetting:NOTICE_WITHDRAWAL__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=18.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=20.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=21.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	NOTICE_WITHDRAWAL__NOTICE_DATE
+	{
+		/* The date from which notice is given of withdrawal. Can be prior to today.
+This date (and the amount to be withdrawn - See NOTICE.AMOUNT) will be used to determine the date when the funds will be made available (DATE.AVAIL.FROM & UPTO).
+This is calculated based on the period for this withdrawal amount setup up on the SAVINGS.COND file.
+Validation Rules
+11 Date */
+		NOTICE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=NOTICE.DATE)
+		/* The amount the customer intends to withdraw.
+This amount will determine the notice period to be used from the SAVINGS.COND file. Eg. 3months notice may be required for amounts upto 500.00 whereas 6months notice is required for larger amounts.
+NOTE: Onc a notice amount is specifed the customer will be allowed to make ANY NUMBER of withdrawals upto this amount, without an override, until the notice is removed from this file or the UPTO date is reached.
+Validation Rules
+19 Numeric characters. */
+		NOTICE_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=NOTICE.AMOUNT)
+		/* The date when the funds will be made available.
+Calculated based on the date when notice was given (NOTICE.DATE) and the notice period defined on the SAVINGS.COND file.
+Eg. If the notice date given for a 500.00 withdrawal is 13/04/90 and the notice period is 3M (3 months) then the DATE.AVAIL.FROM will be set to 13/07/90.
+Validation Rules
+11 Date NOINPUT */
+		DATE_AVAIL_FROM : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=3.0, core=true, t24Name=DATE.AVAIL.FROM)
+		/* The date upto which the funds will be made available.
+This is calculated based on the DATE.AVAIL.FROM and the availablity set in the SAVINGS.COND file.
+Eg. If the date available from is set to 13/07/90 and the AVAILABLITY field in the SAVINGS.COND file is 1M then the DATE.AVAIL.UPTO will be set to 13/08/90.
+If a withdrawal is attempted outside the FROM and UPTO date then a override:
+ACCOUNT & - NOTICE CONDS FOR WITHDRAWAL NOT MET
+is displayed.
+Validation Rules
+11 Date NOINPUT */
+		DATE_AVAIL_UPTO : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=4.0, core=true, t24Name=DATE.AVAIL.UPTO)
+		/* This field is reserved for future use. */
+		NOTICE_AMT_TAKEN : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=5.0, core=true, t24Name=NOTICE.AMT.TAKEN)
+		/* This field is reserved for future use. */
+		FREE_AMT_TAKEN : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=6.0, core=true, t24Name=FREE.AMT.TAKEN)
+		/* This field is reserved for future use. */
+		FREE_PERIOD_END : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=7.0, core=true, t24Name=FREE.PERIOD.END)
+	}
+	NOTICE_WITHDRAWAL__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=15.0, core=true, t24Name=INPUTTER)
+	}
+	NOTICE_WITHDRAWAL__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=16.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	NP_CONCAT
+		@t24:i (t24Name=NP.CONCAT, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 65 characters may be entered. */
+		NP_CONCAT -> AC_PaymentNetting:NP_CONCAT PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=0.0, core=true, businessType=A, t24Name=NP.CONCAT)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 25 characters may be entered. */
+		ENTRY_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=1.0, core=true, t24Name=ENTRY.REF)
+		CCY_DATE_CPTY : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, core=false, t24Name=CCY.DATE.CPTY, genOperation="FIELD(@ID,\'*\',1)")
+		CCY : mml:Integer
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=CCY, genOperation="CCY.DATE.CPTY[1,3]")
+		VALUE_DATE : mml:Integer
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, core=false, t24Name=VALUE.DATE, genOperation="CCY.DATE.CPTY[4,8]")
+		COUNTERPARTY : mml:Integer
+			@i18n:Label (en=Counterparty)
+			@i18n:Tooltip (en="Counterparty with whom the deal is made")
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, core=false, t24Name=COUNTERPARTY, genOperation="CCY.DATE.CPTY[12,99]")
+		SYSTEM_ID : mml:Integer
+			@i18n:Label (en="System id")
+			@i18n:Tooltip (en="Shows the system id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, core=false, t24Name=SYSTEM.ID, genOperation="FIELD(@ID,\'*\',2,1)")
+		SEND_CORR_BK : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, core=false, t24Name=SEND.CORR.BK, genOperation="FIELD(@ID,\'*\',3,1)")
+		REC_CORR_BK : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, core=false, t24Name=REC.CORR.BK, genOperation="FIELD(@ID,\'*\',4,1)")
+	}
+	NP_CONCAT_102
+		@t24:i (t24Name=NP.CONCAT.102, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		NP_CONCAT -> AC_PaymentNetting:NP_CONCAT_102 PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=0.0, core=true, businessType=A, t24Name=NP.CONCAT)
+		ENTRY_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=1.0, core=true, t24Name=ENTRY.REF)
+		CCY_DATE_CPTY : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, core=false, t24Name=CCY.DATE.CPTY, genOperation="FIELD(@ID,\'*\',1)")
+		CCY : mml:Integer
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=CCY, genOperation="CCY.DATE.CPTY[1,3]")
+		VALUE_DATE : mml:Integer
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, core=false, t24Name=VALUE.DATE, genOperation="CCY.DATE.CPTY[4,8]")
+		COUNTERPARTY : mml:Integer
+			@i18n:Label (en=Counterparty)
+			@i18n:Tooltip (en="Counterparty with whom the deal is made")
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, core=false, t24Name=COUNTERPARTY, genOperation="CCY.DATE.CPTY[12,99]")
+		SYSTEM_ID : mml:Integer
+			@i18n:Label (en="System id")
+			@i18n:Tooltip (en="Shows the system id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, core=false, t24Name=SYSTEM.ID, genOperation="FIELD(@ID,\'*\',2,1)")
+		SEND_CORR_BK : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, core=false, t24Name=SEND.CORR.BK, genOperation="FIELD(@ID,\'*\',3,1)")
+		REC_CORR_BK : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, core=false, t24Name=REC.CORR.BK, genOperation="FIELD(@ID,\'*\',4,1)")
+		OPERATION_CODE : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, core=false, t24Name=OPERATION.CODE, genOperation="FIELD(@ID,\'*\',5,1)")
+	}
+}
+Enumerations {
+	CREATE_NETTING__MSG_TYPE : mml:string
+		n102=102
+		n203=203
+		NULL=NULL
+	CREATE_NETTING__OPERATION_CODE : mml:string
+		CREDIT=CREDIT
+		CHQB=CHQB
+		NULL=NULL
+	NETTING__TRANS_REF__NETTING : mml:string
+		YES=YES
+		NO=NO
+	NETTING__CHARGES_FOR : mml:string
+		BEN=BEN
+		OUR=OUR
+	NETTING_AGREEMENT__OPERATION_CODE : mml:string
+		CREDIT=CREDIT
+		CHQB=CHQB
+}

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>pms-all</artifactId>
+    <groupId>com.odcgroup.ocs.cbi</groupId>
+    <version>2015.8.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>custo-pms-packager</artifactId>
+  <packaging>component</packaging>
+
+    <!--  All projects to package -->
+    <dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>pms-models-gen</artifactId>
+			<version>${project.version}</version>
+			<type>ds-generated</type>
+		</dependency>
+    </dependencies>
+
+    <!--  How to package them -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.odcgroup.maven.plugin</groupId>
+                <artifactId>maven-component-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <modules>
+                        <modelsGenModule>
+							<artifactId>pms-models-gen</artifactId>
+						</modelsGenModule>
+					</modules>
+                </configuration>
+            </plugin>
+
+			<plugin>
+                <groupId>com.odcgroup.maven.plugin</groupId>
+                <artifactId>maven-repository-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate</id>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                        <configuration>
+							<repositoryProperties>
+								<property>
+									<name>repository.type</name>
+									<value>custo</value>
+								</property>
+								<property>
+									<name>repository.name</name>
+									<value>pms-${buildNumber}</value>
+								</property>
+								<property>
+									<name>repository.version</name>
+									<value>${odp.production.version}</value>
+								</property>
+								<property>
+									<name>repository.build</name>
+									<value>${buildNumber}</value>
+								</property>
+								<property>
+									<name>repository.package.list</name>
+									<value>pms-${buildNumber}</value>
+								</property>
+							</repositoryProperties>
+							<artifactsDependencyScope>test</artifactsDependencyScope>
+							<originalPomVersion>${project.version}</originalPomVersion>
+							<finalPomVersion>${odp.production.version}</finalPomVersion>
+							<repoFilename>${project.build.directory}/CUSTO-OCS${odp.production.version}-pms.zip</repoFilename>
+                            <addPluginManagementArtifacts>false</addPluginManagementArtifacts>
+							<addDependentTransitiveArtifacts>false</addDependentTransitiveArtifacts>
+                            <additionalArtifacts/>
+							<overriddenArtifacts/>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+		</plugins>
+    </build>
+
+</project>

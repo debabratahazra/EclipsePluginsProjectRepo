@@ -1,0 +1,122 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = Queries
+	containment = container
+	domainEntity = "AlertDef:AlertDefAll"
+	bean-define = DSBean.AlertDef.AlertDefAll
+	bean-name = AlertDefAll
+	id = AlertQueries_ycG60
+	tid = 547499140615078
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- TabbedPane ---
+			id = dG2Z_
+			indexOfSelectedChild = 2
+		{
+			--- Tab ---
+				labels en = "My Queries", de = "Meine Abfragen", fr = "Mes requêtes"
+				id = tab_dA8_8
+				isWidgetVisible = false
+				tid = 547524688903757
+			{
+				Event OnClick (setTabActive) Event OnClick (submit) S
+				{
+					method = post
+					call-URI = "<pageflow:continuation/>"
+					target = self
+					flow-action = changeTab ud
+					only-changed = false
+					prevalidate = false
+					modal = false
+					Snippet FilterSet
+					id = fs_4dk
+					level = 2
+					targetDataset = "AAADSList:ListList"
+					{
+						Snippet Filter
+						attribute = userCode
+						filterValue = "$CURRENT_USER_CODE"
+						operator = EQUAL
+					}
+				}
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/administration/list/queries/MyQueries.module
+			}
+			--- Tab ---
+				labels en = "Public Queries", de = "Öffentliche Abfragen", fr = "Requêtes publique"
+				id = tab_O5BT8
+				isWidgetVisible = false
+				tid = 547524690836405
+			{
+				Event OnClick (setTabActive) Event OnClick (submit) S
+				{
+					method = post
+					call-URI = "<pageflow:continuation/>"
+					target = self
+					flow-action = changeTab ud
+					only-changed = false
+					prevalidate = false
+					modal = false
+					Snippet FilterSet
+					id = fs_2YH
+					level = 2
+					targetDataset = "AAADSList:ListList"
+					{
+						Snippet Filter
+						attribute = userCode
+						operator = IS_NULL
+					}
+				}
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/administration/list/queries/PublicQueries.module
+			}
+			--- Tab ---
+				labels en = "Pre-Defined Queries"
+				id = tab_t_5a_
+				isWidgetSelected = true
+				tid = 547524692788329
+			{
+				Event OnClick (submit) S
+				{
+					method = post
+					call-URI = "<pageflow:continuation/>"
+					target = self
+					flow-action = selectPredefinedQueries ud
+					only-changed = false
+					prevalidate = false
+					modal = false
+				}
+				--- Conditional ---
+					indexOfSelectedChild = 1
+				{
+					--- ConditionalBody ---
+						javaCode = "\"portfolio\".equals(<bean:get-property bean=\"AlertDefAll\" property=\"entity.sqlnameC\"/>)"
+						technicalName = "Pre-Defined Queries on Portfolios"
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Include ---
+							includeSrc = "" !
+							resource:///Default/module/aaa/administration/alerts/view/AlertPredefinedPortfolioQueriesAll.module
+					}
+					--- ConditionalBody ---
+						javaCode = "\"third_party\".equals(<bean:get-property bean=\"AlertDefAll\" property=\"entity.sqlnameC\"/>)"
+						technicalName = "Pre-Defined Queries on Client"
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Include ---
+							includeSrc = "" !
+							resource:///Default/module/aaa/administration/alerts/view/AlertPredefinedClientQueriesAll.module
+					}
+				}
+			}
+		}
+	}
+}

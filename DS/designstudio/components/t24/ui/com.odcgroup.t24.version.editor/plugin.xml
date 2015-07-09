@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	
+	<!-- Keep same Version ID as XText Editor ID  -->
+	<extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.odcgroup.t24.version.editor.ui.VersionMultiPageEditor"
+            contributorClass="com.odcgroup.t24.version.editor.ui.VersionMultiPageEditorContributor"
+            default="true"
+            extensions="version"
+            icon="icons/screen.png"
+            id="com.odcgroup.t24.version.VersionDSL"
+            name="Screen Form Editor">
+      </editor>
+   </extension>
+   <!-- extension
+         point="com.odcgroup.workbench.core.model">
+      <model
+            name="version">
+      </model>
+   </extension -->
+   
+   
+    <extension
+       point="com.odcgroup.translation.collector">
+    <collectorProvider
+          class="com.odcgroup.t24.version.editor.translation.VersionTranslationCollectorProvider"
+          displayName="Version"
+          fileExtensions="version"
+          id="com.odcgroup.t24.version.translation.VersionTranslationCollectorProvider">
+    </collectorProvider>
+ </extension>
+
+	<extension
+		point="com.odcgroup.translation.viewer.command">
+		<provider
+			id="com.odcgroup.t24.version.editor.translation.tablecommandprovider"
+			name="Table Commands Provider for the Version Designer"
+			class="com.odcgroup.t24.version.editor.translation.command.VersionTranslationCommandProvider"
+			natureId="org.eclipse.jdt.core.javanature"
+			priority="2">
+			<input type="com.odcgroup.t24.version.versionDSL.Version"/>
+			<input type="com.odcgroup.t24.version.versionDSL.Field"/>
+		</provider>
+	</extension>  
+  
+  	<extension
+		point="org.eclipse.ui.commands">
+      	<command 
+        	defaultHandler="com.odcgroup.t24.version.editor.translation.command.VersionUpdateTranslationHandler"
+            id="com.odcgroup.t24.version.editor.translation.update"
+            name="Change Translation">
+         	<commandParameter id="text" name="text" optional="false"/>
+		</command>
+		<command
+            defaultHandler="com.odcgroup.t24.version.editor.translation.command.VersionRemoveTranslationHandler"
+            id="com.odcgroup.t24.version.editor.translation.remove"
+            name="Remove Translation">
+		</command>
+	</extension> 
+	
+   <extension
+      point="org.eclipse.ui.bindings">
+    <key sequence="M1+M2+F"
+      contextId="com.odcgroup.t24.version.editor.ui.EmbeddedXtextEditor.context"
+      commandId="org.eclipse.xtext.ui.FormatAction"
+      schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+    <key sequence="M1+7"
+      contextId="com.odcgroup.t24.version.editor.ui.EmbeddedXtextEditor.context"
+      commandId="org.eclipse.xtext.ui.ToggleCommentAction"
+      schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+    <key sequence="M1+/"
+      contextId="com.odcgroup.t24.version.editor.ui.EmbeddedXtextEditor.context"
+      commandId="org.eclipse.xtext.ui.ToggleCommentAction"
+      schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+    <key sequence="M1+M2+C"
+      contextId="com.odcgroup.t24.version.editor.ui.EmbeddedXtextEditor.context"
+      commandId="org.eclipse.xtext.ui.ToggleCommentAction"
+      schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"/>
+   </extension>
+   
+   <extension
+       point="org.eclipse.ui.contexts">
+    <context
+          id="com.odcgroup.t24.version.editor.ui.EmbeddedXtextEditor.context"
+          name="Embedded Xtext Editor"
+          parentId="org.eclipse.ui.contexts.window">
+    </context>
+</extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <actionProvider
+            class="com.odcgroup.t24.version.newscreen.ui.NewScreenActionProvider"
+            id="com.odcgroup.workbench.ui.navigator.action.screen">
+         <enablement>
+            <and>
+               <adapt
+                     type="com.odcgroup.workbench.core.IOfsModelPackage">
+               </adapt>
+               <test
+                     property="com.odcgroup.workbench.core.modelType"
+                     value="version">
+               </test>
+            </and>
+         </enablement>
+      </actionProvider>
+      <actionProvider
+            class="com.odcgroup.t24.version.editor.ui.providers.OpenActionProvider"
+            id="com.odcgroup.workbench.ui.navigator.action.version"
+            overrides="com.odcgroup.workbench.ui.navigator.action.open"
+            priority="high">
+         <enablement>
+            <and>
+               <adapt
+                     type="com.odcgroup.workbench.core.IOfsModelResource">
+               </adapt>
+               <test
+                     property="com.odcgroup.workbench.core.modelType"
+                     value="version">
+               </test>
+            </and>
+         </enablement>
+      </actionProvider>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="com.odcgroup.t24.version.newscreen.ui.CreateNewScreenCommand"
+            id="com.odcgroup.t24.version.newscreen.ui.command"
+            name="Create New Screen">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="com.odcgroup.t24.version.newscreen.ui.command"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="CTRL+SHIFT+V">
+      </key>
+   </extension>
+<extension
+       point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension
+          targetID="com.odcgroup.workbench.ui.perspectives.ofs">
+       <newWizardShortcut
+             id="com.odcgroup.t24.workbench.ui.newScreenWizard">
+       </newWizardShortcut>
+    </perspectiveExtension>
+ </extension>
+<extension
+       point="org.eclipse.ui.newWizards">
+    <wizard
+          category="com.odcgroup.workbench"
+          class="com.odcgroup.t24.version.newscreen.ui.NewScreenProjectWizard"
+          finalPerspective="com.odcgroup.workbench.ui.perspectives.ofs"
+          icon="icons/screen.png"
+          id="com.odcgroup.t24.workbench.ui.newScreenWizard"
+          name="New Screen..."
+          preferredPerspectives="com.odcgroup.workbench.ui.perspectives.ofs">
+    </wizard>
+  </extension>
+</plugin>

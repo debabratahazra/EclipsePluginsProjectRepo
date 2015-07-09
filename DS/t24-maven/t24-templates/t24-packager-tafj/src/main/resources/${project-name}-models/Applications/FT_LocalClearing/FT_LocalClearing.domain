@@ -1,0 +1,1189 @@
+# UTF-8
+# UTF-8
+/* Local clearing component */
+Domain FT_LocalClearing
+	@t24:i (module=FT)
+	@java:Package (value=com.temenos.t24.datamodel.ft.ft_localclearing)
+namespace "http://www.temenos.com/t24/FT_LocalClearing"
+metamodelVersion 1.30.6
+Classes {
+	AC_INWARD_ENTRY_XREF
+		@t24:i (t24Name=AC.INWARD.ENTRY.XREF, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 30 characters may be entered. */
+		AC_REF_NO -> FT_LocalClearing:AC_INWARD_ENTRY_XREF PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=0.0, core=true, businessType=A, t24Name=AC.REF.NO)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 35 characters may be entered. */
+		ENTRY_ID : T24BusinessTypes:A
+			@i18n:Label (en="Entry Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=ENTRY.ID)
+		PURGE_DATE : mml:Integer
+			@i18n:Label (en="Purge Date")
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, core=false, t24Name=PURGE.DATE, genOperation="@ID>FT.TAPE.HIST>PURGE.DATE")
+		FILE_NAME_NO : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, core=false, t24Name=FILE.NAME.NO, genOperation="@ID")
+		FILE_NAME -> FT_Clearing:AC_ENTRY_PARAM
+			@i18n:Label (en="File Name")
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, core=false, t24Name=FILE.NAME, genOperation="@ID[\".\",1,1]")
+		SEQ_NO : mml:Integer
+			@i18n:Label (en="Sequence No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, core=false, t24Name=SEQ.NO, genOperation="@ID[\".\",2,1]")
+	}
+	/* Contains the BGC BLOCK CODE and WENST ADDRESSEN flag for BGC accounts. */
+	ACCOUNT_BGC_INFO
+		@t24:i (t24Name=ACCOUNT.BGC.INFO, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Specifies the ACCOUNT for which the BGC parameter information applies.
+Validation Rules
+a.    Standard account format.
+Must be a valid T24 account, with a category defined on account class as a BGC account. */
+		ACCOUNT_NUMBER -> FT_LocalClearing:ACCOUNT_BGC_INFO PK required
+			@i18n:Label (en="Account Number")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=ACC, t24Name=ACCOUNT.NUMBER)
+		/* Contains a two digit BGC block code.
+Validation Rules
+a.    2 digits.
+Required input must be on the file BGC.BLOCK.CODE. */
+		BLOCK_CODE -> FT_LocalClearing:BGC_BLOCK_CODE required
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, t24Name=BLOCK.CODE)
+		/* Is a counterparty required for this account when sending out funds via the BGC.
+This is sent out on the BGC TAPE as the WENST ADDRESSEN flag.
+Validation Rules
+YES or NO.
+YES or NO, defaults to NO. */
+		CPARTY_REQUIRED : FT_LocalClearing:ACCOUNT_BGC_INFO__CPARTY_REQUIRED
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=CPARTY.REQUIRED)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=3.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=4.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue FT_LocalClearing:ACCOUNT_BGC_INFO__INPUTTER *
+		DATE_TIME -> byValue FT_LocalClearing:ACCOUNT_BGC_INFO__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=7.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=8.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=10.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=11.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ACCOUNT_BGC_INFO__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=5.0, core=true, t24Name=INPUTTER)
+	}
+	ACCOUNT_BGC_INFO__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=6.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application contains details of bank sort codes used in the local clearing system.
+The length and type of the bank sort codes are checked against the input defined on the FT.BC.PARAMETER file. The maximum and minimum length allowed are defined in field SORT.CODE.LEN and the character type is defined in field SORT.CODE.TYPE.
+All sort codes should be loaded, as any sort code entered in the system will be verified against this file.
+Information concerning the bank using the sort code can be specified, as can a link to the CUSTOMER file. */
+	BC_SORT_CODE
+		@t24:i (t24Name=BC.SORT.CODE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Sort code of the financial institution in the local clearing system.
+For more details refer to the helptext for FT.BC.PARAMETER.
+Validation Rules
+Up to 20 characters are allowed.  The actual maximum and minimum number of characters allowed are defined on the FT.BC.PARAMETER file in field SORT.CODE.LEN and the type of characters is defined in SORT.CODE.TYPE.  (Mandatory input). */
+		BC_SORT_CODE -> FT_LocalClearing:BC_SORT_CODE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=SORT.CODE, t24Name=BC.SORT.CODE)
+		/* Name of the financial institution.
+This field will be used as the enrichment of the sort code when input in the system.
+Validation Rules
+2-35 alphanumeric characters. (Mandatory input). */
+		NAME : T24BusinessTypes:A required
+			@i18n:Label (en=Name)
+			@i18n:Tooltip (en="Indicates the Name ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=NAME)
+		/* Address and/or post code of the financial institution.
+Validation Rules
+3-35 alphanumeric characters. (Optional input). */
+		POST_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Post Code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=POST.CODE)
+		TELEPHONE_NO -> byValue FT_LocalClearing:BC_SORT_CODE__TELEPHONE_NO *
+		SORT_CODE1 -> byValue FT_LocalClearing:BC_SORT_CODE__SORT_CODE1 *
+		/* This field contains a code that points to the EXPOSURE.CONDITION file record that defines the exposure ladder rules for the sort code in view.
+Validation Rules
+Optional input.
+If entered must be a valid EXPOSURE.CONDITIONS record. */
+		EXP_KEY -> AC_Config:EXPOSURE_CONDITIONS
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, businessType=A, t24Name=EXP.KEY)
+		/* Identifies for the TELLER, FUNDS TRANSFER and DATA.CAPTURE Application, the Default Value Date which will be assigned to all transactions where this Transaction code has been defined. This Default Value Date can always be overridden by entering the Value Date directly at transaction level.
+If Y, or N(O) are entered the inputs (a) to (f) are not allowed.
+(a), (bb), (c) specify the number of calendar or working days to be added/subtracted to/from the Run Date in order to obtain the Default Value Date as follows:
+(a) + If days are to be added to the Run Date. The '+' sign should normally be used for credit Entries. - If days are to be subtracted from the Run Date. The '-' sign should normally be used for Debit entries.
+(bb) 01-99Indicates the number of days to be added or subtracted.
+(c) C If (bb) are calendar days, W If (bb) are working days.
+If it is necessary to add/subtract any other days to those specified in (bb) before obtaining the Default Value Date then (d), (ee), (f) are used as follows:
+(d) As for (a) previously.
+(ee) As for (bb) previously.
+(f) C If ee are calendar days. W If ee are working days.
+It must be noted that the day type ('C' or 'W') can only be used once in an equation.
+Note: It is important to realise that the conditions defined in this field are only Applicable for the applications named above. All other Applications have their Value Date conditions defined by their own tables.
+This field allows a Default Value Date to be specified for a TELLER , FUNDS.TRANSFER and DATA.CAPTURE transaction either, equal to the Run Date, or the Run Date plus or minus a number of working or calendar days. This prevents the operator from having to key the Value Date on transactions repeatedly, where a default can be applied. It can be overridden at Transaction level when required. For the DATA CAPTURE application field only this default is also used for the exposure date as well as the value date.
+Example: +03W will mean that the default value date is 3 working days forward from the Run Date.
++01C + 02W will mean that the default value date is 1 calendar day + 2 working days forward from the Run date.
+Validation Rules
+
+Y If the Default Value Date is to be the Run Date. or         N(O) If a Default Value Date is not to be generated         automatically. Value Date must then be input manually         when Transaction Code is used. or (a) (bb) (c) (d) (ee)         (f) As defined in the example below
+Run Date is the date of the data being processed which         may not always be today's date. If different, the Run         Date is displayed next to the User ID on the screen.
+The same day type ('C' or 'W') can only be used once in         an equation ie. +01C + 02C will not be accepted.
+When both working and calendar days are entered, the sign         must be the same i.e. +01C - 02W will not be accepted.
+It is not necessary to enter the '+-' signs. If omitted         it will always default to '+'
+This default overtakes any previous default set up i.e.         takes presidence over the transaction code default. */
+		VALUE_DATE_PRD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=6.0, core=true, t24Name=VALUE.DATE.PRD)
+		/* This field will specify the suspense account category to be used in posting the cheque proceeds of those cheques that have been processed through the cheque collection system.
+Validation Rules
+
+Optional Input
+If entered must be a valid category code between the         range 10000-19999 */
+		CHQS_COLL_SUSP -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=7.0, core=true, t24Name=CHQS.COLL.SUSP, mask="R##-###")
+		/* This field will specify the suspense account category to be used in posting the cheque proceeds for those cheques that have been returned within the processing of the cheque collection system.
+Validation Rules
+
+Optional Input
+If entered must be a valid category code between the         range 10000-19999 */
+		CHQS_RET_SUSP -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=8.0, core=true, t24Name=CHQS.RET.SUSP, mask="R##-###")
+		/* Similar to field VALUE.DATE.PRD for accepting default exposure date.
+Validation Rules
+
+Standard T24 alphanumeric field.
+A maximum of 8 characters may be entered. */
+		EXP_DATE_PRD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=9.0, core=true, t24Name=EXP.DATE.PRD)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.6)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.5)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.4)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.3)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.2)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.1)
+		/* Defines the Customer number within the T24 system of the financial institution.
+This field allows a sort code to be linked to a T24 customer.
+Validation Rules
+1-6  numeric customer number                or 3-10 alphanumeric customer mnemonic (Optional input)
+Must exist on the CUSTOMER file. */
+		CUSTOMER_NO -> ST_Customer:CUSTOMER
+			@i18n:Label (en="Customer No")
+			@i18n:Tooltip (en="Identifies the Customer for the transaction.")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=17.0, core=true, businessType=CUS, t24Name=CUSTOMER.NO)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue FT_LocalClearing:BC_SORT_CODE__INPUTTER *
+		DATE_TIME -> byValue FT_LocalClearing:BC_SORT_CODE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=23.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=24.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=25.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=26.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	BC_SORT_CODE__TELEPHONE_NO
+	{
+		/* Telephone number of the financial institution.
+Validation Rules
+1-16 alphanumeric characters. (Optional input) */
+		TELEPHONE_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=TELEPHONE.NO)
+	}
+	BC_SORT_CODE__SORT_CODE1
+	{
+		/* Alternative sort code number.
+Validation Rules
+This may be used as alternative key when referring to the sort code. */
+		SORT_CODE1 : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, core=true, t24Name=SORT.CODE1)
+	}
+	BC_SORT_CODE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=INPUTTER)
+	}
+	BC_SORT_CODE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=21.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	BC_SORT_CODE_XREF
+		@t24:i (t24Name=BC.SORT.CODE.XREF, level=I, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Validation Rules
+A maximum of 20 characters may be entered. */
+		OTHER_SORT_CODE -> FT_LocalClearing:BC_SORT_CODE_XREF PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=ANY, t24Name=OTHER.SORT.CODE)
+		/* Validation Rules
+A maximum of 20 characters may be entered.
+Must be the key to a valid entry on the BC.SORT.CODE file. */
+		MAIN_SORT_CODE -> FT_LocalClearing:BC_SORT_CODE
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=1.0, core=true, t24Name=MAIN.SORT.CODE)
+	}
+	/* Used to provide enrichments for the 2-digit block code used by the BGC. */
+	BGC_BLOCK_CODE
+		@t24:i (t24Name=BGC.BLOCK.CODE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Specifies the actual block codes used by the BGC.
+
+
+Validation Rules
+a.    2 numeric characters. */
+		BLOCK_CODE -> FT_LocalClearing:BGC_BLOCK_CODE PK required
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=0.0, core=true, t24Name=BLOCK.CODE)
+		DESCRIPTION -> byValue FT_LocalClearing:BGC_BLOCK_CODE__DESCRIPTION *
+		SHORT_NAME -> byValue FT_LocalClearing:BGC_BLOCK_CODE__SHORT_NAME *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=3.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=4.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue FT_LocalClearing:BGC_BLOCK_CODE__INPUTTER *
+		DATE_TIME -> byValue FT_LocalClearing:BGC_BLOCK_CODE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=7.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=8.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=10.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=11.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	BGC_BLOCK_CODE__DESCRIPTION
+	{
+		/* Contains a full description of the BGC block code.
+
+
+Validation Rules
+a. 3-35 alphanumeric characters.
+Required input. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	BGC_BLOCK_CODE__SHORT_NAME
+	{
+		/* Contains a brief description of the BGC code.
+Validation Rules
+3-15 alphanumeric characters.
+Required input. */
+		SHORT_NAME : T24BusinessTypes:AA required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.NAME)
+	}
+	BGC_BLOCK_CODE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=5.0, core=true, t24Name=INPUTTER)
+	}
+	BGC_BLOCK_CODE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=6.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Defines which units are present for the BGC transaction code, and positions and lengths of associated narratives when processing the incoming tape. */
+	BGC_FT_TRANSACTION
+		@t24:i (t24Name=BGC.FT.TRANSACTION, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* This ID equals the transaction code sent by the BGC.
+
+
+Validation Rules
+a.    2 numeric characters. */
+		BGC_TRANSACTION -> FT_LocalClearing:BGC_FT_TRANSACTION PK required
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=0.0, core=true, t24Name=BGC.TRANSACTION)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=1.0, core=true, t24Name=RESERVED.4)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=2.0, core=true, t24Name=RESERVED.3)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=3.0, core=true, t24Name=RESERVED.2)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.1)
+		BGC_NARR_UNIT -> byValue FT_LocalClearing:BGC_FT_TRANSACTION__BGC_NARR_UNIT *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue FT_LocalClearing:BGC_FT_TRANSACTION__INPUTTER *
+		DATE_TIME -> byValue FT_LocalClearing:BGC_FT_TRANSACTION__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=13.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=15.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=16.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	BGC_FT_TRANSACTION__BGC_NARR_UNIT
+	{
+		/* Contains BGC unit codes.
+Contains all the unit codes for a particular BGC transaction type.
+Validation Rules
+Multivalued field 2 numeric characters. Associated with fields BGC.NARR.START and BGC.NARR.LENGTH.
+Optional input.
+Must be a valid record id on BGC.UNIT.CODE. */
+		BGC_NARR_UNIT -> FT_LocalClearing:BGC_UNIT_CODE
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=5.0, core=true, t24Name=BGC.NARR.UNIT)
+		/* Contains the starting position within the 40-character BGC block of any payment detail narratives which may have been sent via the BGC.
+Contains all the unit codes for a particular BGC transaction type.
+Validation Rules
+Multivalued field 2 numeric characters. Associated with fields BGC.NARR.UNIT and BGC.NARR.LENGTH.
+Required if corresponding BGC.UNIT.CODE is present. */
+		BGC_NARR_START : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=6.0, core=true, t24Name=BGC.NARR.START)
+		/* Contains the length of the payment narrative within the 40-character BGC block.
+Contains all the unit codes for a particular BGC transaction type.
+Validation Rules
+Multivalued field up to 2 numeric characters. Associated with fields BGC.NARR.UNIT and BGC.NARR.START.
+Required if corresponding BGC.NARR.START is present. */
+		BGC_NARR_LENGTH : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=7.0, core=true, t24Name=BGC.NARR.LENGTH)
+	}
+	BGC_FT_TRANSACTION__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=INPUTTER)
+	}
+	BGC_FT_TRANSACTION__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=11.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* A work file holding a record for each customer whose static details or account details have changed since the last outgoing tape was produced. This file is updated by the applications ACCOUNT, CUSTOMER and ACCOUNT.BGC.INFO. */
+	BGC_STATIC
+		@t24:i (t24Name=BGC.STATIC, level=C, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Id of the customer whose static details have changed.
+Validation Rules
+10 numeric characters.
+Must be valid ID on the customer file. */
+		CUSTOMER_ID -> FT_LocalClearing:BGC_STATIC PK required
+			@i18n:Label (en="Customer Id")
+			@i18n:Tooltip (en="Identifies the Customer for the transaction.")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=CUS, t24Name=CUSTOMER.ID)
+		/* Identifies the old country of residence of the customer.
+Validation Rules
+2 type SSS(uppercase alpha) Country code characters. Externally updated only. */
+		COUNTRY_CODE : mml:Integer
+			@i18n:Label (en=Country)
+			@t24:i (align=R, inputBehaviour=E, maxLength=2, sysNumber=1.0, core=true, t24Name=COUNTRY.CODE)
+		/* This field is the old SHORT.NAME from the customer file.
+Validation Rules
+Up to 35 type SS (uppercase alpha or numeric, first character alpha) characters. Externally updated only. */
+		CUSTOMER_NAME : mml:Integer
+			@i18n:Label (en="Customer Name")
+			@t24:i (align=R, inputBehaviour=E, maxLength=35, sysNumber=2.0, core=true, t24Name=CUSTOMER.NAME)
+		/* This field contains the old street from the customer record.
+Validation Rules
+Up to 35 type S (uppercase alpha or numeric) characters. Externally updated only. */
+		ADDRESS : mml:Integer
+			@i18n:Label (en=Address)
+			@i18n:Tooltip (en="Define the address")
+			@t24:i (align=R, inputBehaviour=E, maxLength=35, sysNumber=3.0, core=true, t24Name=ADDRESS)
+		/* This field is the old TOWN and COUNTRY field from the customer record.
+Validation Rules
+Up to 35 type s (uppercase alpha or numeric characters) Externally updated only. */
+		POSTCODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=35, sysNumber=4.0, core=true, t24Name=POSTCODE)
+		/* Contains the second part of the TOWN COUNTRY field from the customer record.
+Validation Rules
+Up to 35 type S (uppercase alpha or numeric) characters. Externally updated only. */
+		CITY : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=35, sysNumber=5.0, core=true, t24Name=CITY)
+		ACCOUNT_NUMBER -> byValue FT_LocalClearing:BGC_STATIC__ACCOUNT_NUMBER *
+	}
+	BGC_STATIC__ACCOUNT_NUMBER
+	{
+		/* Contains account numbers of the customer whose static details have changed.
+Validation Rules
+Multivalued field up to 16 numeric characters.  Associated with field range UPDATE.CODE to BLOCK.CODE.  Externally updated only. */
+		ACCOUNT_NUMBER : mml:Integer required
+			@t24:i (align=R, inputBehaviour=E, maxLength=16, sysNumber=6.0, core=true, t24Name=ACCOUNT.NUMBER)
+		/* Contains an update date specify what changes have happened to the account.
+This code is in the range 1 to 4:
+1  indicates this is a new account.           2  indicates modifications to an existing account.           3  indicates an account closure.           4  indicates the reopening of an old account.
+Validation Rules
+Multivalued field up to 1 numeric characters.  Associated with field range ACCOUNT.NUMBER to BLOCK.CODE.  Externally updated only. */
+		UPDATE_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=1, sysNumber=7.0, core=true, t24Name=UPDATE.CODE)
+		/* Contains the branch number from the corresponding account record.
+Validation Rules
+Multivalued field up to 5 numeric characters.  Associated with field range ACCOUNT.NUMBER to BLOCK.CODE.  Externally updated only. */
+		BRANCH_NUMBER : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=5, sysNumber=8.0, core=true, t24Name=BRANCH.NUMBER)
+		/* Contains posting restriction from the corresponding old account record.
+Validation Rules
+1 or 2 numeric character Posting Restriction code.  Associated with field range ACCOUNT.NUMBER to BLOCK.CODE.  Externally updated only. */
+		POSTING_RESTRICT : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=2, sysNumber=9.0, core=true, t24Name=POSTING.RESTRICT)
+		/* Contains CPARTY REQUIRED flag from the corresponding old ACCOUNT BGC INFO record.
+Validation Rules
+YES or NO.  Associated with field range ACCOUNT.NUMBER to BLOCK.CODE.  Externally updated only. */
+		WENST_ADRESSEN : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=1, sysNumber=10.0, core=true, t24Name=WENST.ADRESSEN)
+		/* Contains CPARTY REQUIRED flag from the corresponding old ACCOUNT BGC INFO record.
+Validation Rules
+Up to 2 numeric characters. Associated with field range ACCOUNT.NUMBER to WENST.ADRESSEN. Externally updated only.
+2-digit block code as defined on BGC.BLOCK.CODE file. */
+		BLOCK_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=2, sysNumber=11.0, core=true, t24Name=BLOCK.CODE)
+	}
+	/* Used to hold the parameterised positions and lengths of payment details for each of the "200" type block codes on the BGC incoming tapes. */
+	BGC_UNIT_CODE
+		@t24:i (t24Name=BGC.UNIT.CODE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Specifies the last two digits of the "200" block codes used by the BGC.
+Validation Rules
+a.    2 numeric characters. */
+		UNIT_CODE -> FT_LocalClearing:BGC_UNIT_CODE PK required
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=0.0, core=true, t24Name=UNIT.CODE)
+		DESCRIPTION -> byValue FT_LocalClearing:BGC_UNIT_CODE__DESCRIPTION *
+		SHORT_NAME -> byValue FT_LocalClearing:BGC_UNIT_CODE__SHORT_NAME *
+		/* Contains the starting position of the narrative payment details within the 40-character BGC "200" blocks.
+Validation Rules
+Up to 2 numeric characters.
+Required input. */
+		BGC_NARR_START : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=BGC.NARR.START)
+		/* Contains the character length of the narrative payment details within the 40-character BGC "200" blocks.
+Validation Rules
+Up to 2 numeric characters.
+Required input. */
+		BGC_NARR_LENGTH : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=4.0, core=true, t24Name=BGC.NARR.LENGTH)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=5.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=6.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue FT_LocalClearing:BGC_UNIT_CODE__INPUTTER *
+		DATE_TIME -> byValue FT_LocalClearing:BGC_UNIT_CODE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=9.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=10.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=11.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=12.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=13.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	BGC_UNIT_CODE__DESCRIPTION
+	{
+		/* Contains a full description of the BGC block code.
+Validation Rules
+a. 3-35 alphanumeric characters.
+Required input. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	BGC_UNIT_CODE__SHORT_NAME
+	{
+		/* Contains a brief description of the BGC unit code.
+Validation Rules
+3-15 alphanumeric characters.
+Required input. */
+		SHORT_NAME : T24BusinessTypes:AA required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.NAME)
+	}
+	BGC_UNIT_CODE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=7.0, core=true, t24Name=INPUTTER)
+	}
+	BGC_UNIT_CODE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=8.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Program to view the customer accounts together with update codes and dates for the BGC. */
+	CUSTOMER_BGC_ACCOUNT
+		@t24:i (t24Name=CUSTOMER.BGC.ACCOUNT, level=C, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Refers to the customer record whose static updates are to be reported to the BGC.
+
+
+Validation Rules
+10 alphanumeric characters.
+Must be a valid ID to the customer record. */
+		CUSTOMER_ID -> FT_LocalClearing:CUSTOMER_BGC_ACCOUNT PK required
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, t24Name="CUSTOMER ID")
+		ACCOUNT_ID -> byValue FT_LocalClearing:CUSTOMER_BGC_ACCOUNT__ACCOUNT_ID *
+		UPDATE_CODE -> byValue FT_LocalClearing:CUSTOMER_BGC_ACCOUNT__UPDATE_CODE *
+	}
+	CUSTOMER_BGC_ACCOUNT__ACCOUNT_ID
+	{
+		/* Contains account ids of the customer whose updates may be processed via the BGC.
+Externally input only.
+Validation Rules
+16 numeric characters.  Multivalued field.
+Must be a valid account id of a category specified as BGC. */
+		ACCOUNT_ID -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=1.0, core=true, t24Name=ACCOUNT.ID)
+	}
+	CUSTOMER_BGC_ACCOUNT__UPDATE_CODE
+	{
+		UPDATE_CODE -> byValue FT_LocalClearing:CUSTOMER_BGC_ACCOUNT__UPDATE_CODE__UPDATE_CODE *
+	}
+	CUSTOMER_BGC_ACCOUNT__UPDATE_CODE__UPDATE_CODE
+	{
+		/* Contains the update code for the processing which took place on the associated date.
+1 indicates new account.           2 indicates details updated.           3 indicates account closure.           4 indicates account reopened.
+Validation Rules
+1 numeric character.  Associated multi sub valued fields, associated with DATE.  Updated externally only. */
+		UPDATE_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=1, sysNumber=2.0, core=true, t24Name=UPDATE.CODE)
+		/* Contains the date from the BGC tape that the changes were recorded.
+Validation Rules
+Multi sub valued field associated with field UPDATE.CODE.  Updated externally only.
+Required input. */
+		DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=3.0, core=true, t24Name=DATE, mask="RDD DD  DD")
+	}
+	FT_BACS_TAPE_DATA
+		@t24:i (t24Name=FT.BACS.TAPE.DATA, level=C, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 22 characters may be entered. */
+		BACS_TAPE_DATA_ID -> FT_LocalClearing:FT_BACS_TAPE_DATA PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=22, sysNumber=0.0, core=true, businessType=A, t24Name=BACS.TAPE.DATA.ID)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 14 characters may be entered.
+This is a NOINPUT, no copy field. */
+		FT_TRAN_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=14, sysNumber=1.0, core=true, t24Name=FT.TRAN.ID)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT, no copy field. */
+		INPUT_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Input date")
+			@t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=2.0, core=true, t24Name=INPUT.DATE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT, no copy field. */
+		PROCESSING_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Processing Date")
+			@t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=3.0, core=true, t24Name=PROCESSING.DATE)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 18 characters may be entered.
+This is a NOINPUT, no copy field. */
+		DEBIT_ACCT_NAME : T24BusinessTypes:A
+			@i18n:Label (en="Debit Account Name")
+			@t24:i (align=L, inputBehaviour=E, maxLength=18, sysNumber=4.0, core=true, t24Name=DEBIT.ACCT.NAME)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 16 characters may be entered.
+This is a NOINPUT, no copy field. */
+		DEBIT_ACCT_NO : T24BusinessTypes:A
+			@i18n:Label (en="Debit Account")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=5.0, core=true, t24Name=DEBIT.ACCT.NO)
+		/* Validation Rules
+A maximum of 18 characters may be entered.
+This is a NOINPUT, no copy field. */
+		DEBIT_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Debit Amount")
+			@t24:i (align=R, inputBehaviour=E, maxLength=18, sysNumber=6.0, core=true, t24Name=DEBIT.AMOUNT, typeModifiers="USD")
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 6 characters may be entered.
+This is a NOINPUT, no copy field. */
+		DEST_SORT_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=6, sysNumber=7.0, core=true, t24Name=DEST.SORT.CODE)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 8 characters may be entered.
+This is a NOINPUT, no copy field. */
+		DEST_ACCT_NO : T24BusinessTypes:A
+			@i18n:Label (en="Destination Acct")
+			@t24:i (align=L, inputBehaviour=E, maxLength=8, sysNumber=8.0, core=true, t24Name=DEST.ACCT.NO)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 2 characters may be entered.
+This is a NOINPUT, no copy field. */
+		TRANS_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Trans Code")
+			@i18n:Tooltip (en="Indicates the Transaction Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=2, sysNumber=9.0, core=true, t24Name=TRANS.CODE)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 18 characters may be entered.
+This is a NOINPUT, no copy field. */
+		REFERENCE : T24BusinessTypes:A
+			@i18n:Label (en="Search by Referece")
+			@t24:i (align=L, inputBehaviour=E, maxLength=18, sysNumber=10.0, core=true, t24Name=REFERENCE)
+	}
+	/* This table defines the conditions to be applied for incoming local clearing transactions processed from the delivery system or from a tape interface.
+If there are no conditions present for the local transction type, the FT.TXN.TYPE.CONDITION record for the FT Transaction type will apply.
+Transaction Codes
+The Transaction codes to be used for the generation of the            entries. Both Debit and Credit transaction codes can be defined            for basic entries, debit charges and cheques.
+
+Commission Types
+The default commission types applicable for each local            transaction type. These commission types must first be defined            in the Commission Type table.
+
+Charge Types
+The default charge types applicable for each local transaction            type. These charge types must first be defined in the Charge            Type table.
+
+Maximum Forward and Back Value Date
+The maximum forward and back value dates applicable for each            local transaction type can be specified, and any excess beyond            these value dates will force an override at the transaction            level.
+
+Default Value Dates for Accounting Entries
+The default value date conditions may be held for each local            transaction type. The conditions for both debit and credit            entries are catered for; ie the user can specify for each local            transaction type the value date conditions applicable to the            bank and to the customer.
+
+Production of Advices
+For a given local transaction type, the production of debit and            credit advices can be controlled by default.
+The default conditions defined in this table will only be used by incoming local transactions in the Funds Transfer application, during validation of the transaction, if specific values have not been entered manually, or generated by the tape applications.
+Amendments to this table will only take effect after the user has next signed on to the system. */
+	FT_BC_TXN_CODE
+		@t24:i (t24Name=FT.BC.TXN.CODE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Defines for which FT Transaction Type and local clearing transaction code, the conditions described in the record apply.
+The key to this file is constructed from the combination of the FT Transaction Type , the local clearing type identifier, and the local clearing transaction code, for example debits received from Telekurs for the Bancomat system should be defined as:
+BDBMT870
+where      "BD" is the FT Transaction type for incomimg direct debits
+"BMT" is the identifier of the Bancomat tape transactions
+870 is the transaction code from Bancomat for local currency                ATM withdrawals
+The Funds Transfer system will use the contents of the INWARD.PAY.TYPE field to construct the key to the FT.BC.TXN.CODE file. For the above example the contents would be:
+INWARD.PAY.TYPE   BMT870-LCL
+For local clearing payments the suffix LCL is added. Only the first elements delimited by the "-" will be used.
+The FT.BC.TXN.CODE definitions will only be checked for BI and BD FT transaction types.
+Validation Rules
+3-12 alphanumeric characters.  (Mandatory input)
+The first 2 characters must be defined on the FT.TXN.TYPE.CONDITION table. */
+		CLEARING_TXN_CODE -> FT_LocalClearing:FT_BC_TXN_CODE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=0.0, core=true, businessType=A, t24Name=CLEARING.TXN.CODE)
+		DESCRIPTION -> byValue FT_LocalClearing:FT_BC_TXN_CODE__DESCRIPTION *
+		SHORT_DESC -> byValue FT_LocalClearing:FT_BC_TXN_CODE__SHORT_DESC *
+		/* Defines the Transaction Code to be used on the Credit entry generated by Funds Transfer.
+This field defines the Transaction Code which will be assigned to the credit entry, generated as a result of using this Transaction type.
+The Transaction Code of the entry is used to determine the references and narratives to be printed on statements.  The Debit/Credit indicators within the Transaction Code table are not used to verify this input.
+Validation Rules
+1-3 numeric character Transaction code. (Mandatory input.)
+Must be an existing Credit code on the Transaction table applicable to Funds Transfer.
+Data Capture field on the Transaction table must be blank. */
+		TXN_CODE_CR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Transaction Code Credit")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=TXN.CODE.CR)
+		/* Defines the Transaction Code to be used on the Debit entry generated by Funds Transfer.
+This field defines the Transaction Code which will be assigned to the Debit entry, (generated as a result of using this Transaction type) unless a cheque has been received.
+Where a cheque has been received the Transaction code used will be the one specified in DR.CHEQUE.TXN.CODE.
+The Transaction Code of the entry is used to determine the references and narratives to be printed on statements.
+Validation Rules
+1-3 numeric character Transaction Code. (Mandatory input.)
+Must be an existing Debit code on the Transaction table applicable to Funds Transfer.
+Data Capture (Field 2) on Transaction table must be blank. */
+		TXN_CODE_DR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Transaction Code Debit")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=TXN.CODE.DR)
+		/* This is a NOINPUT, system field. */
+		STO_TXN_CODE_CR : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=5.0, core=true, t24Name=STO.TXN.CODE.CR)
+		/* This is a NOINPUT, system field. */
+		STO_TXN_CODE_DR : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=6.0, core=true, t24Name=STO.TXN.CODE.DR)
+		/* Defines the Transaction code to be used when debiting charges.
+This field defines the Transaction Code which will be assigned to the Charge entry generated by Funds Transfer when charges are to be debited to a separate Account.
+The Transaction Code of the entry is used to determine the references and narratives to be printed on statements.
+Validation Rules
+1-3 numeric character Transaction code.  (Mandatory input.)
+Must be an existing Debit code on the Transaction table.
+Data Capture field on Transaction table must be blank. */
+		DR_CHARGE_TXN_CODE -> ST_Config:TRANSACTION required
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, t24Name=DR.CHARGE.TXN.CODE)
+		/* Defines the debit Transaction Code to be assigned when a cheque issued by a customer and drawn on ourselves, has been presented to us for payment by the bank who has negotiated it.
+The identification of a specific Transaction Code for this type of transaction will result in the cheque number input being checked against the Stop Payment file and appearing on the statement.
+The Transaction Code of the entry is used to determine the references and narratives to be printed on statements.
+Validation Rules
+1-3 numeric character Transaction Code.  (Mandatory input.)
+Must be an existing Debit code on the Transaction table.
+Data Capture field on Transaction table must be blank.
+Cheque Indicator field on transaction must be YES. */
+		DR_CHEQUE_TXN_CODE -> ST_Config:TRANSACTION required
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, t24Name=DR.CHEQUE.TXN.CODE)
+		COMM_TYPES -> byValue FT_LocalClearing:FT_BC_TXN_CODE__COMM_TYPES *
+		CHARGE_TYPES -> byValue FT_LocalClearing:FT_BC_TXN_CODE__CHARGE_TYPES *
+		/* Specifies the maximum period of Forward Value/exposure acceptable for this type of transaction without an override being required.
+If Y, N or No is entered the inputs (a) to (f) are not allowed.
+(a), (bb), (c) specify the number of calendar or working days to be added to the Processing Date in order to obtain the Maximum Forward Value Date/Exposure date  as follows:
+(a)   +   If days are to be added to the Run Date.                       Only the '+'  sign will be allowed for this field.
+(bb) 01-99 Indicates the number of days to be added.
+(c)   C   If (bb) are calendar days.              or   W   If (bb) are working days.
+If it is necessary to add any other days to those specified in (bb) before obtaining the Maximum Forward Value Date/Exposure date then (d), (ee), (f) are used as follows:
+(d)     As for (a) previously.            (ee)     As for (bb) previously.             (f)   C If (c) is 'C'              or   W If (c) is 'W'
+Note : Processing Date is the date of the data being processed which may        not always be today's date.  If different, the Processing Date is        displayed next to the User ID on the screen.
+This field allows you to specify a Maximum Forward Value or Exposure Date for this Transaction type being either the Processing Date, or a number of working or calendar days to be added to the Processing Date.  This prevents the operator from inputting a Value Date or an Exposure Date which exceeds an acceptable period for this type of transaction.
+Any Funds Transfer payment input for this Transaction Type with a Forward Value Date greater than that specified in this field must be overridden.
+Example:   A Default Value Date of +03W would be 3 working days forward.
+or    +01W+02C would be 1 working day plus 2 calendar days forward.
+Note : The date specified in this field may not be later than the Forward        Value Maximum as specified in the Dates file.
+Validation Rules
+Y       If the Maximum Forward Value or Exposure Date is to be the         Run Date.  N or NO Where no special maximum is required.  The Forward Value         minimum as specified in the Dates file will apply.  or      (a) (bb) (c) (d) (ee) (f) As defined in the Details.  (Optional input;  Default = None). */
+		FORW_VALUE_MAXIMUM : T24BusinessTypes:A
+			@i18n:Label (en="Forw Value Max")
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=11.0, core=true, t24Name=FORW.VALUE.MAXIMUM)
+		/* Specifies the maximum period of Back Value/Exposure acceptable for this type of transaction without an override being required.
+If Y, N or NO is entered the inputs (a) to (f) are not allowed.
+(a), (bb), (c) specify the number of calendar or working days to be subtracted from the Processing Date in order to obtain the Maximum Back Value Date/Exposure date as follows:
+(a)   -   If days are to be subtracted from the Run Date.                       Only the '-' sign will be allowed for this field.
+(bb) 01-99 Indicates the number of days to be subtracted.
+(c)   C If (bb) are calendar days,                or W If (bb) are working days.
+If it is necessary to subtract any other days to those specified in (bb) before obtaining the Maximum back Value Date/Exposure date then (d), (ee), (f) are used as follows:
+(d) As for (a) previously.            (ee) As for (bb) previously.             (f)   C  If (c) is 'C'              or   W  If (c) is 'W'
+Note : Processing Date is the date of the data being processed which may        not always be today's date.  If different, the Processing Date is        displayed next to the User ID on the screen.
+This field allows you to specify a Maximum back Value or Exposure Date for this Transaction Type being either the Processing Date, or a number of working or calendar days to be subtracted from the Processing Date.  This prevents the operator from inputting a Value Date or an Exposure Date which exceeds an acceptable period for this type of transaction.
+Any Funds Transfer payment input for the Transaction Type with a Back Value date greater than that specified in this field must be overridden.
+Example:   A Default Value Date of -03W would be 3 working days backwards.
+or    -01W -02C would be 1 working day plus 2 calendar days            backwards.
+Note : The date specified in this field may not be earlier than the Back        Value Maximum as specified in the Dates file.
+Validation Rules
+Y       If the Maximum Back Value or Exposure Date is to be the         Processing Date.  N or NO Where no special maximum is required.  The Back Value         minimum as specified in the Dates file will apply.  or      (a) (bb) (c) (d) (ee) (f) As defined below.  (Optional input;  Default = None). */
+		BACK_VALUE_MAXIMUM : T24BusinessTypes:A
+			@i18n:Label (en="Back Value Max")
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=12.0, core=true, t24Name=BACK.VALUE.MAXIMUM)
+		PAYMENT_TYPE -> byValue FT_LocalClearing:FT_BC_TXN_CODE__PAYMENT_TYPE *
+		/* Defines whether a debit advice should be produced for this type of transaction by default.
+If no input is specified in this field, and the Funds Transfer is one of the following Transaction Types; OC, OD, OT, OB, BC , a debit advice will be generated by default.
+Validation Rules
+Y or N  (Optional input) */
+		DR_ADVICE_REQD_Y_N : FT_LocalClearing:FT_BC_TXN_CODE__DR_ADVICE_REQD_Y_N
+			@i18n:Label (en="Dr Advice Reqd Y N")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=17.0, core=true, t24Name=DR.ADVICE.REQD.Y.N)
+		/* Defines whether a credit advice should be produced for this type of transaction by default.
+If no input is specified in this field,  Funds Transfer will not generated a Credit advice.
+Validation Rules
+Y or N.  (Optional input) */
+		CR_ADVICE_REQD_Y_N : FT_LocalClearing:FT_BC_TXN_CODE__CR_ADVICE_REQD_Y_N
+			@i18n:Label (en="Cr Advice Reqd Y/N?")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=18.0, core=true, t24Name=CR.ADVICE.REQD.Y.N)
+		/* This is a NOINPUT, system field. */
+		BULK_TXN_CODE_CR : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=19.0, core=true, t24Name=BULK.TXN.CODE.CR)
+		/* This is a NOINPUT, system field. */
+		BULK_TXN_CODE_DR : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=20.0, core=true, t24Name=BULK.TXN.CODE.DR)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue FT_LocalClearing:FT_BC_TXN_CODE__INPUTTER *
+		DATE_TIME -> byValue FT_LocalClearing:FT_BC_TXN_CODE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=25.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=26.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=27.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=28.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=29.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	FT_BC_TXN_CODE__DESCRIPTION
+	{
+		/* Describes the Local Transaction Type.
+This field provides a Description of the Local Transaction Type.
+This field can be expanded to allow the User to enter the Description of the Transaction Type in various languages.  Each expansion of the field will correspond to a new Language as defined in the Language table, and will indicate to the User the Language in which the Description must be entered.
+Validation Rules
+3-35 type A (alphanumeric) characters.  Multilanguage field.  (Mandatory input). */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	FT_BC_TXN_CODE__SHORT_DESC
+	{
+		/* Describes the Local Transaction Type in an abbreviated format which can be used for reporting where space is limited.
+This field can be expanded to allow the user to enter a Short Description for the Transaction Type code in various languages. Each expansion will correspond to a new Language as defined in the Language Table and will indicate to the User the Language in which this Short Description must be entered.
+Validation Rules
+3-15 type A (alphanumeric) characters.  Multilanguage field.  (Mandatory input.) */
+		SHORT_DESC : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.DESC)
+	}
+	FT_BC_TXN_CODE__COMM_TYPES
+	{
+		/* Defines all the default Commission Types applicable to this Transaction Type.
+This field defines all the default Commission Types applicable to this Transaction Type.
+Unless Commission is waived or specifically input on initiating a Funds Transfer payment then the default Commission Types specified in this field will be applied automatically.
+Validation Rules
+2 type A (alphanumeric) character Commission type.  Multivalue field.  (Optional input.)
+The Commission Type(s) input in this field must exist on the Commission Type table. */
+		COMM_TYPES -> ST_ChargeConfig:FT_COMMISSION_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, businessType=A, t24Name=COMM.TYPES)
+	}
+	FT_BC_TXN_CODE__CHARGE_TYPES
+	{
+		/* Defines all the default Charge Types which are applicable to this Transaction Type.
+The Charge Type(s) input in this field must exist on the Commission Type table.
+This field defines all the default Charge Types applicable to this Transaction Type.
+Unless Charges are waived or specifically input on initiating a Funds Transfer payment then the default Charge Types specified in this field will be applied automatically.
+Validation Rules
+2 type A (alphanumeric) character Charge type.  Multivalue field.  (Optional input.) */
+		CHARGE_TYPES -> ST_ChargeConfig:FT_CHARGE_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, businessType=A, t24Name=CHARGE.TYPES)
+	}
+	FT_BC_TXN_CODE__PAYMENT_TYPE
+	{
+		/* Defines the Type of Payment for which the Value Date conditions defined in the next three fields are applicable.
+If ALL is specified then no other Payment Types may be input.  If either CONV or NOCONV is input, both must be specified, separately as one is not valid without the other.
+Note : This field provides the facility to define whether or not        conversion is involved in the transaction in order to determine if        different Value Date conditions exist:
+ALL    The conditions specified in the next three fields are applicable to        all transactions irrespective of whether the transactions involve        conversion of Currencies or not.
+CONV   The conditions specified in the next three fields are only        applicable to transactions involving conversion of Currencies.
+NOCONV The conditions specified in the next three fields are only        applicable to transactions not involving conversion of currencies.
+Validation Rules
+ALL     = All transactions CONV    = Only transactions involving conversion of currencies NOCONV  = Transactions not involving conversion of currencies.  Associated multivalue field with fields PAYMENT.VALUE, CUSTOMER.FLOAT and SAME.CUSTOMER.FLOAT.  (Optional input.) */
+		PAYMENT_TYPE : FT_LocalClearing:FT_BC_TXN_CODE__PAYMENT_TYPE__PAYMENT_TYPE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=13.0, core=true, t24Name=PAYMENT.TYPE)
+		/* Specifies the default Payment/Transfer Value date applicable to the Payment Type for this type of transaction.
+If 'Y', 'N' or 'No' is entered the inputs (a) to (f) are not allowed.
+(a), (bb), (c) specify the number of calendar or working days to be added to or subtracted from the Processing Date in order to obtain the default Value Date as follows:
+(a)  +/-  If days are to be added to or, subtracted from, the                       Processing Date.
+(bb) 01-99 Indicates the number of days to be added/subtracted.
+(c)   C If (bb) are calendar days,                or W If (bb) are working days.
+If it is necessary to add or subtract any other days to those specified in (bb) before obtaining the default Payment Transfer Value Date then (d), (ee), (f) are used as follows:
+(d)     As for (a) previously.            (ee)     As for (bb) previously.             (f)   C If (c) is 'C'              or   W If (c) is 'W'
+Note : Processing Date is the date of the data being processed which may        not always be today's date.  If different, the Processing Date is        displayed next to the User ID on the screen.
+This field allows you to specify a default payment transfer Value Date for this Transaction type being either the Processing Date, or a number of working or calendar days to be added to or subtracted from the Processing Date.
+For inward payments the value applies to the debit value date and for all other payments the value applies to the credit value date.
+Example:
+A Default Value Date of
++03W would be 3 working days forward. or            +01W+02C would be 1 working day plus 2 calendar days forward.
+Validation Rules
+Y       If the default value date is to be the Run Date.  N or NO Where no default is applicable, this will allow the User         to input the Value date.  or        (a) (bb) (c) (d) (ee) (f) As defined below.  Associated multivalue field.  (Mandatory input.) */
+		PAYMENT_VALUE : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=14.0, core=true, t24Name=PAYMENT.VALUE)
+		/* Specifies the default number of days to be applied for any Customer Value Date applicable to the Payment Type for this type of transaction.
+This field allows the User to define special Customer Value Date conditions at the transaction level by specifying within Payment Type a number of days between the Value Date applied to Customer and the Value Date applicable to the bank.  If zero '0' is input, the Customer will receive the Same day value as the bank itself.
+Example:
+INCOMING TRANSFER
+DEBIT NOSTRO ACCOUNT (VALUE 15/1)
+CUSTOMER FLOAT = 3 (15 plus 3 = 18)
+CREDIT CUSTOMER ACCOUNT (VALUE 18/1)
+OUTGOING TRANSFER
+CREDIT NOSTRO ACCOUNT (VALUE 15/1)
+CUSTOMER FLOAT = 2 (15 less 2 = 13)
+DEBIT CUSTOMER ACCOUNT (VALUE 13/1)
+Validation Rules
+0-9 = Number of working days to be added to the debit Value Date to       make the credit Value Date for inward transfers and deducted       from the credit Value Date to make the debit Value Date for       outward transfers.  or  P   = Processing date irrespective of the other Value Date.  Associated multivalue field.  (Mandatory input if Payment Type field has been input.) */
+		CUSTOMER_FLOAT : FT_LocalClearing:FT_BC_TXN_CODE__PAYMENT_TYPE__CUSTOMER_FLOAT required
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=15.0, core=true, t24Name=CUSTOMER.FLOAT)
+		/* This is a NOINPUT, system field. */
+		SAME_CUST_FLOAT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=16.0, core=true, t24Name=SAME.CUST.FLOAT)
+	}
+	FT_BC_TXN_CODE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, core=true, t24Name=INPUTTER)
+	}
+	FT_BC_TXN_CODE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=24.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This is an enquiry file which is used to hold details of the incoming transactions on tape from the Slovak Clearing Centre. Comprehensive reports may be produced from the data present on the file. */
+	FT_SCC_TAPE_DATA
+		@t24:i (t24Name=FT.SCC.TAPE.DATA, level=C, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the ID to the record on the enquiry file.
+The ID consists of the following four elements separated by a '-' :
+Tape Name
+Tape Sequence Number
+SCC Process Date
+Item Number on the Tape.
+Validation Rules
+Up to 33 alphanumeric characters.  Internal System field - Externally updated. */
+		ID -> FT_LocalClearing:FT_SCC_TAPE_DATA PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=33, sysNumber=0.0, core=true, businessType=A, t24Name=ID)
+		/* This field is taken from the incoming SCC tape and is the number of the T24 account being credited, i.e the beneficiary account.
+Validation Rules
+16 numeric characters.  Internal System field - Externally updated. */
+		ACCOUNT_NO : mml:Integer
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Indicates Customer Account Number")
+			@t24:i (align=R, inputBehaviour=E, maxLength=16, sysNumber=1.0, core=true, t24Name=ACCOUNT.NO)
+		/* This field is taken from the incoming SCC tape and is the name of the beneficiary account holder.
+Validation Rules
+Up to 20 alphanumeric characters.  Internal System field - Externally updated. */
+		ACCOUNT_NAME : T24BusinessTypes:A
+			@i18n:Label (en="Portfolio Name")
+			@t24:i (align=L, inputBehaviour=E, maxLength=20, sysNumber=2.0, core=true, t24Name=ACCOUNT.NAME)
+		/* This field is taken from the incoming SCC tape and is the beneficiary bank's identification code.
+Validation Rules
+Up to 10 alphanumeric characters.  Internal System field - Externally updated. */
+		BANK_SORT_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Bank Sort Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=10, sysNumber=3.0, core=true, t24Name=BANK.SORT.CODE)
+		/* This field is taken from the incoming SCC tape and is the number of the account being debited, i.e. the benefactor account.
+Validation Rules
+16 numeric characters.  Internal System field - Externally updated. */
+		CONTRA_ACCOUNT_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=16, sysNumber=4.0, core=true, t24Name=CONTRA.ACCOUNT.NO)
+		/* This field is taken from the incoming SCC tape and is the name of the benefactor account holder.
+Validation Rules
+Up to 20 alphanumeric characters.  Internal System field - Externally updated. */
+		CONTRA_ACCT_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=20, sysNumber=5.0, core=true, t24Name=CONTRA.ACCT.NAME)
+		/* This field is taken from the incoming SCC tape and is the benefactor bank's identification code.
+Validation Rules
+Up to 10 alphanumeric characters.  Internal System field - Externally updated. */
+		CONTRA_BNK_SRT_CDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=10, sysNumber=6.0, core=true, t24Name=CONTRA.BNK.SRT.CDE)
+		/* This field is taken from the incoming SCC tape and is the identification code of a third bank involved in the transaction.
+Validation Rules
+Up to 10 alphanumeric characters.  Internal System field - Externally updated. */
+		THIRD_BNK_SRT_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=10, sysNumber=7.0, core=true, t24Name=THIRD.BNK.SRT.CODE)
+		/* This field is taken from the incoming SCC tape and is the local transaction code used by the Slovak Clearing Centre.
+Validation Rules
+2 numeric characters.  Internal System field - Externally updated. */
+		SCC_TXN_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=2, sysNumber=8.0, core=true, t24Name=SCC.TXN.CODE)
+		/* This field is taken from the incoming SCC tape and is the constant ("konstantny") symbol from the SBCS code book.
+Validation Rules
+Up to 10 numeric characters.  Internal System field - Externally updated. */
+		SCC_CONSTANT : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=9.0, core=true, t24Name=SCC.CONSTANT)
+		/* This field is taken from the incoming SCC tape and is the first specific ("specificky") symbol.
+Validation Rules
+Up to 10 numeric characters.  Internal System field - Externally updated. */
+		SCC_SPECIFIC_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=10.0, core=true, t24Name=SCC.SPECIFIC.1)
+		/* This field is taken from the incoming SCC tape and is the second specific ("specificky") symbol.
+Validation Rules
+Up to 10 numeric characters.  Internal System field - Externally updated. */
+		SCC_SPECIFIC_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=11.0, core=true, t24Name=SCC.SPECIFIC.2)
+		/* This field is taken from the incoming SCC tape and is the first variable ("variabilny") symbol.
+Validation Rules
+Up to 10 numeric characters.  Internal System field - Externally updated. */
+		SCC_VARIABLE_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=12.0, core=true, t24Name=SCC.VARIABLE.1)
+		/* This field is taken from the incoming SCC tape and is the second variable ("variabilny") symbol.
+Validation Rules
+Up to 10 numeric characters.  Internal System field - Externally updated. */
+		SCC_VARIABLE_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=13.0, core=true, t24Name=SCC.VARIABLE.2)
+		/* This field is taken from the incoming SCC tape and is the sequential serial number of the transaction for the receiving bank.
+Validation Rules
+Up to 6 numeric characters.  Internal System field - Externally updated. */
+		OUR_REF_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=6, sysNumber=14.0, core=true, t24Name=OUR.REF.NO)
+		/* This field is taken from the incoming SCC tape and is the serial number of the transaction from the sending bank via the clearing system.
+Validation Rules
+Up to 6 numeric characters.  Internal System field - Externally updated. */
+		CLEARING_REF_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=6, sysNumber=15.0, core=true, t24Name=CLEARING.REF.NO)
+		/* This field is taken from the incoming SCC tape and is the primary document identification of the input operation from the sending bank.
+Validation Rules
+Up to 13 alphanumeric characters.  Internal System field - Externally updated. */
+		PRIMARY_DOC_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=13, sysNumber=16.0, core=true, t24Name=PRIMARY.DOC.NO)
+		/* This field is taken from the incoming SCC tape and is the date on which the primary document was input to the system of relations of payment.
+Validation Rules
+8 numeric characters. Standard T24 date format.  Internal System field - Externally updated. */
+		PRIMARY_DOC_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=8, sysNumber=17.0, core=true, t24Name=PRIMARY.DOC.DATE)
+		/* This field is taken from the incoming SCC tape and is the amount involved in the transaction in the local currency (SKK).
+Validation Rules
+Up to 15 numeric characters plus a decimal point '.' character.  Internal System field - Externally updated. */
+		TRANSFER_AMOUNT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=18.0, core=true, t24Name=TRANSFER.AMOUNT)
+		/* This field is taken from the incoming SCC tape and is the currency of the transaction, which will always be in the local currency (SKK).
+Validation Rules
+SKK  -   This is the only value allowed.  Internal System field - Externally updated. */
+		TRANSFER_CURRENCY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=3, sysNumber=19.0, core=true, t24Name=TRANSFER.CURRENCY)
+		PAYMENT_DETAILS -> byValue FT_LocalClearing:FT_SCC_TAPE_DATA__PAYMENT_DETAILS *
+		BK_TO_BK_INFO -> byValue FT_LocalClearing:FT_SCC_TAPE_DATA__BK_TO_BK_INFO *
+		/* Specifies the ID of the Funds Transfer generated by T24 when mapping the incoming transaction on the tape into T24.
+Validation Rules
+14 alphanumeric characters.  Internal System field - Externally updated. */
+		GLOBUS_FT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=12, sysNumber=22.0, core=true, t24Name=GLOBUS.FT.NO)
+		/* Specifies the T24 system date that the incoming tape was processed on.
+Validation Rules
+8 numeric characters. Standard T24 date format.  Internal System field - Externally updated. */
+		GLOBUS_SYSTEM_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=8, sysNumber=23.0, core=true, t24Name=GLOBUS.SYSTEM.DATE)
+		ERROR_MESSAGES -> byValue FT_LocalClearing:FT_SCC_TAPE_DATA__ERROR_MESSAGES *
+		TAPE_NAME : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, core=false, t24Name=TAPE.NAME, genOperation="FIELD(@ID,\'-\',1)")
+		TAPE_SEQ_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, core=false, t24Name=TAPE.SEQ.NO, genOperation="FIELD(@ID,\'-\',2,1)")
+		PROC_DATE : mml:Integer
+			@i18n:Label (en=Date)
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, core=false, t24Name=PROC.DATE, genOperation="FIELD(@ID,\'-\',3,1)")
+	}
+	FT_SCC_TAPE_DATA__PAYMENT_DETAILS
+	{
+		/* This field is taken from the incoming SCC tape and is used to hold any verbal information for the receiver.
+This field is used to hold any verbal information for the receiver from the sender if the SCC.TXN.CODE is any other than "91" and up to four multivalues are allowed.
+If the SCC.TXN.CODE is "91", which is a free-format message, then up to fifty multivalues are allowed.
+Validation Rules
+Up to 35 alphanumeric characters.  Multivalue field.  Internal System field - Externally updated. */
+		PAYMENT_DETAILS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=35, sysNumber=20.0, core=true, t24Name=PAYMENT.DETAILS)
+	}
+	FT_SCC_TAPE_DATA__BK_TO_BK_INFO
+	{
+		/* This field is taken from the incoming SCC tape and is used to hold any information from the sending bank to the receiving bank.
+Validation Rules
+Up to 35 alphanumeric characters.  Multivalue field. A maximum of four multivalues allowed.  Internal System field - Externally updated. */
+		BK_TO_BK_INFO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=35, sysNumber=21.0, core=true, t24Name=BK.TO.BK.INFO)
+	}
+	FT_SCC_TAPE_DATA__ERROR_MESSAGES
+	{
+		/* This field is used to hold any error messages encountered when processing the incoming tape.
+Validation Rules
+Up to 35 alphanumeric characters.  Internal System field - Externally updated. */
+		ERROR_MESSAGES : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=35, sysNumber=24.0, core=true, t24Name=ERROR.MESSAGES)
+	}
+}
+Enumerations {
+	ACCOUNT_BGC_INFO__CPARTY_REQUIRED : mml:string
+		YES=YES
+		NO=NO
+	FT_BC_TXN_CODE__PAYMENT_TYPE__PAYMENT_TYPE : mml:string
+		CONV=CONV
+		NOCONV=NOCONV
+		ALL=ALL
+	FT_BC_TXN_CODE__PAYMENT_TYPE__CUSTOMER_FLOAT : mml:string
+		n0=0
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+		n5=5
+		n6=6
+		n7=7
+		n8=8
+		n9=9
+		P=P
+	FT_BC_TXN_CODE__DR_ADVICE_REQD_Y_N : mml:string
+		Y=Y
+		N=N
+	FT_BC_TXN_CODE__CR_ADVICE_REQD_Y_N : mml:string
+		Y=Y
+		N=N
+}

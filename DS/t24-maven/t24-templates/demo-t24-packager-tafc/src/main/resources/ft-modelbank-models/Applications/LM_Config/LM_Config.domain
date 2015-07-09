@@ -1,0 +1,1579 @@
+# UTF-8
+# UTF-8
+/* Parameter definitions for Loans and Money Market */
+Domain LM_Config
+	@t24:i (module=LM)
+	@java:Package (value=com.temenos.t24.datamodel.lm.lm_config)
+namespace "http://www.temenos.com/t24/LM_Config"
+metamodelVersion 1.30.6
+Classes {
+	/* A list of codes used by the system to provide enrichment text to system actions for display on LMM.HISTORY.LIST. The codes are hard-coded within the system and are mandatory. For this reason a list is supplied with British text only which can be amended. */
+	LMM_ACTION_CODES
+		@t24:i (t24Name=LMM.ACTION.CODES, level=I, type=U, allowedFunctions="A C D E I L P Q R S", localRefAllowed=false)
+	{
+		/* The action code number.
+The input of these codes are a necessity, and a list of them will be provided at installation.
+Validation Rules
+3 numeric characters. */
+		ACTION_CODE -> LM_Config:LMM_ACTION_CODES PK required
+			@i18n:Label (en=ID)
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=0.0, core=true, businessType=A, t24Name=ACTION.CODE)
+		DESCRIPTION -> byValue LM_Config:LMM_ACTION_CODES__DESCRIPTION *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=2.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=3.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue LM_Config:LMM_ACTION_CODES__INPUTTER *
+		DATE_TIME -> byValue LM_Config:LMM_ACTION_CODES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=6.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=7.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=9.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=10.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LMM_ACTION_CODES__DESCRIPTION
+	{
+		/* Description of the system action.
+The appropriate description of the system action.
+Validation Rules
+35 alphanumeric characters. Multivalue Field. (Mandatory Input.) */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	LMM_ACTION_CODES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=4.0, core=true, t24Name=INPUTTER)
+	}
+	LMM_ACTION_CODES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=5.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LMM_CATEGORY
+		@t24:i (t24Name=LMM.CATEGORY, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 6 characters may be entered.
+Must be the key to a valid entry on the CATEGORY file. */
+		CATEGORY -> LM_Config:LMM_CATEGORY PK required
+			@i18n:Label (en=Category)
+			@i18n:Tooltip (en="Specifies the Category")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, businessType=A, t24Name=CATEGORY, mask="L##-###")
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 14 characters may be entered. */
+		CONTRACT_NO : T24BusinessTypes:A
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=1.0, core=true, t24Name=CONTRACT.NO)
+	}
+	LMM_CURRENCY
+		@t24:i (t24Name=LMM.CURRENCY, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 currency field.
+Validation Rules
+A maximum of 6 characters may be entered.
+Must be the key to a valid entry on the CURRENCY file. */
+		CURRENCY -> LM_Config:LMM_CURRENCY PK required
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 14 characters may be entered. */
+		CONTRACT_NO : T24BusinessTypes:A
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=1.0, core=true, t24Name=CONTRACT.NO)
+	}
+	LMM_HISTORY_TODAY
+		@t24:i (t24Name=LMM.HISTORY.TODAY, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 14 characters may be entered. */
+		CONTRACT_ID -> LM_Config:LMM_HISTORY_TODAY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name="CONTRACT ID")
+	}
+	/* The LMM.INSTALL.CONDS table is a collection of parameters used by both the Money Market and Loans/Deposits systems when processing contract records.
+The key to this file is a valid COMPANY.CODE.
+The table consists of six major groups of conditions, each of which is further subdivided into a number of individual operating conditions. The six principal groups are:-
+DAYS BEFORE A STATUS CHANGE.    (fields 1 to 8)
+These fields are used by the Loans and Deposits module only.
+DAYS BEFORE REPORTS.            (fields 9 to 11)
+These fields are used by the Loans and Deposits module only.
+FIDUCIARIES.                    (fields 22 to 25)
+These fields are used by the Money Market system only.
+ACCOUNTING CONDITIONS.          (fields 26 to 28)
+These fields are used by the Loans and Deposits module only.
+CATEGORY CODES.                 (fields 29 to 89)
+The majority of these fields are used by the Loans and Deposits module only.
+Those used by Money Market are the Profit and Loss Category codes for interest paid and received.
+MISCELLANEOUS.                        (fields 12 to 21 and 90)
+These fields define conditions such as the number of days before a contract is written to History after it has matured; what to do if an account debit requires an override during the 'off-line', and various accrual options.
+The table overleaf gives a summary of those fields that are used by the Money Market Module AND/OR the Loans and Deposits Module:-
+FIELD NUMBER AND NAME       USED BY  USED BY                                  MM       LD
+1.  DAYS.PRIOR.PDO.P           N        Y       2.  DAYS.PRIOR.NAB.P           N        Y       3.  DAYS.PRIOR.PDO.I           N        Y       4.  DAYS.PRIOR.NAB.I           N        Y       5.  DAYS.PRIOR.PDO.C           N        Y       6.  DAYS.PRIOR.NAB.C           N        Y       7.  DAYS.PRIOR.PDO.MAT         N        Y       8.  DAYS.PRIOR.NAB.MAT         N        Y       9.  DAYS.PRIOR.RPT.LIQ         N        Y       10. DAYS.PRIOR.RPT.REV         N        Y       11. DAYS.PRIOR.RPT.MAT         N        Y       12. MAX.LEGAL.INT.RATE         N        Y       13. SIGNIFICANT.AMT            Y        Y       14. DAYS.POST.MATURITY         Y        Y       15. DEFAULT.CHG.CODE           Y        Y       16. FIRST.DAY.ACCRUAL          Y        Y       17. MM.ACC.CYCLE.L.CCY         Y        N       18. MM.ACC.CYCLE.F.CCY         Y        N       19. LD.ACC.CYCLE.L.CCY         Y        N       20. LD.ACC.CYCLE.F.CCY         Y        N       21. ACC.CYCLE.FLOAT            Y        Y       22. FID.MIN.COMM.RATE          Y        N       23. FID.MAX.COMM.RATE          Y        N       24. FID.COMM.CHRG.QUOTE        Y        N       25. FID.COMM.AT.MAT.YN         Y        N       26. PEN.I.ACC.FIN.MEM          N        Y       27. PEN.C.ACC.FIN.MEM          N        Y       28. NAB...W.OFF..CAP.          N        Y       29. RESERVED                                    30. PL.O.SET.IR.CUR            Y        Y       31. PL.O.SET.CR.CUR            Y        Y       32. PL.O.SET.IRA               N        Y       33. PL.O.SET.CRA               N        Y       34. PL.O.SET.IP.CUR            Y        Y       35. PL.O.SET.IPA               N        Y       36. PL.O.SET.IR..PEN           N        Y       37. PL.O.SET.CR..PEN           N        Y
+FIELD NUMBER AND NAME       USED BY  USED BY                                  MM       LD
+38. PL.O.SET.IR..PEN.M         N        Y       39. PL.O.SET.CR..PEN.M         N        Y       40. PL.O.SET.IR..SUS           N        Y       41. PL.O.SET.CR..SUS           N        Y       42. PL.OS.IR.CUR.CUR.M         Y        Y       43. PL.OS.IR.CUR.PRV.M         Y        Y       44. PL.OS.IR.CUR.PRV.Y         Y        Y       45. PL.OS.CR.CUR.CUR.M         Y        Y       46. PL.OS.CR.CUR.PRV.M         Y        Y       47. PL.OS.CR.CUR.PRV.Y         Y        Y       48. PL.OS.IRA....CUR.M         N        Y       49. PL.OS.IRA....PRV.M         N        Y       50. PL.OS.IRA....PRV.Y         N        Y       51. PL.OS.CRA....CUR.M         N        Y       52. PL.OS.CRA....PRV.M         N        Y       53. PL.OS.CRA....PRV.Y         N        Y       54. PL.OS.IP.CUR.CUR.M         Y        Y       55. PL.OS.IP.CUR.PRV.M         Y        Y       56. PL.OS.IP.CUR.PRV.Y         Y        Y       57. PL.OS.IPA....CUR.M         N        Y       58. PL.OS.IPA....PRV.M         N        Y       59. PL.OS.IPA....PRV.Y         N        Y       60. PL.OS.IR.PEN.CUR.M         N        Y       61. PL.OS.IR.PEN.PRV.M         N        Y       62. PL.OS.IR.PEN.PRV.Y         N        Y       63. PL.OS.CR.PEN.CUR.M         N        Y       64. PL.OS.CR.PEN.PRV.M         N        Y       65. PL.OS.CR.PEN.PRV.Y         N        Y       66. RESERVED                                    67. RESERVED                                    68. RESERVED                                    69. RESERVED                                    70. RESERVED                                    71. RESERVED                                    72. RESERVED                                    73. RESERVED                                    74. PL.DEBIT.WRITE.OFF         N        Y
+FIELD NUMBER AND NAME       USED BY   USED BY                                 MM        LD
+75. RESERVED                                    76. RESERVED                                    77. PL.WHT                     N         Y      78. GEN.EXP.WHT                N         Y      79. GEN.EXP.WHT.NET            N         Y      80. GEN.EXP.WHT.GROSS          N         Y      81. RES.FOR.TAX.WHT            N         Y      82. RES.FOR.TAX.WHT.NT         N         Y      83. RES.FOR.TAX.WHT.GS         N         Y      84. RES.DEF.REF.WHT.GS         N         Y      85. PL.ADJ.WHT                 N         Y      86. GEN.EXP.ADJ.WHT            N         Y      87. GEN.ADJ.WHT.NT             N         Y      88. GEN.EXP.WHT.GS             N         Y      89. BROKERAGE.PAYABLE          Y         N      90. EOD.ACCT.MODE              Y         Y      91. T.NOINPUT.FLD              Y         N      92. MAND.FLDS                  Y         N      93. PM.PARAM                   Y         N      94. MM LAST EOD RUN            Y         N      95. LD LAST EOD RUN            N         Y */
+	LMM_INSTALL_CONDS
+		@t24:i (t24Name=LMM.INSTALL.CONDS, level=I, type=H, additionalInfo="TABLE FILE UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Internal descriptor field. */
+		COMPANY -> LM_Config:LMM_INSTALL_CONDS PK required
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=COM, t24Name=COMPANY)
+		/* Indicates the number of days, after a principal payment due date, which will lapse prior to the status changing to "PDO".
+If a principal payment is still outstanding after the period indicated in this field, then the contract status will be changed to "PDO" or past due obligation.
+Validation Rules
+1-3 numeric characters in the range 0 - 366. (Optional input.  Default = nil.)
+Must be a value between 0 and 366.
+Must be less than the value in field DAYS PRIOR NAB P. */
+		DAYS_PRIOR_PDO_P : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=1.0, core=true, t24Name=DAYS.PRIOR.PDO.P)
+		/* Indicates the number of days, after a principal payment due date, which will lapse prior to the status changing to "NAB".
+If a principal payment is still outstanding after the period indicated in this field, then the contract status will be changed to "NAB" or non accrual basis.
+Validation Rules
+1-3 numeric characters in the range 0 - 366. (Optional input.  Default = nil)
+Must be a value between 1 and 366.
+Must be greater than the value in field DAYS PRIOR PDO P. */
+		DAYS_PRIOR_NAB_P : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=2.0, core=true, t24Name=DAYS.PRIOR.NAB.P)
+		/* Indicates the number of days, after an interest payment due date, which will lapse prior to the status changing to "PDO".
+If an interest payment is still outstanding after the period indicated in this field, then the contract status will be changed to "PDO" or past due obligation.
+Validation Rules
+1-3 numeric characters in the range 0 - 366. (Optional input.  Default = nil.)
+Must be a value between 0 and 366.
+Must be less than the value in field DAYS PRIOR NAB I. */
+		DAYS_PRIOR_PDO_I : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=3.0, core=true, t24Name=DAYS.PRIOR.PDO.I)
+		/* Indicates the number of days, after an interest payment due date, which will lapse prior to the status changing to "NAB".
+If an interest payment is still outstanding after the period indicated in this field, then the contract status will be changed to "NAB" or non accrual basis.
+Validation Rules
+1-3 numeric characters in the range 0 - 366. (Optional input.  Default = nil.)
+Must be a value between 1 and 366.
+Must be greater than the value in field DAYS PRIOR PDO I. */
+		DAYS_PRIOR_NAB_I : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=4.0, core=true, t24Name=DAYS.PRIOR.NAB.I)
+		/* Indicates the number of days, after a commission payment due date, which will lapse prior to the status changing to "PDO".
+If an commission payment is still outstanding after the period indicated in this field, then the contract status will be changed to "PDO" or past due obligation.
+Validation Rules
+1-3 numeric characters in the range 0 - 366. (Optional input.  Default = nil.)
+Must be a value between 0 and 366.
+Must be less than the value in field DAYS PRIOR NAB C. */
+		DAYS_PRIOR_PDO_C : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=5.0, core=true, t24Name=DAYS.PRIOR.PDO.C)
+		/* Indicates the number of days, after an commission payment due date, which will lapse prior to the status changing to "NAB".
+If a commission payment is still outstanding after the period indicated in this field, then the contract status will be changed to "NAB" or non-accrual basis.
+Validation Rules
+1-3 numeric characters in the range 0 - 366. (Optional input.  Default = nil.)
+Must be a value between 1 and 366.
+Must be greater than the value in field DAYS PRIOR PDO C. */
+		DAYS_PRIOR_NAB_C : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=6.0, core=true, t24Name=DAYS.PRIOR.NAB.C)
+		/* Indicates the number of days, after the maturity date, which will lapse prior to the contract status changing to "PDO".
+If after the maturity date a financial component is still outstanding after the period indicated in this field  then the contract status will be changed to "PDO" or past due obligation.
+Validation Rules
+1-3 numeric characters in the range 0 - 366. (Optional input.  Default = nil.)
+Must be a value between 0 and 366.
+Must be less than the value in field DAYS PRIOR NAB MAT. */
+		DAYS_PRIOR_PDO_MAT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=7.0, core=true, t24Name=DAYS.PRIOR.PDO.MAT)
+		/* Indicates the number of days, after the maturity date, which will lapse prior to the contract status changing to "NAB".
+If after the maturity date a financial component is still outstanding after the period indicated in this field, then the contract status will be changed to "NAB" or non-accrual basis.
+Validation Rules
+1-3 numeric characters in the range 0 - 366. (Optional input.  Default = nil.)
+Must be a value between 1 and 366.
+Must be greater than the value in field DAYS PRIOR PDO MAT. */
+		DAYS_PRIOR_NAB_MAT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=8.0, core=true, t24Name=DAYS.PRIOR.NAB.MAT)
+		/* Contracts with an instalment due within the period specified will be included on the Liquidation report.
+Contracts having a financial component due (e.g. principal, interest etc.) to be repaid/liquidated in the period specified will be included on the report.  It does not apply to final maturity but interim settlement of principal, interest etc.
+Validation Rules
+1-3 numeric characters in the range 1 - 366. (Optional input.)
+Must be a value between 1 and 366. */
+		DAYS_PRIOR_RPT_LIQ : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=DAYS.PRIOR.RPT.LIQ)
+		/* Contracts with a rate revision due within the period specified will be included on the Rate Revision report.
+Validation Rules
+1-3 numeric characters in the range 1 - 366.
+Must be a value between 1 and 366. */
+		DAYS_PRIOR_RPT_REV : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=10.0, core=true, t24Name=DAYS.PRIOR.RPT.REV)
+		/* Contracts with final maturity due within the period specified will be included on the Maturity report.
+Validation Rules
+1-3 numeric characters in the range. 1 - 366.
+Must be a value between 1 and 366. */
+		DAYS_PRIOR_RPT_MAT : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=11.0, core=true, t24Name=DAYS.PRIOR.RPT.MAT)
+		/* Specifies a maximum interest rate for information purposes only.
+In certain countries maximum legal interest rates may be set. This field allows the user to insert such a maximum rate into the system but it is not used in any processing; it is for information purposes only.
+Validation Rules
+1 - 10 numeric characters plus a decimal point. (Optional Input. Default = blank (i.e. no maximum).
+No validation. */
+		MAX_LEGAL_INT_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=MAX.LEGAL.INT.RATE)
+		/* A contract will not be automatically removed from the live file, following the final maturity date, if the local equivalent of any outstanding amount is greater than this Significant Amount value.
+When the system transfers contracts to History after maturity according to the number of days defined in the next field, it checks to see if there are any amounts that remain outstanding, and if so, whether the local equivalent amount is greater than this Significant Amount.  If the amount outstanding is greater than this Significant Amount then the contract will not be transferred to History and an entry will be created in the Exception Report. If the amount outstanding is LESS than or EQUAL to the Significant Amount then the amount outstanding will be posted to a suspense account, the contract will be written to History, and an Exception report entry will be created stating the amount.
+A contract must also comply with other user defined parameters, such as the DAYS POST MATURITY, prior to being transferred to the History file.
+Important Note:     The Money Market System always has 'automatic           liquidation' i.e. whenever an amount is due, the whole           amount is paid/received.  This means that the above           mechanism should NEVER be applicable to Money Market           contracts.
+Validation Rules
+4 numeric characters plus a decimal point. (Optional input.  Default = blank i.e. the contract will not move to History until ALL outstandings have been liquidated)
+The following is a table of decimal places and associated local amounts allowed:- LOCAL CURRENCY   MAXIMUM SIGNIFICANT DECIMAL PLACES     AMOUNT ALLOWED 0                 9999 1                 999.9 2                 99.99 3                 9.999 */
+		SIGNIFICANT_AMT : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=13.0, core=true, t24Name=SIGNIFICANT.AMT)
+		/* Defines the number of days after maturity that a contract will be written to History - if all items have been fully repaid or are less than Significant Amt.
+This field states the number of days after maturity that a contract is removed from the live file and written to History. A typical input would be '30' so that monthly reports could include contracts that matured during the month without having to interrogate History files.
+Validation Rules
+1 to 3 numeric characters, in the range 1 to 366. (Mandatory input. Minimum value is '1' meaning that the contract will be written to History one day after maturity).
+Must be a value between 1 and 366. */
+		DAYS_POST_MATURITY : mml:Integer required
+			@i18n:Label (en="Days Post Maturity")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=14.0, core=true, t24Name=DAYS.POST.MATURITY)
+		/* Defines the default charge code which the system will use in appropriate transaction input routine.
+When loading a contract the user may specify a charge code in the relevant field.  If no specific charge code is input and charges are applicable then the system will apply the default charge code contained in this field.
+Validation Rules
+1 to 3 Numeric characters. (Optional input.  No Default.)
+Input must be a valid code on the LMM.CHARGE.CONDITIONS table.
+The charge code must be one that has monthly amortisation set to "NO" on the LMM.CHARGE.CONDITIONS table. */
+		DEFAULT_CHG_CODE -> LM_Fees:LMM_CHARGE_CONDITIONS required
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=15.0, core=true, t24Name=DEFAULT.CHG.CODE)
+		/* This field is linked to EB.ACCRUAL.PARAM table. Interest Amount Calculation and Interest Accrual method can be chosen through appropriate record defined in EB.ACCRUAL.PARAM. For Example, First Day Accrual, Last Day Accrual or Both days Accrual. If this field is null it denotes First Day Accrual Method.
+This field is used as the system default for all Money Market contracts. This can be overridden at contract level. */
+		ACCRUAL_PARAM -> AC_Fees:EB_ACCRUAL_PARAM
+			@i18n:Label (en="Interest Accrual Method")
+			@i18n:Tooltip (en="Method by which interest accrual is processed")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=16.0, core=true, businessType=A, t24Name=ACCRUAL.PARAM)
+		/* Defines the frequency with which interest shall be accrued on Money Market local currency contracts.
+The system allows the user to define different interest accrual frequencies for local and foreign currencies.
+Input at this field specifies the frequency with which interest is to be accrued on local currency contracts. The user has the choice of either daily OR monthly accruals and the following examples define the various options:-
+(i)       12 DEC 1985 D -  this input specifies that the first interest           accrual shall be on 12th Dec 1985 and thereafter interest           accruals shall be at daily (D) intervals.
+(ii)      31 JAN 1985 M0131  -  this input specifies that the first           interest accrual shall be on 31st Jan 1985 and thereafter           interest accruals shall be at monthly (M01) intervals on the           last day (31) of each month.
+(iii)     31 JAN 1985 M0115 - this input specifies that the first           interest accrual shall be on 31st Jan 1985 and thereafter at           monthly (01) intervals on the fifteenth day (15) of each           month.
+This  field  is updated automatically whenever the accrual process has taken place and so unless the accrual cycle is to be changed, the only time attention needs to be paid to this field is at installation. Prior to the first end of day of the system, the date entered here must be equal to or greater than the 'NEXT RUN DATE' field in the appropriate BATCH job (MM.EOD.2). If it is greater than the date specified on the batch record then the update of the batch job NEXT RUN DATE must coincide with the date entered here at some point in the future.
+Validation Rules
+Standard frequency format. (Mandatory input)
+Must be a valid date. */
+		MM_ACC_CYCLE_L_CCY : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=MM.ACC.CYCLE.L.CCY, mask="RDDDD DD  D #####")
+		/* Defines the frequency with which interest shall be accrued on Money Market foreign currency contracts.
+The system allows the user to define different interest accrual frequencies for local and foreign currencies.
+Input at this field specifies the frequency with which interest is to be accrued on foreign currency contracts. The user has the choice of either daily OR monthly accruals and the following examples define the various options:-
+(i)       12 DEC 1985 D -  this input specifies that the first interest           accrual shall be on 12th Dec 1985 and thereafter interest           accruals shall be at daily (D) intervals.
+(ii)      31 JAN 1985 M0131  -  this input specifies that the first           interest accrual shall be on 31st Jan 1985 and thereafter           interest accruals shall be at monthly (M01) intervals on the           last day (31) of each month.
+(iii)     31 JAN 1985 M0115 - this input specifies that the first           interest accrual shall be on 31st Jan 1985 and thereafter at           monthly (01) intervals on the fifteenth day (15) of each           month.
+This  field  is updated automatically whenever the accrual process has taken place and so unless the accrual cycle is to be changed, the only time attention needs to be paid to this field is at installation. Prior to the first 'off-line' of the system, the date entered here must be equal or greater than the 'NEXT RUN DATE' field in the appropriate BATCH job (MM.EOD.2). If it is greater than the date specified on the batch record then the update of the batch job NEXT RUN DATE must coincide with the date entered here at some point in the future.
+Validation Rules
+1 - 14 alphanumeric characters in the form:- Standard frequency format. (Mandatory input)
+Must be a valid date.
+An override will be required if the date is not defined on the HOLIDAY table.
+An override will be required if the date as defined on the HOLIDAY table is a non-working day. */
+		MM_ACC_CYCLE_F_CCY : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=MM.ACC.CYCLE.F.CCY, mask="RDDDD DD  D #####")
+		/* Defines the frequency with which interest shall be accrued on Loans local currency contracts.
+The system allows the user to define different interest accrual frequencies for local and foreign currencies.
+Input at this field specifies the frequency with which interest is to be accrued on local currency contracts. The user has the choice of either daily OR monthly accruals and the following examples define the various options:-
+(i)       12 DEC 1985 D -  this input specifies that the first interest           accrual shall be on 12th Dec 1985 and thereafter interest           accruals shall be at daily (D) intervals.
+(ii)      31 JAN 1985 M0131  -  this input specifies that the first           interest accrual shall be on 31st Jan 1985 and thereafter           interest accruals shall be at monthly (M01) intervals on the           last day (31) of each month.
+(iii)     31 JAN 1985 M0115 - this input specifies that the first           interest accrual shall be on 31st Jan 1985 and thereafter at           monthly (01) intervals on the fifteenth day (15) of each           month.
+This  field  is updated automatically whenever the accrual process has taken place and so unless the accrual cycle is to be changed, the only time attention needs to be paid to this field is at installation. Prior to the first 'off-line' of the system, the date  entered here must be equal to or greater than the 'NEXT RUN DATE' field in the appropriate BATCH job (LD.EOD.2). If it is greater than the date specified on the batch record then the update of the batch job NEXT RUN DATE must coincide with the date entered here at some point in the future.
+Validation Rules
+Standard frequency format. (Mandatory input)
+Must be a valid date. */
+		LD_ACC_CYCLE_L_CCY : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=LD.ACC.CYCLE.L.CCY, mask="RDDDD DD  D #####")
+		/* Defines the frequency with which interest shall be accrued on Loans foreign currency contracts.
+The system allows the user to define different interest accrual frequencies for local and foreign currencies.
+Input at this field specifies the frequency with which interest is to be accrued on foreign currency contracts. The user has the choice of either daily OR monthly accruals and the following examples define the various options:-
+(i)       12 DEC 1985 D -  this input specifies that the first interest           accrual shall be on 12th Dec 1985 and thereafter interest           accruals shall be at daily (D) intervals.
+(ii)      31 JAN 1985 M0131  -  this input specifies that the first           interest accrual shall be on 31st Jan 1985 and thereafter           interest accruals shall be at monthly (M01) intervals on the           last day (31) of each month.
+(iii)     31 JAN 1985 M0115 - this input specifies that the first           interest accrual shall be on 31st Jan 1985 and thereafter at           monthly (01) intervals on the fifteenth day (15) of each           month.
+This  field  is updated automatically whenever the accrual process has taken place and so unless the accrual cycle is to be changed, the only time attention needs to be paid to this field is at installation. Prior to the first 'off-line' of the system, the date entered here must be equal or greater than the 'NEXT RUN DATE' field in the appropriate BATCH job (LD.EOD.2). If it is greater than the date specified on the batch record then the update of the batch job NEXT RUN DATE must coincide with the date entered here at some point in the future.
+Validation Rules
+1 - 14 alphanumeric characters in the form:- Standard frequency format. (Mandatory input)
+Must be a valid date.
+An override will be required if the date is not defined on the HOLIDAY table.
+An override will be required if the date as defined on the HOLIDAY table is a non-working day. */
+		LD_ACC_CYCLE_F_CCY : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=20.0, core=true, t24Name=LD.ACC.CYCLE.F.CCY, mask="RDDDD DD  D #####")
+		/* Indicates whether interest on contracts based on floating rates, are to be accrued on a daily basis or only when a rate change occurs.
+This field has an effect only when accruals as specified in fields ACC CYCLE L CCY and ACC CYCLE F CCY are set to "monthly". Setting of fields ACC CYCLE L CCY and ACC CYCLE F CCY to "daily" overrides this field.
+If fields ACC CYCLE L CCY and ACC CYCLE F CCY are set to "monthly" frequency then, where interest on a contract is based on a floating rate (e.g. Base Rate) the user is allowed the alternative of instructing the system to calculate interest on a daily basis and pass accounting entries accordingly.  Alternatively, the system may be instructed to merely inspect the interest rate on a daily basis but carry out an interest accrual only when there has actually been a rate change on a contract.
+The following example will clarify the significance of each of these alternatives:-
+Suppose that a contract runs thus:-
+Value    Day    Day    Day    Day    Day    Mat.    Date      1      2      3      4      5     Date
+10%     10%    10%    11%    11%     9%      9%
+A)         Input of '1' at this field will instruct the system to carry            out the interest accruals on a daily basis and pass            accounting entries accordingly. This means that on day            1 the system will calculate interest at 10% on the contract            for one day and pass the appropriate accounting entries.            Similarly, at day 2 it will again calculate interest at 10%            on the contract for one day and pass the accounting            entries. At day 3 there is a rate change to 11% and the            system will therefore calculate interest on the contract            for one day at 11% and pass entries and so on through to            maturity of the contract.
+B)         Input of '2' at this field will instruct the system only to            carry out interest accruals when there has been an            actual rate change. Thus on each of days 1 and 2 the            system will merely check the interest rate on the            contract, find that the rate rate has remained at 10%            throughout, and will not therefore carry out an interest            accrual. However, at day 3 the system will check the            interest rate, find that it has moved up from 10% to 11%            and will then calculate interest on the contract for two            days at 10% and pass the appropriate accounting entries.            It will then continue to check the rate on a daily basis            until it finds that at day 5 the rate fell back from 11% to            9% when it will then accrue interest on the contract for a            further two days, but at 11% and again  pass the            appropriate accounting entries. It will continue with this            procedure until contract maturity.
+Note:      If the appropriate accrual cycle field (field ACC CYCLE            L CCY or ACC CYCLE F CCY according to currency of            the contract) was set to "DAILY" then the difference            between method "1" and "2" above would not be apparent            since accruals would always be done daily. This field            only comes into effect when fields ACC CYCLE L CCY            and/or ACC CYCLE F CCY are "MONTHLY".
+Validation Rules
+1 Numeric character. The only valid input allowed is "1" (meaning book daily irrespective of rate change) or "2" (meaning book only when there is a rate change). (Optional input.  Default = "1")
+Input must be "1" or "2". */
+		ACC_CYCLE_FLOAT : LM_Config:LMM_INSTALL_CONDS__ACC_CYCLE_FLOAT
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=21.0, core=true, t24Name=ACC.CYCLE.FLOAT)
+		/* Specifies the minimum commission rate to be charged for the execution of a fiduciary contract.
+The percentage rate specified in this field will be the minimum fiduciary commission rate applicable to a fiduciary deposit unless the rate is entered manually at the contract level.
+This field is used in conjunction with the Fiduciary Commission Table, which contains additional information, to calculate commissions to be charged to customers in respect of fiduciary deposits opened by those customers with the Bank.  A commission rate specified on the Fiduciary Commission Table may not be less than the minimum commission rate input at this field.
+A more detailed explanation of fiduciary commission rates and their
+Validation Rules
+Standard rate format of 11 numeric characters but with a maximum of 6 integers or 9 decimals. (Optional input) documentation. */
+		FID_MIN_COMM_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, core=true, t24Name=FID.MIN.COMM.RATE)
+		/* Specifies the maximum commission rate to be charged for the execution of a fiduciary contract.
+The percentage rate specified in this field will be the maximum fiduciary commission rate applicable to a fiduciary deposit unless the rate is entered manually at the contract level.
+This field is used in conjunction with the Fiduciary Commission Table, which contains additional information, to calculate commissions to be charged to customers in respect of fiduciary deposits opened by those customers with the Bank. A commission rate specified on the Fiduciary Commission Table may not be greater than the maximum commission rate input at this field.
+A more detailed explanation of fiduciary commission rates and their
+Validation Rules
+Standard rate format of 11 numeric characters but with a maximum of six integers or nine decimals. (Optional input) documentation. */
+		FID_MAX_COMM_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=FID.MAX.COMM.RATE)
+		/* Specifies whether default fiduciary commissions are to be calculated from the local or foreign currency records in the fiduciary commission table.
+The fiduciary commission charge quotation mode input at this field specifies whether default fiduciary commission amounts are to be calculated using the local currency records or the records according to the deal currency.
+For example a USD deal operating under the (F)oreign FID COMM CHG QUOTE mode will use the USD records in the MM.FID.COMMISSION table to obtain a default fiduciary commission.  The same deal operating in a (L)ocal FID COMM CHG QUOTE mode will use the GBP records in the MM.FID.COMMISSION table and convert the amount to dollars at the mid-rate.
+Validation Rules
+Input may only be LOCAL or FOREIGN.(Mandatory input) */
+		FID_COM_CHRG_QUOTE : LM_Config:LMM_INSTALL_CONDS__FID_COM_CHRG_QUOTE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=24.0, core=true, t24Name=FID.COM.CHRG.QUOTE)
+		/* Specifies whether or not a fiduciary commission is to be charged at the maturity or takedown of a contract.
+Input of Y(es) at this field means that the fiduciary commission will be charged whenever interest is paid or on maturity of the contract.
+Current market practice is to charge fiduciary commission at the payment of interest/maturity of a deal and, in keeping with this, the system only allows the user to charge commission at interest payment/contract maturity.
+Validation Rules
+Mandatory input,only YES is permitted */
+		FID_COMM_AT_MAT_Y : LM_Config:LMM_INSTALL_CONDS__FID_COMM_AT_MAT_Y required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=25.0, core=true, t24Name=FID.COMM.AT.MAT.Y)
+		/* Indicates whether the penalty interest accruals will be taken on a financial or memorandum basis.
+According to the value specified in this field, the system will force input in field 34 (when input = 'F') or 36 (when input = 'M').
+Validation Rules
+1 alphabetic character of the form:- F = financial. M = memorandum.
+Input must be of the form "F" for financial or "M" for memorandum. */
+		PEN_I_ACC_FIN_MEM : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=9, sysNumber=26.0, core=true, t24Name=PEN.I.ACC.FIN.MEM)
+		/* Indicates whether the penalty commission accrual will be taken on a financial or memorandum basis.
+According to the value specified in this field, the system will force input in field 35 (when input = 'F') or 37 (when input = 'M').
+Validation Rules
+1 alphabetic character of the form:- F = financial. M = memorandum.
+Input must be of the form "F" for financial or "M" for memorandum. */
+		PEN_C_ACC_FIN_MEM : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=9, sysNumber=27.0, core=true, t24Name=PEN.C.ACC.FIN.MEM)
+		NAB___W_OFF__CAP : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=28.0, core=true, t24Name=NAB...W.OFF..CAP)
+		/* This field is reserved for future use. */
+		PL_O_SET_COMMT -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=29.0, core=true, t24Name=PL.O.SET.COMMT)
+		/* This field specifies the Profit and Loss Category code that is credited when booking current interest accruals on an asset contract where interest is payable in arrears.
+When the system accrues interest on an asset contract then a credit is booked to the Profit and Loss Category code defined in this field, typically called interest received.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Mandatory input)
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_O_SET_IR__CUR -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=30.0, core=true, t24Name=PL.O.SET.IR..CUR)
+		/* This field specifies the Profit and Loss Category code that is credited when booking current commission accruals on a asset contract where commission is payable in arrears.
+When the system accrues commission a credit is booked to the Profit and Loss Category code defined in this field, typically called commission received.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Mandatory input)
+Must be a valid entry on the CATEGORY Table in the range 50,000 to 59,999. */
+		PL_O_SET_CR__CUR -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=31.0, core=true, t24Name=PL.O.SET.CR..CUR)
+		/* This field specifies the Profit and Loss Category code that is credited when booking interest accruals on an asset contract where interest has been paid in advance.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Mandatory input)
+Must be a valid entry on the CATEGORY Table in the range 50,000 to 59,999. */
+		PL_O_SET_IRA -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=32.0, core=true, t24Name=PL.O.SET.IRA)
+		/* This field specifies the Profit and Loss Category code that is credited when booking commission accruals on an asset contract where commission has been paid in advance.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Mandatory input)
+Must be a valid entry on the CATEGORY Table in the range 50,000 to 59,999. */
+		PL_O_SET_CRA -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=33.0, core=true, t24Name=PL.O.SET.CRA)
+		/* This field specifies the Profit and Loss Category code that is debited when booking interest accruals on a liability contract where interest is payable in arrears.
+When the system accrues interest on a liability contract then a debit is booked to the Profit and Loss Category code defined in this field, typically called interest paid.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Mandatory input)
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_O_SET_IP__CUR -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=34.0, core=true, t24Name=PL.O.SET.IP..CUR)
+		/* This field specifies the Profit and Loss Category code that is debited when booking interest accruals on a liability contract where interest has been paid in advance.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Mandatory input)
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_O_SET_IPA -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=35.0, core=true, t24Name=PL.O.SET.IPA)
+		/* This field specifies the Profit and Loss Category code that is credited with penalty interest accrued on a financial basis.
+If the value in field PEN I ACC FIN MEM is "financial" then penalty interest accruals will be credited to this Profit and Loss Category code.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Mandatory Input if input in field PEN I ACC FIN MEM is 'financial' - otherwise input not allowed.)
+If field PEN I ACC FIN MEM contains the value F then input must be a valid entry on the CATEGORY table in the range 50,000 to 59,999.
+If field PEN I ACC FIN MEM contains the value M then input must be a valid entry on the CATEGORY table in the range 61,001 to 61,999. */
+		PL_O_SET_IR__PEN -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=36.0, core=true, t24Name=PL.O.SET.IR..PEN)
+		/* This field specifies the Profit and Loss Category code that is debited when booking current commission accruals on a asset contract where commission is payable in arrears.
+When the system accrues commission a debit is booked to the Profit and Loss Category code defined in this field, typically called commission received.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Mandatory input)
+Must be a valid entry on the CATEGORY Table in the range 50,000 to 59,999. */
+		PL_O_SET_CP__CUR -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=37.0, core=true, t24Name=PL.O.SET.CP..CUR)
+		/* This field specifies the Profit and Loss Category code that is credited with  penalty interest accrued on a memorandum basis.
+If the value in field PEN I ACC FIN MEM is "memorandum" then penalty interest accruals will be credited to this Profit and Loss Category code.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Mandatory input if input in field PEN I ACC FIN MEM is 'memorandum' - otherwise input not allowed.)
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_O_SET_IR__PEN_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=38.0, core=true, t24Name=PL.O.SET.IR..PEN.M)
+		/* This field specifies the Profit and Loss Category code that is credited with penalty commission accrued on a memorandum basis.
+If the value in field PEN C ACC FIN MEM is "memorandum" then penalty commission accruals will be credited to this Profit and Loss Category code.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Mandatory Input if input in field PEN C ACC FIN MEM is 'memorandum' - otherwise input is not allowed.)
+Must be a valid entry on the CATEGORY table in the range 61,001 to 61,999. */
+		PL_O_SET_CR__PEN_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=39.0, core=true, t24Name=PL.O.SET.CR..PEN.M)
+		/* This field specifies the Profit and Loss Category code that is credited with those interest accrued on a Loan classified in NAB status.
+When a Loan is classified to NAB status the interest is no longer accrued on a financial basis, but credited to this Profit and Loss Category code.
+The accrual cycle frequency is defined by the use of field ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Mandatory Input.)
+Must be a valid entry on the CATEGORY table in range 61,001 to 61,999. */
+		PL_O_SET_IR__SUS -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=40.0, core=true, t24Name=PL.O.SET.IR..SUS)
+		/* This field specifies the Profit and Loss Category code that is credited with commission accrued on Loans which are classified as NAB status.
+When Loans are transferred to NAB status commissions are no longer handled on a financial basis, but are credited to this Profit and Loss Category code.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT.
+Validation Rules
+1 - 5 numeric characters. (Mandatory input)
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_O_SET_CR__SUS -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=41.0, core=true, t24Name=PL.O.SET.CR..SUS)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting interest accruals for the current month on an asset contract where the interest is payable in arrears.
+When the system adjusts interest on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for this month's adjustment to the accrual.
+Adjustment of interest can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued interest rate reduction on an Asset contract then, if interest has accrued on this contract in the current month, there must be a debit to this Category code because too much interest has been accrued.
+Validation Rules
+1 - 5 numeric characters. (Optional input.  Default value is contents of field 'PL O SET IR CUR')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IR_CUR_CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=42.0, core=true, t24Name=PL.OS.IR.CUR.CUR.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting interest accruals for previous months on an asset contract where the interest is payable in arrears.
+When the system adjusts interest on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for previous months' adjustment to the accrual.
+Adjustment of interest can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued interest rate reduction on an Asset contract then, if interest has accrued on this contract in previous months at the old rate, there must be a debit to this Category code because too much interest has been accrued.
+Validation Rules
+1 - 5 numeric characters. (Optional input.  Default value is contents of field 'PL OS IR CUR CUR M.')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IR_CUR_PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=43.0, core=true, t24Name=PL.OS.IR.CUR.PRV.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting interest accruals for the previous year on an asset contract where the interest is payable in arrears.
+When the system adjusts interest on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous year's adjustment to the accrual.
+Adjustment of interest can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued interest rate reduction on an Asset contract then, if interest has accrued on this contract in the previous year at the old rate, there must be a debit to this Category code because too much interest has been accrued.
+Validation Rules
+1 - 5 numeric characters. (Optional input. Default value is contents of field 'PL OS IR CUR PRV M.')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IR_CUR_PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=44.0, core=true, t24Name=PL.OS.IR.CUR.PRV.Y)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting commission accruals for the current month on an asset contract where the commission is payable in arrears.
+When the system adjusts commission on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for this month's adjustment to the accrual.
+Adjustment of commission can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued commission rate reduction on an Asset contract then, if commission has accrued on this contract in the current month, there must be a debit to this Category code because too much commission has been accrued.
+Validation Rules
+1 - 5 numeric characters. (Optional input.  Default value is contents of field 'PL O SET CR CUR')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_CR_CUR_CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=45.0, core=true, t24Name=PL.OS.CR.CUR.CUR.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting commission accruals for previous months on an asset contract when the commission is payable in arrears.
+When the system adjusts commission  on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for previous months' adjustment to the accrual.
+Adjustment of commission  can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued commission  rate reduction on an Asset contract then, if commission  has accrued on this contract in previous months at the old rate, there must be a debit to this Category code because too much commission  has been accrued.
+Validation Rules
+1 -5 numeric characters. (Optional input.  Default value is contents of field 'PL OS CR CUR CUR M.')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_CR_CUR_PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=46.0, core=true, t24Name=PL.OS.CR.CUR.PRV.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting previous year commission accruals on an asset contract where the commission is payable in arrears.
+When the system adjusts commission  on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous year's adjustment to the commission accrual.
+Adjustment of commission can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued commission rate reduction on an Asset contract then, if commission has accrued on this contract in the previous year at the old rate, there must be a debit to this Category code because too much commission has been accrued.
+Validation Rules
+1 - 5 numeric characters. (Optional input.  Default value is contents of field 'PL OS CR CUR PRV M.')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_CR_CUR_PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=47.0, core=true, t24Name=PL.OS.CR.CUR.PRV.Y)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting interest accruals for the current month on an Asset contract where the interest has been received in advance.
+When the system adjusts commission on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for the current months adjustment to the commission accrual.
+Adjustment of commission can be caused by events such as reversal of contract or use of the adjustment function.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Optional Input. Default value is contents of field 'PL.O.SET.IRA').
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IRA____CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=48.0, core=true, t24Name=PL.OS.IRA....CUR.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting interest accruals for the previous months on an Asset contract where interest has been received in advance.
+When the system adjusts interest on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous months adjustment to the interest accrual.
+Adjustment of interest can be caused by events such as reversal of contract or use of the adjustment function.
+For example, if there is a back-valued interest rate reduction on an Asset contract then, if interest has accrued on this contract in the previous month at the old rate, there must be a debit to this Category code because too much interest has been accrued.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Optional Input. Default value is contents of field 'PL.O.IRA.CUR.M').
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IRA____PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=49.0, core=true, t24Name=PL.OS.IRA....PRV.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited  when adjusting interest accruals for the previous year(s) on an Asset contract where interest has been received in advance.
+When the system adjusts interest on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous year's adjustment to the interest accrual.
+Adjustment of interest can be caused by events such as reversal of contract or use of the adjustment function.
+For example, if there is a back-valued interest rate reduction on an Asset contract then, if interest has accrued on this contract in the previous year at the old rate, there must be a debit to this Category code because too much interest has been accrued.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Optional Input.  Default value is contents of field 'PL.O.IRA.PRV.M').
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IRA____PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=50.0, core=true, t24Name=PL.OS.IRA....PRV.Y)
+		/* This field specifies the Profit and Loss Category code that is credited/debited  when adjusting commission accruals for the current month on an Asset contract where  commission has been received in advance.
+When the system adjusts commission  on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for this month's adjustment to the commission accrual.
+Adjustment of commission can be caused by events such as reversal of contract or use of the adjustment function.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Optional Input.  Default value is contents of field 'PL.O.SET.CRA'.)
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_CRA____CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=51.0, core=true, t24Name=PL.OS.CRA....CUR.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting commission accruals for the previous months on an Asset contract where commission has been received in advance.
+When the system adjusts commission  on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous month's adjustment to the commission accrual.
+Adjustment of commission can be caused by events such as reversal of contract or use of the adjustment function.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Optional Input.  Default value is contents of field 'PL.O.CRA.CUR.M').
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_CRA____PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=52.0, core=true, t24Name=PL.OS.CRA....PRV.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting commission accruals for the previous year on an Asset contract where commission has been received in advance.
+When the system adjusts commission  on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous year's adjustment to the commission accrual.
+Adjustment of commission can be caused by events such as reversal of contract or use of the adjustment function.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Optional Input.  Default value is contents of field 'PL.O.CRA.PRV.M'.)
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_CRA____PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=53.0, core=true, t24Name=PL.OS.CRA....PRV.Y)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting interest accruals for the current month on a liability contract where interest is payable in arrears.
+When the system adjusts interest on a liability contract then an entry is booked to the Profit and Loss Category code entered in this field for this month's adjustment to the accrual.
+Adjustment of interest can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued interest rate reduction on a liability contract then, if interest has accrued on this contract in the current month, there must be a credit to this Category code because too much interest has been accrued.
+Validation Rules
+1 - 5 numeric characters. (Optional input.  Default value is contents of field 'PL O SET IP CUR')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IP_CUR_CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=54.0, core=true, t24Name=PL.OS.IP.CUR.CUR.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting interest accruals for previous months on a liability contract where interest is payable in arrears.
+When the system adjusts interest on a Liability contract then an entry is booked to the Profit and Loss Category code entered in this field for previous months' adjustment to the accrual.
+Adjustment of interest can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued interest rate reduction on a Liability contract then, if interest has accrued on this contract in previous months at the old rate, there must be a credit to this Category code because too much interest has been accrued.
+Validation Rules
+1 - 5 numeric characters. (Optional input.  Default value is contents of field 'PL OS IP CUR CUR M.')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IP_CUR_PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=55.0, core=true, t24Name=PL.OS.IP.CUR.PRV.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting interest accruals for the previous year on a liability contract where interest is payable in arrears.
+When the system adjusts interest on a Liability contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous year's adjustment to the accrual.
+Adjustment of interest can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued interest rate reduction on a Liability contract then, if interest has accrued on this contract in the previous year at the old rate, there must be a credit to this Category code because too much interest has been accrued.
+Validation Rules
+1 - 5 numeric characters. (Optional input.  Default value is contents of field 'PL OS IP CUR PRV M.')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IP_CUR_PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=56.0, core=true, t24Name=PL.OS.IP.CUR.PRV.Y)
+		/* This field specifies the Profit and Loss Category code that is  credited when adjusting interest accruals for the current month on a liability contract where interest has been paid in advance.
+When the system adjusts interest on a liability contract then an entry is booked to the Profit and Loss Category code entered in this field for this month's adjustment to the accrual.
+Adjustment of interest can only be caused by a reversal of contract.
+The accrual cycle frequency is defined by the use of fields ACC CYCLE L CCY, ACC CYCLE F CCY and ACC CYCLE FLOAT in this record.
+Validation Rules
+1 - 5 numeric characters. (Optional Input.  Default to contents of field 'PL.O.SET.IPA'.)
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IPA____CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=57.0, core=true, t24Name=PL.OS.IPA....CUR.M)
+		/* This field specifies the Profit and Loss Category code that is credited when adjusting interest accruals for previous months on a liability contract, where interest has been paid in advance.
+When the system adjusts interest on a liability contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous month's adjustment to the accrual.
+Adjustment of interest can be caused by reversal of contract.
+Validation Rules
+1 - 5 numeric characters. (Optional Input. Default to contents of field 'PL.OS.IPA.CUR.M'.)
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IPA____PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=58.0, core=true, t24Name=PL.OS.IPA....PRV.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting interest accruals for the previous year on a liability contract where interest has been paid in advance.
+When the system adjusts interest on a liability contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous year's adjustment to the accrual.
+Adjustment of interest can be caused by reversal of contract.
+Validation Rules
+1 - 5 numeric characters. (Optional input.  Default value is contents of field 'PL OS IPA PRV M')
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IPA____PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=59.0, core=true, t24Name=PL.OS.IPA....PRV.Y)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting penalty interest accruals for the current month.
+When the system adjusts interest on a liability contract then an entry is booked to the Profit and Loss Category code entered in this field for this month's adjustment to the accrual.
+Adjustment of interest can be caused by Account Officer decision to change the Penalty interest rate.
+Validation Rules
+1 - 5 numeric characters. (Optional Input. Default to contents of field 'PL.O.SET.IR.PEN' if 24 = Financial).
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IR_PEN_CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=60.0, core=true, t24Name=PL.OS.IR.PEN.CUR.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting penalty interest accruals for the previous month.
+When the system adjusts interest on a liability contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous month's adjustment to the accrual.
+Adjustment of interest can be caused by change of the Penalty rate.
+Validation Rules
+1 - 5 numeric characters. (Optional Input.  Default to contents of field PL OS IR PEN CUR M).
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IR_PEN_PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=61.0, core=true, t24Name=PL.OS.IR.PEN.PRV.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting penalty interest accruals for the previous year.
+When the system adjusts interest on a liability contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous year's adjustment to the accrual.
+Adjustment of interest can be caused by change of the Penalty interest rate.
+Validation Rules
+1 - 5 numeric characters. (Optional Input.  Default to contents of field. 'PL.OS.IR.PEN.PRV. M').
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_IR_PEN_PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=62.0, core=true, t24Name=PL.OS.IR.PEN.PRV.Y)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting commission accruals for the current month on an asset contract where the commission is payable in arrears.
+When the system adjusts commission on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for this month's adjustment to the accrual.
+Adjustment of commission can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued commission rate reduction on an Asset contract then, if commission has accrued on this contract in the current month, there must be a debit to this Category code because too much commission has been accrued.
+Validation Rules
+1 - 5 numeric characters. (Optional input.  Default value is contents of field 'PL O SET CP CUR')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_CP_CUR_CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=63.0, core=true, t24Name=PL.OS.CP.CUR.CUR.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting commission accruals for previous months on an asset contract when the commission is payable in arrears.
+When the system adjusts commission  on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for previous months' adjustment to the accrual.
+Adjustment of commission  can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued commission  rate reduction on an Asset contract then, if commission  has accrued on this contract in previous months at the old rate, there must be a debit to this Category code because too much commission  has been accrued.
+Validation Rules
+1 -5 numeric characters. (Optional input.  Default value is contents of field 'PL OS CP CUR CUR M.')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_CP_CUR_PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=64.0, core=true, t24Name=PL.OS.CP.CUR.PRV.M)
+		/* This field specifies the Profit and Loss Category code that is credited/debited when adjusting previous year commission accruals on an asset contract where the commission is payable in arrears.
+When the system adjusts commission  on an Asset contract then an entry is booked to the Profit and Loss Category code entered in this field for the previous year's adjustment to the commission accrual.
+Adjustment of commission can be caused by events such as back-valued rate or principal change, reversal of contract or use of the adjustment function.
+For example, if there is a back-valued commission rate reduction on an Asset contract then, if commission has accrued on this contract in the previous year at the old rate, there must be a debit to this Category code because too much commission has been accrued.
+Validation Rules
+1 - 5 numeric characters. (Optional input.  Default value is contents of field 'PL OS CP CUR PRV M.')
+Must be a valid entry on the  CATEGORY table in the range 50,000 to 59,999. */
+		PL_OS_CP_CUR_PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=65.0, core=true, t24Name=PL.OS.CP.CUR.PRV.Y)
+		/* This field is reserved for future use. */
+		PL_OS_IR_PEN_MEMO -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=66.0, core=true, t24Name=PL.OS.IR.PEN.MEMO)
+		/* This field is reserved for future use. */
+		PL_OS_CR_PEN_MEMO -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=67.0, core=true, t24Name=PL.OS.CR.PEN.MEMO)
+		/* This field is reserved for future use. */
+		PL_OS_IR_DUE_CUR_M -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=68.0, core=true, t24Name=PL.OS.IR.DUE.CUR.M)
+		/* This field is reserved for future use. */
+		PL_OS_IR_DUE_PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=69.0, core=true, t24Name=PL.OS.IR.DUE.PRV.M)
+		/* This field is reserved for future use. */
+		PL_OS_IR_DUE_PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=70.0, core=true, t24Name=PL.OS.IR.DUE.PRV.Y)
+		/* This field is reserved for future use. */
+		PL_OS_CR_DUE_CUR_M -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=71.0, core=true, t24Name=PL.OS.CR.DUE.CUR.M)
+		/* This field is reserved for future use. */
+		PL_OS_CR_DUE_PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=72.0, core=true, t24Name=PL.OS.CR.DUE.PRV.M)
+		/* This field is reserved for future use. */
+		PL_OS_CR_DUE_PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=73.0, core=true, t24Name=PL.OS.CR.DUE.PRV.Y)
+		/* This field specifies the Profit and Loss Category code that is debited in respect of Write-Offs.
+When a management decision is taken to write-off a loan this Profit and Loss Category code is charged.
+Validation Rules
+1 - 5 numeric characters. (Mandatory Input).
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999.
+Input in this field is mandatory. */
+		PL_DEBIT_WRITE_OFF -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=74.0, core=true, t24Name=PL.DEBIT.WRITE.OFF)
+		PL_ISSUE_CATEG -> byValue LM_Config:LMM_INSTALL_CONDS__PL_ISSUE_CATEG *
+		PL_REIMB_CAT -> byValue LM_Config:LMM_INSTALL_CONDS__PL_REIMB_CAT *
+		PL_REIMB_SETCAT -> byValue LM_Config:LMM_INSTALL_CONDS__PL_REIMB_SETCAT *
+		PL_ISSUE_SETCAT -> byValue LM_Config:LMM_INSTALL_CONDS__PL_ISSUE_SETCAT *
+		/* This field specifies the Profit and Loss Category code that is credited/debited re adjustments in Withholding Tax on methods CN + CG.
+This field contains the Profit and Loss Category code that is credited/debited with adjustments relating to withholding tax alternatives Customer Net (CN) and Customer Gross (CG).
+Validation Rules
+1 - 5 numeric characters. (Mandatory Input).
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		PL_ADJ_WHT -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=85.0, core=true, t24Name=PL.ADJ.WHT)
+		/* This field specifies the Profit and Loss Category code that is credited/debited with adjustments to general expenses re Withholding Tax on method CN + CG.
+This field contains the Profit and Loss Category code that is credited/debited with adjustments relating to withholding tax alternatives Customer Net (CN) and Customer Gross (CG).
+Validation Rules
+1 - 5 numeric characters. (Mandatory Input)
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		GEN_EXP_ADJ_WHT -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=86.0, core=true, t24Name=GEN.EXP.ADJ.WHT)
+		/* This field specifies the Profit and Loss Category code that is debited/credited with adjustments to general expenses re Withholding Tax on method BN.
+This field contains the Profit and Loss Category code that is credited/debited with adjustments relating to withholding tax alternative Bank Net (BN).
+Validation Rules
+1 - 5 numeric characters. (Mandatory Input).
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		GEN_EXP_ADJ_WHT_NT -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=87.0, core=true, t24Name=GEN.EXP.ADJ.WHT.NT)
+		/* This field specifies the Profit and Loss Category code that is debited/credited with adjustments to general expenses re Withholding Tax on method BG.
+This field contains the Profit and Loss Category code that is credited/debited with adjustments relating to withholding tax alternative. Bank Gross (BG).
+Validation Rules
+1 - 5 numeric characters. (Mandatory Input).
+Must be a valid entry on the CATEGORY table in the range 50,000 to 59,999. */
+		GEN_EXP_ADJ_WHT_GS -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=88.0, core=true, t24Name=GEN.EXP.ADJ.WHT.GS)
+		/* This field specifies the profit and loss category code that is debited when brokerage is paid on a contract.
+When brokerage is recorded on a contract the system credits an internal account number created with the category code in the ACCOUNT.CLASS record BROKER, and debits the profit and loss category code entered in this field (typically called brokerage paid).
+Validation Rules
+5 digit numeric field. (Mandatory input)
+Input must be a valid entry on the  Category Code Table and the System Indicator must be PL (i.e. Profit and Loss). */
+		BROKERAGE_PAYABLE -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=89.0, core=true, t24Name=BROKERAGE.PAYABLE)
+		/* The input at this field instructs the system how to continue processing during the 'off-line' when an entry would require an override.
+During the end of day processing the system call to accounting is replaced by a call to EOD ACCOUNTING. This ensures that there is no need for a user to be at the screen when a possible override condition is reached. The important parameter in this call, as far as the user is concerned, is the field EOD ACCT MODE which can have one of the following values:-
+A)         SAO - (System Automatic Override) - any override            condition will automatically have the answer 'YES'            assigned to it.
+B)         SSS - (System Suspense) - any override condition will            automatically have the answer 'YES' assigned to it if the            entry is to an internal account. An entry to a customer            account will be replaced by an entry to a suspense            account in the event of an override condition being            encountered.
+Validation Rules
+1 - 3 alphabetic characters - the only input allowed is 'SAO'(meaning System Automatic Override) or 'SSS'(meaning System Suspense). (Mandatory input). */
+		FWD_ACCT_MODE : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=90.0, core=true, t24Name=FWD.ACCT.MODE)
+		T_NOINPUT_FIELD -> byValue LM_Config:LMM_INSTALL_CONDS__T_NOINPUT_FIELD *
+		MAND_FLDS -> byValue LM_Config:LMM_INSTALL_CONDS__MAND_FLDS *
+		/* Default interest percentage tolerance allowed on money market contracts. This field will be ignored if there is input on the PERIODIC.INTEREST table.
+The default tolerance is checked against any interest rate difference, on money market contracts, between the raate entered and that calculated.  If the difference exceeds the percentage tolerance entered here then an override is required on the money market contract.
+An entry on the PERIODIC.INTEREST table will be used instead of this field if one is present.
+No input to this field implies that no checks are to be made for interest tolerance.
+Validation Rules
+4 numeric characters input up to 100% (Optional input) */
+		INT_TOLERANCE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=93.0, core=true, t24Name=INT.TOLERANCE)
+		/* This field is used exclusively by the Money Market System.  It indicates the date of the last End of Day run for Money Market.
+This field is only updated by Money Market as and when required.  If it is used when the first of a month is a non-working day and and date of the last End of Day is input in this field.
+At the next End of Day run certain information is passed to Consolidation for the Money Market Contracts.
+Validation Rules
+(System input.) */
+		MM_LAST_EOD_RUN : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=94.0, core=true, t24Name=MM.LAST.EOD.RUN)
+		/* This field is used exclusively by the Loans and Deposits System.  It indicates the date of the last End of Day run for Loans and Deposits.
+This field is only updated by Loans and Deposits as and when required.  If it is used when the first of a month is a non-working day and and date of the last End of Day is input in this field.
+At the next End of Day run certain information is passed to Consolidation for the Loans and Deposits Contracts.
+Validation Rules
+(System input.) */
+		LD_LAST_EOD_RUN : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=95.0, core=true, t24Name=LD.LAST.EOD.RUN)
+		/* Y/N Flag. For on-line Loans and Deposit changes, the setting of this flag will result in the production of rate change advices via Delivery instead of contract amendment advices.
+Input of 'Y' indicates that rate change advices will be produced when the interest rate on a Loan or Deposit is changed on-line. In the case of a call/notice this will be a message type 335, and a type 935 for a fixed Loan or Deposit.
+Input of 'N' indicates that amendment advices, 320 or 330, will continue to be produced instead.
+Validation Rules
+Input 'Y' or 'N'. Optional input. Blank entry in this field indicates that no rate change advices will be produced, but contract amendments instead.
+If this field is set to 'Y' then rate chnage advices will be produced for a given rate change on-line. */
+		LD_RATE_CHANGE_ADV : LM_Config:LMM_INSTALL_CONDS__LD_RATE_CHANGE_ADV
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=96.0, core=true, t24Name=LD.RATE.CHANGE.ADV)
+		/* For money market contracts theis field defines whether or not an additional amendment advice is required when contract rollover details are entered. When a rollover instruction is entered in a Money market deal using fields ROLLOVER.MARKER and ROLLOVER.DATE an advice with activity code 1070 is genErated. Any subsequent amendements while the Rollover details are still on the contract will generate activity code 1070. If this field is set to Y an additional advice WITH activity code 1020 will be generated.
+Validation Rules
+Y, NO or Null Optional Input */
+		MM_ROLL_AMEND_ADV : LM_Config:LMM_INSTALL_CONDS__MM_ROLL_AMEND_ADV
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=97.0, core=true, t24Name=MM.ROLL.AMEND.ADV)
+		/* Specifies whether the system should attempt to derive a future rate for R type schedules entered for a PERIODIC AUTOMATIC contract (INT.RATE.TYPE = 2).
+When the system raises forward account movements, all future scheduled entries will be raised where possible. Future interest amounts will be calculated using the CURRENT interest rate, unless this field is set to YES. When this field is set to YES the next interest rate for future R (rate revision) schedules will be derived using the current PERIODIC.INTEREST tables. The derived rate will then be used in all future interest calculations.
+The interest figures reflected in the Position Management will be calculated according to the setting of this field. GAP figures for principal are only projected up to the next rate revision date where the rate is unknown, all further principal schedules are reported under the next rate revision date in this case. If this field is set to YES, since the rates will be projected, the GAP will now report all principal with the true dates.
+The information can be recalculated periodically according to the frequency defined in FWD.R.TYPE.FQU. All forward accounting and position management will be recalculated.
+Validation Rules
+YES only allowed. Optional field */
+		PROJECT_R_TYPE : LM_Config:LMM_INSTALL_CONDS__PROJECT_R_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=98.0, core=true, t24Name=PROJECT.R.TYPE)
+		/* Specifies the frequency for recalculation of R schedules with the latest interest rates, when PROJECT.R.TYPE is set to YES.
+Validation Rules
+Cannot be DAILY frequency. */
+		FWD_R_TYPE_FQU : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=99.0, core=true, t24Name=FWD.R.TYPE.FQU, mask="RDDDD DD  D #####")
+		BILL_CHG_CODE -> byValue LM_Config:LMM_INSTALL_CONDS__BILL_CHG_CODE *
+		/* Specifies whether validation will trap possible input errors when a rate is entered on the LD record. The rate is used as a check to help prevent errors through mis-keying the interest or commission amounts. Only applies where the calculation basis is 'S'.
+If this field is set to YES or left null the system will verify that the amount entered is within certain tolerance checks. If the amount is within a 1% tolerance it is accepted; over 1% but less than 5% an override will warn the user; if greater than 5% then the amount or rate were mis-keyed and the system will reject the amount (either the amount or check rate should be amended).
+Entering NO here will bypass these checks. This option should be used with care as mistakes can get through. It would be used where specific interest payment schedules are pre-defined that could fall foul of the validation.
+For interest the INTEREST.BASIS, INTEREST.RATE and TOT.INTEREST.AMT fields apply
+For commission COMM.CAL.METHOD, COMM.RATE and TOTAL.COMM.AMOUNT apply.
+
+
+The user wants to specify an interest amount of USD 100,000 on a12 month loan contract of USD 900,000 so the maturity amount will be exactly USD 1 million. A check rate of 10.95 is entered.
+
+
+If the interest is entered as USD 10T or USD 10M it would be rejected as it would be outside the 5% tolerance.
+USD 101T for this example would be over 1% and would generate an override.
+An entry of exactly USD100T would be OK.
+
+
+
+
+Any value entered is accepted
+
+
+Validation Rules
+
+
+Optional Input
+Valid Input, "YES," "NO," or null. */
+		S_BASIS_RATE_VAL : LM_Config:LMM_INSTALL_CONDS__S_BASIS_RATE_VAL
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=101.0, core=true, t24Name=S.BASIS.RATE.VAL)
+		/* Set to "YES" to indicate that finance leasing contracts can be input.
+Set to Null or "NO" to indicate that finance leasing contracts cannot be input.
+If this field is set to "YES" then all relevant categories and transaction codes for finance leasing must be input.
+This includes the fields from PL.CI.CUR.M to PL.PO.TRANS.CODE.
+Validation Rules
+
+
+
+
+Optional Input
+Must be either "YES", "NO" or Null
+Once this field has been set to "YES" then it cannot be changed. */
+		FIN_LEASE_REQ : LM_Config:LMM_INSTALL_CONDS__FIN_LEASE_REQ
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=102.0, core=true, t24Name=FIN.LEASE.REQ)
+		/* The category code for Capital Income for the current month for loan finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_CI_CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=103.0, core=true, t24Name=PL.CI.CUR.M)
+		/* The category code for Capital Income for the previous month for loan finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_CI_PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=104.0, core=true, t24Name=PL.CI.PRV.M)
+		/* The category code for Capital Income for the previous year for loan finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_CI_PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=105.0, core=true, t24Name=PL.CI.PRV.Y)
+		/* The transaction code for Capital Income for the current month for loan finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a valid transaction code. */
+		PL_CI_TRANS_CODE -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=106.0, core=true, t24Name=PL.CI.TRANS.CODE)
+		/* The category code for Financial charge for the current month for loan finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_FC_CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=107.0, core=true, t24Name=PL.FC.CUR.M)
+		/* The category code for Financial Charge for the previous month for loan finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_FC_PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=108.0, core=true, t24Name=PL.FC.PRV.M)
+		/* The category code for Financial Charge for the previous year for loan finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_FC_PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=109.0, core=true, t24Name=PL.FC.PRV.Y)
+		/* The transaction code for finance charges for loan finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a valid transaction code. */
+		PL_FC_TRANS_CODE -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=110.0, core=true, t24Name=PL.FC.TRANS.CODE)
+		/* The category code for Capital Provision for the current month for deposit finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_CP_CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=111.0, core=true, t24Name=PL.CP.CUR.M)
+		/* The category code for Capital Provision for the previous month for deposit finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_CP_PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=112.0, core=true, t24Name=PL.CP.PRV.M)
+		/* The category code for Capital Provision for the previous year for deposit finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_CP_PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=113.0, core=true, t24Name=PL.CP.PRV.Y)
+		/* The transaction code for capital provision for deposit finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a valid transaction code. */
+		PL_CP_TRANS_CODE -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=114.0, core=true, t24Name=PL.CP.TRANS.CODE)
+		/* The category code for finance obligation for the current month for deposit finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_PO_CUR_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=115.0, core=true, t24Name=PL.PO.CUR.M)
+		/* The category code for finance obligation for the previous month for deposit finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_PO_PRV_M -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=116.0, core=true, t24Name=PL.PO.PRV.M)
+		/* The category code for finance obligation for the previous year for deposit finance leases.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a category code in the range 50000 to 69999. */
+		PL_PO_PRV_Y -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=117.0, core=true, t24Name=PL.PO.PRV.Y)
+		/* The transaction code for financial obligation for deposit finance lease.
+Validation Rules
+
+
+
+
+Can only be input if FIN.LEASE.REQ is set to "YES"
+Must be a valid transaction code. */
+		PL_PO_TRANS_CODE -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=118.0, core=true, t24Name=PL.PO.TRANS.CODE)
+		/* In discounted loan contracts the commission amount is collected up-front. This field indicates whether commission amount on a discounted loan contract needs to be refunded to the customer consequent to any change in the terms of contract like early closure of loan, reduction in rate of commission etc.
+Input of "YES" means that the extra commission amount would be refunded to the customer. Input of "NO" means that the extra commission amount would be booked as profit.
+There is an option in the LD module to override the input here at the time of input of a contract.
+However taxes, if collected, will not be refunded to the customer.
+
+
+
+
+Input must be "YES" or "NO"
+Default is "YES"
+Functionality applicable only for discounted loan         contracts. */
+		RETURN_INT : LM_Config:LMM_INSTALL_CONDS__RETURN_INT
+			@i18n:Label (en="Return interest")
+			@i18n:Tooltip (en="Whether to return interest or not?")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=119.0, core=true, t24Name=RETURN.INT)
+		/* In discounted loan contracts the interest amount is collected up-front. This field indicates whether interest amount on a discounted loan contract needs to be refunded to the customer consequent to any change in the terms of contract like early closure of loan, reduction in rate of interest etc.
+Input of "YES" means that the extra interest amount would be refunded to the customer. Input of "NO" means that the extra interest amount would be booked as profit.
+However taxes, if collected, will not be refunded to the customer.
+There is an option in the LD module to override the input here at the time of input of a contract.
+
+
+
+
+Input must be "YES" or "NO"
+Default is "YES"
+Functionality applicable only for discounted loan         contracts */
+		RETURN_COM : LM_Config:LMM_INSTALL_CONDS__RETURN_COM
+			@i18n:Label (en="Return Commission?")
+			@i18n:Tooltip (en="Indicates return commission Y / N ?")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=120.0, core=true, t24Name=RETURN.COM)
+		/* This field indicates which S.W.I.F.T message type (MT103 or MT202) shall be generated for
+MM application when the Counterparty is not a bank.
+
+YES - MT202 will be generated wherever necessary irrespective of whether
+the Counterparty is a bank or not.
+NO -   MT103 will be generated instead of MT202, if the Counter party is a not a Bank.
+
+Input is Optional.
+Valid Inputs are either YES or NO. Default is NO. */
+		CTPY_202_MSG : LM_Config:LMM_INSTALL_CONDS__CTPY_202_MSG
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=121.0, core=true, t24Name=CTPY.202.MSG)
+		/* Would contain a routine to decide the generation of Rollover advice for MM contracts
+either on ROLLOVER.DATE or date based on DAYS.DELIVERY.
+
+
+The routine should contain two parameters. First parameter is the input parameter that will
+hold Customer number and the second parameter is the output from the routine that
+would hold rollover flag indicating Y/N.
+The value in second parameter would decide the following
+A. 'N' indicates that rollover advice generation will happen based on DAYS.DELIVERY.
+B. 'Y' indicates that rollover advice will be generated on the rollover date.
+
+
+Should be a valid ID for a PGM.FILE with type 'S'.
+Maximum of 20 Characters.
+Optional input.
+
+Note:
+This field was created for the pupose of German Tax where rollover advices
+required to be generated only on the ROLLOVER.DATE for a specific condition i.e.non-bank
+CUSTOMERs and residence is 'DE'. */
+		ROLLOVER_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=122.0, core=true, t24Name=ROLLOVER.RTN)
+		/* The input at this field instructs the system  to generate 'n' schedules for LD contract.Based on this value system generates FWD entries, LMM.SCHEDULES and PM entries. If this field is left as blank then schedules will be built till the maturity date.
+Validation Rules
+1.      Optional input. It can be left as NULL.
+2.      Accept values from 1 to 99 only */
+		FWD_PROJ : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=123.0, core=true, t24Name=FWD.PROJ)
+		/* This field indicates the type of interest accrual to be done for interim payments defined in fields INT.SCHEDULE for fixed maturity contracts or INT.DUE.DATE for CALL/Notice contracts in Money.Market.
+If set to 'YES' the field has the following characteristics:
+
+a. The Total Interest for the Whole Contract Period is the same as the Standard  First Day Accrual Method.
+b. The interest for the INT.SCHEDULE / INT.DUE.DATE Date is also included as the interest for the period.
+c. The Interest for the First Period has one day of interest more than the Standard First Day Accrual Method.
+d. The Interest for Period between First and Last Period has the same interest as the Standard First Day Accrual Method.
+e. The Interest for the Last Period has one day of interest less than the Standard First Day Accrual Method.
+
+When set to NO or Null,  the standard accrual method of calculation (in which the First Day of the Interest Period is included and  the Last Day of the Interest Period is excluded) applies
+__________________________________________________
+
+(1) Values allowed are YES, NO or NULL.  Default is NULL.
+(2) Used in conjunction with the fields INT.SCHEDULE and INT.DUE.DATE of MM.MONEY.MARKET. */
+		MM_SPEC_INT_METHOD : LM_Config:LMM_INSTALL_CONDS__MM_SPEC_INT_METHOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=124.0, core=true, t24Name=MM.SPEC.INT.METHOD)
+		/* This field will hold the parameter level rounding rule for interest, commission, charge
+and fee calculations for MM.MONEY.MARKET and LD.LOANS.AND.DEPOSITS.
+
+Validation Rules
+Should be a valid EB.ROUNDING.RULE id.
+For detailed options on different rounding types help text on EB.ROUNDING.RULE file can be referred. */
+		ROUNDING_RULE -> ST_Config:EB_ROUNDING_RULE
+			@i18n:Label (en="Rounding Rule")
+			@i18n:Tooltip (en="Indicates the rounding rule")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=125.0, core=true, businessType=A, t24Name=ROUNDING.RULE)
+		LD_WRITE_SCH_HISTORY : LM_Config:LMM_INSTALL_CONDS__LD_WRITE_SCH_HISTORY
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=126.0, core=true, t24Name=LD.WRITE.SCH.HISTORY)
+		/* The value present in this field describes the Asset type to be used for posting non linear Interest accruals.
+It is applicable only for MM contracts created through REPO with REPO TYPE having EFFECTIVE RATE set to YES
+The possible values are MAIN.ASSET.TYPE or PANDL or NULL (‘’).
+If set to MAIN.ASSET.TYPE, the contract main ASSET.TYPE will be used for posting accruals. This can be LIVEDB or LIVECR based on Loan or Deposit contract.
+If set to PANDL or Null, the Interest Payable or Receivable categories as specified will be used for posting accruals. */
+		MM_ACCRUAL_ASSET_TYPE : LM_Config:LMM_INSTALL_CONDS__MM_ACCRUAL_ASSET_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=127.0, core=true, t24Name=MM.ACCRUAL.ASSET.TYPE)
+		OVERRIDE -> byValue LM_Config:LMM_INSTALL_CONDS__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=129.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=130.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue LM_Config:LMM_INSTALL_CONDS__INPUTTER *
+		DATE_TIME -> byValue LM_Config:LMM_INSTALL_CONDS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=133.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=134.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=135.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=136.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=137.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LMM_INSTALL_CONDS__PL_ISSUE_CATEG
+	{
+		/* Specifies the P&L category, or categories to be used when posting the premium or discount resulting from using an ISSUE.PRICE not equal to 100 for a loan or deposit contract in the Loans and Deposits application.
+One category may be specified together with an associated PL.ISSUE.TRANS transaction code to be used for booking all resultant profit or loss. Alternatively 4 different categories (and transaction codes) may be specified. Each category code will be used in the following case:
+1) LOAN - Issue Price > 100
+2) LOAN - Issue Price < 100
+3) DEPOSIT - Issue Price > 100
+4) DEPOSIT - Issue price < 100
+Validation Rules
+
+
+Must be an exisiting CATEGORY code in the range 50000 -         59999. */
+		PL_ISSUE_CATEG -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=75.0, core=true, t24Name=PL.ISSUE.CATEG)
+		/* Specifies the transaction code, or transactions to be used when posting the premium or discount resulting from using an ISSUE.PRICE not equal to 100 for a loan or deposit contract in the Loans and Deposits application.
+One transaction may be specified together with an associated PL.ISSUE.CATEG category code to be used for booking all resultant profit or loss. Alternatively 4 different transactions (and categories) may be specified. Each transaction code will be used in the following case:
+1) LOAN - Issue Price > 100
+2) LOAN - Issue Price < 100
+3) DEPOSIT - Issue Price > 100
+4) DEPOSIT - Issue price < 100
+Validation Rules
+
+
+Must be an exisiting TRANSACTION code. */
+		PL_ISSUE_TRANS -> ST_Config:TRANSACTION required
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=76.0, core=true, t24Name=PL.ISSUE.TRANS)
+	}
+	LMM_INSTALL_CONDS__PL_REIMB_CAT
+	{
+		/* Specifies the P&L category, or categories to be used when posting the premium or discount resulting from using a REIMBURSE.PRICE not equal to 100 for a loan or deposit contract in the Loans and Deposits application.
+One category may be specified together with an associated PL.REIMB.TRANS transaction code to be used for booking all resultant profit or loss. Alternatively 4 different categories (and transaction codes) may be specified. Each category code will be used in the following case:
+1) LOAN - Reimbursement Price > 100
+2) LOAN - Reimbursement Price < 100
+3) DEPOSIT - Reimbursement Price > 100
+4) DEPOSIT - Reimbursement price < 100
+Validation Rules
+
+
+Must be an exisiting CATEGORY code in the range 50000 -         59999. */
+		PL_REIMB_CAT -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=77.0, core=true, t24Name=PL.REIMB.CAT)
+		/* Specifies the transaction code, or transactions to be used when posting the premium or discount resulting from using a REIMBURSE.PRICE not equal to 100 for a loan or deposit contract in the Loans and Deposits application.
+One transaction may be specified together with an associated PL.REIMB.CAT category code to be used for booking all resultant profit or loss. Alternatively 4 different transactions (and categories) may be specified. Each transaction code will be used in the following case:
+1) LOAN - Reimbursement Price > 100
+2) LOAN - Reimbursement Price < 100
+3) DEPOSIT - Reimbursement Price > 100
+4) DEPOSIT - Reimbursement price < 100
+Validation Rules
+
+
+Must be an exisiting TRANSACTION code. */
+		PL_REIMB_TRANS -> ST_Config:TRANSACTION required
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=78.0, core=true, t24Name=PL.REIMB.TRANS)
+	}
+	LMM_INSTALL_CONDS__PL_REIMB_SETCAT
+	{
+		/* Specifies the code to be used in the LD.LOANS.AND.DEPOSITS module as the ASSET TYPE used in the CRB for the accrued reimbursement premuim / discount.
+One code may be specified which will be used for booking all resultant accruals in the CRB base. Alternatively 4 different categories (and transaction codes) may be specified. Each category code will be used in the following case:
+1) LOAN - Reimbursement Price > 100
+2) LOAN - Reimbursement Price < 100
+3) DEPOSIT - Reimbursement Price > 100
+4) DEPOSIT - Reimbursement price < 100
+The code used should not be shared with interest, commission and charge accrual categories used in Loans and Deposits to ensure clarity of reporting.
+Validation Rules
+
+
+Mandatory input Must be defined as a P&L Category         code in the range 50000 to 59999. */
+		PL_REIMB_SETCAT -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=79.0, core=true, t24Name=PL.REIMB.SETCAT)
+		/* Specifies the code to be used in the LD.LOANS.AND.DEPOSITS module as the category code for accrued reimbursement premium /discount adjustments in the previous month.
+One code may be specified which will be used for booking all resultant accrual adjustments. Alternatively 4 different categories (and transaction codes) may be specified. Each category code will be used in the following case:
+1) LOAN - Reimbursement Price > 100
+2) LOAN - Reimbursement Price < 100
+3) DEPOSIT - Reimbursement Price > 100
+4) DEPOSIT - Reimbursement price < 100
+The code used should not be shared with interest, commission and charge accrual categories used in Loans and Deposits to ensure clarity of reporting.
+Validation Rules
+
+
+Mandatory input Must be defined as a P&L Category         code in the range 50000 to 59999. */
+		PL_REIMB_CAT_PM -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=80.0, core=true, t24Name=PL.REIMB.CAT.PM)
+		/* Specifies the code to be used in the LD.LOANS.AND.DEPOSITS module as the category code for accrued reimbursement price premium /discount adjustments in the previous year.
+One code may be specified which will be used for booking all resultant accrual adjustments. Alternatively 4 different categories (and transaction codes) may be specified. Each category code will be used in the following case:
+1) LOAN - Reimbursement Price > 100
+2) LOAN - Reimbursement Price < 100
+3) DEPOSIT - Reimbursement Price > 100
+4) DEPOSIT - Reimbursement price < 100
+The code used should not be shared with interest, commission and charge accrual categories used in Loans and Deposits to ensure clarity of reporting.
+Validation Rules
+
+
+Mandatory input Must be defined as a P&L Category         code in the range 50000 to 59999. */
+		PL_REIMB_CAT_PY -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=81.0, core=true, t24Name=PL.REIMB.CAT.PY)
+	}
+	LMM_INSTALL_CONDS__PL_ISSUE_SETCAT
+	{
+		/* Specifies the code to be used in the LD.LOANS.AND.DEPOSITS module as the ASSET TYPE used in the CRB for the accrued issue price premium / discount.
+One code may be specified which will be used for booking all resultant accruals in the CRB base. Alternatively 4 different categories (and transaction codes) may be specified. Each category code will be used in the following case:
+1) LOAN - Issue Price > 100
+2) LOAN - Issue Price < 100
+3) DEPOSIT - Issue Price > 100
+4) DEPOSIT - Issue price < 100
+The code used should not be shared with interest, commission and charge accrual categories used in Loans and Deposits to ensure clarity of reporting.
+Validation Rules
+
+
+Mandatory input Must be defined as a P&L Category         code in the range 50000 to 59999. */
+		PL_ISSUE_SETCAT -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=82.0, core=true, t24Name=PL.ISSUE.SETCAT)
+		/* Specifies the code to be used in the LD.LOANS.AND.DEPOSITS module as the category code for accrued issue price premium /discount adjustments in the previous month.
+One code may be specified which will be used for booking all resultant accrual adjustments. Alternatively 4 different categories (and transaction codes) may be specified. Each category code will be used in the following case:
+1) LOAN - Issue Price > 100
+2) LOAN - Issue Price < 100
+3) DEPOSIT - Issue Price > 100
+4) DEPOSIT - Issue Price < 100
+The code used should not be shared with interest, commission and charge accrual categories used in Loans and Deposits to ensure clarity of reporting.
+Validation Rules
+
+
+Mandatory input Must be defined as a P&L Category         code in the range 50000 to 59999. */
+		PL_ISSUE_CAT_PM -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=83.0, core=true, t24Name=PL.ISSUE.CAT.PM)
+		/* Specifies the code to be used in the LD.LOANS.AND.DEPOSITS module as the category code for accrued issue price premium /discount adjustments in the previous year.
+One code may be specified which will be used for booking all resultant accrual adjustments. Alternatively 4 different categories (and transaction codes) may be specified. Each category code will be used in the following case:
+1) LOAN - Issue Price > 100
+2) LOAN - Issue Price < 100
+3) DEPOSIT - Issue Price > 100
+4) DEPOSIT - Issue Price < 100
+The code used should not be shared with interest, commission and charge accrual categories used in Loans and Deposits to ensure clarity of reporting.
+Validation Rules
+
+
+Mandatory input Must be defined as a P&L Category         code in the range 50000 to 59999. */
+		PL_ISSUE_CAT_PY -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=84.0, core=true, t24Name=PL.ISSUE.CAT.PY)
+	}
+	LMM_INSTALL_CONDS__T_NOINPUT_FIELD
+	{
+		/* This field is used exclusively by the Money Market System.  It provides a list of all first level input fields which cannot be amended by the back office user.
+This field ensures that the back office user does not change the fields already entered by the Dealer on first level input.
+Validation Rules
+1 to 2 numeric characters. (Optional input;  Default value : None). */
+		T_NOINPUT_FIELD : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=91.0, core=true, t24Name=T.NOINPUT.FIELD)
+	}
+	LMM_INSTALL_CONDS__MAND_FLDS
+	{
+		/* This field is used exclusively by the Money Market System.  It identifies fields which are Mandatory for first level input.
+This field is used only during first level input and ensures the Dealer enters values in these fields.
+Validation Rules
+1 to 2 numeric characters. (Optional input;  Default : None). */
+		MAND_FLDS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=92.0, core=true, t24Name=MAND.FLDS)
+	}
+	LMM_INSTALL_CONDS__BILL_CHG_CODE
+	{
+		/* Specifies the LMM.CHARGE.CONDITIONS codes used to book profit and loss from the rediscount of a Trade Bill or Bills. The LMM.CHARGE.CONDITION codes indicate the profit and loss categories used for booking the P&L.
+Value 1 of this field specifies the Profit Charge Code (i.e a RECEIVEable code) Value 2 of this field specifies the Loss Charge Code (i.e. a PAYable code)
+When a trade bill or bundle of bills are rediscounted, the difference between the discount rate and the rediscount rate should be realised as profit and loss at the time of the rediscount. In order to do this the system will calculate the total profit and loss due to each of the bills being discounted, the total of profit  or loss of all bills linked to the contract will be added to the CHRG.AMNT field together with the appropriate CHRG.CODE defaulted from this field.
+Validation Rules
+Optional Input If definde, 2 values must be present Value 1 must be defined in LMM.CHARGE.CONDITIONS with PAY.RECEIVE set to RECEIVE Value 2 must be defined in LMM.CHARGE.CONDITIONS with PAY.RECEIVE set to PAY */
+		BILL_CHG_CODE -> LM_Fees:LMM_CHARGE_CONDITIONS
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=100.0, core=true, t24Name=BILL.CHG.CODE)
+	}
+	LMM_INSTALL_CONDS__OVERRIDE
+	{
+		/* Contains all the override messages which the user has   confirmed during input.  At validation,the system may generate a series of    override messages to indicate some anomaly within the  transaction.  If the contract is subsequently displayed or   printed, all override messages are shown.
+Validation rules
+System generated NO INPUT, Multi value field. */
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=40, sysNumber=128.0, core=true, t24Name=OVERRIDE)
+	}
+	LMM_INSTALL_CONDS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=131.0, core=true, t24Name=INPUTTER)
+	}
+	LMM_INSTALL_CONDS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=132.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LMM_RATE_TYPE
+		@t24:i (t24Name=LMM.RATE.TYPE, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 1 characters may be entered. */
+		RATE_TYPE -> LM_Config:LMM_RATE_TYPE PK required
+			@i18n:Label (en="Rate Type")
+			@i18n:Tooltip (en="Is the Rate quoted net of tax or gross of tax")
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=0.0, core=true, t24Name=RATE.TYPE)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 14 characters may be entered. */
+		CONTRACT_NO : T24BusinessTypes:A
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=1.0, core=true, t24Name=CONTRACT.NO)
+	}
+	LMM_STATUS
+		@t24:i (t24Name=LMM.STATUS, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		STATUS -> LM_Config:LMM_STATUS PK required
+			@i18n:Label (en=Status)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, businessType=A, t24Name=STATUS)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 14 characters may be entered. */
+		CONTRACT_NO : T24BusinessTypes:A
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=1.0, core=true, t24Name=CONTRACT.NO)
+	}
+	/* LMM.TEXT is a table of advice texts which are printed on confirmations when settlement information, in respect of a contract counterparty, is not known.
+There are nine fields on each LMM.TEXT record.  Each has a related text which can be selected, by keying a number between 1 and 9, at the appropriate account field.
+This may be at the original input, or updating, of a Loan, Deposit or Money Market contract.
+This may be used, for example, when the User has no information about the counterparty's payment instructions and therefore, is unable to pay funds away.  In such a situation, the User would choose an appropriate text from the LMM.TEXT table (e.g. field 1 - Principal credited to suspense), and input  "1" at the appropriate account field when loading the contract. This message would then be printed on the contract confirmation under the settlement conditions heading.
+Only two records may be created on the LMM.TEXT table:-
+1.         TEXT RELATING TO PAYMENTS
+This will result in the credit of the LMM Suspense Credit Category Code defined on the ACCOUNT.CLASS record as "SUSPLMMCR".
+It is the TEXT (category) code that is used to form the suspense account number which is credited with the payment amount, and the advice narrative for the accompanying confirmation.
+2.         TEXT RELATING TO RECEIPTS
+This will result in the debit of the LMM Suspense Credit Category Code defined on the ACCOUNT.CLASS record as "SUSPLMMDR".
+It is the TEXT (category) code that is used to form the suspense account number which is debited with the payment amount, and the advice narrative for the accompanying confirmation. */
+	LMM_TEXT
+		@t24:i (t24Name=LMM.TEXT, level=I, type=U, additionalInfo="UNP OEU", allowedFunctions="A C D E I L P Q R S", localRefAllowed=false)
+	{
+		/* This is the key to a set of texts, which can be selected for printing on confirmations when payment/receipt is via a suspense account.
+Only one of the two possible category codes may be input at this field.
+The two category codes are to be found on the ACCOUNT.CLASS table, under the following titles:-
+i) SUSPLMMCR    For text related to payments, and                  therefore, having the key equal to                  the LMM Suspense Credit Category                  Code on the ACCOUNT.CLASS table.
+ii) SUSPLMMDR    For text related to receipts, and                  therefore, having the key equal to                  the LMM Suspense Debit Category Code                  on the ACCOUNT.CLASS table.
+Validation Rules
+5 Numeric characters. (Mandatory input.) */
+		CATEGORY_CODE -> LM_Config:LMM_TEXT PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, businessType=A, t24Name="CATEGORY CODE", mask="R##-###")
+		ADVICE_TXT_1 -> byValue LM_Config:LMM_TEXT__ADVICE_TXT_1 *
+		ADVICE_TXT_2 -> byValue LM_Config:LMM_TEXT__ADVICE_TXT_2 *
+		ADVICE_TXT_3 -> byValue LM_Config:LMM_TEXT__ADVICE_TXT_3 *
+		ADVICE_TXT_4 -> byValue LM_Config:LMM_TEXT__ADVICE_TXT_4 *
+		ADVICE_TXT_5 -> byValue LM_Config:LMM_TEXT__ADVICE_TXT_5 *
+		ADVICE_TXT_6 -> byValue LM_Config:LMM_TEXT__ADVICE_TXT_6 *
+		ADVICE_TXT_7 -> byValue LM_Config:LMM_TEXT__ADVICE_TXT_7 *
+		ADVICE_TXT_8 -> byValue LM_Config:LMM_TEXT__ADVICE_TXT_8 *
+		ADVICE_TXT_9 -> byValue LM_Config:LMM_TEXT__ADVICE_TXT_9 *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=11.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue LM_Config:LMM_TEXT__INPUTTER *
+		DATE_TIME -> byValue LM_Config:LMM_TEXT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=15.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=17.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=18.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LMM_TEXT__ADVICE_TXT_1
+	{
+		/* A brief text which will be printed on the confirmation, when settlement instructions are missing.
+The text defined at this field, will be printed on the contract confirmation if the User has input '1' at the appropriate settlement account field on the contract.
+Validation Rules
+1-35 Type A (Alphanumeric) characters. (Mandatory input. Multilingual field)
+Input must be in the form of 1 - 35 valid alphanumeric characters. */
+		ADVICE_TXT_1 : T24BusinessTypes:S required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name="ADVICE TXT 1")
+	}
+	LMM_TEXT__ADVICE_TXT_2
+	{
+		/* A brief text which will be printed on the confirmation, when settlement instructions are missing.
+The text defined at this field, will be printed on the contract confirmation if the User has input  '2' at the appropriate settlement account field on the contract.
+Validation Rules
+1-35 Type A (Alphanumeric) characters. (Mandatory input. Multilingual Field)
+Input must be in the form of 1 - 35 valid alphanumeric characters. */
+		ADVICE_TXT_2 : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=2.0, core=true, t24Name="ADVICE TXT 2")
+	}
+	LMM_TEXT__ADVICE_TXT_3
+	{
+		/* A brief text which will be printed on the confirmation, when settlement instructions are missing.
+The text defined at this field, will be printed on the contract confirmation if the User has input '3' at the appropriate settlement account field on the contract.
+Validation Rules
+1-35 Type A (Alphanumeric) characters. (Mandatory input. Multilingual Field.)
+Input must be in the form of 1-35 valid alphanumeric characters. */
+		ADVICE_TXT_3 : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=3.0, core=true, t24Name="ADVICE TXT 3")
+	}
+	LMM_TEXT__ADVICE_TXT_4
+	{
+		/* A brief text which will be printed on the confirmation, when settlement instructions are missing.
+The text defined at this field, will be printed on the contract confirmation if the User has input '4' at the appropriate settlement account field on the contract.
+Validation Rules
+1-35 Type A (Alphanumeric) characters. (Mandatory input. Multilingual Field)
+Input must be in the form of 1 - 35 valid alphanumeric characters. */
+		ADVICE_TXT_4 : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=4.0, core=true, t24Name="ADVICE TXT 4")
+	}
+	LMM_TEXT__ADVICE_TXT_5
+	{
+		/* A brief text which will be printed on the confirmation, when settlement instructions are missing.
+The text defined at this field, will be printed on the contract confirmation if the User has input '5' at the appropriate settlement account field on the contract.
+Validation Rules
+1-35 Type A (Alphanumeric) characters. (Mandatory input. Multilingual Field.)
+Input must be in the form of 1 - 35 valid alphanumeric characters. */
+		ADVICE_TXT_5 : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=5.0, core=true, t24Name="ADVICE TXT 5")
+	}
+	LMM_TEXT__ADVICE_TXT_6
+	{
+		/* A brief text which will be printed on the confirmation, when settlement instructions are missing.
+The text defined at this field, will be printed on the contract confirmation if the User has input '6' at the appropriate settlement account field on the contract.
+Validation Rules
+1-35 Type A (Alphanumeric) characters. (Mandatory input. Multilingual field.)
+Input must be in the form of 1 - 35 valid alphanumeric characters. */
+		ADVICE_TXT_6 : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=6.0, core=true, t24Name="ADVICE TXT 6")
+	}
+	LMM_TEXT__ADVICE_TXT_7
+	{
+		/* A brief text which will be printed on the confirmation, when settlement instructions are missing.
+The text defined at this field, will be printed on the contract confirmation if the User has input '7' at the appropriate settlement account field on the contract.
+Validation Rules
+1-35 Type A (Alphanumeric) characters. (Mandatory input. Multilingual Field.)
+Input must be in the form of 1 - 35 valid alphanumeric characters. */
+		ADVICE_TXT_7 : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=7.0, core=true, t24Name="ADVICE TXT 7")
+	}
+	LMM_TEXT__ADVICE_TXT_8
+	{
+		/* A brief text which will be printed on the confirmation, when settlement instructions are missing.
+The text defined at this field, will be printed on the contract confirmation if the User has input '8' at the appropriate settlement account field on the contract.
+Validation Rules
+1-35 Type A (Alphanumeric) characters. (Mandatory input. Multilingual Field.)
+Input must be in the form of 1 - 35 valid alphanumeric characters. */
+		ADVICE_TXT_8 : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=8.0, core=true, t24Name="ADVICE TXT 8")
+	}
+	LMM_TEXT__ADVICE_TXT_9
+	{
+		/* A brief text which will be printed on the confirmation, when settlement instructions are missing.
+The text defined at this field, will be printed on the contract confirmation if the User has input '9' at the appropriate settlement account field on the contract.
+Validation Rules
+1-35 Type A (Alphanumeric) characters. (Mandatory input. Multilingual Field.)
+Input must be in the form of 1 - 35 valid alphanumeric characters. */
+		ADVICE_TXT_9 : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=9.0, core=true, t24Name="ADVICE TXT 9")
+	}
+	LMM_TEXT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=INPUTTER)
+	}
+	LMM_TEXT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=13.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	LMM_INSTALL_CONDS__ACC_CYCLE_FLOAT : mml:string
+		n1=1
+		n2=2
+	LMM_INSTALL_CONDS__FID_COM_CHRG_QUOTE : mml:string
+		LOCAL=LOCAL
+		FOREIGN=FOREIGN
+	LMM_INSTALL_CONDS__FID_COMM_AT_MAT_Y : mml:string
+		YES=YES
+	LMM_INSTALL_CONDS__PEN_I_ACC_FIN_MEM : mml:string
+		FINANCIAL=FINANCIAL
+		MEMO=MEMO
+	LMM_INSTALL_CONDS__PEN_C_ACC_FIN_MEM : mml:string
+		FINANCIAL=FINANCIAL
+		MEMO=MEMO
+	LMM_INSTALL_CONDS__NAB___W_OFF__CAP : mml:string
+		WRITEOFF=WRITEOFF
+		CAPITALISE=CAPITALISE
+	LMM_INSTALL_CONDS__FWD_ACCT_MODE : mml:string
+		SAO=SAO
+		SSS=SSS
+	LMM_INSTALL_CONDS__LD_RATE_CHANGE_ADV : mml:string
+		Y=Y
+		N=N
+	LMM_INSTALL_CONDS__MM_ROLL_AMEND_ADV : mml:string
+		Y=Y
+		NO=NO
+	LMM_INSTALL_CONDS__PROJECT_R_TYPE : mml:string
+		YES=YES
+	LMM_INSTALL_CONDS__S_BASIS_RATE_VAL : mml:string
+		YES=YES
+		NO=NO
+	LMM_INSTALL_CONDS__FIN_LEASE_REQ : mml:string
+		YES=YES
+		NO=NO
+	LMM_INSTALL_CONDS__RETURN_INT : mml:string
+		YES=YES
+		NO=NO
+	LMM_INSTALL_CONDS__RETURN_COM : mml:string
+		YES=YES
+		NO=NO
+	LMM_INSTALL_CONDS__CTPY_202_MSG : mml:string
+		NO=NO
+		YES=YES
+	LMM_INSTALL_CONDS__MM_SPEC_INT_METHOD : mml:string
+		YES=YES
+		NO=NO
+	LMM_INSTALL_CONDS__LD_WRITE_SCH_HISTORY : mml:string
+		NO=NO
+		NULL=NULL
+	LMM_INSTALL_CONDS__MM_ACCRUAL_ASSET_TYPE : mml:string
+		PANDL=PANDL
+		MAIN_ASSET_TYPE=MAIN.ASSET.TYPE
+}

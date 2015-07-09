@@ -1,0 +1,292 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	domainEntity = "AAADSOperationHistory:OperationHistorySummaryList"
+	cssClass = nodeco
+	bean-define = DSBean.AAADSOperationHistory.OperationHistorySummaryList
+	bean-name = OperationHistorySummaryList
+	id = ByPortfolioList_s6J_3
+	documentation = "This module is used to display the summary of Portfolio Activity per portfolio."
+{
+	--- Box ---
+		boxType = vertical
+		width = 0
+	{
+		--- TableTree ---
+			id = L_K_M
+			documentation = "This table is used to display the summary of Portfolio Activity per portfolio."
+			table-column-count = 16 !
+			table-columns-width = "6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6" !
+			table-keep-filter-logic = OR
+		{
+			--- TableColumn ---
+				labels en = Portfolio, fr = Portefeuille, de = Portfolio
+				column-display-grouping = true
+				column-name = GROUPING
+				column-type = placeholder !
+				type = text
+				column-locked = true
+				column-sortable = false !
+				id = CtTf_
+				documentation = "This column is used to regroup all operations per portfolio, including portfolios\' hierarchies. The name of the portfolios is used for the display."
+				table-column-width = 6
+				tid = 606932967841486
+			{
+				--- TableGroup ---
+					aggregateData = false
+					group-column-name = PTF_HIER_STRING
+					group-sorting-column-name = PTF_HIER_STRING
+					group-sorting-direction = ascending
+					hierarchy = true
+					group-rank = 1
+				{
+					Event OnClick (submit) S
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						target = self
+						flow-action = selectPortfolio ud
+						portfolioDimPortfolio.code = "<udp:item column=\"_nodeCode\"/>" ud
+						portfolioDimensionE = 1 ud
+						loadPosF = true ud
+						modal = false
+						only-changed = false
+						prevalidate = false
+						code = "<udp:item column=\"_nodeCode\"/>" ud
+						Snippet FilterSet
+						id = fs_n14
+						level = 0
+						targetDataset = "AAADSOperationHistory:OperationHistorySummaryList"
+						{
+							Snippet Filter
+							attribute = PTF_HIER_STRING
+							filterValue = "<udp:item column=\"PTF_HIER_STRING\"/>"
+							operator = BEGINS_WITH
+						}
+					}
+				}
+			}
+			--- TableColumn ---
+				column-name = THIRD_COMP_RULE !
+				column-type = domain !
+				domainAttribute = THIRD_COMP_RULE !
+				type = text
+				column-visibility = not-visible
+				id = THIRD_COMP_RULE
+				table-column-width = 6
+			{
+				--- TableColumnItem ---
+					item-column = THIRD_COMP_RULE
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = CLIENT_NAME !
+				column-type = domain !
+				domainAttribute = CLIENT_NAME !
+				type = text
+				column-visibility = not-visible
+				id = CLIENT_NAME
+				table-column-width = 6
+			{
+				--- TableColumnItem ---
+					item-column = CLIENT_NAME
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = PORTFOLIO_INVEST_SERVICE !
+				column-type = domain !
+				domainAttribute = PORTFOLIO_INVEST_SERVICE !
+				type = text
+				column-visibility = not-visible
+				id = PORTFOLIO_INVEST_SERVICE
+				table-column-width = 6
+			{
+				--- TableColumnItem ---
+					item-column = PORTFOLIO_INVEST_SERVICE
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = ADMIN_MGR_NAME !
+				column-type = domain !
+				domainAttribute = ADMIN_MGR_NAME !
+				type = text
+				column-visibility = not-visible
+				id = ADMIN_MGR_NAME
+				table-column-width = 6
+			{
+				--- TableColumnItem ---
+					item-column = ADMIN_MGR_NAME
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = COM_MGR_NAME !
+				column-type = domain !
+				domainAttribute = COM_MGR_NAME !
+				type = text
+				column-visibility = not-visible
+				id = COM_MGR_NAME
+				table-column-width = 6
+			{
+				--- TableColumnItem ---
+					item-column = COM_MGR_NAME
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels de = "Anzahl Transaktionen"
+				column-name = NB_TRANSACTION !
+				column-type = domain !
+				domainAttribute = NB_TRANSACTION !
+				type = text
+				id = X2_0_
+				documentation = "It displays the number of operations per portfolio"
+				table-column-width = 6
+				tid = 1604012474735118
+			{
+				--- TableColumnItem ---
+					item-column = NB_TRANSACTION
+					format = integer
+					previewValue = 34
+			}
+			--- TableColumn ---
+				labels en = "Incoming Amount", fr = "Montant des entrées", de = "Betrag der Eingänge"
+				column-name = IncomingRefNetAmount
+				type = amount
+				id = h__E8
+				documentation = "It displays the total of incoming amount per portfolio in reference (domain) currency. The calculation is the following:\r\n\r\nIncoming amount =\r\n\r\n    Total of securities investments (deposits) for the portfolio\r\n+ Total of securities sells for the portfolio\r\n+ Total of cash investments (deposits) for the portfolio\r\n+ Total of dividends and coupons for the portfolio\r\n+ Total of money markets\' incomes for the portfolio\r\n+ Total of money market\'s sells for the portfolio\r\n+ Total of bonds redemption for the portfolio"
+				column-computation = make-amount
+				column-computation-parameters = "TOT_AMT_PTF_IN,REF_CURRENCY"
+				table-column-width = 6
+				tid = 606932968836816
+			{
+				--- TableColumnItem ---
+					item-column = IncomingRefNetAmount
+					previewValue = "12\'678.90 EUR"
+			}
+			--- TableColumn ---
+				labels en = "Outgoing Amount", fr = "Montant des sorties", de = "Betrag der Ausgänge"
+				column-name = OutgoingRefNetAmount
+				type = amount
+				id = T_44B
+				documentation = "It displays the total of outgoing amount per portfolio in reference (domain) currency. The calculation is the following:\r\n\r\nOutgoing amount =\r\n\r\n    Total of securities withdrawals, transfers and portfolio transfers for the portfolio\r\n+ Total of securities buys for the portfolio\r\n+ Total of cash withdrawals, transfers and portfolio transfers for the portfolio\r\n+ Total of money market\'s buys for the portfolio\r\n+ Total of management fees for the portfolio"
+				column-computation = make-amount
+				column-computation-parameters = "TOT_AMT_PTF_OUT,REF_CURRENCY"
+				table-column-width = 6
+				tid = 606932969836423
+			{
+				--- TableColumnItem ---
+					item-column = OutgoingRefNetAmount
+					previewValue = "34\'230.00 EUR"
+			}
+			--- TableColumn ---
+				labels en = "Cash Deposits", fr = "Apports de liquidité", de = "Bargeld Zuführungen"
+				column-name = CashInvestRefNetAmount
+				type = amount
+				id = V1_2_
+				documentation = "It displays the total of cash investments (deposits) per portfolio in reference (domain) currency."
+				column-computation = make-amount
+				column-computation-parameters = "TOT_AMT_INVEST_CASH,REF_CURRENCY"
+				table-column-width = 6
+				tid = 606932970840307
+			{
+				--- TableColumnItem ---
+					item-column = CashInvestRefNetAmount
+					previewValue = "678.45 EUR"
+			}
+			--- TableColumn ---
+				labels en = "Cash Withdrawals", fr = "Retraits de liquidité", de = "Bargeld Entnahmen"
+				column-name = CashWithdrRefNetAmount
+				type = amount
+				id = j_6C1
+				documentation = "It displays the total of cash withdrawals per portfolio in reference (domain) currency.\r\n\r\nHere, \"withdrawals\" means withdrawals, transfers and portfolio transfers."
+				column-computation = make-amount
+				column-computation-parameters = "TOT_AMT_WITHDR_CASH,REF_CURRENCY"
+				table-column-width = 6
+				tid = 606932971842052
+			{
+				--- TableColumnItem ---
+					item-column = CashWithdrRefNetAmount
+					previewValue = "0.00 EUR"
+			}
+			--- TableColumn ---
+				labels de = Grundumlauf
+				column-name = BASIC_PTF_TURN_OVER !
+				column-type = domain !
+				domainAttribute = BASIC_PTF_TURN_OVER !
+				type = text
+				id = NEk1f
+				documentation = "It displays the basic turn-over in percentage, between the total of securities sells and buys amount and the portfolio\'s market value per portfolio. The calculation is the following:\r\n\r\nBasic turn-over =\r\n\r\nABS( Total of securities buys per portfolio ) + ABS( Total of securities sells per portfolio )\r\n/\r\nABS( Total of initial positions costs per portfolio ) + ABS ( Total of cash investments per portfolio ) - ABS( Total of cash withdrawals per portfolio )\r\n\r\nHere, \"withdrawals\" means withdrawals, transfers and portfolio transfers."
+				table-column-width = 6
+				tid = 1604012475221018
+			{
+				--- TableColumnItem ---
+					item-column = BASIC_PTF_TURN_OVER
+					format = percentTA.5-digits
+					previewValue = 1.20%
+			}
+			--- TableColumn ---
+				labels de = Hauptumlauf
+				column-name = ADV_PTF_TURN_OVER !
+				column-type = domain !
+				domainAttribute = ADV_PTF_TURN_OVER !
+				type = text
+				id = a4N4_
+				documentation = "It displays the advanced turn-over in percentage, between the total of securities sells and buys amount and the portfolio\'s market value per portfolio. The calculation is the following:\r\n\r\nAdvanced turn-over =\r\n\r\nABS( Total of securities buys per portfolio ) + ABS( Total of securities sells per portfolio )\r\n/\r\nABS( Total of initial positions costs per portfolio ) + ABS ( Total of pondered cash investments per portfolio ) - ABS( Total of pondered cash withdrawals per portfolio )\r\n\r\nHere, \"withdrawals\" means withdrawals, transfers and portfolio transfers.\r\n\r\nThe ponderation on cash invesments and withdrawals is based on the following ponderation ratio:\r\n\r\nPonderation ratio =\r\n\r\nDays between date of execution of the operation (operation date) and the date defined as Till date in the context (domain)\r\n/\r\nDays between date defined as From date in the context (domain) and the date defined as Till date in the context (domain)"
+				table-column-width = 6
+				tid = 1604012475520856
+			{
+				--- TableColumnItem ---
+					item-column = ADV_PTF_TURN_OVER
+					format = percentTA.5-digits
+					previewValue = 1.36%
+			}
+			--- TableColumn ---
+				column-name = REMARKS !
+				column-type = domain !
+				domainAttribute = REMARKS !
+				type = text
+				id = s___C
+				documentation = "It indicates, for each portfolio, why the basic and advanced turn-over are not computed. The possible values are:\r\n\r\n- \"(blank = empty)\" if the basic and advanced turn-over are computed\r\n\r\n- \"No turn-over as initial positions not loaded\" if the basic and advanced turn-overs are not computed due to deactivation of initial positions load in the context (domain)\r\n\r\n- \"No turn-over as initial cost values = 0\" if the basic and advanced turn-overs are not computed due to a total initial costs value equals to 0.00"
+				table-column-width = 6
+			{
+				--- TableColumnItem ---
+					item-column = REMARKS
+			}
+			--- TableColumn ---
+				column-name = THIRD_PARTY_OWNERSHIP_RULE !
+				column-type = domain !
+				domainAttribute = THIRD_PARTY_OWNERSHIP_RULE !
+				type = text
+				column-visibility = not-visible
+				id = THIRD_PARTY_OWNERSHIP_RULE
+				table-column-width = 6
+			{
+				--- TableColumnItem ---
+					item-column = THIRD_PARTY_OWNERSHIP_RULE
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = THIRD_PARTY_PERCT_OWNERSHIP !
+				column-type = domain !
+				domainAttribute = THIRD_PARTY_PERCT_OWNERSHIP !
+				type = text
+				column-visibility = not-visible
+				id = THIRD_PARTY_PERCT_OWNERSHIP
+				table-column-width = 6
+			{
+				--- TableColumnItem ---
+					item-column = THIRD_PARTY_PERCT_OWNERSHIP
+					format = percentTA
+					previewValue = value
+			}
+			--- TableSort ---
+				sort-column-name = PTF_HIER_STRING
+				sort-rank = 1
+			--- TableExtra ---
+				domainAttribute = portfolio_id
+			--- TableKeepFilter ---
+				keep-filter-column-name = SUMMARY_FILTER
+				keep-filter-operand = 1
+		}
+	}
+}

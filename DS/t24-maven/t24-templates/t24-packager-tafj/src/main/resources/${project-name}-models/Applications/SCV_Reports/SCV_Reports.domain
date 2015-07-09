@@ -1,0 +1,731 @@
+# UTF-8
+# UTF-8
+/* Valuation Enquiries and Reports */
+Domain SCV_Reports
+	@t24:i (module=SC)
+	@java:Package (value=com.temenos.t24.datamodel.sc.scv_reports)
+namespace "http://www.temenos.com/t24/SCV_Reports"
+metamodelVersion 1.30.6
+Classes {
+	/* This table is used to produce portfolio valuation reports on-line. Each user may enter his own parameters for the production of either individual reports for a customer, or for all the customers of a particular DEPT.ACCT.OFFICER.
+The user also has the ability to determine which reports are to be produced.
+For confidentiality purpose, only customers belonging to the account officer whose code is used as the key to the current record will be allowed in it. */
+	OL_VAL_REPS
+		@t24:i (t24Name=OL.VAL.REPS, level=F, type=W, additionalInfo="UNP OEU", allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* Specifies the code of the account officer for whom the reports are to be produced.
+The user should enter their own account officer code, so that if 'ALL' is entered in the SEC.ACC.NO  field, all portfolios relating to that account officer specified will be selected.
+Validation Rules
+1-4 numeric characters. (Mandatory Input)
+Must exist on the DEPT.ACCT.OFFICER table. */
+		ACCOUNT_OFFICER -> SCV_Reports:OL_VAL_REPS PK required
+			@i18n:Label (en="Account Officer")
+			@i18n:Tooltip (en="Indicates Account Officer responsible")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=0.0, core=true, businessType=DAO, t24Name=ACCOUNT.OFFICER)
+		REPORT_TYPE -> byValue SCV_Reports:OL_VAL_REPS__REPORT_TYPE *
+		/* YES/NO flag allowing the User to Choose whether they wish to Physically produce a Valuations report or not.
+Valid Values : YES or NO. - Default is YES. */
+		PRINT_REPORT : SCV_Reports:OL_VAL_REPS__PRINT_REPORT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, t24Name=PRINT.REPORT)
+		/* Indicates whether the portfolios are to be re-valued, set Y, or whether the last valuation data is to be used, leave blank. */
+		ONLINE_VAL : SCV_Reports:OL_VAL_REPS__ONLINE_VAL required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, t24Name=ONLINE.VAL)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCV_Reports:OL_VAL_REPS__INPUTTER *
+		DATE_TIME -> byValue SCV_Reports:OL_VAL_REPS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=13.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=15.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=16.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	OL_VAL_REPS__REPORT_TYPE
+	{
+		/* Specifies which report/s is/are to be produced for the accounts specified in the SEC.ACC.NO field.
+Validation Rules
+1-2 numeric characters. (Mandatory Input) Examples: If, for example, the user wants reports 1 & 4 for clients who's portfolio numbers are 1001-1, 1002-1, 31245-2, and report 6 for all of their clients, the input would be as follows: 1.1   REPORT.TYPE   1 2.1.1 SEC.ACC.NO    1001-1 2.1.2 SEC.ACC.NO    1002-1 2.1.3 SEC.ACC.NO    31245-2 1.2   REPORT.TYPE   4 2.2.1 SEC.ACC.NO    1001-1 2.2.2 SEC.ACC.NO    1002-1 2.2.3 SEC.ACC.NO    31245-2 1.3   REPORT.TYPE   6 2.3.1 SEC.ACC.NO    ALL
+Must exist on the SC.REPORT.TYPE tableor on the SC.VAL.REPORT if the Valuation sub routine entered on the SC.PARAMETER record is SC.VAL.REPORT$RUN. */
+		REPORT_TYPE -> SCV_Reports:SC_REPORT_TYPE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=1.0, core=true, businessType=S, t24Name=REPORT.TYPE)
+		SEC_ACC_NO -> byValue SCV_Reports:OL_VAL_REPS__REPORT_TYPE__SEC_ACC_NO *
+	}
+	OL_VAL_REPS__REPORT_TYPE__SEC_ACC_NO
+	{
+		/* Specifies the portfolios for which the reports are required.
+Validation Rules
+'ALL' or    1-10 numeric characters in the format 'nnnnnn-nnn' (Mandatory Input) Examples: If, for example, the user wants reports 1 & 4 for clients who's portfolio numbers are 1001-1, 1002-1, 31245-2, and report 6 for all of their clients, the input would be as follows: 1.1   REPORT.TYPE   1 2.1.1 SEC.ACC.NO    1001-1 2.1.2 SEC.ACC.NO    1002-1 2.1.3 SEC.ACC.NO    31245-2 1.2   REPORT.TYPE   4 2.2.1 SEC.ACC.NO    1001-1 2.2.2 SEC.ACC.NO    1002-1 2.2.3 SEC.ACC.NO    31245-2 1.3   REPORT.TYPE   6 2.3.1 SEC.ACC.NO    ALL
+Must either be 'ALL' or must exist on the SEC.ACC.MASTER file. */
+		SEC_ACC_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=2.0, core=true, t24Name=SEC.ACC.NO)
+		/* Specifies whether the report is required for the bank's own use, or whether it is to be sent to the customer.
+This field is reserved for future use.
+Validation Rules
+Y or N(o) only (Optional Input)
+Default is 'NO' */
+		EXTERNAL_REP : SCV_Reports:OL_VAL_REPS__REPORT_TYPE__SEC_ACC_NO__EXTERNAL_REP
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=EXTERNAL.REP)
+		/* Specifies which month is to be used as the starting point for the cashflow report.
+This field is only used in the production of the cashflow report, and is the starting point from which a 3 month cashflow projection will be based.
+Validation Rules
+1-2 numeric characters (Optional Input)
+Must be in range 01-12.
+Default is current month. */
+		REPORT_MONTH : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=4.0, core=true, t24Name=REPORT.MONTH)
+		/* This field is not currently used. */
+		DELIVERY_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=5.0, core=true, t24Name=DELIVERY.KEY)
+	}
+	OL_VAL_REPS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=INPUTTER)
+	}
+	OL_VAL_REPS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=11.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* SC.REPORT.TYPE
+
+This table is used by the securities report request sub-system and contains the names of those reports, together with their associated report number, which may be requested for printing directly by the users. */
+	SC_REPORT_TYPE
+		@t24:i (t24Name=SC.REPORT.TYPE, level=I, type=H, additionalInfo="UNP OEU", allowedFunctions="A C D E H I L P Q S", localRefAllowed=false)
+	{
+		/* Unique reference which identifies the Security module (SC) REPORT TYPE record.
+Validation Rules
+
+1 to 5 type S (uppercase alpha or numeric) characters. (Mandatory input)
+1st Character must be a number from 1-9
+2nd character must be "A"
+3rd to 5th character will allow alpha numeral. */
+		REPORT_ANALYSIS -> SCV_Reports:SC_REPORT_TYPE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=0.0, core=true, businessType=S, t24Name=REPORT.ANALYSIS)
+		DESCRIPTION -> byValue SCV_Reports:SC_REPORT_TYPE__DESCRIPTION *
+		SHORT_DESCR -> byValue SCV_Reports:SC_REPORT_TYPE__SHORT_DESCR *
+		/* Specifies whether the report is external or not.
+This field has been replaced by the field EXTERNAL REP (field 3.1) in the application OL.VAL.REPS.
+Validation Rules
+Only Y(es) or N(o). be alpha) characters. (Mandatory input.) */
+		EXTERNAL_REPORT : SCV_Reports:SC_REPORT_TYPE__EXTERNAL_REPORT
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=EXTERNAL.REPORT)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 14 characters may be entered.
+Must be the key to a valid entry on the SC.VAL.PARAM.NBK file. */
+		VAL_PARAM_ID -> SCV_Config:SC_VAL_PARAM
+			@i18n:Label (en="Parameter Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=4.0, core=true, businessType=A, t24Name=VAL.PARAM.ID)
+		/* Indicates the required version of the valuation report which is to be run.
+As to which file to point to depends upon the value entered in the field VALUATION.SUBR (9) on the SC.PARAMETER file.
+If this field is left blank then it is assumed that the basic T24 revaluation format is to be used.
+Validation Rules
+Upto 25 type A (alphanumeric) characters. (Optional input.)
+Must exist on the SC.VAL.PARAM.*** applicable to the          T24 user - where *** denotes the T24 user's COMPANY mnemonic. */
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=5.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=6.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCV_Reports:SC_REPORT_TYPE__INPUTTER *
+		DATE_TIME -> byValue SCV_Reports:SC_REPORT_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=9.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=10.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=11.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=12.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=13.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_REPORT_TYPE__DESCRIPTION
+	{
+		/* Describes the SC.Report.Type.
+This field may be expanded to allow the user to enter the Description of the SC.Report.Type in various languages. Each expansion of the field will correspond to a new language as defined in the Language table and will indicate to the user the Language in which the Description is to be entered.
+Validation Rules
+3 to 35 type AA (alphanumeric, first character must be alpha) characters. Multilanguage field (Mandatory input) */
+		DESCRIPTION : T24BusinessTypes:AA required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	SC_REPORT_TYPE__SHORT_DESCR
+	{
+		/* Describes in abbreviated form the SC.Report.Type.
+This field may be expanded to allow the user to enter the Description of the SC.Report.Type in various languages. Each expansion of the field will correspond to a new language as defined in the Language table and will indicate to the user the Language in which the Description is to be entered.
+Validation Rules
+3 to 15 type SS (uppercase alpha or numeric, first character must be alpha) characters. Multilanguage field. (Mandatory input.) */
+		SHORT_DESCR : T24BusinessTypes:SS required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.DESCR)
+	}
+	SC_REPORT_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=7.0, core=true, t24Name=INPUTTER)
+	}
+	SC_REPORT_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=8.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This report request is to be used in conjunction with the Policy Parameter tables as set up in the 'POLICY PARAMETER' Table.
+The User is able to determine when and what criteria should apply to a holding or a price before he should receive a warning report of the variance.  For example the User may input at Fields 1 and 2 the Price Variance percentage of 10 and the Frequency of Daily.  This will provide the User with a list of all Securities which have moved by that percentage since the last update.  To begin with it will read the Average cost price of each Security account and compare it with the market price of each Security where it varies by more than the specified amount it will update a report with details of that Security.
+Field 3 of the Report request stipulates what percentage variance, Performance - wise of a Clients' Portfolio account the User needs details of.
+Field 4 dictates the percentage variance of a Clients' portfolio plan needed to update a warning report. */
+	SC_REPORT_VAR
+		@t24:i (t24Name=SC.REPORT.VAR, level=I, type=H, allowedFunctions="A C D E H I L P Q S", localRefAllowed=false)
+	{
+		/* Specifies the Company to which the User must be Signed On in order to use the Application.
+Validation Rules
+9 alphanumeric characters 'CCGGGLLLL' where: CC   is 2 alpha characters Country Code GGG  is 3 numeric characters Company Group LLLL is 4 numeric local code. or     2-3 type MNE (uppercase alphanumeric or '.') Company Mnemonic characters. Mandatory input.  No Default Value. */
+		COMPANY_CODE -> SCV_Reports:SC_REPORT_VAR PK required
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=0.0, core=true, businessType=COM, t24Name=COMPANY.CODE)
+		/* When entered this variance of price movement by the specified percentage will update a warning list for the user to utilise.
+System compares cost price on portfolio account with the current market price and updates a report with details of those Securities which have exceeded or reached that variance.
+Validation Rules
+Standard numeric type input up to 5 characters in length.  No decimals allowed. */
+		PRICE_VAR_PERC : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=1.0, core=true, t24Name=PRICE.VAR.PERC)
+		/* Informs the system of the Frequency of the check it needs to perform with one variance percentage in Field 1 on the price of each Security held.
+Validation Rules
+Standard frequency format. */
+		PRICE_MOVE_FQU : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=2.0, core=true, t24Name=PRICE.MOVE.FQU)
+		/* The user will store a Performance Variance percentage figure in this field and the system will compare this performance with the performance of the Individual Portfolio Account and Update a report with exceptions at the Frequency specified in Field 5.
+Validation Rules
+Frequency specified in Field 5 Numeric type input 5 characters in length No decimals allowed. */
+		PERFORM_VAR_PERC : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=PERFORM.VAR.PERC)
+		/* The system will compare the actual holdings percentage - wise against the policy parameters set up and generate a report as and when indicated by the Frequency specified in Field 5.
+Validation Rules
+Numeric type input 5 characters maximum length.  No decimals allowed. */
+		POLICY_VAR_PERC : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=POLICY.VAR.PERC)
+		/* Frequency of check to be carried out to calculate and illustrate the exceptions encountered by the criteria specified in Fields 3 & 4.
+Validation Rules
+Standard frequency format. */
+		PER_POLICY_VAR_FQU : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=5.0, core=true, t24Name=PER.POLICY.VAR.FQU)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=6.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=7.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCV_Reports:SC_REPORT_VAR__INPUTTER *
+		DATE_TIME -> byValue SCV_Reports:SC_REPORT_VAR__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=13.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=14.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_REPORT_VAR__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, core=true, t24Name=INPUTTER)
+	}
+	SC_REPORT_VAR__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=9.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* While Portfolio valuation statements are automatically printed at End of Day according to the type of report and the frequency as stored at CUSTOMER.SECURITY level it is desirable to have the flexibility to request these reports on an ad hoc basis without the necessity for having to change the static Data Base each time.
+This facility enables the user to do just that:
+He specifies what customer, what report and whether the report is to go out to the customer or is for internal purposes.
+This application is then processed at End of Day and the valuations etc. printed via Delivery. */
+	SC_REPORTS_REQUEST
+		@t24:i (t24Name=SC.REPORTS.REQUEST, level=I, type=U, additionalInfo="UNP OEU", allowedFunctions="A C D E I L P Q S", localRefAllowed=false)
+	{
+		/* Specifies the Company to which the User must be Signed On in order to use the Application.
+Validation Rules
+9 alphanumeric characters 'CCGGGLLLL' where: CC   is 2 alpha characters Country Code GGG  is 3 numeric characters Company Group LLLL is 4 numeric local code. or    2-3 type MNE (uppercase alphanumeric or '.') Company Mnemonic characters. Mandatory input.  No Default Value.
+Must exist as a valid Company code. */
+		COMPANY_CODE -> SCV_Reports:SC_REPORTS_REQUEST PK required
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=0.0, core=true, businessType=COM, t24Name=COMPANY.CODE)
+		REPORT_TYPE -> byValue SCV_Reports:SC_REPORTS_REQUEST__REPORT_TYPE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=6.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=7.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCV_Reports:SC_REPORTS_REQUEST__INPUTTER *
+		DATE_TIME -> byValue SCV_Reports:SC_REPORTS_REQUEST__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=13.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=14.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_REPORTS_REQUEST__REPORT_TYPE
+	{
+		/* Multivalue field used to specify the desired valuation.
+This field is linked to a table 'SC.REPORT.TYPE'.  Report ID's 1-14 are hard coded within this application.
+Note:     As extra reports are created for local requirements and           enhancements, their ID will be added to the table           SC.REPORT.TYPE.
+Validation Rules
+Numeric report number 1-14 is the only allowed input. (Mandatory input.)
+Must exist as a valid report type on the 'SC.REPORT.TYPE' table, or on the SC.VAL.REPORT if the Valuation subroutine entered on the SC PARAMETER record is SC.VAL.REPORT$RUN. */
+		REPORT_TYPE -> SCV_Reports:SC_REPORT_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, businessType=S, t24Name=REPORT.TYPE)
+		ACCT_OFFICER -> byValue SCV_Reports:SC_REPORTS_REQUEST__REPORT_TYPE__ACCT_OFFICER *
+	}
+	SC_REPORTS_REQUEST__REPORT_TYPE__ACCT_OFFICER
+	{
+		/* Multivalue field to indicate to which client's portfolio the specified report refers to.
+If no specific portfolio account is indicated the system will assume the request is for all safecustody reports and default to 'ALL'.
+Validation Rules
+Must be a valid customer portfolio account made up of a valid customer number separated by ' ' from the portfolio account reference number. (Default value = 'ALL'
+Must exist as a valid security account number within the 'SEC.ACC.MASTER' file. */
+		ACCT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=2.0, core=true, t24Name=ACCT.OFFICER)
+		/* Associated multivalue field which specifies whether the report specified at field is for 'EXTERNAL' use or not.
+Various reports are for analysis and decision making only and as such are not intended for external use.
+Validation Rules
+Only allowed input in 'Y'(es) or    'N'(O) (Mandatory Input).
+Reports 1-5 are customer related and can be for external use.
+Reports 11-14 are for internal use only. */
+		SEC_ACC_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, t24Name=SEC.ACC.NO)
+		/* Used to specify the particular month to which a report may refer.
+Validation Rules
+Only allowed input is 1-12. Where  1  = January and 12 = December */
+		EXTERNAL_REP : SCV_Reports:SC_REPORTS_REQUEST__REPORT_TYPE__ACCT_OFFICER__EXTERNAL_REP
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=4.0, core=true, t24Name=EXTERNAL.REP)
+		/* Fields REPORT.TYPE to REPORT.MONTH form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 2 characters may be entered. */
+		REPORT_MONTH : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=5.0, core=true, t24Name=REPORT.MONTH)
+	}
+	SC_REPORTS_REQUEST__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, core=true, t24Name=INPUTTER)
+	}
+	SC_REPORTS_REQUEST__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=9.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_VAL_PERFORM
+		@t24:i (t24Name=SC.VAL.PERFORM, level=F, type=U, allowedFunctions="A C D E I L P Q S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+Mandatory input.
+A maximum of 35 characters may be entered. */
+		PORT_NO_DATE -> SCV_Reports:SC_VAL_PERFORM PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=PORT.NO.DATE)
+		/* Standard T24 amount field.
+Validation Rules
+A maximum of 018 characters may be entered. */
+		VALUE_BEGIN : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=1.0, core=true, t24Name=VALUE.BEGIN)
+		FLOW_DATE -> byValue SCV_Reports:SC_VAL_PERFORM__FLOW_DATE *
+		/* Validation Rules
+A maximum of 18 characters may be entered. */
+		VALUE_END : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=6.0, core=true, t24Name=VALUE.END, typeModifiers=-)
+		/* Standard T24 date field.
+Validation Rules
+Mandatory input.
+A maximum of 11 characters may be entered. */
+		END_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="End Date")
+			@i18n:Tooltip (en="End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=END.DATE)
+		/* Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		PERFORM_END : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=PERFORM.END)
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 4 characters may be entered.
+Must be the key to a valid entry on the DEPT.ACCT.OFFICER file. */
+		ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Account Officer")
+			@i18n:Tooltip (en="Indicates Account Officer responsible")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=9.0, core=true, t24Name=ACCOUNT.OFFICER)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+
+Mandatory input.
+A maximum of 12 characters may be entered.
+Must be the key to a valid entry on the INVESTMENT.PROGRAM file. */
+		INVESTMENT_PROGRAM -> SCO_PortfolioMaintenance:INVESTMENT_PROGRAM required
+			@i18n:Label (en="Investment Program")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=10.0, core=true, businessType=A, t24Name=INVESTMENT.PROGRAM)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=11.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=12.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCV_Reports:SC_VAL_PERFORM__INPUTTER *
+		DATE_TIME -> byValue SCV_Reports:SC_VAL_PERFORM__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=18.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=20.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=21.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_VAL_PERFORM__FLOW_DATE
+	{
+		/* Fields FLOW.DATE to PERFORM.FLOW form a related multi value set. Standard T24 date field.
+Validation Rules
+Mandatory input.
+A maximum of 11 characters may be entered. */
+		FLOW_DATE : T24BusinessTypes:D required
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=FLOW.DATE)
+		/* Fields FLOW.DATE to PERFORM.FLOW form a related multi value set.
+Validation Rules
+A maximum of 018 characters may be entered. */
+		FLOW_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, t24Name=FLOW.AMT, typeModifiers=-)
+		/* Fields FLOW.DATE to PERFORM.FLOW form a related multi value set. Standard T24 amount field.
+Validation Rules
+A maximum of 018 characters may be entered. */
+		VALUE_FLOW : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=4.0, core=true, t24Name=VALUE.FLOW)
+		/* Fields FLOW.DATE to PERFORM.FLOW form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		PERFORM_FLOW : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, t24Name=PERFORM.FLOW)
+	}
+	SC_VAL_PERFORM__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=15.0, core=true, t24Name=INPUTTER)
+	}
+	SC_VAL_PERFORM__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=16.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application allows ASSET.TYPEs to be grouped together for Sub Totalling on Valuation Reports.
+Validation Rules
+ID must be numeric. */
+	SC_VAL_REP_SUB_TOTAL
+		@t24:i (t24Name=SC.VAL.REP.SUB.TOTAL, level=I, type=H, allowedFunctions="A C D E I L P Q S", localRefAllowed=false)
+	{
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		REPORT_SUB_TOTAL -> SCV_Reports:SC_VAL_REP_SUB_TOTAL PK required
+			@i18n:Label (en="Report Sub Total")
+			@i18n:Tooltip (en="Report sub total")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, t24Name=REPORT.SUB.TOTAL)
+		SUB_TOT_DESC -> byValue SCV_Reports:SC_VAL_REP_SUB_TOTAL__SUB_TOT_DESC *
+		/* Validation Rules
+A maximum of 3 characters may be entered.
+The following values are permitted:       YES      NO */
+		SUB_SUB_TOTAL : SCV_Reports:SC_VAL_REP_SUB_TOTAL__SUB_SUB_TOTAL
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=SUB.SUB.TOTAL)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=3.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=4.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCV_Reports:SC_VAL_REP_SUB_TOTAL__INPUTTER *
+		DATE_TIME -> byValue SCV_Reports:SC_VAL_REP_SUB_TOTAL__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=7.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=8.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=10.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=11.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_VAL_REP_SUB_TOTAL__SUB_TOT_DESC
+	{
+		/* This is a multi valued field. This is a sub valued language field. Standard T24 alphanumeric field.
+Validation Rules
+Mandatory input.
+A maximum of 35 characters may be entered. */
+		SUB_TOT_DESC : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=SUB.TOT.DESC)
+	}
+	SC_VAL_REP_SUB_TOTAL__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=5.0, core=true, t24Name=INPUTTER)
+	}
+	SC_VAL_REP_SUB_TOTAL__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=6.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This table is user maintained and is used to produce the valuation reports as defined by the user, using the Enquiries System.
+This table will only be used if the Valuation Subroutine on the SC.PARAMETER record is "SC.VAL.REPORT$RUN.
+This means that when the user decides to use this file to produce the reports, the following steps need to be carried out to ensure that fatal errors will not occur.
+1.         This table must be set up with all the enquiry record            layouts required for each report type.
+2.         The SC.PARAMETER record must be updated as shown            above.
+3.         There are three applications which can be used to            produce the reports:-
+(i)  Outline reports (OL.VAL.REPS).  The user must                 amend records here to validate the report type                 against SC.VAL.REPORT
+(ii) End of Day (SC.REPORTS.REQUEST)                 Same changes to be made by the user as for                 OL.VAL.REPS.
+(iii)CUSTOMER SECURITY records to be updated so                 that these report types are validated against                 SC.VAL.REPORT.
+To avoid unnecessary errors it is advisable to create the same records which are held on the SC.REPORT.TYPE file and therefore, avoiding the above changes to the database apart from the SC.PARAMETER record.
+A number of Enquiries are provided to the user which may be of help in creating your own.  These are:-
+SC.VAL.REPORT            Transaction details showing nominal                          amout, price and estimation amount.
+SC.PORT.TOTALS           Portfolio totals showing contributions,                          withdrawals, accrued interests etc.
+SC.VAL.EQ.COUNTRY        Equities summary by country.
+SC.VAL.EQ.INDUSTRY       Equities summary by industry.
+SC.VAL.FIXED.SEC.MAT     Fixed term securities by maturity.
+SC.VAL.ANNUALISE         Annualised performance analysis.
+SC.VAL.LIQUIDITY.MAT     Liquidates by maturity.
+SC.VAL.SAM.HEAD          Header page showing static details of                          the portfolio i.e. name and address.
+SC.VAL.MATRIX            Valuations matrix grid.
+The example below shows a SC.VAL.REPORT record created using above enquiries:-
+3          DETAIL.HEADER SC.VAL.SAM.HEAD 4.1        ASSET.TYPE 30 _ BONDS 5.1        SUB.ASSET.TYPE 6.1        DETAIL.LAYOUT SC.VAL.REPORT 7.1        DET.PAGE.THROW NO 4.2        ASSET.TYPE 10 _ SHARES 5.2        SUB.ASSET.TYPE 6.2        DETAIL.LAYOUT SC.VAL.REPORT 7.2        DET.PAGE.THROW Y 8          DEF.DET.LAYOUT SC.VAL.REPORT 9          SUMMARY.HEADER 10.1       SUMMARY.LAYOUT SC.PORT.TOTALS 11.1       SUM.PAGE.THROW Y 10.2       SUMMARY.LAYOUT SC.VAL.ANNUALISE 11.2       SUM.PAGE.THROW NO
+This will produce the report by grouping the asset types 30 and 10 on the different pages of the report and the rest together using the same layout SC.VAL.REPORT and two summary reports. */
+	SC_VAL_REPORT
+		@t24:i (t24Name=SC.VAL.REPORT, level=F, type=H, allowedFunctions="A C D E I L P Q S", localRefAllowed=false)
+	{
+		/* Defines the key to the Valuations Report type.
+
+
+Validation Rules
+Up to two Alphanumeric characters */
+		REPORT_TYPE -> SCV_Reports:SC_VAL_REPORT PK required
+			@i18n:Label (en="Report Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=0.0, core=true, businessType=A, t24Name=REPORT.TYPE)
+		DESCRIPTION -> byValue SCV_Reports:SC_VAL_REPORT__DESCRIPTION *
+		/* Report Control System Link report to destination printer.
+This must be present in order to produce the report using the Report Control System.  Subsequently this will determine the destination printer for the report.
+Validation Rules
+Up to 35 Alphanumeric characters (Mandatory Input)
+A valid report control key must be entered and will be enriched with its description. */
+		REP_CONTROL_ID -> EB_Reports:REPORT_CONTROL required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, businessType=A, t24Name=REP.CONTROL.ID)
+		/* Enquiry record key to print headings before detailed reports.
+This may be used to define an enquiry for printing a header for the entire report.  i.e. this may be a front page showing relative static data of the portfolio.
+Validation Rules
+Up to 32 Alphanumeric characters (Optional input)
+If entered, it must be a valid "enquiry" record. */
+		DETAIL_HEADER -> EB_Reports:ENQUIRY
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=3.0, core=true, businessType=A, t24Name=DETAIL.HEADER)
+		ASSET_TYPE -> byValue SCV_Reports:SC_VAL_REPORT__ASSET_TYPE *
+		/* Default detailed layout to print asset and sub-asset type transactions which have not been entered on the record.
+This layout will be used to print the report for all those transactions whose asset and sub-asset types have not been associated with another detailed layout.
+Validation Rules
+Up to 32 characters (Mandatory Input)
+Input must be a valid enquiry record. */
+		DEF_DET_LAYOUT -> EB_Reports:ENQUIRY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=8.0, core=true, businessType=A, t24Name=DEF.DET.LAYOUT)
+		/* Enquiry record key to print headings before summary reports.
+This can be used as header only report to be printed before the summary reports showing information about the portfolio.
+Validation Rules
+Up to 32 Alphanumeric characters (Optional input)
+If entered, it must be a valid enquiry record. */
+		SUMMARY_HEADER -> EB_Reports:ENQUIRY
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=9.0, core=true, businessType=A, t24Name=SUMMARY.HEADER)
+		SUMMARY_LAYOUT -> byValue SCV_Reports:SC_VAL_REPORT__SUMMARY_LAYOUT *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCV_Reports:SC_VAL_REPORT__INPUTTER *
+		DATE_TIME -> byValue SCV_Reports:SC_VAL_REPORT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=17.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=19.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=20.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_VAL_REPORT__DESCRIPTION
+	{
+		/* Defines the description of the report type.
+Input here is language based and therefore, the description is a multi-valued field.
+Validation Rules
+Up to 35 Alphanumeric characters (Input is mandatory) */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	SC_VAL_REPORT__ASSET_TYPE
+	{
+		/* Defines the detailed layout to be used for this asset type.
+This is a multi valued field associated to the sub-asset types and the Detailed Layout fields.  If the asset type is entered, then the report will be produced using the associated detailed Layout for transactions with the same asset type.
+Validation Rules
+Up to 3 Numeric characters (Optional input)
+A valid asset type is required which will be enriched by the description from the asset type record.
+Input is allowed only if there is a corresponding Detailed Layout and the sub-asset type has not been entered. */
+		ASSET_TYPE -> SC_Config:ASSET_TYPE
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=ASSET.TYPE)
+		/* Defines the Detailed Layout to be used for this sub-asset type.
+This is a multi-valued field associated to the asset type and the Detailed Layout fields.  If the sub-asset type is entered the report will be produced using the associated detailed layout for all transactions with the same sub-asset type.
+Validation Rules
+Up to 5 Alphanumeric characters (Optional input)
+A valid sub-asset type is required which will be enriched with the description from the sub-asset type record.
+Input is allowed only if there is a corresponding Detailed Layout and the asset type has not been entered. */
+		SUB_ASSET_TYPE -> SC_Config:SUB_ASSET_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=5.0, core=true, businessType=S, t24Name=SUB.ASSET.TYPE)
+		/* Defines the print layout for the sub-asset or asset type entered.
+This is a multi-valued field and is used to define the detailed report layout for either the associated asset type or sub-asset type entered.
+Validation Rules
+Up to 32 Alphanumeric characters (Optional input)
+If entered, it must be a valid enquiry record. */
+		DETAIL_LAYOUT -> EB_Reports:ENQUIRY
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=6.0, core=true, businessType=A, t24Name=DETAIL.LAYOUT)
+		/* Yes or No flag to throw a page after printing the detailed report.
+Flag will determine a page throw for each detailed layout if this is set to "Y".
+Validation Rules
+Valid Input is Y or NO (Optional input) */
+		DET_PAGE_THROW : SCV_Reports:SC_VAL_REPORT__ASSET_TYPE__DET_PAGE_THROW
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=7.0, core=true, t24Name=DET.PAGE.THROW)
+	}
+	SC_VAL_REPORT__SUMMARY_LAYOUT
+	{
+		/* Summary report layout showing different summary reports.
+This is a multi-valued field and the user can define what reports are required to produce the valuation reports.
+Validation Rules
+Up to 32 Alphanumeric characters (Optional input)
+If entered, it must be a valid enquiry record. */
+		SUMMARY_LAYOUT -> EB_Reports:ENQUIRY
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=10.0, core=true, businessType=A, t24Name=SUMMARY.LAYOUT)
+		/* Y or NO flag to throw page after each summary report is produced.
+
+
+Validation Rules
+Valid input is Y or NO (Optional input defaults to NO) */
+		SUM_PAGE_THROW : SCV_Reports:SC_VAL_REPORT__SUMMARY_LAYOUT__SUM_PAGE_THROW
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=11.0, core=true, t24Name=SUM.PAGE.THROW)
+	}
+	SC_VAL_REPORT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=INPUTTER)
+	}
+	SC_VAL_REPORT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=15.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	OL_VAL_REPS__REPORT_TYPE__SEC_ACC_NO__EXTERNAL_REP : mml:string
+		Y=Y
+		NO=NO
+	OL_VAL_REPS__PRINT_REPORT : mml:string
+		YES=YES
+		NO=NO
+	OL_VAL_REPS__ONLINE_VAL : mml:string
+		Y=Y
+		NO=NO
+	SC_REPORT_TYPE__EXTERNAL_REPORT : mml:string
+		Y=Y
+		NO=NO
+	SC_REPORTS_REQUEST__REPORT_TYPE__ACCT_OFFICER__EXTERNAL_REP : mml:string
+		Y=Y
+		NO=NO
+	SC_VAL_REP_SUB_TOTAL__SUB_SUB_TOTAL : mml:string
+		YES=YES
+		NO=NO
+	SC_VAL_REPORT__ASSET_TYPE__DET_PAGE_THROW : mml:string
+		Y=Y
+		NO=NO
+	SC_VAL_REPORT__SUMMARY_LAYOUT__SUM_PAGE_THROW : mml:string
+		Y=Y
+		NO=NO
+}

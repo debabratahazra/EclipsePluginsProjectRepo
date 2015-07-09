@@ -1,0 +1,40 @@
+domain T24 {
+	use common.CoreCommands.*
+	use common.HTTPEvents.*
+	use common.ODataCommands.*
+	use common.T24Commands.*
+	use common.T24Events.*
+	use common.NextState.*
+	rim enqCustomerNau {
+		command GETEntities
+		command GETEntity
+		basepath: "/{companyid}"
+	
+		resource enqCustomerNaus {
+			type: collection
+			entity: enqCustomerNau
+			commands [ GET : GETEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			path: "/enqCustomerNaus()"
+			GET *-> enqCustomerNau {
+				parameters [ id = "{Customerid}" ]
+			}
+			GET *-> "T24.verCustomer_Nau.verCustomer_NauEntry" {
+				title: "Authorise"
+			}
+			GET *-> "T24.verCustomer_Nau.verCustomer_NauEntry" {
+				title: "Delete"
+			}
+		}
+	
+		resource enqCustomerNau {
+			type: item
+			entity: enqCustomerNau
+			commands [ GET : GETEntity ]
+			path: "/enqCustomerNaus('{id}')"
+		}
+	
+	}
+	
+}

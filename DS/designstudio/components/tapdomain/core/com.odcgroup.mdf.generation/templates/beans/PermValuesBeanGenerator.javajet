@@ -1,0 +1,59 @@
+<%@ jet package="com.odcgroup.mdf.generation.legacy.java.jet"
+	class="PermValuesBeanGenerator"
+	skeleton="PermValuesBeanGenerator.skel"
+	imports="java.util.*
+		com.odcgroup.mdf.transform.java.JavaCore
+		com.odcgroup.mdf.generation.util.MdfGenerationUtil
+		com.odcgroup.mdf.generation.legacy.java.SourceCodeGenerator
+		com.odcgroup.mdf.metamodel.*" %>
+<%@ include file="../header.txt" %>
+
+package <%= JavaCore.getPermValuesBeanPackage(_model) %>;
+
+import java.io.Serializable;
+
+public class <%= JavaCore.getPermValuesBeanClassName(_model) %> implements <%= JavaCore.getQualifiedPermValuesClassName(_model) %>, Serializable {
+
+<%
+	Iterator props = _model.getProperties().iterator();
+	
+	while (props.hasNext()) {
+	    MdfDatasetProperty p = (MdfDatasetProperty) props.next();
+	    
+	    if (JavaCore.hasPermValues(p)) {
+%>	    
+
+	// Permitted values for <%= JavaCore.getModelClassName(_model) %>.<%=p.getName()%>
+
+	private <%=MdfGenerationUtil.getPermValuesListType(p)%> <%=JavaCore.getPermValuesAttributeName(p)%>;
+
+	/**
+	 * Return the permitted values for the <%= JavaCore.getModelClassName(_model) %>.<%=p.getName()%> attribute
+	 * @return the permitted values for attribute <%= JavaCore.getModelClassName(_model) %>.<%=p.getName()%>
+	 */
+	public <%=MdfGenerationUtil.getPermValuesListType(p)%> <%= JavaCore.getPermValuesGetterName(p) %>() {
+		if (this.<%=JavaCore.getPermValuesAttributeName(p)%> == null) {
+			return null;
+		} else {
+			return new <%=MdfGenerationUtil.getPermValuesConcreteListType(p)%>(this.<%=JavaCore.getPermValuesAttributeName(p)%>);
+		}
+	}
+
+	/**
+	 * Return the permitted values for the <%= JavaCore.getModelClassName(_model) %>.<%=p.getName()%> attribute
+	 * @return the permitted values for attribute <%= JavaCore.getModelClassName(_model) %>.<%=p.getName()%>
+	 */
+	public void <%= JavaCore.getPermValuesSetterName(p) %>(<%=MdfGenerationUtil.getPermValuesListType(p)%> <%=JavaCore.getPermValuesAttributeName(p)%>) {
+		if (<%=JavaCore.getPermValuesAttributeName(p)%> == null) {
+			this.<%=JavaCore.getPermValuesAttributeName(p)%> = null;
+		} else {
+			this.<%=JavaCore.getPermValuesAttributeName(p)%> = new <%=MdfGenerationUtil.getPermValuesConcreteListType(p)%>(<%=JavaCore.getPermValuesAttributeName(p)%>);
+		}
+
+	}
+
+
+<% 		}%>	
+<%	}%>	
+	
+}

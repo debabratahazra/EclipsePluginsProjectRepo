@@ -1,0 +1,84 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Fragment ---
+	cardinality = one
+	domainEntity = "AAADSDomain:DomainContext"
+{
+	--- Box ---
+		labels en = Currency, fr = Devise, de = Währung
+		boxType = vertical
+		width = 0
+		tid = 18686273825996
+	{
+		--- Grid ---
+			cssClass = blank
+			gridColumnCount = 2
+			gridColumnsWidth = "50,50" !
+			gridRowCount = 1
+		{
+			--- GridCell ---
+				gridColumnWidth = 50
+			{
+				--- LabelDomain ---
+					domainAttribute = currency !
+					cssClass = hidden
+					horizontalAlignment = "${corporatehalign}"
+					width = 0
+			}
+			--- GridCell ---
+				gridColumnWidth = 50
+			{
+				--- Box ---
+				{
+					--- Conditional ---
+						indexOfSelectedChild = 1
+					{
+						--- ConditionalBody ---
+							javaCode = "Boolean.toString(com.odcgroup.aaa.DomainAAADefCurrF.Forced).equals(<bean:get-property bean=\"DomainContext\" property=\"defCurrF\"/>.toString())"
+							technicalName = ForceCurrency
+							boxType = vertical
+							isWidgetVisible = false
+						{
+							--- Include ---
+								domainAssociation = currency
+								includeSrc = "" !
+								resource:///default/defaultFragments/CurrencyIdentifier.fragment
+								bean-property-prefix = currency.
+						}
+						--- ConditionalBody ---
+							javaCode = true
+							technicalName = DefaultPtfCurrency
+							boxType = vertical
+							isWidgetSelected = true
+						{
+							--- Include ---
+								domainAssociation = currency
+								includeSrc = "" !
+								resource:///default/defaultFragments/CurrencyIdentifierNotEnabled.fragment
+								bean-property-prefix = currency.
+						}
+					}
+					--- CheckBox ---
+						domainAttribute = defCurrF
+						horizontalTextPosition = trail
+						bean-property = defCurrF
+						id = defCurrF
+					{
+						Event OnClick (submit) S
+						{
+							method = post
+							call-URI = "<pageflow:continuation/>"
+							widget-group-ref = form
+							target = self
+							flow-action = reload ud
+							only-changed = false
+							prevalidate = false
+							modal = false
+						}
+					}
+				}
+			}
+		}
+	}
+}

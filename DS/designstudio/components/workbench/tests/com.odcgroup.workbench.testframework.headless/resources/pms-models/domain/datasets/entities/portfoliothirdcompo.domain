@@ -1,0 +1,46 @@
+# UTF-8
+# UTF-8
+# UTF-8
+Domain AAADSPortfolioThirdChrono 
+	@java:Package (value=com.odcgroup.aaa.administration) 
+namespace "http://www.odcgroup.com/aaa-ds-portfoliothirdchrono" 
+metamodelVersion 4.3.0.20110527 
+Datasets { 
+	PortfolioThirdCompoAll basedOn AAAEntities:PortfolioThirdCompo synchronized 
+	{ 
+		id -> id 
+		ownershipRuleE -> ownershipRuleE 
+		portfolio -> portfolio [AAAIdentifierDatasets:PortfolioIdentifier] 
+		portfolioCd -> portfolioCd 
+			@svc:Services (MMLSpecific=true) 
+		third -> third [AAAIdentifierDatasets:ThirdPartyIdentifier] 
+		thirdCd -> thirdCd 
+			@svc:Services (MMLSpecific=true) 
+		validityD -> validityD 
+		weightN -> weightN 
+	} 
+	PortfolioThirdCompoList basedOn AAAEntities:PortfolioThirdCompo 
+	{ 
+		id -> id 
+		ownershipRuleE -> ownershipRuleE 
+			@i18n:Label (de=Verfügungsberechtigung) 
+		portfolioCode -> portfolio.code 
+			@i18n:Label (en=Portfolio, fr=Portefeuille, de=Portfolio) 
+		portfolioId -> portfolio.id 
+		portfolioName -> portfolio.name 
+			@i18n:Label (en=Portfolio, fr=Portefeuille, de=Portfolio) 
+		portfolioThirdName -> portfolio.third.name 
+			@i18n:Label (en="Client Name", fr="Nom du client", de="Name der Kunde") 
+		/* Attribute for securised the foreign key portfolio (In Triple'a , portfolio_third_party_compo_vw is not securised).
+Annotation SQL is used for add  join on portfolio_vw . */ 
+		securePortfolioForeignKey : mml:string 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuery="exists (select 1 from portfolio_vw sptf where  t0.portfolio_id  = sptf.id)") 
+		thirdCode -> third.code 
+			@i18n:Label (en=Client, fr=Client, de=Kunde) 
+		thirdId -> third.id 
+		thirdName -> third.name 
+			@i18n:Label (en="Client Name", fr="Nom du client", de="Name der Kunde") 
+		validityD -> validityD 
+		weightN -> weightN 
+	} 
+} 

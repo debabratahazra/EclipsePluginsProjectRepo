@@ -1,0 +1,25 @@
+<project name="macrodefs">
+	<macrodef name="find.branch">
+		<attribute name="property"/>
+		<attribute name="delivery-location"/>
+		<sequential>
+			<first id="@{property}.first">
+				<dirset id="@{property}.dirset.id" dir="@{delivery-location}" includes="*" />
+			</first>
+			<echo message="delivery contents (@{property}.dirset.id): ${toString:@{property}.dirset.id}"/>
+			<fail message="ERROR: no branch available in the delivery dir: @{delivery-location}">
+				<condition>
+					<resourcecount refid="@{property}.dirset.id" when="equal" count="0"/>
+				</condition>
+			</fail>
+			<fail message="ERROR: several branches available in the delivery dir: @{delivery-location}">
+				<condition>
+					<resourcecount refid="@{property}.dirset.id" when="greater" count="1"/>
+				</condition>
+			</fail>
+			
+			<basename property="@{property}" file="${toString:@{property}.first}"/>
+			<echo message="branch found: ${@{property}}"/>
+		</sequential>
+	</macrodef>
+</project>

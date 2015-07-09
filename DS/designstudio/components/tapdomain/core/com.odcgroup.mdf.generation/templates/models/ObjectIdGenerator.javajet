@@ -1,0 +1,122 @@
+<%@ jet package="com.odcgroup.mdf.generation.legacy.java.jet" 
+	class="ObjectIdGenerator" 
+	skeleton="ObjectIdGenerator.skel"
+	imports="java.util.*
+		com.odcgroup.mdf.transform.java.JavaCore
+		com.odcgroup.mdf.generation.legacy.java.SourceCodeGenerator
+		com.odcgroup.mdf.generation.util.MdfGenerationUtil
+		com.odcgroup.mdf.metamodel.*" %>
+<%@ include file="../header.txt" %>
+
+package <%= JavaCore.getModelPackage(_model) %>;
+
+import java.io.*;
+
+import com.odcgroup.mdf.core.*;
+
+/**
+ * Object id for the <%= _model.getName() %> class.
+ * @see <%= JavaCore.getQualifiedModelClassName(_model) %>
+ * @generated
+ */
+public class <%= JavaCore.getRefClassName(_model) %> extends <%
+	MdfClass base = _model.getBaseClass();
+    if ((base != null) && base.hasPrimaryKey(true)) {%>
+	<%= JavaCore.getQualifiedRefClassName(base) %><%
+	} else {%>
+	ObjectIdBean<%
+	} %> implements Serializable
+
+{
+	private static final long serialVersionUID = <%= JavaCore.getSerialVersionUID(_model) %>L;
+	
+	/**
+     * Creates a new instance of <em><%= JavaCore.getRefClassName(_model) %></em>.
+<%		Iterator keys = _model.getPrimaryKeys(true).iterator();
+        while (keys.hasNext()) {
+            MdfProperty p = (MdfProperty) keys.next();%>
+	 * @param <%= JavaCore.getFieldName(p)%> <% } %>
+	 */
+	public <%= JavaCore.getRefClassName(_model) %>(<%
+        keys = _model.getPrimaryKeys(true).iterator();
+        while (keys.hasNext()) {
+            MdfProperty p = (MdfProperty) keys.next();%>
+			<%= MdfGenerationUtil.getTypeName(p) %> <%= JavaCore.getFieldName(p)%><%
+			if (keys.hasNext()) stringBuffer.append(", ");             
+        }
+	%>) {
+		this("<%= _model.getQualifiedName().getDomain() %>", 
+			"<%= _model.getQualifiedName().getLocalName() %>"<%
+	        keys = _model.getPrimaryKeys(true).iterator();
+	        while (keys.hasNext()) {
+	            MdfProperty p = (MdfProperty) keys.next();%>
+				, <%= JavaCore.getFieldName(p)%><%
+	        }%>);
+	}
+
+    protected <%= JavaCore.getRefClassName(_model) %>(String _domain, String _name <% 
+			keys = _model.getPrimaryKeys(true).iterator();
+	        while (keys.hasNext()) {
+	            MdfProperty p = (MdfProperty) keys.next();%>
+				, <%= MdfGenerationUtil.getTypeName(p) %> <%= JavaCore.getFieldName(p)%><%
+	        }%>){
+        super(_domain, _name <%
+	        keys = _model.getPrimaryKeys(true).iterator();
+	        while (keys.hasNext()) {
+	            MdfProperty p = (MdfProperty) keys.next();%>
+				, <%= JavaCore.getFieldName(p)%><%
+	        }%>);
+    }
+
+	/**
+     * Creates a new instance of <em><%= JavaCore.getRefClassName(_model) %></em>.
+<%		keys = _model.getPrimaryKeys(true).iterator();
+        while (keys.hasNext()) {
+            MdfProperty p = (MdfProperty) keys.next();%>
+	 * @param <%= JavaCore.getFieldName(p)%> <% } %>
+     * @return A new instance of <em><%= JavaCore.getRefClassName(_model) %></em>.
+	 * @deprecated use {@link #create<%= JavaCore.getRefClassName(_model) %>} instead 
+     */
+    public static ObjectId create(<%
+        keys = _model.getPrimaryKeys(true).iterator();
+        while (keys.hasNext()) {
+            MdfProperty p = (MdfProperty) keys.next();%>
+			<%= MdfGenerationUtil.getTypeName(p) %> <%= JavaCore.getFieldName(p)%><%
+			if (keys.hasNext()) stringBuffer.append(", ");             
+        }
+	%>) {
+        return new <%= JavaCore.getRefClassName(_model) %>(<%
+	        keys = _model.getPrimaryKeys(true).iterator();
+	        while (keys.hasNext()) {
+	            MdfProperty p = (MdfProperty) keys.next();%>
+				<%= JavaCore.getFieldName(p)%><%
+				if (keys.hasNext()) stringBuffer.append(", ");             
+	        }%>);
+    }
+	
+	/**
+     * Creates a new instance of <em><%= JavaCore.getRefClassName(_model) %></em>.
+<%		keys = _model.getPrimaryKeys(true).iterator();
+        while (keys.hasNext()) {
+            MdfProperty p = (MdfProperty) keys.next();%>
+	 * @param <%= JavaCore.getFieldName(p)%> <% } %>
+     * @return A new instance of <em><%= JavaCore.getRefClassName(_model) %></em>.
+     */
+    public static <%= JavaCore.getRefClassName(_model) %> create<%= JavaCore.getRefClassName(_model) %>(<%
+        keys = _model.getPrimaryKeys(true).iterator();
+        while (keys.hasNext()) {
+            MdfProperty p = (MdfProperty) keys.next();%>
+			<%= MdfGenerationUtil.getTypeName(p) %> <%= JavaCore.getFieldName(p)%><%
+			if (keys.hasNext()) stringBuffer.append(", ");             
+        }
+	%>) {
+        return new <%= JavaCore.getRefClassName(_model) %>(<%
+	        keys = _model.getPrimaryKeys(true).iterator();
+	        while (keys.hasNext()) {
+	            MdfProperty p = (MdfProperty) keys.next();%>
+				<%= JavaCore.getFieldName(p)%><%
+				if (keys.hasNext()) stringBuffer.append(", ");             
+	        }%>);
+    }
+	
+}

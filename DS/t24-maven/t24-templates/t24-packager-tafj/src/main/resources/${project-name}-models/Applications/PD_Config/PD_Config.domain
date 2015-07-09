@@ -1,0 +1,3263 @@
+# UTF-8
+# UTF-8
+/* Parameter definitions for Payment Due */
+Domain PD_Config
+	@t24:i (module=PD)
+	@java:Package (value=com.temenos.t24.datamodel.pd.pd_config)
+namespace "http://www.temenos.com/t24/PD_Config"
+metamodelVersion 1.30.6
+Classes {
+	PD_AMOUNT_TYPE
+		@t24:i (t24Name=PD.AMOUNT.TYPE, level=I, type=H, allowedFunctions="A C D E H I L P Q S", localRefAllowed=true)
+	{
+		/* Identifies the type of amount allowed in the Payment Due module.
+There are a fixed number of basic allowable types but these may be further subdivided by the users to allow greater control if so desired.
+The base types that are allowed are:
+(a) PR      -  PRincipal (b) IN      -  INterest (c) CH      -  CHarge (d) CO      -  COmmission (e) TX      -  TaX (f) A1-A5   -  Additional types as defined in the Mortgages application (g) PE      -  PEnalty interest (h) PS      -  Penalty Spread
+It is possible to define extra types of up to six characters but the first two characters have to be one of the above base types, so valid types would be "PRSPEC" or "TXLOC".
+It is also possible to define types by category, the format of which is the amount type followed by a '-' and then the category code, e.g. "PR-21050" or "INEXT-25000".
+It is important to remember that the base type must exist before any extra types can be defined.
+Validation Rules
+2-12 alphanumeric type A characters in the format 2-6 characters optionally followed by a "-" and then a valid CATEGORY code. (Mandatory input).
+First two characters must be one of the folowing:    PR, IN, CH, CO, TX, A1, A2, A3, A4, A5, PE, PS.
+If the amount type entered is greater than two characters then the first two characters must be one of the above types.
+If a category code is entered then it must be a valid code on the CATEGORY table. */
+		AMOUNT_TYPE -> PD_Config:PD_AMOUNT_TYPE PK required
+			@i18n:Label (en="Amount Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=0.0, core=true, businessType=A, t24Name=AMOUNT.TYPE)
+		DESCRIPTION -> byValue PD_Config:PD_AMOUNT_TYPE__DESCRIPTION *
+		/* Defines the transaction code to be used for the debit entries raised by the system for the amount type.
+Validation Rules
+1-3 numeric characters TRANSACTION code. (Mandatory input).
+Must be a valid transaction code on the TRANSACTION table.
+Cannot be the same code as defined in field TXN.CODE.CR.
+Code must not be defined as a CREDIT type on the TRANSACTION table. */
+		TXN_CODE_DR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Tax Code For Debit Transactions")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=TXN.CODE.DR)
+		/* Defines the transaction code to be used for the credit entries raised by the system for the amount type.
+Validation Rules
+1-3 numeric characters TRANSACTION code. (Mandatory input).
+Must be a valid transaction code on the TRANSACTION table.
+Cannot be the same code as defined in field TXN.CODE.DR.
+Code must not be defined as a DEBIT type on the TRANSACTION table. */
+		TXN_CODE_CR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Tax Code For Credit Transactions")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=TXN.CODE.CR)
+		/* Identifies the TAX record or TAX.TYPE.CONDITION record to be used for the tax calculation and processing applicable to the amount type.
+Validation Rules
+1-2 numeric character TAX code or, upto 16 character TAX.TYPE.CONDITION ID prefixed with an "*". (Optional input).
+Must be a valid code on the TAX table.
+Tax Type Condition ids must exist on the TAX.TYPE.CONDITION file. These ids are prefixed with an asterisk ("*").
+TAX code not allowed for type 'PF' */
+		TAX_CODE : T24BusinessTypes:TAX
+			@i18n:Label (en="Tax Code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=4.0, core=true, t24Name=TAX.CODE)
+		/* Defines the generic position type of this entry.
+Input is optional as not all accounting activities update PM e.g. accruals which take place during end of day and will be absorbed into the account balances.
+To update PM the POSN.TYPE field of the  PD record of PM.PC.PARAM must also be set up with the same value.
+Must exist on PM.POSN.TYPE which contains all generic position types.
+Validation Rules
+Optional input 3 character Alphabetic. Must exist on PM.POSN.TYPE. */
+		PM_TYPE -> PM_Config:PM_POSN_TYPE
+			@i18n:Label (en="Generic Position Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, businessType=A, t24Name=PM.TYPE)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.9)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.8)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.7)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.6)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.4)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.3)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.2)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PD_Config:PD_AMOUNT_TYPE__INPUTTER *
+		DATE_TIME -> byValue PD_Config:PD_AMOUNT_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=21.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=23.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=24.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		BASE_TYPES : mml:Integer
+			@i18n:Label (en="Base Types")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=BASE.TYPES, genOperation="@ID[3,1]")
+	}
+	PD_AMOUNT_TYPE__DESCRIPTION
+	{
+		/* Describes the amount type record.
+This description is used for enrichment purposes throughout the Payment Due system.
+Validation Rules
+3-35 alphanumeric type A characters. (Multilanguage field).
+Mandatory input. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	PD_AMOUNT_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=INPUTTER)
+	}
+	PD_AMOUNT_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=19.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PD_BALANCES
+		@t24:i (t24Name=PD.BALANCES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 25 characters may be entered. */
+		KEY -> PD_Config:PD_BALANCES PK required
+			@i18n:Label (en=Key)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RECORD_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=RECORD.START.DATE)
+		/* Standard T24 currency field.
+Validation Rules
+A maximum of 3 characters may be entered.
+Must be the key to a valid entry on the CURRENCY file. */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Currency)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* Validation Rules
+A maximum of 3 characters may be entered. */
+		PAYMENT_STATUS : T24BusinessTypes:A
+			@i18n:Label (en="Payment Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=PAYMENT.STATUS)
+		/* Validation Rules
+A maximum of 3 characters may be entered. */
+		PREVIOUS_STATUS : T24BusinessTypes:A
+			@i18n:Label (en="Previous Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=PREVIOUS.STATUS)
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		NO_DAYS_OVERDUE : mml:Integer
+			@i18n:Label (en="Number Of Days In Overdue Status")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=NO.DAYS.OVERDUE)
+		BASE_EFF_DATE -> byValue PD_Config:PD_BALANCES__BASE_EFF_DATE *
+		RATE_EFF_DATE -> byValue PD_Config:PD_BALANCES__RATE_EFF_DATE *
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=POST.START.DATE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST_END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=POST.END.DATE)
+		BASE2_EFF_DATE -> byValue PD_Config:PD_BALANCES__BASE2_EFF_DATE *
+		RATE2_EFF_DATE -> byValue PD_Config:PD_BALANCES__RATE2_EFF_DATE *
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST2_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=POST2.START.DATE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST2_END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=POST2.END.DATE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		PEN_CALC_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Date Of Calculation")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=PEN.CALC.DATE)
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT_CALC_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Calculated Interest Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=PEN.INT.CALC.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT_ACCR_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Accrued Interest Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=20.0, core=true, t24Name=PEN.INT.ACCR.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT_NAB_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Amount In Nab Status")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, core=true, t24Name=PEN.INT.NAB.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT2_CALC_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Calculated Interest Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=PEN.INT2.CALC.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT2_ACCR_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Accrued Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=23.0, core=true, t24Name=PEN.INT2.ACCR.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT2_NAB_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Amount In Nab Status")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=24.0, core=true, t24Name=PEN.INT2.NAB.AMT, typeModifiers="2D")
+		FROM_DATE_1 -> byValue PD_Config:PD_BALANCES__FROM_DATE_1 *
+		FROM_DATE_2 -> byValue PD_Config:PD_BALANCES__FROM_DATE_2 *
+		AMT_TYPE -> byValue PD_Config:PD_BALANCES__AMT_TYPE *
+		INT_REPAY_DATE -> byValue PD_Config:PD_BALANCES__INT_REPAY_DATE *
+		INT2_REPAY_DATE -> byValue PD_Config:PD_BALANCES__INT2_REPAY_DATE *
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		CALC_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=54.0, core=true, t24Name=CALC.START.DATE)
+		/* Indicates the penalty spread part of the RATE field.
+This field will be populated if the relevant PD.PARAMETER record CONTRACT.METHOD field is set to '4', indicating that the penalty rate is made up of the contract rate plus penalty spread from the PD.PARAMETER record.
+To determine the underlying contract rate subtract the PENALTY.SPREAD value from the RATE value.
+Validation Rules
+No input field. Standard T24 rate format. */
+		PENALTY_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Penalty Spread")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=55.0, core=true, t24Name=PENALTY.SPREAD)
+		/* This field holds the last Captitalisation Date of The Penalty Interest. */
+		CE_LAST_CAP_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Capitalisation Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=56.0, core=true, t24Name=CE.LAST.CAP.DATE)
+		/* This field holds the last Captitalisation Date of The Penalty Spread. */
+		CS_LAST_CAP_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Last Captitalisation Date Of The Penalty Spread")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=57.0, core=true, t24Name=CS.LAST.CAP.DATE)
+		DUE_TYPE -> byValue PD_Config:PD_BALANCES__DUE_TYPE *
+		/* Date on which the PD.BALANCES record is created. */
+		CREATE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Date Of Creation")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=60.0, core=true, t24Name=CREATE.DATE)
+		/* Holds the spread of the Underlying Contract. */
+		LOAN_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Loan Spread")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=61.0, core=true, t24Name=LOAN.SPREAD)
+		/* Holds the value as 'YES' if PEN.CALC.BASIS of corresponding parameter is set as 'OP' */
+		OP_BASIS_SET : PD_Config:PD_BALANCES__OP_BASIS_SET
+			@i18n:Label (en="Calculation Basis")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=62.0, core=true, t24Name=OP.BASIS.SET)
+		/* Jdescriptor field */
+		CONTRACT_ID : mml:Integer
+			@i18n:Label (en="Contract Id")
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, core=false, t24Name=CONTRACT.ID, genOperation="@ID[\'-\',1,1]")
+		/* Jdescriptor field */
+		CUSTOMER_NO : mml:Integer
+			@i18n:Label (en="Customer No")
+			@i18n:Tooltip (en="Identifies the Customer for the transaction.")
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, core=false, t24Name=CUSTOMER.NO, genOperation="CONTRACT.ID>PD.PAYMENT.DUE>CUSTOMER")
+		/* Holds the date component of  PD.BALANCES key.  PD.BALANCES key is a combination of PD id
+and the date on which the schedule is moved to PD. */
+		PERIOD : mml:Integer
+			@i18n:Label (en=Period)
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, core=false, t24Name=PERIOD, genOperation="@ID[\"-\",2,1]")
+		/* Date component in the PD.BALANCES key. */
+		PERIODS : mml:Integer
+			@i18n:Label (en=Periods)
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, core=false, t24Name=PERIODS)
+	}
+	PD_BALANCES__BASE_EFF_DATE
+	{
+		/* Fields BASE.EFF.DATE to BASE.AMOUNT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		BASE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=BASE.EFF.DATE)
+		/* Fields BASE.EFF.DATE to BASE.AMOUNT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=BASE.AMOUNT, typeModifiers="2D")
+	}
+	PD_BALANCES__RATE_EFF_DATE
+	{
+		/* Fields RATE.EFF.DATE to RATE form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=RATE.EFF.DATE)
+		/* Fields RATE.EFF.DATE to RATE form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=RATE)
+	}
+	PD_BALANCES__BASE2_EFF_DATE
+	{
+		/* Fields BASE2.EFF.DATE to BASE2.AMOUNT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		BASE2_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=BASE2.EFF.DATE)
+		/* Fields BASE2.EFF.DATE to BASE2.AMOUNT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE2_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=BASE2.AMOUNT, typeModifiers="2D")
+	}
+	PD_BALANCES__RATE2_EFF_DATE
+	{
+		/* Fields RATE2.EFF.DATE to RATE2 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE2_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=14.0, core=true, t24Name=RATE2.EFF.DATE)
+		/* Fields RATE2.EFF.DATE to RATE2 form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE2 : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=RATE2)
+	}
+	PD_BALANCES__FROM_DATE_1
+	{
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		FROM_DATE_1 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=FROM.DATE.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		TO_DATE_1 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=TO.DATE.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		NO_DAYS_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=27.0, core=true, t24Name=NO.DAYS.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE_AMT_1 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=28.0, core=true, t24Name=BASE.AMT.1, typeModifiers="2D")
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE_1 : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=29.0, core=true, t24Name=RATE.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_AMT_1 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=30.0, core=true, t24Name=ACCR.AMT.1, typeModifiers="2D")
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 amount field.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_ACT_AMT_1 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=31.0, core=true, t24Name=ACCR.ACT.AMT.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set.
+Validation Rules
+A maximum of 2 characters may be entered. */
+		POSTED_IND_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=32.0, core=true, t24Name=POSTED.IND.1)
+	}
+	PD_BALANCES__FROM_DATE_2
+	{
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		FROM_DATE_2 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=33.0, core=true, t24Name=FROM.DATE.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		TO_DATE_2 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, core=true, t24Name=TO.DATE.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		NO_DAYS_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=35.0, core=true, t24Name=NO.DAYS.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE_AMT_2 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=36.0, core=true, t24Name=BASE.AMT.2, typeModifiers="2D")
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE_2 : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=37.0, core=true, t24Name=RATE.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_AMT_2 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=38.0, core=true, t24Name=ACCR.AMT.2, typeModifiers="2D")
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 amount field.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_ACT_AMT_2 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=39.0, core=true, t24Name=ACCR.ACT.AMT.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set.
+Validation Rules
+A maximum of 2 characters may be entered. */
+		POSTED_IND_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=40.0, core=true, t24Name=POSTED.IND.2)
+	}
+	PD_BALANCES__AMT_TYPE
+	{
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set. Standard T24 amount field.
+Validation Rules
+A maximum of 12 characters may be entered.
+Must be the key to a valid entry on the PD.AMOUNT.TYPE file. */
+		AMT_TYPE -> PD_Config:PD_AMOUNT_TYPE
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=41.0, core=true, businessType=AMT, t24Name=AMT.TYPE)
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ORIGINAL_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=42.0, core=true, t24Name=ORIGINAL.AMT, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 019 characters may be entered. */
+		CURR_OS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=43.0, core=true, t24Name=CURR.OS.AMT, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 019 characters may be entered. */
+		CURR_OS_TAX : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=44.0, core=true, t24Name=CURR.OS.TAX, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		CURR_OS_ACCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=45.0, core=true, t24Name=CURR.OS.ACCR, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		CURR_OS_NAB : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=46.0, core=true, t24Name=CURR.OS.NAB, typeModifiers="2D")
+		REPAY_DATE -> byValue PD_Config:PD_BALANCES__AMT_TYPE__REPAY_DATE *
+	}
+	PD_BALANCES__AMT_TYPE__REPAY_DATE
+	{
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=47.0, core=true, t24Name=REPAY.DATE)
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 019 characters may be entered. */
+		REPAY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=48.0, core=true, t24Name=REPAY.AMT, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ADJ_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=49.0, core=true, t24Name=ADJ.AMT, typeModifiers="-2D")
+	}
+	PD_BALANCES__INT_REPAY_DATE
+	{
+		/* Fields INT.REPAY.DATE to INT.REPAY.AMT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		INT_REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=50.0, core=true, t24Name=INT.REPAY.DATE)
+		/* Fields INT.REPAY.DATE to INT.REPAY.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		INT_REPAY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=51.0, core=true, t24Name=INT.REPAY.AMT, typeModifiers="2D")
+	}
+	PD_BALANCES__INT2_REPAY_DATE
+	{
+		/* Fields INT2.REPAY.DATE to  form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		INT2_REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=52.0, core=true, t24Name=INT2.REPAY.DATE)
+		/* Fields INT2.REPAY.DATE to  form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		INT2_REPAY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=53.0, core=true, t24Name=INT2.REPAY.AMT, typeModifiers="2D")
+	}
+	PD_BALANCES__DUE_TYPE
+	{
+		/* Fields DUE.AMT and DUE.TYPE form a related multi value set. This has the Component that is suspended.
+Validation Rules
+
+It can be either IN or CO. */
+		DUE_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=58.0, core=true, t24Name=DUE.TYPE)
+		/* This has the Suspended IN or CO amount. Fields DUE.AMT and DUE.TYPE form a related multi value set.
+Validation Rules
+
+A maximum of 19 characters may be entered. */
+		DUE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=59.0, core=true, t24Name=DUE.AMT, typeModifiers="2D")
+	}
+	PD_BALANCES_HIST
+		@t24:i (t24Name=PD.BALANCES.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 25 characters may be entered. */
+		KEY -> PD_Config:PD_BALANCES_HIST PK required
+			@i18n:Label (en=Key)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RECORD_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=RECORD.START.DATE)
+		/* Standard T24 currency field.
+Validation Rules
+A maximum of 3 characters may be entered.
+Must be the key to a valid entry on the CURRENCY file. */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Currency)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* Validation Rules
+A maximum of 3 characters may be entered. */
+		PAYMENT_STATUS : T24BusinessTypes:A
+			@i18n:Label (en="Payment Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=PAYMENT.STATUS)
+		/* Validation Rules
+A maximum of 3 characters may be entered. */
+		PREVIOUS_STATUS : T24BusinessTypes:A
+			@i18n:Label (en="Previous Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=PREVIOUS.STATUS)
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		NO_DAYS_OVERDUE : mml:Integer
+			@i18n:Label (en="Number Of Days In Overdue Status")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=NO.DAYS.OVERDUE)
+		BASE_EFF_DATE -> byValue PD_Config:PD_BALANCES_HIST__BASE_EFF_DATE *
+		RATE_EFF_DATE -> byValue PD_Config:PD_BALANCES_HIST__RATE_EFF_DATE *
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=POST.START.DATE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST_END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=POST.END.DATE)
+		BASE2_EFF_DATE -> byValue PD_Config:PD_BALANCES_HIST__BASE2_EFF_DATE *
+		RATE2_EFF_DATE -> byValue PD_Config:PD_BALANCES_HIST__RATE2_EFF_DATE *
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST2_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=POST2.START.DATE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST2_END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=POST2.END.DATE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		PEN_CALC_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Calculation Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=PEN.CALC.DATE)
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT_CALC_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Calculated Interest Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=PEN.INT.CALC.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT_ACCR_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Accrued Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=20.0, core=true, t24Name=PEN.INT.ACCR.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT_NAB_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Amount In Nab Status")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, core=true, t24Name=PEN.INT.NAB.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT2_CALC_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Calculated Interest Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=PEN.INT2.CALC.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT2_ACCR_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Accrued Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=23.0, core=true, t24Name=PEN.INT2.ACCR.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT2_NAB_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Amount In Nab Status")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=24.0, core=true, t24Name=PEN.INT2.NAB.AMT, typeModifiers="2D")
+		FROM_DATE_1 -> byValue PD_Config:PD_BALANCES_HIST__FROM_DATE_1 *
+		FROM_DATE_2 -> byValue PD_Config:PD_BALANCES_HIST__FROM_DATE_2 *
+		AMT_TYPE -> byValue PD_Config:PD_BALANCES_HIST__AMT_TYPE *
+		INT_REPAY_DATE -> byValue PD_Config:PD_BALANCES_HIST__INT_REPAY_DATE *
+		INT2_REPAY_DATE -> byValue PD_Config:PD_BALANCES_HIST__INT2_REPAY_DATE *
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		CALC_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Start Date For Calculation")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=54.0, core=true, t24Name=CALC.START.DATE)
+		/* Refer to helptext of PD.BALANCES */
+		PENALTY_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Penalty Spread")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=55.0, core=true, t24Name=PENALTY.SPREAD)
+		/* Refer to helptext of PD.BALANCES */
+		CE_LAST_CAP_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=56.0, core=true, t24Name=CE.LAST.CAP.DATE)
+		/* Refer to helptext of PD.BALANCES */
+		CS_LAST_CAP_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=57.0, core=true, t24Name=CS.LAST.CAP.DATE)
+		DUE_TYPE -> byValue PD_Config:PD_BALANCES_HIST__DUE_TYPE *
+		/* Refer to helptext of PD.BALANCES */
+		CREATE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=60.0, core=true, t24Name=CREATE.DATE)
+		/* Refer to helptext of PD.BALANCES */
+		LOAN_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=61.0, core=true, t24Name=LOAN.SPREAD)
+		/* Refer to helptext of PD.BALANCES */
+		OP_BASIS_SET : PD_Config:PD_BALANCES_HIST__OP_BASIS_SET
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=62.0, core=true, t24Name=OP.BASIS.SET)
+	}
+	PD_BALANCES_HIST__BASE_EFF_DATE
+	{
+		/* Fields BASE.EFF.DATE to BASE.AMOUNT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		BASE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=BASE.EFF.DATE)
+		/* Fields BASE.EFF.DATE to BASE.AMOUNT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=BASE.AMOUNT, typeModifiers="2D")
+	}
+	PD_BALANCES_HIST__RATE_EFF_DATE
+	{
+		/* Fields RATE.EFF.DATE to RATE form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=RATE.EFF.DATE)
+		/* Fields RATE.EFF.DATE to RATE form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=RATE)
+	}
+	PD_BALANCES_HIST__BASE2_EFF_DATE
+	{
+		/* Fields BASE2.EFF.DATE to BASE2.AMOUNT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		BASE2_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=BASE2.EFF.DATE)
+		/* Fields BASE2.EFF.DATE to BASE2.AMOUNT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE2_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=BASE2.AMOUNT, typeModifiers="2D")
+	}
+	PD_BALANCES_HIST__RATE2_EFF_DATE
+	{
+		/* Fields RATE2.EFF.DATE to RATE2 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE2_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=14.0, core=true, t24Name=RATE2.EFF.DATE)
+		/* Fields RATE2.EFF.DATE to RATE2 form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE2 : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=RATE2)
+	}
+	PD_BALANCES_HIST__FROM_DATE_1
+	{
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		FROM_DATE_1 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=FROM.DATE.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		TO_DATE_1 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=TO.DATE.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		NO_DAYS_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=27.0, core=true, t24Name=NO.DAYS.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE_AMT_1 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=28.0, core=true, t24Name=BASE.AMT.1, typeModifiers="2D")
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE_1 : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=29.0, core=true, t24Name=RATE.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_AMT_1 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=30.0, core=true, t24Name=ACCR.AMT.1, typeModifiers="2D")
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 amount field.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_ACT_AMT_1 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=31.0, core=true, t24Name=ACCR.ACT.AMT.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set.
+Validation Rules
+A maximum of 2 characters may be entered. */
+		POSTED_IND_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=32.0, core=true, t24Name=POSTED.IND.1)
+	}
+	PD_BALANCES_HIST__FROM_DATE_2
+	{
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		FROM_DATE_2 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=33.0, core=true, t24Name=FROM.DATE.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		TO_DATE_2 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, core=true, t24Name=TO.DATE.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		NO_DAYS_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=35.0, core=true, t24Name=NO.DAYS.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE_AMT_2 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=36.0, core=true, t24Name=BASE.AMT.2, typeModifiers="2D")
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE_2 : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=37.0, core=true, t24Name=RATE.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_AMT_2 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=38.0, core=true, t24Name=ACCR.AMT.2, typeModifiers="2D")
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 amount field.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_ACT_AMT_2 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=39.0, core=true, t24Name=ACCR.ACT.AMT.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set.
+Validation Rules
+A maximum of 2 characters may be entered. */
+		POSTED_IND_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=40.0, core=true, t24Name=POSTED.IND.2)
+	}
+	PD_BALANCES_HIST__AMT_TYPE
+	{
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set. Standard T24 amount field.
+Validation Rules
+A maximum of 12 characters may be entered.
+Must be the key to a valid entry on the PD.AMOUNT.TYPE file. */
+		AMT_TYPE -> PD_Config:PD_AMOUNT_TYPE
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=41.0, core=true, businessType=AMT, t24Name=AMT.TYPE)
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ORIGINAL_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=42.0, core=true, t24Name=ORIGINAL.AMT, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 019 characters may be entered. */
+		CURR_OS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=43.0, core=true, t24Name=CURR.OS.AMT, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 019 characters may be entered. */
+		CURR_OS_TAX : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=44.0, core=true, t24Name=CURR.OS.TAX, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		CURR_OS_ACCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=45.0, core=true, t24Name=CURR.OS.ACCR, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		CURR_OS_NAB : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=46.0, core=true, t24Name=CURR.OS.NAB, typeModifiers="2D")
+		REPAY_DATE -> byValue PD_Config:PD_BALANCES_HIST__AMT_TYPE__REPAY_DATE *
+	}
+	PD_BALANCES_HIST__AMT_TYPE__REPAY_DATE
+	{
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=47.0, core=true, t24Name=REPAY.DATE)
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 019 characters may be entered. */
+		REPAY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=48.0, core=true, t24Name=REPAY.AMT, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ADJ_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=49.0, core=true, t24Name=ADJ.AMT, typeModifiers="-2D")
+	}
+	PD_BALANCES_HIST__INT_REPAY_DATE
+	{
+		/* Fields INT.REPAY.DATE to INT.REPAY.AMT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		INT_REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=50.0, core=true, t24Name=INT.REPAY.DATE)
+		/* Fields INT.REPAY.DATE to INT.REPAY.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		INT_REPAY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=51.0, core=true, t24Name=INT.REPAY.AMT, typeModifiers="2D")
+	}
+	PD_BALANCES_HIST__INT2_REPAY_DATE
+	{
+		/* Fields INT2.REPAY.DATE to  form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		INT2_REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=52.0, core=true, t24Name=INT2.REPAY.DATE)
+		/* Fields INT2.REPAY.DATE to  form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		INT2_REPAY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=53.0, core=true, t24Name=INT2.REPAY.AMT, typeModifiers="2D")
+	}
+	PD_BALANCES_HIST__DUE_TYPE
+	{
+		/* Refer to helptext of PD.BALANCES */
+		DUE_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=58.0, core=true, t24Name=DUE.TYPE)
+		/* Refer to helptext of PD.BALANCES */
+		DUE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=59.0, core=true, t24Name=DUE.AMT, typeModifiers="2D")
+	}
+	PD_BALANCES_SAVE
+		@t24:i (t24Name=PD.BALANCES.SAVE, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 25 characters may be entered. */
+		KEY -> PD_Config:PD_BALANCES_SAVE PK required
+			@i18n:Label (en=Key)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RECORD_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=RECORD.START.DATE)
+		/* Standard T24 currency field.
+Validation Rules
+A maximum of 3 characters may be entered.
+Must be the key to a valid entry on the CURRENCY file. */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Currency)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* Validation Rules
+A maximum of 3 characters may be entered. */
+		PAYMENT_STATUS : T24BusinessTypes:A
+			@i18n:Label (en="Payment Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=PAYMENT.STATUS)
+		/* Validation Rules
+A maximum of 3 characters may be entered. */
+		PREVIOUS_STATUS : T24BusinessTypes:A
+			@i18n:Label (en="Previous Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=PREVIOUS.STATUS)
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		NO_DAYS_OVERDUE : mml:Integer
+			@i18n:Label (en="No Of Days In Overdue Status")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=NO.DAYS.OVERDUE)
+		BASE_EFF_DATE -> byValue PD_Config:PD_BALANCES_SAVE__BASE_EFF_DATE *
+		RATE_EFF_DATE -> byValue PD_Config:PD_BALANCES_SAVE__RATE_EFF_DATE *
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=POST.START.DATE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST_END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=POST.END.DATE)
+		BASE2_EFF_DATE -> byValue PD_Config:PD_BALANCES_SAVE__BASE2_EFF_DATE *
+		RATE2_EFF_DATE -> byValue PD_Config:PD_BALANCES_SAVE__RATE2_EFF_DATE *
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST2_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=POST2.START.DATE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		POST2_END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Post End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=POST2.END.DATE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		PEN_CALC_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Calculation Date For Penalty")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=PEN.CALC.DATE)
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT_CALC_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Calculated Amount For Penalty Interest")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=PEN.INT.CALC.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT_ACCR_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Amount Accrued For Penalty Interest")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=20.0, core=true, t24Name=PEN.INT.ACCR.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT_NAB_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Nab Amount For Penalty Interest")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, core=true, t24Name=PEN.INT.NAB.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT2_CALC_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Calculated Amount For Penalty Interest")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=PEN.INT2.CALC.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT2_ACCR_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Accrued Interest Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=23.0, core=true, t24Name=PEN.INT2.ACCR.AMT, typeModifiers="2D")
+		/* Validation Rules
+A maximum of 019 characters may be entered. */
+		PEN_INT2_NAB_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Nab Amount For Penalty Interest")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=24.0, core=true, t24Name=PEN.INT2.NAB.AMT, typeModifiers="2D")
+		FROM_DATE_1 -> byValue PD_Config:PD_BALANCES_SAVE__FROM_DATE_1 *
+		FROM_DATE_2 -> byValue PD_Config:PD_BALANCES_SAVE__FROM_DATE_2 *
+		AMT_TYPE -> byValue PD_Config:PD_BALANCES_SAVE__AMT_TYPE *
+		INT_REPAY_DATE -> byValue PD_Config:PD_BALANCES_SAVE__INT_REPAY_DATE *
+		INT2_REPAY_DATE -> byValue PD_Config:PD_BALANCES_SAVE__INT2_REPAY_DATE *
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		CALC_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Start Date For Calculation")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=54.0, core=true, t24Name=CALC.START.DATE)
+		PENALTY_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Penalty Spread")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=55.0, core=true, t24Name=PENALTY.SPREAD)
+		CE_LAST_CAP_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=56.0, core=true, t24Name=CE.LAST.CAP.DATE)
+		CS_LAST_CAP_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=57.0, core=true, t24Name=CS.LAST.CAP.DATE)
+		DUE_TYPE -> byValue PD_Config:PD_BALANCES_SAVE__DUE_TYPE *
+		CREATE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=60.0, core=true, t24Name=CREATE.DATE)
+		LOAN_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=61.0, core=true, t24Name=LOAN.SPREAD)
+		OP_BASIS_SET : PD_Config:PD_BALANCES_SAVE__OP_BASIS_SET
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=62.0, core=true, t24Name=OP.BASIS.SET)
+	}
+	PD_BALANCES_SAVE__BASE_EFF_DATE
+	{
+		/* Fields BASE.EFF.DATE to BASE.AMOUNT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		BASE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=BASE.EFF.DATE)
+		/* Fields BASE.EFF.DATE to BASE.AMOUNT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=BASE.AMOUNT, typeModifiers="2D")
+	}
+	PD_BALANCES_SAVE__RATE_EFF_DATE
+	{
+		/* Fields RATE.EFF.DATE to RATE form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=RATE.EFF.DATE)
+		/* Fields RATE.EFF.DATE to RATE form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=RATE)
+	}
+	PD_BALANCES_SAVE__BASE2_EFF_DATE
+	{
+		/* Fields BASE2.EFF.DATE to BASE2.AMOUNT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		BASE2_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=BASE2.EFF.DATE)
+		/* Fields BASE2.EFF.DATE to BASE2.AMOUNT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE2_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=BASE2.AMOUNT, typeModifiers="2D")
+	}
+	PD_BALANCES_SAVE__RATE2_EFF_DATE
+	{
+		/* Fields RATE2.EFF.DATE to RATE2 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE2_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=14.0, core=true, t24Name=RATE2.EFF.DATE)
+		/* Fields RATE2.EFF.DATE to RATE2 form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE2 : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=RATE2)
+	}
+	PD_BALANCES_SAVE__FROM_DATE_1
+	{
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		FROM_DATE_1 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=FROM.DATE.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		TO_DATE_1 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=TO.DATE.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		NO_DAYS_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=27.0, core=true, t24Name=NO.DAYS.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE_AMT_1 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=28.0, core=true, t24Name=BASE.AMT.1, typeModifiers="2D")
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE_1 : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=29.0, core=true, t24Name=RATE.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_AMT_1 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=30.0, core=true, t24Name=ACCR.AMT.1, typeModifiers="2D")
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set. Standard T24 amount field.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_ACT_AMT_1 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=31.0, core=true, t24Name=ACCR.ACT.AMT.1)
+		/* Fields FROM.DATE.1 to POSTED.IND.1 form a related multi value set.
+Validation Rules
+A maximum of 2 characters may be entered. */
+		POSTED_IND_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=32.0, core=true, t24Name=POSTED.IND.1)
+	}
+	PD_BALANCES_SAVE__FROM_DATE_2
+	{
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		FROM_DATE_2 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=33.0, core=true, t24Name=FROM.DATE.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		TO_DATE_2 : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, core=true, t24Name=TO.DATE.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		NO_DAYS_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=35.0, core=true, t24Name=NO.DAYS.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		BASE_AMT_2 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=36.0, core=true, t24Name=BASE.AMT.2, typeModifiers="2D")
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RATE_2 : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=37.0, core=true, t24Name=RATE.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_AMT_2 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=38.0, core=true, t24Name=ACCR.AMT.2, typeModifiers="2D")
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set. Standard T24 amount field.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ACCR_ACT_AMT_2 : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=39.0, core=true, t24Name=ACCR.ACT.AMT.2)
+		/* Fields FROM.DATE.2 to POSTED.IND.2 form a related multi value set.
+Validation Rules
+A maximum of 2 characters may be entered. */
+		POSTED_IND_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=40.0, core=true, t24Name=POSTED.IND.2)
+	}
+	PD_BALANCES_SAVE__AMT_TYPE
+	{
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set. Standard T24 amount field.
+Validation Rules
+A maximum of 12 characters may be entered.
+Must be the key to a valid entry on the PD.AMOUNT.TYPE file. */
+		AMT_TYPE -> PD_Config:PD_AMOUNT_TYPE
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=41.0, core=true, businessType=AMT, t24Name=AMT.TYPE)
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ORIGINAL_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=42.0, core=true, t24Name=ORIGINAL.AMT, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 019 characters may be entered. */
+		CURR_OS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=43.0, core=true, t24Name=CURR.OS.AMT, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 019 characters may be entered. */
+		CURR_OS_TAX : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=44.0, core=true, t24Name=CURR.OS.TAX, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		CURR_OS_ACCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=45.0, core=true, t24Name=CURR.OS.ACCR, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		CURR_OS_NAB : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=46.0, core=true, t24Name=CURR.OS.NAB, typeModifiers="2D")
+		REPAY_DATE -> byValue PD_Config:PD_BALANCES_SAVE__AMT_TYPE__REPAY_DATE *
+	}
+	PD_BALANCES_SAVE__AMT_TYPE__REPAY_DATE
+	{
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=47.0, core=true, t24Name=REPAY.DATE)
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 019 characters may be entered. */
+		REPAY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=48.0, core=true, t24Name=REPAY.AMT, typeModifiers="2D")
+		/* Fields AMT.TYPE to ADJ.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		ADJ_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=49.0, core=true, t24Name=ADJ.AMT, typeModifiers="-2D")
+	}
+	PD_BALANCES_SAVE__INT_REPAY_DATE
+	{
+		/* Fields INT.REPAY.DATE to INT.REPAY.AMT form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		INT_REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=50.0, core=true, t24Name=INT.REPAY.DATE)
+		/* Fields INT.REPAY.DATE to INT.REPAY.AMT form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		INT_REPAY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=51.0, core=true, t24Name=INT.REPAY.AMT, typeModifiers="2D")
+	}
+	PD_BALANCES_SAVE__INT2_REPAY_DATE
+	{
+		/* Fields INT2.REPAY.DATE to  form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		INT2_REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=52.0, core=true, t24Name=INT2.REPAY.DATE)
+		/* Fields INT2.REPAY.DATE to  form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered. */
+		INT2_REPAY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=53.0, core=true, t24Name=INT2.REPAY.AMT, typeModifiers="2D")
+	}
+	PD_BALANCES_SAVE__DUE_TYPE
+	{
+		DUE_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=58.0, core=true, t24Name=DUE.TYPE)
+		DUE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=59.0, core=true, t24Name=DUE.AMT, typeModifiers="2D")
+	}
+	PD_CUSTOMER
+		@t24:i (t24Name=PD.CUSTOMER, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This file groups the Payment due ids on customer basis.
+The key for this file is customer id.  It holds all PD contract ids That are due to that customer. */
+		CUSTOMER -> PD_Config:PD_CUSTOMER PK required
+			@i18n:Label (en=Customer)
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=CUS, t24Name=CUSTOMER)
+		/* Indicates the list of PD contract IDs for the customer stated in @ID. When the PD moves to history, the contract is automatically removed from the list.
+Validation Rules
+
+Maximum of 12 Alphanumeric characters.
+Should be a valid ID in PD.PAYMENT.DUE file. */
+		DEAL_ID : T24BusinessTypes:A
+			@i18n:Label (en="Deal Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=1.0, core=true, t24Name=DEAL.ID)
+	}
+	PD_PARAMETER
+		@t24:i (t24Name=PD.PARAMETER, level=I, type=H, allowedFunctions="A C D E H I L P Q S", localRefAllowed=true)
+	{
+		/* Identifies the parameter set used by the Payment Due module.
+The key to this file is a valid COMPANY.CODE but it is also possible to set up other records with the key as a valid Category code.
+Alternatively, it is also possibly to set up a record with the key of  "AC", to control the parameter settings for overdrawn accounts.
+The COMPANY.CODE record has to be set up first before any other Category records can be setup. The "AC" record has to be set up before any account Category records are.
+It is not possible to REVERSE the COMPANY.CODE record but it is possible to reverse Category records as long as there are no PD contracts active with that particular Category code.
+
+In order to write charges and commissions on the MD.DEAL that have not been paid to PAYMENT.DUE, a record for MD is mandatory. Separate parameter definitions may be input for each category of MD, in which case the @ID will be input as MD-Category code.
+
+
+
+Validation Rules
+(1) Allowable input is a valid company code as seen in the Company record.
+(2) Input of just the category code without prefixing the appropriate module id is not permissible for the following modules: "AC","AZ","BL" &"MD"
+(3) Category range between 10000 to 19999 is not allowed.
+(4) Following Category ranges are allowed:
+MG                       Mortgage                 25000 - 25099
+DEPOSIT              Deposit                    21001 - 21039
+SUNDRY              Sundry Deposit         21045 - 21049
+LOAN                   Loan                        21050 - 21074
+ACC.REC              Account Receivable  21090 - 21094
+COMMITMENT      Commitment             21095 - 21099
+LIAB COMMT        Liability Commitment 21101 - 21105 */
+		ID -> PD_Config:PD_PARAMETER PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=ID)
+		/* Defines the Profit & Loss category code to which penalty interest accrued is to be posted.
+Penalty Interest accrued on Payment Due contracts made in the current month will be credited to the Profit & Loss category code specified in this field.
+Once authorised this field cannot be changed. However, if it is necessary to change the category code used for current month accruals this may be done via the field CAT.OD.INT.NEW.
+Validation Rules
+1-5 numeric characters. (Mandatory input).
+Must be in the range 50000-59999.
+Must be a valid P&L category code on the CATEGORY table. */
+		CAT_OD_INT_CUR -> ST_Config:CATEGORY required
+			@i18n:Label (en="Profit & Loss Category Code")
+			@t24:i (align=R, inputBehaviour=F, maxLength=5, sysNumber=1.0, core=true, t24Name=CAT.OD.INT.CUR)
+		/* Defines the Profit & Loss category code to which penalty interest accruals for previous months, due to back valued Payment Due contracts, in the current year are to be posted.
+Prior month accruals within the current year are posted to this category code.
+Validation Rules
+1-5 numeric characters. (Mandatory input).
+Must be in the range 50000-59999.
+Must be a valid P&L category code on the CATEGORY table. */
+		CAT_OD_INT_PRV_MTH -> ST_Config:CATEGORY required
+			@i18n:Label (en="Profit & Loss Category Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=2.0, core=true, t24Name=CAT.OD.INT.PRV.MTH)
+		/* Defines the Profit & Loss category code to which penalty interest accruals for previous years, due to back valued Payment Due contracts, are to be posted.
+Prior year accruals are posted to this category code.
+Validation Rules
+1-5 numeric characters. (Mandatory input).
+Must be in the range 50000-59999.
+Must be a valid P&L category code on the CATEGORY table. */
+		CAT_OD_INT_PRV_YR -> ST_Config:CATEGORY required
+			@i18n:Label (en="Profit & Loss Category Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=CAT.OD.INT.PRV.YR)
+		/* This field is used to change the P&L category code used for current month penalty interest accruals.
+The category code used for accruals in the current month is defined in field CAT.OD.INT.CUR. The contents of this field may not be changed after authorisation. However, if it becomes necessary to change this category code then it is achieved via this field.
+The new category code to be used for current month accruals is entered in this field. During the End Of Day batch processing the new category code will be transferred to field CAT.OD.INT.CUR and the contents of this field cleared. At the same time all outstanding amortizations will be transferred from the old category to the new category within the P&L base.
+Validation Rules
+1-5 numeric characters. (Optional input).
+Must be in the range 50000-59999.
+Must differ from the category code in field CAT.OD.INT.CUR.
+Must be a valid P&L category code on the CATEGORY table. */
+		CAT_OD_INT_NEW -> ST_Config:CATEGORY
+			@i18n:Label (en="P&L Category Code Used For Current Mont")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=CAT.OD.INT.NEW)
+		/* Defines the Profit & Loss category code to which penalty spread accrued is to be posted.
+Penalty Spread accrued on Payment Due contracts made in the current month will be credited to the Profit & Loss category code specified in this field.
+Once authorised this field cannot be changed. However, if it is necessary to change the category code used for current month accruals this may be done via the field CAT.OD.SPR.NEW.
+Validation Rules
+1-5 numeric characters. (Mandatory input).
+Must be in the range 50000-59999.
+Must be a valid P&L category code on the CATEGORY table.
+Input mandatory if PENALTY.SPREAD present or value in CONTRACT.METHOD is "3". */
+		CAT_OD_SPR_CUR -> ST_Config:CATEGORY
+			@i18n:Label (en="Profit & Loss Category Code")
+			@t24:i (align=R, inputBehaviour=F, maxLength=5, sysNumber=5.0, core=true, t24Name=CAT.OD.SPR.CUR)
+		/* Defines the Profit & Loss category code to which penalty spread accruals for previous months, due to back valued Payment Due contracts, in the current year are to be posted.
+Prior month accruals within the current year are posted to this category code.
+Validation Rules
+1-5 numeric characters. (Mandatory input).
+Must be in the range 50000-59999.
+Must be a valid P&L category code on the CATEGORY table.
+Input mandatory if PENALTY.SPREAD present or value in CONTRACT.METHOD is "3". */
+		CAT_OD_SPR_PRV_MTH -> ST_Config:CATEGORY
+			@i18n:Label (en="Profit & Loss Category Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=6.0, core=true, t24Name=CAT.OD.SPR.PRV.MTH)
+		/* Defines the Profit & Loss category code to which penalty spread accruals for previous years, due to back valued Payment Due contracts, are to be posted.
+Prior year accruals are posted to this category code.
+Validation Rules
+1-5 numeric characters. (Optional or mandatory input).
+Must be in the range 50000-59999.
+Must be a valid P&L category code on the CATEGORY table.
+Input mandatory if PENALTY.SPREAD present or value in CONTRACT.METHOD is "3". */
+		CAT_OD_SPR_PRV_YR -> ST_Config:CATEGORY
+			@i18n:Label (en="Profit & Loss Category Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=7.0, core=true, t24Name=CAT.OD.SPR.PRV.YR)
+		/* This field is used to change the P&L category code used for current month penalty spread accruals.
+The category code used for accruals in the current month is defined in field CAT.OD.SPR.CUR. The contents of this field may not be changed after authorisation. However, if it becomes necessary to change this category code then it is achieved via this field.
+The new category code to be used for current month accruals is entered in this field. During the End Of Day batch processing the new category code will be transferred to field CAT.OD.SPR.CUR and the contents of this field cleared. At the same time all outstanding amortizations will be transferred from the old category to the new category within the P&L base.
+Validation Rules
+1-5 numeric characters. (Optional input).
+Must be in the range 50000-59999.
+Must differ from the category code in field CAT.OD.SPR.CUR.
+Must be a valid P&L category code on the CATEGORY table. */
+		CAT_OD_SPR_NEW -> ST_Config:CATEGORY
+			@i18n:Label (en="Profit & Loss Category Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=8.0, core=true, t24Name=CAT.OD.SPR.NEW)
+		/* Defines the Profit and Loss category code to which any write-offs are to be posted.
+This category code is also used for any adjustment decreases.
+Validation Rules
+1-5 numeric characters. (Mandatory input).
+Must be in the range 50000-59999.
+Must be a valid P&L category code on the CATEGORY table. */
+		WOF_CATEGORY -> ST_Config:CATEGORY required
+			@i18n:Label (en="Profit And Loss Category Code To Which Any Write-Offs Are To Be Posted")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=9.0, core=true, t24Name=WOF.CATEGORY)
+		/* Specifies the transaction code to be used for the debit entries generated by writing off any overdue payments.
+Validation Rules
+1-3 numeric characters TRANSACTION code. (Mandatory input).
+Must be a valid transaction code on the TRANSACTION table.
+Cannot be the same code as defined in field TXN.CDE.WOF.CR.
+Code must not be defined as a CREDIT type on the TRANSACTION table. */
+		TXN_CDE_WOF_DR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Transaction Code To Be Used For The Debit Entries Generated By The Take-Over")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=10.0, core=true, t24Name=TXN.CDE.WOF.DR)
+		/* Specifies the transaction code to be used for the credit entries generated by writing off any overdue payments.
+Validation Rules
+1-3 numeric characters TRANSACTION code. (Mandatory input).
+Must be a valid transaction code on the TRANSACTION table.
+Cannot be the same code as defined in field TXN.CDE.WOF.DR.
+Code must not be defined as a DEBIT type on the TRANSACTION table. */
+		TXN_CDE_WOF_CR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Transaction Code To Be Used For The Creit Entries Generated By The Take-Over")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=11.0, core=true, t24Name=TXN.CDE.WOF.CR)
+		/* Specifies the transaction code to be used for the debit entries generated by any adjustments made to the overdue payments.
+Validation Rules
+1-3 numeric characters TRANSACTION code. (Mandatory input).
+Must be a valid transaction code on the TRANSACTION table.
+Cannot be the same code as defined in field TXN.CDE.ADJ.CR.
+Code must not be defined as a CREDIT type on the TRANSACTION table. */
+		TXN_CDE_ADJ_DR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Transaction Code To Be Used For The Debit Entries")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, t24Name=TXN.CDE.ADJ.DR)
+		/* Specifies the transaction code to be used for the credit entries generated by any adjustments made to the overdue payments.
+Validation Rules
+1-3 numeric characters TRANSACTION code. (Mandatory input).
+Must be a valid transaction code on the TRANSACTION table.
+Cannot be the same code as defined in field TXN.CDE.ADJ.DR.
+Code must not be defined as a DEBIT type on the TRANSACTION table. */
+		TXN_CDE_ADJ_CR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Transaction Code To Be Used For The Credit Entries")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=13.0, core=true, t24Name=TXN.CDE.ADJ.CR)
+		/* Specifies the transaction code to be used for netting any entries across the customer's account together.
+This transaction code will be used if the NET.CUST.ENTRIES field on the PD contract is set to "YES".
+Validation Rules
+1-3 numeric characters TRANSACTION code. (Mandatory input).
+Must be a valid transaction code on the TRANSACTION table. */
+		TXN_CDE_REPAY_NET -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Transaction Code To Be Used For Netting Any Entries")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=14.0, core=true, t24Name=TXN.CDE.REPAY.NET)
+		/* Specifies the date and frequency of the next accrual of penalty interest for all PD contracts held in the local currency.
+Interest can be "accrued" either on a daily or monthly basis.
+Validation Rules
+8 numeric standard date characters, followed by a standard 5 alphanumeric frequency. (Mandatory input).
+Date input must be greater than or equal to today.
+The frequency must be either DAILY or MONTHLY. */
+		ACCR_CYCLE_LOCAL : T24BusinessTypes:FQU required
+			@i18n:Label (en="Date And Frequency Of The Next Accrual When The Account Goes Overdrawn")
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=ACCR.CYCLE.LOCAL, mask="RDDDD DD  D #####")
+		/* Specifies the date and frequency of the next accrual of penalty interest for all PD contracts held in a foreign currency.
+Validation Rules
+8 numeric standard date characters, followed by a standard 5 alphanumeric frequency. (Mandatory input).
+Date input must be greater than or equal to today.
+The frequency must be either DAILY or MONTHLY. */
+		ACCR_CYCLE_FOREIGN : T24BusinessTypes:FQU required
+			@i18n:Label (en="Date And Frequency Of The Next Accrual When The Account Goes Overdrawn")
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=16.0, core=true, t24Name=ACCR.CYCLE.FOREIGN, mask="RDDDD DD  D #####")
+		/* Specifies the number of days or instalments for which the grace period lasts before penalty interest is applied.
+Once this period is over and the customer has not made any repayment, penalty interest will be applied to the overdue amount backvalued to the end of the pre grace period. Where no pre grace period exists, penalty interest will be applied to the overdue amount backvalued to the original date it was overdue.
+The input may be either in a fixed number of calendar days or by number of instalments.
+Validation Rules
+1-3 numeric characters, or "P" followed by 1-2 numeric characters. (Mandatory input).
+If specifying number of days, then input must be between 0 and 999 days.
+If specifying instalments, then input must be between 0 and 99 with a prefix of "P".
+If the contents of field PRE.GRACE.PERIOD is a number of days then the number of days defined in this field must be greater than those defined in PRE.GRACE.PERIOD field. */
+		GRACE_PERIOD_INT : T24BusinessTypes:A required
+			@i18n:Label (en="Grace period int")
+			@i18n:Tooltip (en="Grace period interest")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=17.0, core=true, t24Name=GRACE.PERIOD.INT)
+		/* Specifies the number of days or instalments for which the grace period lasts before penalty spread is applied.
+Once this period is over and the customer has not made any repayment, penalty spread will be applied to the overdue amount backvalued to the end of the pre grace period. Where no pre grace period exists, penalty spread will be applied to the overdue amount backvalued to the original date it was overdue.
+The input may be either in a fixed number of calendar days or by number of instalments.
+Input to this field is optional unless there is a value in field PENALTY.SPREAD or the value in the field CONTRACT.METHOD is "3".
+If input is made to this field then the type of grace period must be the same as that defined in the field GRACED.PERIOD.INT, i.e. if the GRACE.PERIOD.INT is defined as a number of instalments then so should this field and vice-versa.
+Also any input made must be equal to the value held in field GRACE.PERIOD.INT.
+Validation Rules
+1-3 numeric characters, or "P" followed by 1-2 numeric characters. (Optional or mandatory input).
+If specifying number of days, then input must be between 0 and 999 days.
+If specifying instalments, then input must be between 0 and 99 with a prefix of "P".
+Input must be of same type as that of GRACE.PERIOD.INT.
+Input must be equal to that of GRACE.PERIOD.INT, i.e if the GRACE.PERIOD.INT is defined as P3, then input could not be P2.
+Input is mandatory if there is a value in field PENALTY.SPREAD or the value in field CONTRACT.METHOD is "3". */
+		GRACE_PERIOD_SPRD : T24BusinessTypes:A
+			@i18n:Label (en="Grace period sprd")
+			@i18n:Tooltip (en="Grace period spread")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=18.0, core=true, t24Name=GRACE.PERIOD.SPRD)
+		/* Specifies the number of days after a payment becomes overdue, the PD contract will switch to non-accrual basis (NAB) and stop accruing and posting penalty interest.
+Once the contract has switched status to NAB, the system will stop accruing and posting the penalty interest due, but calculation of the penalty interest will continue.
+
+
+Effective T24 release G 12.1 this field would also accept a value NO apart from a 3-digit numeric.
+
+
+
+
+If this field were set to NO, change of status from PDO to NAB would not be governed by the system but is only manually controlled. The PD record would go through stages PRE, GRA, PDO as per parameter definition. Once the status becomes PDO, there would be no system updation, and change of status to NAB is only by way of user intervention in the form of a Maintenance operation.
+
+
+
+
+The value in this field, if numeric, would express the number of days after which the record status would be system-changed from PDO to NAB.
+
+
+
+
+For value NO in this field, NAB.PERIOD.SPREAD should also be NO.
+Validation Rules
+
+
+
+
+1-3 numeric character or 2     alpha character. Only alpa character option allowed is NO.
+
+
+
+
+
+
+
+
+Input, if numeric must be within the range 1-999. */
+		NAB_PERIOD_INT : T24BusinessTypes:A required
+			@i18n:Label (en="Nab period int")
+			@i18n:Tooltip (en="Nab period interest")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=19.0, core=true, t24Name=NAB.PERIOD.INT)
+		/* Specifies the number of days after a payment becomes overdue, the PD contract will switch to non-accrual basis (NAB) and stop accruing and posting penalty spread.
+Once the contract has switched status to NAB, the system will stop accruing and posting the penalty spread due, but calculation of the penalty spread will continue.
+Input to this field is optional unless there is a value in field PENALTY.SPREAD or the value in the field CONTRACT.METHOD is "3".
+
+
+Effective T24 release G 12.1 this field would also accept a value NO apart from a 3-digit numeric.
+
+
+
+
+If this field were set to NO, change of status from PDO to NAB would not be governed by the system but is only manually controlled. The PD record would go through stages PRE, GRA, PDO as per parameter definition. Once the status becomes PDO, there would be no system updation, and change of status to NAB is only by way of user intervention in the form of a Maintenance operation.
+
+
+
+
+The value in this field, if numeric, would express the number of days after which the record status would be system-changed from PDO to NAB.
+
+
+
+
+For value NO in this field, NAB.PERIOD.INT should also be NO.
+Validation Rules
+
+
+
+
+
+
+1-3 numeric character or 2   alpha character. Only alpa character option allowed is NO.
+
+
+
+
+Input, if numeric must be within the range 1-999.
+Input is mandatory if there is a value in field PENALTY.SPREAD or the value in field CONTRACT.METHOD is "3". */
+		NAB_PERIOD_SPRD : T24BusinessTypes:A
+			@i18n:Label (en="Nab period sprd")
+			@i18n:Tooltip (en="Nab period spread")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=20.0, core=true, t24Name=NAB.PERIOD.SPRD)
+		/* Identifies whether or not to automatically set the status of any new subsequent overdue payments once the first overdue payment changes status to NAB (non-accrual basis).
+What this means is that if the first overdue payment has a status of NAB and a subsequent payment becomes overdue, then an input of "YES" to this field will automatically set the status of all subsequent payments to NAB. An input of "NO" will mean that the second and subsequent payments will be processed like the first, i.e GRA to PDO and then PDO to NAB.
+Validation Rules
+1-3 alphabetic characters - "NO" or "YES". (Mandatory input). */
+		SUB_PAY_SETTING : PD_Config:PD_PARAMETER__SUB_PAY_SETTING required
+			@i18n:Label (en="Sub pay setting")
+			@i18n:Tooltip (en="Sub pay setting")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=21.0, core=true, t24Name=SUB.PAY.SETTING)
+		STATUS_CHANGE -> byValue PD_Config:PD_PARAMETER__STATUS_CHANGE *
+		/* Defines the maximum legal interest rate allowed by the Bank.
+If this field contains a value and a Payment Due contract is created whose penalty interest is greater than this value then the system will change the rate to be the value in this field.
+Validation Rules
+1-11 numeric characters plus a decimal point. (Optional input).
+Input must be greater than 0.
+Input cannot be greater than 100.
+If MINIMUM.RATE defined then input to this field must be greater than MINIMUM.RATE. */
+		MAXIMUM_LEGAL_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Maximum Interest Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=24.0, core=true, t24Name=MAXIMUM.LEGAL.RATE)
+		/* Defines the minimum interest rate allowed by the Bank.
+If this field contains a value and a Payment Due contract is created whose penalty interest is less than this value then the system will change the rate to be the value in this field.
+Validation Rules
+1-11 numeric characters plus a decimal point. (Optional input).
+Input must be greater than 0.
+Input cannot be greater than 100.
+If MAXIMUM.RATE defined then input to this field must be less than MAXIMUM.RATE. */
+		MINIMUM_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Minimum Interest Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=MINIMUM.RATE)
+		/* Defines the default interest rate to be used for calculating penalty interest.
+Input to this field is only allowed if there is no input made to the PENALTY.KEY field or to the CONTRACT.METHOD field.
+If input is made to the MAXIMUM.LEGAL.RATE field then any input to this field may not be greater than the MAXIMUM.LEGAL.RATE.
+If input is made to the MINIMUM.RATE field then any input to this field may not be less than the MINIMUM.RATE.
+Validation Rules
+1-11 numeric characters plus a decimal point. (Optional or mandatory input).
+Input must be greater than 0.
+Input cannot be greater than 100.
+If MINIMUM.RATE defined then input to this field cannot be less than MINIMUM.RATE.
+If MAXIMUM.LEGAL.RATE defined then input to this field cannot be greater than MAXIMUM.LEGAL.RATE.
+Input not allowed if PENALTY.KEY defined.
+Input not allowed if CONTRACT.METHOD defined.
+Input mandatory if neither PENALTY.KEY nor CONTRACT.METHOD defined. */
+		PENALTY_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Penalty Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=PENALTY.RATE)
+		/* Contains the key to the BASIC.RATE.TEXT table,and subsequently BASIC.INTEREST table, which indicates the default interest rate to be applied for the calculation of penalty interest.
+Input to this field is only allowed if there is no input made to the PENALTY.RATE field or to the CONTRACT.METHOD field.
+Validation Rules
+1-4 numeric characters. (Optional or mandatory input).
+Must be a valid entry on the BASIC.RATE.TEXT table.
+Input not allowed if PENALTY.RATE defined.
+Input not allowed if CONTRACT.METHOD defined.
+Input mandatory if neither PENALTY.RATE nor CONTRACT.METHOD defined. */
+		PENALTY_KEY -> ST_RateParameters:BASIC_RATE_TEXT
+			@i18n:Label (en="Penalty Key")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=27.0, core=true, t24Name=PENALTY.KEY)
+		/* Specifies that the interest rate for calculating penalty interest is to be defaulted from the underlying contract.
+There are six values which may be entered in this field:
+
+If the input is "1",then this means that only penalty interest will be calculated using the rate of the underlying contract.
+If the input is "2",then this means that the penalty interest will be calculated using the rate of the underlying contract and the penalty spread will be calculated using the value defined in the PENALTY.SPREAD field. In this case input to the PENALTY.SPREAD field becomes mandatory. The penalty interest and penalty spread will be accrued separately. The default amount used to calculate penalty spread is the outstanding principal, however it is possible to define the amount used by using the PS.CALC.BASIS field in the same manner that PEN.CALC.BASIS is used to calculate the penalty interest.
+If the input is "3",then this means that the penalty interest will be calculated using the rate of the underlying contract and the penalty spread will be calculated using the value extracted from the calculation MAXIMUM.LEGAL.RATE minus the rate of the underlying contract. In this case input to the MAXIMUM.LEGAL.RATE field becomes mandatory.
+If the input is "4",then this means that penalty interest and penalty spread will be accrued together. The rate used will be the underlying contract plus PENALTY.SPREAD and the amount is defined using the PEN.CALC.BASIS field.
+If the input is "5",then no penalty will be calculated or applied on the contract.The fields PEN.CALC.BASIS,PS.CALC.BASIS,PENALTY.RATE,PENALTY.KEY,PENALTY.SPREAD become no input fields when the input is 5 in this field.For AC parameter record, only allowed option is 5, meaning no penaltyis calculated on the contract.
+If the input is " " (NULL), then penalty will be calculated at the PENALTY.RATE (field 26)  or PENALTY.KEY (field 27) + PENALTY.SPREAD(field 29).
+For parameter record with ID as  MD or MD-.....(category), the only allowed option is " " (null). While creating a parameter with ID as MD or MD-... (category) itself, this field will come as a NO INPUT field with null value.  The field PENALTY.RATE or PENALTY.KEY should have a value for these records.
+If the underlying contract has ZERO interest rate, then the PD record will use ZERO interest rate for the PENALTY interest calculations. The Exception log file will be updated reflecting this.
+Input to this field is only allowed if there is no input made to the PENALTY.RATE field or to the PENALTY.KEY field.
+Effective T24 Release G12.2, underlying contract rate would include SPREAD of the loan.  For example, a loan is input with a BASIC.INTEREST key of 1 (10%) plus SPREAD 2%. PD.PARAMETER has penalty spread of 3%. In this case PE would be reckoned at 12% and PS at 3 %.
+Validation Rules
+
+
+1 numeric character - "1", "2", "3"     ,"4", "5" or " ". (Optional or mandatory input).
+Input not allowed if PENALTY.RATE defined.
+Input not allowed if PENALTY.KEY defined.
+Input mandatory if neither PENALTY.RATE nor PENALTY.KEY defined.
+Input 5 is mandatory for AC parameter record.
+Only " " allowed for MD and MD-...(category) parameter record,     in which case PENALTY.RATE or PENALTY.KEY is mandatory. */
+		CONTRACT_METHOD : PD_Config:PD_PARAMETER__CONTRACT_METHOD
+			@i18n:Label (en="Contract Method")
+			@i18n:Tooltip (en="Contract Method")
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=28.0, core=true, t24Name=CONTRACT.METHOD)
+		/* Defines the default rate to be used for calculating penalty spread.
+Input is mandatory to this field if the field CONTRACT.METHOD contains a value of "2".
+Input is not allowed to this field if the field CONTRACT.METHOD contains a value of "1" ,"3" or blank.
+Validation Rules
+
+
+1-11 numeric characters plus a decimal point. (Optional         or mandatory input).
+Input cannot be greater than 100.
+Input not allowed if CONTRACT.METHOD contains a value of         "1", "3" or blank.
+Input mandatory if CONTRACT.METHOD contains a value of         "2". */
+		PENALTY_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Penalty Spread")
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=29.0, core=true, t24Name=PENALTY.SPREAD, typeModifiers=-)
+		/* This field is to be used when the penalty spread on a PD is to be calculated automatically by the system without any input in the PENALTY.SPREAD field. If this field is flagged to YES, penalty spread is calculated as the difference between the value in PENALTY.RATE field (either in the PD.PARAMETER record or the underlying LD/MG record) and the interest rate of the underlying contract. This spread will come into effect after the period/no.of instalments specified in the PE.SWITCH.PERIOD have been crossed. The value in POST.GR.PS.CALC is used as the calculation base for penalty spread. If at any time the spread becomes negative due to changes in the interest rate in the contract or a rate change operation in the PD contract, then the penalty spread is truncated to zero.
+Validations
+
+
+
+
+Value in this field can be YES, NO or null
+Input is allowed only if there is a value in     PENALTY.RATE field (ie CONTRACT.METHOD is null). If there is also an input     in the PENALTY.RATE field in the underlying contract, then the penalty rate     in the underlying contract is used to calculate penalty spread in PD
+If value in this field is YES, there can be no input     in PENALTY.SPREAD field
+If value in this field is YES, input is mandatory in     the fields PE.SWITCH.PERIOD, POST.GR.PE.CALC and POST.GR.PS.CALC. */
+		AUTO_ADJUST_SPREAD : PD_Config:PD_PARAMETER__AUTO_ADJUST_SPREAD
+			@i18n:Label (en="Auto Adjust Spread")
+			@i18n:Tooltip (en="Auto Adjust Spread")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=30.0, core=true, t24Name=AUTO.ADJUST.SPREAD)
+		DEFAULT_CHARGES -> byValue PD_Config:PD_PARAMETER__DEFAULT_CHARGES *
+		PEN_CALC_BASIS -> byValue PD_Config:PD_PARAMETER__PEN_CALC_BASIS *
+		REPAYMENT_ORDER -> byValue PD_Config:PD_PARAMETER__REPAYMENT_ORDER *
+		/* Specifies whether or not to move the accrued penalty interest or spread from Profit and Loss once the contract status changes to non-accrual basis (NAB).
+Validation Rules
+1-3 alphabetic characters - "NO" or "YES". (Optional input).
+If no input is made, this field will default to "NO". */
+		REVERSE_PL_AT_NAB : PD_Config:PD_PARAMETER__REVERSE_PL_AT_NAB required
+			@i18n:Label (en="Reverse PL at NAB")
+			@i18n:Tooltip (en="Reverse PL at NAB")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=35.0, core=true, t24Name=REVERSE.PL.AT.NAB)
+		/* Specifies the transaction code to be used for the debit entries generated by the take-over performed by the PD.CAPTURE application.
+Validation Rules
+1-3 numeric characters TRANSACTION code. (Mandatory input).
+Must be a valid transaction code on the TRANSACTION table.
+Cannot be the same code as defined in field TXN.CDE.TAKEOVR.CR.
+Code must not be defined as a CREDIT type on the TRANSACTION table. */
+		TXN_CDE_TAKEOVR_DR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Transaction Code To Be Used For The Debit Entries Generated By The Take-Over")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=36.0, core=true, t24Name=TXN.CDE.TAKEOVR.DR)
+		/* Specifies the transaction code to be used for the credit entries generated by the take-over performed by the PD.CAPTURE application.
+Validation Rules
+1-3 numeric characters TRANSACTION code. (Mandatory input).
+Must be a valid transaction code on the TRANSACTION table.
+Cannot be the same code as defined in field TXN.CDE.TAKEOVR.DR.
+Code must not be defined as a DEBIT type on the TRANSACTION table. */
+		TXN_CDE_TAKEOVR_CR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="Transaction Code To Be Used For The Credit Entries Generated By The Take-Over")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=37.0, core=true, t24Name=TXN.CDE.TAKEOVR.CR)
+		/* Specifies the number of days or installments for which the pre-grace (PRE) period lasts. During this period, penalties are neither calculated nor posted.
+Once this period is over and the customer has not made any repayment, penalty interest will be calclutaed on the overdue amount, from the end of this period. If set the subsequent grace (GRA) period will calculate, but not post, accruals for information purposes. The next status if no payment is made, or written off, is past due (PDO). A ontract may go directly from PRE to PDO according to settings in the PD.PARAMETER record for the contract type.
+The input may be either in a fixed number of calendar days or by number of instalments.
+Validation Rules
+1-3 numeric characters, or "P" followed by 1-2 numeric characters.
+If specifying number of days, then input must be between 0 and 999 days.
+If specifying instalments, then input must be between 0 and 99 with a prefix of "P". */
+		PRE_GRACE_PERIOD : T24BusinessTypes:A
+			@i18n:Label (en="Pre Grace Period")
+			@i18n:Tooltip (en="Pre Grace Period")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=38.0, core=true, t24Name=PRE.GRACE.PERIOD)
+		/* This field is used in conjunction with RETRY.FREQ. It defines the amount that needs to be available in the liquidation account, calculated as a percentage of the amount due, to enable automatic settlement to take place. This can be either on the due date or on dates as specified in RETRY.FREQ.
+This field will only be used on contracts that have liquidation mode of Semi-Automatic.
+
+
+Effective T24 release G12.1, this field would also accept a value 0 (zero). A value of zero would mean that any balance is the account is to be considered for EOD retry. Setting this field to zero and flagging USE.AVBL.FUNDS to YES, would provide functionality of appropriating balance in the settlement account to pay of the past dues without ever overdrawing the account beyond the LIMIT.
+At the time of processing LD schedules this field will be looked only for a NULL value in USE.AVBL.FUNDS. IF USE.AVBL.FUNDS is flagged to YES, MIN.AUTO.PERCENT will be ignored and whatever funds available in the account would be used to settle the LD scheduled amount partially and the balance would get written to PD.
+While processing PD EOD RETRY only subject to MIN.AUTO.PERCENT being available retry on the account would happen. For a NULL value in USE.AVBL.FUNDS, the entire RETRY amount would get liquidated by overdrawing the account with the insufficient portion. If USE.AVBL.FUNDS were flagged to YES, such forced overdrawal of the account would not happen and available funds would be used to settle the PD based on REPAYMENT.ORDER and REPAYMENT.METHOD.
+Validation Rules
+
+
+No decimals, and in the 0-999 percent range. */
+		MIN_AUTO_PERCENT : mml:Integer
+			@i18n:Label (en="Minimum Auto Percentage")
+			@i18n:Tooltip (en="Minimum Auto Percentage")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=39.0, core=true, t24Name=MIN.AUTO.PERCENT)
+		/* This field is a standard T24 frequency type field used for checking whether a PD contract can be liquidated automatically, if there are sufficient funds in the account, or posted as overdue in a PD contract if there are insufficient funds.
+The underlying contract must be set to Semi-Automatic. If unsuccessful on the first end of day batch it will try again on the next date generated by this field, provided the PD contract has not been modified manually and is still set as PRE (Pre-Grace).
+It should be noted that the amount available depends both on the funds on the Account (WORKING.BALANCE on ACCOUNT), any available overdraft Limit and the percentage repayment required (as set in MIN.AUTO.PERCENT).
+Valid Accounts are Client Accounts, not Vostro, Nostro or Internal T24 accounts, such as USD-10001-0001.
+Validation Rules
+Must be valid frequency.
+Date cannot be less than today. */
+		RETRY_FREQ : T24BusinessTypes:FQU
+			@i18n:Label (en="Retry Freq")
+			@i18n:Tooltip (en="Retry Frequency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=40.0, core=true, t24Name=RETRY.FREQ)
+		/* Standard T24 numeric field.
+Validation Rules
+Mandatory input.
+A maximum of 5 characters may be entered.
+This is a NOCHANGE field.
+Must be the key to a valid entry on the CATEGORY file. */
+		CAT_PEN_FEE -> ST_Config:CATEGORY required
+			@i18n:Label (en=Category)
+			@t24:i (align=R, inputBehaviour=F, maxLength=5, sysNumber=41.0, core=true, t24Name=CAT.PEN.FEE)
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 5 characters may be entered.
+Must be the key to a valid entry on the CATEGORY file. */
+		CAT_PEN_FEE_NEW -> ST_Config:CATEGORY
+			@i18n:Label (en=Category)
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=42.0, core=true, t24Name=CAT.PEN.FEE.NEW)
+		/* This field will determine whether the PD module will accrual the penalty calculations inclusive of TODAY.
+If set to NO then all accrual information will be as of end of last working day.
+If set to YES then all accrual information will be as of TODAY however no accounting entries will be raised for today.
+Validation Rules
+1-3 alphabetic characters - "NO" or "YES".
+Mandatory input for PD.PARAMETER id "SYSTEM" Other PD.PARAMETER id's will be defaulted from "SYSTEM".
+Default entry (BLANK) will be NO. */
+		ACCRUAL_TODAY : PD_Config:PD_PARAMETER__ACCRUAL_TODAY
+			@i18n:Label (en="Inclusive Of Accrual For Today")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=43.0, core=true, t24Name=ACCRUAL.TODAY)
+		PS_CALC_BASIS -> byValue PD_Config:PD_PARAMETER__PS_CALC_BASIS *
+		/* Defines the order in which attempts will be made to repay overdue amounts.
+When attempts are made during the batch retry repayment processing for contracts defined as SEMI AUTOMATIC, then the repayments will be made in the order defined here.
+''  or 1      repayment by type irrespective of date 2             by date for all repayment types 3             by date and then by repayment order within date
+If type 1 is defined then the amount available in the customer's account must be greater than the MIN.AUTO.PERCENT value for the total repayment due for each type for all dates in the order specified in REPAYMENT.ORDER.
+If type 2 is defined then the amount available in the customer's account must be greater than the MIN.AUTO.PERCENT value for the total repayment due for all types on that date.
+If type 3 is defined then the  amount available in the customer's account must be greater than the MIN.AUTO.PERCENT value for each individual type in the order specified in REPAYMENT.ORDER by date.
+
+
+If USE.AVBL.FUNDS is flagged to YES, the hierarchy defined in REPAYMENT.ORDER is used for appropriation of proceeds when a LD schedule is processed. For more details see Help Text on USE.AVBL.FUNDS
+
+
+Validation Rules
+
+
+Can be '' , 1 , 2 or 3. Default is '1'. */
+		REPAYMENT_METHOD : T24BusinessTypes:A
+			@i18n:Label (en="Repayment Method")
+			@i18n:Tooltip (en="Repayment Method")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=45.0, core=true, t24Name=REPAYMENT.METHOD)
+		/* Allows the definition of the highest level of overdue status, for which semi.automatic batch processing will attempt to make repayments.
+If the current status of the underlying PD contract is higher than the level set here then no attempt will be made to automatically repay.
+The default level will be PRE.
+One of the following values can be defined. PRE       Pre Grace GRA       Grace PDO       Payment Overdue NAB       Non Accrual Basis
+For example if the RETRY.REPAY.STATUS is set to NAB then attempts will be made to repay contracts with a status of PRE, GRA, PDO and NAB, if it is set to PDO then attempts will be made to repay contracts with a status of PRE, GRA, and PDO with no attempt made to pay NAB contracts.
+Validation Rules
+Must be one of the following values PRE GRA PDO NAB The default status is PRE. */
+		RETRY_REPAY_STATUS : PD_Config:PD_PARAMETER__RETRY_REPAY_STATUS
+			@i18n:Label (en="Retry Repay Status")
+			@i18n:Tooltip (en="Retry Repay Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=46.0, core=true, t24Name=RETRY.REPAY.STATUS)
+		/* Updated via PD.EOD.STATIC.CHANGES whenver CRF.BY.TYPE is input.
+Validation Rules
+
+
+
+
+No Input */
+		CRF_BY_TYPE_PREV : mml:Integer
+			@i18n:Label (en="Crf By Type")
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=47.0, core=true, t24Name=CRF.BY.TYPE.PREV)
+		/* Flag to indicate whether the components of Past Due records should be reported by type or all combined.
+If this field is flagged 'Y' then the user may set up RE.STAT.REP.LINE records to catch the individual components of the Past Due record, for example the Principal, Interest, Charges, Commission etc. If this filed is left blank or flagged No then all components of the past due record will be stored on one line.
+Validation Rules
+Y, N or Blank allowed.
+Defaults to N
+Only the SYSTEM record may be input. All other records noinput and point to system record. */
+		CRF_BY_TYPE : PD_Config:PD_PARAMETER__CRF_BY_TYPE
+			@i18n:Label (en="Should The Components Of Past Due Records Be Reported By Type Or All Combined")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=48.0, core=true, t24Name=CRF.BY.TYPE)
+		AC_CP_CATEG_FR -> byValue PD_Config:PD_PARAMETER__AC_CP_CATEG_FR *
+		AC_CB_CATEG_FR -> byValue PD_Config:PD_PARAMETER__AC_CB_CATEG_FR *
+		/* The number of days given as a grace period for which no PD is created when the account goes overdrawn.Default is null meaning PD is created on the same day when the account has gone into overdraft.
+Validation Rules
+
+
+Input allowed only for AC parameter record.No input for         other parameter records.
+Only numeric input is allowed.
+can be left null. */
+		AC_OD_DAYS : mml:Integer
+			@i18n:Label (en="Grace Period For Which No Pd Is Created When The Account Goes Overdrawn")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=53.0, core=true, t24Name=AC.OD.DAYS)
+		/* This field would enable the user to define the capitalisation cycle for Penalty Interest (PE). The amount that has been accrued in PE would get posted to Capitalised Interest (PD.AMOUNT.TYPE = CE) on the dates and frequencies mentioned in this field. Should the User desire to capitalise interest (charge penal interest on a base that is inclusive of prior period interest that is due), the PE.CALC.BASIS should include CE, Capitalised Penal Interest, also.
+Capitalisation would be for amounts that have been accrued till yesterday and todays accruals would get posted to PE and PS as per standard T24 functionality.
+Based on the repaid status on the PD record, movement entries would be raised for CE and CS also, in line with other ASSET.TYPES. While the PD is in OVERDUE status, the CE and CS would be kept in OVERDUECE & OVERDUECS respectively. On change of PD status to NAB, movement entries would be raised by the system and the balances would be moved to NABCE & NABCS. Effectively, since individual balances are maintained separately, it is possible to report capitalised interest and accrued interest in different lines in the General Ledger of the bank. In the RE.CONTRACT.BALANCES file also, CE & CS values are captured separately.
+When the PD changes status from OVERDUE to NAB, the reversal of interest (if so set up in the Parameter) from P&L will be for the balance in PE and CE (PS & CS). The balance in CE will be moved to NABCE and the accrual (PE) will be moved to respective SP Asset Type in line with existing T24 functionality.
+If the CRF.BY.TYPE is set to NO in the SYSTEM record of the PD.PARAMETER, CE and CS would be clubbed together with other dues and stored under OVERDUEDB or NABDB depending on the repaid status of the PD. On the capitalisation date, balances in PE and PS would get moved to OVERDUEDB or NABDB.
+The dates and frequencies in PE.CAP.FREQ & PS.CAP.FREQ should match. Two separate fields are provided so as to facilitate having capitalisation on either component and not on the other, if so desired.
+
+
+Validation Rules
+
+
+The field validations are similar to other T24 frequencies like
+
+
+
+
+
+
+8 numeric standard date characters followed by a 5 alphanumeric frequency
+
+
+Date input must be equal to or greater than today
+The frequency should be specified in number of months */
+		PE_CAP_FREQ : T24BusinessTypes:FQU
+			@i18n:Label (en="PE Cap freq")
+			@i18n:Tooltip (en="PE Cap freq")
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=54.0, core=true, t24Name=PE.CAP.FREQ, mask="RDDDD DD  DD #####")
+		/* This field would enable the user to define the capitalisation cycle for Penalty Spread (PS). The amount that has been accrued in PS would get posted to Capitalised Spread (PD.AMOUNT.TYPE = CS) on the dates and frequencies mentioned in this field. Should the User desire to capitalise spread (charge penal spread on a base that is inclusive of prior period spread that is due), the PS.CALC.BASIS should include CS, Capitalised Spread, also.
+Capitalisation would be for amounts that have been accrued till yesterday and todays accruals would get posted to PE and PS as per standard T24 functionality.
+Based on the repaid status on the PD record, movement entries would be raised for CE and CS also, in line with other ASSET.TYPES. While the PD is in OVERDUE status, the CE and CS would be kept in OVERDUECE & OVERDUECS respectively. On change of PD status to NAB, movement entries would be raised by the system and the balances would be moved to NABCE & NABCS. Effectively, since individual balances are maintained separately, it is possible to report capitalised interest and accrued interest in different lines in the General Ledger of the bank. In the RE.CONTRACT.BALANCES file also, CE & CS values are captured separately.
+When the PD changes status from OVERDUE to NAB, the reversal of interest (if so set up in the Parameter) from P&L will be for the balance in PE and CE (PS & CS). The balance in CS will be moved to NABCS and the accrual (PS) will be moved to respective SP Asset Type in line with existing T24 functionality.
+If the CRF.BY.TYPE is set to NO in the SYSTEM record of the PD.PARAMETER, CE and CS would be clubbed together with other dues and stored under OVERDUEDB or NABDB depending on the repaid status of the PD. On the capitalisation date, balances in PE and PS would get moved to OVERDUEDB or NABDB.
+The dates and frequencies in PE.CAP.FREQ & PS.CAP.FREQ should match. Two separate fields are provided so as to facilitate having capitalisation on either component and not on the other, if so desired.
+Validation Rules
+
+
+The field validations are similar to other T24 frequencies like
+
+
+
+
+
+
+8 numeric standard date characters followed by a 5 alphanumeric frequency
+
+
+Date input must be equal to or greater than today
+
+
+The frequency should be specified in number of months */
+		PS_CAP_FREQ : T24BusinessTypes:FQU
+			@i18n:Label (en="PS Cap freq")
+			@i18n:Tooltip (en="PS Cap freq")
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=55.0, core=true, t24Name=PS.CAP.FREQ, mask="RDDDD DD  DD #####")
+		SMALL_AMT_CCY -> byValue PD_Config:PD_PARAMETER__SMALL_AMT_CCY *
+		CONTRACT_GRP -> byValue PD_Config:PD_PARAMETER__CONTRACT_GRP *
+		/* Field to indicate whether the balance available in the account alone is to be used to settle the past due record.
+
+
+If this field is marked to NULL - Subject to balance in the account being higher than the MIN.AUTO.PERCENT defined, the entire component of due that is re-tried (either by date, or by type, or by date and type) is settled and for any insufficient portion the account is overdrawn. Eg. MIN.AUTO.PERCENT is set as 50% and PD has a due of PR 10,000. Balance in the settlement account is 6,000. In this case the account would be debited by 10,000 (resulting in an overdraft of 4,000) and the PD would be settled.
+
+
+
+
+If this field is marked to YES - Only the balance in the account would be considered for the purpose of settlement of past dues and the account would not be overdrawn forcibly during EOD on account of PD settlement. For the same example, if the setting was YES, the account would be debited for 6,000 (actual balance) and PD settled for that amount. After EOD, PD would have a balance of 4,000 that would be re-tried on subsequent days.
+
+
+
+
+By setting MIN.AUTO.PERCENT to 0% and flagging this field to YES, any funds available in the account could be used during EOD to settle the PD.
+
+
+
+
+For both settings YES and NULL, two rules are common and important;
+
+
+
+
+1.
+
+
+
+
+2.
+
+for the appropriate period of LOCKING.
+
+When there is a schedule for LD and if USE.AVBL.FUNDS were flagged to YES in the relevant PD.PARAMETER, appropriation of proceeds for the scheduled amount would happen in the REPAYMENT.ORDER defined in PD.PARAMETER. Note that there will be no check on MIN.AUTO.PERCENT while processing LD schedules and any balance in the account would be used.
+
+
+
+
+
+
+
+
+
+
+
+Assume there is a schedule for a 21055 category loan for PR = 10,000 & IN = 2,000 and the balance in the liquidation account is 11,000. In such case, the proceeds of 11,000 would be used to settle PR first for 10,000 and 1,000 would be apportioned for IN. The balance 1,000 in IN would be written to PD.
+
+
+For the same example, if REPAYMENT.ORDER is
+
+
+
+
+
+
+
+
+
+
+proceeds of 11,000 would be used to settle IN component first and the balance appropriated towards PR. In this case PR of 1,000 would be carried to PD.
+
+
+USE.AVBL.FUNDS is of significance only if LIQUIDATION.MODE is SEMIAUTOMATIC.
+
+Validation Rules
+
+
+
+4     character alpha with options of YES and NULL.
+
+
+
+Optional     input. Default value is NULL. */
+		USE_AVBL_FUNDS : PD_Config:PD_PARAMETER__USE_AVBL_FUNDS
+			@i18n:Label (en="Use Avbl Funds")
+			@i18n:Tooltip (en="Use Available Funds")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=65.0, core=true, t24Name=USE.AVBL.FUNDS)
+		SUSPEND_INCOME -> byValue PD_Config:PD_PARAMETER__SUSPEND_INCOME *
+		/* Enables the PD record to change status from NAB to PDO on account of partial payment that clears all the 'NAB' dues.
+
+
+
+
+The PD record changes status from PDO to NAB based on settings in NAB.PERIOD.INT & NAB.PERIOD.SPREAD fields, which may be expressed in number of days. Once the record has become NAB, penalty interest and spread are suspended (not posted to P&L but credited to Asset Type SP). CHANGE.STATUS field provides facility to switch the PD back to PDO status (in which case income may be recognised) on account of a partial payment that settles the NAB portion of the dues.
+
+
+
+
+If CHANGE.STATUS were set to YES, after every repayment, the balance dues are compared with NAB.PERIOD.INT & SPREAD settings in order to determine the record's status. The balance after such payment, if due within the number of days in NAB.PERIOD.INT & SPREAD, would result in the record changing status to PDO. If dues were repaid in full the record status would be changed to CUR.
+
+
+
+
+On change of status from NAB to PDO, any income suspended on the deal would be credited back to P&L. Movement entries would be raised for the balance in the suspended income Asset Types (SP) to respective P&L category. OVERDUE.STATUS field in the associated LD record would be updated with the new status.
+
+
+
+
+A NULL value in this field would not enable such switch back and once the PD record becomes NAB, it would retain the same status until fully paid, when the status would become CUR.
+
+
+
+
+For both settings OVERDUE.STATUS field in LD would hold the overall status of the underlying PDLD.
+
+
+Validation Rules
+
+
+
+
+4     character alpha with options of YES and NULL.
+
+
+
+
+
+
+Otional     input. Default value is NULL. */
+		CHANGE_STATUS : PD_Config:PD_PARAMETER__CHANGE_STATUS
+			@i18n:Label (en="Change Status")
+			@i18n:Tooltip (en="Change Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=67.0, core=true, t24Name=CHANGE.STATUS)
+		/* Allows the user to decide whether to back value the suspension or not.
+
+
+
+
+One time decision during an upgrade in respect of existing contracts.
+
+
+
+
+Achieved by way of a batch routine during the first end of day after the upgrade.
+
+
+
+
+Accepted values are
+
+
+
+
+
+YES can be input only if SUSPEND.INCOME
+
+
+
+
+With the input of value YES,
+
+
+
+REVERSE.PL.AT.NAB
+field
+
+
+
+If
+REVERSE.PL.AT.NAB
+
+
+
+
+
+If
+REVERSE.PL.AT.NAB
+
+
+If the field BACK.VAL.SUSP
+
+
+
+
+REVERSE.PL.AT.NAB
+
+
+
+
+
+Validation Rules
+
+Only valid input is YES provided the SUSPEND.INCOME field is flagged YES.
+
+Default is NULL. */
+		BACK_VAL_SUSP : PD_Config:PD_PARAMETER__BACK_VAL_SUSP
+			@i18n:Label (en="Back Value Suspension")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=68.0, core=true, t24Name=BACK.VAL.SUSP)
+		/* The interest basis that is used to calculate penal interest, spread etc when a contract becomes past due, is specified here. If left blank, the interest basis of the underlying contract is applied.
+Validation Rules
+
+
+
+
+Should be a valid entry in INTEREST.BASIS     application */
+		INTEREST_BASIS -> ST_RateParameters:INTEREST_BASIS
+			@i18n:Label (en="Interest Basis")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=69.0, core=true, businessType=A, t24Name=INTEREST.BASIS)
+		/* This field is made use of to indicate when the system should start calculating the spread automatically, if AUTO.ADJ.SPREAD is set to YES. The input can be either in terms of no of days (n), or no. of instalments (nI). For example, if input is given as 2, the system will interpret this as 2 days and penalty spread will be calculated by the system from the third day that payment is overdue. If input is given as 2I, then after the first two instalments become PD, the penalty spread calculation will commence. For purposes of definition, each PD.BALANCE is interpreted as an instalment.
+
+
+Validations
+
+
+Input in this field is allowed and mandatory if
+
+
+If specified as no of days, should be more than the     no.of days in PRE.GRACE.PERIOD. */
+		PE_SWITCH_PERIOD : T24BusinessTypes:A
+			@i18n:Label (en="PE Switch Period")
+			@i18n:Tooltip (en="PE Switch Period")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=70.0, core=true, t24Name=PE.SWITCH.PERIOD)
+		POST_GR_PE_CALC -> byValue PD_Config:PD_PARAMETER__POST_GR_PE_CALC *
+		POST_GR_PS_CALC -> byValue PD_Config:PD_PARAMETER__POST_GR_PS_CALC *
+		/* Even after overdue amounts have been fully paid, penalty spread may be required to be calculated as the difference between penalty rate and the interest rate on the underlying contract. In such cases, RESTORE.CALC has to be set to NULL. If this is set to YES, calculation of penalty spread will stop being calculated once all overdue amounts are cleared.
+For example, consider a LD contract for USD 1m, input on January 1, 2003, maturing on November 1, 2003. The contract has monthly repayment schedules of principal (USD 100,000) and interest beginning 1
+Validation Rules
+
+
+Allowed values are YES or NULL
+
+
+Input mandatory if AUTO.ADJ.SPREAD is set to YES. */
+		RESTORE_CALC : PD_Config:PD_PARAMETER__RESTORE_CALC
+			@i18n:Label (en="Restore Calc")
+			@i18n:Tooltip (en="Restore Calculation")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=73.0, core=true, t24Name=RESTORE.CALC)
+		/* IMPACT.LIMIT
+
+
+
+
+
+
+
+
+
+If this field has no value (null), only principal overdues will be considered for limit impact.
+
+
+Validation Rules
+
+
+
+
+Value can either be NULL or YES
+
+
+
+
+Once set to YES, this field becomes non-inputtable */
+		IMPACT_LIMIT : PD_Config:PD_PARAMETER__IMPACT_LIMIT
+			@i18n:Label (en="Impact Limit")
+			@i18n:Tooltip (en="Impact Limit")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=74.0, core=true, t24Name=IMPACT.LIMIT)
+		FWOF_RPY_ORDER -> byValue PD_Config:PD_PARAMETER__FWOF_RPY_ORDER *
+		/* This field will hold Product level rounding rule penalty interest calculations. For detailed options on different rounding options help text on EB.ROUNDING.RULE file can be referred.
+Validation Rules
+Should be a valid EB.ROUNDING.RULE id.
+No change permitted after first authorization.
+Noinput field. */
+		ROUNDING_RULE -> ST_Config:EB_ROUNDING_RULE
+			@i18n:Label (en="Rounding Rule")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=76.0, core=true, businessType=A, t24Name=ROUNDING.RULE)
+		/* This field indicates whether the Penalty interest calculated (PE) needs to be waived when Repayment is made during GRA status.
+
+Validation rules:
+Accepts YES/Null.
+Prohibited for contract method 4 and 5. */
+		WAIVE_GRA_PE : PD_Config:PD_PARAMETER__WAIVE_GRA_PE
+			@i18n:Label (en="Waive GRA PE")
+			@i18n:Tooltip (en="Waive GRA PE")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=77.0, core=true, t24Name=WAIVE.GRA.PE)
+		/* This field indicates whether the Penalty Spread calculated (PS) needs to be waived when Repayment is made during GRA status.
+
+Validation rules:
+Accepts YES/Null.
+Prohibited for contract method 4 and 5. */
+		WAIVE_GRA_PS : PD_Config:PD_PARAMETER__WAIVE_GRA_PS
+			@i18n:Label (en="Waive Penalty Spread In Gra Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=78.0, core=true, t24Name=WAIVE.GRA.PS)
+		/* Parameter level decision field to determine  the payment rollover .
+
+Validation rules:
+Values accepted -  “YES” and null
+It is a NOCHANGE field.
+This field will accept  value based on the below conditions.
+1. Sub pay setting should be set as Yes.
+2. Repayment method should be 1.
+3. Penalty capitalization not allowed.
+4. PE & PS should be the first two components in the Repayment order. */
+		PAYMENT_ROLLOVER : PD_Config:PD_PARAMETER__PAYMENT_ROLLOVER
+			@i18n:Label (en="Payment Rollover")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=79.0, core=true, t24Name=PAYMENT.ROLLOVER)
+		INS_AMT_TYPES -> byValue PD_Config:PD_PARAMETER__INS_AMT_TYPES *
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=81.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=82.0, core=true, t24Name=RESERVED.2)
+		OVERRIDE -> byValue PD_Config:PD_PARAMETER__OVERRIDE *
+		/* Validation Rules */
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=84.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=85.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PD_Config:PD_PARAMETER__INPUTTER *
+		DATE_TIME -> byValue PD_Config:PD_PARAMETER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=88.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=89.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=90.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=91.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=92.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		/* Jdescriptor field */
+		RETRY_DATE : mml:Integer
+			@i18n:Label (en="Retry Date")
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, core=false, t24Name=RETRY.DATE, genOperation="RETRY.FREQ[1,8]")
+		/* Jdescriptor field */
+		PE_CAP_DATE : mml:Integer
+			@i18n:Label (en="Capitalisation Date")
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, core=false, t24Name=PE.CAP.DATE, genOperation="PE.CAP.FREQ[1,8]")
+		/* Jdescriptor field. */
+		PS_CAP_DATE : mml:Integer
+			@i18n:Label (en="Capitalisation Date")
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, core=false, t24Name=PS.CAP.DATE, genOperation="PS.CAP.FREQ[1,8]")
+	}
+	PD_PARAMETER__STATUS_CHANGE
+	{
+		/* This field together with ACTIVITY.CODE are used to define which advice type is sent on a change of status. When the contract is set to the status defined in this field the associated ACTIVITY.CODE will be used.
+The actual format of the advice depends on the contract type and application. This is controlled by the key to PD.ADVICES.
+It is possible to specify custom formats for each ACTIVITY.CODE, the ACTIVITY.CODE+PRODUCT or the ACTIVITY.CODE+PRODUCT+CATEGORY.
+For example: 101             Would be used for all contracts 102-MM          Would be used for all MM contracts 103-MM-21050    Would be used for MM contracts with Category of 21050.
+Validation Rules
+Must be a valid status from:  PRE, GRA, PDO, NAB, WOF or CUR. */
+		STATUS_CHANGE : PD_Config:PD_PARAMETER__STATUS_CHANGE__STATUS_CHANGE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=22.0, core=true, t24Name=STATUS.CHANGE)
+		/* This field together with STATUS.CHANGE are used to define which advice type is sent on a change of status. When the contract is set to the status defined in STATUS.CHANGE this ACTIVITY.CODE will be used.
+The actual format of the advice depends on the contract type and application. This is controlled by the key to PD.ADVICES.
+It is possible to specify custom formats for each ACTIVITY.CODE, the ACTIVITY.CODE+PRODUCT or the ACTIVITY.CODE+PRODUCT+CATEGORY.
+For example: 101             Would be used for all contracts 102-MM          Would be used for all MM contracts 103-MM-21050    Would be used for MM contracts with Category of 21050.
+Validation Rules
+Must be a valid record in PD.ACTIVITY.
+Must have a value in STATUS.CHANGE */
+		ACTIVITY_CODE -> PD_Delivery:PD_ACTIVITY
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=23.0, core=true, t24Name=ACTIVITY.CODE)
+	}
+	PD_PARAMETER__DEFAULT_CHARGES
+	{
+		/* Specifies any default charges which are to be taken upon repayment of any overdue amounts by the customer.
+Any charge input must be an existing entry on the FT.CHARGE.TYPE table or on the FT.COMMISSION.TYPE TABLE.
+Validation Rules
+1-11 alphanumeric type CHG characters. (Optional input - multivalue field).
+Duplicates not allowed.
+Must be a valid entry on either the FT.CHARGE.TYPE table or on the FT.COMMISSION.TYPE TABLE. */
+		DEFAULT_CHARGES : T24BusinessTypes:CHG
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=31.0, core=true, t24Name=DEFAULT.CHARGES, typeModifiers="CHGCOM")
+	}
+	PD_PARAMETER__PEN_CALC_BASIS
+	{
+		/* Defines the basis on which penalty interest is to be calculated.
+This multi-value field specifies on which amount(s) the penalties will be calculated.
+A single value can be entered such as PR which would calculate penalty interest on the Principal amounts overdue. Whereas a combined setting of PR, IN, CO and CH in the expanded multi-values would calculate penalties on the total sum of the Principal, Interest, Commission and Charges.
+Values of:
+
+
+PR Principal overdue amount
+IN Interest overdue amount
+CO Commission overdue amount
+CH Charges overdue
+TX Taxes overdue
+OD Overdue Principal only (same as PR)
+OS Outstanding Principal (overdue in PD and outstanding         on underlying contract)
+Values of OD and OS are for backward compatability.
+Validation Rules
+
+
+2 alpha characters (Mandatory input). */
+		PEN_CALC_BASIS : PD_Config:PD_PARAMETER__PEN_CALC_BASIS__PEN_CALC_BASIS
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=32.0, core=true, t24Name=PEN.CALC.BASIS)
+	}
+	PD_PARAMETER__REPAYMENT_ORDER
+	{
+		/* Defines the hierarchy of types to be used when a repayment is made by the customer.
+When a repayment is made by the customer, the system will look at this hierarchy of amount types and use them to allocate the funds across the different types.
+If for example the order is:
+33.1 PE 33.2 PS 33.3 PR etc.,
+and the total outstanding for the above types is 100 for PE, 200 for PS and 1000 for PR, a repayment of 150 will allocate 100 to PE, 50 to PS and nothing for PR. This would bring down the outstanding to 0 for PE, 150 for PS and PR would remain at 1000. Remember that this is the default by the system and it is possible by user input to allocate the funds across different types.
+
+
+If USE.AVBL.FUNDS is flagged to YES, the same hierarchy would be used for appropriation of proceeds when a LD schedule is processed. For more details see Help text on USE.AVBL.FUNDS
+
+
+Note: It is very important that all the types which are present on the PD.AMOUNT.TYPE file are entered into this multivalue field in descending order, i.e. the first multivalue will be the first type to be used for allocating the funds and so on until the repayment amount is exhausted.
+Validation Rules
+
+
+2-12 alphanumeric characters. (Mandatory input - multivalue field).
+Must be a valid entry on the PD.AMOUNT.TYPE table.
+Duplicates not allowed. */
+		REPAYMENT_ORDER -> PD_Config:PD_AMOUNT_TYPE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=33.0, core=true, businessType=A, t24Name=REPAYMENT.ORDER)
+	}
+	PD_PARAMETER__PS_CALC_BASIS
+	{
+		/* Allows the definition one or more of the following amount types used to calculate penalty spread for CONTRACT.METHOD type '2'.
+The amount used will be the sum of the amount types  defined.
+RP  Repayment amount PR  Principal amount IN  Interest Amount CH  Charges Amount CO  Commission Amount A1_A2_A3_A4_A5_A6 Additional amounts which can be defined for mortgages.
+Validation Rules
+Multi valued field. A maximum of 2 characters may be entered.
+CONTRACT.METHOD must be set to '2'.  Must be one of the following AMOUNT.TYPES:      RP      PR      IN      CH      CO      A1      A2      A3      A4      A5      A6 */
+		PS_CALC_BASIS : PD_Config:PD_PARAMETER__PS_CALC_BASIS__PS_CALC_BASIS
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=44.0, core=true, t24Name=PS.CALC.BASIS)
+	}
+	PD_PARAMETER__AC_CP_CATEG_FR
+	{
+		/* The start category of the revolving credit accounts which will be taken into PD is defined in this field. The range of categories allowed is inclusive of this field value.
+
+
+Validation Rules
+
+
+Valid category code in the range 1000-9999
+Mandatory input for AC parameter record. No input for         other parameter records.
+Multi-valued field to enable different ranges of         categories.
+An account category defined in the revolving credit         ranges cannot also be defined in the unauthorised         overdraft ranges. */
+		AC_CP_CATEG_FR -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=49.0, core=true, t24Name=AC.CP.CATEG.FR)
+		/* The end category of revolving credit accounts which will be taken into PD is defined in this field. The range of categories allowed is inclusive of the value of this field.
+Validation Rules
+
+
+valid category in the range 1000-9999
+Mandatory input for AC parameter. No input for other         parameter records.
+Associated with the AC.CP.CATEG.FR field.
+If left null, then that range contains a single category         alone. */
+		AC_CP_CATEG_TO -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=50.0, core=true, t24Name=AC.CP.CATEG.TO)
+	}
+	PD_PARAMETER__AC_CB_CATEG_FR
+	{
+		/* The start category of accounts that will be taken into PD when they become overdrawn, is defined in this field.
+The range of categories allowed is inclusive of this field value.
+Validation Rules
+
+
+Valid category in the range 1000-9999
+Mandatory input for AC parameter record. No input for         other parameter records.
+Multi-valued field to enable different category ranges.
+An account category defined in the overdrawn account         ranges cannot also be defined in the revolving credit         ranges */
+		AC_CB_CATEG_FR -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=51.0, core=true, t24Name=AC.CB.CATEG.FR)
+		/* The end category of accounts that will be taken into PD when they are overdrawn, is defined in this field.The range of categories allowed is inclusive of this field.
+Validation Rules
+
+
+Valid category in the range 1000-9999
+Mandatory input allowed for AC parameter record. No input         for other parameter records.
+Associated (multi-valued) with ACCB.CATEG.FR field. */
+		AC_CB_CATEG_TO -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=52.0, core=true, t24Name=AC.CB.CATEG.TO)
+	}
+	PD_PARAMETER__SMALL_AMT_CCY
+	{
+		/* Defines the Currency for specifying the 'Small Amount' in PD.PARAMETER, which is required for PD advice related validations.
+
+
+
+
+The first currency entered will be the default currency         for conversion and comparison purposes. For currencies         not specifically entered, the amounts will be converted         to this currency, and compared for small amount.
+3 Character SWIFT Currency Code */
+		SMALL_AMT_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=56.0, core=true, businessType=CCY, t24Name=SMALL.AMT.CCY)
+		/* Defines the minimum overdue amount of the PD contract, beyond which only the PD advices will be sent. If the total overdue of the PD contract is less than the amount defined in this field, then no advice will be sent.
+Example:
+If the SMALL.AMOUNT is 5000 and the SMALL.AMT.CCY is USD, then for all PD contracts having overdue value less then USD5000, the advices will not be generated.
+Validation Rules
+
+
+Associated with the field SMALL.AMT.CCY.
+Input is  mandatory, if small amount currency is         defined. */
+		SMALL_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=57.0, core=true, t24Name=SMALL.AMOUNT, typeModifiers="56.X")
+	}
+	PD_PARAMETER__CONTRACT_GRP
+	{
+		/* Defines the PD contract group with which the customer is associated.
+Customers can be classified into different contract groups like Corporate, Private, and Large etc. Based on the contract group, various options like frequency of sending PD advices within a particular status, blocking the advices produced by the system on change of status, collecting charges for sending PD advices etc. can be defined.
+For defining a CONTRACT.GRP code, a record for PD.PAYMENT.DUE should be created in APPL.GEN.CONDITION. A series of Customer group codes can be defined in this record, using CONTRACT.GRP field, and can be classified according to the decisions set by various criteria (user defined field specified in Standard Selection of PD as J descriptor, which may be used to link a decision field in CUSTOMER application, like SECTOR can also be used as decision criteria)
+Validation Rules
+
+
+The value should have been already defined in PD.PAYMENT.DUE         record of APPL.GEN.CONDITION, as a code.
+A default contract group (DFLT) should be defined in PD.PAYMENT.DUE         record of APPL.GEN.CONDITION and this group should be         specified in PD.PARAMETER, to take care of producing         normal chaser advices, in addition to status based         advices. */
+		CONTRACT_GRP : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=58.0, core=true, t24Name=CONTRACT.GRP)
+		/* Defines the start date and frequency for sending the overdue advices for all the PD contracts within a group, on a regular basis, as an alternative to sending the overdue advices based on the change of status or the chaser advices set by the user for every PD contract through the schedule option. The type of advice like RA (Regular Advice) can be defined in PD.SCHEDULE.TYPE.
+This advice frequency will be populated in PD.PAYMENT.DUE record as a system default, for producing advices on the scheduled dates. The start date of the frequency can be the Parameter date defined under this field or the start of the PD record, as defined in ADV.PD.START.
+This field is a part of the associated multi value set defined under contract group.
+Validation Rules
+
+
+16 character standard date/frequency code format (associated         Multi Value field)- type FREQ */
+		ADVICE_FREQ : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=59.0, core=true, t24Name=ADVICE.FREQ, mask="RDDDD DD  D #####")
+		/* If the value of this field is set to 'YES', then the generation of advices will be scheduled from the start date of the PD contract.
+If set to 'NO' then the advice generation will relate to the date specified in ADVICE.FREQ field in the PD.PARAMETER.
+According to the settings done here, the relevant frequency will be automatically populated by the system, in the field ADVICE.FREQUENCY of PD.PAYMENT.DUE record
+
+
+As per PD.PARAMETER, the frequency is monthly and the day is set to 31st, and a PD contract starts on 24th. Then, if 'YES' is defined in ADV.PD.START, the advices will be scheduled for every month from 24th. If 'NO' is defined in ADV.PD.START, then the advices will be scheduled on 31st,or last day of every month.
+
+
+
+
+1-3 alphabetical characters 'YES', 'NO' or ' ' (Null)
+' ' (Null ) will default to 'YES' */
+		ADV_PD_START : PD_Config:PD_PARAMETER__CONTRACT_GRP__ADV_PD_START
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=60.0, core=true, t24Name=ADV.PD.START)
+		/* This field determines whether generation of normal status change advices is to be stopped or not.
+If set to 'YES', the normal status change advices will not be produced.
+If set to 'NO' the normal status change advices will be generated by the system, as usual.
+Validation Rules
+
+
+1-3 alphabetical characters with valid codes 'YES', NO'         or ' ' (null)
+Null will default to 'YES' */
+		STATUS_ADV_STOP : PD_Config:PD_PARAMETER__CONTRACT_GRP__STATUS_ADV_STOP
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=61.0, core=true, t24Name=STATUS.ADV.STOP)
+		PD_STATUS -> byValue PD_Config:PD_PARAMETER__CONTRACT_GRP__PD_STATUS *
+	}
+	PD_PARAMETER__CONTRACT_GRP__PD_STATUS
+	{
+		/* Part of a set of fields to determine when chaser advices should be sent. This can be stated as so many days after the contract reaches a particular status. In this field the contract status is specified.
+The field is associated with the fields CH.DAYS and ACTIVITY
+Validation Rules
+
+
+Rule 1 1-3 alphabetical characters with value 'PRE',         'GRA',' PDO', 'NAB' or 'WOF' */
+		PD_STATUS : PD_Config:PD_PARAMETER__CONTRACT_GRP__PD_STATUS__PD_STATUS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=62.0, core=true, t24Name=PD.STATUS)
+		/* Number of days after which the chaser advice for the status defined under PD.STATUS will be sent.
+Example:
+Suppose the number of days are defined as 12 under the Status GRA, then the advice will be sent after 12 days from the date on which the PD moved to GRA status.
+Validation Rules
+
+
+Input should be numeric and between 0-999
+It is part of multi value set of fields. It should be         unique and defined in ascending order within the set. */
+		CH_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=63.0, core=true, t24Name=CH.DAYS)
+		/* This field specifies the activity code for relating it to the associated advices and charges.
+New activity codes can be created by using PD.ACTIVITY and can be linked to Charge types and Message types through PD.ADVICES.
+Validation Rules
+
+
+Numeric value from 1-999
+Should have been already created using PD.ACTIVITY */
+		ACTIVITY -> PD_Delivery:PD_ACTIVITY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=64.0, core=true, businessType=A, t24Name=ACTIVITY)
+	}
+	PD_PARAMETER__SUSPEND_INCOME
+	{
+		/* Flag to determine whether the associated LD/MG should also suspend income if the underlying PDLD / PDMG changes status to NAB.
+
+
+
+
+This field may be set to YES or NULL in the parameter record with category (LD & MG  range) as ID. In the parameter record with SYSTEM as the ID, accepted values are LD, MG in the multi value.
+
+
+NULL - On change of status of PDLD / PDMG  to NAB, income would be suspended on the past due portion (the balance held in PD) and the current dues (that are held in LD) would continue to accrue income to P&L.
+
+
+
+
+YES - If the PDLD / PDMG changes status to NAB, income on the associated LD / MG  record would also be suspended. As in the case of PD, income would cease to accrue to P&L and would be credited to suspended Asset Type (SP).
+
+
+
+
+If REVERSE.PL.AT.NAB were set to YES, the reversal would be restricted to income credited to P&L from PD (PE & PS) for a NULL setting. If SUSPEND.INCOME were flagged to YES, reversal of income credited to P&L would also include the income credited from LD /MG that is yet to be realised (IN & CO) also.
+
+
+
+
+Flagging SUSPEND.INCOME field to YES would enable a bank to suspend income on all dues on a loan (current and past) should the past due portion become NAB.
+
+
+
+
+In the SYSTEM record value 'LD' & 'MG' would be accepted in order to flag suspension of income in a single place.
+
+
+
+
+
+
+Validation Rules
+
+
+Multi value field in the SYSTEM record only.
+Accepted values in the SYSTEM record are LD & MG.
+In the record with ID as LD or MG category, the accepted values       are  YES or NULL.
+Input permitted only for SUB.PAY.SETTING  set to 'YES'. */
+		SUSPEND_INCOME : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=66.0, core=true, t24Name=SUSPEND.INCOME)
+	}
+	PD_PARAMETER__POST_GR_PE_CALC
+	{
+		/* This field is multivalued and used to specify the base for calculation of penalty interest (PE), after the PE.SWITCH.PERIOD has been crossed. The base may be the same as, or different from, the base used before the PE.SWITCH.PERIOD, as specified in the field PE.CALC.BASIS
+Validation Rules
+
+
+Input in this field should be an entry in     PD.AMOUNT.TYPE. However OP is disallowed.
+
+
+Input in this field is mandatory if AUTO.ADJ.SPREAD is     set to YES */
+		POST_GR_PE_CALC -> PD_Config:PD_AMOUNT_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=71.0, core=true, businessType=A, t24Name=POST.GR.PE.CALC)
+	}
+	PD_PARAMETER__POST_GR_PS_CALC
+	{
+		/* Input in this field gives the base on which the penalty spread will be calculated, once the period/no.of instalments in PE.SWITCH.PERIOD have been crossed. At present only OP basis is allowed (OP refers to the outstanding principal in the parent contract). When penalty spread calculation starts, a PD.BALANCE record with field OP.BASIS.SET = YES, is created by the system. This PD.BALANCE is meant to exclusively record the penalty spread calculations.
+Validation Rules
+
+
+Input mandatory if AUTO.ADJ.SPREAD is set to YES
+Accepts only value of OP. */
+		POST_GR_PS_CALC -> PD_Config:PD_AMOUNT_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=72.0, core=true, businessType=A, t24Name=POST.GR.PS.CALC)
+	}
+	PD_PARAMETER__FWOF_RPY_ORDER
+	{
+		/* Defines the hierarchy of types to be used when the customer makes a repayment on FWOF contracts.
+
+
+
+
+When a repayment is made by the customer, the system will look at this hierarchy of amount types and use them to allocate the funds across the
+different types in case of FWOF contracts. If not defined system will continue to flow by REPAYMENT.ORDER field.
+If this field is defined, all the PD.AMOUNT.TYPE values should be entered into this multi-value field in descending order, i.e. the first multi-value will be the first type to be used for allocating the funds and so on until the repayment amount is exhausted.
+
+
+
+
+
+
+For example the order is:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+and the total outstanding for the above types is 100 for PE, 200 for PS
+
+
+and 1000 for PR, a repayment of 150 will allocate 100 to PE, 50 to PS and
+
+
+nothing for PR. This would bring down the outstanding to 0 for PE, 150 for PS and PR would remain at 1000.
+
+
+Validation Rules
+
+
+
+Must be valid record in       PD.AMOUNT.TYPE
+
+
+
+
+Duplicates not allowed
+
+
+Maximum       of 12 Alphanumeric characters. */
+		FWOF_RPY_ORDER -> PD_Config:PD_AMOUNT_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=75.0, core=true, businessType=A, t24Name=FWOF.RPY.ORDER)
+	}
+	PD_PARAMETER__INS_AMT_TYPES
+	{
+		/* This  multi value field  is used to define the priority on which installments has to be collected on    repayment.
+
+Validation Rules:
+This field will accept value only if PAYMENT.ROLLOVER is set. Can accept any payment type like PR , IN,  CH etc.
+" */
+		INS_AMT_TYPES -> PD_Config:PD_AMOUNT_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=80.0, core=true, businessType=A, t24Name=INS.AMT.TYPES)
+	}
+	PD_PARAMETER__OVERRIDE
+	{
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=83.0, core=true, t24Name=OVERRIDE)
+	}
+	PD_PARAMETER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=86.0, core=true, t24Name=INPUTTER)
+	}
+	PD_PARAMETER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=87.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PD_PENALTY_DETAILS
+		@t24:i (t24Name=PD.PENALTY.DETAILS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This file will be updated by a start of day. This will contain the calculation basis and the details of the last
+repayment/adjustment done. */
+		PD_PENALTY_DET_ID -> PD_Config:PD_PENALTY_DETAILS PK required
+			@i18n:Label (en="Details Of Repayment Or Adjustment")
+			@t24:i (align=L, inputBehaviour=I, maxLength=31, sysNumber=0.0, core=true, businessType=A, t24Name=PD.PENALTY.DET.ID, mask="L####/#####/####################")
+		/* When penalty calculation in PD is based  on  ?OP? then this field would get updated as OP when PD is created. */
+		PENALTY_CALC -> PD_Config:PD_AMOUNT_TYPE required
+			@i18n:Label (en="Penalty Calculation")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, businessType=A, t24Name=PENALTY.CALC)
+		/* date field that is maintained by thesystem when repayment or adjustment is made on PD. */
+		LAST_PD_MVMT_DT : T24BusinessTypes:D required
+			@i18n:Label (en="Date On Which The Repayment Or Adjustment Is Made")
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=2.0, core=true, t24Name=LAST.PD.MVMT.DT)
+		/* Holds the RECORD.START.DATE value of PD.BALANCES */
+		LLR_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Record Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=3.0, core=true, t24Name=LLR.DATE)
+		/* Holds the projected LLR date when back-dated repayment prior  to LLR date is done. */
+		PROJ_LLR_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Projected Llr Date When Back-Dated Repayment Prior To Llr Date Is Done")
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=4.0, core=true, t24Name=PROJ.LLR.DATE)
+	}
+	/* The table is used to record Exceptions raised during Provision processing.
+Currently, exception is raised in the following scenario:
+When the asset classification  reaches the WRITE.OFF stage and the Underlying contract of the PD (the Parent LD/MG record) is not liquidated, system will not be able to FWOF the contract automatically and it raises an exception Log.
+Validation Rules
+
+Updated during COB.
+Records cleared based on the days set in EXC.PURGE.DAYS set in       ASSET.CLASS.PARAMETER. */
+	PD_PROV_EXCEPTION_LOG
+		@t24:i (t24Name=PD.PROV.EXCEPTION.LOG, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The PD contract ID which triggered this exception.
+Validation Rules
+
+Valid key in PD.PAYMENT.DUE record. */
+		PD_ID -> PD_Config:PD_PROV_EXCEPTION_LOG PK required
+			@i18n:Label (en="Pd Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=PD.ID)
+		/* Application Product for which Exception log is raised.
+Validation Rules
+
+Maximum of 3 Alphanumeric Characters. */
+		APPLICATION : T24BusinessTypes:A
+			@i18n:Label (en=Application)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=APPLICATION)
+		/* The Batch process which raised this Exception log.
+Validation Rules
+
+Valid key to BATCH records.
+Maximum of 30 Alphanumeric characters. */
+		BATCH_NAME : T24BusinessTypes:A
+			@i18n:Label (en=Batch)
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=2.0, core=true, t24Name=BATCH.NAME)
+		/* Actual routine within the Batch process which raised this Exception Log.
+Validation Rules
+
+Maximum of 35 Alphanumeric characters. */
+		ROUTINE_NAME : T24BusinessTypes:A
+			@i18n:Label (en=Routine)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, t24Name=ROUTINE.NAME)
+		MESSAGE -> byValue PD_Config:PD_PROV_EXCEPTION_LOG__MESSAGE *
+		/* The base file name which caused the exception log. Corrections should be carried out on this file Manually.
+For Provision, this file would be PD.PAYMENT.DUE.
+Validation Rules
+
+Valid T24 file names.
+Maximum of 35 Alphanumeric characters. */
+		FILE_NAME : T24BusinessTypes:A
+			@i18n:Label (en="File Name")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=FILE.NAME)
+		/* The account officer of the contract which triggered this exception would be recorded in this field.
+Validation Rules
+
+Maximum of 10 Numeric characters.
+Should be a valid key to DEPT.ACCT.OFFICER file. */
+		ACCT_OFFICER : T24BusinessTypes:A
+			@i18n:Label (en="Account Officer")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=6.0, core=true, t24Name=ACCT.OFFICER)
+		/* The date on which the Exception was raised. This field is also used by the system to check if the record had reached the maximum limit of purge days set on EXC.PURGE.DAYS stated in ASSET.CLASS.PARAMETER.
+Validation Rules
+
+Standard date field. */
+		RUN_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Run Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=RUN.DATE)
+	}
+	PD_PROV_EXCEPTION_LOG__MESSAGE
+	{
+		/* The actual Exception log message is stored in this Field. The field is Multi-valued to store multiple lines of Exception message.
+Validation Rules
+
+Maximum of 70 Alphanumeric characters.
+Free text field. */
+		MESSAGE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=4.0, core=true, t24Name=MESSAGE)
+	}
+	PD_RATES
+		@t24:i (t24Name=PD.RATES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* A unique reference number which identifies a particular Payment Due Rates record.
+This Id is the same as the Id of the underlying Payment Due contract.
+Validation Rules
+10 numeric characters prefixed by "PDXX", where XX is the application for which the PD record has been raised, e.g. LD, MM or MG.  The XX may be PD if the PD record was raised through the PD.CAPTURE application without an underlying loan being present.
+Noinput field. */
+		CONTRACT_NUMBER -> PD_Config:PD_RATES PK required
+			@i18n:Label (en="Contract Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NUMBER, mask="L####/#####/###########")
+		RATE_EFF_DATE -> byValue PD_Config:PD_RATES__RATE_EFF_DATE *
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.10)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.9)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.8)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.7)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.6)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.4)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.3)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.2)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.1)
+	}
+	PD_RATES__RATE_EFF_DATE
+	{
+		/* Defines the date on which the associated interest rate or spread became effective.
+This field is part of an associated multivalue set.
+The multivalues are in date order with the latest rates in the first multivalue set.
+Validation Rules
+11 type D characters - standard date format. (Associated multivalue field).
+Noinput field. */
+		RATE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=1.0, core=true, t24Name=RATE.EFF.DATE)
+		/* Defines the interest rate at which penalty interest is calculated for the PD contract.
+Each time the SCHEDULE operation is used to make a rate change, then the new rate is written to this field.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 11 numeric type R characters plus a decimal point. (Associated multivalue field).
+Noinput field. */
+		RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=2.0, core=true, t24Name=RATE)
+		/* Defines the interest spread rate at which penalty interest is calculated for the PD contract.
+Each time the SCHEDULE operation is used to make a spread change, then the new rate is written to this field.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 11 numeric type R characters plus a decimal point. (Associated multivalue field).
+Noinput field. */
+		SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=12, sysNumber=3.0, core=true, t24Name=SPREAD, typeModifiers=-)
+	}
+	PD_RATES_SAVE
+		@t24:i (t24Name=PD.RATES.SAVE, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+Mandatory input.
+A maximum of 16 characters may be entered. */
+		CONTRACT_NUMBER -> PD_Config:PD_RATES_SAVE PK required
+			@i18n:Label (en="Contract Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NUMBER, mask="L####/#####/###########")
+		RATE_EFF_DATE -> byValue PD_Config:PD_RATES_SAVE__RATE_EFF_DATE *
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.10)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.1)
+	}
+	PD_RATES_SAVE__RATE_EFF_DATE
+	{
+		/* Fields RATE.EFF.DATE to SPREAD form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		RATE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=1.0, core=true, t24Name=RATE.EFF.DATE)
+		/* Fields RATE.EFF.DATE to SPREAD form a related multi value set. Standard T24 rate field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=2.0, core=true, t24Name=RATE)
+		/* Fields RATE.EFF.DATE to SPREAD form a related multi value set.
+Validation Rules
+A maximum of 12 characters may be entered.
+This is a NOINPUT field. */
+		SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=12, sysNumber=3.0, core=true, t24Name=SPREAD, typeModifiers=-)
+	}
+	PD_SCHEDULE_TYPE
+		@t24:i (t24Name=PD.SCHEDULE.TYPE, level=I, type=H, allowedFunctions="A C D E H I L P Q S", localRefAllowed=true)
+	{
+		/* Identifies the type of schedule allowed in the Payment Due module.
+Currently there are three types of schedules allowed but these may be further subdivided by the users to allow greater control if so desired.
+The three types that are allowed are:
+(a) RC  -  Rate Change (b) SC  -  Spread Change (c) CH  -  CHaser advice
+It is possible to define extra types of up to eight characters but the first two characters have to be one of the above allowable schedules.
+Validation Rules
+2-8 alphanumeric type A characters. (Mandatory input).
+First two characters must be one of the following:    RC, SC, CH.
+If the schedule type entered is greater than two characters then the first two characters must be one of the above types. */
+		SCHEDULE_TYPE -> PD_Config:PD_SCHEDULE_TYPE PK required
+			@i18n:Label (en="Schedule Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=0.0, core=true, businessType=A, t24Name=SCHEDULE.TYPE)
+		DESCRIPTION -> byValue PD_Config:PD_SCHEDULE_TYPE__DESCRIPTION *
+		CHARGE_CODE -> byValue PD_Config:PD_SCHEDULE_TYPE__CHARGE_CODE *
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=4.0, core=true, t24Name=RESERVED.10)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=5.0, core=true, t24Name=RESERVED.9)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=6.0, core=true, t24Name=RESERVED.8)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=7.0, core=true, t24Name=RESERVED.7)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=8.0, core=true, t24Name=RESERVED.6)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=9.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=10.0, core=true, t24Name=RESERVED.4)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=11.0, core=true, t24Name=RESERVED.3)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=12.0, core=true, t24Name=RESERVED.2)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=13.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PD_Config:PD_SCHEDULE_TYPE__INPUTTER *
+		DATE_TIME -> byValue PD_Config:PD_SCHEDULE_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=19.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=21.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=22.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PD_SCHEDULE_TYPE__DESCRIPTION
+	{
+		/* Describes the schedule type record.
+This description is used for enrichment purposes throughout the Payment Due system.
+Validation Rules
+3-35 alphanumeric type A characters. (Multilanguage field).
+Mandatory input. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	PD_SCHEDULE_TYPE__CHARGE_CODE
+	{
+		/* Defines the code to be used to levy a charge or commission when a schedule is processed.
+NOTE: This field is currently non-inputtable since this functionality will be added at a future date.
+Validation Rules
+Noinput field. */
+		CHARGE_CODE : T24BusinessTypes:CHG
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=2.0, core=true, t24Name=CHARGE.CODE, typeModifiers="CHGCOM")
+	}
+	PD_SCHEDULE_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=INPUTTER)
+	}
+	PD_SCHEDULE_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=17.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* The table may be used to capture various reasons for Writing Off a contract and may use these in the PD.PAYMENT.DUE record during the actual Write-off.
+The table can store up to 99 reasons. */
+	PD_WOF_REASON
+		@t24:i (t24Name=PD.WOF.REASON, level=I, type=H, allowedFunctions="A C D E H I L P Q S", localRefAllowed=true)
+	{
+		/* The various reasons may be recorded under different Numeric codes which may be used in the PD.PAYMENT.DUE during the actual Write-off.
+Validation Rules
+
+Maximum of 2 Numeric characters. */
+		REASON_CODE -> PD_Config:PD_WOF_REASON PK required
+			@i18n:Label (en="Reason Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=0.0, core=true, t24Name=REASON.CODE)
+		DESCRIPTION -> byValue PD_Config:PD_WOF_REASON__DESCRIPTION *
+		SHORT_DESC -> byValue PD_Config:PD_WOF_REASON__SHORT_DESC *
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED10)
+		RESERVED09 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED09)
+		RESERVED08 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED08)
+		RESERVED07 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED07)
+		RESERVED06 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED06)
+		RESERVED05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED01)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PD_Config:PD_WOF_REASON__INPUTTER *
+		DATE_TIME -> byValue PD_Config:PD_WOF_REASON__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=19.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=21.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=22.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PD_WOF_REASON__DESCRIPTION
+	{
+		/* A detailed description stating the Write-off reason may be stored in this field. This is a Free-text field.
+Validation Rules
+
+Mandatory Input.
+3-35 Alphanumeric Characters.
+Standard Language field. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	PD_WOF_REASON__SHORT_DESC
+	{
+		/* A short description for the reason of Write-off (which may be used as enrichments).
+Validation Rules
+
+3-15 Alphanumeric characters.
+Standard Language field. */
+		SHORT_DESC : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.DESC)
+	}
+	PD_WOF_REASON__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=INPUTTER)
+	}
+	PD_WOF_REASON__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=17.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	PD_BALANCES__PAYMENT_STATUS : mml:string
+		PRE=PRE
+		GRA=GRA
+		PDO=PDO
+		NAB=NAB
+		RPD=RPD
+		WOF=WOF
+	PD_BALANCES__PREVIOUS_STATUS : mml:string
+		PRE=PRE
+		GRA=GRA
+		PDO=PDO
+		NAB=NAB
+		RPD=RPD
+		WOF=WOF
+	PD_BALANCES__FROM_DATE_1__POSTED_IND_1 : mml:string
+		Y=Y
+		NO=NO
+	PD_BALANCES__FROM_DATE_2__POSTED_IND_2 : mml:string
+		Y=Y
+		NO=NO
+	PD_BALANCES__OP_BASIS_SET : mml:string
+		YES=YES
+		NULL=NULL
+	PD_BALANCES_HIST__PAYMENT_STATUS : mml:string
+		PRE=PRE
+		GRA=GRA
+		PDO=PDO
+		NAB=NAB
+		RPD=RPD
+		WOF=WOF
+	PD_BALANCES_HIST__PREVIOUS_STATUS : mml:string
+		PRE=PRE
+		GRA=GRA
+		PDO=PDO
+		NAB=NAB
+		RPD=RPD
+		WOF=WOF
+	PD_BALANCES_HIST__FROM_DATE_1__POSTED_IND_1 : mml:string
+		Y=Y
+		NO=NO
+	PD_BALANCES_HIST__FROM_DATE_2__POSTED_IND_2 : mml:string
+		Y=Y
+		NO=NO
+	PD_BALANCES_HIST__OP_BASIS_SET : mml:string
+		YES=YES
+		NULL=NULL
+	PD_BALANCES_SAVE__PAYMENT_STATUS : mml:string
+		PRE=PRE
+		GRA=GRA
+		PDO=PDO
+		NAB=NAB
+		RPD=RPD
+		WOF=WOF
+	PD_BALANCES_SAVE__PREVIOUS_STATUS : mml:string
+		PRE=PRE
+		GRA=GRA
+		PDO=PDO
+		NAB=NAB
+		RPD=RPD
+		WOF=WOF
+	PD_BALANCES_SAVE__FROM_DATE_1__POSTED_IND_1 : mml:string
+		Y=Y
+		NO=NO
+	PD_BALANCES_SAVE__FROM_DATE_2__POSTED_IND_2 : mml:string
+		Y=Y
+		NO=NO
+	PD_BALANCES_SAVE__OP_BASIS_SET : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PARAMETER__SUB_PAY_SETTING : mml:string
+		YES=YES
+		NO=NO
+	PD_PARAMETER__STATUS_CHANGE__STATUS_CHANGE : mml:string
+		PRE=PRE
+		GRA=GRA
+		PDO=PDO
+		NAB=NAB
+	PD_PARAMETER__CONTRACT_METHOD : mml:string
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+		n5=5
+	PD_PARAMETER__AUTO_ADJUST_SPREAD : mml:string
+		YES=YES
+		NO=NO
+	PD_PARAMETER__PEN_CALC_BASIS__PEN_CALC_BASIS : mml:string
+		OS=OS
+		OD=OD
+		RP=RP
+		PR=PR
+		IN=IN
+		CH=CH
+		CO=CO
+		TX=TX
+		A1=A1
+		A2=A2
+		A3=A3
+		A4=A4
+		A5=A5
+		A6=A6
+		CB=CB
+		CP=CP
+		CE=CE
+		CS=CS
+		OP=OP
+	PD_PARAMETER__REVERSE_PL_AT_NAB : mml:string
+		YES=YES
+		NO=NO
+	PD_PARAMETER__ACCRUAL_TODAY : mml:string
+		YES=YES
+		NO=NO
+	PD_PARAMETER__PS_CALC_BASIS__PS_CALC_BASIS : mml:string
+		OS=OS
+		RP=RP
+		PR=PR
+		IN=IN
+		CH=CH
+		CO=CO
+		TX=TX
+		A1=A1
+		A2=A2
+		A3=A3
+		A4=A4
+		A5=A5
+		A6=A6
+		CB=CB
+		CP=CP
+		CS=CS
+		CE=CE
+		OP=OP
+	PD_PARAMETER__REPAYMENT_METHOD : mml:string
+		n1=1
+		n2=2
+		n3=3
+		NULL=NULL
+	PD_PARAMETER__RETRY_REPAY_STATUS : mml:string
+		PRE=PRE
+		GRA=GRA
+		PDO=PDO
+		NAB=NAB
+		NULL=NULL
+	PD_PARAMETER__CRF_BY_TYPE : mml:string
+		YES=YES
+		NO=NO
+	PD_PARAMETER__CONTRACT_GRP__ADV_PD_START : mml:string
+		YES=YES
+		NO=NO
+	PD_PARAMETER__CONTRACT_GRP__STATUS_ADV_STOP : mml:string
+		YES=YES
+		NO=NO
+	PD_PARAMETER__CONTRACT_GRP__PD_STATUS__PD_STATUS : mml:string
+		PRE=PRE
+		GRA=GRA
+		PDO=PDO
+		NAB=NAB
+		WOF=WOF
+	PD_PARAMETER__USE_AVBL_FUNDS : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PARAMETER__CHANGE_STATUS : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PARAMETER__BACK_VAL_SUSP : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PARAMETER__RESTORE_CALC : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PARAMETER__IMPACT_LIMIT : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PARAMETER__WAIVE_GRA_PE : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PARAMETER__WAIVE_GRA_PS : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PARAMETER__PAYMENT_ROLLOVER : mml:string
+		YES=YES
+		NULL=NULL
+}

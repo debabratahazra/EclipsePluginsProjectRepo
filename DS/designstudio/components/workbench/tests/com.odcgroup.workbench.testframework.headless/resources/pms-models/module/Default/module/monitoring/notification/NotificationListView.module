@@ -1,0 +1,444 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = Notifications, fr = Notifications, de = Nachrichten
+	domainEntity = "AAADSNotification:NotificationList"
+	bean-define = DSBean.AAADSNotification.NotificationList
+	bean-name = NotificationList
+	id = NotificationListView_k_ZiO
+	tid = 616552764292109
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- Box ---
+		{
+			--- Button ---
+				labels en = Delete, fr = Effaçer, de = Löschen
+				id = btn_f0z_H
+				tid = 616552766226992
+			{
+				Event OnClick (submit) S
+				{
+					method = post
+					call-URI = "<pageflow:continuation/>"
+					target = self
+					flow-action = deleteNotifications ud
+					only-changed = false
+					prevalidate = false
+					modal = false
+				}
+			}
+			--- Button ---
+				labels en = "Mark As Read", de = "Als gelesen markieren", fr = "Marquer comme lu"
+				id = btn_FM7_1
+				tid = 616552768217189
+			{
+				Event OnClick (submit) S
+				{
+					method = post
+					call-URI = "<pageflow:continuation/>"
+					target = self
+					flow-action = toggleNotificationsRead ud
+					only-changed = false
+					prevalidate = false
+					modal = false
+				}
+			}
+			--- Button ---
+				labels en = "Mark As Unread", fr = "Marquer comme non-lu", de = "Als ungelesen markieren"
+				id = btn_Mg_SH
+				tid = 616552770131678
+			{
+				Event OnClick (submit) S
+				{
+					method = post
+					call-URI = "<pageflow:continuation/>"
+					target = self
+					flow-action = toggleNotificationsUnread ud
+					only-changed = false
+					prevalidate = false
+					modal = false
+				}
+			}
+			--- Glue ---
+		}
+		--- TableTree ---
+			id = u_91O
+			table-column-count = 12 !
+			table-columns-width = "8,8,8,8,8,8,8,8,8,8,8,8" !
+		{
+			--- TableColumn ---
+				column-name = placeholder_IE262
+				column-type = placeholder !
+				type = boolean
+				column-sortable = false !
+				id = N1___
+				table-column-width = 8
+			{
+				--- CheckBox ---
+					column-checkbox-action = selectednotifications
+					column-checkbox-identifier = id
+					horizontalTextPosition = trail
+					id = btn_Q8lm3
+			}
+			--- TableColumn ---
+				labels en = View, fr = Voir, de = Ansicht
+				column-name = placeholder_K_6X_
+				column-type = placeholder !
+				type = text
+				column-sortable = false !
+				column-width = 10
+				id = Fr_R_
+				table-column-width = 8
+				tid = 616552772084999
+			{
+				--- Icon ---
+					toolTips en = View, fr = Voir, de = Ansicht
+					horizontalAlignment = "${corporatehalign}"
+					icon = application_form_magnify
+					id = C9M__
+					tid = 616552774055920
+				{
+					Event OnClick (submit) S
+					{
+						method = post
+						call-URI = "resource:///monitoring/notification/NotificationDetails.pageflow"
+						target = layer
+						notifInstanceId = "<udp:item column=\"notifInstanceId\"/>" ud
+						only-changed = false
+						prevalidate = false
+						modal = false
+						notifRecipientId = "<udp:item column=\"id\"/>" ud
+						notifInstanceNotifNatureE = "<udp:item column=\"notifInstanceNotifNatureE\"/>" ud
+					}
+				}
+			}
+			--- TableColumn ---
+				labels en = Delete, fr = Supprimer, de = Entfernen
+				column-name = placeholder_QH0_k
+				column-type = placeholder !
+				type = text
+				column-sortable = false !
+				column-width = 10
+				id = smrX3
+				table-column-width = 8
+				tid = 616552776288885
+			{
+				--- Icon ---
+					toolTips en = Delete, fr = Supprimer, de = Entfernen
+					horizontalAlignment = center
+					icon = application_form_delete
+					id = rH_Y8
+					tid = 616552777944962
+				{
+					Event OnClick (submit) S
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						target = self
+						flow-action = deleteNotification ud
+						id = "<udp:item column=\"id\"/>" ud
+						only-changed = false
+						prevalidate = false
+						modal = false
+					}
+				}
+			}
+			--- TableColumn ---
+				labels en = Read, fr = Lu, de = Gelesen
+				column-name = placeholder_G85N7
+				column-type = placeholder !
+				type = text
+				column-sortable = false !
+				column-width = 30
+				id = e7_6r
+				table-column-width = 8
+				tid = 616552780003883
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						conditionLang = DSEL
+						javaCode = "NotificationList.isReadF = \"1\""
+						technicalName = isReadF
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Icon ---
+							toolTips en = "Read Notification", fr = "Notification lue", de = "Gelesener Betreff"
+							horizontalAlignment = "${corporatehalign}"
+							icon = email_open
+							id = ELda_
+							tid = 616552781852162
+						{
+							Event OnClick (submit) S
+							{
+								method = post
+								call-URI = "<pageflow:continuation/>"
+								target = self
+								flow-action = toggleNotificationUnread ud
+								id = "<udp:item column=\"id\"/>" ud
+								only-changed = false
+								prevalidate = false
+								modal = false
+							}
+						}
+					}
+					--- ConditionalBody ---
+						javaCode = true
+						technicalName = Default
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Icon ---
+							toolTips en = "Unread notification", fr = "Notification non-lue", de = "Nicht gelesener Betreff"
+							horizontalAlignment = "${corporatehalign}"
+							icon = email
+							id = io6zU
+							tid = 616552783802131
+						{
+							Event OnClick (submit) S
+							{
+								method = post
+								call-URI = "<pageflow:continuation/>"
+								target = self
+								flow-action = toggleNotificationRead ud
+								id = "<udp:item column=\"id\"/>" ud
+								only-changed = false
+								prevalidate = false
+								modal = false
+							}
+						}
+					}
+				}
+			}
+			--- TableColumn ---
+				labels en = Importance, fr = Importance, de = Wichtigkeit toolTips en = Importance, fr = Importance, de = Wichtigkeit
+				column-name = notifInstanceNotifImportanceE !
+				column-type = domain !
+				domainAttribute = notifInstanceNotifImportanceE !
+				type = text
+				id = notifInstanceNotifImportanceE
+				table-column-width = 8
+				tid = 616552785756290
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						conditionLang = DSEL
+						javaCode = "NotificationList.notifInstanceNotifImportanceE == \"1\""
+						technicalName = Success
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Icon ---
+							toolTips en = Success, fr = Succès, de = "Erfolgreich abgeschlossen"
+							horizontalAlignment = center
+							icon = tick
+							id = m144e
+							tid = 616552787709331
+					}
+					--- ConditionalBody ---
+						conditionLang = DSEL
+						javaCode = "NotificationList.notifInstanceNotifImportanceE == \"3\""
+						technicalName = Failure
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Icon ---
+							toolTips en = Failure, fr = Echec, de = "Fehlerhaft abgeschlossen"
+							horizontalAlignment = center
+							icon = lightning
+							id = W0_59
+							tid = 616552789669916
+					}
+					--- ConditionalBody ---
+						conditionLang = DSEL
+						javaCode = "NotificationList.notifInstanceNotifImportanceE == \"4\""
+						technicalName = Info
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Icon ---
+							toolTips en = "For your information", fr = "A titre d\'information", de = "Zur Kenntnisnahme"
+							horizontalAlignment = center
+							icon = m_info
+							id = II3R_
+							tid = 616552791618208
+					}
+					--- ConditionalBody ---
+						conditionLang = DSEL
+						javaCode = "NotificationList.notifInstanceNotifImportanceE == \"5\""
+						technicalName = Warning
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Icon ---
+							toolTips en = Warning, fr = Avertissement, de = Warnung
+							horizontalAlignment = center
+							icon = m_warn
+							id = dC_3G
+							tid = 616552793568735
+					}
+					--- ConditionalBody ---
+						conditionLang = DSEL
+						javaCode = "NotificationList.notifInstanceNotifImportanceE == \"6\""
+						technicalName = Error
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Icon ---
+							toolTips en = Error, fr = Erreur, de = "Fehler aufgetreten"
+							horizontalAlignment = center
+							icon = cross
+							id = y_E46
+							tid = 616552795552507
+					}
+					--- ConditionalBody ---
+						javaCode = true
+						technicalName = Default
+						boxType = vertical
+						isWidgetVisible = false
+				}
+			}
+			--- TableColumn ---
+				column-name = isReadF !
+				column-type = domain !
+				domainAttribute = isReadF !
+				type = text
+				column-visibility = never-visible
+				id = isReadF
+				table-column-width = 8
+			--- TableColumn ---
+				column-name = notifInstanceNotifNatureE !
+				column-type = domain !
+				domainAttribute = notifInstanceNotifNatureE !
+				type = text
+				id = notifInstanceNotifNatureE
+				table-column-width = 8
+			{
+				--- TableColumnItem ---
+					item-column = notifInstanceNotifNatureE
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = Sender, fr = Expéditeur, de = Absender
+				column-name = notifInstanceCreationUserCode !
+				column-type = domain !
+				domainAttribute = notifInstanceCreationUserCode !
+				type = text
+				column-width = 50
+				id = notifInstanceCreationUserCode
+				table-column-width = 8
+				tid = 616552797475377
+			{
+				--- TableColumnItem ---
+					item-column = notifInstanceCreationUserCode
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = notifInstanceNotifPriorityE !
+				column-type = domain !
+				domainAttribute = notifInstanceNotifPriorityE !
+				type = text
+				id = notifInstanceNotifPriorityE
+				table-column-width = 8
+			{
+				--- TableColumnItem ---
+					item-column = notifInstanceNotifPriorityE
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = subject !
+				column-type = domain !
+				domainAttribute = subject !
+				type = text
+				id = subject
+				table-column-width = 8
+			{
+				--- TableColumnItem ---
+					item-column = subject
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = sentOnD !
+				column-type = domain !
+				domainAttribute = sentOnD !
+				format = datetime.date-only
+				type = text
+				column-width = 100
+				id = sentOnD
+				table-column-width = 8
+			{
+				--- TableColumnItem ---
+					item-column = sentOnD
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "Follow up", de = Behandeln, fr = Suivi
+				column-name = notifInstanceUrlC !
+				column-type = domain !
+				domainAttribute = notifInstanceUrlC !
+				type = text
+				column-width = 40
+				id = notifInstanceUrlC
+				table-column-width = 8
+				tid = 616552799428419
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						conditionLang = DSEL
+						javaCode = "NotificationList.notifInstanceUrlC != null"
+						technicalName = Condition
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Icon ---
+							horizontalAlignment = "${corporatehalign}"
+							icon = bullet_go
+							id = D7___
+						{
+							Event OnClick (submit)
+							{
+								method = get
+								call-URI = "<udp:item column=\"notifInstanceUrlC\"/>"
+								target = self
+								only-changed = false
+								prevalidate = false
+								modal = false
+							}
+						}
+					}
+					--- ConditionalBody ---
+						javaCode = true
+						technicalName = Default
+						boxType = vertical
+						isWidgetVisible = false
+				}
+			}
+			--- TableSort ---
+				sort-column-name = isReadF
+				sort-direction = descending
+				sort-rank = 1
+			--- TableSort ---
+				sort-column-name = sentOnD
+				sort-direction = descending
+				sort-rank = 2
+			--- TableSort ---
+				sort-column-name = notifInstanceNotifPriorityE
+				sort-rank = 3
+			--- TableExtra ---
+				domainAttribute = notifInstanceId
+			--- TableExtra ---
+				domainAttribute = userId
+			--- TableExtra ---
+				domainAttribute = id
+		}
+	}
+}

@@ -1,0 +1,73 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = "Order Proposal Edit", de = "Anlagevorschlag ändern", fr = "Edition de la proposition d\'ordre"
+	containment = container
+	domainEntity = "AAADSDomain:DomainContext"
+	cssClass = nodeco
+	bean-define = DSActivityBean.AAADSDomain.DomainContext
+	bean-name = DomainContext
+	id = OrderProposal_N7ck0
+	tid = 428040946721832
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- Include ---
+			includeSrc = "" !
+			resource:///Default/module/aaa/orderproposal/context/ContextEdit.module
+		--- Conditional ---
+			indexOfSelectedChild = 1
+		{
+			--- ConditionalBody ---
+				javaCode = "null == <bean:get-property bean=\"DomainContext\" property=\"strategyDimStrategy\"/>"
+				technicalName = NoInvestmentProfile
+				boxType = vertical
+				isWidgetVisible = false
+			--- ConditionalBody ---
+				javaCode = true
+				technicalName = Default
+				boxType = vertical
+				isWidgetSelected = true
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/orderproposal/compliance/PTCCObjectivesCompliancePG.module
+			}
+		}
+		--- Conditional ---
+			technicalName = New
+			indexOfSelectedChild = 0
+		{
+			--- ConditionalBody ---
+				javaCode = "null != <bean:get-property bean=\"DomainContext\" property=\"quickOrderModule\"/> &amp;&amp; \r\n\"1\".equals(<bean:get-property bean=\"DomainContext\" property=\"quickOrderModule\"/>.toString())"
+				technicalName = New
+				boxType = vertical
+				isWidgetSelected = true
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/orderproposal/order/AddOrderPG.module
+			}
+			--- ConditionalBody ---
+				javaCode = "null != <bean:get-property bean=\"DomainContext\" property=\"quickOrderModule\"/> &amp;&amp; \r\n\"2\".equals(<bean:get-property bean=\"DomainContext\" property=\"quickOrderModule\"/>.toString())"
+				technicalName = Update
+				boxType = vertical
+				isWidgetVisible = false
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/orderproposal/order/UpdateOrderPG.module
+			}
+			--- ConditionalBody ---
+				javaCode = true
+				technicalName = Default
+				boxType = vertical
+				isWidgetVisible = false
+		}
+		--- Include ---
+			includeSrc = "" !
+			resource:///Default/module/aaa/orderproposal/detailedlist/BuySellSecurityPGEdit.module
+	}
+}

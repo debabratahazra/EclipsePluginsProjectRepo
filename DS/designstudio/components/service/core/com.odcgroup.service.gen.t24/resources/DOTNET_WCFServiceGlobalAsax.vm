@@ -1,0 +1,97 @@
+## DOTNET_WCFServiceGlobalAsax.vm
+<%@ Application Language="C#" %>
+<%@ Import Namespace="System" %>
+<%@ Import Namespace="System.Configuration" %>
+<%@ Import Namespace="System.Reflection" %>
+
+<script runat="server">
+
+    void Application_Start(object sender, EventArgs e)
+    {
+		AppDomain currentDomain = AppDomain.CurrentDomain;
+		// Get the connectivity mechanism
+		String connectivity = System.Configuration.ConfigurationManager.AppSettings["CONNECTIVITY"];
+		String component_framework_dotnet_dir = String.Empty;
+		switch (connectivity)
+		{
+			case "NATIVE":
+				component_framework_dotnet_dir = System.Configuration.ConfigurationManager.AppSettings["TAFC_HOME"] + "\\bin";
+				break;
+			case "REMOTE":
+				component_framework_dotnet_dir = System.Configuration.ConfigurationManager.AppSettings["COMPONENT_FRAMEWORK_DOTNET_Dir"];
+				break;
+		}	
+    	String component_framework_dotnet_version = System.Configuration.ConfigurationManager.AppSettings["COMPONENT_FRAMEWORK_DOTNET_Version"];
+    	String component_framework_dotnet_culture = System.Configuration.ConfigurationManager.AppSettings["COMPONENT_FRAMEWORK_DOTNET_Culture"];
+    	String component_framework_dotnet_pkt = System.Configuration.ConfigurationManager.AppSettings["COMPONENT_FRAMEWORK_DOTNET_PublicKeyToken"];
+    	currentDomain.AssemblyResolve += (object s,ResolveEventArgs a) => LoadComponentFramework(s, a, component_framework_dotnet_dir,
+        	    component_framework_dotnet_version, component_framework_dotnet_culture, component_framework_dotnet_pkt);
+	            
+        String component_framework_utils_dotnet_version = System.Configuration.ConfigurationManager.AppSettings["COMPONENT_FRAMEWORK_UTILS_DOTNET_Version"];
+    	String component_framework_utils_dotnet_culture = System.Configuration.ConfigurationManager.AppSettings["COMPONENT_FRAMEWORK_UTILS_DOTNET_Culture"];
+    	String component_framework_utils_dotnet_pkt = System.Configuration.ConfigurationManager.AppSettings["COMPONENT_FRAMEWORK_UTILS_DOTNET_PublicKeyToken"];
+    	currentDomain.AssemblyResolve += (object s,ResolveEventArgs a) => LoadComponentFramework(s, a, component_framework_dotnet_dir,
+        	    component_framework_utils_dotnet_version, component_framework_utils_dotnet_culture, component_framework_utils_dotnet_pkt);
+	}
+
+    // This method will load the ComponentFramework DLL(s)
+    Assembly LoadComponentFramework (object sender, ResolveEventArgs args, String libPath, String libVersion, 
+                        String libCulture, String libPKT)
+    {
+    	if (args.Name == String.Concat("libComponentFrameworkWrapper, Version=", libVersion, ", Culture=", libCulture, ", PublicKeyToken=", libPKT) )
+        {
+            String assemblyPath = @"" + libPath + "\\libComponentFrameworkWrapper.dll";
+            Assembly assembly = Assembly.LoadFrom(assemblyPath);
+            return assembly;
+        }
+        if (args.Name == String.Concat("libComponentFrameworkWrapperUtils, Version=", libVersion, ", Culture=", libCulture, ", PublicKeyToken=", libPKT) )
+        {
+            String assemblyPath = @"" + libPath + "\\libComponentFrameworkWrapperUtils.dll";
+            Assembly assembly = Assembly.LoadFrom(assemblyPath);
+            return assembly;
+        }
+        return null;
+    }
+
+    void Application_Init(object sender, EventArgs e)
+    {
+		// Do nothing
+    }
+
+    void Application_BeginRequest(object sender, EventArgs e)
+    {
+		// Do nothing
+    }
+    
+    void Application_EndRequest(object sender, EventArgs e)
+    {
+		// Do nothing
+    }
+
+    void Application_Error(object sender, EventArgs e)
+    {
+		// Do nothing
+    }
+
+    void Application_End(object sender, EventArgs e)
+    {
+		// Do nothing
+    }
+
+    // There are other application-level events:
+    // AuthenticateRequest
+    // PostAuthenticateRequest
+    // AuthorizeRequest
+    // AcquireRequestState
+    // Disposed
+    // etc.
+
+    // There are also session-level events:
+    // Session_Start
+    // Session_End
+
+    // You can also define static objects at different levels outside of <script> element.
+    //<object id="id" runat="server" class="[My .NET class type]" scope="appinstance"/>
+    //<object id="id" runat="server" progid="[My COM ProgID]" scope="session"/>
+    //<object id="id" runat="server" classid="[My COM ClassID]" scope="application"/>
+</script>

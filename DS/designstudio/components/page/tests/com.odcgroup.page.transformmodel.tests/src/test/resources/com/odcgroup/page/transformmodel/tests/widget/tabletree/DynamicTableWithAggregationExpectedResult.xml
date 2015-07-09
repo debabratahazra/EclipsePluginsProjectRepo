@@ -1,0 +1,246 @@
+<xsp:page xmlns:bean="http://www.odcgroup.com/uif/bean/0.1" xmlns:i18n="http://apache.org/cocoon/i18n/2.1" xmlns:ic="http://www.odcgroup.com/uif/inputcontrol/0.1" xmlns:nav="http://www.odcgroup.com/uif/nav/0.1" xmlns:scope="http://www.odcgroup.com/uif/scope/0.1" xmlns:udp="http://www.odcgroup.com/uif/udp/0.1" xmlns:xgui="http://www.odcgroup.com/uif/xgui/0.1" xmlns:xsp="http://apache.org/xsp" language="java">
+  <!--
+		****************************************************************************************
+																		DO NOT MODIFY THIS FILE!
+			This file has been generated automatically  by Design Studio. 		
+			Any change will be lost when regenerated.
+		****************************************************************************************
+														Design Studio information of page model
+			Project name     : ds-3168-painting-speed-models
+			Package          : /resource/test-tank-models/module/widget/tabletree/
+			Model name       : DynamicTableWithAggregation.module
+			Last modif. user : pkk
+			Last modif. date : 30/06/2011 04:50:06
+			Generation user  : pkk
+			Generation date  : 30/06/2011 04:50:06
+			DS version       : 4.4.1.201106309999
+			Description      : 
+		****************************************************************************************
+-->
+  <xgui:module collapsed="false" id="DynamicTableWithAggregation_q__5U">
+    <bean:define key="DSBean.DS3458Domain.DS3458Dataset" name="DS3458Dataset" prefix-keyword="final"/>
+    <ic:reporter>
+      <ic:add-scope-reporter report-key="DSBean.DS3458Domain.DS3458Dataset.reporter"/>
+      <ic:msg-rendering form-name="form"/>
+    </ic:reporter>
+    <xgui:name>
+      <i18n:text>341676259512961.text</i18n:text>
+    </xgui:name>
+    <nav:managerequest nav-id="DynamicTableWithAggregation_q__5U">
+      <xgui:vbox>
+        <udp:udp model-ref="DSTableModel.DS3458Domain.DS3458Dataset" view-ref="DSTableModel.DS3458Domain.DS3458Dataset.Y___1">
+          <udp:build>
+            <udp:munge-columns>
+              <udp:keep>PTF_HIER_STR</udp:keep>
+              <udp:keep>CURR_CLASS_CODE</udp:keep>
+              <udp:keep>MKT_VAL</udp:keep>
+              <udp:keep>REF_CURRENCY</udp:keep>
+              <udp:compute computation="make-amount" name="MakeAmount" type="amount">
+                <udp:param>MKT_VAL</udp:param>
+                <udp:param>REF_CURRENCY</udp:param>
+              </udp:compute>
+              <udp:compute computation="same" name="MarketValue" type="decimal">
+                <udp:param>MKT_VAL</udp:param>
+              </udp:compute>
+              <udp:add name="_nodeDisplay" type="text" value=""/>
+              <udp:add name="_nodeCode" type="text" value=""/>
+              <udp:add name="_isNode" type="boolean" value="false"/>
+              <udp:build-dynamic-columns-list delegating-model-ref="DSTableModel.DS3458Domain.DS3458Dataset" dynamic-column="CURR_CLASS_CODE" dynamic-columns-ref="DSTableModel.DS3458Domain.DS3458Dataset.t5i62" sorting-column="CURR_CLASS_CODE"/>
+              <udp:dynamic-columns dynamic-columns-ref="DSTableModel.DS3458Domain.DS3458Dataset.t5i62">
+                <udp:add-dynamic dynamic-column="CURR_CLASS_CODE" name="MarketValue"/>
+                <udp:add-dynamic dynamic-column="CURR_CLASS_CODE" name="MakeAmount"/>
+              </udp:dynamic-columns>
+            </udp:munge-columns>
+            <udp:list>
+              <udp:sort>
+                <udp:handle><scope:get-module-rank/>s</udp:handle>
+                <udp:sort-column>PTF_HIER_STR</udp:sort-column>
+              </udp:sort>
+              <udp:aggregation>
+                <udp:aggregate aggregated-column="MKT_VAL" aggregation-computation="sum"/>
+                <udp:aggregate aggregated-column="MarketValue" aggregation-computation="sum"/>
+                <udp:aggregate aggregated-column="REF_CURRENCY" aggregation-computation="max"/>
+                <udp:aggregate aggregated-column="MakeAmount" aggregation-computation="sum"/>
+                <udp:aggregate aggregated-column="CURR_CLASS_CODE" aggregation-computation="max"/>
+                <udp:dynamic-columns dynamic-columns-ref="DSTableModel.DS3458Domain.DS3458Dataset.t5i62">
+                  <udp:aggregate aggregated-column="MarketValue" aggregation-computation="sum"/>
+                  <udp:aggregate aggregated-column="MakeAmount" aggregation-computation="sum"/>
+                </udp:dynamic-columns>
+              </udp:aggregation>
+              <udp:group>
+                <udp:group-column>CURR_CLASS_CODE</udp:group-column>
+                <udp:sort-column>CURR_CLASS_CODE</udp:sort-column>
+                <udp:keep-children>false</udp:keep-children>
+              </udp:group>
+              <udp:group>
+                <udp:group-column>PTF_HIER_STR</udp:group-column>
+                <udp:sort-column>PTF_HIER_STR</udp:sort-column>
+                <udp:keep-children>false</udp:keep-children>
+              </udp:group>
+              <udp:apply-hierarchy col-in-detail="PTF_HIER_STR" col-in-master="PTF_HIER_STR">
+                <udp:map col-in-hierarchy="_IS_NODE" col-in-information="_isNode"/>
+                <udp:map col-in-hierarchy="_NODE_DISPLAY" col-in-information="_nodeDisplay"/>
+                <udp:map col-in-hierarchy="_NODE_CODE" col-in-information="_nodeCode"/>
+              </udp:apply-hierarchy>
+              <udp:group-page>
+                <udp:size>20</udp:size>
+                <udp:handle><scope:get-module-rank/>p</udp:handle>
+              </udp:group-page>
+            </udp:list>
+          </udp:build>
+          <udp:render-list>
+            <xsp:logic>int groupDepth = 0;</xsp:logic>
+            <xsp:logic>if(<udp:grouped-row-count/> == 0) {
+<xsp:content>
+                <xgui:vbox>
+                  <xgui:label>
+                    <xgui:text>
+                      <i18n:text>general.empty_result</i18n:text>
+                    </xgui:text>
+                  </xgui:label>
+                </xgui:vbox>
+                <xgui:table id="Y___1">
+                <xgui:toolbar >
+                 </xgui:toolbar>
+                 </xgui:table>
+              </xsp:content>}</xsp:logic>
+            <xsp:logic>if(<udp:grouped-row-count/> > 0) { </xsp:logic>
+            <xgui:tree id="Y___1">
+              <xgui:toolbar>
+              </xgui:toolbar>
+              <xgui:columns>
+                <xsp:logic>
+String sorting = "";
+</xsp:logic>
+                <xgui:column enabled="true" tec="true">
+                  <xsp:attribute name="id">Y___1.T__8q</xsp:attribute><xsp:attribute name="type">text</xsp:attribute>
+                </xgui:column>
+                <xsp:logic>
+sorting="none";
+if (<udp:is-sorting-column column="MarketValue"/>) {
+  if (<udp:is-sort-reversed column="MarketValue"/>) {
+    sorting="descending";
+  } else {
+    sorting="ascending";
+  }
+}
+</xsp:logic>
+                <xgui:column enabled="true">
+                  <xsp:attribute name="id">Y___1.I8_99</xsp:attribute>
+                  <xsp:attribute name="name"><udp:column-name column="MarketValue"/></xsp:attribute>
+                  <xsp:attribute name="halign"><udp:column-alignment column="MarketValue"/></xsp:attribute>
+                  <xsp:attribute name="type"><udp:column-type column="MarketValue"/></xsp:attribute>
+                  <xsp:attribute name="sorting"><xsp:expr>sorting</xsp:expr></xsp:attribute>
+                </xgui:column>
+                <xsp:logic>
+sorting="none";
+if (<udp:is-sorting-column column="MakeAmount"/>) {
+  if (<udp:is-sort-reversed column="MakeAmount"/>) {
+    sorting="descending";
+  } else {
+    sorting="ascending";
+  }
+}
+</xsp:logic>
+                <xgui:column enabled="true">
+                  <xsp:attribute name="id">Y___1.G_1e7</xsp:attribute>
+                  <xsp:attribute name="name"><udp:column-name column="MakeAmount"/></xsp:attribute>
+                  <xsp:attribute name="halign"><udp:column-alignment column="MakeAmount"/></xsp:attribute>
+                  <xsp:attribute name="type"><udp:column-type column="MakeAmount"/></xsp:attribute>
+                  <xsp:attribute name="sorting"><xsp:expr>sorting</xsp:expr></xsp:attribute>
+                </xgui:column>
+                <udp:dynamic-columns dynamic-columns-ref="DSTableModel.DS3458Domain.DS3458Dataset.t5i62">
+                  <xsp:logic>
+sorting="none";
+if (<udp:is-sorting-column column="MarketValue"/>) {
+  if (<udp:is-sort-reversed column="MarketValue"/>) {
+    sorting="descending";
+  } else {
+    sorting="ascending";
+  }
+}
+</xsp:logic>
+                  <xgui:column enabled="true">
+                    <xsp:attribute name="id">Y___1.<udp:current-dynamic-column/></xsp:attribute>
+                    <xsp:attribute name="name"><udp:column-name column="MarketValue"/></xsp:attribute>
+                    <xsp:attribute name="halign"><udp:column-alignment column="MarketValue"/></xsp:attribute>
+                    <xsp:attribute name="type"><udp:column-type column="MarketValue"/></xsp:attribute>
+                    <xsp:attribute name="sorting"><xsp:expr>sorting</xsp:expr></xsp:attribute>
+                    <xgui:text>
+                      <udp:current-dynamic-column/>
+                    </xgui:text>
+                  </xgui:column>
+                </udp:dynamic-columns>
+              </xgui:columns>
+              <udp:recurse-data>
+                <xsp:logic>if (null == <udp:item column="_isNode"/> || <udp:item column="_isNode"/>.equals("false")) {groupDepth = groupDepth + 1;} else {groupDepth = 1;}</xsp:logic>
+                <xsp:logic>if (groupDepth==1) {</xsp:logic>
+                <xsp:content>
+                  <xsp:attribute name="expanded">true</xsp:attribute>
+                </xsp:content>
+                <xsp:logic>}</xsp:logic>
+                <xsp:logic>if (2 > groupDepth) {</xsp:logic>
+                <xgui:row>
+                  <xsp:logic>}</xsp:logic>
+                  <xsp:logic>if (groupDepth==1) {</xsp:logic>
+                  <xgui:cell>
+                    <xgui:label>
+                      <xgui:text>
+                        <udp:item column="_nodeDisplay"/>
+                      </xgui:text>
+                    </xgui:label>
+                  </xgui:cell>
+                  <xgui:cell>
+                    <xgui:label>
+                      <xgui:text><udp:item column="MKT_VAL"/></xgui:text>
+                    </xgui:label>
+                  </xgui:cell>
+                  <xgui:cell>
+                    <xgui:label>
+                      <xgui:text><udp:item column="MakeAmount"/></xgui:text>
+                    </xgui:label>
+                  </xgui:cell>
+                  <udp:dynamic-columns dynamic-columns-ref="DSTableModel.DS3458Domain.DS3458Dataset.t5i62">
+                    <xgui:cell>
+                      <xgui:label>
+                        <xgui:text><udp:item column="MarketValue"/></xgui:text>
+                      </xgui:label>
+                      <xgui:spacer height="4" width="10"/>
+                      <xgui:label>
+                        <xgui:text><udp:item column="MakeAmount"/></xgui:text>
+                      </xgui:label>
+                    </xgui:cell>
+                  </udp:dynamic-columns>
+                  <xsp:logic>}</xsp:logic>
+                  <udp:on-row/>
+                  <xsp:logic>if (2 > groupDepth) {</xsp:logic>
+                </xgui:row>
+                <xsp:logic>}</xsp:logic>
+                <xsp:logic>if (null == <udp:item column="_isNode"/> || <udp:item column="_isNode"/>.equals("false")) {groupDepth = groupDepth - 1;}</xsp:logic>
+              </udp:recurse-data>
+            </xgui:tree>
+            <xsp:logic>}</xsp:logic>
+            <xsp:logic>if(<udp:grouped-row-count/> > 0) { </xsp:logic>
+               <xgui:tablefooter>
+                  <xsp:attribute name="ref">Y___1</xsp:attribute>
+                  <xsp:attribute name="itemfirst"><udp:first-visible-index/></xsp:attribute>
+                  <xsp:attribute name="itemlast"><udp:last-visible-index/></xsp:attribute>
+                  <xsp:attribute name="itemtot"><udp:grouped-row-count/></xsp:attribute>
+                  <xsp:attribute name="page"><udp:current-page/></xsp:attribute>
+                  <xsp:attribute name="pagelast"><udp:last-page/></xsp:attribute>
+               </xgui:tablefooter>
+            <xsp:logic>}</xsp:logic>
+          </udp:render-list>
+        </udp:udp>
+        <ic:reporter>
+          <ic:add-scope-reporter report-key="udp.reporter"/>
+          <ic:rendering>
+            <ic:param name="caption">
+              <i18n:text>udp.reporter.label</i18n:text>
+            </ic:param>
+          </ic:rendering>
+        </ic:reporter>
+      </xgui:vbox>
+    </nav:managerequest>
+  </xgui:module>
+</xsp:page>

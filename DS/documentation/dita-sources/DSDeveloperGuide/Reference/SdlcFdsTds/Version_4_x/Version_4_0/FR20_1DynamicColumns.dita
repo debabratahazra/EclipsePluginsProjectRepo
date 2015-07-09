@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN"
+"http://docs.oasis-open.org/dita/v1.1/OS/dtd/topic.dtd">
+<topic id="SdlcFdsTdsVersion_4_0_fr20_1">
+  <title>FR 20.1: Page Designer Dynamic Columns</title>
+	<body>
+		<section>
+			<title>Description</title>
+			<p>
+				Requirement: "Implementation of the dynamic columns in the Page Designer"
+			</p>
+		</section>
+		<section>
+			<title>FDS Link</title>
+			<p>
+				<xref href="https://lausvn/svn/devel/projects/doc/active/Design_Studio/5.0/03.%20Construction%20(Design)/FDS_DS5.0-PageDesignerDynamicColumn.doc" scope="external">FDS_DS5.0-PageDesignerDynamicColumn.doc</xref>
+			</p>
+		</section>
+		<section>
+			<title>JIRA Issue(s)</title>
+			<p>
+				<xref href="http://rd.oams.com/browse/DS-3458" scope="external">DS-3458</xref>
+			</p>
+		</section>
+		<section>
+			<title>TDS</title>
+			<p>
+			<ol>
+					<li><b>Meta-model Changes (plugin page-metamodel)</b>
+						<ul>
+							<li>
+								data-types.metamodel: 
+								Update the type "TableColumnType" by adding a new value 
+								{value='dynamic', displayName="Dynamic", ordinal=3}.
+								This new value identifies a dynamic column. 
+							</li>
+							<li>								
+								xgui-widget-library.metamodel: 
+								Add a new boolean property "group-dynamic-column". 
+								it indicates if the table group is used for a dynamic column. 
+								The default value must be set to false. 
+							</li>
+							<li>								
+								xgui-widget-library.metamodel: 
+								Add a new Widget Template "DynamicColumn".
+								The value of the property "dynamic" is set to "dynamic". 
+								The value of the property "type" is set to "text" 
+								It must also contain one child widget "TableColumnItem" with its property "previewValue" set to "value".
+							</li>
+							<li>								
+								xgui-widget-library.metamodel: 
+								Attach the new property "group-dynamic-column" to the Widget Type "TableGroup".
+							</li>
+							<li>
+								page-designer.metamodel:
+								Create 4 new actions to insert dynamic columns. The declaration and implementation is
+								similar to what has been done previously for the computed or placeholder columns.
+								Update the context menus with these new definitions, by updating the following 3 existing 
+								'Action Group' : TableTree, TableTreeColumnSubMenuRight and TableTreeColumnSubMenuLeft.
+							</li>
+						</ul>
+					</li>
+					
+					<li><b>Model Changes (plugin page-model)</b>
+						<ul>
+						   <li>
+						      Interface <i>ITableGroup</i>: add 2 methods to read/write the value of the property
+						      "group-dynamic-colum": 'isUsedForDynamic' and 'setUsedForDynamicColumn'. Update the implementation
+						      class related to these changes.
+						   </li>
+						   <li>
+						      Interface <i>ITableColumn</i>: add the method isDynamic. Update the implementation class TableColumn
+						      to take into account the fact the column can be dynamic. Update also the method isComputed().
+						   </li>
+						   <li>
+						      The method doInitNewColumn() in the class <i>Table</i> must be also updated, to compute 
+						      the correct prefix given the type of the column. 
+						   </li>
+						   <li>
+						      In the class TableFactory, both the methods <i>adaptTableColumnWidget</i> and <i>createTableColumn</i>
+						      need to be adapted in order to take into account the dynamic column.
+						   </li>
+					    </ul>
+					</li>
+					
+					<li><b>Translation changes</b>
+					    <ul>
+					        <li>
+					        In Plugin <i>page-model</i>: the class WidgetTranslationProvider must be adapted to return
+					        an instance of the WidgetTranslation whenever the widget is a dynamic column.
+					        </li>
+					        <li>
+					        In Plugin <i>page-custo-model</i>: the class CustomWidgetTranslationProvider must be adapted to return
+					        an instance of the CustomWidgetTranslation whenever the widget is a dynamic column.
+					        </li>
+					    </ul>
+					</li>
+					
+					<li><b>UI Changes (plugin page-ui)</b>
+					    <ul>
+						   <li>
+						   Add a new checkbox 'used for dynamic column' in the dialog 
+						   implemented by the class TableGroupDefinitionDialog;
+						   </li>
+						   <li>
+						   The class TableColumnFigure must be adapted to display properly a dynamic column
+						   </li>
+						   <li>
+							The new actions InsertDynamicColumn, InsertDynamicColumnLeftAction 
+							and insertDynamicColumnRightAction, must be added to the package com.odcgroup.page.ui.action.
+						   </li>
+					    </ul>
+					</li>
+					
+					<li><b>Transformation</b>
+					    <ul>
+						    <li>
+						    The class <i>com.odcgroup.page.transformmodel.table.TableWidgetTransformer</i> must be adapted
+						    to take into account the transformation of a Table widget containing dynamic columns.
+						    </li>
+					    </ul>
+					    The following UDP tags have been added: <xref href="http://rd.oams.com/browse/OCS-34664" scope="external">new UDP tags</xref>
+					</li>
+					
+					<li><b>Validation</b>
+					    <ul>
+						    <li>
+						    All dynamic column specific constraints and validation checks were implemented in the PageWidgetValidator 
+						    class found in the <b>com.odcgroup.page.validation</b> plugin
+						    </li>
+					    </ul>
+					</li>
+					
+					<li><b>Unit Tests</b>
+					    <ul>
+						    <li>
+						    Junit tests specific to Dynamic Columns must be added in the related plugins.
+						    </li>
+					    </ul>
+					</li>
+				</ol>
+			</p>
+		</section>
+	</body>
+</topic>

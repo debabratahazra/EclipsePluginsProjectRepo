@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.odcgroup.ds.doc</groupId>
+	<artifactId>onlinehelp</artifactId>
+	<version>2015.8.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+    <properties>
+		<sites>internal</sites>
+		<tycho.version>0.13.0</tycho.version>
+    <tycho.groupid>org.eclipse.tycho</tycho.groupid>
+		<b2.extension.version>0.1.0-alpha-2</b2.extension.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <REMOTE_MNGT_SRV>http://maven.oams.com</REMOTE_MNGT_SRV>
+    <REMOTE_DIST_MNGT>${REMOTE_MNGT_SRV}/content/repositories</REMOTE_DIST_MNGT>
+    <DEFAULT.RELEASE.REPOSITORY>releases</DEFAULT.RELEASE.REPOSITORY>
+    <DEFAULT.SNAPSHOT.REPOSITORY>snapshots</DEFAULT.SNAPSHOT.REPOSITORY>
+	</properties>
+
+    <!--
+      Distribution is used for deploy phase
+   -->
+    <distributionManagement>
+        <!-- use the following if you're not using a snapshot version. -->
+        <repository>
+            <id>releases</id>
+            <name>Odyssey Integration repository</name>
+            <url>${REMOTE_DIST_MNGT}/${DEFAULT.RELEASE.REPOSITORY}</url>
+        </repository>
+        <!-- use the following if you ARE using a snapshot version. -->
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Odyssey Development repository</name>
+            <url>${REMOTE_DIST_MNGT}/${DEFAULT.SNAPSHOT.REPOSITORY}</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+	<repositories>
+		<repository>
+			<id>repo-org.eclipse-R-3.7.2-201202080800</id>
+			<url>file:/${ds.p2cache.location}/repositories/releases/org.eclipse-R-3.7.2-201202080800</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+
+	<build>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav-jackrabbit</artifactId>
+				<version>1.0-beta-7</version>
+			</extension>
+			<extension>
+				<groupId>org.sourcepit.b2</groupId>
+				<artifactId>b2-maven-plugin</artifactId>
+				<version>0.1.0-alpha-2</version>
+			</extension>
+		</extensions>
+		<plugins>
+      <plugin>
+        <groupId>${tycho.groupid}</groupId>
+        <artifactId>tycho-compiler-plugin</artifactId>
+        <version>${tycho.version}</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+			<plugin>
+				<groupId>org.sourcepit.b2</groupId>
+				<artifactId>b2-maven-plugin</artifactId>
+				<version>${b2.extension.version}</version>
+				<extensions>true</extensions>
+				<dependencies>
+					<dependency>
+						<groupId>com.odcgroup.ds</groupId>
+						<artifactId>ds-b2-templates</artifactId>
+						<version>${project.version}</version>
+						<scope>compile</scope>
+					</dependency>
+					<dependency>
+						<groupId>org.eclipse.emf</groupId>
+						<artifactId>org.eclipse.emf.ecore</artifactId>
+						<version>2.7.0.v20110605-0747</version>
+						<exclusions>
+							<exclusion>
+								<artifactId>org.eclipse.core.runtime</artifactId>
+								<groupId>org.eclipse.core</groupId>
+							</exclusion>
+						</exclusions>
+					</dependency>
+					<dependency>
+						<groupId>org.eclipse.emf</groupId>
+						<artifactId>org.eclipse.emf.common</artifactId>
+						<version>2.7.0.v20110605-0747</version>
+						<exclusions>
+							<exclusion>
+								<artifactId>org.eclipse.core.runtime</artifactId>
+								<groupId>org.eclipse.core</groupId>
+							</exclusion>
+						</exclusions>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<resolver>p2</resolver>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -1,0 +1,111 @@
+# UTF-8
+# UTF-8
+/* Back Valuation of Exchange Rates in Asset Management */
+Domain AM_BackvalueCurrency
+	@t24:i (module=AM)
+	@java:Package (value=com.temenos.t24.datamodel.am.am_backvaluecurrency)
+namespace "http://www.temenos.com/t24/AM_BackvalueCurrency"
+metamodelVersion 1.30.6
+Classes {
+	AM_CCY_RATE
+		@t24:i (t24Name=AM.CCY.RATE, level=Y, type=H, additionalInfo="OEU UNP", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* The AM.CCY.RATE template is to change the Currency rate effective back value date. In respect to the rate change, the system will update the performance and valuation records of the respective applications. It will change the Management and Safekeeping fee according to the new valuation amount.
+The application will built a concat file, which will be processed during the EOD. It will update the above said applications. The rate change will be applied till next currency record change. As the general banking market practice, the rate change will daily for all working days.
+The ID format is CCY.DATE.
+Validation Rules
+
+CCY should be the valid currency code.
+Standard date format as YYYYMMDD.
+The date should be greater the Go-Live date which was define in the       AM.PERF.PARAMETER. */
+		CCY_DATE_ID -> AM_BackvalueCurrency:AM_CCY_RATE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=0.0, core=true, businessType=S, t24Name=CCY.DATE.ID)
+		/* Standard Currency code format. Currency code for which the Exchange rate going to be modified.
+Currency code will be defaulted from the ID.
+Validation Rules
+
+No Input field */
+		CURRENCY : T24BusinessTypes:A
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=1.0, core=true, t24Name=CURRENCY)
+		/* Standard Date format. The value will be defaulted from the ID. The date is the effective date for which the rate should be applied.
+Validation Rules
+
+No Input field */
+		DATE : T24BusinessTypes:D
+			@i18n:Label (en=Date)
+			@t24:i (align=R, inputBehaviour=N, maxLength=12, sysNumber=2.0, core=true, t24Name=DATE)
+		BANK_DATE -> byValue AM_BackvalueCurrency:AM_CCY_RATE__BANK_DATE *
+		OVERRIDE -> byValue AM_BackvalueCurrency:AM_CCY_RATE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AM_BackvalueCurrency:AM_CCY_RATE__INPUTTER *
+		DATE_TIME -> byValue AM_BackvalueCurrency:AM_CCY_RATE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=13.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=15.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=16.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AM_CCY_RATE__BANK_DATE
+	{
+		/* Standard date field. Bank date on which the rate change was input. Its an associated multi value set which holds the information for the respective rate change.
+The date will be defaulted from the T24 Bank date, (Today's date)
+Validation Rules
+
+No input field */
+		BANK_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=12, sysNumber=3.0, core=true, t24Name=BANK.DATE, mvSvExpansionAccess=NOEXPAND)
+		/* The new exchange rate that should be applied for the respective date specified on the ID. Its the associated multi value set and should be the standard rate format.
+Validation Rules
+
+The rate cannot be modified for the Processed records. */
+		NEW_EXCH_RATE : T24BusinessTypes:R required
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=4.0, core=true, t24Name=NEW.EXCH.RATE, mvSvExpansionAccess=NOEXPAND)
+		/* NOINPUT field which is a system generated.
+It will contain the value of the Existing Exchange rate which has been used in the previous valuation.. */
+		OLD_EXCH_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=12, sysNumber=5.0, core=true, t24Name=OLD.EXCH.RATE, mvSvExpansionAccess=NOEXPAND)
+		/* Field shows the exchange rate effect has taken for recalculation or not.
+
+Validation Rules
+
+System updates the field as PROCESSED in batch.
+
+System updates the field as PARTIAL during online update. */
+		STATUS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=6.0, core=true, t24Name=STATUS, mvSvExpansionAccess=NOEXPAND)
+	}
+	AM_CCY_RATE__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=OVERRIDE)
+	}
+	AM_CCY_RATE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=INPUTTER)
+	}
+	AM_CCY_RATE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=11.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}

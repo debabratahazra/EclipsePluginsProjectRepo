@@ -1,0 +1,851 @@
+# UTF-8
+# UTF-8
+/* Server routines related to External users and internet banking */
+Domain EB_ARC
+	@t24:i (module=EB)
+	@java:Package (value=com.temenos.t24.datamodel.eb.eb_arc)
+namespace "http://www.temenos.com/t24/EB_ARC"
+metamodelVersion 1.30.6
+Classes {
+	CHANNEL_PARAMETER
+		@t24:i (t24Name=CHANNEL.PARAMETER, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		ID -> EB_ARC:CHANNEL_PARAMETER PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, t24Name="@ID")
+		EXT_CACHE_EXPIRY : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=1.0, core=true, t24Name=EXT.CACHE.EXPIRY)
+		RESERVED_06 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.06)
+		RESERVED_05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.01)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_ARC:CHANNEL_PARAMETER__INPUTTER *
+		DATE_TIME -> byValue EB_ARC:CHANNEL_PARAMETER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=21.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=23.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=24.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	
+	CHANNEL_PARAMETER__OFS_SOURCE__APP_NAME
+	{
+		APP_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=4.0, core=true, t24Name=APP.NAME)
+		VERSION_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=5.0, core=true, t24Name=VERSION.NAME)
+		FUNCTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=6.0, core=true, t24Name=FUNCTION)
+	}
+	CHANNEL_PARAMETER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=INPUTTER)
+	}
+	CHANNEL_PARAMETER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=19.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CHANNEL_PERMISSION
+		@t24:i (t24Name=CHANNEL.PERMISSION, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		AI_PERM_ID -> EB_ARC:CHANNEL_PERMISSION PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=AI.PERM.ID)
+		DESCRIPTION -> byValue EB_ARC:CHANNEL_PERMISSION__DESCRIPTION *
+		PERMISSION_TYPE : EB_ARC:CHANNEL_PERMISSION__PERMISSION_TYPE required
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=2.0, core=true, t24Name=PERMISSION.TYPE)
+		RELATED_CUSTOMER -> byValue EB_ARC:CHANNEL_PERMISSION__RELATED_CUSTOMER *
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_ARC:CHANNEL_PERMISSION__INPUTTER *
+		DATE_TIME -> byValue EB_ARC:CHANNEL_PERMISSION__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=25.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=27.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=28.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CHANNEL_PERMISSION__DESCRIPTION
+	{
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	CHANNEL_PERMISSION__RELATED_CUSTOMER
+	{
+		PRODUCT_GROUP_SEL : EB_ARC:CHANNEL_PERMISSION__RELATED_CUSTOMER__PRODUCT_GROUP_SEL required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=PRODUCT.GROUP.SEL)
+		DISPLAY_PRODUCTS : EB_ARC:CHANNEL_PERMISSION__RELATED_CUSTOMER__DISPLAY_PRODUCTS
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=DISPLAY.PRODUCTS)
+		PRODUCT -> byValue EB_ARC:CHANNEL_PERMISSION__RELATED_CUSTOMER__PRODUCT *
+		SV_RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=SV.RESERVED.5)
+		SV_RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=SV.RESERVED.4)
+		SV_RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=SV.RESERVED.3)
+		SV_RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=SV.RESERVED.2)
+		SV_RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=SV.RESERVED.1)
+	}
+	CHANNEL_PERMISSION__RELATED_CUSTOMER__PRODUCT
+	{
+		PRODUCT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=PRODUCT)
+		PRODUCT_SEL : EB_ARC:CHANNEL_PERMISSION__RELATED_CUSTOMER__PRODUCT__PRODUCT_SEL
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=PRODUCT.SEL)
+	}
+	CHANNEL_PERMISSION__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=INPUTTER)
+	}
+	CHANNEL_PERMISSION__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=23.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This is an internal file providing a reference between each Customer and all Secure message belonging to him.
+
+Only the S(ee),P(rint) and L(ist) functions may be used in this application. */
+	CUSTOMER_SECURE_MESSAGE
+		@t24:i (t24Name=CUSTOMER.SECURE.MESSAGE, level=C, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The ID of Customer Secure Message is the ID of the Customer specified the Secure Message record. */
+		CUST_SEC_MSG_ID -> EB_ARC:CUSTOMER_SECURE_MESSAGE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=CUST.SEC.MSG.ID)
+		/* Specifies the secure message ids belonging to this Customer
+The number of secure message ids of this Customer are held one per field */
+		SECURE_MESSAGE_ID -> EB_ARC:EB_SECURE_MESSAGE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, businessType=A, t24Name=SECURE.MESSAGE.ID)
+	}
+	/* Defines the Challenge Response methods per version */
+	EB_CHALLENGE_RESPONSE
+		@t24:i (t24Name=EB.CHALLENGE.RESPONSE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* ID of the challenge response (i.e REAL etc). */
+		CHALLENGE_RESPONSE_ID -> EB_ARC:EB_CHALLENGE_RESPONSE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=CHALLENGE.RESPONSE.ID)
+		/* Description of the flow intended from this record */
+		DESCRIPTION : T24BusinessTypes:A required
+			@i18n:Label (en=Description)
+			@i18n:Tooltip (en=Description)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+		VERSION -> byValue EB_ARC:EB_CHALLENGE_RESPONSE__VERSION *
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.10)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue EB_ARC:EB_CHALLENGE_RESPONSE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_ARC:EB_CHALLENGE_RESPONSE__INPUTTER *
+		DATE_TIME -> byValue EB_ARC:EB_CHALLENGE_RESPONSE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=24.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=26.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=27.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_CHALLENGE_RESPONSE__VERSION
+	{
+		/* Defines the application and version */
+		FIELD_NAME -> byValue EB_ARC:EB_CHALLENGE_RESPONSE__VERSION__FIELD_NAME *
+	}
+	EB_CHALLENGE_RESPONSE__VERSION__FIELD_NAME
+	{
+		/* Indicate the field name to be used for Challenge response method.
+This field indicates the starting of the associated Multi set. More than one field can be defined for challenge response method per version.
+Restrictions on the data that can be entered into the token device as a challenge:
+• Must be numeric (no decimal point)
+• Must be at least 4 digits (although we could pad with zeros)
+• Must be a maximum of 8 digits */
+		FIELD_NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=3.0, core=true, t24Name=FIELD.NAME)
+		/* To indicate the start range of the field value. */
+		START_RANGE : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=START.RANGE)
+		/* Indicates the end range of the field value. */
+		END_RANGE : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=5.0, core=true, t24Name=END.RANGE)
+		/* The actual Question that is to be shown to the end-user */
+		TEXT : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=6.0, core=true, t24Name=TEXT)
+	}
+	EB_CHALLENGE_RESPONSE__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=OVERRIDE)
+	}
+	EB_CHALLENGE_RESPONSE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, core=true, t24Name=INPUTTER)
+	}
+	EB_CHALLENGE_RESPONSE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=22.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Defines different types of channels which T24 can be accessed. */
+	EB_CHANNEL
+		@t24:i (t24Name=EB.CHANNEL, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The ID of the Channel */
+		CHANNELS -> EB_ARC:EB_CHANNEL PK required
+			@i18n:Label (en=Channel)
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=CHANNELS)
+		DESC -> byValue EB_ARC:EB_CHANNEL__DESC *
+		SHORT_NAME -> byValue EB_ARC:EB_CHANNEL__SHORT_NAME *
+		/* The Type of a channel.  Valid values are :-
+Internal - Access internal to T24 (e.g. from T24 Browser)
+Internet - Access via the internet (e.g. from external users with ARC-IB) */
+		CHANNEL_TYPE : EB_ARC:EB_CHANNEL__CHANNEL_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, t24Name=CHANNEL.TYPE)
+		UNSUPPRESS -> byValue EB_ARC:EB_CHANNEL__UNSUPPRESS *
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=5.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=6.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=7.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_ARC:EB_CHANNEL__INPUTTER *
+		DATE_TIME -> byValue EB_ARC:EB_CHANNEL__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=13.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=14.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=16.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=17.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_CHANNEL__DESC
+	{
+		/* The description of the channel. */
+		DESC : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESC)
+	}
+	EB_CHANNEL__SHORT_NAME
+	{
+		/* A short name that the channel is known by (e.g INTERNET) */
+		SHORT_NAME : T24BusinessTypes:AA required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.NAME)
+	}
+	EB_CHANNEL__UNSUPPRESS
+	{
+		/* Display proper errors or overrides instead of "Bucket" errors. Used internally for ARC Internet channel */
+		UNSUPPRESS : EB_ARC:EB_CHANNEL__UNSUPPRESS__UNSUPPRESS
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=4.0, core=true, t24Name=UNSUPPRESS)
+	}
+	EB_CHANNEL__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, core=true, t24Name=INPUTTER)
+	}
+	EB_CHANNEL__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=12.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* EB.EXTERNAL.USER is an application holding details about users of the system who are not staff of the bank. Examples include Internet banking users. */
+	EB_EXTERNAL_USER
+		@t24:i (t24Name=EB.EXTERNAL.USER, nonStop=true, level=I, type=H, allowedFunctions="A C D E I L P Q R S", localRefAllowed=true)
+	{
+		/* The ID of this external user. */
+		EXTERNAL_USER_ID -> EB_ARC:EB_EXTERNAL_USER PK required
+			@i18n:Label (en="External User Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=0.0, core=true, businessType=A, t24Name=EXTERNAL.USER.ID)
+		/* The user's name */
+		NAME : T24BusinessTypes:A
+			@i18n:Label (en=Name)
+			@i18n:Tooltip (en="Indicates the Name ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=1.0, core=true, t24Name=NAME)
+		/* The duration in which the password is to be reviewed by the user */
+		PASSWORD_REVIEW : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=3.0, core=true, t24Name=PASSWORD.REVIEW, mask="RDDDD DD  DD #####")
+		/* The companies the user can access */
+		COMPANY -> ST_CompanyCreation:COMPANY required
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, businessType=COM, t24Name=COMPANY, mask="R##-###-####")
+		CHANNEL -> byValue EB_ARC:EB_EXTERNAL_USER__CHANNEL *
+		/* Encrypted memorable data of the user */
+		MEMORABLE_DATA : T24BusinessTypes:A
+			@i18n:Label (en="Memorable Data")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=MEMORABLE.DATA)
+		/* When selected, will create a user record in the Authentication server
+User id will be same as EB.EXTERNAL.USER  id in the Authentication Server.
+Eg.: 4TRESS */
+		AUT_UPD_SERVER : EB_ARC:EB_EXTERNAL_USER__AUT_UPD_SERVER
+			@i18n:Label (en="Update Authentication Server")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=24.0, core=true, t24Name=AUT.UPD.SERVER)
+		/* Holds a numeric value between 0 to 4 indicating the status of the user record creation in Authentication Server
+0 - user record created successfully in Authentication server
+1 - user record not created in Authentication Server
+2 - Communication does not exist between Authentication server and T24
+3 - Internal Error */
+		AUT_UPD_STATUS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=25.0, core=true, t24Name=AUT.UPD.STATUS)
+		/* Field will be updated by T24 on creation of a external user in T24.
+Field will hold T24 date as the value.
+It is a no input field. */
+		AUT_UPD_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=26.0, core=true, t24Name=AUT.UPD.DATE)
+		/* The type of authentication for this external user.  Valid values are :-
+External - External authentication via an authentication services such as 4Tress.
+User Maintained - Maintained by the user with a simpla user name and password. */
+		AUTHENTICATION_TYPE : EB_ARC:EB_EXTERNAL_USER__AUTHENTICATION_TYPE required
+			@i18n:Label (en="Authentication type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=27.0, core=true, t24Name=AUTHENTICATION.TYPE)
+		/* The password set for the user's login */
+		PASSWORD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=35, sysNumber=28.0, core=true, t24Name=PASSWORD)
+		/* The date when the password was changed */
+		PASSW_CHANGE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=29.0, core=true, t24Name=PASSW.CHANGE.DATE)
+		/* Counter of the number of consecutive incorrect passwords the user has actually entered, since last entering a correct password. */
+		ATTEMPTS_SINCE : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=1, sysNumber=30.0, core=true, t24Name=ATTEMPTS.SINCE)
+		/* Field takes any value .
+Value should be prefixed with CN= <anyname> */
+		LDAP_DN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=32.0, core=true, t24Name=LDAP.DN)
+		/* Reset the PIN of the EXTERNAL user in the Authentication Server.
+Move the PIN status in the Authentication Server to PENDING. */
+		UPDATE_AUTH_PIN : EB_ARC:EB_EXTERNAL_USER__UPDATE_AUTH_PIN
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=33.0, core=true, t24Name=UPDATE.AUTH.PIN)
+		/* Reset the Password of the EXTERNAL user in Authentication Server
+Move the PASSWORD status in the Authentication Server to PENDING */
+		UPDATE_AUTH_PW : EB_ARC:EB_EXTERNAL_USER__UPDATE_AUTH_PW
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=34.0, core=true, t24Name=UPDATE.AUTH.PW)
+		/* Updates the customer information  in Authentication server when any change is made to the existing customer records.
+E.g. NAME,ADDRESS,CITY,COUNTRY,POSTCODE */
+		UPDATE_CUST_DATA : EB_ARC:EB_EXTERNAL_USER__UPDATE_CUST_DATA
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=35.0, core=true, t24Name=UPDATE.CUST.DATA)
+		/* Change the USER.ID of the EXTERNAL user with this value in Authentication Server */
+		AUTH_SERV_USER_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=36.0, core=true, t24Name=AUTH.SERV.USER.ID)
+		ATTRIBUTES -> byValue EB_ARC:EB_EXTERNAL_USER__ATTRIBUTES *
+		/* This field determines the Type of Transaction Signing.
+Valid settings in this field are;
+SMS : One Time Password (OTP) will be sent to the Mail or Mobile as configured in the Authentication server
+Token : User will  use the token given to generate One Time Password(OTP) */
+		TXN_SIGN : EB_ARC:EB_EXTERNAL_USER__TXN_SIGN
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=38.0, core=true, t24Name=TXN.SIGN)
+		SALT : T24BusinessTypes:PASSWD
+			@t24:i (align=L, inputBehaviour=E, maxLength=35, sysNumber=39.0, core=true, t24Name=SALT)
+		SIGN_ON_RTN -> byValue EB_ARC:EB_EXTERNAL_USER__SIGN_ON_RTN *
+		DATE_FORMAT : EB_ARC:EB_EXTERNAL_USER__DATE_FORMAT
+			@i18n:Label (en="Date Format")
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=42.0, core=true, t24Name=DATE.FORMAT)
+		RESERVED_05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=43.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=44.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=45.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=46.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=47.0, core=true, t24Name=RESERVED.01)
+		OVERRIDE_TEXT -> byValue EB_ARC:EB_EXTERNAL_USER__OVERRIDE_TEXT *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=50.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=51.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_ARC:EB_EXTERNAL_USER__INPUTTER *
+		DATE_TIME -> byValue EB_ARC:EB_EXTERNAL_USER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=54.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=55.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=57.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=58.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		EXT_REF : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=48.1, core=false, t24Name=EXT.REF)
+	}
+	EB_EXTERNAL_USER__CHANNEL
+	{
+		/* A defined channel for communication for this external user (e.g. INTERNET) */
+		CHANNEL -> EB_ARC:EB_CHANNEL
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=5.0, core=true, businessType=A, t24Name=CHANNEL)
+		/* Access status of the user
+ACTIVE: User can use the system, provided they try to access the system within their access start and end dates.
+INACTIVE: User has not yet been activated.
+BARRED: The user has barred from using the system.
+LOCKED OUT: ??? */
+		STATUS : EB_ARC:EB_EXTERNAL_USER__CHANNEL__STATUS required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=STATUS)
+		/* The reason for changing the status of the external user */
+		STATUS_CHANGE_REASON : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=STATUS.CHANGE.REASON)
+		/* Whether the user has accepted the Terms and Conditions first displayed when the user logs in to the system for the very first time. */
+		T_C_ACCEPTED : EB_ARC:EB_EXTERNAL_USER__CHANNEL__T_C_ACCEPTED
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, t24Name=T.C.ACCEPTED)
+		CHANNEL_PERMISSION -> EB_ARC:CHANNEL_PERMISSION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, businessType=A, t24Name=CHANNEL.PERMISSION)
+		/* First day the user can use the system. If they try before this, they will get a security violation and a message will be logged in the PROTOCOL file detailing why they could not log in. */
+		START_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, core=true, t24Name=START.DATE, typeModifiers=MACHINE)
+		/* Last day the user can use the system. If they try after this, they will get a security violation and a message will be logged in the PROTOCOL file detailing why they could not log in. */
+		END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=14.0, core=true, t24Name=END.DATE, typeModifiers=MACHINE)
+		START_TIME -> byValue EB_ARC:EB_EXTERNAL_USER__CHANNEL__START_TIME *
+		DATE_LAST_USE -> byValue EB_ARC:EB_EXTERNAL_USER__CHANNEL__DATE_LAST_USE *
+		/* The Type of the user.  Valid values are :-
+CORPORATE
+INTERMEDIARY
+PERSONAL */
+		USER_TYPE : EB_ARC:EB_EXTERNAL_USER__CHANNEL__USER_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=20.0, core=true, t24Name=USER.TYPE)
+		EXTERNAL_REFERENCE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=EXTERNAL.REFERENCE)
+		/* The type of login method.  Valid values are :-
+INTERNET.OTP - Internet using a One Time Password
+INTERNET.OTPPIN - Internet using a One Time Password PIN device
+INTERNET.PW - Internet using a password
+INTERNET.PWMW - Internet using a password and memorable word
+LDAP - LDAP used as the Authentication Server */
+		LOGIN_METHOD : EB_ARC:EB_EXTERNAL_USER__CHANNEL__LOGIN_METHOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, t24Name=LOGIN.METHOD)
+	}
+	EB_EXTERNAL_USER__CHANNEL__START_TIME
+	{
+		/* The time on the first day (START.DATE) that the user can use the system. */
+		START_TIME : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=15.0, core=true, t24Name=START.TIME, mask="R##:##")
+		/* The time on the last day (END.DATE) that the user can use the system. */
+		END_TIME : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=16.0, core=true, t24Name=END.TIME, mask="R##:##")
+	}
+	EB_EXTERNAL_USER__CHANNEL__DATE_LAST_USE
+	{
+		/* Last date and time the user last logged in */
+		DATE_LAST_USE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=17.0, core=true, t24Name=DATE.LAST.USE)
+		/* The duration that the user last used the system */
+		USE_DURATION : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=2, sysNumber=18.0, core=true, t24Name=USE.DURATION, mask="R##:##:##")
+		/* Last time the system was used by the user */
+		TIME_LAST_USE : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=E, maxLength=11, sysNumber=19.0, core=true, t24Name=TIME.LAST.USE, typeModifiers=HS, mask="R##:##:##")
+	}
+	EB_EXTERNAL_USER__ATTRIBUTES
+	{
+		/* This field to determine the attributes that are associated with a particular user.
+Valid settings in this field are;
+PREAUTHENTICATED: When selected will skip the password validation in T24 for the respective  EXTERNAL user. */
+		ATTRIBUTES : EB_ARC:EB_EXTERNAL_USER__ATTRIBUTES__ATTRIBUTES
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=37.0, core=true, t24Name=ATTRIBUTES)
+	}
+	EB_EXTERNAL_USER__SIGN_ON_RTN
+	{
+		SIGN_ON_RTN : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=40.0, core=true, t24Name=SIGN.ON.RTN)
+	}
+	EB_EXTERNAL_USER__OVERRIDE_TEXT
+	{
+		/* Any overrides raised when this record was authorised. */
+		OVERRIDE_TEXT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=49.0, core=true, t24Name=OVERRIDE.TEXT)
+	}
+	EB_EXTERNAL_USER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=52.0, core=true, t24Name=INPUTTER)
+	}
+	EB_EXTERNAL_USER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=53.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This table is developed to establish a secure messaging system in a bank.
+It helps to post messages between bank user to customer. It provides a facility to define messages
+and updated with a status for each messages that has been posted. */
+	EB_SECURE_MESSAGE
+		@t24:i (t24Name=EB.SECURE.MESSAGE, nonStop=true, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* It holds the record key of EB.SECURE.MESSAGE. System generated. */
+		MESSAGE_ID -> EB_ARC:EB_SECURE_MESSAGE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=MESSAGE.ID)
+		/* Must be a valid record id on customer table. Customer to which the message to be sent.
+
+Validation Rules:
+
+		/* Must be a valid record id on department account officer table. Account Offcier to which  the message to be sent.
+
+Validation Rules:
+
+		/* Must be a valid record id on department account officer table. Account Offcier from which the message is triggered.
+
+Validation Rules:
+
+		/* Input must be a valid record id on customer table. Customer from which the message is triggered.
+
+Validation Rules:
+
+		/* This field contains the subject of the message to be sent or received. */
+		SUBJECT : T24BusinessTypes:A required
+			@i18n:Label (en=Subject)
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=5.0, core=true, t24Name=SUBJECT)
+		MESSAGE -> byValue EB_ARC:EB_SECURE_MESSAGE__MESSAGE *
+		/* Holds the date when the message is sent.
+
+Validation Rules:
+
+Noinput field. This field will be updated when the message is authorised. */
+		DATE_SENT : T24BusinessTypes:D
+			@i18n:Label (en="Date Sent")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=7.0, core=true, t24Name=DATE.SENT)
+		/* Specifies time when the message is sent.
+
+Validation Rules:
+
+Noinput field. This field will be updated when the message is authorised. */
+		TIME_SENT : T24BusinessTypes:A
+			@i18n:Label (en="Time Sent")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=TIME.SENT)
+		/* It holds date when the message is read.
+
+Validation Rules:
+
+Noinput field. This field will be updated when the message is read by the receiver. */
+		DATE_READ : T24BusinessTypes:D
+			@i18n:Label (en="Date Read")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=9.0, core=true, t24Name=DATE.READ)
+		/* Specifies status of the message. Default is UNREAD.
+
+Validation Rules:
+
+It has two options. They are UNREAD and READ. */
+		TO_STATUS : EB_ARC:EB_SECURE_MESSAGE__TO_STATUS
+			@i18n:Label (en="To Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, t24Name=TO.STATUS)
+		/* This field specifies status of the received message. Default is SENT.
+
+Validation Rules:
+
+It has two options. They are SENT and UNSENT. */
+		FROM_STATUS : EB_ARC:EB_SECURE_MESSAGE__FROM_STATUS
+			@i18n:Label (en="From Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=FROM.STATUS)
+		/* This field specifies the record ID of parent message. */
+		PARENT_MESSAGE_ID : T24BusinessTypes:A
+			@i18n:Label (en="Parent message id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, t24Name=PARENT.MESSAGE.ID)
+		UPLOAD_ID : T24BusinessTypes:A
+			@i18n:Label (en="Upload ID")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=13.0, core=true, t24Name=UPLOAD.ID)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue EB_ARC:EB_SECURE_MESSAGE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_ARC:EB_SECURE_MESSAGE__INPUTTER *
+		DATE_TIME -> byValue EB_ARC:EB_SECURE_MESSAGE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=29.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=30.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=32.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=33.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		TRANS_REFERECE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=23.1, core=false, t24Name=TRANS.REFERECE)
+		CUSTOMER_ID : mml:Integer
+			@i18n:Label (en="Customer Id")
+			@i18n:Tooltip (en="Identifies the Customer for the transaction.")
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=23.2, core=false, t24Name=CUSTOMER.ID)
+	}
+	EB_SECURE_MESSAGE__MESSAGE
+	{
+		/* Specifies Message from / to the customer.
+
+Validation Rules:
+
+TEXT field. This field contains body of the messge. */
+		MESSAGE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=6.0, core=true, t24Name=MESSAGE, isTextarea=true)
+	}
+	EB_SECURE_MESSAGE__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=OVERRIDE)
+	}
+	EB_SECURE_MESSAGE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=27.0, core=true, t24Name=INPUTTER)
+	}
+	EB_SECURE_MESSAGE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=28.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EXT_CHANNEL_ACTIVITY_LOG
+		@t24:i (t24Name=EXT.CHANNEL.ACTIVITY.LOG, level=I, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		LOG_ID -> EB_ARC:EXT_CHANNEL_ACTIVITY_LOG PK required
+			@i18n:Label (en="Log ID")
+			@i18n:Tooltip (en="ID of the Log File")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=LOG.ID)
+		EXTERNAL_USER_ID : T24BusinessTypes:A
+			@i18n:Label (en="External User Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=1.0, core=true, t24Name=EXTERNAL.USER.ID)
+		CHANNEL -> EB_ARC:EB_CHANNEL
+			@i18n:Label (en=Channel)
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=2.0, core=true, businessType=A, t24Name=CHANNEL)
+		COMPANY -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, businessType=COM, t24Name=COMPANY)
+		MSG_TYPE : T24BusinessTypes:ANY
+			@i18n:Label (en="Message Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=4.0, core=true, t24Name=MSG.TYPE)
+		APPLICATION_NAME : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=5.0, core=true, t24Name=APPLICATION.NAME)
+		VERSION_OR_ENQ_ID : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=6.0, core=true, t24Name=VERSION.OR.ENQ.ID)
+		TXN_REFERENCE : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=7.0, core=true, t24Name=TXN.REFERENCE)
+		TXN_STATUS : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=8.0, core=true, t24Name=TXN.STATUS)
+		FUNCTION : T24BusinessTypes:A
+			@i18n:Label (en="Function Allowed")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=9.0, core=true, t24Name=FUNCTION)
+		IP_ADDRESS : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=10.0, core=true, t24Name=IP.ADDRESS)
+		DATE : T24BusinessTypes:D
+			@i18n:Label (en=Date)
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=DATE)
+		TIME : T24BusinessTypes:ANY
+			@i18n:Label (en=Time)
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=12.0, core=true, t24Name=TIME)
+		RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.10)
+		RESERVED_09 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.09)
+		RESERVED_08 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.08)
+		RESERVED_07 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.07)
+		RESERVED_06 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED.06)
+		RESERVED_05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED.01)
+	}
+}
+Enumerations {
+	CHANNEL_PARAMETER__OFS_SOURCE__ENABLE_CACHE : mml:string
+		YES=YES
+		NO=NO
+	CHANNEL_PARAMETER__OFS_SOURCE__ENQUIRY_CACHE : mml:string
+		YES=YES
+		NO=NO
+	CHANNEL_PERMISSION__PERMISSION_TYPE : mml:string
+		GROUP=GROUP
+		INDIVIDUAL=INDIVIDUAL
+	CHANNEL_PERMISSION__RELATED_CUSTOMER__PRODUCT_GROUP_SEL : mml:string
+		See=See
+		Transact=Transact
+		Exclude=Exclude
+	CHANNEL_PERMISSION__RELATED_CUSTOMER__DISPLAY_PRODUCTS : mml:string
+		NULL=NULL
+		Yes=Yes
+	CHANNEL_PERMISSION__RELATED_CUSTOMER__PRODUCT__PRODUCT_SEL : mml:string
+		Auto=Auto
+		See=See
+		Transact=Transact
+		Exclude=Exclude
+	EB_CHANNEL__CHANNEL_TYPE : mml:string
+		INTERNAL=INTERNAL
+		INTERNET=INTERNET
+		MOBILE=MOBILE
+	EB_CHANNEL__UNSUPPRESS__UNSUPPRESS : mml:string
+		ERRORS=ERRORS
+		OVERRIDES=OVERRIDES
+	EB_EXTERNAL_USER__CHANNEL__STATUS : mml:string
+		INITIATED=INITIATED
+		ACTIVE=ACTIVE
+		INACTIVE=INACTIVE
+		BARRED=BARRED
+	EB_EXTERNAL_USER__CHANNEL__T_C_ACCEPTED : mml:string
+		YES=YES
+		NO=NO
+	EB_EXTERNAL_USER__CHANNEL__USER_TYPE : mml:string
+		PERSONAL=PERSONAL
+		INTERMEDIARY=INTERMEDIARY
+		CORPORATE=CORPORATE
+	EB_EXTERNAL_USER__CHANNEL__LOGIN_METHOD : mml:string
+		INTERNET_OTPPIN=INTERNET.OTPPIN
+		INTERNET_OTP=INTERNET.OTP
+		INTERNET_PW=INTERNET.PW
+		INTERNET_PWMW=INTERNET.PWMW
+		LDAP=LDAP
+	EB_EXTERNAL_USER__AUT_UPD_SERVER : mml:string
+		Y=Y
+	EB_EXTERNAL_USER__AUTHENTICATION_TYPE : mml:string
+		EXTERNAL=EXTERNAL
+		USER_MAINTAINED=USER.MAINTAINED
+	EB_EXTERNAL_USER__UPDATE_AUTH_PIN : mml:string
+		Y=Y
+	EB_EXTERNAL_USER__UPDATE_AUTH_PW : mml:string
+		Y=Y
+	EB_EXTERNAL_USER__UPDATE_CUST_DATA : mml:string
+		Y=Y
+	EB_EXTERNAL_USER__ATTRIBUTES__ATTRIBUTES : mml:string
+		PREAUTHENTICATED=PREAUTHENTICATED
+	EB_EXTERNAL_USER__TXN_SIGN : mml:string
+		TOKEN=TOKEN
+		SMS=SMS
+		PASSWORD=PASSWORD
+		CHRES=CHRES
+	EB_EXTERNAL_USER__DATE_FORMAT : mml:string
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+	EB_SECURE_MESSAGE__TO_STATUS : mml:string
+		READ=READ
+		UNREAD=UNREAD
+	EB_SECURE_MESSAGE__FROM_STATUS : mml:string
+		SENT=SENT
+		UNSENT=UNSENT
+}

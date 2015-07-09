@@ -1,0 +1,1737 @@
+# UTF-8
+# UTF-8
+/* Parameter definitions for Accounting Framework */
+Domain AC_Config
+	@t24:i (module=AC)
+	@java:Package (value=com.temenos.t24.datamodel.ac.ac_config)
+namespace "http://www.temenos.com/t24/AC_Config"
+metamodelVersion 1.30.6
+Classes {
+	AC_APPLICATION_LINK
+		@t24:i (t24Name=AC.APPLICATION.LINK, level=I, type=H, additionalInfo="New application contains suspense categories", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* This table is used to route entries generated during END.OF.DAY Batch run to an Internal Suspense Account, if there are Overrides.  The Applications where the Overrides are to be routed and the respective Internal account categories for Debit and Credit are mentioned in this table.
+Validation Rules
+
+ID is SYSTEM */
+		KEY -> AC_Config:AC_APPLICATION_LINK PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=0.0, core=true, t24Name=KEY)
+		SUSP_APPLN -> byValue AC_Config:AC_APPLICATION_LINK__SUSP_APPLN *
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AC_Config:AC_APPLICATION_LINK__INPUTTER *
+		DATE_TIME -> byValue AC_Config:AC_APPLICATION_LINK__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=13.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=14.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=16.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=17.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AC_APPLICATION_LINK__SUSP_APPLN
+	{
+		/* The application ID where the entries are to be routed to an Internal Suspense Account during END.OF.DAY, when there are overrides.
+Validation Rules
+
+Valid T24 Application
+Associated Multi-value field with fields with the fields DR.CATEGORY and       CR.CATEGORY.
+Mandatory field */
+		SUSP_APPLN -> EB_SystemTables:PGM_FILE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, businessType=A, t24Name=SUSP.APPLN)
+		/* The Suspense category code to be used for debit entries generated during EOD.  If the amount to be posted to suspense during EOD is a debit then the amount will be posted in an internal account in the category mentioned in this field for the appropriate currency.
+Validation Rules
+
+Valid category code in the range 10000 -19999
+One account in the category mentioned in this field should be opened, for the system to       post entries during EOD. Once this is done accounts in other currencies       will be opened appropriately as needed.
+Associated Multivalue with fields SUSP.APPLN and CR.CATEGORY
+Can be the same Category code as that of CR.CATEGORY. */
+		DR_CATEGORY -> ST_Config:CATEGORY
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=2.0, core=true, businessType=CAT, t24Name=DR.CATEGORY, typeModifiers=10000...19999, mask="R##-###")
+		/* The Suspense category code to be used for Credit  entries generated during EOD.  If the amount to be suspended during EOD is in Credit,  then the amount will be posted in an internal account in the category mentioned in this field, in the respective currency.
+Validation Rules
+
+Valid category code in the range 10000 -19999
+One account in the category mentioned in this field should be opened, for     the system to post entries during EOD.
+Associated Multivalue with fields SUSP.APPLN and Dr.CATEGORY
+Can be the same Category code as that of Dr.CATEGORY. */
+		CR_CATEGORY -> ST_Config:CATEGORY
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=3.0, core=true, businessType=CAT, t24Name=CR.CATEGORY, typeModifiers=10000...19999, mask="R##-###")
+	}
+	AC_APPLICATION_LINK__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, core=true, t24Name=INPUTTER)
+	}
+	AC_APPLICATION_LINK__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=12.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application is used to capture the valid */
+	AC_SYS_CODES
+		@t24:i (t24Name=AC.SYS.CODES, level=I, type=H, allowedFunctions="A C D E I L Q S", localRefAllowed=false)
+	{
+		/* ID to this application is T24 Application and then an optional code. Example LD-PRIN, LD-INT, etc. A value of 'ALL' can be given
+
+to defaultSettlement
+A
+ccounts for all applicationsValidation Rules
+
+
+
+
+ID       must be alphanumeric
+
+
+
+
+It       should be given as
+
+A-B
+,
+where A is mandatory T24       product
+
+as       specified in Company application or value as ALL, B is optional       valid definition as per the relevant application.
+
+For example for LD       application the following codes can be used : PRIN,DD,INT. */
+		SYS_CODES -> AC_Config:AC_SYS_CODES PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=A, t24Name=SYS.CODES)
+		DESCRIPTION -> byValue AC_Config:AC_SYS_CODES__DESCRIPTION *
+		RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=2.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=3.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.01)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=7.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AC_Config:AC_SYS_CODES__INPUTTER *
+		DATE_TIME -> byValue AC_Config:AC_SYS_CODES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=12.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=14.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=15.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AC_SYS_CODES__DESCRIPTION
+	{
+		/* This field will hold the description of the system code being defined. For e.g., For LD-PRIN , the description can be input as Principal liquidation  LD.
+
+
+This field can be expanded to allow the User to enter the Description of the AC.SYS.CODES  in various languages. Each expansion of the field will correspond to a new Language as defined in the Language table, and will indicate to the User the Language in which the Description must be entered.
+
+This description appears as enrichment whenever value in AC.SYS.CODES application is referred.
+Validation Rules
+
+
+3-35 type A (alphanumeric) characters. Multilanguage field. (Mandatory       input). */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	AC_SYS_CODES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=9.0, core=true, t24Name=INPUTTER)
+	}
+	AC_SYS_CODES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=10.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This document describes the use and purpose of the ACCOUNT.CLASS table.
+The standard T24 function codes (I for Input, A for Authorisation, D for Delete, etc...) are used within the ACCOUNT.CLASS Application.  However, the Reverse function (function code R) is not permitted.
+This table file has two types of entries.  This first type (Account) provides the Category Code portion when building an Internal Account Number (such as Computer Suspense Account).  The second type (Class) provides the parameters required to identify a group of accounts (e.g. under a heading like NOSTRO) by matching the account details against those held in the account class record.
+When the record type is ACCOUNT then the category code must be valid and in the range 10000 to 19999.
+When the record type is CLASS the category and sector code fields are treated as multi value associated fields.  Either field may be null but not both at the same time.  Duplications of category and sector code combined are not allowed within one entry on the ACCOUNT.CLASS table.
+List of key values used
+The following are the allowed key values by Type:
+TYPE - ACCOUNT
+Key Value       Description
+SUSPENSE        To be used when the DATA.CAPTURE system                 generates suspense entries at the end of day for                 those entries which have not been authorised.
+DIFFERENCE      To be used when the DATA.CAPTURE system has                 to raise an entry to balance a batch as part of the                 end of day processing.
+SUSPCREDIT/     To be used when the end of day accounting module SUSPDEBIT       raises a credit/debit suspense entry as original                 entry can not be posted due to account not                 being present or override condition has been met.
+SUSPLMMCR/      To be used by the Loans and Money Market SUSPLMMDR       systems when the true account is not yet known                 for the payment entry.
+SUSPFXCR/       To be used by the Foreign Exchange system when SUSPFXDR        the true account is not yet known for the                 payment entry.
+EXCHADJ         To be used by the Forex system when posting the                 amount of unrealised profit and loss produced by                 the revaluation of Foreign Exchange contracts.
+EXCHALFWD       Used to post the P & L produced by the                 revaluation and contingent balances in a value                 dated accounting system.
+RESFWDCR/       To be used by the Forex system when posting the RESFWDDR/       interest accruals on Foreign Exchange contracts RESSWAPCR/      using the straight line or Interest revaluation RESSWAPDR       method.
+BROKER          Used to identify the provision account to be used                 to book the brokerage.
+NETTING         To be used when the NETTING sub-system generates                 suspense entries for transations that will have                 net payments.
+FXCCYPOS        Used when generating reserve account numbers                 for forward FX deals with position amortisation.
+TYPE - CLASS
+Key Value       Description
+NOSTRO          Used to identify an account as being classified as                 a nostro account.
+BRANCH          Used to identify an account as belong to a branch                 of Company processed.
+BANK            Used to identify an account as belong to a Bank.
+VOSTRO          Used to identify an account as being classified as                 a vostro account.
+SAVINGS         Used to identify accounts which are classified as                 savings accounts. */
+	ACCOUNT_CLASS
+		@t24:i (t24Name=ACCOUNT.CLASS, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The account classification will uniquely identify each ACCOUNT.CLASS entry.
+Specific records on the ACCOUNT.CLASS table are used by the other applications when either an account number is to be constructed or an account is to be checked for a particular group.
+Validation Rules
+
+11 type SSS (uppercase alpha) characters mnemonic.         (Mandatory Input) Rule: The values allowed are as         follows:
+NOSTRO        VOSTRO             BRANCH          BANK     MORTGAGE    MGDEPOSIT     SAVINGS            SUSPENSE     DIFFERENCE   SUSPCREDIT    SUSPDEBIT         SUSPLMMCR     SUSPLMMDR   SUSPFXCR       SUSPFXDR          EXCHADJ     EXCHALFWD   RESFWDCR       RESFWDDR         RESSWAPCR     RESSWAPDR   BROKER                NETTING     SUSPSCDR     SUSPSCCR             SCDIFF       SUSPFRACR    SUSPFRADR        SUSPFTBULK      SUSPFTINWD     SUSPPD           SUSPSLCR            SUSPSLDR TFLC                   LCAMORT         LCDIFF     PLCLOSE          INTERCOOFFLIMIT        UTILLIMIT
+or any value prefixed by U- to identify a user defined class. */
+		AC_CLASSIFICATION -> AC_Config:ACCOUNT_CLASS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=AA, t24Name=AC.CLASSIFICATION)
+		DESCRIPTION -> byValue AC_Config:ACCOUNT_CLASS__DESCRIPTION *
+		/* Identifies the Type of record being specified.
+The value entered indicates the use of the record as follows:
+ACCOUNT    The record provides the category code for the internal account            number.
+CLASS      The record provides the details for identifying a group of            accounts.
+P&L        The record allows definition of Profit and Loss categories.
+Validation Rules
+2 type AAA (alpha A-Z, a-z) values only, ACCOUNT or CLASS. (Mandatory input)
+When the value is ACCOUNT then the key value must be one of the following:  DIFFERENCE    SUSPENSE EXCHADJ       SUSPFXCR INTERCO       SUSPFXDR SUSPCREDIT    SUSPLMMCR SUSPDEBIT     SUSPLMMDR PLCLOSE       BROKER RESFWDCR      RESFWDDR RESSWAPCR     RESSWAPDR
+When the value is P&L then the key value must be one of following:  MKTEXCHCR MKTEXCHDR TTMKTEXCHCR TTMKTEXCHDR FTMKTEXCHCR FTMKTEXCHDR */
+		RECORD_TYPE : AC_Config:ACCOUNT_CLASS__RECORD_TYPE required
+			@i18n:Label (en="Record Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=2.0, core=true, t24Name=RECORD.TYPE)
+		CATEGORY -> byValue AC_Config:ACCOUNT_CLASS__CATEGORY *
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue AC_Config:ACCOUNT_CLASS__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AC_Config:ACCOUNT_CLASS__INPUTTER *
+		DATE_TIME -> byValue AC_Config:ACCOUNT_CLASS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=17.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=19.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=20.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ACCOUNT_CLASS__DESCRIPTION
+	{
+		/* Describes the purpose of the ACCOUNT.CLASS record.
+This field can be expanded to allow the User to enter the description of the ACCOUNT.CLASS in various languages.  Each expansion of the field will correspond to a new Language as defined in the LANGUAGE Table and will indicate to the user the Language in which the Description must be entered.
+Validation Rules
+3-35 type A (alphanumeric) characters. Multilanguage field. Multivalue field. Mandatory input. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	ACCOUNT_CLASS__CATEGORY
+	{
+		/* Identifies the Category code part of the account number that is to be raised or the category code for the group of accounts classification.
+If the RECORD TYPE (field 2) is Account then this field contains the Category code that is to be used in the account number that is to be created. If the record type is Class then this field contains the category code that is to be on an account record when the account belongs to the classification specified.  If this field is null then any category code valued is allowed on the account record.
+If the RECORD TYPE is P&L then this field contains the category code to which corresponding PL entries will be booked when Revaluation Credits or Debits PROFIT/LOSS.
+Changes to this field for the Account Classifications RESFWDCR, RESFWDDR, RESSWAPCR and RESSWAPDR must be done by using the application FX.REVAL.PARAMETERS.
+Validation Rules
+4-5 numeric character Category code. If the Account Classification is RESFWDCR, RESFWDDR, RESSWAPCR or RESSWAPDR, this field may not be changed after the record has been authorised. (Optional input)
+Code entered must be on the CATEGORY table.
+When the record type is ACCOUNT then the Category Code must be in the range 10000 to 19999.
+When the record type is CLASS this field can be null or any valid category.
+When the record type is P&L then the value must be in range 50000 - 59000. Only one value is allowed. */
+		CATEGORY -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=3.0, core=true, t24Name=CATEGORY, mask="R##-###")
+		/* When RECORD.TYPE is CLASS this is the sector code for the group of accounts classification.
+If the RECORD.TYPE type is CLASS then this field contains the sector code that is to be on the customer record when the account belongs to the classification specified. If this field is null then any sector code valued is allowed on the customer record.
+Validation Rules
+1-4 numeric character Sector Code. (Optional input)
+When the RECORD TYPE (field 2) is ACCOUNT or P&L then this field must be null.
+When the record type is CLASS then this field can be either null or a valid sector code on the SECTOR file (Ref: Customer).
+When the record type is CLASS the category and sector code fields are treated as multi value associated fields.  Either field may be null but not both at the same time.  Duplications of category and sector code combined are not allowed. */
+		SECTOR -> ST_Config:SECTOR
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=4.0, core=true, t24Name=SECTOR)
+	}
+	ACCOUNT_CLASS__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=OVERRIDE)
+	}
+	ACCOUNT_CLASS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=INPUTTER)
+	}
+	ACCOUNT_CLASS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=15.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* The ACCOUNT PARAMETER record contains information relating to: -   Cashflow -   Value Date Accounting -   Alternate Account Identifier -   Customer Number within Account Number
+CASHFLOW For the cashflow the number of days for the cashflow window is stored in the field CASH.FLOW.DAYS.
+
+VALUE DATE ACCOUNTING For the account transaction modules, e.g. Data Capture, Funds Transfer and Teller, the account entries can either be passed on Entry Date or on Value date.  For 'Deal' modules entries are either passed on value or there is an option to have either trade date or settlement date accounting.  The processing controlled from here is that for the account transaction modules.
+The default option is entry date accounting.
+Once value date accounting has been turned on it can not be turned off.
+When value date accounting is turned on.  For any account transaction module transaction with forward value date(s).  The contingent section of the CRB base is updated with the forward amounts.  The currency Position file is updated for the value date, when foreign currency is involved.  On the value date the real entries are passed.
+If there is a split value date in the transaction then entries to local suspense account are used to maintain balanced entries each day.  Thus the second dates movements are in the suspense account between first and second value dates.
+The forward currency position can be revalued according to the details set up on the FX.PARAMETERS record.  See fields REVALUE.FWD.AL and FWD.AL.REVAL.CATEG.  Also the ACCOUNT.CLASS record EXCHALFWD needs to be set up.
+On this file the fields VALUE.DATED.ACCTING to SUSPENSE.HISTORY are used for value dated accounting processing.
+
+ALTERNATE ACCOUNT IDENTIFIERS When accounts have been taken over from another system it is useful to be able to enter the old systems account identifier.  This can be done by creating the file ALTERNATE.ACCOUNT during the takeover processing and then switch on the checking routine uses the field ALTERNATE.ACC.IDS on the ACCOUNT.PARAMETER file.
+
+CUSTOMER NUMBER WITH ACCOUNT NUMBER When the Customer Number is to be part of the Account Number, then the position of this within the Account Number is specified here.  When a new customer account is opened the system will check that the Customer Number in the key matches that in the record.
+Note: It must be noted that any change to the values in the fields will       only take effect after the user has signed off and then on again to       T24. */
+	ACCOUNT_PARAMETER
+		@t24:i (t24Name=ACCOUNT.PARAMETER, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Defines the name of the main record on the file.
+The single record on this file must always be named 'SYSTEM'.
+Validation Rules
+Can only be 'SYSTEM'. (Mandatory Input) */
+		KEY -> AC_Config:ACCOUNT_PARAMETER PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=0.0, core=true, t24Name=KEY)
+		/* Specifies the number of calendar days forward that cash flow balances are to be maintained for the purpose of accounting overrides and cash flow processing.
+The number of days entered here will determine the window period that cash flow balances are to be maintained on each account record. Each forward dated entry generated for an account will impact the cash flow balances if the date of the entry falls within this period.
+As an example, if the number of days entered is 10, then any forward dated entry raised online that has the value date less than ten calendar days from today will update the accounts cash flow balances. If this update causes either a limit to be exceeded or an unauthorised overdraft to occur, then an override message will appear on the transaction input.
+All entries raised online that fall outside the window will not update the account balances immediately and no override messages will appear, but when their value dates do fall within the window, the start of day process 'SOD.CASH.FLOW' will pull them in and update the account cash flow balances. If an exception occurs at this stage, then the CASH.FLOW.EXCEPTION file is updated to indicate this.
+If no value is entered here then only Nostro accounts will have cash flow maintained, and a default of ten calendar days is used for these.
+Validation Rules
+
+
+Up to 3 numeric characters. */
+		CASH_FLOW_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=CASH.FLOW.DAYS)
+		/* Switch to set value dated accounting on or off.
+If a value dated accounting system is required then this field should be set to 'Y'.
+Important Note: If Value Dated Accounting is to be switched ON, the parameter should be amended to Y before any user input takes place. Do not change this value if there are unauthorised transactions present (not IHLD status), as this can lead to a mismatch between the currency positions and CRF base.
+Validation Rules
+'Y' or 'NO'. Defaults to 'NO'. */
+		VALUE_DATED_ACCTNG : AC_Config:ACCOUNT_PARAMETER__VALUE_DATED_ACCTNG
+			@i18n:Label (en="Value Dtd Acctng Y/N")
+			@i18n:Tooltip (en="Specify \'Y\' if Value dated accounting is required")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=2.0, core=true, t24Name=VALUE.DATED.ACCTNG)
+		USE_PAY_RECEIVE : AC_Config:ACCOUNT_PARAMETER__USE_PAY_RECEIVE
+			@i18n:Label (en="Pay Rec Sys level")
+			@i18n:Tooltip (en="Susp Prc as Pay/Receive at Sys level")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=USE.PAY.RECEIVE)
+		VAL_DATE_SYS_ID -> byValue AC_Config:ACCOUNT_PARAMETER__VAL_DATE_SYS_ID *
+		VD_CAT_START -> byValue AC_Config:ACCOUNT_PARAMETER__VD_CAT_START *
+		VD_CAT_SYS_ID -> byValue AC_Config:ACCOUNT_PARAMETER__VD_CAT_SYS_ID *
+		ENTRY_CATEGORY -> byValue AC_Config:ACCOUNT_PARAMETER__ENTRY_CATEGORY *
+		/* Specifies the transaction code to be applied to the entry that is passed on the first value date of a split value dated transaction.
+When a split value dated transaction is processed in a value dated accounting system, then the first 'leg' will be balanced against a suspense account.
+This will be washed out when the second leg reaches value date.
+The movements into and out of suspense are consolidated together. The data for consolidation is: -   The System Id (DC, TT, FT) -   The SUS.CATEGORY code -   The date on which the transaction was originally input (Booking Date). -   The value date on the transaction i.e. the date on which the items are     removed from the Suspense account.
+Validation Rules
+1 - 3 numeric characters. (Optional input)
+If field VALUE.DATED.ACCTNG set to 'Y' then this field must be present.
+Must be a valid code on the TRANSACTION file.  In a multi company environment the TRANSACTION file for each company is checked. */
+		SUSPENSE_TXN_IN -> ST_Config:TRANSACTION
+			@i18n:Label (en="Suspense Txn In")
+			@i18n:Tooltip (en="Suspense Transaction In")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=32.0, core=true, t24Name=SUSPENSE.TXN.IN)
+		/* Specifies the transaction code to be applied to the entry that is passed on the second value date of a split value dated transaction.
+When a split value dated transaction is processed in a value dated accounting system, then the first 'leg' will be balanced against a suspense account.
+This will be washed out when the second leg reaches value date.
+The movements into and out of suspense are consolidated together. The data for consolidation is: -   The System Id (DC, TT, FT) -   The SUS.CATEGORY code -   The date on which the transaction was originally input (Booking Date). -   The value date on the transaction i.e. the date on which the items are     removed from the Suspense account.
+Validation Rules
+1 - 3 numeric characters (Optional input)
+If field VALUE.DATED.ACCTNG set to 'Y' then this field must be present.
+Must be a valid code on the TRANSACTION file.  In a multi company environment the TRANSACTION file for each company is checked. */
+		SUSPENSE_TXN_OUT -> ST_Config:TRANSACTION
+			@i18n:Label (en="Suspense Txn Out")
+			@i18n:Tooltip (en="Suspense Transaction Out")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=33.0, core=true, t24Name=SUSPENSE.TXN.OUT)
+		/* Specifies the number of days which suspense entry information is held for enquiry purposes.
+When value dated accounting is used, details of all entries suspensed for the associated Suspense category and date are held in the file SUSPENSE.HISTORY.  To prevent the file becoming too large data is only stored for the number of calendar days specified here.  If no input is made the default value is 65 days.
+Validation Rules
+1 to 3 numeric characters. (Optional input) */
+		SUSPENSE_HISTORY : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=34.0, core=true, t24Name=SUSPENSE.HISTORY)
+		/* Defines whether or not accounts can be referenced by an alternative key other than the mnemonic.
+When T24 is installed and involves a data take over, users may need to access accounts using the account number from the old system.  These account numbers will be loaded into the file, ALTERNATE.ACCOUNT, which will contain the link to the T24 account no.
+Entering Y in this field will ensure the system checks the ALTERNATE.ACCOUNT file for a possible record, before checking the T24 Account file.
+Validation Rules
+Y or N (Optional input) */
+		ALTERNATE_ACC_IDS : AC_Config:ACCOUNT_PARAMETER__ALTERNATE_ACC_IDS
+			@i18n:Label (en="Alternate Acc Ids")
+			@i18n:Tooltip (en="Alternate Account Ids")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=35.0, core=true, t24Name=ALTERNATE.ACC.IDS)
+		/* Specifies the start position of the customer code within account number throughout the system.  No input in this field implies that the customer code is not held within the account number, and is not required to be checked in the account application.
+Some formats of the account number use the customer number as part of the key.  In order to correctly validate the key, the starting position, and length of customer number should be defined using this field and the field CUST.CODE.LEN.
+Validation Rules
+1-2 numeric characters. (Optional input)
+Position cannot exceed the account mask length. */
+		CUSTOMER_CODE_POS : mml:Integer
+			@i18n:Label (en="Customer Code Pos")
+			@i18n:Tooltip (en="Customer Code Position")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=36.0, core=true, t24Name=CUSTOMER.CODE.POS)
+		/* Together with CUSTOMER.CODE.POS, this defines the length of the customer number within the account number.
+Some formats of the account number use the customer number as part of the key.  In order to correctly validate the key, the starting position, and length of customer number should be defined using this field and the field CUST.CODE.LEN.
+Validation Rules
+1 numeric character. (Optional input)
+Mandatory if CUSTOMER.CODE.POS is defined.
+Maximum length of 6. */
+		CUST_CODE_LEN : mml:Integer
+			@i18n:Label (en="Cust Code Len")
+			@i18n:Tooltip (en="Cust Code Length")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=37.0, core=true, t24Name=CUST.CODE.LEN)
+		/* This field determines whether T24 will maintain a record of Interest Movements in accordance with the parameter file
+INT.MOVEMENT.PARAM
+Default is NULL or NO, indicating that the live file
+INT.MOVEMENT will not be maintained.
+Input of Y (for Yes) indicates that the file is to be maintained.
+Validation Rules
+Valid inputs are NULL, NO or Y (optional input). */
+		INT_MVMT_UPDATE : AC_Config:ACCOUNT_PARAMETER__INT_MVMT_UPDATE
+			@i18n:Label (en="Int Mvmt Update")
+			@i18n:Tooltip (en="Int. Movement Update")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=38.0, core=true, t24Name=INT.MVMT.UPDATE)
+		ALTERNATE_ID -> byValue AC_Config:ACCOUNT_PARAMETER__ALTERNATE_ID *
+		/* FT TXN TYPE to be assigned to the funds transfer generated for an automatic account closure when the funds are to be transfered to an internal account.
+Validation Rules
+Up to 4 alphanumeric characters. Must be on the FT.TXN.TYPE.CONDITION file and begin 'AC'. */
+		CLOSURE_FT_TYPE_AC -> FT_Config:FT_TXN_TYPE_CONDITION
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=40.0, core=true, businessType=A, t24Name=CLOSURE.FT.TYPE.AC)
+		/* FT TXN TYPE to be assigned to the funds transfer generated for an automatic account closure when the funds are to be transfered externally.
+Validation Rules
+Up to 4 alphanumeric characters. Must be on the FT.TXN.TYPE.CONDITION file and begin 'BC'. */
+		CLOSURE_FT_TYPE_BC -> FT_Config:FT_TXN_TYPE_CONDITION
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=41.0, core=true, businessType=A, t24Name=CLOSURE.FT.TYPE.BC)
+		/* This field is used to hold any system overrides.
+
+Validation Rules
+Internal system field. */
+		VALUE_DATED_SINCE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=42.0, core=true, t24Name=VALUE.DATED.SINCE)
+		/* Defines the number of months that value dated information is to be retained on the system STMT.ENTRY identifiers are held on STMT.VAL.ENTRY by account number and value date. The PURGE.STMT.VAL.ENTRY routine uses the number of months defined here to calculate a date from today before which STMT.VAL.ENTRY records will be removed.
+Validation Rules
+Number of months between 1 and 99. */
+		VAL_NO_MONTHS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=43.0, core=true, t24Name=VAL.NO.MONTHS)
+		/* Indicates the last date on which the value dated information was last purged from STMT.VAL.ENTRY in accordance with the field VAL.NO.MONTHS The date in this field is updated when the PURGE.STMT.VAL.ENTRY routine is run.
+Validation Rules
+System maintained field. This is a NOINPUT field. */
+		LAST_VAL_PURGE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=44.0, core=true, t24Name=LAST.VAL.PURGE)
+		SYS_CODE -> byValue AC_Config:ACCOUNT_PARAMETER__SYS_CODE *
+		/* Defines whether the system performs payment NETTING.
+Validation Rules
+Y or N. (Optional input) */
+		NETT_PAYMENTS : AC_Config:ACCOUNT_PARAMETER__NETT_PAYMENTS
+			@i18n:Label (en="Nett Payments")
+			@i18n:Tooltip (en="Nett Payments")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=50.0, core=true, t24Name=NETT.PAYMENTS)
+		/* Defines whether local currency positions are revalued during BATCH end-of-day.
+Validation Rules
+Y or N. (Optional input) */
+		REVAL_LCCY_POS : AC_Config:ACCOUNT_PARAMETER__REVAL_LCCY_POS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=51.0, core=true, t24Name=REVAL.LCCY.POS)
+		/* This field signifies whether or not forward entries are to be raised for pending debit interest and or charges pertaining to the suspense account.
+Validation Rules
+Valid values are 'YES' or 'NO'. */
+		FWD_FOR_PEND_SUSP : AC_Config:ACCOUNT_PARAMETER__FWD_FOR_PEND_SUSP
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=52.0, core=true, t24Name=FWD.FOR.PEND.SUSP)
+		/* This field specifies the internal account category through which the auto payment movements will be passed.
+Validation Rules
+Input only allowed if 'EU' is installed */
+		AUTO_PAY_CATEG -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=53.0, core=true, t24Name=AUTO.PAY.CATEG)
+		/* This field is used to indicate whether or not the cheque issue & management functionality within T24 has been activated.
+Value entered here controls the default of cheque.type in DC/FT/TT application as well as payment   stop processing, which is explained below.
+CHEQUE TYPE DEFAULT IN DC/FT/TT
+If the Cheque.Register is set as Yes,
+If the transaction code used in DC/FT/TT, has cheque indicator as Yes in TRANSACTION file, then cheque.type will be defaulted as per the following:
+1.If the Debit account has a record in CHEQUE.TYPE.ACCOUNT, that cheque.type will be defaulted.
+2. If debit account has more than one record in CHEQUE.TYPE.ACCOUNT, then based on the range of cheque number issued for that account, appropriate cheque.type will be defaulted
+3. If debit account has more than one record in CHEQUE.TYPE.ACCOUNT and both cheque type has same range of cheque number issued, then User has to enter the cheque.type
+4. However user will not be able to enter a cheque.type, which is not available for the account in CHEQUE.TYPE.ACCOUNT.
+5. If it does not satisfies above condition, then it will default to NULL. If Cheque.Register set as NO or NULL, then cheque.type will default to NULL.
+PAYMENT STOP PROCESSING.
+If the Cheque.Register is set as Yes,
+1. Cheque type will be defaulted in payment stop as per the above cheque type defaulting mechanism.
+2. Payment stop override gets generated in DC/FT/DC processing only when the cheque.type and cheque.no entered in DC/FT/TT matches with the cheque.type and cheque.no in PAYMENT. STOP
+If the Cheque.Register is set as No,
+1. Cheque type will not be defaulted in the payment stop and can be null.
+2. Payment stop override will be raised if the cheque.no entered in the DC/FT/TT application matches with the PAYMENT.STOP cheque number irrespective of the Cheque.type
+For more information see the payment stop processing.
+Validation Rules
+
+
+Valid values are 'YES' or 'NO'
+Optional Input */
+		CHEQUE_REGISTER : AC_Config:ACCOUNT_PARAMETER__CHEQUE_REGISTER
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=54.0, core=true, t24Name=CHEQUE.REGISTER)
+		ACCOUNTING_SUBRTN -> byValue AC_Config:ACCOUNT_PARAMETER__ACCOUNTING_SUBRTN *
+		/* A value of NO in this field will allow the &#8230;ENT.TODAY file updates to be suppressed
+Validation Rules
+
+YES_NO field.
+For future use. */
+		ENT_TODAY_UPDATE : AC_Config:ACCOUNT_PARAMETER__ENT_TODAY_UPDATE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=56.0, core=true, t24Name=ENT.TODAY.UPDATE)
+		CHQ_DEP_TXN -> byValue AC_Config:ACCOUNT_PARAMETER__CHQ_DEP_TXN *
+		/* This field is used to specify a list of transaction codes that must invoke the processing related to the process of collecting funds on out clearing cheques. This field can be specified only if the fields DEF.COLL.SUSP, CHQ.DEP.TXN, CHQ.RET.TXN & DEF.RET.SUSP have been specified.
+By specifying a transaction here the accounting module will detect this situation and do the following processing:
+
+Change the status on the CHEQUE.COLLECTION record to 'CLEARED'
+Delete the forward entries created on client account
+Raise real entries to credit the client account with the cheque amount and debit the collection suspense account with the cheque amount
+Raise any charges and/or tax entries specified on the CHEQUE.COLLECTION record
+In a multi-company environment, if you have separate TRANSACTION files for each company and you want to use CHEQUE.COLLECTION then you must set up the same transaction codes for it in each company.
+Validation Rules
+
+
+Optional input
+DEF.COLL.SUSP, CHQ.DEP.TXN, CHQ.RET.TXN & DEF.RET.SUSP must also be specified
+If entered must not contain duplicates
+If entered must not be specified in the CHQ.DEP.TXN or CHQ.RET.TXN fields
+If entered must be an ID to a valid TRANSACTION record */
+		CHQ_COL_TXN -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=59.0, core=true, t24Name=CHQ.COL.TXN)
+		/* This field is used to specify a list of transaction codes that must invoke the processing related to the process of returning out clearing cheques. This field can be specified only if the fields DEF.COLL.SUSP, CHQ.DEP.TXN, CHQ.COL.TXN & DEF.RET.SUSP have been specified.
+By specifying a transaction here the accounting module will detect this situation and do the following processing:
+
+Change the status on the CHEQUE.COLLECTION record to 'RETURNED'
+Delete the forward entries created on client account
+Raise real entries to credit the return suspense with the cheque amount and debit the collection suspense account with the cheque amount
+Raise any charges and/or tax entries specified on the CHEQUE.COLLECTION record
+In a multi-company environment, if you have separate TRANSACTION files for each company and you want to use CHEQUE.COLLECTION then you must set up the same transaction codes for it in each company.
+Validation Rules
+
+
+Must be a valid TRANSACTION code */
+		CHQ_RET_TXN -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=60.0, core=true, t24Name=CHQ.RET.TXN)
+		/* This field is used to specify a suspense category that will be used in the processing related to the process of returning an out clearing cheque. This field can be specified only if the fields CHQ.DEP.TXN, CHQ.COL.TXN, CHQ.RET.TXN & DEF.COLL.SUSP have been specified.
+By specifying a transaction code the accounting module will detect this situation and do the following processing:
+
+Change the status on the CHEQUE.COLLECTION record to         'RETURNED'
+Delete the forward entries created on client account
+Raise real entries to credit the return suspense with the         cheque amount and debit the collection suspense account         with the cheque amount
+Raise any charges and/or tax entries specified on the         CHEQUE.COLLECTION record
+Validation Rules
+
+Optional input
+CHQ.DEP.TXN, CHQ.COL.TXN, CHQ.RET.TXN & DEF.COLL.SUSP         must also be specified
+If entered must be an ID to a valid CATEGORY record */
+		DEF_RET_SUSP -> ST_Config:CATEGORY
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=61.0, core=true, businessType=CAT, t24Name=DEF.RET.SUSP, typeModifiers=10000...19999, mask="R##-###")
+		RETURN_TXNS -> byValue AC_Config:ACCOUNT_PARAMETER__RETURN_TXNS *
+		/* This field is used to default a suspense account when you want to perform the automatic return cheque process on the FUNDS.TRANSFER application. The field is mandatory if the
+CHEQUE.REGISTER field has been entered otherwise it must not be entered.
+Validation Rules
+
+
+Must be a valid CATEGORY. */
+		RETURN_SUSP_CAT -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=N, maxLength=5, sysNumber=63.0, core=true, t24Name=RETURN.SUSP.CAT)
+		/* Defines the maximum number to be used when allocating the suffix for tax accounts.
+An option exists on the TAX record to allow a unique tax account key to be generated for each transaction, field UNIQUE.SUFFIX. If set to Y the last four digits will be a random number between 1 and this value. If this field is not specified a value of 20 will be assumed.
+Validation Rules
+
+
+Optional input
+Must be between 1 and 9999. */
+		MAX_TAX_SUFFIX : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=64.0, core=true, t24Name=MAX.TAX.SUFFIX)
+		/* This field can be used to decide whether charges applied on accounts opened in the middle of the month will include the first month or not.  Please note that after changing this field the user would need to log out and then log into T24 before its effect can be seen.
+Validation Rules
+
+
+Valid values are YES or NO */
+		CHARGE_FIRST_MONTH : AC_Config:ACCOUNT_PARAMETER__CHARGE_FIRST_MONTH
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=65.0, core=true, t24Name=CHARGE.FIRST.MONTH)
+		/* The transaction entries that are reflected in CRF for Debit/Credit movement depends upon the sign of the numeric entry.
+ie. if the sign of the transaction amount is negative it shown as a Debit movement and if it is positive it is shown as a Credit movement.
+The entry in this field along with in RE.TXN.CODE provides the facility to treat reversal entries as follows:
+YES - Reversal entries are reflected as the same CRF type and as the same type of movement as the original entry
+NO or  - Reversal entries are reflected as the same CRF type as the original entry but as an opposite movement
+Illustration:
+Consider the hypothetical situation where given below is the only activity.
+A Loan is drawndown on a Day1 and an EOD is run then the Loan is reversed out on Day 2.
+Accounting Entries:
+
+
+
+CRF Entries Without Reversal Marker/Flag:
+
+
+
+CRF Entries With Reversal Marker/Flag:
+
+
+Validation Rules */
+		CRF_REVERSAL_FLAG : AC_Config:ACCOUNT_PARAMETER__CRF_REVERSAL_FLAG
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=66.0, core=true, t24Name=CRF.REVERSAL.FLAG)
+		NET_OD_APPL -> byValue AC_Config:ACCOUNT_PARAMETER__NET_OD_APPL *
+		/* This field can store the
+CATEGORY code that will be used for all adjustments to debit interest for the previous month.
+Validation Rules
+Optional input
+
+Debit Interest Adjustment categories must be in the range 51000 to 51999 */
+		DR_ADJ_PREV_M : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=70.0, core=true, t24Name=DR.ADJ.PREV.M)
+		/* This field can store the
+CATEGORY code that will be used for all adjustments to debit interest for the previous year.
+Validation Rules
+Optional input
+
+Debit Interest Adjustment categories must be in the range 51000 to 51999 */
+		DR_ADJ_PREV_Y : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=71.0, core=true, t24Name=DR.ADJ.PREV.Y)
+		/* This field can store the
+CATEGORY code that will be used for all adjustments to debit2 interest for the previous month.
+Validation Rules
+Optional input
+
+Debit Interest Adjustment categories must be in the range 51000 to 51999 */
+		DR2_ADJ_PREV_M : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=72.0, core=true, t24Name=DR2.ADJ.PREV.M)
+		/* This field can store the
+CATEGORY code that will be used for all adjustments to debit2 interest for the previous year.
+Validation Rules
+Optional input
+
+Debit Interest Adjustment categories must be in the range 51000 to 51999 */
+		DR2_ADJ_PREV_Y : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=73.0, core=true, t24Name=DR2.ADJ.PREV.Y)
+		/* This field can store the
+CATEGORY code that will be used for all adjustments to credit interest for the previous month.
+Validation Rules
+Optional input
+
+Credit Interest Adjustment categories must be in the range 50000 to 50999 */
+		CR_ADJ_PREV_M : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=74.0, core=true, t24Name=CR.ADJ.PREV.M)
+		/* This field can store the
+CATEGORY code that will be used for all adjustments to credit interest for the previous year.
+Validation Rules
+Optional input
+
+Credit Interest Adjustment categories must be in the range 50000 to 50999 */
+		CR_ADJ_PREV_Y : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=75.0, core=true, t24Name=CR.ADJ.PREV.Y)
+		/* This field can store the
+CATEGORY code that will be used for all adjustments to credit2 interest for the previous month.
+Validation Rules
+Optional input
+
+Credit Interest Adjustment categories must be in the range 50000 to 50999 */
+		CR2_ADJ_PREV_M : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=76.0, core=true, t24Name=CR2.ADJ.PREV.M)
+		/* This field can store the
+CATEGORY code that will be used for all adjustments to credit2 interest for the previous year.
+Validation Rules
+Optional input
+
+Credit Interest Adjustment categories must be in the range 50000 to 50999 */
+		CR2_ADJ_PREV_Y : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=77.0, core=true, t24Name=CR2.ADJ.PREV.Y)
+		/* Identifies whether batch may be left unbalanced.
+YES
+The batch may be left unbalanced, the user may either process further with input or delete or hold the batch LOCK The batch cannot be left unbalanced,the user may either delete or hold the batch or process further with input NOTE:If set to either YES or LOCK,the feature of treating a batch as one transaction will be activated.This feature is only available in Classic and Desktop
+Validation Rules
+
+YES
+
+LOCK
+
+NULL */
+		DC_BALANCED : AC_Config:ACCOUNT_PARAMETER__DC_BALANCED
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=78.0, core=true, t24Name=DC.BALANCED)
+		CONT_DESC -> byValue AC_Config:ACCOUNT_PARAMETER__CONT_DESC *
+		/* Default contingent debit transaction code
+Validation Rules
+Should be a valid entry in TRANSACTION table. */
+		CONT_DR_TXN -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=82.0, core=true, t24Name=CONT.DR.TXN)
+		/* Default contingent credit transaction code
+Validation Rules
+Should be a valid entry on the  TRANSACTION table. */
+		CONT_CR_TXN -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=83.0, core=true, t24Name=CONT.CR.TXN)
+		/* Allows amortisation of foreign currency commissions to be processed in local currency.  This field should be set at initial system setup.
+
+Default is blank meaning commissions are accrued in the commission currency. */
+		AMORT_IN_LOCAL : AC_Config:ACCOUNT_PARAMETER__AMORT_IN_LOCAL
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=84.0, core=true, t24Name=AMORT.IN.LOCAL)
+		/* Identifies on which balance, overdraft and limit checking should be made for all accounts. It can also be set at ACCOUNT level or at the ACCT.GROUP.CONDITION. The flag will be selected in the following order:
+1. ACCOUNT
+2. ACCT.GROUP.CONDITION, if not set at ACCOUNT level
+3. ACCOUNT.PARAMETER, if not set at ACCT.GROUP.CONDITION level
+Validation Rules
+
+AVAILABLE: Credit checking is made using AVAILABLE.BAL
+WORKING: Credit checking is made using WORKING.BALANCE
+FORWARD: Credit checking is made using WORKING.BALANCE plus today's forward movements.
+AVAILWORK: Credit checking is made using AVAILABLE.BAL and WORKING.BALANCE.
+AVAILFWD: Credit checking is made using AVAILABLE.BAL and WORKING.BALANCE plus today's forward movements.
+BLANK: The default checking is using WORKING.BALANCE */
+		CREDIT_CHECK : AC_Config:ACCOUNT_PARAMETER__CREDIT_CHECK
+			@t24:i (align=L, inputBehaviour=I, maxLength=9, sysNumber=85.0, core=true, t24Name=CREDIT.CHECK)
+		/* It identifies whether
+
+Unauthorised debits or Unauthorised credits , or both or none of them
+It will be selected in the following order:
+1.ACCOUNT
+2.ACCT.GROUP.CONDITION (if ACCOUNT is blank)
+3.ACCOUNT.PARAMETER (if ACCT.GROUP.CONDITION is blank)
+For example if nothing is set at ACCOUNT level then the ACCT.GROUP.CONDITION is checked and if still nothing is set at this level, the ACCOUNT.PARAMETER is checked.
+Validation Rules
+
+
+BOTH - Unauthorised debits and credits to be included in the available balance NONE - No unauthorised movements to be included in the available balance DEBITS - Only unauthorised debits to make up available balance CREDITS - Only unauthorised credits to make up available balance The default will be No authorised movements to be included in the available balance */
+		AVAILABLE_BAL_UPD : AC_Config:ACCOUNT_PARAMETER__AVAILABLE_BAL_UPD
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=86.0, core=true, t24Name=AVAILABLE.BAL.UPD)
+		/* Specifies the routine to be called in the core accounting routine to raise any overrides from a
+locally developed accounting sub routine. This routine will accept accounting entries, and optionally return a list of override messages at the input phase of any transaction within T24.
+An example program namely AC.TEST.NAU is provided to test this functionality.
+Validation Rules
+
+
+Upto 35 alphanumeric characters.
+Input must exist on PGM.FILE as type S (subroutine) program
+. */
+		ACCT_NAU_SUBRTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=87.0, core=true, t24Name=ACCT.NAU.SUBRTN)
+		/* To indicate how entry Ids should be updated in the corresonding ECB record and EB.CONTRIES.
+
+ALL : This will update all entries in ECB and EB.CONTRACT.ENTRIES.  If entry count is more than 100 then latest 100 entries updated in ECB, rest will be updated in new live file in splits and split info will be maintained in ECB.
+
+NO or null : This will update no entries in ECB 3.
+
+RECENT : This will update only recent (100) entries in ECB and this should not maintain or update the split entries in EB.CONTRACT.ENTRIS. */
+		UPDATE_ENTRIES : AC_Config:ACCOUNT_PARAMETER__UPDATE_ENTRIES
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=88.0, core=true, t24Name=UPDATE.ENTRIES)
+		GENERIC_CHARGES : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=1, sysNumber=89.0, core=true, t24Name=GENERIC.CHARGES)
+		ACCT_CATEG_DESC -> byValue AC_Config:ACCOUNT_PARAMETER__ACCT_CATEG_DESC *
+		/* Defines whether the system uses CUSTOMER.SSI application for defaulting the settlement accounts during input of contract in applications such as LD, MM, etc.
+Validation Rules
+
+
+Values allowed YES or blank (optional field)
+
+Input in CUSTOMER.SSI Application & defaulting of       settlement accounts as mentioned above is allowed only when value in       this field is "YES". */
+		CUSTOMER_SSI : AC_Config:ACCOUNT_PARAMETER__CUSTOMER_SSI
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=93.0, core=true, t24Name=CUSTOMER.SSI)
+		ADJ_TRADE_DATE_BAL : AC_Config:ACCOUNT_PARAMETER__ADJ_TRADE_DATE_BAL
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=94.0, core=true, t24Name=ADJ.TRADE.DATE.BAL)
+		/* Will allow the initial sign to be based on the first movement only. For large volumes of new accounts this should be
+set to minimise the work done in EOD.CRF.AL.UPDATE.
+
+Validation Rules:
+
+Can be Y, NO or null. */
+		NEW_ACCT_PROCESS : AC_Config:ACCOUNT_PARAMETER__NEW_ACCT_PROCESS
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=95.0, core=true, t24Name=NEW.ACCT.PROCESS)
+		/* Field to indicate if Available funds should be updated using exposure date of the entry for credits.
+
+Validation Rules:
+
+Y or No. Y is to update Available funds */
+		EXPOSURE_DATED_AF : AC_Config:ACCOUNT_PARAMETER__EXPOSURE_DATED_AF
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=96.0, core=true, t24Name=EXPOSURE.DATED.AF)
+		/* To indicate if the file STMT.VAL.ENTRY is to be updated or not.
+
+Validation Rules:
+Possible Values YES  or NO.  YES will update STMT.VAL.ENTRY . NO will not update STMT.VAL.ENTRY. The default is 'NO'. */
+		UPD_STMT_VAL_ENTRY : AC_Config:ACCOUNT_PARAMETER__UPD_STMT_VAL_ENTRY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=97.0, core=true, t24Name=UPD.STMT.VAL.ENTRY)
+		/* The credit Transaction code to be used for Online closure of Account.
+
+Validation Rules
+
+Must be a valid Id to Transaction File */
+		CLOSURE_CR_TXN -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=98.0, core=true, t24Name=CLOSURE.CR.TXN)
+		/* The debit Transaction code to be used for Online closure of Account.
+
+Validation Rules
+Must be a valid Id to Transaction File */
+		CLOSURE_DR_TXN -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=99.0, core=true, t24Name=CLOSURE.DR.TXN)
+		/* Option to always include the session number in the key of the consolidated entires and the CAL/CPL work files. If set to YES, then the session number is always used in the key. If NO or null, then the system will first try to update the record without session number in the key, if locked then session number is used in the key.
+
+Validation Rules
+
+Valid Options YES, NO or null */
+		USE_SESSION_NO : AC_Config:ACCOUNT_PARAMETER__USE_SESSION_NO
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=100.0, core=true, t24Name=USE.SESSION.NO)
+		/* Set this field to "YES" to bypass updates to the TXN.JOURNAL. */
+		BYPASS_TXN_JOURNAL : AC_Config:ACCOUNT_PARAMETER__BYPASS_TXN_JOURNAL
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=101.0, core=true, t24Name=BYPASS.TXN.JOURNAL)
+		/* Set this field to "YES" to bypass updates to the JOURNAL.SUMMARY. */
+		BYPASS_JOURNAL_SUMMARY : AC_Config:ACCOUNT_PARAMETER__BYPASS_JOURNAL_SUMMARY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=102.0, core=true, t24Name=BYPASS.JOURNAL.SUMMARY)
+		INT_ADJ_TYPE -> byValue AC_Config:ACCOUNT_PARAMETER__INT_ADJ_TYPE *
+		/* It identifies whether credit checking on Locked amounts will  include the Limit if account  has locked funds and is linked to a Limit. It will be selected in the following order:
+1. ACCOUNT
+2. ACCT.GROUP.CONDITION (if ACCOUNT is blank)
+3. ACCOUNT.PARAMETER (if ACCT.GROUP.CONDITION is blank)
+For example if nothing is set at ACCOUNT level then the ACCT.GROUP.CONDITION is checked and if still nothing is set at this level, the ACCOUNT.PARAMETER is checked.
+Validation Rules
+YES:  Locked amount checking to use Limit
+NO:   Locked amount checking not to use Limit
+Blank: The default setting is not to use Limit */
+		LOCKED_WITH_LIMIT : AC_Config:ACCOUNT_PARAMETER__LOCKED_WITH_LIMIT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=107.0, core=true, t24Name=LOCKED.WITH.LIMIT)
+		RAISE_VD_ENTRIES : AC_Config:ACCOUNT_PARAMETER__RAISE_VD_ENTRIES
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=108.0, core=true, t24Name=RAISE.VD.ENTRIES)
+		LOCK_INC_THIS_MVMT : AC_Config:ACCOUNT_PARAMETER__LOCK_INC_THIS_MVMT
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=109.0, core=true, t24Name=LOCK.INC.THIS.MVMT)
+		REVERSE_TURNOVER : AC_Config:ACCOUNT_PARAMETER__REVERSE_TURNOVER
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=110.0, core=true, t24Name=REVERSE.TURNOVER)
+		VD_TYPE_BY_ENTRY : AC_Config:ACCOUNT_PARAMETER__VD_TYPE_BY_ENTRY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=111.0, core=true, t24Name=VD.TYPE.BY.ENTRY)
+		UPDATE_PL_ACTIVITY : AC_Config:ACCOUNT_PARAMETER__UPDATE_PL_ACTIVITY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=112.0, core=true, t24Name=UPDATE.PL.ACTIVITY)
+		SUPRESS_CONT_CRF : AC_Config:ACCOUNT_PARAMETER__SUPRESS_CONT_CRF
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=113.0, core=true, t24Name=SUPRESS.CONT.CRF)
+		NO_UNAU_KEYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=114.0, core=true, t24Name=NO.UNAU.KEYS)
+		HVT_MERGE_INTERVAL : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=115.0, core=true, t24Name=HVT.MERGE.INTERVAL)
+		RETAIN_AC_BALANCES : AC_Config:ACCOUNT_PARAMETER__RETAIN_AC_BALANCES
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=116.0, core=true, t24Name=RETAIN.AC.BALANCES)
+		EXPOSURE_ADJ_CR_TXN -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=117.0, core=true, t24Name=EXPOSURE.ADJ.CR.TXN)
+		EXPOSURE_ADJ_DR_TXN -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=118.0, core=true, t24Name=EXPOSURE.ADJ.DR.TXN)
+		CONSOLIDATE_ENTRIES : AC_Config:ACCOUNT_PARAMETER__CONSOLIDATE_ENTRIES
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=119.0, core=true, t24Name=CONSOLIDATE.ENTRIES)
+		POSTING_RESTRICT : AC_Config:ACCOUNT_PARAMETER__POSTING_RESTRICT
+			@i18n:Label (en="Posting Restriction")
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=120.0, core=true, t24Name=POSTING.RESTRICT)
+		UPDATE_CONT_ACTIVITY : AC_Config:ACCOUNT_PARAMETER__UPDATE_CONT_ACTIVITY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=121.0, core=true, t24Name=UPDATE.CONT.ACTIVITY)
+		TDGL_CREDIT_CHECK : AC_Config:ACCOUNT_PARAMETER__TDGL_CREDIT_CHECK
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=122.0, core=true, t24Name=TDGL.CREDIT.CHECK)
+		RESERVED09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=123.0, core=true, t24Name=RESERVED09)
+		RESERVED08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=124.0, core=true, t24Name=RESERVED08)
+		RESERVED07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=125.0, core=true, t24Name=RESERVED07)
+		RESERVED06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=126.0, core=true, t24Name=RESERVED06)
+		RESERVED05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=127.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=128.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=129.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=130.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=131.0, core=true, t24Name=RESERVED01)
+		OVERRIDE -> byValue AC_Config:ACCOUNT_PARAMETER__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=134.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=135.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AC_Config:ACCOUNT_PARAMETER__INPUTTER *
+		DATE_TIME -> byValue AC_Config:ACCOUNT_PARAMETER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=138.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=139.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=140.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=141.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=142.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ACCOUNT_PARAMETER__VAL_DATE_SYS_ID
+	{
+		/* A valid EB.SYSTEM.ID record key. This field allows the user to determine whether individual T24 products should have their accounting treated as trade or value dated. This setting will be overridden for any entries whose CATEGORY codes fall within a valid VD.CAT.START/END range. Products set to value date accounting cannot be reset to trade dated accounting.
+Validation Rules */
+		VAL_DATE_SYS_ID -> EB_SystemTables:EB_SYSTEM_ID
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=4.0, core=true, businessType=A, t24Name=VAL.DATE.SYS.ID)
+		/* Y/NO entry. If Y, any entries with the associated EB.SYSTEM.ID as their product code will be treated as value dated. Products set to value date accounting cannot be reset to trade dated accounting.
+Validation Rules */
+		VAL_DATE_BY_SYS : AC_Config:ACCOUNT_PARAMETER__VAL_DATE_SYS_ID__VAL_DATE_BY_SYS
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=5.0, core=true, t24Name=VAL.DATE.BY.SYS)
+		/* Date since EB.SYSTEM.ID set to value dated.
+Validation Rules */
+		VD_SYS_SINCE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=6.0, core=true, t24Name=VD.SYS.SINCE)
+		USE_PAY_REC_SYS : AC_Config:ACCOUNT_PARAMETER__VAL_DATE_SYS_ID__USE_PAY_REC_SYS
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=7.0, core=true, t24Name=USE.PAY.REC.SYS)
+		MVRESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=MVRESERVED3)
+	}
+	ACCOUNT_PARAMETER__VD_CAT_START
+	{
+		/* A valid CATEGORY record key. The start of a range of category codes that the bank wishes to define trade or value dated accounting treatment for.
+Validation Rules
+
+
+Category codes entered must be in the range 10000        19999 or 50000  69999. */
+		VD_CAT_START -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=9.0, core=true, t24Name=VD.CAT.START)
+		/* A valid CATEGORY record key. The end of a range of category codes that the bank wishes to define trade or value dated accounting treatment for.
+Validation Rules
+
+
+
+Category codes entered must be in the range 10000  19999 or 50000  69999.
+
+Category code must be greater than that specified in the corresponding VD.CAT.START. */
+		VD_CAT_END -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=10.0, core=true, t24Name=VD.CAT.END)
+		/* Y/NO entry. If Y, any entries with a CATEGORY code in the associated range will be treated as value dated. Category ranges set to value date accounting cannot be reset to trade dated accounting.
+Validation Rules */
+		VAL_DATE_BY_CAT : AC_Config:ACCOUNT_PARAMETER__VD_CAT_START__VAL_DATE_BY_CAT
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=11.0, core=true, t24Name=VAL.DATE.BY.CAT, mvSvExpansionAccess=NODELETE)
+		/* Date since CATEGORY range set to value dated.
+Validation Rules */
+		VD_CAT_SINCE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=12.0, core=true, t24Name=VD.CAT.SINCE)
+		USE_PAY_REC_CAT : AC_Config:ACCOUNT_PARAMETER__VD_CAT_START__USE_PAY_REC_CAT
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=13.0, core=true, t24Name=USE.PAY.REC.CAT, mvSvExpansionAccess=NODELETE)
+		MVRESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=MVRESERVED1, mvSvExpansionAccess=NODELETE)
+	}
+	ACCOUNT_PARAMETER__VD_CAT_SYS_ID
+	{
+		VD_CAT_SYS_ID -> EB_SystemTables:EB_SYSTEM_ID
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=15.0, core=true, businessType=A, t24Name=VD.CAT.SYS.ID)
+		VD_CAT_SYS_START -> byValue AC_Config:ACCOUNT_PARAMETER__VD_CAT_SYS_ID__VD_CAT_SYS_START *
+		CATRESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=CATRESERVED10, mvSvExpansionAccess=NODELETE)
+		CATRESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=CATRESERVED9, mvSvExpansionAccess=NODELETE)
+		CATRESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=CATRESERVED8, mvSvExpansionAccess=NODELETE)
+		CATRESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=CATRESERVED7, mvSvExpansionAccess=NODELETE)
+		CATRESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=CATRESERVED6, mvSvExpansionAccess=NODELETE)
+		CATRESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=25.0, core=true, t24Name=CATRESERVED5, mvSvExpansionAccess=NODELETE)
+		CATRESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=26.0, core=true, t24Name=CATRESERVED4, mvSvExpansionAccess=NODELETE)
+		CATRESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=27.0, core=true, t24Name=CATRESERVED3, mvSvExpansionAccess=NODELETE)
+		CATRESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=28.0, core=true, t24Name=CATRESERVED2, mvSvExpansionAccess=NODELETE)
+		CATRESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=CATRESERVED1, mvSvExpansionAccess=NODELETE)
+	}
+	ACCOUNT_PARAMETER__VD_CAT_SYS_ID__VD_CAT_SYS_START
+	{
+		VD_CAT_SYS_START -> ST_Config:CATEGORY
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=16.0, core=true, businessType=A, t24Name=VD.CAT.SYS.START)
+		VD_CAT_SYS_END -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=17.0, core=true, t24Name=VD.CAT.SYS.END)
+		VAL_DATE_BY_CAT_SYS : AC_Config:ACCOUNT_PARAMETER__VD_CAT_SYS_ID__VD_CAT_SYS_START__VAL_DATE_BY_CAT_SYS
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=18.0, core=true, t24Name=VAL.DATE.BY.CAT.SYS)
+		USE_PAY_RECEIVE_CAT_SYS : AC_Config:ACCOUNT_PARAMETER__VD_CAT_SYS_ID__VD_CAT_SYS_START__USE_PAY_RECEIVE_CAT_SYS
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=19.0, core=true, t24Name=USE.PAY.RECEIVE.CAT.SYS)
+	}
+	ACCOUNT_PARAMETER__ENTRY_CATEGORY
+	{
+		/* Category and position type of account/p&l entry which will determine the suspense account to be used when operating in a value dated accounting system.
+If the position type for the ENTRY CATEGORY does not exist, then the entry category alone is used to determine the suspense category. Else the defualt suspsense category is used.
+Format of ENTRY.CATEGORY will either be CATEGORY-FX.POS.TYPE or CATEGORY
+When a split value dated transaction is processed in a value dated accounting system then the first 'leg' will be balanced against a suspense account.
+This will be washed out when the second leg reaches its value date.  The suspense account that is used is determined by the category of the second leg entry. This field and its associated field SUS.CATEGORY define this relationship,  e.g.
+3.1        ENTRY.CATEGORY
+4.1        SUS.CATEGORY       19998
+3.2        ENTRY.CATEGORY      5000-XX
+4.2        SUS.CATEGORY       19999
+3.3        ENTRY.CATEGORY 51000
+4.2        SUS.CATEGORY 12999
+ENTRY.CATEGORY is a start of range value. Hence in this example 'second leg' entries with a category in the range 0 - 4999 will be suspensed using account LCL199980001 (where LCL = local currency code). Entries with a category 5000 and above will be suspensed using LCL199990001. To define one suspense account for all categories simple define:
+3.1        ENTRY.CATEGORY
+4.1        SUS.CATEGORY       19998
+The purpose of these fields is to allow you to split suspense movements, for value dated accounting, within the CRB. For example you may want to report entries suspensed for Nostros separately from entries suspensed for current accounts.
+Validation Rules
+
+Category must be valid entry in the CATEGORY file
+Position type must be a valid entry in FX.POS.TYPE. */
+		ENTRY_CATEGORY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=30.0, core=true, t24Name=ENTRY.CATEGORY)
+		/* The suspense category to be used, for split value dated transactions, in association with field ENTRY.CATEGORY.
+See ENTRY.CATEGORY for further details.
+Validation Rules
+Numeric 10000-19999. */
+		SUS_CATEGORY -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=31.0, core=true, t24Name=SUS.CATEGORY)
+	}
+	ACCOUNT_PARAMETER__ALTERNATE_ID
+	{
+		/* Allows entry of any alternate account systems in use.
+Alternate account identification systems in use on a client site may be linked to the T24 Account application by means of this field.
+Validation Rules
+Up to 10 characters. Multi-valued field. Optional input.
+Must be defined as an alternate account system in the ALT.ACCT.PARAMETER application.
+Entries may be added to this field, but otherwise no amendments are allowed. */
+		ALTERNATE_ID -> ACM_AccountOpening:ALT_ACCT_PARAMETER
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=39.0, core=true, businessType=A, t24Name=ALTERNATE.ID)
+	}
+	ACCOUNT_PARAMETER__SYS_CODE
+	{
+		/* Identifies the code of the application transaction, i.e. (MM for Money Market, SC for Securities). A value of 'ALL' is allowed to specify all transaction types.
+Securities type transactions may also have their sub groups specified, i.e. (SC-SSL), corresponding to the security transaction type.
+Other applications may define an optional suffix separted by a "-". There is no validation on this element, details of valid suffixes may be found in the relevant user guide or application helptext.
+For example the Money Market application uses the following suffixes:
+MM-DD   Drawdown Account Default
+MM-PRIN Principal Liquidation Account
+MM-INT  Interest Liquidation Account
+Validation Rules
+
+Optional Input field.
+The SYS.CODE used must have valid record in the application AC.SYS.CODES. */
+		SYS_CODE -> AC_Config:AC_SYS_CODES
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=45.0, core=true, businessType=A, t24Name=SYS.CODE)
+		/* Specifies how Settlement Accounts are to be defaulted when using a Nostro Account for the associated account.
+Values allowed -    A Null may be entered implying always defaulted.    'AGENCY' implys only default  when Agency conditions             exist.    'NONE' implys no Nostro account to be defaulted.
+Validation Rules
+Input only allowed if an associated value in SYS.CODE. */
+		NOSTRO_DEFAULT : AC_Config:ACCOUNT_PARAMETER__SYS_CODE__NOSTRO_DEFAULT
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=46.0, core=true, t24Name=NOSTRO.DEFAULT)
+		/* Defines whether an override is required when the Default account number does not match the account number input on the deal.
+Additionally if the Account with Bank, Intermediary Bank or Beneficiary account number differ from the default derived from the information on the Agency file an override will be required if this field is set to 'YES'.
+Input may be 'YES' or 'NO'.
+Validation Rules
+Default value is 'NO'. */
+		DEF_OVERRIDE : AC_Config:ACCOUNT_PARAMETER__SYS_CODE__DEF_OVERRIDE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=47.0, core=true, t24Name=DEF.OVERRIDE)
+		/* (Modification done in G14.2.00)
+Defines whether an account is to be defaulted when there exists more than one possible default account. Input may be 'YES' or 'NO'.
+Effective G14.2.00, two more options had been added.  They are applicable in MULTI BOOK environment only.  The options added are 'CUR' and 'FRS'
+In multi book environment all the accounts are stored on the same table.  The possible defaulting is now available as follows in multi book environment
+YES - First account of the customer in any company will be defaulted.
+CUR - First account of the customer in current company only will be defaulted.
+FRS - First account of the customer in the current company as first choice followed by first available account in any company will be defaulted
+NO - If more than one account is present in the current company, then no defaulting takes place.
+Validation Rules
+
+Optional input field.
+Only allowed if an associated SYS.CODE present.
+The options 'CUR' and 'FRS' are available in Multi-Book environment only.
+If the options 'CUR' or 'FRS' is accessed in Multi-Company environment,   online error message will appear. */
+		USE_FIRST_ACCT : AC_Config:ACCOUNT_PARAMETER__SYS_CODE__USE_FIRST_ACCT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=48.0, core=true, t24Name=USE.FIRST.ACCT)
+		/* Specifies whether standard defaulting is to be applied for the associated SYS.CODE.
+No value in this field denotes that the standard defaulting rules for the application will be applied for an account of the specified SYS.CODE.
+If this field contains the value NONE then NO standard defaulting will be performed for accounts of that type. The underlying application may apply it's own specific defaulting rules if this is defined as NONE.
+Example:
+1. The MM application is required to default the Drawdown account in the    standard manner (portfolio, VOSTRO account, Customer account, Nostro    account), PRIN.LIQ.ACCT and INT.LIQ.ACCT should use the Drawdown    account as the default. An override is required if a different account    is entered from the default, and if more than one possible default is    found the first account should be used.
+The definition in ACCOUNT.PARAMETER should be:
+SYS.CODE       MM-DD  MM-PRIN MM-INT    DEF.OVERRIDE     Y      Y       Y    USE.FIRST.ACCT   Y      Y       Y    DEFAULT.ORDER          NONE    NONE
+When the money market deal is entered, if a Drawdown account has been    entered or defaulted, and no input (or return) is entered in the    PRIN.LIQ or INT.LIQ accounts, the drawdown account will be defaulted.    Note that this processing is specific to the Money Market application    and may not necessarily operate in the same manner for other    applications.
+2. As per the above example except that the PRIN.LIQ.ACCT and INT.LIQ.ACCT    should always default according to the standard rules.
+The definition in ACCOUNT.PARAMETER should be
+SYS.CODE       MM    DEF.OVERRIDE   Y    USE.FIRST.ACCT Y    DEFAULT.ORDER
+Note this could also be defined as
+SYS.CODE       MM-DD  MM-PRIN MM-INT    DEF.OVERRIDE     Y      Y       Y    USE.FIRST.ACCT   Y      Y       Y    DEFAULT.ORDER
+On input of DRAWDOWN, PRIN.LIQ and INT.LIQ accounts, the system will    attempt to default according to the standard rules.
+In case the underlying Contract Customer (eg. Customer.id in MONEYMARKET, Counterparty in FOREX) has a matching record in CUSTOMER.SSI application, then the account numbers for the relevant settlement fields get defaulted as per the definition for that Customer in CUSTOMER.SSI.
+For example
+Let the definition in ACCOUNT.PARAMETER be
+SYS.CODE MM DEF.OVERRIDE Y USE.FIRST.ACCT Y DEFAULT.ORDER
+Try creating a MM contract in a currency for a customer who has a record in CUSTOMER.SSI with the same combination. The relevant settlement fields such as Drawdown account , Principal liquidation account and Interest liquidation account get defaulted with the accounts defined in the matching record in CUSTOMER.SSI.
+The rules for defaulting will vary according to the application, the    user guide should be consulted for details.
+Validation Rules
+
+Optional field. NONE is the only acceptable input. */
+		DEFAULT_ORDER : AC_Config:ACCOUNT_PARAMETER__SYS_CODE__DEFAULT_ORDER
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=49.0, core=true, t24Name=DEFAULT.ORDER)
+	}
+	ACCOUNT_PARAMETER__ACCOUNTING_SUBRTN
+	{
+		/* Specifies the routine to be called in EB.ACCOUNTING to export accounting
+
+entries from T24.
+
+The 4 arguments passed to the subroutine are as follows:
+1 The type on entry can be -
+"STMT" for a STMT.ENTRY
+"FWD" for a forward STMT.ENTRY i.e the key begins F...
+"CATG" for a CATEG.ENTRY
+"SPEC" for an RE.CONSOL.SPEC.ENTRY
+"CONSOL" for a CONSOL.ENT.TODAY entry
+
+2 the accounting type that is passed
+Values can be as follows for authorised non forward entries
+"AUT" , "VALAUT", "ADD.AUT", "SAO"
+"AUT" indicates that entries are being authorised
+"VALAUT" and "ADD.AUT" indicate that entries are being validated and authorised
+"SAO" indicates that entries are being authorised with automatic acceptance of overrides which will be stored in the override field of the passed entry
+
+Values can be as follows for authorised forward entries
+"AUT", "SNP.AUT" REV.AUT
+NB when a forward contract is reversed before the value date the FWD.STMT entries will be reversed, with no "real" accounting having taken place, the TYPE used here is REV.AUT. Often the forward entries will be replaced by "real" entries as the contract becomes active, for example when the processing date is reached on a forward valued FT contract.
+3 the record @id of the entry
+4 the actual entry
+
+NB: Reversal entries can be identified by "REV" in the RECORD.STATUS field
+
+
+
+
+This is a locally developed routine that will be called during the
+
+Accounting phase of any transaction within T24.
+
+Validation Rules
+
+Upto 35 alphanumeric characters.
+
+Input must exist on PGM.FILE as type S (subroutine) program. */
+		ACCOUNTING_SUBRTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=55.0, core=true, t24Name=ACCOUNTING.SUBRTN)
+	}
+	ACCOUNT_PARAMETER__CHQ_DEP_TXN
+	{
+		/* This field is used to specify a list of transaction codes that must invoke the processing related to the process of depositing an out clearing cheque into a client's account. This field can be specified only if the fields DEF.COLL.SUSP, CHQ.COL.TXN, CHQ.RET.TXN & DEF.RET.SUSP have been specified.
+By specifying a transaction here the accounting module will detect this situation and do the following processing:
+
+Change the underlying client account to which the funds are being deposited to a suspense account (constructed using the CHQ.COLL.SUSP field on the BC.SORT.CODE file or the DEF.COLL.SUSP on this file)
+Create a CHEQUE.COLLECTION record with an initial status of 'DEPOSITED'
+The CHEQUE.COLLECTION record can further be batched by using the CHEQUE.BATCH application. Refer to helptext for the CHEQUE.BATCH application.
+In a multi-company environment, if you have separate TRANSACTION files for each company and you want to use CHEQUE.COLLECTION then you must set up the same transaction codes for it in each company.
+Validation Rules
+
+
+Optional input
+DEF.COLL.SUSP, CHQ.COL.TXN, CHQ.RET.TXN & DEF.RET.SUSP must also be specified
+If entered must not contain duplicates
+If entered must not be specified in the CHQ.COL.TXN or CHQ.RET.TXN fields
+If entered must be an ID to a valid TRANSACTION record */
+		CHQ_DEP_TXN -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=57.0, core=true, t24Name=CHQ.DEP.TXN)
+		/* This field is used to specify a suspense category that will be used in the processing related to the process of depositing an out clearing cheque into a client's account. This field can be specified only if the fields CHQ.DEP.TXN, CHQ.COL.TXN, CHQ.RET.TXN & DEF.RET.SUSP have been specified.
+By specifying a transaction here the accounting module will detect this situation and do the following processing:
+
+Change the underlying client account to which the funds         are being deposited to a suspense account (constructed         using the CHQ.COLL.SUSP field on the BC.SORT.CODE file or         the DEF.COLL.SUSP on this file)
+Create a CHEQUE.COLLECTION record with an initial status         of 'DEPOSITED'
+The CHEQUE.COLLECTION record can further be batched by using the CHEQUE.BATCH application. Refer to helptext for the CHEQUE.BATCH application.
+Validation Rules
+
+Optional input
+CHQ.DEP.TXN, CHQ.COL.TXN, CHQ.RET.TXN & DEF.RET.SUSP         must also be specified
+If entered must be an ID to a valid CATEGORY record */
+		DEF_COLL_SUSP -> ST_Config:CATEGORY
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=58.0, core=true, businessType=CAT, t24Name=DEF.COLL.SUSP, typeModifiers=10000...19999, mask="R##-###")
+	}
+	ACCOUNT_PARAMETER__RETURN_TXNS
+	{
+		/* This is a multi-valued field that is used to trigger the update to the CHEQUE.REGISTER record when cheques issued to the banks clients are being returned. If entered it must not have been specified in any of the field
+CHQ.DEP.TXN CHQ.COL.TXN or CHQ.RET.TXN.
+The field is mandatory if the
+CHEQUE.REGISTER field has been entered otherwise it must be left blank In a multi-company environment, if you have separate TRANSACTION files for each company and you want to use CHEQUE.REGISTER then you must set up the same transaction code for returned cheques in each company.
+Validation Rules
+
+
+Must be a valid TRANSACTION code */
+		RETURN_TXNS -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=62.0, core=true, t24Name=RETURN.TXNS)
+	}
+	ACCOUNT_PARAMETER__NET_OD_APPL
+	{
+		/* This field is used to specify the T24 application for which debit and credit entries to an account in a transaction should be netted for displaying overdraft and cash flow overrides.
+
+Example:
+T24 application LD.LOANS.AND.DEPOSITS, in a discounted LOAN contract the following accounting entries are generated.
+1. Debit entries for the interest on the value date
+2. Credit entries for the principal on the value date.
+3.Debit entries for the principal on the maturity date .
+When the amounts in the entries for value date is summed up , the net is a credit .Hence when this functionality is applied, the account overdraft override is not displayed.
+If the maturity date or any other future schedules falls within CASH.FLOW.DAYS the amount in forward entries are netted to see if it is a debit or credit . Again, if on that date the net effect is a credit to the account then no cash flow overdraft override is displayed for that date, otherwise an override is displayed as usual.
+
+Validation Rules
+At present, entry restricted to LD. */
+		NET_OD_APPL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=67.0, core=true, t24Name=NET.OD.APPL)
+		/* This field is used to specify whether the override suppression functionality should be enabled for the application set in NET.OD.APPL.
+Defaults to 'NO' if NET.OD.APPL has value.
+
+Validation Rules
+
+
+Only YES or NO allowed. */
+		NET_OD_OVERRIDE : AC_Config:ACCOUNT_PARAMETER__NET_OD_APPL__NET_OD_OVERRIDE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=68.0, core=true, t24Name=NET.OD.OVERRIDE)
+		NET_LOCKED_OVERRIDE : AC_Config:ACCOUNT_PARAMETER__NET_OD_APPL__NET_LOCKED_OVERRIDE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=69.0, core=true, t24Name=NET.LOCKED.OVERRIDE)
+	}
+	ACCOUNT_PARAMETER__CONT_DESC
+	{
+		/* Description field for account types, e.g. Internal contingent accounts
+
+Validation Rules
+
+Free format text. */
+		CONT_DESC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=79.0, core=true, t24Name=CONT.DESC)
+		/* The ACCOUNT.PARAMETER table allows the definition of the range within which contingent accounts may be defined. The value here is the low value of the range in the respective contingent category group.
+Validation Rules
+
+Must be a record on CATEGORY file, and in the range of 3000-9999. */
+		CONT_CAT_STR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=80.0, core=true, t24Name=CONT.CAT.STR)
+		/* The ACCOUNT.PARAMETER table allows the definition of the range within which contingent accounts may be defined. The value here is the high value of the range in the respective contingent category group.
+Validation Rules
+
+Must be a record on CATEGORY file, and in the range of 3000-9999. */
+		CONT_CAT_END : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=81.0, core=true, t24Name=CONT.CAT.END)
+	}
+	ACCOUNT_PARAMETER__ACCT_CATEG_DESC
+	{
+		/* This field is used to have a description for the account category range defined in ACCT.CATEG.STR and ACCT.CATEG.END fields.
+Validation Rules
+
+
+Up to 35 Alphanumeric Characters
+
+Optional input
+
+Multi-value field associated with fields 73.1 to 75.1 */
+		ACCT_CATEG_DESC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=90.0, core=true, t24Name=ACCT.CATEG.DESC)
+		/* This field is used to specify the starting account category code. The category specified in this field will be validated for allowing changes to the main customer in account record.
+Validation Rules
+
+4 numeric characters within range 1000 to 9999. Mandatory input if multi-valued and if       ACCT.CATEG.END field is input.
+If value is available in ACCT.CATEG.END, the value entered here should       be less than or equal to the end range specified.
+Multi-value field associated with fields 73.1 to 75.1 */
+		ACCT_CATEG_STR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=91.0, core=true, t24Name=ACCT.CATEG.STR)
+		/* This field is used to specify the end account category code. The category specified in this field will be validated for allowing changes to the main customer in account record.
+Validation Rules
+
+4 numeric characters within range 1000 to 9999. Mandatory input if multi-valued and if ACCT.CATEG.STR       field is input.
+If value is available in ACCT.CATEG.STR, the value entered here should       be greater than or equal to the start range specified.
+Multi-value field associated with fields 73.1 to 75.1 */
+		ACCT_CATEG_END : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=92.0, core=true, t24Name=ACCT.CATEG.END)
+	}
+	ACCOUNT_PARAMETER__INT_ADJ_TYPE
+	{
+		/* This field is used to specify the interest type for the manual interest adjustment  category and transaction codes defined in fields PL.CATEG.TYPE, CRF.CATEG.TYPE and AC.TXN.CODE.
+
+Validation rules
+
+Valid options are DR, DR2, CR and CR2 */
+		INT_ADJ_TYPE : AC_Config:ACCOUNT_PARAMETER__INT_ADJ_TYPE__INT_ADJ_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=103.0, core=true, t24Name=INT.ADJ.TYPE)
+		/* Indicates the category code for the relevant interst type. Must be between 51000 and 51999 for debit interest and 50000 and 50999 for credit interest. Cannot be the same as the relevant previous month or previous year category codes. If not set then the standard debit interest category of 51000 for debit and 50000 for credit will be used. This allows manual interest adjustments to be reported seperately in P&L.
+
+Validation Rules
+Must be a valid Category Code. */
+		PL_CATEG_TYPE -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=104.0, core=true, t24Name=PL.CATEG.TYPE)
+		/* Indicates the category code for the relevant interst type. Must be between 51000 and 51999 for debit interest and 50000 and 50999 for credit interest. Cannot be the same as the relevant previous month or previous year category codes. If not set then the standard debit interest category of 51000 for debit and 50000 for credit will be used. This allows manual interest adjustments to be reported seperately on its own CRF line. If input, it must be the same as the associated P&L category code.
+
+Validation Rules
+Must be a valid Category Code. */
+		CRF_CATEG_TYPE -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=105.0, core=true, t24Name=CRF.CATEG.TYPE)
+		/* Indicates the transaction code used for the updates to the customer account for manual adjustments so that they can be identified on the customer statement. If not inut, then the standard transaction code for the interest type will be used. DR 391,DR2 393, CR 381 and CR2 383.
+
+Validation Rules.
+
+Must be a valid transaction code. */
+		AC_TXN_CODE -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=106.0, core=true, t24Name=AC.TXN.CODE)
+	}
+	ACCOUNT_PARAMETER__OVERRIDE
+	{
+		/* Insert text here
+Validation Rules
+
+Rule 1
+Rule 2 */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=133.0, core=true, t24Name=OVERRIDE)
+	}
+	ACCOUNT_PARAMETER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=136.0, core=true, t24Name=INPUTTER)
+	}
+	ACCOUNT_PARAMETER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=137.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EXPOSURE_CONDITIONS
+		@t24:i (t24Name=EXPOSURE.CONDITIONS, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		EXP_KEY -> AC_Config:EXPOSURE_CONDITIONS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=0.0, core=true, businessType=A, t24Name=EXP.KEY)
+		DESCRIPTION -> byValue AC_Config:EXPOSURE_CONDITIONS__DESCRIPTION *
+		EXP_CCY -> byValue AC_Config:EXPOSURE_CONDITIONS__EXP_CCY *
+		RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.10)
+		RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AC_Config:EXPOSURE_CONDITIONS__INPUTTER *
+		DATE_TIME -> byValue AC_Config:EXPOSURE_CONDITIONS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=22.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=23.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=24.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=25.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EXPOSURE_CONDITIONS__DESCRIPTION
+	{
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	EXPOSURE_CONDITIONS__EXP_CCY
+	{
+		EXP_CCY : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=2.0, core=true, t24Name=EXP.CCY)
+		EXP_TYPE -> byValue AC_Config:EXPOSURE_CONDITIONS__EXP_CCY__EXP_TYPE *
+	}
+	EXPOSURE_CONDITIONS__EXP_CCY__EXP_TYPE
+	{
+		EXP_TYPE : AC_Config:EXPOSURE_CONDITIONS__EXP_CCY__EXP_TYPE__EXP_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=3.0, core=true, t24Name=EXP.TYPE)
+		EXP_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=EXP.AMT, typeModifiers="2.X")
+		EXP_PERC : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=EXP.PERC)
+		EXP_PRD : T24BusinessTypes:PRD
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=6.0, core=true, t24Name=EXP.PRD, typeModifiers="BD")
+	}
+	EXPOSURE_CONDITIONS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=INPUTTER)
+	}
+	EXPOSURE_CONDITIONS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=20.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* The purpose of this table is to define any type of restrictions which may be imposed on Accounts, e.g. 'POST NO DEBITS', 'WHEREABOUTS UNKNOWN', 'PENDING CLOSURE',  etc.
+Posting Restriction codes may be assigned to Accounts as required, which then means that any entries meeting the specified conditions will require an override.
+The system will automatically close any Account with a Posting Restriction in the range 90-99, as soon as all Balances are zero.
+
+A basic restriction will work on all entries regardless of the accounting entry type (TRANSACTION code). It is also possible
+to make the restriction work only on specified TRANSACTION codes - or to work on all except a few which are
+to be bypassed - see fields ALLOW.TXN and TXN.CODE. */
+	POSTING_RESTRICT
+		@t24:i (t24Name=POSTING.RESTRICT, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This is the code by which the Posting Restriction details can be identified.
+Certain ranges of Posting Restriction Codes have a predefined purpose and should not be used for anything else. At present these are as follows:
+80-89      PENDING CLOSURE            Used to indicate Accounts which will be            closed soon, but are not to be closed            automatically yet.
+90-99      AUTOMATIC CLOSING            Used to indicate Accounts which should be            closed automatically as soon as all            Balances are zero.
+Validation Rules
+1 or 2 numeric characters. (Mandatory input) */
+		POSTING_RESTR_CODE -> AC_Config:POSTING_RESTRICT PK required
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=0.0, core=true, t24Name=POSTING.RESTR.CODE)
+		DESCRIPTION -> byValue AC_Config:POSTING_RESTRICT__DESCRIPTION *
+		/* Identifies the type of entries that are to be restricted, either only debits, only credits or both.
+This field is used to identify whether only debit, only credit or all entries are to be restricted.
+Validation Rules
+1-6 type SSS (uppercase alpha) characters: D(ebit) or C(redit) or A(ll) (Mandatory input) Must be ALL if Id is in the range 80-99. */
+		RESTRICTION_TYPE : AC_Config:POSTING_RESTRICT__RESTRICTION_TYPE
+			@i18n:Label (en="Restriction Type")
+			@i18n:Tooltip (en="Restriction Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=2.0, core=true, t24Name=RESTRICTION.TYPE)
+		/* The ID of the DISPO.OFFICER to be assigned to this POSTING.RESTRICT ID if they are to have authorisation to approve dispo items.
+Validation Rules
+
+Must be a valid dispo officer as defined in the DISPO.OFFICER file.
+Optional field */
+		DISPO_OFFICER -> EB_OverrideProcessing:DISPO_OFFICER
+			@i18n:Label (en="Dispo Officer")
+			@i18n:Tooltip (en="Indicates the Dispo Officer ")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=3.0, core=true, t24Name=DISPO.OFFICER)
+		/* States whether the values in the field TXN.CODE are to be allowed (set to Yes) or dis-allowed (set to No). If left blank all
+transactions for the restriction type will be processed. */
+		ALLOW_TXN : AC_Config:POSTING_RESTRICT__ALLOW_TXN
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=4.0, core=true, t24Name=ALLOW.TXN)
+		TXN_CODE -> byValue AC_Config:POSTING_RESTRICT__TXN_CODE *
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=7.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=8.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=9.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=10.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=11.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=12.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=13.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=14.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=15.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue AC_Config:POSTING_RESTRICT__INPUTTER *
+		DATE_TIME -> byValue AC_Config:POSTING_RESTRICT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=21.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=23.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=24.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	POSTING_RESTRICT__DESCRIPTION
+	{
+		/* Describes the Posting Restriction. This description is included in the override message.
+This field is a Description of the Posting Restriction, in the specified Language, which is used for reporting or enrichments.  The Description in Language 1 is stored in Override Messages in prime records.
+Validation Rules
+Up to 35 type A (alphanumeric) characters. Multilanguage field (Mandatory input) */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	POSTING_RESTRICT__TXN_CODE
+	{
+		/* Used to setup a list of TRANSACTION codes to be allowed or dis-allowed. */
+		TXN_CODE -> ST_Config:TRANSACTION
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=TXN.CODE)
+	}
+	POSTING_RESTRICT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=INPUTTER)
+	}
+	POSTING_RESTRICT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=19.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	ACCOUNT_CLASS__RECORD_TYPE : mml:string
+		ACCOUNT=ACCOUNT
+		CLASS=CLASS
+		P_AND_L=P&L
+	ACCOUNT_PARAMETER__VALUE_DATED_ACCTNG : mml:string
+		NO=NO
+		Y=Y
+		TDGL=TDGL
+	ACCOUNT_PARAMETER__USE_PAY_RECEIVE : mml:string
+		NO=NO
+		Y=Y
+	ACCOUNT_PARAMETER__VAL_DATE_SYS_ID__VAL_DATE_BY_SYS : mml:string
+		NO=NO
+		Y=Y
+		TDGL=TDGL
+	ACCOUNT_PARAMETER__VAL_DATE_SYS_ID__USE_PAY_REC_SYS : mml:string
+		NO=NO
+		Y=Y
+	ACCOUNT_PARAMETER__VD_CAT_START__VAL_DATE_BY_CAT : mml:string
+		NO=NO
+		Y=Y
+		TDGL=TDGL
+	ACCOUNT_PARAMETER__VD_CAT_START__USE_PAY_REC_CAT : mml:string
+		NO=NO
+		Y=Y
+	ACCOUNT_PARAMETER__VD_CAT_SYS_ID__VD_CAT_SYS_START__VAL_DATE_BY_CAT_SYS : mml:string
+		NO=NO
+		Y=Y
+		TDGL=TDGL
+	ACCOUNT_PARAMETER__VD_CAT_SYS_ID__VD_CAT_SYS_START__USE_PAY_RECEIVE_CAT_SYS : mml:string
+		NO=NO
+		Y=Y
+	ACCOUNT_PARAMETER__ALTERNATE_ACC_IDS : mml:string
+		Y=Y
+		NO=NO
+	ACCOUNT_PARAMETER__INT_MVMT_UPDATE : mml:string
+		Y=Y
+		NO=NO
+	ACCOUNT_PARAMETER__SYS_CODE__NOSTRO_DEFAULT : mml:string
+		AGENCY=AGENCY
+		NONE=NONE
+	ACCOUNT_PARAMETER__SYS_CODE__DEF_OVERRIDE : mml:string
+		NO=NO
+		YES=YES
+	ACCOUNT_PARAMETER__SYS_CODE__USE_FIRST_ACCT : mml:string
+		YES=YES
+		CUR=CUR
+		FRS=FRS
+		NO=NO
+	ACCOUNT_PARAMETER__SYS_CODE__DEFAULT_ORDER : mml:string
+		NONE=NONE
+	ACCOUNT_PARAMETER__NETT_PAYMENTS : mml:string
+		NO=NO
+		YES=YES
+	ACCOUNT_PARAMETER__REVAL_LCCY_POS : mml:string
+		NO=NO
+		YES=YES
+	ACCOUNT_PARAMETER__FWD_FOR_PEND_SUSP : mml:string
+		YES=YES
+		NO=NO
+	ACCOUNT_PARAMETER__CHEQUE_REGISTER : mml:string
+		YES=YES
+		NO=NO
+	ACCOUNT_PARAMETER__ENT_TODAY_UPDATE : mml:string
+		NO=NO
+		YES=YES
+		NULL=NULL
+	ACCOUNT_PARAMETER__CHARGE_FIRST_MONTH : mml:string
+		NO=NO
+		YES=YES
+	ACCOUNT_PARAMETER__CRF_REVERSAL_FLAG : mml:string
+		YES=YES
+		NO=NO
+	ACCOUNT_PARAMETER__NET_OD_APPL__NET_OD_OVERRIDE : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__NET_OD_APPL__NET_LOCKED_OVERRIDE : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__DC_BALANCED : mml:string
+		YES=YES
+		LOCK=LOCK
+		NULL=NULL
+	ACCOUNT_PARAMETER__AMORT_IN_LOCAL : mml:string
+		NO=NO
+		YES=YES
+		NULL=NULL
+	ACCOUNT_PARAMETER__CREDIT_CHECK : mml:string
+		WORKING=WORKING
+		FORWARD=FORWARD
+		AVAILABLE=AVAILABLE
+		AVAILWORK=AVAILWORK
+		AVAILFWD=AVAILFWD
+		NULL=NULL
+	ACCOUNT_PARAMETER__AVAILABLE_BAL_UPD : mml:string
+		BOTH=BOTH
+		NONE=NONE
+		DEBITS=DEBITS
+		CREDITS=CREDITS
+	ACCOUNT_PARAMETER__UPDATE_ENTRIES : mml:string
+		NO=NO
+		ALL=ALL
+		RECENT=RECENT
+		ONLINE=ONLINE
+	ACCOUNT_PARAMETER__CUSTOMER_SSI : mml:string
+		YES=YES
+		NULL=NULL
+	ACCOUNT_PARAMETER__ADJ_TRADE_DATE_BAL : mml:string
+		Y=Y
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__NEW_ACCT_PROCESS : mml:string
+		Y=Y
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__EXPOSURE_DATED_AF : mml:string
+		Y=Y
+		NO=NO
+	ACCOUNT_PARAMETER__UPD_STMT_VAL_ENTRY : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__USE_SESSION_NO : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__BYPASS_TXN_JOURNAL : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__BYPASS_JOURNAL_SUMMARY : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__INT_ADJ_TYPE__INT_ADJ_TYPE : mml:string
+		CR=CR
+		CR2=CR2
+		DR=DR
+		DR2=DR2
+	ACCOUNT_PARAMETER__LOCKED_WITH_LIMIT : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__RAISE_VD_ENTRIES : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__LOCK_INC_THIS_MVMT : mml:string
+		BOTH=BOTH
+		NONE=NONE
+		DEBITS=DEBITS
+		CREDITS=CREDITS
+	ACCOUNT_PARAMETER__REVERSE_TURNOVER : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__VD_TYPE_BY_ENTRY : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__UPDATE_PL_ACTIVITY : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__SUPRESS_CONT_CRF : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__RETAIN_AC_BALANCES : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__CONSOLIDATE_ENTRIES : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__POSTING_RESTRICT : mml:string
+		SINGLE=SINGLE
+		MULTIPLE=MULTIPLE
+	ACCOUNT_PARAMETER__UPDATE_CONT_ACTIVITY : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	ACCOUNT_PARAMETER__TDGL_CREDIT_CHECK : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	EXPOSURE_CONDITIONS__EXP_CCY__EXP_TYPE__EXP_TYPE : mml:string
+		AMOUNT=AMOUNT
+		PERCENTAGE=PERCENTAGE
+		REST=REST
+	POSTING_RESTRICT__RESTRICTION_TYPE : mml:string
+		ALL=ALL
+		CREDIT=CREDIT
+		DEBIT=DEBIT
+	POSTING_RESTRICT__ALLOW_TXN : mml:string
+		Y=Y
+		N=N
+}

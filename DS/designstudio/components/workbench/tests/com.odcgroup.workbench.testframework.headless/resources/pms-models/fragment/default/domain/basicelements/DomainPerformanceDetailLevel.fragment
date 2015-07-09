@@ -1,0 +1,119 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Fragment ---
+	cardinality = one
+	domainEntity = "AAADSDomain:DomainContext"
+{
+	--- Box ---
+		labels en = "Detail Level", fr = "Niveau de détail", de = Detailebene
+		boxType = vertical
+		width = 0
+		tid = 24745692731952
+	{
+		--- Grid ---
+			cssClass = blank
+			gridColumnCount = 2
+			gridColumnsWidth = "15,85" !
+			gridRowCount = 1
+			horizontalAlignment = trail
+		{
+			--- GridCell ---
+				gridColumnWidth = 15
+			{
+				--- ComboBox ---
+					domainAttribute = retDetLevelE !
+					horizontalAlignment = "${corporatehalign}"
+					required = true
+					bean-property = retDetLevelE
+					id = retDetLevelE
+				{
+					Event OnChange (submit)
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						widget-group-ref = form
+						param = "flow-action=reload"
+						only-changed = true
+						modal = false
+						prevalidate = false
+					}
+				}
+			}
+			--- GridCell ---
+				gridColumnWidth = 85
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 1
+				{
+					--- ConditionalBody ---
+						javaCode = "Integer.toString(com.odcgroup.aaa.PortfolioRetDetLevelE.Grid).equals(<bean:get-property bean=\"DomainContext\" property=\"retDetLevelE\"/>.toString())"
+						technicalName = Grid
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Grid ---
+							cssClass = blank
+							gridColumnCount = 1
+							gridColumnsWidth = 92 !
+							gridRowCount = 1
+						{
+							--- GridCell ---
+								gridColumnWidth = 92
+							{
+								--- Include ---
+									domainAssociation = grid
+									includeSrc = "" !
+									resource:///default/defaultFragments/GridIdentifier.fragment
+									bean-property-prefix = grid.
+							}
+						}
+					}
+					--- ConditionalBody ---
+						javaCode = "Integer.toString(com.odcgroup.aaa.PortfolioRetDetLevelE.Instrument).equals(<bean:get-property bean=\"DomainContext\" property=\"retDetLevelE\"/>.toString())"
+						technicalName = Instrument
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Grid ---
+							cssClass = blank
+							gridColumnCount = 3
+							gridColumnsWidth = "5,30,65" !
+							gridRowCount = 1
+						{
+							--- GridCell ---
+								gridColumnWidth = 5
+							{
+								--- Spacer ---
+									height = 4
+									width = 12
+							}
+							--- GridCell ---
+								gridColumnWidth = 30
+							{
+								--- Label ---
+									labels en = Grid, fr = Grille, de = Raster
+									horizontalAlignment = "${corporatehalign}"
+									horizontalTextPosition = "${corporatehalign}"
+									id = UY_60
+									tid = 272179494899672
+								--- Spacer ---
+									height = 4
+									width = 4
+							}
+							--- GridCell ---
+								gridColumnWidth = 65
+							{
+								--- Include ---
+									domainAssociation = grid
+									includeSrc = "" !
+									resource:///default/defaultFragments/GridIdentifier.fragment
+									bean-property-prefix = grid.
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

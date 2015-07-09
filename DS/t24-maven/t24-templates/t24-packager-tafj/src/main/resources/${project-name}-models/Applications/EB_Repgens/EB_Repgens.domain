@@ -1,0 +1,1317 @@
+# UTF-8
+# UTF-8
+/* The Repgen Framework */
+Domain EB_Repgens
+	@t24:i (module=EB)
+	@java:Package (value=com.temenos.t24.datamodel.eb.eb_repgens)
+namespace "http://www.temenos.com/t24/EB_Repgens"
+metamodelVersion 1.30.6
+Classes {
+	/* The T24 Report Generator utility provides the means to define and produce reports.  It covers both the need to respond to an ad hoc request in an effective way or to run the defined reports in a regular batch control environment, within an application or system-wide End-of-Day process.
+The application consists of five modules as follows:
+REPGEN.CREATE       To define reports and maintain these report                     definitions.
+REPGEN.SOURCE       To generate source code and catalogue the                     programs.
+REPGEN.SORT         To create/set up a "work file" as source for                     print or display.
+REPGEN.OUTPUT       To define/trigger display or printing of a                     report.
+REPGEN.DROP.LIST    To physically delete existing work files,                     where this is not done as part of the                     processing.
+There is also a batch program which allows the report names to be entered, and will run the REPGEN SORT and REPGEN OUTPUT.  This batch program is called EOD REPGEN PRINT.
+For a new report the following sequence is to be followed:
+Run REPGEN CREATE in Input and then Authorisation           mode to load the details of the report.
+Run REGEN.SOURCE to create, compile and catalogue the           sort and print programs.
+Run REPGEN SORT to load a record for running of the sort           and to run the sort.  Use 'I' input mode to load a record           and 'V' Verify to run the sort .  (Note 'V' mode can also be           used to load the record).
+Run REPGEN.OUTPUT to load a record for the running of           the print and to run the print.  Use 'I' input mode and 'V'           Verify mode as for REPGEN.SORT.
+Every time a report is to be produced run:
+REPGEN.SORT and REPGEN.OUTPUT.
+If a report is to be reprinted then run REPGEN OUTPUT only unless the sort files was deleted in which case REPGEN.SORT must be rerun.
+When a report is to be modified then run:
+REPGEN.CREATE, REPGEN SOURCE, REPGEN.SORT and           REPGEN.OUTPUT, the later two for checking that the           change was correctly made.
+
+The module REPGEN.CREATE is the report definition and maintenance facility within the T24 report generator utility.
+All the standard functions within T24 (with the exception of H [history restore]) are available.  The file type is "U", i.e. no history is being kept and any maintenance overwrites the previous live version of a report definition.  The reversal function, in addition to the REPGEN.CREATE maintenance record, also physically removes the related source and the work file of the reversed ID.
+The report definition, as detailed in the field descriptions, is dealing with the following main components:
+Environment - A report can be set up to either reflect a single company (or financial data base), an aggregation of any number or combination of companies or an aggregation of all existing companies.  (For details please refer to Field 2 DEFINE COMPANY.) The source of the report can be a single file or any number (theoretically) of files as long as the (print) fields are compatible.  A practical example are the files STMT.ENTRY and CATEG.ENTRY which can be combined into a single activity or movement list type report. DATA - The source fields of the defined READ FILE can be manipulated or modified in several ways with regard to format, linkage to other files or as parameters of an arithmetic operation. Some of the facilities available are:
+Linkage to other files, where the field value constitutes           the key to the next file is (theoretically) unlimited.  The           main use might be translation of an ID into the meaningful           description by linking to the main file. (for details refer to           Field 14.1 MODIFICATION)
+Another usage of linkage is to obtain a run time variable           for the REPGEN SORT routine.  This is achieved by           entering the following data:
+Field 13.1.1        Mnemon Field contains key of                               REPGEN SORT routine           Field 14.1.1        Modification is set to REPLACE           Field 15.1.1        Modif File is set to REPGEN                               SORT           Field 16.1.1        Modif Field is set to 5.1.1 etc. or                               6.1 etc. which is the field                               number from REPGEN SORT                               routine.
+Amounts and dates are subject to special conversion into           output masks.  Foreign currency amounts will contain           correct number of decimals (link to CURRENCY table) and           date fields can be output in various formats (for details           refer to Field 20.1 SPECIAL MASK)
+Common Subroutines can be used, a record specifying the           parameters to be used and the actual subroutine name must           be set up on the PGM.FILE, see field 14.1 MODIFICATION           for details and the chapter on REPGEN SUBROUTINES.
+Arithmetic operations on all numeric field - for details           refer to Field MODIFICATION (Field 14.1).
+A field can be set up depending upon whether a decision           set up in fields DECISION NAME (field 68.1) to REL NEXT           FD (field 75.1.1) is true or not see field 14.1           MODIFICATION for details.
+GROUPS - The expression/definition of "groups" allows production of several reports from a single file read.  It is based on decisions identifying the characteristics of such groups.  The output will be broken down accordingly and can contain separate descriptions or headers for each report.  The sorts and the print fields that are used may be different  for each group (for details refer to Fields 43.1 DECIS GROUP FR to 67.1 MNEMON.SEQU).  Field MNEMON.SEQU specifies fields to be used for printing and sorting.  Where a mnemonic is used in more than on group, it's value and use will be the same in all the groups it is used in. FORMAT - The presentation of reports can be controlled/defined with regard the column position of a field, the sequence, the page breaks, the page numbering, the blank lines and totals.
+The headings and titles can correspond to the standard of T24 reporting headings. See fields REPORT TITLE (Field 1), SPEC NUMB CHAR (Field 18.1) to TEXT (Field 26.1) and HDR 1 001- 040 (Field 27.1) to HDR 4 121 - 132  (Field 42.1) and GROUP TITLE (Field 47.1.1) to GROUP TEXT (Field 65.1.1) and fields NEW PAGE GROUP (Field 78) to EMPTY LINE WANTED (Field 84).
+A report limited to up to 80 columns can also be directed to a screen (for details refer to REPGEN.OUTPUT). */
+	REPGEN_CREATE
+		@t24:i (t24Name=REPGEN.CREATE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Identifies the report.
+This field holds the identity or key of the report.  This name is used by the other REPGEN routines to identify this report. This ID is used in the name of the programs and files created to produce this report.
+Validation Rules
+2 - 15 type S (S.W.I.F.T) characters. (Mandatory input.)
+Only characters allowed are 0-9, A-Z and '.' (full stop).
+'.' (full stop) cannot be first character. */
+		REPORT_NAME -> EB_Repgens:REPGEN_CREATE PK required
+			@i18n:Label (en="Report Name")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=S, t24Name=REPORT.NAME)
+		REPORT_TITLE -> byValue EB_Repgens:REPGEN_CREATE__REPORT_TITLE *
+		DEFINE_COMPANY -> byValue EB_Repgens:REPGEN_CREATE__DEFINE_COMPANY *
+		/* Defines the format of a report
+Whether the report is produced on the screen or printed is defined in the REPGEN.OUTPUT file record which also controls the language and the page length.
+Input of "Y" (132 columns) excludes the display option.
+Validation Rules
+The following values will be accepted: "Y"  The report output format will be 132 columns wide "Null"  The report output format will be  80 columns wide and may be directed to a screen. */
+		USING_132_COLUMNS : EB_Repgens:REPGEN_CREATE__USING_132_COLUMNS
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=3.0, core=true, t24Name=USING.132.COLUMNS)
+		LANGUAGE_CODE -> byValue EB_Repgens:REPGEN_CREATE__LANGUAGE_CODE *
+		READ_FILE -> byValue EB_Repgens:REPGEN_CREATE__READ_FILE *
+		DEFINE_MNEMONIC -> byValue EB_Repgens:REPGEN_CREATE__DEFINE_MNEMONIC *
+		HDR_1_001__040 -> byValue EB_Repgens:REPGEN_CREATE__HDR_1_001__040 *
+		DECIS_GROUP_FR -> byValue EB_Repgens:REPGEN_CREATE__DECIS_GROUP_FR *
+		GROUP -> byValue EB_Repgens:REPGEN_CREATE__GROUP *
+		DECISION_NAME -> byValue EB_Repgens:REPGEN_CREATE__DECISION_NAME *
+		/* Refer to documentation PRIME/INFORMATION
+Validation Rules
+Numeric field, valid input 1-16. (Mandatory input) */
+		SORT_FILE_TYPE : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=76.0, core=true, t24Name=SORT.FILE.TYPE)
+		/* Refer to documentation PRIME/INFORMATION
+Validation Rules
+Numeric field, valid input 10 to 10000 (Optional input)
+If SORT FILE TYPE (Field 76) is equal to 2 to 16, input in this field is mandatory.
+If SORT FILE TYPE (Field 76) is equal to 1 no input is allowed. */
+		SORT_FILE_MODULO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=77.0, core=true, t24Name=SORT.FILE.MODULO)
+		/* Indicator to force a new page on a group change.
+Validation Rules
+Valid input is "Y"   Yes for page break when a new group starts. Blank if a new page is not required. (Optional input.)
+Input in this field is only allowed if the group heading details have been defined in Fields 46.1 to 67.1.1.
+Input must be equal to "Y" if KEY TYPE (Field 22.1) is equal to 3 or 4.  (i.e. cause a page change). */
+		NEW_PAGE_FOR_GROUP : EB_Repgens:REPGEN_CREATE__NEW_PAGE_FOR_GROUP
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=78.0, core=true, t24Name=NEW.PAGE.FOR.GROUP)
+		/* Allows page numbering to be reset to one after each change of group.
+Validation Rules
+Valid input is "Y"   Yes for the resetting of page number after group change. Blank if resetting is not required. (Optional input.)
+Input is only allowed if NEW PAGE FOR GROUP (Field 78) is equal to "Y". */
+		RESET_PAGE_NO : EB_Repgens:REPGEN_CREATE__RESET_PAGE_NO
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=79.0, core=true, t24Name=RESET.PAGE.NO)
+		/* Indicator to control the spacing between the information lines and total lines.
+Line in this context means the set of information printed for a record.  If this actually takes two or three lines and "2" has been entered in this field then the blank line is not inserted until after the printing of all the lines for each record.
+Validation Rules
+Valid input is "1" - AFTER TOTAL, after a total line a blank line follows "2" - AFTER EVERY LINE, after every line a blank line follows Blank if no spacing is required. (Optional input.)
+If no totals have been defined input of "1" is not allowed */
+		ADD_BLANK_LINE : EB_Repgens:REPGEN_CREATE__ADD_BLANK_LINE
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=80.0, core=true, t24Name=ADD.BLANK.LINE)
+		/* Indicator to control spacing (additional to Field 80 ADD BLANK LINE) before and after total and header lines
+An input in this field and in Field 81 ADD BLANK LINE results in 2 blank lines on the report output.
+Validation Rules
+Valid input is "1" - HEADER, to print a blank line before and after a header line. "2" - TOTAL, to print a blank line before and after a total line. "3" - HEADER+TOTAL, to print a blank line before and after a header and total line. (Optional input.)
+Input of "1 HEADER" is not allowed if no header has been defined.
+Input of "2 TOTAL" is not allowed if no total has been defined.
+Input of "3 HEADER+TOTAL is not allowed if no header and/or no total have been defined. */
+		ADD_TOT_BLANK_LINE : EB_Repgens:REPGEN_CREATE__ADD_TOT_BLANK_LINE
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=81.0, core=true, t24Name=ADD.TOT.BLANK.LINE)
+		/* Indicator to suppress total line if total is equivalent to a single display line.
+Note:     If there is a DISPLAY TYPE equal to 4 "Total only", input           of "Y" in this field has no effect.
+Validation Rules
+"Y"  Yes if no total line is required for the equivalent of a single display line. Blank to always print total line. (Optional input.)
+Input is only allowed if there is a DISPLAY TYPE (Field 22.1) equal to 3. */
+		SUPPR_SINGLE_TOTAL : EB_Repgens:REPGEN_CREATE__SUPPR_SINGLE_TOTAL
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=82.0, core=true, t24Name=SUPPR.SINGLE.TOTAL)
+		/* Determines what page headings are to appear at the top of each page.
+This field controls heading lines printed at the top of each page above the details entered in fields 27.1 to 42.1 or fields 47.1.1 to 63.1.1.  The values are:
+STANDARD -      Print the 3 lines of headings that are normally                 printed on each report containing page counts,                 dates, user names etc.
+NONE     -      Suppress headings and "end of group/report" -                 this would be used for advices to customers etc.
+FLAT -     Same as 'NONE' excepting that no extra characters            generated in the header since this report is used            like a flat file.
+If field left blank then only the REPORT TITLE (Field 1.1) and page count are printed.
+Validation Rules
+Valid input is: STANDARD NONE FLAT Nulls (Optional input.)
+Input must be STANDARD, NONE or LEFT BLANK.
+None can not be entered if field RESET PAGE NO (Field 79) is set to "Y". */
+		SPECIAL_HEADING : EB_Repgens:REPGEN_CREATE__SPECIAL_HEADING
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=83.0, core=true, t24Name=SPECIAL.HEADING)
+		/* Indicates whether a completely blank print line is to be printed or not.
+For this field 'line' means an actual print line, which may be one of a set of lines to be printed for a record.  The need to print blank lines occurs when printing items like Address Labels.
+Validation Rules
+Valid input is. "Y" means print all lines. Blank means if a line of print is null then do not print it. (Optional input.) */
+		EMPTY_LINE_WANTED : EB_Repgens:REPGEN_CREATE__EMPTY_LINE_WANTED
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=84.0, core=true, t24Name=EMPTY.LINE.WANTED)
+		/* Indicates that the grand total at the end of the report is not to be printed.
+If totalling has been requested a meaningless grand total can be suppressed by entering Y in this field.
+Validation Rules
+Allowed values are 'Y'. (Optional input.)
+Input not allowed if no total has been requested (totalling is requested by setting the DISPLAY TYPE Field 23.1 to one of the totalling options). */
+		SUPPR_GRAND_TOTAL : EB_Repgens:REPGEN_CREATE__SUPPR_GRAND_TOTAL
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=85.0, core=true, t24Name=SUPPR.GRAND.TOTAL)
+		/* Indicates last time REPGEN SOURCE was run for this report.
+This field is updated each time the REPGEN.SOURCE routine is run for this report.
+Validation Rules
+Displayed as date followed by time. Held as 6 numeric characters for Date followed by 4 numeric characters for the time (YYMMDDHHMM). (Externally maintained field.) */
+		DATE_TIME_COMPILER : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=15, sysNumber=86.0, core=true, t24Name=DATE.TIME.COMPILER, mask="RDD DD  DD ##:##")
+		CO_CODE_SORT -> byValue EB_Repgens:REPGEN_CREATE__CO_CODE_SORT *
+		/* Mnemonic field from the FIELD DEFINE MNEMONIC which contains the value of the customer number which is to be passed to the REPORT CONTROL RECORD.
+This value may be used in order to control the customer           output.
+Validation Rules
+Up to 20 alpha type characters. No spaces allowed (Optional input)
+Must already be defined on the DEFINE MNEMONIC FIELD */
+		CUST_PRINT_MNE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=89.0, core=true, t24Name=CUST.PRINT.MNE)
+		/* Mnemonic field from the FIELD DEFINE MNEMONIC which contains the value of the account number which is to be passed to the REPORT CONTROL RECORD.
+This value may be used in order to control the customer           output.
+Validation Rules
+Up to 20 alpha type characters. No spaces allowed (Optional input)
+Must already be defined on the DEFINE MNEMONIC FIELD */
+		ACCT_PRINT_MNE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=90.0, core=true, t24Name=ACCT.PRINT.MNE)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=91.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=92.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=93.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=94.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=95.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Repgens:REPGEN_CREATE__INPUTTER *
+		DATE_TIME -> byValue EB_Repgens:REPGEN_CREATE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=98.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=99.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=100.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=101.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=102.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	REPGEN_CREATE__REPORT_TITLE
+	{
+		/* Free format text appearing as report title on the printed report or the screen
+Validation Rules
+Up to 54 type A (alphanumeric) characters (Optional input)
+Input (length) cannot exceed 32 characters, including the ID when the report is only 80 columns wide (i.e. if USING 132 COLUMNS (Field 3) is blank). */
+		REPORT_TITLE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=1.0, core=true, t24Name=REPORT.TITLE)
+	}
+	REPGEN_CREATE__DEFINE_COMPANY
+	{
+		/* Allows restriction of report usage (run) to one company only or alternatively aggregation (inclusion) of two or more companies in one single report output.
+If each company requires the same information, the  report definition is only done once, leaving this field blank (null).  The resulting file can then be applied in any existing company.  If the "ALL" or Company Code option is used the report generation may be run in any one company but will aggregate the information of all companies specified.
+Null      Means the report can be run for any company.  But will           only contain the details for that company for which it is           being run.
+ALL       To consolidate information of all companies in one single           report.  Only "Processing" companies (COMPANY record           with the field CONSOLIDATION.MARK equal to "N") will           be processed.
+XX9999999       Valid company code.  If more than one company                 code is input, the information will be consolidated                 in one single report for the company codes input.                 Alternatively, this option accepts input of a valid                 company mnemonic.
+Validation Rules
+The following values will be accepted: " "- Null All XX9999999 Valid company code or mnemonic. Multivalue field. (Optional Input).
+Input if present must be "ALL" or a valid company code or a valid company mnemonic.
+If a valid company code is entered it cannot be a consolidation company (field CONSOLIDATION.MARK on the COMPANY record equal to "C"). */
+		DEFINE_COMPANY : T24BusinessTypes:AA
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=DEFINE.COMPANY)
+	}
+	REPGEN_CREATE__LANGUAGE_CODE
+	{
+		/* Defines the language in which a text field will be loaded.
+This language code relates to text data and controls the usage of the header, the Text and the description fields where the desired language text must be input as part of the report definition.
+Validation Rules
+2 numeric characters (01 to 99) Multivalue field. (Optional field).
+Input must be an ID of a LANGUAGE record.
+Input is mandatory if data is to be entered into a field which is described as being a text field.
+No duplicate language codes are allowed. */
+		LANGUAGE_CODE -> EB_SystemTables:LANGUAGE
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=4.0, core=true, t24Name=LANGUAGE.CODE)
+	}
+	REPGEN_CREATE__READ_FILE
+	{
+		/* Name of (main) file(s) used for the defined report.
+The number of files is not limited but the files must contain similar data.  Each record from each file being processed separately. Files will be read in sequence of definition.  Any mnemonics definitions need to be done once only and are then linked to the respective files using the sub-value field association (13.1.1).
+Validation Rules
+Input must be a valid application (file) name of up to 25 characters Multivalue field associated with Fields 6 to 8. (Mandatory input)
+Input must be a valid application (file) name meaning that there must be a record in the PGM.FILE for this application and the program type must be H or U or L or T or W.
+Every file must at least have one define mnemonic set of fields which has DISPLAY TYPE (Field 23.1) of 2 to 6. */
+		READ_FILE : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=29, sysNumber=5.0, core=true, t24Name=READ.FILE)
+		FL_FIELD_NO -> byValue EB_Repgens:REPGEN_CREATE__READ_FILE__FL_FIELD_NO *
+	}
+	REPGEN_CREATE__READ_FILE__FL_FIELD_NO
+	{
+		/* Indicates the field number whose contents are to be used in the selection process.
+If only particular records are required from a file then the field number of the field to be used in deciding which records are to be extracted is entered here.  If the key of the record is to be used enter '0' (zero).
+Validation Rules
+Up to 3 numeric digits. This is a multivalue field associated with fields 5.1 and 7.1 to 10.1 and a subvalue field associated with fields 7.1.1 to 10.1.1. (Optional input.) */
+		FL_FIELD_NO : T24BusinessTypes:FNO
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, t24Name=FL.FIELD.NO)
+		/* Operand for limiting file reads if not all the records are to be used for the report defined.
+The value entered indicates the type of comparison that is to be performed against the actual data in each record.
+EQ    equal to           GT    greater than           GE    greater than or equal to           NE    not equal to           LT    less than           LE    less than or equal to           LK    like           UL    unlike When there are more than one set of conditions loaded into fields 6.1.1 to 10.1.1 the linkage between the sets can be either an 'and' or 'or' condition.
+Example:           a)    Say we only wished to extract Internal Accounts                 from the ACCOUNT FILE the lowest possible                 internal is entered in FL DECIS FR from (field                 8.1.1) and the highest possible Internal Account                 number is entered in FL DECIS TO to (fields                 9.1.1).
+Field 5.1   Read File    Account                 Field 6.1.1 FL FIELD NO   0                 Field 7.1.1 FL DECISION   EQ                 Field 8.1.1 FL DECIS FR "AAA000000000"                 Field 9.1.1 FL DECIS TO "ZZZ999999999"
+b)    Say we only wished to extract internal Accounts                 which have  Currency of USD or a currency of                 GBP.
+Field 5.1    Read File Account                 Field 6.1.1  FL FIELD NO   0                 Field 7.1.1  FL DECISION   LK                 Field 8.1.1  FL DECIS FR   "USD..."                 Field 9.1.1  FL DECIS FR                 Field 10.1.1 FL REL NEXT   OR                 Field 6.1.2  FL FIELD NO   0                 Field 7.1.2  FL DECISION   LK                 Field 8.1.2  FL DECIS FR   "GBP..."                 Field 9.1.2  FL DECIS TO                 Field 10.1.2 FL FIELD NO
+Validation Rules
+The following values will be accepted: BLANK (no input) all records will be used (read) EQ, GT, GE, NE, LT, LE, LK, UL This is a multivalue field associated with Fields 5.1 - 6.1 and 8.1. to 10.1 and a subvalue field associated with fields 6.1.1 and 8.1.1 to 10.1.1. (Optional field.)
+Input is only allowed if Field 6.1.1 has been defined. */
+		FL_DECISION : EB_Repgens:REPGEN_CREATE__READ_FILE__FL_FIELD_NO__FL_DECISION
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, t24Name=FL.DECISION)
+		/* Identifies the only record or the first record in a range of the records which is/are on the file defined in READ FILE (Field 5.1).
+The value can be defined as a possible existing value or range of values, e.g. (Customer ID EQ 010001 to 019999) or a virtual value, e.g. account number LT A (numeric account numbers only).
+When there are more than one set of conditions loaded into fields 6.1.1 to 10.1.1 the linkage between the sets can be either an 'and' or 'or' condition.
+Example:           a)    Say we only wished to extract Internal Accounts                 from the ACCOUNT FILE the lowest possible                 internal is entered in FL DECIS FR from (field                 8.1.1) and the highest possible Internal Account                 number is entered in FL DECIS TO to (fields                 9.1.1).
+Field 5.1   Read File    Account                 Field 6.1.1 FL FIELD NO   0                 Field 7.1.1 FL DECISION   EQ                 Field 8.1.1 FL DECIS FR "AAA000000000"                 Field 9.1.1 FL DECIS TO "ZZZ999999999"
+b)    Say we only wished to extract internal Accounts                 which have  Currency of USD or a currency of                 GBP.
+Field 5.1    Read File Account                 Field 6.1.1  FL FIELD NO   0                 Field 7.1.1  FL DECISION   LK                 Field 8.1.1  FL DECIS FR   "USD..."                 Field 9.1.1  FL DECIS FR                 Field 10.1.1 FL REL NEXT   OR                 Field 6.1.2  FL FIELD NO   0                 Field 7.1.2  FL DECISION   LK                 Field 8.1.2  FL DECIS FR   "GBP..."                 Field 9.1.2  FL DECIS TO                 Field 10.1.2 FL REL NEXT
+Validation Rules
+Up to 35 type A (alphanumeric) characters Multivalue field associated with Fields 5.1 to 7.1 and 9.1 to 10.1 and subvalue field associated with Fields 6.1.1 to 7.1.1. and 9.1.1 to 10.1.1. (Mandatory field only if FL FIELD NO (Field 6.1.1) has been defined.)
+If operands in FL DECISION  Field 7.1.1 are LK or UL, input in this field must begin and/or end with "..."
+The value must be entered between double quotation marks ("). */
+		FL_DECIS_FR : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=FL.DECIS.FR)
+		/* Identifies the last record in a range to be used (read) in the file, as specified in READ FILE (Field 5.1).
+The Value can be defined as a possible existing value or range of values, e.g. (Customer ID EQ 010001 to 019999).
+When there are more than one set of conditions loaded into fields 6.1.1 to 10.1.1 the linkage between the sets can be either an 'and' or 'or' condition.
+Example:  a)    Say we only wished to extract Internal Accounts                 from the ACCOUNT FILE the lowest possible                 internal is entered in FL DECIS FR from (field                 8.1.1) and the highest possible Internal Account                 number is entered in FL DECIS TO to (fields                 9.1.1).
+Field 5.1   Read File    Account                 Field 6.1.1 FL FIELD NO   0                 Field 7.1.1 FL DECISION   EQ                 Field 8.1.1 FL DECIS FR "AAA000000000"                 Field 9.1.1 FL DECIS TO "ZZZ999999999"
+b)    Say we only wished to extract internal Accounts                 which have  Currency of USD or a currency of                 GBP.
+Field 5.1    Read File Account                 Field 6.1.1  FL FIELD NO   0                 Field 7.1.1  FL DECISION   LK                 Field 8.1.1  FL DECIS FR   "USD..."                 Field 9.1.1  FL DECIS FR                 Field 10.1.1 FL REL NEXT   OR                 Field 6.1.2  FL FIELD NO   0                 Field 7.1.2  FL DECISION   LK                 Field 8.1.2  FL DECIS FR   "GBP..."                 Field 9.1.2  FL DECIS TO                 Field 10.1.2 FL REL NEXT
+Validation Rules
+Up to 35 type A (alphanumeric) characters. Multivalue field associated with Fields 5.1 to 8.1 and 10.1 Subvalue field associate with Fields 6.1.1 to 8.1.1 and 10.1.1. (Optional input)
+Input is only allowed if operands in FL DECISION (Field 7.1.1) are equal to "EQ" or "NE".
+Input value must be GT value in FL DECIS FR (Field 8.1.1).
+The value must be entered between double quotation marks ("). */
+		FL_DECIS_TO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=FL.DECIS.TO)
+		/* Is the component to link condition decisions to one anther.
+This field links this condition with the next condition.  If left blank then the 'and' condition is assumed.
+Care must be taken when using a mix of 'and' and 'or' conditions as 'and' condition has priority.
+Example   a)    Say that for customer file records with a section                 code of 102 and residence code of GB are required                 then data loaded will be as follows:
+Field 5.1 Read File      CUSTOMER                 Field 6.1.1 FL Field NO  10                 Field 7.1.1 FL DECISION  EQ                 Field 8.1.1 FL DECIS FR  '102'                 Field 9.1.1 FL DECIS TO
+Field 10.1.1 FL REL NEXT  AND                 Field 6.1.2 FL Field NO   17                 Field 7.1.2 FL DECISION   EQ                 Field 8.1.2 FL DECIS FR   'GB'                 Field 9.1.2 FL DECIS TO                 Field 10.1.2 FL REL NEXT
+b)    Say that for CUSTOMER file records with either a                 sector code of 102 or resident code of GB are                 required then data loaded will be as follows:
+Field 5.1 Read File      CUSTOMER                 Field 6.1.1 FL Field NO  10                 Field 7.1.1 FL DECISION  EQ                 Field 8.1.1 FL DECIS FR  '102'                 Field 9.1.1 FL DECIS TO                 Field 10.1.1 FL REL NEXT  OR                 Field 6.1.2 FL Field NO   17                 Field 7.1.2 FL DECISION   EQ                 Field 8.1.2 FL DECIS FR   'GB'                 Field 9.1.2 FL DECIS TO                 Field 10.1.2 FL REL NEXT
+c)    Say that for customer file records with a sector                 code of '102' and a resident code of GB or US are                 required then data loaded will be as follows:
+Field 5.1 Read File      CUSTOMER                 Field 6.1.1 FL Field NO  10                 Field 7.1.1 FL DECISION  EQ                 Field 8.1.1 FL DECIS FR  '102'                 Field 9.1.1 FL DECIS TO                 Field 10.1.1 FL REL NEXT  AND
+Field 6.1.2 FL Field NO   17                 Field 7.1.2 FL DECISION   EQ                 Field 8.1.2 FL DECIS FR   'GB'                 Field 9.1.2 FL DECIS TO                 Field 10.1.2 FL REL NEXT   OR                 Field 6.1.3 FL Field NO  10                 Field 7.1.3 FL DECISION  EQ                 Field 8.1.3 FL DECIS FR  '102'                 Field 9.1.3 FL DECIS TO                 Field 10.1.3 FL REL NEXT  AND                 Field 6.1.4 FL Field NO   17                 Field 7.1.4 FL DECISION   EQ                 Field 8.1.4 FL DECIS FR   'US'                 Field 9.1.4 FL DECIS TO                 Field 10.1.4 FL REL NEXT
+Validation Rules
+Only values allowed are 'and' or 'or. Multivalue field associated with fields 5.1. to 9.1. Subvalue field associated with fields 6.1.1 to 9.1.1 (Optional input.)
+Input is only allowed if FL DECISION (Field 7.1.1) contains a value. */
+		FL_REL_NEXT : EB_Repgens:REPGEN_CREATE__READ_FILE__FL_FIELD_NO__FL_REL_NEXT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=10.0, core=true, t24Name=FL.REL.NEXT)
+	}
+	REPGEN_CREATE__DEFINE_MNEMONIC
+	{
+		/* Mnemonic name of the data field(s) used as a field to be printed or as a virtual field employed as a component for a decision or in an another definition.
+The mnemonic defined here and complemented by further static definitions in this multivalue association, serves as reference for any use of the field in the report definition.  The input sequence of these mnemonics is used as the sort sequence and also as the output sequence if no specific output sequence is defined in MNEMON SEQU (Field 67.1.1).
+Validation Rules
+Up to 20 alpha type characters. No spaces allowed Multivalue field associated with Fields 12 to 26.1. (Mandatory input)
+No duplicates allowed (mnemonic name must be unique) unless field 14.1.1 is set with the value "FIELD.DECISION". */
+		DEFINE_MNEMONIC : T24BusinessTypes:MNE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=11.0, core=true, t24Name=DEFINE.MNEMONIC)
+		MNEMON_FILE -> byValue EB_Repgens:REPGEN_CREATE__DEFINE_MNEMONIC__MNEMON_FILE *
+		/* Controls whether multi value fields are output as one single field value (total) or if they are shown individually according to the number of occurrences or treated as separate records or a multivalue field is returned from a called subroutine.
+Use of value "TOTAL" will cause all occurrence of the multivalue field to be combined into one total for the report.  For this option the fields should be numeric.  Definition of non numeric fields is possible but result will be shown as blank on the report.
+The value of "SPLIT" means treat each occurrence of the multivalue field as a separate record and therefore produce a separate print record for each occurrence.
+If the Split option is used on one multivalue/ subvalue mnemonic then it should be used for all multivalue/subvalues otherwise the other multivalue fields will be printed for each occurrence of the "SPLIT" multivalue fields.
+If the multivalue field is to be split over different columns then leave this field blank.
+"MULTI" is to be used when a returned parameter form a subroutine is to be treated as a multivalue field etc. though it was originally a single value field.
+Validation Rules
+Valid input is 'TOTAL', 'SPLIT' or 'MULTI'. Multivalue field associated with field 11.1 to 16.1 and 18.1 to 26.1. (Optional input)
+Input is only allowed if the multi value field number in MNEMON FIELD (Field 13.1.1) or MODIF FIELD (Field 16.1.1) is defined without the multi value/sub field or the MNEMON (Field 13.1.1) contains a value of "". */
+		MULTI_SPLIT_TOT : EB_Repgens:REPGEN_CREATE__DEFINE_MNEMONIC__MULTI_SPLIT_TOT
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=17.0, core=true, t24Name=MULTI.SPLIT.TOT)
+		/* Length of the defined field on the output report. Non usage of the field uses length of the field as defined in the program.
+Definition of a special number of characters allows shortening of lengthy descriptions or short names, necessary in certain reports to provide for a one line information output, per record. Definition of too long a length gives space away, definition of too short a length might result in incomprehensible information.  If no special number of characters are defined the default number, taken from the program, will be moved to NUMB OF CHAR (Field 19.1).
+Validation Rules
+Numeric characters, value '1 to 35'. Multivalue field associated with field 11.1 to 17.1 and 19.1 to 26.1. (Optional input)
+No input allowed if DEFINE MNEMONIC (Field 11.1) is missing or if the fields a KEY TYPE (Field 22.1) or DISPLAY TYPE (Field 23.1) have not been set up with data.
+Input is mandatory if MNEMON FIELD (Field 13.1.) or MODIFY FIELD (Field 16.1.1) equals name of another mnemonic, or is a constant or a called routine has been used in MODIFICATION field (14.1.1) and the fields KEY TYPE (field 22.1) or DISPLAY TYPE (field 23.1) have been set up.  In these cases no default length is available. */
+		SPEC_NUMB_CHAR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=18.0, core=true, t24Name=SPEC.NUMB.CHAR)
+		/* Length of the field as defined in the program or in previous field 18.1. SPEC.NUM.CHAR.
+If SPEC NUMB CHAR (Field 18.1) has been defined the value of Field 19.1 will default to the same number of characters as input in Field 18.1.  If Field 18.1 has not been defined, the length of the field as defined in the program will be moved in. In either case, the indicated length will be used in verification for the available space on the output report (line).
+Validation Rules
+Multivalue field associated with Fields 11.1 to 18.1 and 20.1 to 26.1. No input field. */
+		NUMBER_OF_CHAR : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=19.0, core=true, t24Name=NUMBER.OF.CHAR)
+		/* Defines the output format for any output field to provide for separators, left/right adjustments and correct decimals in amounts.  The justification is also used in the sort routine.
+If no special mask is defined the default 'output' mask as defined in the program will be assumed and its' format moved to MASK (Field 21.1).
+Formats for this field are as follows:
+Input of 'L' or 'R' for left or right adjustments plus any number of '#' with or without any character to act and be displayed as separator.  For example,  input of R###### for customer number will display the number right adjusted without a mask; input of R###-### will display the number right adjusted and print a hyphen as a separator between the two pairs of 3 characters.
+The input of the mnemonic name covering the definition of Currency field creates the amount mask in accordance to the defined number of decimals in the currency table.  The mnemonic used must be defined in DEFINE MNEMONIC (Field 11.1).
+Input of '@AMT0' ...'@AMT9' to define a general amount mask, i.e. 0 to 9 decimals.
+Input of '@DATE' to define the standard date mask (DD MMM YY) if length has been defined as 9 (nine) or (DD MMM YYYY) if length has been defined as 11 (eleven).
+Validation Rules
+Up to 35 type A (alphanumeric) characters (see Details for formats). Multivalue field, associated with fields 11.1 to 19.1 and 21.1 to 26.1 (Optional input)
+No input allowed if field DEFINE MNEMONIC (Field 11.1) is missing or the field is not used as KEY TYPE (Field 22.1) or DISPLAY TYPE (Field 23.1).
+Length of defined mask or of default mask from program must be equal to SPEC NUMB CHAR (Field 18.1) or default number of characters (Field 19.1 - no input field). */
+		SPECIAL_MASK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, t24Name=SPECIAL.MASK)
+		/* Output mask (format) for the field as defined in the program.
+If no special mask has been defined in SPECIAL MASK (Field 20.1) then the default output mask as defined in the program will be assumed and its format moved to this field. If a special mask has been defined in Field 20.1 this field will take on the same value.
+Validation Rules
+Multivalue field associated with fields 11.1 to 20.1 and 22.1 to 26.1. This field is a "no input" field */
+		MASK : T24BusinessTypes:AA
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=MASK)
+		/* Definition of the output sequence of the defined field including control of totals and page breaks based on change of the value.
+If for example 3 definitions of TOTAL.BY.CHANGE are defined, then they act in sequence of DEFINE MNEMONIC.  Therefore first defined is treated as the Grand Total.  The second definition is treated as the Total and the third definition is treated as a subtotal.
+Formats for this field are as follows:
+"1"   = SEQUENCE CONTROL
+The Display of the records will be done in sequence of this mnemonic
+"2"   = TOTAL.BY.CHANGE
+Whenever the value of the field changes a total will be produced.  The fact that a field needs to be totalled is defined in DISPLAY TYPE (Field 23.1).
+The level of the total (subtotal, total, grand total) is dependent on the sequence of the DEFINE MNEMONIC or the specific MNEMON SEQU (Field 67.1.1).
+"3"   = PAGING.BY.CHANGE
+Whenever the value of the field changes a new page will be started.
+"4"   = TOTAL AND PAGING BY CHANGE
+Combination of "2" and "3" above.
+NO INPUT
+Mnemonic is not used for sequence control.
+Validation Rules
+Input format is limited to indication of one of the 4 sequence/total control types.  See Details below. Multivalue field, associated with fields 11.1 to 21.1 and 23.1 to 26.1. (Optional input)
+No input is allowed if DEFINE MNEMONIC (field 11.1) is missing. */
+		KEY_TYPE : EB_Repgens:REPGEN_CREATE__DEFINE_MNEMONIC__KEY_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=24, sysNumber=22.0, core=true, t24Name=KEY.TYPE)
+		/* Defines the method on how information is to be displayed in the report.  Options available are headers, lines, totals, lines and totals and footers
+The totals being shown (printed) as a result of inputting type 3 or 4 are in relation to the KEY TYPE (Field 22.1 values 2 and 4). Otherwise the totalling will be done at the end of the report or end of a group.
+Formats for this field are as follows:
+"1"   HEADER The field will be displayed as a header or title only, i.e. only when the value of the field changes.
+"2"   LINE The field will be displayed on each line (occurrence)
+"3"   LINE AND TOTAL The field will be displayed on each line and will be totalled  The total will be printed in the total line.
+"4"   TOTAL ONLY The field will be totalled and displayed on the total line only.
+"5"   CONTIN.TOTAL The value in the column will represent an aggregated total in each new line. (example 1: running sequence or line count based on a constant value of "1". example 2: running balance column based on previous line and addition of previous field through use of field 14.1.1 MODIFICATION.)
+"6" FOOTER This field will be displayed in a total line, but will not be totalled. e.g. CUSTOMER NAME.
+
+Note:     Clearance of the Total, is governed by the values in KEY           TYPE (Field 22.1) of other mnemonics.
+Validation Rules
+Input format is limited to one of the 6 options described in Details below. Multivalue field, associated with fields 11.1 to 22.1 and 24.1 to 26.1. (Optional input.)
+No input is allowed if DEFINE MNEMONIC (field 11.1) is missing.
+No input is allowed if mnemonic is used for KEY or DECISION processing only.
+Input of 3, 4, or 5  for a non-numeric field is accepted, but the result (output) will be a blank field. */
+		DISPLAY_TYPE : EB_Repgens:REPGEN_CREATE__DEFINE_MNEMONIC__DISPLAY_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=23.0, core=true, t24Name=DISPLAY.TYPE)
+		COLUMN -> byValue EB_Repgens:REPGEN_CREATE__DEFINE_MNEMONIC__COLUMN *
+		/* Length of text (label) as defined in TEXT (Field 26.1.1) for the field value to be printed.  This is independent of any header information and will be appearing on the left of the field value.
+If no length is defined but if TEXT (Field 26.1.1) is defined the length will be set to that value or if multilanguage definitions of TEXT exist, to the highest length of the defined sub values of TEXT.
+Validation Rules
+Numeric values "1 to 35" or blank. Multivalue field, associated with fields 11.1 to 24.1 and 26.1. (Optional input)
+No input allowed if DEFINE MNEMONIC (field 11.1) or DISPLAY TYPE (field 23.1) are missing. */
+		TEXT_CHAR_MAX : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=25.0, core=true, t24Name=TEXT.CHAR.MAX)
+		TEXT -> byValue EB_Repgens:REPGEN_CREATE__DEFINE_MNEMONIC__TEXT *
+	}
+	REPGEN_CREATE__DEFINE_MNEMONIC__MNEMON_FILE
+	{
+		/* Identifies the data file to which the mnemonic (Field 11.1) refers.
+Validation Rules
+1 to 25 type A (alphanumeric) characters, must be a valid file or program name Multivalue field, associated with Field 11.1 and 13.1 to 26.1. and subvalue field associated with fields 13.1.1 to 16.1.1. (Optional input)
+Input is mandatory if more than one file in READ FILE (Field 5.1) has been defined.
+File name must be defined in READ FILE (Field 5.1).
+Duplication of file name within the same multivalue set not allowed. */
+		MNEMON_FILE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=29, sysNumber=12.0, core=true, t24Name=MNEMON.FILE)
+		/* Data (field) which is represented by the mnemonic name in DEFINE MNEMONIC (Field 11.1).
+Field number in the file defined in MNEMON FILE (Field 12).  This field number can also be expressed as multi value/sub number to define a specific multi value/sub field. To define the key of file being processed use 'O' as field number.
+It can also be defined to be part of a field with the format 'n[s,l]mj'.
+Where:    n=    field number           s=    start character of the data to be used           l=    length (number of characters to be used)           m=    maximum is the number of characters to be taken                 from the source field           j=    justification
+Start character plus length cannot be greater than number of characters taken form the same field. Justification can be 'R' or 'L' for right or left adjustment respectively.
+Within the processing a temporary field is set up this field will contain the first m characters from the source field, this temporary field will then be right or left justified.
+For example take the SHORTNAME (Field 2.1) on the CATEGORY file. Value in SHORTNAME field     SEVENDAY NOTICE (15)  A/C ADVANCE (11) REST DATE ENTERED HERE            VALUE DISPLAYED ON OUTPUT
+2.1 [1M,6] 15L  SEVEND        A/C ADREST 2.1 [9,6]  15L   NOTIC        NCE 2.1 [1,6]  15R  SEVEND            A/ 2.1 [9,6]  15R   NOTIC        ADVANC    RES 2.1 [1,6]   8L  SEVEND        A/C ADREST 2.1 [2,6]   8L  EVENDA        /C ADVEST 2.1 [1,6]   8R  SEVEND        A/C AD    RE 2.1 [2,6]   8R  EVENDA        /C ADV   RES 2.1 [6,2]  10R  DA  DV             R
+To define (select) a component or part of a composite key then details are entered as n[ce]
+n     =   the field number
+c     =   the delimiter character (e.g. '.' full stop)
+e     =   the data element to be extracted from the                     composite key,
+e.g. composite key LIAB.REF.CUST to select customer, definition would be 0[.3] where as to select Ref definition would be 0[.2]
+For the following conditions (needs) the input (definition) of a multivalue field must always be explicit, i.e. 10.7 and not 10 or 10.1.
+-     for a LOCAL REF field
+-     If a multivalue field is to be used KEY TYPE (i.e.                 field 22.1 contains a value) or is to be used for a                 decision or the DISPLAY TYPE (Field 23.1) is                 defined as '1 header' and the field SPLIT or                 TOTAL (field 17.1) contains neither SPLIT or                 TOTAL.
+Input of a constant placed between double quotation marks (").  An example being that a particular currency is required e.g. USD in the DECISION section later on, the value entered here would be "USD".
+Input of another mnemonic e.g. 'Total amount outstanding' could be defined as:
+Field 11.1   TOTAL.AMOUNT.OUTSTANDING           Field 13.1.1 PRINCIPAL.AMOUNT           Field 14.1.1 ADD           Field 16.1.1 INTEREST.AMOUNT
+Validation Rules
+Up to 35 type A (alphanumeric) characters (for specific formats see Details below). Multivalue field associated with Fields 11.1, 12.1 and 14.1. to 26.1.   Sub value field associated with Fields 12.1.1 and 16.1.1.
+Input is mandatory if DEFINE MNEMONIC or MNEMON FILE have been specified
+No input allowed if DEFINE MNEMONIC is missing
+No input for a second subfield (13.2) allowed if MNEMON FILE is missing */
+		MNEMON_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=MNEMON.FIELD)
+		/* Impact on MNEMON FIELD (Field 13.1.1) expressed as an operand relative to MODIF FIELD (Field 16.1.1).
+This field allows for output of a value, based on an arithmetic operation or on the conditions (related to a decision) regarding printing or is used to provide for a replace of a field value with another file or the details are for a parameter of a called routine and this field indicates the routine and the parameter number for the routine.
+The process relates to what happens to the contents of Field 13.1.1 Mnemon field with relationship to the field in Field 16.1.1 MODIFY FIELD.
+Values accepted are as follows:
+ADD             Field 16.1.1 added to field 13.1.1
+CONCATENATE     Field 16.1.1 concatenated to the end of field                 13.1.1.
+DIVIDE          Field 13.1.1 is divided by Field 16.1.1 (example                 Field 13.1.1 contains 99.  Field 16.1.1 contains 11.                 Answer will be 9.)
+FIELD DECISION  This mnemonic only has the value stored in field                 13.1.1 set up if the Decision name indicated in                 field 16.1.1. is true.
+MULTIPLY        Field 13.1.1 will be multiplied by Field 16.1.1
+REPLACE         Field 13.1.1 contains the key of the file entered in                 field 15.1.1 modify file and the value in field                 indicated by field 16.1.1 replaces this key.
+SUBTRACT        Field 16.1.1 will be subtracted from Field 13.1.1
+-C -W     minus calendar (C) or working (W) days.  The date in field           13.1.1 will be cycled back the appropriate number of days. +C+W      plus calendar (C) or working (W) days.  The date in field           13.1.1 will be cycled forward the appropriate number of           day.
+If the format used is -C -W +C +W the MNEMON FIELD should be a date and the MODIFY FIELD should be a constant.
+@xx....xx#This option is used when this mnemonic set of information           is a passed argument to a called subroutine.
+The details entered here are of the format @xx...xx#nn.
+Where xx...xx is the key to a record on the file           PGM.FILE, this record must have a type of "R".
+The number and type of arguments are held on the           PGM.FILE record.
+NN contains the argument number and must be a valid           argument on PGM.FILE, if argument  in PGM.FILE is *           then it is not to be used, therefore it must not be entered           here.
+The arguments must be set up in order and in adjacent           sets of mnemonics.  Returned argument fields should be           set with a constant of "".
+Example:
+The Middle Rate Conv Check routine has been set up to be called using a PGM.FILE record called MID RATE CONV and requires the currency Amount, Currency, Currency Market and Local Amount as arguments.
+Let us say we are using ACCOUNT File the REPGEN CREATE fields will be set as follows: 11.2      AMOUNT 13.2.1    24 14.2.1    @MID.RATE.CONV #1 11.3      CCY 13.3.1    8 14.3.1    @MID.RATE.CONV #2 11.4      MARKET 13.4.1    9 14.4.1    @MID RATE CONV #4 11.5      ANSWER 13.5.1    "" 14.5.1    @MID.RATE.CONV #5 See chapter REPGEN.SUBROUTINES for full list of subroutine available.
+
+Note:     (i)   If there are two formats FIELD DECISION (for                 same report) referring to the same DEFINE                 MNEMONIC and both decisions are true, the first                 decision only will be considered.
+(ii)  A PGM.FILE record for using a Middle Rate Conv                 Check routine has been set up.  This routine as                 set up will convert a currency amount into local                 amount or vice versa.  The PGM file record is                 called MID.RATE.CONV and needs the following                 arguments to be set up:
+No 1          Currency Amount                    2          Currency Code                    4          Currency Market                    5          Local Amount
+Validation Rules
+The following values will be accepted: ADD             CONCATENATE   DIVIDE FIELD.DECISION  MULTIPLY      REPLACE SUBTRACT        -C -W         +C +W @xxxxx . . . x (For more information see Details below) Multivalue field associated with Field 11.1 to 13.1 and 15.1 to 26.1 and subvalue field associated with fields 12.1.1 to 13.1.1 and 15.1.1 to 16.1.1. (Optional input)
+No input allowed if DEFINE MNEMONIC (Field 11.1) is missing.
+One of the above values must be entered.
+If link to PGM.FILE then there must be a record present on PGM.FILE and the argument number must have been set up so as to be used in the PGM.FILE record. */
+		MODIFICATION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=14.0, core=true, t24Name=MODIFICATION)
+		/* Name of data file to which MNEMON FIELD (Field 13.1.1) and its associated operand MODIFICATION (Field 14.1.1) are linked.
+This field is the name of the file from which the replacement field is to be obtained.
+
+Note:     If a series of replacements required it is necessary to do           this under different mnemonics one at a time.
+Validation Rules
+1 to 25 type A (alphanumeric) characters, must be a valid file or program name. Multivalue field associated with fields 11.1 to 14.1 and 16.1 to 26.1 and Subvalue field associated with fields 12.1.1 to 14.1.1 and 16.1.1.
+Input is mandatory if MODIFICATION (Field 14.1.1) is equal to REPLACE
+No input is allowed if MODIFICATION (Field 14.1.1) is different than REPLACE
+The file must belong to the type "H" or "U" or "L" or "T" or "W". */
+		MODIF_FILE -> EB_SystemTables:PGM_FILE
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=15.0, core=true, businessType=PG, t24Name=MODIF.FILE, typeModifiers=HULTW)
+		/* Field (number) of the file MODIF FILE (Field 15.1.1) used in the report definition or is a constant or name of another Mnemonic (Field 11.1) or the name of DECIS Mnemonic (Field 70.1.1).
+The data can be a field number in the file defined in MODIF FILE (Field 15).
+It can also be defined to be part of a field with the format 'n[s,l]mj'.
+Where:    n =   field number           s =   start character of the data to be used           l =   length (number of characters to be used)           m =   maximum is the number of characters to be taken                 from the source field           j =   justification
+Start character plus length cannot be greater than number of characters taken form the same field. Justification can be 'R' or 'L' for right or left adjustment respectively.
+Within the processing a temporary field is set up this field will contain the first m characters from the source field, this temporary field will then be right or left justified.
+For example take the SHORTNAME (Field 2.1) on the CATEGORY file. Value in SHORTNAME field     SEVENDAY NOTICE (15)  A/C ADVANCE (11) REST DATE ENTERED HERE            VALUE DISPLAYED ON OUTPUT
+2.1 [1M,6] 15L  SEVEND        A/C ADREST 2.1 [9,6]  15L   NOTIC        NCE 2.1 [1,6]  15R  SEVEND            A/ 2.1 [9,6]  15R   NOTIC        ADVANC    RES 2.1 [1,6]   8L  SEVEND        A/C ADREST 2.1 [2,6]   8L  EVENDA        /C ADVEST 2.1 [1,6]   8R  SEVEND        A/C AD    RE 2.1 [2,6]   8R  EVENDA        /C ADV   RES 2.1 [6,2]  10R  DA  DV             R
+To define (select) a component or part of a composite key then details are entered as n[ce]:
+n     =   the field number
+c     =   the delimiter character (e.g. '.' full stop)
+e     =   the data element to be extracted from the                     composite key,
+e.g. composite key LIAB.REF.CUST to select customer, definition would be 0[.3] where as to select Ref definition would be 0[.2]
+For the following conditions (needs) the input (definition) of a multivalue field must always be explicit, i.e. 14.5 and not 14 or 14.X
+-         for a LOCAL REF field -         if KEY TYPE (Field 22.1) is defined and SPLIT or TOTAL           (Field 17.1) is not used -         If DISPLAY TYPE (Field 23.1) is defined as '1.HEADER'           and SPLIT or TOTAL (Field 17.1) is not used
+Input of a constant placed between double quotation marks (").  An example being that a value of 100 is required the value entered here would be "100".
+Input of another mnemonic e.g. 'Total amount outstanding' could be defined as:
+Field 11.1   TOTAL.AMOUNT.OUTSTANDING           Field 13.1.1 PRINCIPAL.AMOUNT           Field 14.1.1 ADD           Field 16.1.1 INTEREST.AMOUNT
+Input of a mnemonic acting as a DECISION NAME (Field 69.1.1) if MODIFICATION (Field 14.1.1) is equal to FIELD DECISION.
+
+Note:     Numeric is defined as 14 integers, 9 decimals, 14 maximum.           Precision of the result is defined by fractional part of           numeric value (Default = 9). e.g. "DIVIDE 1000000.00" in           field 14.1.1 and Field 16.1.1 means divide by 1 million and           hold hundred- and ten-thousands as decimals.
+Validation Rules
+Up to 35 type A (alphanumeric) characters (for specific formats see Details below). Multivalue field associated with Fields 11.1 to 15.1 and 17.1 to 26.1 and subvalue field associated with fields 12.1.1 to 15.1.1.
+Input not allowed if MODIFICATION (field 14.1.1) for a called routine, i.e. Modification starts with an @ sign.
+Input is mandatory if MODIFICATION (Field 14.1.1) has been defined and is not covered by Rule (i).
+No input allowed if MODIFICATION (field 14.1.1) missing.
+Input of a single 0 (zero) = ID is not allowed, if MODIFICATION  Field 14.1.1 is REPLACE.
+Format of "constant" must be numeric if MODIFICATION (field 14.1.1) is equal to ADD, SUBSTRACT, -C, -W, +C, +W
+Format of "constant " must be numeric and can be prefixed by a "-" (minus) sign if MODIFICATION (field 14.1.1) is equal to DIVIDE OR MULTIPLY.
+If MODIFICATION (field 14.1.1) is equal to FIELD DECISION input of a valid DECIS MNEMON (Field 69.1.1) is mandatory. */
+		MODIF_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=16.0, core=true, t24Name=MODIF.FIELD)
+	}
+	REPGEN_CREATE__DEFINE_MNEMONIC__COLUMN
+	{
+		/* Starting point (column) indicator for the fields defined as output fields in the report.
+If no input is made a default position, based on the previous field plus one space character, is calculated.  If defined, the space must be included in the apportioning of space otherwise the following field will be printed on the next line.  The definition of a horizontal sequence for multi value/sub value fields may be done be expanding Field 24 (subfields).  This expansion is not allowed when the SPLIT TOTAL option in field 17.1 SPLIT or TOTAL has been taken.
+Validation Rules
+Numeric values "1 to 130" or blank. Multivalue field, associated with fields 11.1 to 23.1 and 25.1 to 26.1 and subvalue field on its own. (Optional input)
+No input allowed if DEFINE MNEMONIC (field 11.1) is missing.
+No input allowed if DISPLAY TYPE (Field 23.1) is equal to blank.
+The value entered, plus value in field 25.1 TEXT.CHAR.MAX plus '1' must not be greater than 80 or 132 if field 3 USING 132 COLUMNS is 'Y'.
+If SPLIT.OR.TOTAL (Field 17.1) is set then only one column number field can be defined.  Subvalue expansion not allowed. */
+		COLUMN : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=24.0, core=true, t24Name=COLUMN)
+	}
+	REPGEN_CREATE__DEFINE_MNEMONIC__TEXT
+	{
+		/* Text (label) associated with the defined field.
+Text can be defined in various languages to accommodate the language needs defined in LANGUAGE CODE (Field 4.1).
+If the value in this field is proceeded by '!' symbol, the value following it is the key in EB.DICTIONARY table. The value in field CAPTION in EB.DICTIONARY record will be used.
+Validation Rules
+
+Up to 35 type A (alphanumeric) characters, including         spaces. Spaces will not be cancelled. Multivalue field,         associated with fields 11.1 to 25.1 subvalue for language         purposes. (Optional input.)
+No input is allowed if fields DEFINE MNEMONIC (field 11.1)         or DISPLAY TYPE (field 23.1) or LANGUAGE CODE (field 4.1)         are missing.
+Length of text must be equal or less than the value         defined in TEXT CHAR MAX (Field 25.1).
+The value following '!' should be a valid key in EB.DICTIONARY         table. */
+		TEXT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=26.0, core=true, t24Name=TEXT)
+	}
+	REPGEN_CREATE__HDR_1_001__040
+	{
+		/* Text (header) information for the first of four header lines for column 01 to 40.
+The first header line will be output below the report name and date. Spaces will not be cancelled.
+An EB.DICTIONARY key proceeded by '!' can be entered anywhere in this field. The key is replaced by value in field CAPTION in EB.DICTIONARY record.
+For e.g. the input can be like XXXX !EB.DICTIONARY.KEY XXXXX . The dictionary key in the middle is replaced by value in field CAPTION while displaying the header. The dictionary key can be entered anywhere in the first header line (i.e. HDR1 001 040, HDR1 041 080, HDR1 081 120 or HDR1 121 132)
+
+Validation Rules
+
+Up to 40 type A (alphanumeric) characters including         required spaces. Multivalue field, associated with fields         28.1 to 42.1. (Optional input.) Input will not be allowed         if the corresponding LANGUAGE CODE (Field 4.1) has not         been defined. (e.g. existence of a value in Field 4.1         allows header definition in 27.1 and following, existence         of 4.2 allows definition in 27.2.... etc.).
+The value following '!' should be a valid key in EB.DICTIONARY         table. */
+		HDR_1_001__040 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=27.0, core=true, t24Name=HDR.1.001..040)
+		/* Text (header) information for the first of four header lines for column 41 to 80.
+The first header line will be output below the report name and date.  Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 and 29.1 to 42.1. (Optional input) Input will not be allowed if the corresponding LANGUAGE CODE (field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 28.1 and following, existence of 4.2 allows definition in 28.2.... etc.). */
+		HDR_1_041__080 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=28.0, core=true, t24Name=HDR.1.041..080)
+		/* Text (header) information for the first of four header lines for column 81 to 120.
+The first header line will be output below the report name and date.  Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 to 28.1 and 30.1 to 42.1. (Optional input)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 29.1 and following, existence of 4.2 allows definition in 29.2.... etc.).
+Input only allowed if field 3 USING 132 COLUMNS is set to 'Y'. */
+		HDR_1_081__120 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=29.0, core=true, t24Name=HDR.1.081..120)
+		/* Text (header) information for the first of four header lines for column 121 to 132.
+The first header line will be output below the report name and date. Spaces will not be cancelled.
+Validation Rules
+Up to 12 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 to 29.1 and 31.1 to 42.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 30.1 and following, existence of 4.2 allows definition in 30.2.... etc.).
+Input only allowed if Field 3 USING 132 COLUMNS set to 'Y'. */
+		HDR_1_121__132 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=30.0, core=true, t24Name=HDR.1.121..132)
+		/* Text (header) information for the second of four header lines for column 001 to 040.
+The second header line will be output below the first as defined in Fields 27.1 to 30.1.  Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 to 30.1 and 32.1 to 42.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 31.1 and following, existence of 4.2 allows definition in 31.2.... etc.). */
+		HDR_2_001__040 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=31.0, core=true, t24Name=HDR.2.001..040)
+		/* Text (header) information for the second of four header lines for column 041 to 080.
+The second header line will be output below the first as defined in Fields 27 to 30. Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 to 31.1 and 33.1 to 42.1. (Optional input)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 32.1 and following, existence of 4.2 allows definition in 32.2.... etc.). */
+		HDR_2_041__080 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=32.0, core=true, t24Name=HDR.2.041..080)
+		/* Text (header) information for the second of four header lines for column 081 to 120.
+The second header line will be output below the first as defined in fields 27.1 to 30.1. Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 to 32.1 and 34.1 to 42.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE.CODE (field 4.1) has not been defined. (e.g. existence of a value in field 4.1 allows header definition in 33.1 and following, existence of 4.2 allows definition in 33.2.... etc.).
+Input only allowed if field 3 USING 132 COLUMNS set to 'Y'. */
+		HDR_2_081__120 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=33.0, core=true, t24Name=HDR.2.081..120)
+		/* Text (header) information for the second of four header lines for column 121 to 132.
+The second header line will be output below the first as defined in fields 27.1 to 30.1. Spaces will not be cancelled.
+Validation Rules
+Up to 12 type A (alphanumeric) characters including required spaces. Optional input field. Multivalue field, associated with fields 27.1 to 33.1 and 35.1 to 42.1
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 34.1 and following, existence of 4.2 allows definition in 34.2.... etc.).
+Input only allowed if field 3 USING 132 COLUMNS set to 'Y'. */
+		HDR_2_121__132 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=34.0, core=true, t24Name=HDR.2.121..132)
+		/* Text (header) information for the third of four header lines for column 001 to 040.
+The third header line will be output below the second as defined in Fields 31.1 to 34.1.  Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 to 35.1 and 36.1 to 42.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 35.1 and following, existence of 4.2 allows definition in 35.2.... etc.). */
+		HDR_3_001__040 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=35.0, core=true, t24Name=HDR.3.001..040)
+		/* Text (header) information for the third of four header lines for column 041 to 080.
+The third header line will be output below the second as defined in Fields 31.1 to 34.1.  Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 to 35.1 and 37.1 to 42.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 36.1 and following, existence of 4.2 allows definition in 36.2.... etc.). */
+		HDR_3_041__080 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=36.0, core=true, t24Name=HDR.3.041..080)
+		/* Text (header) information for the third of four header lines for column 081 to 120.
+The third header line will be output below the second as defined in fields 31.1 to 34.1. Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 to 36.1 and 38.1 to 42.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE.CODE (field 4.1) has not been defined. (e.g. existence of a value in field 4.1 allows header definition in 37.1 and following, existence of 4.2 allows definition in 37.2.... etc.).
+Input only allowed if field 3 USING 132 COLUMNS set to 'Y'. */
+		HDR_3_081__120 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=37.0, core=true, t24Name=HDR.3.081..120)
+		/* Text (header) information for the third of four header lines for column 121 to 132.
+The third header line will be output below the second as defined in fields 31.1 to 34.1. Spaces will not be cancelled.
+Validation Rules
+Up to 12 type A (alphanumeric) characters including required spaces. Optional input field. Multivalue field, associated with fields 27.1 to 37.1 and 39.1 to 42.1
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 38.1 and following, existence of 4.2 allows definition in 38.2.... etc.).
+Input only allowed if field 3 USING 132 COLUMNS set to 'Y'. */
+		HDR_3_121__132 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=38.0, core=true, t24Name=HDR.3.121..132)
+		/* Text (header) information for the fourth of four header lines for column 001 to 040.
+The fourth header line will be output below the third as defined in Fields 35.1 to 38.1.  Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 to 38.1 and 40.1 to 42.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 39.1 and following, existence of 4.2 allows definition in 39.2.... etc.). */
+		HDR_4_001__040 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=39.0, core=true, t24Name=HDR.4.001..040)
+		/* Text (header) information for the fourth of four header lines for column 041 to 080.
+The third header line will be output below the fourth as defined in Fields 35.1 to 38.1.  Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 to 39.1 and 41.1 to 42.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 40.1 and following, existence of 4.2 allows definition in 40.2.... etc.). */
+		HDR_4_041__080 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=40.0, core=true, t24Name=HDR.4.041..080)
+		/* Text (header) information for the fourth of four header lines for column 081 to 120.
+The fourth header line will be output below the third as defined in fields 35.1 to 40.1. Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 27.1 to 40.1 and 42.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE.CODE (field 4.1) has not been defined. (e.g. existence of a value in field 4.1 allows header definition in 41.1 and following, existence of 4.2 allows definition in 41.2.... etc.).
+Input only allowed if field 3 USING 132 COLUMNS set to 'Y'. */
+		HDR_4_081__120 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=41.0, core=true, t24Name=HDR.4.081..120)
+		/* Text (header) information for the fourth of four header lines for column 121 to 132.
+The fourth header line will be output below the third as defined in fields 35.1 to 38.1. Spaces will not be cancelled.
+Validation Rules
+Up to 12 type A (alphanumeric) characters including required spaces. Optional input field. Multivalue field, associated with fields 27.1 to 41.1.
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 42.1 and following, existence of 4.2 allows definition in 42.2.... etc.).
+Input only allowed if field 3 USING 132 COLUMNS set to 'Y'. */
+		HDR_4_121__132 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=42.0, core=true, t24Name=HDR.4.121..132)
+	}
+	REPGEN_CREATE__DECIS_GROUP_FR
+	{
+		/* Identifies the first group number in range of "groups" where the decision name specified in GLOBAL DEC NAME (Field 45.1) applies.
+Groups facility is used when more than one report is required from the same extract base.
+These reports can differ in format and/or in their  selection of records shown and/or in order of printing of the records.
+The individual group headings, decision criteria, report sequence and report contents are defined in fields GROUP (46.1) to MNEMON SEQU (67.1.1).
+In fields DECIS GROUP FR (43.1) to GLOBAL DEC NAME (45.1) a decision is linked to several groups. If there is only one report and therefore no groups but not all records are to be printed, then the DECISION NAME determining which records are to be extracted is entered in GROUP DEC NAME (Field 66.1).
+Validation Rules
+Up to 10 numeric characters Multivalue field, associated with fields 44.1 and 45.1. (Optional input.)
+Even if there are groups details in GROUP (Field 46.1) this field is not compulsory.
+Input must be numeric. */
+		DECIS_GROUP_FR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=43.0, core=true, t24Name=DECIS.GROUP.FR)
+		/* Identifies the last group number in a range of "groups" where the decision name specified in GLOBAL DEC NAME (Field 45.1) applies.
+Groups facility is used when more than one report is required from the same extract base.
+These reports can differ in format and/or in their selection of records shown and/or in order of printing of the records.
+Th individual group headings, decision criteria, report sequence and report contents are defined in fields GROUP (46.1) to MNEMON SEQU (67.1.1).
+In fields DECIS GROUP FR (43.1) to GLOBAL DEC NAME (45.1) a decision is linked to several groups.
+If there is only one report and therefore no groups but not all records are to be printed, then the DECISION NAME determining which records are to be extracted is entered in GROUP DEC NAME (Field 66.1).
+Validation Rules
+Up to 10 numeric characters Multivalue field, associated with fields 43.1 and 45.1. (Optional input.)
+Input must be numeric.
+Input is mandatory if DECIS GROUP FR (Field 43.1) has been defined.
+Numeric value must be greater than in DECIS GROUP FR (Field 43.1).
+There must be at least one GROUP (Field 46.1) set up for range entered in DECIS GROUP FR (Field 43.1) and this field. */
+		DECIS_GROUP_TO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=44.0, core=true, t24Name=DECIS.GROUP.TO)
+		/* Identifies DECISION NAME (Field 63.1) where all decisions (Field association 69.1 to 75.1) are defined.
+Groups facility is used when more than one report is required from the same extract base.
+These reports can differ in format and/or in their selection of records shown and/or in order of printing of the records.
+The individual group headings, decision criteria, report sequence and report contents are defined in fields GROUP (46.1) to MNEMON SEQU (67.1.1).
+In fields DECIS GROUP FR (43.1) to GLOBAL DEC NAME (45.1) a decision is linked to several groups.
+If there is only one report and therefore no groups but not all records are to be printed, then the DECISION NAME determining which records are to be extracted is entered in GROUP DEC NAME (Field 66.1).
+Validation Rules
+Up to 20 type A (alphanumeric) characters
+Input is mandatory if Field 43.1 DECIS GROUP FR has been specified.
+Must be a valid DECISION NAME (Field 68.1). */
+		GLOBAL_DEC_NAME : T24BusinessTypes:MNE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=45.0, core=true, t24Name=GLOBAL.DEC.NAME)
+	}
+	REPGEN_CREATE__GROUP
+	{
+		/* Identity of a group for which the details are set up in Fields 47.1.1 to 67.1.1.
+Groups facility is used when more than one report is required from the same extract base.
+These reports can differ in format and/or in their selection of records shown and/or in order of printing of the records.
+The individual group headings, decision criteria, report sequence and report contents are defined in fields GROUP (46.1) to MNEMON SEQU (67.1.1).
+In fields DECIS GROUP FR (43.1) to GLOBAL DEC NAME (45.1) a decision is linked to several groups.
+If there is only one report and therefore no groups but not all records are to be printed, then the DECISION NAME determining which records are to be extracted is entered in GROUP DEC NAME (Field 66.1).
+Validation Rules
+Up to 10 numeric characters. Multivalue associated with Fields 47.1 to 67.1. (Optional input).
+If only one group exists (or no groups have been defined) input is not allowed.
+No duplicate numbers allowed. */
+		GROUP : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=46.0, core=true, t24Name=GROUP)
+		GROUP_TITLE -> byValue EB_Repgens:REPGEN_CREATE__GROUP__GROUP_TITLE *
+		/* Length of text (label) as defined in GROUP TEXT (Field 65.1.1) for the field value to be printed.  This is independent of any header information and will be appearing on the left of the field value.
+If no length is defined but if GROUP TEXT (Field 65.1.1) is defined the length will be set to that value or if multilanguage definitions exist, to the highest length of any defined sub values.
+Validation Rules
+Numeric values "1 to 35" or blank. Multivalue field, associated with fields 46.1 to 63.1 and 65.1 to 67.1 (Optional input)
+No input allowed if GROUP (Field 46.1) has not been defined. */
+		GROUP_TEXT_MAX : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=64.0, core=true, t24Name=GROUP.TEXT.MAX)
+		GROUP_TEXT -> byValue EB_Repgens:REPGEN_CREATE__GROUP__GROUP_TEXT *
+		/* The group decision name provides a linkage for the group to DECISION NAME (Field 68.1) and its associated Fields 69.1.1 to 75.1.1 containing the decision parameter.
+Groups facility is used when more than one report is required from the same extract base.
+These reports can differ in format and/or in their selection of records shown and/or in order of printing of the records.
+The individual group headings, decision criteria, report sequence and report contents are defined in fields GROUP (46.1) to MNEMON SEQU (67.1.1).
+In fields DECIS GROUP FR (43.1) to GLOBAL DEC NAME (45.1) a decision is linked to several groups.
+If there is only one report and therefore no groups but not all records are to be printed, then the DECISION NAME determining which records are to be extracted is entered in GROUP DEC NAME (Field 66.1).
+Validation Rules
+Up to 20 type A (alphanumeric) characters. Multivalue field associated with fields 46.1 to 65.1 and 67.1.
+Input must be a valid DECISION NAME (Field 68.1). */
+		GROUP_DEC_NAME : T24BusinessTypes:MNE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=66.0, core=true, t24Name=GROUP.DEC.NAME)
+		MNEMON_SEQU -> byValue EB_Repgens:REPGEN_CREATE__GROUP__MNEMON_SEQU *
+	}
+	REPGEN_CREATE__GROUP__GROUP_TITLE
+	{
+		/* Free format text appearing as group title on the printed report or the screen
+Validation Rules
+Up to 54 type A (alphanumeric) characters. Multivalue field associated with fields 46.1 and 48.1 to 67.1 and subvalue field associated with field 48.1.1 to 63.1.1. (Optional input.)
+The input length plus the length of REPORT NAME (ID Field 0) cannot be exceed 32 characters if the report is only 80 columns wide (i.e. if USING 132 COLUMNS (Field 3) is blank). */
+		GROUP_TITLE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=47.0, core=true, t24Name=GROUP.TITLE)
+		/* Text (header) information for the GROUP (Field 46.1) for the first of the four header lines for column 01 to 40.
+The first group header line will be output below the overall report header lines.  Spaces will not be cancelled.  Each group change will start a new page with the corresponding new group header line(s), unless NEW PAGE FOR GROUP (Field 78) is null.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1, 47.1 and 49.1 to 67.1.  Subvalue field associated with fields 47.1.1 and 49.1.1 to 63.1.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined (e.g. existence of a value in field 4.1 allows header definition in 48.1.1 and following, existence of 4.2 allows definition in 48.1.2..etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH1_001__040 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=48.0, core=true, t24Name=GH1.001..040)
+		/* Text (header) information for the GROUP (Field 46.1) for the first of the four header lines for column 41 to 80.
+The first group header line will be output below the overall report header lines.  Spaces will not be cancelled.  Each group change will start a new page with the corresponding new group header line(s) unless NEW PAGE FOR GROUP (Field 76) is null.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 48.1 and 50.1 to 67.1.  Subvalue associated with fields 47.1.1 to 48.1.1 and 50.1.1 to 51.1.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 49.1.1 and following, existence of 4.2 allows definition in 49.1.2..etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH1_041__080 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=49.0, core=true, t24Name=GH1.041..080)
+		/* Text (header) information for the GROUP (Field 46.1) for the first of the four header lines for column 81 to 120.
+The first group header line will be output below the overall report header lines.  Spaces will not be cancelled.  Each group change will start a new page with the corresponding new group header line(s), unless NEW PAGE FOR GROUP (Field 78) is null.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 44.1 to 49.1 and 51.1 to 67.1.  Subvalue field associated with fields 47.1.1 to 49.1.1 and 51.1.1 to 63.1.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 50.1.1 and following, existence of 4.2 allows definition in 50.1.2...etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH1_081__120 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=50.0, core=true, t24Name=GH1.081..120)
+		/* Text (header) information for GROUP (Field 43.1) for the first of the four header lines for column 121 to 132.
+The first group header line will be output below the overall report header lines.  Spaces will not be cancelled.  Each group change will start a new page with the corresponding new group header line(s), unless NEW PAGE FOR GROUP (Field 78) is null.
+Validation Rules
+Up to 12 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 47.1 and 52.1 to 67.1.  Subvalue field associated with fields 47.1.1 to 50.1.1 and 52.1.1 to 63.1.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in field 4.1 allows header definition in 51.1.1 and following, existence of 4.2 allows definition in 51.1.2...etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH1_121__132 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=51.0, core=true, t24Name=GH1.121..132)
+		/* Text (header) information for the GROUP (Field 46.1) for the second of the four header lines for column 001 to 040.
+The second header line will be output below the first as defined in fields 48.1.1. to 51.1.1.  Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 51.1 and 53.1 to 67.1.  Subvalue fields associated with fields 47.1.1 to 51.1.1 and 53.1.1 to 63.1.1. (Optional input)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 52.1.1 and following, existence of 4.2 allows definition in 52.1.2...etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH2_001__040 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=52.0, core=true, t24Name=GH2.001..040)
+		/* Text (header) information for GROUP (Field 46.1) for the second of the four header lines for column 041 to 080.
+The second header line will be output below the first as defined in Fields 48.1.1 to 51.1.1. Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 52.1 and 54.1 to 67.1.  Subvalue field associated with fields 47.1.1 to 52.1.1 and 54.1.1. to 63.1.1. (Optional input)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 53.1.1 and following, existence of 4.2 allows definition in 53.1.2 etc...).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH2_041__080 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=53.0, core=true, t24Name=GH2.041..080)
+		/* Text (header) information for GROUP (Field 46.1) for the second of the four header lines for column 081 to 120.
+The second header line will be output below the first as defined in Fields 48.1.1 to 51.1.1. Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 53.1 and 55.1 to 67.1.  Subvalue field associated with fields 47.1.1. to 53.1.1 and 55.1.1 to 63.1.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 54.1.1 and following, existence of 4.2 allows definition in 54.1.2..etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH2_081__120 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=54.0, core=true, t24Name=GH2.081..120)
+		/* Text (header) information for GROUP (Field 46.1) for the second of the four header lines for column 121 to 132.
+The second header line will be output below the first as defined in Fields 48.1.1 to 51.1.1. Spaces will not be cancelled.
+Validation Rules
+Up to 12 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 54.1 and 56.1 to 67.1.  Subvalue field associated with fields 47.1.1 to 54.1.1 and 56.1.1 to 63.1.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 55.1.1 and following, existence of 4.2 allows definition in 55.1.2..etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH2_121__132 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=55.0, core=true, t24Name=GH2.121..132)
+		/* Text (header) information for the GROUP (Field 46.1) for the third of the four header lines for column 001 to 040.
+The third header line will be output below the second as defined in fields 52.1.1. to 55.1.1.  Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 54.1 and 57.1 to 67.1.  Subvalue fields associated with fields 47.1.1 to 55.1.1 and 57.1.1 to 63.1.1. (Optional input)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 56.1.1 and following, existence of 4.2 allows definition in 56.1.2...etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH3_001__040 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=56.0, core=true, t24Name=GH3.001..040)
+		/* Text (header) information for GROUP (Field 44.1) for the third of the four header lines for column 041 to 080.
+The third header line will be output below the second as defined in Fields 52.1.1 to 55.1.1. Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 56.1 and 57.1 to 67.1.  Subvalue field associated with fields 47.1.1 to 42.1.1 and 58.1.1. to 63.1.1. (Optional input)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 57.1.1 and following, existence of 4.2 allows definition in 57.1.2 etc...).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH3_041__080 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=57.0, core=true, t24Name=GH3.041..080)
+		/* Text (header) information for GROUP (Field 43.1) for the third of the four header lines for column 081 to 120.
+The third header line will be output below the second as defined in Fields 52.1.1 to 55.1.1. Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 57.1 and 59.1 to 67.1.  Subvalue field associated with fields 47.1.1. to 57.1.1 and 59.1.1 to 63.1.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 58.1.1 and following, existence of 4.2 allows definition in 58.1.2..etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH3_081__120 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=58.0, core=true, t24Name=GH3.081..120)
+		/* Text (header) information for GROUP (Field 46.1) for the third of the four header lines for column 121 to 132.
+The third header line will be output below the second as defined in Fields 52.1.1 to 55.1.1. Spaces will not be cancelled.
+Validation Rules
+Up to 12 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 54.1 and 56.1 to 67.1.  Subvalue field associated with fields 47.1.1 to 58.1.1 and 60.1.1 to 63.1.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 59.1.1 and following, existence of 4.2 allows definition in 59.1.2..etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH3_121__132 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=59.0, core=true, t24Name=GH3.121..132)
+		/* Text (header) information for the GROUP (Field 46.1) for the fourth of the four header lines for column 001 to 040.
+The fourth header line will be output below the third as defined in fields 56.1.1. to 59.1.1.  Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 59.1 and 61.1 to 67.1.  Subvalue fields associated with fields 47.1.1 to 59.1.1 and 61.1.1 to 63.1.1. (Optional input)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 60.1.1 and following, existence of 4.2 allows definition in 60.1.2...etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH4_001__040 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=60.0, core=true, t24Name=GH4.001..040)
+		/* Text (header) information for GROUP (Field 46.1) for the fourth of the four header lines for column 041 to 080.
+The fourth header line will be output below the third as defined in Fields 56.1.1 to 59.1.1. Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 60.1 and 62.1 to 67.1.  Subvalue field associated with fields 47.1.1 to 60.1.1 and 62.1.1. to 63.1.1. (Optional input)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 61.1.1 and following, existence of 4.2 allows definition in 61.1.2 etc...).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH4_041__080 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=61.0, core=true, t24Name=GH4.041..080)
+		/* Text (header) information for GROUP (Field 43.1) for the fourth of the four header lines for column 081 to 120.
+The fourth header line will be output below the third as defined in Fields 56.1.1 to 59.1.1. Spaces will not be cancelled.
+Validation Rules
+Up to 40 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 61.1 and 63.1 to 67.1.  Subvalue field associated with fields 47.1.1. to 61.1.1 and 63.1.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 62.1.1 and following, existence of 4.2 allows definition in 62.1.2..etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH4_081__120 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=62.0, core=true, t24Name=GH4.081..120)
+		/* Text (header) information for GROUP (Field 46.1) for the fourth of the four header lines for column 121 to 132.
+The fourth header line will be output below the third as defined in Fields 56.1.1 to 61.1.1. Spaces will not be cancelled.
+Validation Rules
+Up to 12 type A (alphanumeric) characters including required spaces. Multivalue field, associated with fields 46.1 to 62.1 and 64.1 to 67.1.  Subvalue field associated with fields 47.1.1 to 62.1.1. (Optional input.)
+Input will not be allowed if the corresponding LANGUAGE CODE (Field 4.1) has not been defined. (e.g. existence of a value in Field 4.1 allows header definition in 63.1.1 and following, existence of 4.2 allows definition in 63.1.2..etc.).
+No input will be allowed if GROUP (Field 46.1) has not been defined. */
+		GH4_121__132 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=63.0, core=true, t24Name=GH4.121..132)
+	}
+	REPGEN_CREATE__GROUP__GROUP_TEXT
+	{
+		/* Text (label) associated with the group.
+Text can be defined in various languages to accommodate language needs as defined in LANGUAGE CODE (Field 4.1).
+Validation Rules
+Up to 35 type A (alphanumeric) characters, including spaces.  Spaces will not be cancelled. Multivalue field, associated with fields 46.1 to 64.1 and 66.1 to 67.1.  Subvalue field for language on its own. (Optional input.)
+No input is allowed if GROUP (Field 46.1) or LANGUAGE CODE (Field 4.1) are missing.
+Length of text must be equal or less than the value defined in GROUP TEXT MAX (Field 64.1). */
+		GROUP_TEXT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=65.0, core=true, t24Name=GROUP.TEXT)
+	}
+	REPGEN_CREATE__GROUP__MNEMON_SEQU
+	{
+		/* Allows definition of the print sequence and report content for each group, where the group does not require the sequence in which the mnemonics have been defined and/or does require to print all the mnemonics defined for print.
+If no groups have been defined the print sequence cannot be redefined and output (print) is in accordance to the definition sequence of the mnemonics.
+For a group the sort and print sequence is the order in which the mnemonic fields are entered into this field.
+It is not necessary to use each mnemonic in each group.
+If no details entered in this field for this group, then the details from previous group that had details loaded are used.  If no details have been loaded for an preceding group, then the order etc. is taken from the order in which the mnemonics have been defined.
+Validation Rules
+Up to 20 type A (alphanumeric) characters. Multivalue field associated with fields 46.1 to 66.1 and subvalue field on its own. (Optional input.)
+All definitions must exists as mnemonics in DEFINE MNEMONIC (Field 11.1).
+All mnemonics must be defined as a KEY and/or DISPLAY Type in Field 22.1 and 23.1 respectively.
+The total number of characters of KEY TYPE mnemonics must be less than 189 characters for all SORT FILE TYPES above 1.  If SORT FILE TYPE (Field 76) equal 1 then maximum length is 33. */
+		MNEMON_SEQU : T24BusinessTypes:MNE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=67.0, core=true, t24Name=MNEMON.SEQU)
+	}
+	REPGEN_CREATE__DECISION_NAME
+	{
+		/* Decision name for the decision specified in Fields 69.1.1 to 75.1.1.
+This field contains the name of the decision specified in the Fields 69.1.1 and 75.1.1 and provides the reference for the decision back to the field(s) which in turn are dependent on the decision.
+The places where decisions, are used are:
+(i)  in deciding whether a mnemonic is to be set up in                 this case Field 14.1.1 MODIFICATION will contain                 FIELD DECISION and field 16.1.1 the DECISION                 NAME.
+(ii)  In deciding whether the record is to be included                 on the print, this uses fields 45.1. GLOBAL DEC                 NAME and/or Field 66.1 GROUP DEC NAME.
+Validation Rules
+Up to 20 type A (alphanumeric) characters Multivalue field, associated with fields 69.1 to 75.1. (Optional input.)
+The input must exist in one of the following fields: 16.1.1  MODIFY FIELD 45.1    GLOBAL DEC NAME 66.1    GROUP DEC NAME
+The input must be unique. */
+		DECISION_NAME : T24BusinessTypes:MNE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=68.0, core=true, t24Name=DECISION.NAME)
+		BRACKETS_OP -> byValue EB_Repgens:REPGEN_CREATE__DECISION_NAME__BRACKETS_OP *
+	}
+	REPGEN_CREATE__DECISION_NAME__BRACKETS_OP
+	{
+		/* Mathematical brackets to define priority in the decision specified in Fields 71.1.1 to 73.1.1 if chaining through use of 'or' and 'and' is required.
+Example: If A = 1 and B = 2 or C = 3
+without brackets Element 1 =     A = 1 and B = 2                  Element 2 =     C = 3
+with brackets    If A = 1 and (B = 2 or C = 3)
+Element 1 =     A = 1                  Element 2 =     B = 2 or C = 3
+Validation Rules
+The following values will be accepted: "1 (" "2 ((" "3 (((" "4 ((((" Multivalue field, associated with fields 68.1 and 70.1 to 75.1. (Optional input) Input is only allowed if DECIS MNEMON (Field 70.1.1) is defined. */
+		BRACKETS_OP : EB_Repgens:REPGEN_CREATE__DECISION_NAME__BRACKETS_OP__BRACKETS_OP
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=69.0, core=true, t24Name=BRACKETS.OP)
+		/* Field (name) mnemonic to which the condition statement refers, i.e. The mnemonic on which the decision are to be made.
+Validation Rules
+Up to 20 type A (alphanumeric) characters. No spaces allowed. Multivalue field, associated with fields 68.1 to 69.1 and 71.1 to 75.1.
+Input must be defined in DEFINE MNEMONIC (Field 11.1). */
+		DECIS_MNEMON : T24BusinessTypes:MNE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=70.0, core=true, t24Name=DECIS.MNEMON)
+		/* Operand in the condition statement for the value in the next or the next two fields.
+Validation Rules
+The following values will be accepted: EQ    equal to GT    greater than GE    greater than or equal to NE    not equal to LT    less than LE    less than or equal to LK    like UL    unlike This is a multivalue field associated with fields 68.1 to 70.1 and 72.1 to 75.1 (Optional field)
+Input is mandatory if DECIS MNEMON (Field 70.1.1) has been defined. */
+		DECISION : EB_Repgens:REPGEN_CREATE__DECISION_NAME__BRACKETS_OP__DECISION
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=71.0, core=true, t24Name=DECISION)
+		/* The only value or the starting value in a range of values which are to be used in the decision making.
+Validation Rules
+Up to 35 type A (alphanumeric) characters or the following specific formats: A constant between "double quotation marks". The name of another mnemonic. Multivalue field, associated with fields 68.1 to 71.1 and 73.1 to 75.1.
+Input is mandatory if DECISION (Field 71.1.1) has been defined.
+Input must begin and/or end with "..." if DECISION (Field 71.1.1) is equal to 'LK' or 'UL'.
+If the format used is the name of another mnemonic that mnemonic must be defined in DEFINE MNEMONIC (Field 11.1).
+If a constant entered it must be between double quotation makes e.g. if constant of GBP required it will be entered as "GBP". */
+		DECISION_FR : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=72.0, core=true, t24Name=DECISION.FR)
+		/* The ending (last) value in a range of values which are to be used in decision making.
+Validation Rules
+Up to 35 type A (alphanumeric) characters or one of the following formats: A constant between "quotation marks". The name of another mnemonic. Multivalue field, associated with fields 69.1 to 72.1 and 74.1 to 75.1.
+The input is only allowed if the value of the DECISION (Field 71.1.1) is equal to 'EQ' or 'NE'.
+The input value must be greater than DECISION FR (Field 72.1.1). */
+		DECISION_TO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=73.0, core=true, t24Name=DECISION.TO)
+		/* Mathematical brackets to define priority in the decision specified in Fields 70.1.1 to 73.1.1 if chaining through the use of 'or' and 'and' is required.
+Example: If A = 1 and B = 2 or C = 3 without brackets Element 1 =     A = 1 and B = 2                  Element 2 =     C = 3
+with brackets    If A = 1 and (B = 2 or C = 3)                  Element 1 =     A = 1                  Element 2 =     B = 2 or C = 3
+Validation Rules
+The following values will be accepted: "1 )" "2 ))" "3 )))" "4 ))))" Multivalue field, associated with fields 68.1 to 73.1 and 75.1. (Optional input.) Input is only allowed if DECIS MNEMON (Field 70.1.1) is defined. */
+		BRACKETS_CL : EB_Repgens:REPGEN_CREATE__DECISION_NAME__BRACKETS_OP__BRACKETS_CL
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=74.0, core=true, t24Name=BRACKETS.CL)
+		/* Chaining element to next condition statement.
+Validation Rules
+Valid input formats are: AND OR Blank Multivalue field, associated with fields 68.1 to 74.1. (Optional input.)
+Input is only allowed if DECIS MNEMON (Field 70.1.1) has been defined and the next subfield exists (i.e. 70.1.1 followed by 70.1.2 or 70.2.3 followed by 70.2.4). */
+		REL_NEXT_FD : EB_Repgens:REPGEN_CREATE__DECISION_NAME__BRACKETS_OP__REL_NEXT_FD
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=75.0, core=true, t24Name=REL.NEXT.FD)
+	}
+	REPGEN_CREATE__CO_CODE_SORT
+	{
+		/* Indicates the company code for which REPGEN.SORT was run for.
+This field is updated each time a REPGEN.SORT record containing this record name is run.  The company code is stored is CO CODE SORT (Field 87.1) and the Date and Time is stored in DATE TIME SORT (Field 88.1).
+Validation Rules
+9 digit company code. Externally maintained field. Multivalue associated with field 88.1 */
+		CO_CODE_SORT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=11, sysNumber=87.0, core=true, t24Name=CO.CODE.SORT, mask="R##-###-####")
+		/* Indicates the time and date that a REPGEN SORT record was run for this report.
+This field is updated each time a REPGEN.SORT record containing this record name is run.  The company code is stored is CO CODE SORT (Field 87.1) and the Date and Time is stored in DATE TIME SORT (Field 88.1).
+Validation Rules
+Displayed as Date followed by Time. Held as 6 numeric characters for the date followed by 4 numeric characters for the date followed by 4 numeric characters for the line (YYMMDDHHMM). */
+		DATE_TIME_SORT : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=15, sysNumber=88.0, core=true, t24Name=DATE.TIME.SORT, mask="RDD DD  DD ##:##")
+	}
+	REPGEN_CREATE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=96.0, core=true, t24Name=INPUTTER)
+	}
+	REPGEN_CREATE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=97.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* OVERVIEW FOR REPGEN OUTPUT
+The module REPGEN.OUTPUT allows selection of a report for print or display on the screen.  It also contains the definition of the language (code) in which the report headers, titles and labels must be printed.  It provides for extra copies to be printed and the definition of a special page length for the printing of the report.  The work file between the Sort and Printed can be requested to be deleted.
+The ID of the file is a user-defined name or the report name itself.  If both print and display is required and/or different languages need to be output, the use of an ID different to the report is mandatory and the report name becomes an attribute in field 3.
+The language formats, i.e. the definition of the languages used and the corresponding descriptions and headers need to be defined in the file REPGEN.CREATE.
+The output definitions can be entered on-line for an on-line print or display of the report.  The required minimum input is a key, (which is necessary for the execution of the print or the display of the report and can be used each time a request is entered), the execution type (print/display) and the report name.
+The file type of REPGEN.OUTPUT is "W" (workfile) and therefore has a live version only.
+The output definition can be done as maintenance task only, using function "I" (input) or the C(copy) function or as definition and execution task combined using the function "V".  If first defined under "I", later execution on-line must also be triggered using the "V" function.
+If the report needs to be produced as part of the end of day, then a REPGEN.OUTPUT record, for the report, must still exist.  The name given to the REPGEN.OUTPUT record must then be entered as a data item in an appropriate BATCH record and there must be a REPGEN.SORT record with the same name.
+An appropriate Batch record is one that:
+(i)    has a batch job (Field 6) of Batch record that       will call upon the report generator and accept       'data' in the form of a REPGEN.OUTPUT record       (Field 11.1.1 of the BATCH.RECORD).
+e.g. EB.PRINT
+(ii)   Is to be executed at the desired stage in the       end of the day run.
+e.g. before or after the date change.
+If the REPGEN.CREATE record has been updated since the last run of REPGEN.SOURCE, an override message will be output. */
+	REPGEN_OUTPUT
+		@t24:i (t24Name=REPGEN.OUTPUT, level=I, type=W, additionalInfo=PHN, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* Identity or key for the output definition of the report name in Field 3.
+The key of this file can be the same as the REPORT NAME (field 3) if the request for display or print is made on-line, where the key is only valid for a single execution.  The same is true for an end-of-day report generation if only print or display
+Validation Rules
+Up to 14 (S.W.I.F.T) characters. (Mandatory Input). is required and only one language is used.  If, however, combinations of output type and language are required for the same report name, then use of a key specific to the combination is required. */
+		KEY -> EB_Repgens:REPGEN_OUTPUT PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=S, t24Name=KEY)
+		DESCRIPTION -> byValue EB_Repgens:REPGEN_OUTPUT__DESCRIPTION *
+		/* Indication whether the report requested for production is to be printed or directed to a screen.
+If both, print and display are required, the report output request for a given report name has to be defined twice, i.e. under two unique keys.
+Validation Rules
+Valid input is: DISPLAY or D PRINT or P (Mandatory Input).
+Display cannot be requested for a REPGEN.CREATE record which has field 3 USING.132.COLUMNS set to 'Y'. */
+		DISPLAY_OR_PRINT : EB_Repgens:REPGEN_OUTPUT__DISPLAY_OR_PRINT required
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=2.0, core=true, t24Name=DISPLAY.OR.PRINT)
+		/* Name of the report for which the output request is made.
+Validation Rules
+Up to 15 type A (alphanumeric) characters. (Mandatory Input). The report name must be a valid key of the file REPGEN.CREATE. */
+		REPORT_NAME -> EB_Repgens:REPGEN_CREATE required
+			@i18n:Label (en="Report Name")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=3.0, core=true, businessType=A, t24Name=REPORT.NAME)
+		/* Indicates the date and time that REPGEN.SOURCE was last run for the REPGEN.CREATE record in field 2.
+Validation Rules
+Displayed as Date followed by Time. Held as 6 characters Date and 4 characters time in the format YYMMDDHHMM. External maintained. */
+		DATE_TIME_COMPILER : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=4.0, core=true, t24Name=DATE.TIME.COMPILER, mask="RDD DD  DD ##:##")
+		/* Indicates the date and time that this sort was last run.
+Validation Rules
+Up to 15 type A (alphanumeric) characters. (Mandatory Input). */
+		DATE_TIME_SORT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=5.0, core=true, t24Name=DATE.TIME.SORT, mask="RDD DD  DD ##:##")
+		/* The language (code) in which the report headings and descriptions must be printed or displayed.
+If no language code is input, the language code of the user working in "V" function mode is taken.
+Validation Rules
+2 numeric characters. (Optional input). If input, the language code must be a valid ID of the file language. */
+		SPECIAL_LANGUAGE -> EB_SystemTables:LANGUAGE
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=6.0, core=true, t24Name=SPECIAL.LANGUAGE)
+		/* Indicates whether the work file between the sort and print routines is to be deleted after producing the report.
+If the contents of the report are sensitive it maybe necessary to Delete the sort file as soon as the report has been produced in which case this field is to be set to 'Y'.
+Validation Rules
+Valid values are 'Y' - Yes delete file blank - Do not delete file. Optional Input. */
+		DELETE_SORT_FILE : EB_Repgens:REPGEN_OUTPUT__DELETE_SORT_FILE
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=7.0, core=true, t24Name=DELETE.SORT.FILE)
+		/* Indicates the number of extra print copies to be produced.
+Validation Rules
+Numeric characters with value 1 to 9 inclusive or blank. Optional Input. Must be blank if DISPLAY OR PRINT is set to DISPLAY. */
+		NO_OF_EXTRA_COPIES : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=8.0, core=true, t24Name=NO.OF.EXTRA.COPIES)
+		/* Indicator for the number of print lines in the report.
+If no value is input a default of 66 lines is assumed.
+Validation Rules
+2 numeric characters with values from 12 to 72 or blank. (Optional Input). No input is allowed if Field 2 is equal to DISPLAY. */
+		SPECIAL_PRINT_LEN : EB_Repgens:REPGEN_OUTPUT__SPECIAL_PRINT_LEN
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=9.0, core=true, t24Name=SPECIAL.PRINT.LEN)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=11.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Repgens:REPGEN_OUTPUT__INPUTTER *
+		DATE_TIME -> byValue EB_Repgens:REPGEN_OUTPUT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=15.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=17.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=18.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	REPGEN_OUTPUT__DESCRIPTION
+	{
+		/* Free format description of the output request definition.
+The description field is internal to this file is  not part of any output.
+Validation Rules
+1-999 lines of 35 type A (alphanumeric) characters. Multivalue field. (Optional Input). */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	REPGEN_OUTPUT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=INPUTTER)
+	}
+	REPGEN_OUTPUT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=13.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* OVERVIEW FOR REPGEN SORT
+This module creates a sort file using the program created in REPGEN.SOURCE for a report defined in the file REPGEN.CREATE.
+This step in the report generation can be run on-line or be part of a end-of-day job stream.
+This routine maintains records on the REPGEN.SORT file which are called up when a report is to be produced.
+The records are loaded using the (I)nput or (C)opy functions.
+The (V)erify function is used to produce the report on line.  If Verify mode is run and the REPGEN.CREATE record has been updated but REPGEN.SOURCE not run an override message appears.
+The functions (L)ist, (P)rint, (R)eversal and (S)ee are also available.
+The end of day production of these types of reports is explained in the REPGEN.OUTPUT overview.
+The sort file created, with the information as of the last creation, is available for print or display until the next creation or until physically removed through use of the module REPGEN.FROP.LIST. unless the print run was asked to delete the sort file. */
+	REPGEN_SORT
+		@t24:i (t24Name=REPGEN.SORT, level=I, type=W, additionalInfo=PHN, allowedFunctions="C I L P Q R S V", localRefAllowed=true)
+	{
+		/* ID to identify this REPGEN.SORT record.
+The ID of this record can be any characters but is is recommended that it be the REPGEN.CREATE record key where possible.
+For reports to be run as part of the end of day the records key names must be the same on the REPGEN.SORT and REPGEN.OUTPUT files.
+Validation Rules
+1-14 swift characters. Mandatory Input. */
+		KEY -> EB_Repgens:REPGEN_SORT PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=S, t24Name=KEY)
+		DESCRIPTION -> byValue EB_Repgens:REPGEN_SORT__DESCRIPTION *
+		/* Is the key of REPGEN.CREATE record for which the sort is to be run.
+Validation Rules
+2-15 alphanumeric characters. Mandatory Input.
+Must be the key of a record on the REPORT.CREATE file. */
+		REPORT_NAME -> EB_Repgens:REPGEN_CREATE required
+			@i18n:Label (en="Report Name")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, businessType=A, t24Name=REPORT.NAME)
+		/* Indicates the date and time that REPGEN.SOURCE was last run for the REPGEN.CREATE record in field 2.
+Validation Rules
+Displayed as Date followed by Time. Held as 6 characters Date and 4 characters time in the format YYMMDDHHMM. External Maintained. */
+		DATE_TIME_COMPILER : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=3.0, core=true, t24Name=DATE.TIME.COMPILER, mask="RDD DD  DD ##:##")
+		/* Indicates the date and time that this sort was last run.
+Validation Rules
+Displayed as Date followed by Time. Held as 6 characters Date and 4 characters time in the format YYMMDDHHMM. External maintained. */
+		DATE_TIME_SORT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=4.0, core=true, t24Name=DATE.TIME.SORT, mask="RDD DD  DD ##:##")
+		CONSTANTS -> byValue EB_Repgens:REPGEN_SORT__CONSTANTS *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=7.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Repgens:REPGEN_SORT__INPUTTER *
+		DATE_TIME -> byValue EB_Repgens:REPGEN_SORT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=12.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=14.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=15.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	REPGEN_SORT__DESCRIPTION
+	{
+		/* Free format narrative for notes explaining use of record.
+This field is not used other than as a notes field.
+Validation Rules
+Up to 35 alphanumeric characters. Optional Input. */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	REPGEN_SORT__CONSTANTS
+	{
+		CONSTANTS -> byValue EB_Repgens:REPGEN_SORT__CONSTANTS__CONSTANTS *
+	}
+	REPGEN_SORT__CONSTANTS__CONSTANTS
+	{
+		/* Contains the variables that are to be passed into the REPGEN processing at a run time.
+Where a REPGEN.CREATE record has indicated that it needs variables at run time, then these variables are to be entered here.
+Validation Rules
+Up to 35 alphanumeric characters. Subvalue field Optional Input. */
+		CONSTANTS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=CONSTANTS)
+	}
+	REPGEN_SORT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=9.0, core=true, t24Name=INPUTTER)
+	}
+	REPGEN_SORT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=10.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	REPGEN_CREATE__USING_132_COLUMNS : mml:string
+		Y=Y
+		NULL=NULL
+	REPGEN_CREATE__READ_FILE__FL_FIELD_NO__FL_DECISION : mml:string
+		EQ=EQ
+		GE=GE
+		GT=GT
+		LE=LE
+		LK=LK
+		LT=LT
+		NE=NE
+		UL=UL
+		KEY=KEY
+		SUB=SUB
+	REPGEN_CREATE__READ_FILE__FL_FIELD_NO__FL_REL_NEXT : mml:string
+		AND=AND
+		OR=OR
+	REPGEN_CREATE__DEFINE_MNEMONIC__MULTI_SPLIT_TOT : mml:string
+		MULTI=MULTI
+		SPLIT=SPLIT
+		TOTAL=TOTAL
+	REPGEN_CREATE__DEFINE_MNEMONIC__KEY_TYPE : mml:string
+		n1_SEQUENCE_CONTROL="1 SEQUENCE CONTROL"
+		n2_TOTAL_BY_CHANGE="2 TOTAL BY CHANGE"
+		n3_PAGING_BY_CHANGE="3 PAGING BY CHANGE"
+		n4_TOTAL_PAGING_BY_CHANGE="4 TOTAL+PAGING BY CHANGE"
+	REPGEN_CREATE__DEFINE_MNEMONIC__DISPLAY_TYPE : mml:string
+		n1_HEADER="1 HEADER"
+		n2_LINE="2 LINE"
+		n3_LINE_TOTAL="3 LINE+TOTAL"
+		n4_TOTAL_ONLY="4 TOTAL ONLY"
+		n5_CONTIN_TOTAL="5 CONTIN.TOTAL"
+		n6_FOOTER="6 FOOTER"
+	REPGEN_CREATE__DECISION_NAME__BRACKETS_OP__BRACKETS_OP : mml:string
+		n1__="1 ("
+		n2___="2 (("
+		n3____="3 ((("
+		n4_____="4 (((("
+	REPGEN_CREATE__DECISION_NAME__BRACKETS_OP__DECISION : mml:string
+		EQ=EQ
+		GE=GE
+		GT=GT
+		LE=LE
+		LK=LK
+		LT=LT
+		NE=NE
+		UL=UL
+	REPGEN_CREATE__DECISION_NAME__BRACKETS_OP__BRACKETS_CL : mml:string
+		n1__="1 )"
+		n2___="2 ))"
+		n3____="3 )))"
+		n4_____="4 ))))"
+	REPGEN_CREATE__DECISION_NAME__BRACKETS_OP__REL_NEXT_FD : mml:string
+		AND=AND
+		OR=OR
+	REPGEN_CREATE__NEW_PAGE_FOR_GROUP : mml:string
+		Y=Y
+		NULL=NULL
+	REPGEN_CREATE__RESET_PAGE_NO : mml:string
+		Y=Y
+		NULL=NULL
+	REPGEN_CREATE__ADD_BLANK_LINE : mml:string
+		n1_AFTER_TOTAL="1 AFTER TOTAL"
+		n2_AFTER_EVERY_LINE="2 AFTER EVERY LINE"
+	REPGEN_CREATE__ADD_TOT_BLANK_LINE : mml:string
+		n1_HEADER="1 HEADER"
+		n2_TOTAL="2 TOTAL"
+		n3_HEADER_TOTAL="3 HEADER+TOTAL"
+	REPGEN_CREATE__SUPPR_SINGLE_TOTAL : mml:string
+		Y=Y
+		NULL=NULL
+	REPGEN_CREATE__SPECIAL_HEADING : mml:string
+		FLAT=FLAT
+		NONE=NONE
+		STANDARD=STANDARD
+	REPGEN_CREATE__EMPTY_LINE_WANTED : mml:string
+		Y=Y
+		NULL=NULL
+	REPGEN_CREATE__SUPPR_GRAND_TOTAL : mml:string
+		Y=Y
+		NULL=NULL
+	REPGEN_OUTPUT__DISPLAY_OR_PRINT : mml:string
+		DISPLAY=DISPLAY
+		PRINT=PRINT
+	REPGEN_OUTPUT__DELETE_SORT_FILE : mml:string
+		Y=Y
+		NULL=NULL
+	REPGEN_OUTPUT__SPECIAL_PRINT_LEN : mml:string
+		n48=48
+		n72=72
+}

@@ -1,0 +1,293 @@
+# UTF-8
+# UTF-8
+/* Daily Accural for Safekeeping and Advisory Charges */
+Domain SCF_SafeAdvDailyAccr
+	@t24:i (module=SC)
+	@java:Package (value=com.temenos.t24.datamodel.sc.scf_safeadvdailyaccr)
+namespace "http://www.temenos.com/t24/SCF_SafeAdvDailyAccr"
+metamodelVersion 1.30.6
+Classes {
+	/* Live file, providing a breakdown of the charge calculation for Advisory, Depository and Safekeeping charges where the PREV.MONTH.CLOSE daily accrual method is used. */
+	SC_DAILY_ACCRUAL_DETAIL
+		@t24:i (t24Name=SC.DAILY.ACCRUAL.DETAIL, level=F, type=L, allowedFunctions="L S", localRefAllowed=false)
+	{
+		/* A compound key consisting of the Security Account (portfolio key), Charge Type (SC for Safekeeping, IC for Advisory, or DP for Depository) and Charge Period End Date. These values are delimited with full stops (.) and are also available as fields within the record. */
+		ACCR_DET_KEY -> SCF_SafeAdvDailyAccr:SC_DAILY_ACCRUAL_DETAIL PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=ACCR.DET.KEY)
+		/* Security Account. The key to the portfolio on SEC.ACC.MASTER. */
+		SEC_ACC_NO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER
+			@i18n:Label (en="Portfolio Number")
+			@i18n:Tooltip (en="Indicates the Portfolio Account of the customer")
+			@t24:i (align=R, inputBehaviour=N, maxLength=14, sysNumber=1.0, core=true, t24Name=SEC.ACC.NO)
+		/* Charge type a record relates to. SC for Safekeeping, IC for Advisory, or DP for Depository. */
+		CHG_TYPE : mml:Integer
+			@i18n:Label (en="Charge Type")
+			@i18n:Tooltip (en="Indicates what type of charge is being collected")
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=2.0, core=true, t24Name=CHG.TYPE)
+		/* The Charge Period End Date for the record. */
+		CHG_END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Chg End Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=3.0, core=true, t24Name=CHG.END.DATE)
+		ASSET_ID -> byValue SCF_SafeAdvDailyAccr:SC_DAILY_ACCRUAL_DETAIL__ASSET_ID *
+		SCND_EFF_DATE -> byValue SCF_SafeAdvDailyAccr:SC_DAILY_ACCRUAL_DETAIL__SCND_EFF_DATE *
+		/* Where a minimum fee has been imposed, this field shows the annual minimum in local currency. Note that, in these circumstances, the calculation breakdown in the asset-based fields in this application relate to the original fee, prior to imposition of the minimum. */
+		ANNUAL_MIN_LCY : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=37.0, core=true, t24Name=ANNUAL.MIN.LCY)
+		/* Where a maximum fee has been imposed, this field shows the annual maximum in local currency. Note that, in these circumstances, the calculation breakdown in the asset-based fields in this application relate to the original fee, prior to imposition of the maximum. */
+		ANNUAL_MAX_LCY : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=38.0, core=true, t24Name=ANNUAL.MAX.LCY)
+		/* Where a minimum fee has been imposed, this field shows the annual minimum in charge account currency. Note that, in these circumstances, the calculation breakdown in the asset-based fields in this application relate to the original fee, prior to imposition of the minimum. */
+		ANNUAL_MIN_ACY : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=39.0, core=true, t24Name=ANNUAL.MIN.ACY)
+		/* Where a maximum fee has been imposed, this field shows the annual maximum in charge account currency. Note that, in these circumstances, the calculation breakdown in the asset-based fields in this application relate to the original fee, prior to imposition of the maximum. */
+		ANNUAL_MAX_ACY : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=40.0, core=true, t24Name=ANNUAL.MAX.ACY)
+	}
+	SC_DAILY_ACCRUAL_DETAIL__ASSET_ID
+	{
+		/* Contains either a Security Number or, for a non-Securities asset, the Account Number. */
+		ASSET_ID : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=4.0, core=true, t24Name=ASSET.ID)
+		/* Depository key. Populated for SC and DP record types where the ASSET.TYPE is 'SC'. */
+		DEPOSITORY -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=5.0, core=true, t24Name=DEPOSITORY)
+		/* SC for a Securities asset, or AC for a non-Securities asset, (e.g. precious metal account). */
+		PRODUCT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=6, sysNumber=6.0, core=true, t24Name=PRODUCT)
+		EFF_DATE -> byValue SCF_SafeAdvDailyAccr:SC_DAILY_ACCRUAL_DETAIL__ASSET_ID__EFF_DATE *
+		/* Reserved for expansion of the asset multi-value set. */
+		MV_RES_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=MV.RES.5)
+		/* Reserved for expansion of the asset multi-value set. */
+		MV_RES_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=MV.RES.4)
+		/* Reserved for expansion of the asset multi-value set. */
+		MV_RES_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=MV.RES.3)
+		/* Reserved for expansion of the asset multi-value set. */
+		MV_RES_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=25.0, core=true, t24Name=MV.RES.2)
+		/* Reserved for expansion of the asset multi-value set. */
+		MV_RES_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=26.0, core=true, t24Name=MV.RES.1)
+	}
+	SC_DAILY_ACCRUAL_DETAIL__ASSET_ID__EFF_DATE
+	{
+		/* Effective date for a chargeable day-block. If SAFECUSTODY.VALUES>DAILY.ACCR.TYPE is set to DAILY.RATES then there can be multiple day-blocks for each chargeable month. Otherwise, EFF.DATE will be the first day of the charge month. */
+		EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=7.0, core=true, t24Name=EFF.DATE)
+		/* Charge Scale, derived from SEC.ACC.MASTER, which is effective for a chargeable day-block. */
+		CHG_SCALE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=8.0, core=true, t24Name=CHG.SCALE)
+		/* FT.COMMISSION.TYPE which was used to calculate the charge for a day-block. */
+		CHG_FT_TYPE -> ST_ChargeConfig:FT_COMMISSION_TYPE
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=9.0, core=true, t24Name=CHG.FT.TYPE)
+		/* Charge rate which was used to calculate the charge for a day-block. */
+		CHG_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=7, sysNumber=10.0, core=true, t24Name=CHG.RATE)
+		/* The number of days contained within a chargeable day-block, taking into account SAFECUSTODY.VALUES>DAY.BASIS. */
+		CHG_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=11.0, core=true, t24Name=CHG.DAYS)
+		/* Basis amount which was used to calculate the charge for a day-block. This value is calculated by applying a charge percentage to the valuation for the asset. */
+		CHG_BASE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=12.0, core=true, t24Name=CHG.BASE.AMT)
+		/* Charge for a day-block in Local currency. */
+		CHG_LCY : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=13.0, core=true, t24Name=CHG.LCY)
+		/* The currency of the customer's charge account. The latter is defined on SEC.ACC.MASTER. */
+		CHG_AC_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=14.0, core=true, businessType=CCY, t24Name=CHG.AC.CCY)
+		/* Charge for a day-block in the Charge Account Currency. */
+		CHG_ACY : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=15.0, core=true, t24Name=CHG.ACY)
+		/* Exchange rate which was effective on the EFF.DATE for a chargeable day-block. */
+		CHG_XRATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=16.0, core=true, t24Name=CHG.XRATE)
+		/* Reserved for expansion of the day-block sub-value set. */
+		SV_RES_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=SV.RES.5)
+		/* Reserved for expansion of the day-block sub-value set. */
+		SV_RES_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=SV.RES.4)
+		/* Reserved for expansion of the day-block sub-value set. */
+		SV_RES_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=SV.RES.3)
+		/* Reserved for expansion of the day-block sub-value set. */
+		SV_RES_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=SV.RES.2)
+		/* Reserved for expansion of the day-block sub-value set. */
+		SV_RES_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=SV.RES.1)
+	}
+	SC_DAILY_ACCRUAL_DETAIL__SCND_EFF_DATE
+	{
+		/* Effective start date for the day-block calculated by secondary ('fee-on-fee') processing. */
+		SCND_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=27.0, core=true, t24Name=SCND.EFF.DATE)
+		/* Charge Scale (strategy) which was in effect for the day-block during secondary ('fee-on-fee') calculation. */
+		SCND_CHG_SCALE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=28.0, core=true, t24Name=SCND.CHG.SCALE)
+		/* Commission Type used for the secondary ('fee-on-fee') calculation for a day-block. */
+		SCND_CHG_FT_TYPE -> ST_ChargeConfig:FT_COMMISSION_TYPE
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=29.0, core=true, t24Name=SCND.CHG.FT.TYPE)
+		/* Percentage used for the secondary ('fee-on-fee') calculation for a day-block. */
+		SCND_CHG_RATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=7, sysNumber=30.0, core=true, t24Name=SCND.CHG.RATE)
+		/* The number of days contained within a chargeable day-block, taking into account SAFECUSTODY.VALUES>DAY.BASIS, and used for the secondary ('fee-on-fee') calculation. */
+		SCND_CHG_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=31.0, core=true, t24Name=SCND.CHG.DAYS)
+		/* Base amount, in local currency, used for the secondary ('fee-on-fee') calculation for a day-block. This amount is the result of the primary calculation. */
+		SCND_CHG_BASE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=32.0, core=true, t24Name=SCND.CHG.BASE)
+		/* Result of the secondary ('fee-on-fee') calculation for the day-block in Local Currency. */
+		SCND_CHG_LCY : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=33.0, core=true, t24Name=SCND.CHG.LCY)
+		/* The currency of the customer's charge account. The latter is defined on SEC.ACC.MASTER. */
+		SCND_CHG_AC_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=34.0, core=true, businessType=CCY, t24Name=SCND.CHG.AC.CCY)
+		/* Charge resulting from the secondary ('fee-on-fee') calculation for a day-block in the Charge Account Currency. */
+		SCND_CHG_ACY : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=35.0, core=true, t24Name=SCND.CHG.ACY)
+		/* Exchange rate which was in effect for the day-block calculated by secondary ('fee-on-fee') processing. */
+		SCND_CHG_XRATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=36.0, core=true, t24Name=SCND.CHG.XRATE)
+	}
+	/* LIVE FILE CONTAING DETAILS OF SAFECUSTODY & ADVISORY FEES WHICH HAVE BEEN MODIFIED BY USER. */
+	SC_FEES_MODIFY
+		@t24:i (t24Name=SC.FEES.MODIFY, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Portfolio no. of the portfolio that has had it's SC.ADVISORY.CHG or SAFEKEEP.HOLDING record amended
+Validation Rules
+10 character customer id :-: 3  numerics */
+		PORTFOLIO_NO -> SCF_SafeAdvDailyAccr:SC_FEES_MODIFY PK required
+			@i18n:Label (en="Portfoio No")
+			@i18n:Tooltip (en="Indicates the Portfolio Account of the customer")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=PORTFOLIO.NO)
+		/* Previous amount of advisory fees before today's changes.
+Validation Rules
+18 numerics. */
+		OLD_ADV_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=1.0, core=true, t24Name=OLD.ADV.AMOUNT)
+		/* Current amount of advisory fees after today's changes.
+Validation Rules
+18 numerics. */
+		NEW_ADV_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=2.0, core=true, t24Name=NEW.ADV.AMOUNT)
+		/* Previous value date for advisory fees posting before todays changes
+Validation Rules
+Standard T24 date format. */
+		OLD_ADV_VAL_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=9, sysNumber=3.0, core=true, t24Name=OLD.ADV.VAL.DATE)
+		/* New value date for management fees posting after today's changes.
+Validation Rules
+Standard T24 date format */
+		NEW_ADV_VAL_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=9, sysNumber=4.0, core=true, t24Name=NEW.ADV.VAL.DATE)
+		/* Previous account for mangement fees posting.
+Validation Rules
+16 numerics. */
+		OLD_ADV_ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=5.0, core=true, t24Name=OLD.ADV.ACCOUNT)
+		/* New account for management fees posting.
+Validation Rules
+16 numerics. */
+		NEW_ADV_ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=6.0, core=true, t24Name=NEW.ADV.ACCOUNT)
+		ADV_NARRATIVE -> byValue SCF_SafeAdvDailyAccr:SC_FEES_MODIFY__ADV_NARRATIVE *
+		/* Previous amount for safecustody fees before today's changes.
+Validation Rules
+18 numerics. */
+		OLD_SAFE_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=8.0, core=true, t24Name=OLD.SAFE.AMOUNT)
+		/* Current amount for safecustody fees after today's changes.
+Validation Rules
+18 numerics. */
+		NEW_SAFE_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=9.0, core=true, t24Name=NEW.SAFE.AMOUNT)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 9 characters may be entered. */
+		OLD_SAFE_VAL_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=9, sysNumber=10.0, core=true, t24Name=OLD.SAFE.VAL.DATE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 9 characters may be entered. */
+		NEW_SAFE_VAL_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=9, sysNumber=11.0, core=true, t24Name=NEW.SAFE.VAL.DATE)
+		/* Previous account for safecustody fees posting.
+Validation Rules
+16 numerics. */
+		OLD_SAFE_ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=12.0, core=true, t24Name=OLD.SAFE.ACCOUNT)
+		/* New account for safecustody fees posting.
+Validation Rules
+16 numerics. */
+		NEW_SAFE_ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=13.0, core=true, t24Name=NEW.SAFE.ACCOUNT)
+		SAFE_NARRATIVE -> byValue SCF_SafeAdvDailyAccr:SC_FEES_MODIFY__SAFE_NARRATIVE *
+	}
+	SC_FEES_MODIFY__ADV_NARRATIVE
+	{
+		/* Reason for modification taken from SC.ADVISORY.CHG.
+Validation Rules
+35 alphanumerics (multivalued) */
+		ADV_NARRATIVE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=ADV.NARRATIVE)
+	}
+	SC_FEES_MODIFY__SAFE_NARRATIVE
+	{
+		/* Reason for changes to safecustody fees taken from SAFEKEEP.HOLDING
+Validation Rules
+35 alphanumerics (multivalued) */
+		SAFE_NARRATIVE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=14.0, core=true, t24Name=SAFE.NARRATIVE)
+	}
+	/* A system-maintained work file populated only when SAFECUSTODY.VALUES>PERFORM.ACCRUAL is set to DAILY. At the fee-posting date a record is written to this file. At the end of the charge period, when the fees are due to be realised, this workfile indicates the portfolios due for processing. */
+	SC_FEES_TO_POST
+		@t24:i (t24Name=SC.FEES.TO.POST, level=F, type=L, allowedFunctions="L S", localRefAllowed=false)
+	{
+		/* A compound key consisting of Portfolio Id, Charge Type (SC, DP or IC) and Charge Period End Date. */
+		FEES_TO_POST_KEY -> SCF_SafeAdvDailyAccr:SC_FEES_TO_POST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=FEES.TO.POST.KEY)
+		/* Security Account Number (portfolio key) */
+		SEC_ACC_NO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER
+			@i18n:Label (en="Portfolio Number")
+			@i18n:Tooltip (en="Indicates the Portfolio Account of the customer")
+			@t24:i (align=R, inputBehaviour=N, maxLength=14, sysNumber=1.0, core=true, t24Name=SEC.ACC.NO)
+		/* Contains one of three values indicating the record type: SC = Safekeeping fees, DP = Depository fees, IC = Management/Advisory charges. */
+		CHG_TYPE : mml:Integer
+			@i18n:Label (en="Charge Type")
+			@i18n:Tooltip (en="Indicates what type of charge is being collected")
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=2.0, core=true, t24Name=CHG.TYPE)
+		/* Charge period end date. */
+		CHG_END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Chg End Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=3.0, core=true, t24Name=CHG.END.DATE)
+		/* Charge period start date. */
+		CHG_START_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=4.0, core=true, t24Name=CHG.START.DATE)
+		/* Date of fee realisation (debit of customer account). */
+		VALUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=5.0, core=true, t24Name=VALUE.DATE)
+		RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.1)
+	}
+}

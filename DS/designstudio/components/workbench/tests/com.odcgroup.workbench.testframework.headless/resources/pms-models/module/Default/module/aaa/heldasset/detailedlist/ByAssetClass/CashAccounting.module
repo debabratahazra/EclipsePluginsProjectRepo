@@ -1,0 +1,246 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	domainEntity = "AAADSValuation:ValuationDetailledList"
+	cssClass = nodeco
+	bean-define = DSBean.AAADSValuation.ValuationDetailledList
+	bean-name = ValuationDetailledList
+	id = CopyOfCashAccounting_g_H7_
+{
+	--- Box ---
+		boxType = vertical
+		width = 0
+	{
+		--- TableTree ---
+			table-filter-layer = true
+			id = MN_58
+			table-column-count = 9 !
+			table-columns-width = "11,11,11,11,11,11,11,11,11" !
+		{
+			--- TableColumn ---
+				column-display-grouping = true
+				column-name = PORTFOLIO_CODE !
+				column-type = domain !
+				domainAttribute = PORTFOLIO_CODE !
+				type = text
+				column-is-part-of-filter = false
+				id = PORTFOLIO_CODE
+				table-column-width = 11
+			{
+				--- TableColumnItem ---
+					item-column = PORTFOLIO_CODE
+					previewValue = value
+				--- TableGroup ---
+					aggregateData = false
+					group-column-name = INSTR_CODE
+					group-sorting-column-name = INSTR_CODE
+					group-sorting-direction = ascending
+					group-rank = 1
+			}
+			--- TableColumn ---
+				column-name = POS_CURRENCY !
+				column-type = domain !
+				domainAttribute = POS_CURRENCY !
+				type = text
+				column-locked = true
+				id = POS_CURRENCY
+				table-column-width = 11
+			{
+				--- TableColumnItem ---
+					item-column = POS_CURRENCY
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = INSTR_DENOM !
+				column-type = domain !
+				domainAttribute = INSTR_DENOM !
+				id = INSTR_DENOM
+				table-column-width = 11
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						javaCode = "<udp:item column=\"INSTR_CODE\"/>!=null"
+						technicalName = Instrument
+						isWidgetSelected = true
+					{
+						--- Icon ---
+							toolTips en = "View Instrument Details", fr = "Voir détails de l\'instrument", de = "Details des Instruments ansehen"
+							icon = application_form_magnify
+							id = Z__5_
+							tid = 102213176937737
+						{
+							Event OnClick (submit) S
+							{
+								method = post
+								call-URI = "resource:///administration/instrument/InstrumentQuickView.pageflow"
+								target = popup
+								code = "<udp:item column=\"INSTR_CODE\"/>" ud
+								modal = false
+								only-changed = false
+								prevalidate = false
+							}
+						}
+						--- TableColumnItem ---
+							item-column = INSTR_DENOM
+							item-halign = lead
+							previewValue = value
+					}
+				}
+			}
+			--- TableColumn ---
+				labels fr = Montant
+				column-name = QUANTITY !
+				column-type = domain !
+				domainAttribute = QUANTITY !
+				id = QUANTITY
+				table-column-width = 11
+				tid = 88540447676134
+			{
+				--- TableColumnItem ---
+					item-column = QUANTITY
+					format = decimal.2-digits
+					previewValue = value
+				{
+					Event OnClick (submit) S
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						target = popup
+						modal = false
+						only-changed = false
+						prevalidate = false
+						flow-action = positiondetails ud
+						pos_instrumentDimInstrument.code = "<udp:item column=\"INSTR_CODE\"/>" ud
+						pos_instrumentDimensionE = 1 ud
+						pos_portfolioDimPortfolio.code = "<udp:item column=\"PORTFOLIO_CODE\"/>" ud
+						pos_portfolioDimensionE = 1 ud
+						inputFieldPrefix = pos_ ud
+						Snippet FilterSet
+						id = fs_HX2
+						level = 1
+						targetDataset = "AAADSPositionDetails:PositionDetailsFromValuation"
+						{
+							Snippet Filter
+							attribute = id
+							filterValue = "<udp:item column=\"id\"/>"
+							operator = EQUAL
+						}
+					}
+				}
+			}
+			--- TableColumn ---
+				labels en = "Market Value", fr = "Valeur d\'inventaire", de = Marktwert
+				column-name = MktVal
+				type = amount
+				id = U9D6_
+				documentation = "Market Value in Reference Currency by Cash\'s position."
+				column-computation = make-amount
+				column-computation-parameters = "MKT_VAL,REF_CURRENCY"
+				table-column-width = 11
+				tid = 88540463199082
+			{
+				--- TableColumnItem ---
+					item-column = MktVal
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = MKT_VAL_PERC !
+				column-type = domain !
+				domainAttribute = MKT_VAL_PERC !
+				id = MKT_VAL_PERC
+				table-column-width = 11
+			{
+				--- TableColumnItem ---
+					item-column = MKT_VAL_PERC
+					format = percentTA
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = PL_PERC !
+				column-type = domain !
+				domainAttribute = PL_PERC !
+				id = PL_PERC
+				table-column-width = 11
+			{
+				--- TableColumnItem ---
+					item-column = PL_PERC
+					format = percentTA
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "Net Cost Value", fr = "Coût d\'achat", de = "Einstandswert Netto"
+				column-name = NetCostVal
+				type = amount
+				id = v3_2w
+				documentation = "Net Cost Value in Reference Currency by Cash\'s position."
+				column-computation = make-amount
+				column-computation-parameters = "NET_COST_VAL,REF_CURRENCY"
+				table-column-width = 11
+				tid = 88540464213642
+			{
+				--- TableColumnItem ---
+					item-column = NetCostVal
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = STATUS !
+				column-type = domain !
+				domainAttribute = STATUS !
+				column-visibility = not-visible
+				id = STATUS
+				table-column-width = 11
+			{
+				--- TableColumnItem ---
+					item-column = STATUS
+					previewValue = value
+			}
+			--- TableSort ---
+				sort-column-name = INSTR_REF_CURRENCY
+				sort-rank = 4
+			--- TableKeepFilter ---
+				keep-filter-column-name = ASSET_CLASS_RANK
+				keep-filter-operand = 1
+			--- TableKeepFilter ---
+				keep-filter-column-name = ACCT_FILTER
+				keep-filter-operand = 1
+			--- TableSort ---
+				sort-column-name = PORTFOLIO_CODE
+				sort-rank = 1
+			--- TableAggregate ---
+				aggregate-column-name = POS_CURRENCY
+				aggregate-computation = max
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = INSTR_DENOM
+				aggregate-computation = max
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = QUANTITY
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = MKT_VAL
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = MktVal
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = NetCostVal
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = REF_CURRENCY
+				aggregate-computation = max
+				aggregate-group-names = INSTR_CODE
+			--- TableAggregate ---
+				aggregate-column-name = NET_COST_VAL
+				aggregate-computation = sum
+				aggregate-group-names = INSTR_CODE
+		}
+	}
+}

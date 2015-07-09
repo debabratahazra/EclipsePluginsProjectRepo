@@ -1,0 +1,2189 @@
+# UTF-8
+# UTF-8
+/* Foundation for Document Management */
+Domain DM_Foundation
+	@t24:i (module=DM)
+	@java:Package (value=com.temenos.t24.datamodel.dm.dm_foundation)
+namespace "http://www.temenos.com/t24/DM_Foundation"
+metamodelVersion 1.30.6
+Classes {
+	/* This file stores details of   non-contract specific documents tracked for customers. Such documents could be Customer level documents tracked for CUSTOMER record input or Non-Contract specific documents tracked for record input in any application other than CUSTOMER.
+
+Records in this application could be created by T24 while non-contract specific documents are tracked when a CUSTOMER or a transaction record is input. Users also could input or modify records in this application.
+
+Records of this application could not be reversed. */
+	CUST_DOCUMENT
+		@t24:i (t24Name=CUST.DOCUMENT, level=C, type=H, additionalInfo=DM, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This file stores details of   non-contract specific documents tracked for customers.
+Format of the ID must be "Customer ID.* Document Type ID",  where the first part refers to  the ID of a valid CUSTOMER record, and second part refers to  the ID  of a valid DOCUMENT.TYPE record.
+Value of the second part of ID (DOCUMENT.TYPE)  would be  used by T24 in calculation of Expiry  Date  (Field: END.DATE) of  a  Document with valid status.
+Records in this file cannot be reversed.
+Validation Rules
+
+First part of the ID should be the ID of a valid CUSTOMER record.
+Second part of the ID should be the ID of a valid DOCUMENT.TYPE record.
+Value of the field CONTRACT.SPECIFC in the DOCUMENT.TYPE record should be     NO. */
+		CUST_DOC_ID -> DM_Foundation:CUST_DOCUMENT PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=26, sysNumber=0.0, core=true, businessType=A, t24Name=CUST.DOC.ID)
+		/* Specifies the Reference for the document, if any.
+For information purposes only.
+Validation Rules
+
+Optional.
+1-35 Alpha numeric characters. */
+		REFERENCE_NO : T24BusinessTypes:A
+			@i18n:Label (en="Reference No")
+			@i18n:Tooltip (en="Unique reference which identifies the transaction")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=REFERENCE.NO)
+		/* Specifies the date from which the document is tracked in T24.
+For information purposes only.
+Validation Rules
+
+No input field.
+Defaults to Bank Date of  original input. */
+		BEGIN_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Begin Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=2.0, core=true, t24Name=BEGIN.DATE)
+		/* Specifies the status of the document.
+Value of this field would  be  used by T24 in calculation of  Expiry  Date (Field: END.DATE), of a Document with valid status.
+T24 would update the value of  this field to 3 ("Expired") at Batch processing on Expiry Date (Field: END.DATE), if this field refers to a valid status.
+Validation Rules
+
+Mandatory field.
+Should be the ID of  a valid record in the file  DOCUMENT.STATUS. */
+		STATUS -> DM_Foundation:DOCUMENT_STATUS required
+			@i18n:Label (en=Status)
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=3.0, core=true, businessType=A, t24Name=STATUS)
+		/* Specifies the Date from which the status applies to the document.
+Value of this field might   be  used by T24 in calculation of Expiry  Date (Field: END.DATE), of a Document with valid status.
+Validation Rules
+
+Mandatory.
+Defaults to the Bank Date.
+Can not be greater than the Bank Date.
+Standard T24 date format. */
+		STATUS_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Status Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=STATUS.DATE, typeModifiers=1000)
+		STAT_DETAILS -> byValue DM_Foundation:CUST_DOCUMENT__STAT_DETAILS *
+		/* Specifies the date on which Signature has been obtained on the Document.
+Value of this field might   be  used by T24 in calculation of Expiry Date (Field: END.DATE), of a Document with valid status.
+
+Validation Rules
+
+Standard T24 date format.
+Date, if entered, should be less than or equal to Bank Date.
+Input allowed only if  value of the filed SIGNATURE.REQD is     YES   in  the document type's record  in the file DOCUMENT.TYPE.
+If the attached status is a valid one, and value of the field      SIGNATURE.REQD is YES  in  the document type's record  in the     file DOCUMENT.TYPE, then input is mandatory for this field. */
+		SIG_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Sig date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=SIG.DATE)
+		END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="End Date")
+			@i18n:Tooltip (en="End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=END.DATE)
+		/* Specifies the sequence number of  a document, to distinguish a new document obtained on expiry of the original one.
+Validation Rules
+
+Mandatory.
+Input allowed only when one of  the fields STATUS or STATUS.DATE     is  updated.
+Value could be updated only in increments of 1. */
+		DOC_SEQUENCE : mml:Integer
+			@i18n:Label (en="Doc Sequence")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=8.0, core=true, t24Name=DOC.SEQUENCE)
+		/* T24 maintained field.
+Validation Rules
+
+Date of last update to the record.
+Standard T24 date format. */
+		LAST_UPD_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Last Update Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=9.0, core=true, t24Name=LAST.UPD.DATE)
+		LAST_UPD_APPLN -> byValue DM_Foundation:CUST_DOCUMENT__LAST_UPD_APPLN *
+		/* T24 maintained field.
+Validation Rules
+
+Value would be MANUAL if updated by User.
+Value would be SYSTEM is updated by T24. */
+		UPDATE_BY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=12.0, core=true, t24Name=UPDATE.BY)
+		/* Specifies the status of the next document (document to replace the current one).
+This might be used to specify user defined status such as "Advice sent", etc. for the next document, when an advice is sent to the customer for a new document,  before the expiry of the current one. It might also represent the status of the next document which might have been obtained from the Customer before the expiry of the current one, and which could be effective from a future date.
+Value of this field would  be  used by T24 in calculation of  Expiry  Date (Field: NEXT.END.DATE) of the Next Document, if it  has  a  valid status.
+On the End-of-day of  the current document expiry (Field: END.DATE), if the  next document is with an  invalid status and its end date (Field:NEXT.END.DATE) is either null or not less than next working day, then T24 would update the current document details with that of the next one. i.e. the fields
+STATUS by NEXT.STATUS, STATUS.DATE by NEXT.STATUS.DATE,  END.DATE by NEXT.END.DATE,  STAT.DETAILS by NEXT.DETAILS,  SIG.DATE by NEXT.SIG.DATE; also the DOC.SEQUENCE would be incremented by 1.
+
+Validation Rules
+
+Mandatory field.
+Should be the ID of  a valid record in the file      DOCUMENT.STATUS.
+Value of 3 ("Expired") not allowed. */
+		NEXT_STATUS -> DM_Foundation:DOCUMENT_STATUS
+			@i18n:Label (en="Next Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=14.0, core=true, businessType=A, t24Name=NEXT.STATUS)
+		NEXT_DETAILS -> byValue DM_Foundation:CUST_DOCUMENT__NEXT_DETAILS *
+		/* Specifies the mandatory
+
+future effective date of
+a next document (document to replace the current one), with a valid status.
+When a next document is obtained from a Customer before the expiry of the current one, it could  be made immediately effective,  by directly updating the fields for the current document i.e. REFERENCE.NO to DOC.SEQUENCE
+However, if the next document is with a valid status (Field: NEXT.STATUS is valid), then it would  be possible to make it effective from any  future date.
+
+If the status of the next document is valid (Field: NEXT.STATUS is valid), on the start-of-day of  its effective date, T24 would update the details of the current document with that of the next one as follows:  STATUS by NEXT.STATUS, STATUS.DATE by NEXT.STATUS.DATE,  END.DATE by NEXT.END.DATE,  STAT.DETAILS by NEXT.DETAILS,  SIG.DATE by NEXT.SIG.DATE; also the DOC.SEQUENCE would be incremented by 1.
+
+Validation Rules
+
+Value allowed only if the status of the next document (Field:     NEXT.STATUS)  is specified.
+
+
+Value not     allowed if  the status of the next document (Field: NEXT.STATUS)      is invalid.
+
+
+Value     mandatory if the status of the next document (Field: NEXT.STATUS) is valid.
+
+
+If specified,     its value should be greater than Bank Date. */
+		NEXT_EFF_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Next Eff Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=NEXT.EFF.DATE)
+		/* Specifies the Date from which the status (Field: NEXT.STATUS) applies to the next document (document to replace the current one).
+Value of this field might   be  used by T24 in calculation of Expiry  Date (Field: NEXT.END.DATE) of the next document, if it  has a valid status.
+Validation Rules
+
+Value now allowed if the field NEXT.STATUS is not specified.
+Mandatory if the field NEXT.STATUS is specified.
+Defaults to Bank Date if NEXT.STATUS is invalid and to NEXT.EFF.DATE if     NEXT.STATUS is valid.
+If NEXT.STATUS is invalid, it should be less than or equal to Bank Date.
+
+If NEXT.STATUS is valid, it should be less than or     equal to NEXT.EFF.DATE.
+Standard T24 date format. */
+		NEXT_STATUS_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Next Status Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=NEXT.STATUS.DATE)
+		/* Specifies the date on which Signature has been obtained on the Next Document (document to replace the current one).
+Value of this field might   be  used by T24 in calculation of Expiry Date (Field: NEXT.END.DATE) of  the next document, if it  has  a valid status.
+Validation Rules
+
+Standard T24 date format.
+Value not allowed if NEXT.STATUS is not specified.
+Date, if entered, should be less than or equal to Bank Date.
+Input allowed only if  value of the filed SIGNATURE.REQD is     YES   in  the document type's record  in the file DOCUMENT.TYPE.
+If the attached status (Field: NEXT.STATUS) is a valid one, and value of the field      SIGNATURE.REQD is YES  in  the document type's record  in the     file DOCUMENT.TYPE, then input is mandatory for this field. */
+		NEXT_SIG_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Next Sig Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=NEXT.SIG.DATE)
+		/* Specifies the expiry  date in case of  a next document (document to replace the current one).
+T24 would not calculate the value of this field, if the next document is with an invalid status (Field: NEXT.STATUS).
+T24 would calculate the value of this field, if the next  document is  with a valid status, as follows:
+1. As per  document  validity  defined in  the record with ID equal to attached status (Field: NEXT.STATUS), in the file DOCUMENT.STATUS.
+2. As per document  validity defined in  the  record with ID equal to  value of Document Type (specified in the first part of ID),  in the file DOCUMENT.TYPE.
+3. The calculated NEXT.END.DATE would be the least of the dates calculated as per 1 and 2 above.
+User could override a T24 calculated NEXT.END.DATE with a  lesser date.
+Validation Rules
+
+Optional.
+Standard T24 date format.
+Value allowed only if NEXT.STATUS is specified.
+If NEXT.STATUS is invalid, it is optional; if specified, it must be     greater than or equal to the Bank Date.
+If NEXT.STATUS is valid, then calculated or user input NEXT.END.DATE, if     not null, should be greater than or equal to NEXT.EFF.DATE. */
+		NEXT_END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Next End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=19.0, core=true, t24Name=NEXT.END.DATE)
+		RESERVED04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED02)
+		OVERRIDE -> byValue DM_Foundation:CUST_DOCUMENT__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=24.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DM_Foundation:CUST_DOCUMENT__INPUTTER *
+		DATE_TIME -> byValue DM_Foundation:CUST_DOCUMENT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=28.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=29.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=30.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=31.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=32.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		CUSTOMER_ID -> ST_Customer:CUSTOMER
+			@i18n:Label (en="Customer Id")
+			@i18n:Tooltip (en="Identifies the Customer for the transaction.")
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, core=false, businessType=CUS, t24Name=CUSTOMER.ID, genOperation="FIELD(CUST.DOC.ID,\'*\',1,1)")
+		DOCUMENT_TYPE : mml:Integer
+			@i18n:Label (en="Document Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, core=false, t24Name=DOCUMENT.TYPE, genOperation="FIELD(CUST.DOC.ID, \'*\', 2,1)")
+	}
+	CUST_DOCUMENT__STAT_DETAILS
+	{
+		/* Specifies the remarks if any, on the current status of the document.
+For information purposes only.
+Validation Rules
+
+Optional.
+1-35 Alpha numeric characters. */
+		STAT_DETAILS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=5.0, core=true, t24Name=STAT.DETAILS)
+	}
+	CUST_DOCUMENT__LAST_UPD_APPLN
+	{
+		/* When the document record is updated by
+T24
+, this field specifies the application from which T24 is updating it.
+Validation Rules
+
+Optional.
+Should be the mnemonic (Field: APPLN.MNEMONIC) specified for a valid     record  in DM.APPLICATION.INFO. */
+		LAST_UPD_APPLN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=10.0, core=true, t24Name=LAST.UPD.APPLN)
+		/* When the document record is updated by
+T24
+, this field specifies the transaction reference number of the application,
+from which T24 is updating it.
+Validation Rules
+
+Mandatory if LAST.UPD.APPLN is specified.
+Value not allowed if LAST.UPD.APPLN is not specified. */
+		APPLN_TXN_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=APPLN.TXN.REF)
+	}
+	CUST_DOCUMENT__NEXT_DETAILS
+	{
+		/* Specifies the remarks if any, on the status of the next document (document to replace the current one).
+For information purposes only.
+Validation Rules
+
+Optional.
+Input allowed only if the field NEXT.STATUS is specified.
+1-35 Alpha numeric characters. */
+		NEXT_DETAILS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=15.0, core=true, t24Name=NEXT.DETAILS)
+	}
+	CUST_DOCUMENT__OVERRIDE
+	{
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=OVERRIDE)
+	}
+	CUST_DOCUMENT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=26.0, core=true, t24Name=INPUTTER)
+	}
+	CUST_DOCUMENT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=27.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application stores  the details of T24
+
+
+
+records of this application could not be reversed. */
+	DM_APPLICATION_INFO
+		@t24:i (t24Name=DM.APPLICATION.INFO, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Record ID could be any valid T24 application for which documents need to be tracked.
+When a record is input in an application, documents would be tracked only if the application is defined in this file.
+Example
+LD.LOANS.AND.DEPOSITS
+SEC.TRADE
+Validation Rules
+
+Must be a valid T24 application whose product is installed in the company.
+
+Records of this application could not be reversed. */
+		DM_APPLN_INFO_ID -> DM_Foundation:DM_APPLICATION_INFO PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=DM.APPLN.INFO.ID)
+		/* Specifies Mnemonic for the application, for Document Tracking purposes.
+
+Validation Rules
+
+
+Mandatory     field.
+
+Maximum     four and minimum two alphanumeric characters with the first character alphabet.
+
+Once     authorized can not be changed.
+
+Should     be unique. */
+		APPLN_MNEMONIC : T24BusinessTypes:MNE required
+			@t24:i (align=L, inputBehaviour=F, maxLength=4, sysNumber=1.0, core=true, t24Name=APPLN.MNEMONIC)
+		CUST_FIELD_NAME -> byValue DM_Foundation:DM_APPLICATION_INFO__CUST_FIELD_NAME *
+		/* Specifies whether an error message is to be displayed or an override message is to be displayed while tracking non-contract specific documents, which have already been tracked by a transaction different from that of
+
+the application.Validation Rules
+
+Optional field
+Acceptable values are YES or NO or NULL
+If Yes is given, Override will be generated otherwise Error will be     generated. */
+		CUST_DOC_OVERRIDE : DM_Foundation:DM_APPLICATION_INFO__CUST_DOC_OVERRIDE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=CUST.DOC.OVERRIDE)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=4.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=5.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DM_Foundation:DM_APPLICATION_INFO__INPUTTER *
+		DATE_TIME -> byValue DM_Foundation:DM_APPLICATION_INFO__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=9.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=11.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=12.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DM_APPLICATION_INFO__CUST_FIELD_NAME
+	{
+		/* Specifies the names of customer fields in the Application. Documents would be tracked only for the  customer(s)  whose IDs equal the values  of the fields  defined here.
+If no field is defined, then  documents for this application could  be tracked only from a related application.
+Example.1
+Record ID-FUNDS.TRANSFER
+APPLN.MNEMONIC-FT
+CUST.FIELD.NAME-DEBIT.CUSTOMER
+CUST.FIELD.NAME-CREDIT.CUSTOMER
+When an FT is input,   T24 will track  required documents for  customers whose IDs equal to the values of  the fields DEBIT.CUSTOMER and CREDIT.CUSTOMER in the FT.
+Example.2
+Record ID- SEC.TRADE
+APPLN.MNEMONIC-SETR
+CUST.FIELD.NAME-CUSTOMER.NO
+When a SEC.TRADE is input, since CUSTOMER.NO is a multi-value field, T24 will track required documents for  all customers whose IDs equal to the values of  the field CUSTOMER.NO in the SEC.TRADE.
+
+Example.3
+Record ID-SECURITY.MASTER
+APPLN.MNEMONIC-SEMR
+CUST.FIELD.NAME- Null
+In the above case, documents will not be tracked when a record is directly input in SECURITY.MASTER. However, if  SECURITY.MASTER  is defined as a related application for SEC.TRADE (in the application  DOCUMENT.REQUIRED),  when a record is input in  SEC.TRADE,  documents for SECURITY.MASTER  will be also tracked along with those required for SEC.TRADE.
+
+
+Validation Rules
+
+
+Optional.
+
+Value     allowed only if  the application specified in the ID is a CUS or FIN     type application (Value of the field  CLASSIFICATION in FILE.CONTROL      is CUS or FIN for the application specified in the ID).
+
+Any     valid field defined in the Standard Selection of the application. However     care must to taken to define only those fields which represent a Customer     ID.
+
+For     CUSTOMER application, only allowed value would be @ID i.e. the ID of the     Customer record itself. */
+		CUST_FIELD_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=CUST.FIELD.NAME)
+	}
+	DM_APPLICATION_INFO__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=6.0, core=true, t24Name=INPUTTER)
+	}
+	DM_APPLICATION_INFO__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=7.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DM_APPLN_GROUP
+		@t24:i (t24Name=DM.APPLN.GROUP, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		DM_GRP_ID -> DM_Foundation:DM_APPLN_GROUP PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=0.0, core=true, businessType=A, t24Name=DM.GRP.ID)
+		DOC_GEN_COND_ID -> byValue DM_Foundation:DM_APPLN_GROUP__DOC_GEN_COND_ID *
+	}
+	DM_APPLN_GROUP__DOC_GEN_COND_ID
+	{
+		DOC_GEN_COND_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=1.0, core=true, t24Name=DOC.GEN.COND.ID)
+		DOC_GROUP -> byValue DM_Foundation:DM_APPLN_GROUP__DOC_GEN_COND_ID__DOC_GROUP *
+	}
+	DM_APPLN_GROUP__DOC_GEN_COND_ID__DOC_GROUP
+	{
+		DOC_GROUP : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=2.0, core=true, t24Name=DOC.GROUP)
+	}
+	DM_CUST_DOC_DETAILS
+		@t24:i (t24Name=DM.CUST.DOC.DETAILS, level=C, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CUSTOMER_NO -> DM_Foundation:DM_CUST_DOC_DETAILS PK required
+			@i18n:Label (en="Customer No")
+			@i18n:Tooltip (en="Identifies the Customer for the transaction.")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=A, t24Name=CUSTOMER.NO)
+		DOCUMENT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=1.0, core=true, t24Name=DOCUMENT)
+		STATUS : mml:Integer
+			@i18n:Label (en=Status)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=STATUS, genOperation="DOCUMENT>CUST.DOCUMENT>STATUS")
+		END_DATE : mml:Integer
+			@i18n:Label (en="End Date")
+			@i18n:Tooltip (en="End Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, core=false, t24Name=END.DATE, genOperation="DOCUMENT>CUST.DOCUMENT>END.DATE")
+	}
+	/* This application  stores T24 generated records with details of documents tracked for an authorized application record. */
+	DM_DOCUMENTS_TRACKED
+		@t24:i (t24Name=DM.DOCUMENTS.TRACKED, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The ID of the record is of the format "Date*Application Mnemonic*Application ID", where Date is the Bank Date of application record input, Application Mnemonic is as specified in DM.APPLICATION.INFO and Application ID is the ID of the Application record for which documents have been tracked.
+Validation Rules
+
+None */
+		DM_TRACK_ID -> DM_Foundation:DM_DOCUMENTS_TRACKED PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=45, sysNumber=0.0, core=true, businessType=A, t24Name=DM.TRACK.ID)
+		/* ID of the document record either in CUST.DOCUMENT or TRANS.DOCUMENT tables, tracked during the application record (whose ID is specified in the ID of this record) input,  on the date specified in the ID of this record.
+Validation Rules
+
+None */
+		DOCUMENT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=56, sysNumber=1.0, core=true, t24Name=DOCUMENT)
+#		DATE -> EB_Utility:IN2D
+#			@i18n:Label (en=Date)
+#			@t24:i (align=R, inputBehaviour=N, maxLength=11, core=false, t24Name=DATE, genOperation="FIELD(DM.TRACK.ID,\'*\',1)")
+#		APPLN_ID -> EB_Template:IN2A
+#			@t24:i (align=L, inputBehaviour=N, maxLength=4, core=false, t24Name=APPLN.ID, genOperation="FIELD(DM.TRACK.ID,\'*\',2,1)")
+#		TRANSACTION_ID -> EB_Template:IN2A
+#			@i18n:Label (en="Transaction ID")
+#			@t24:i (align=L, inputBehaviour=N, maxLength=25, core=false, t24Name=TRANSACTION.ID, genOperation="FIELD(DM.TRACK.ID,\'*\',3,1)")
+#		CUSTOMER -> ST_Customer:IN2CUS
+#			@i18n:Label (en=Customer)
+#			@i18n:Tooltip (en="Customer Liability")
+#			@t24:i (align=L, inputBehaviour=N, maxLength=10, core=false, t24Name=CUSTOMER, genOperation="FIELD(DOCUMENT,\'*\',1)")
+	}
+	DM_TRANS_DOC_DETAILS
+		@t24:i (t24Name=DM.TRANS.DOC.DETAILS, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_ID -> DM_Foundation:DM_TRANS_DOC_DETAILS PK required
+			@i18n:Label (en="Contract Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.ID)
+		DOCUMENT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=56, sysNumber=1.0, core=true, t24Name=DOCUMENT)
+		CUSTOMER : T24BusinessTypes:CUS
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, core=false, t24Name=CUSTOMER, genOperation="FIELD(DOCUMENT,\'*\',1)")
+		APPLICATION_ID : mml:Integer
+			@i18n:Label (en="Application Id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, core=false, t24Name=APPLICATION.ID, genOperation="FIELD(CONTRACT.ID,\'*\',1)")
+		DOCUMENT_TYPE : mml:Integer
+			@i18n:Label (en="Document Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, core=false, t24Name=DOCUMENT.TYPE, genOperation="FIELD(DOCUMENT,\'*\',4,1)")
+		CONTRACT_KEY : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=25, core=false, t24Name=CONTRACT.KEY, genOperation="FIELD(CONTRACT.ID,\'*\',2)")
+	}
+	/* This application is used to  define   the conditions  for  grouping Documents  for any
+
+
+
+The conditions might be specified for each Customer Type in an Application or at Application level, which would be used as a default grouping for Customer Types with out their own record here.
+
+This is a Company specific application and records of this application could */
+	DOC_GEN_CONDITION
+		@t24:i (t24Name=DOC.GEN.CONDITION, level=F, type=H, additionalInfo=HLD, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* This file defines  the conditions  for Document Groups for a T24 application defined in the file DM.APPLICATION.INFO.
+The Document groups could be separately defined for each Customer field in an  application; it is also possible to define default  document groups at application level which could be used  for any Customer field, if document groups are not separately defined for it.
+The format of the ID will  be "Application Mnemonic*Customer Field Name", where the first part  will be the Mnemonic defined for an application and second part will be a customer field name defined for that application  in  DM.APPLICATION.INFO.  Second part of the ID is optional.
+Example:
+Application:  FUNDS.TRANSFER
+Application Mnemonic in DM.APPLICATION.INFO: FT
+CUST.FIELD.NAME in DM.APPLICATION.INFO: DEBIT.CUSTOMER and CREDIT.CUSTOMER
+IDs that could be defined in DOC.GEN.CONDITION (DGC):
+1.FT*DEBIT.CUSTOMER
+2.FT*CREDIT.CUSTOMER
+3.FT
+While tracking the documents for the Customer whose ID is equal to the value of the field DEBIT.CUSTOMER in FT, T24 would first look for a  record in DGC with ID equal to FT*DEBIT.CUSTOMER, for determining the document groups.
+If the record is not found, T24  would look for a  record in DGC with ID equal to FT (default record for the application). If both records are not found, then no tracking would be done for the Customer. Similar conditions would be applicable for the Customer whose ID is equal to the value of the field CREDIT.CUSTOMER.
+
+Validation Rules
+
+
+First     part should be the value of the field APPLN.MNEMONIC defined for any      application  in      DM.APPLICATION.INFO.
+
+Second     part is optional.
+
+If     second part is defined, it  should be a  value of  the field     CUST.FIELD.NAME (in DM.APPLICATION.INFO) defined for the application     specified  in the first part.
+
+Records     of this application  could be reversed. */
+		DOC_GEN_COND_ID -> DM_Foundation:DOC_GEN_CONDITION PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=0.0, core=true, businessType=A, t24Name=DOC.GEN.COND.ID)
+		/* While tracking documents for a Customer during an  application record input, T24 would determine the document group for the application and customer combination in DOC.GEN.CONDITION.
+This field specifies whether T24 should stop with the first matched group (Value of NO) or scan all defined groups to determine all matched groups (Value of YES).
+If YES document requirements for all the matched groups would be determined and tracked. If No document requirement of only the first matched group would be determined and tracked.
+Specification of YES might degrade the response time and it could  be possible to specify a value of NO (stop at first match) by appropriately defining the conditions for the hierarchy of groups.
+If none of the specified  groups  matches the input values, then no group would be assigned and hence there would be no document tracking for the customer. To avoid this,  a default group with all null values for the fields from  DECISN.FIELD to DECISN.TO could be specified as the last group.
+
+Validation Rules
+
+
+Mandatory     field.
+
+Allowed     values YES/NO.
+
+Default     will be NO (Stop with the first matched  group) */
+		SCAN_ALL_GROUP : DM_Foundation:DOC_GEN_CONDITION__SCAN_ALL_GROUP required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=SCAN.ALL.GROUP)
+		DOC_GROUP -> byValue DM_Foundation:DOC_GEN_CONDITION__DOC_GROUP *
+		RESERVED8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DM_Foundation:DOC_GEN_CONDITION__INPUTTER *
+		DATE_TIME -> byValue DM_Foundation:DOC_GEN_CONDITION__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=22.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=23.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=24.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=25.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DOC_GEN_CONDITION__DOC_GROUP
+	{
+		/* Specifies  a  unique reference for the Application's  Document Group determined by the rules defined in the fields from DECISN.FIELD to DECISN.TO.
+
+Validation Rules
+
+
+Mandatory     field.
+
+Multi value field with associated sub value fields from DECISN.FIELD to DECISN.TO.
+
+Duplicate     values not allowed within the record and also between other records for the     same application. */
+		DOC_GROUP : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=2.0, core=true, t24Name=DOC.GROUP)
+		DECISN_FIELD -> byValue DM_Foundation:DOC_GEN_CONDITION__DOC_GROUP__DECISN_FIELD *
+		/* Description of the associated DOC.GROUP
+Validation Rules
+
+35 Alpha numeric characters */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=DESCRIPTION)
+	}
+	DOC_GEN_CONDITION__DOC_GROUP__DECISN_FIELD
+	{
+		/* Can be either a local subroutine name or a field defined in  the STANDARD.SELECTION record for the application (identified by the first part of the key field).
+
+If a local subroutine is defined then the subroutine must be prefixed with the @ character.
+
+Input for a field defined on STANDARD.SELECTION can be either the field number or the field name.
+
+LOCAL SUBROUTINE (Technical Details):
+
+The local subroutine must be defined on the PGM.FILE as a V type program.
+
+
+Example:
+
+
+PROGRAM FILE SEE
+
+
+
+
+PROGRAM
+DM.TEST.ROUTINE
+
+
+----------------------------------------------------------------------
+
+
+
+
+
+1 TYPE.............. V
+
+
+2. 1 GB SCREEN.TITLE DM.TEST.ROUTINE
+
+
+3 ADDITIONAL.INFO... .PAR()
+
+
+5 PRODUCT........... DM
+The local subroutine is called from the T24 subroutine DM.GRP.CONDITION which
+
+would  determine the relevant group(s)  the contract falls (if any).
+
+The local subroutine must be defined to accept  the following arguments:
+
+
+
+APPLN:
+Name of the application
+
+ID.APPLN:
+ID of the application record for
+
+which documents are tracked
+R.APPLN:
+
+The application record itself
+
+FIELD.VALUE:
+Value
+
+of the field specified as parameter in the routine attached to DOC.GEN.CONDITION. If the parameter specified is multi-valued field and a value is also specified for ASC.CUS.FLD, then this value would be the value of the parameter field corresponding to the value of ASC.CUS.FLD.
+COMPARISON:
+Value of DECISION in DOC.GEN.CONDITION
+
+DATA.FROM:
+Value of DECISN.FROM
+
+in DOC.GEN.CONDITION
+DATA.TO:
+Value of DECISN.TO in DOC.GEN.CONDITION
+
+CONDITION.OK:
+Value returned should be  null or 0 for False or any other value for True.
+
+Sample routine to test OR condition when the values in DECISN.FROM are separated by Spaces:
+
+
+0001:
+
+SUBROUTINE DM.TEST.ROUTINE(APPLN,ID.APPLN,R.APPLN,FIELD.VALUE,COMPA
+
+
+RISON,DATA.FROM,DATA.TO,CONDITION.OK)
+0002:
+
+0003: $INSERT I_COMMON
+
+0004: $INSERT I_EQUATE
+
+0005:
+
+0006:
+
+IF COMPARISON EQ "EQ" THEN
+0007:
+
+DECS.FROM = DATA.FROM
+0008:
+
+CONVERT " " TO FM IN DECS.FROM
+0009:
+
+LOCATE FIELD.VALUE IN DECS.FROM<1> SETTING CONDITION.OK ELSE CON
+
+
+DITION.OK = 0
+0010:
+
+END
+0011:
+
+RETURN
+0012:
+
+0013:
+
+END
+
+When the routine is specified as a DECISN.FIELD in DOC.GEN.CONDITION, any field name in the Application specified in the ID of the DOC.GEN.CONDITION could be specified as its parameter.
+
+
+Example of a DOC.GEN.CONDITION record for FT, where the above ref. sample routine is attached to test the OR condition for the DEBIT.ACCT.NO field. The values to be tested are specified in DECISN.FROM separated by spaces.
+
+
+
+
+
+DOC.GEN.CONDITION
+
+
+
+
+DOC.GEN.COND.ID... FT
+
+
+------------------------------------------------------------------------------
+
+
+1 SCAN.ALL.GROUP.... NO
+
+
+2. 1 DOC.GROUP...... 1
+
+
+3. 1. 1 DECISN.FIELD @DM.TEST.ROUTINE(DEBIT.ACCT.NO)
+
+
+
+4. 1. 1 DECISION.... EQ
+
+
+5. 1. 1 DECISN.FROM. 19038 19108
+
+Validation Rules
+
+Optional input.
+Could be either a valid field     name specified in the STANDARD.SELECTION of the application defined in the     ID of the record or a local sub-routine name pre-fixed with @.
+@ID cannot be given as a     Decision Field.
+If a routine is attached, it     should be specified as a V type program in PGM.FILE.
+The parameter of the attached     routine should be a valid field name specified in the STANDARD.SELECTION of     the application defined in the ID of the record. */
+		DECISN_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=51, sysNumber=3.0, core=true, t24Name=DECISN.FIELD)
+		/* The comparison operator for the condition to be evaluated.
+If  a local sub-routine is attached to  DECISN.FIELD, this value would be passed to it as a  parameter.
+
+Validation Rules
+
+
+Mandatory     if  DECISN.FIELD
+is not null.Two alpha characters. Allowed values EQ (equal to), GE (greater than or     equal to), GT (greater than), LE     (less than or equal to), LK (like), LT (less than), NE (not equal), NR (not in range), RG     (in     range), UL (unlike). */
+		DECISION : DM_Foundation:DOC_GEN_CONDITION__DOC_GROUP__DECISN_FIELD__DECISION
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=4.0, core=true, t24Name=DECISION)
+		/* The constant which the value derived from the DECISN.FIELD is compared to.
+If  a local sub-routine is attached to  DECISN.FIELD, this value would be passed to it as a  parameter.
+
+Validation Rules
+
+
+Mandatory     if  DECISN.FIELD
+is not null.
+Upto     35 alphanumeric characters. */
+		DECISN_FROM : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=DECISN.FROM)
+		/* The upper value used for field value comparisons based on ranges where the DECISION field is defined as NR (Not in Range) or RG ( in Range).
+If  a local sub-routine is attached to  DECISN.FIELD, this value would be passed to it as a  parameter.
+
+
+Validation Rules
+
+
+Upto     35 alphanumeric characters.
+
+Input     not allowed if  the field DECISION is not set to NR or RG.
+
+Input     mandatory if the field DECISION holds the values NR or RG. */
+		DECISN_TO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=DECISN.TO)
+		/* Name of the Customer field in the application, associated with the decision field (DECISN.FIELD).
+Example: In DOC.GEN.CONDITION for SEC.TRADE, if the DECISN.FIELD is CUSTOMER.RESIDENCE which is a multi-valued field returning one value for each Customer in the transaction, then the value of ASC.CUS.FLD  could be set to CUSTOMER.NO. When Documents are tracked for each Customer (CUSTOMER.NO), then the value of CUSTOMER.RESIDENCE corresponding
+
+to that Customer would be used for comparison purposes.Validation Rules
+
+Input not allowed when the     field DECISN.FIELD in the set is Single-Valued.
+Input optional
+
+when the field DECISN.FIELD in the set is Multi-Valued.If the DECISN.FIELD is     multi-valued and no ASC.CUS.FLD value
+
+is     specified, then the first multi-value of the DECISN.FIELD would be used for     comparison purposes.The field specified here     should be Multi-Valued. */
+		ASC_CUS_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=ASC.CUS.FLD)
+	}
+	DOC_GEN_CONDITION__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=INPUTTER)
+	}
+	DOC_GEN_CONDITION__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=20.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application records the description of  Document Classes,  which is a Classification/grouping of document types at the highest level. No  processing rules are applicable
+
+
+This is an installation level application shared by all Companies and records of this application could not be reversed. */
+	DOCUMENT_CLASS
+		@t24:i (t24Name=DOCUMENT.CLASS, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* ID of the DOCUMENT.CLASS
+Validation Rules
+
+1-10 Alpha characters.
+Records of this application could not be reversed. */
+		DOCUMENT_CLASS_ID -> DM_Foundation:DOCUMENT_CLASS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=SSS, t24Name=DOCUMENT.CLASS.ID)
+		DESCRIPTION -> byValue DM_Foundation:DOCUMENT_CLASS__DESCRIPTION *
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=3.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=4.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=5.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=6.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=7.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=8.0, core=true, t24Name=RESERVED4)
+		/* Insert text here
+Validation Rules
+
+Rule 1
+Rule 2 */
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=9.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=10.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=11.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DM_Foundation:DOCUMENT_CLASS__INPUTTER *
+		DATE_TIME -> byValue DM_Foundation:DOCUMENT_CLASS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=17.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=19.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=20.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DOCUMENT_CLASS__DESCRIPTION
+	{
+		/* Description of the DOCUMENT.CLASS.
+Validation Rules
+
+Multi value language field.
+Mandatory.
+1-35 alphanumeric characters. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	DOCUMENT_CLASS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=INPUTTER)
+	}
+	DOCUMENT_CLASS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=15.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application  specifies for each Document Group (defined in the file DOC.GEN.CONDITION),  the  requirements  for documents tracking.
+
+This is a Company specific application and records of this application could */
+	DOCUMENT_REQUIRED
+		@t24:i (t24Name=DOCUMENT.REQUIRED, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* This application  specifies for a Document Group (defined in the file DOC.GEN.CONDITION),  the  requirements  for documents tracking.
+Format of the ID will  be "Application Mnemonic*Document Group", where the f
+irst     part should be
+the Mnemonic defined for an application in DM.APPLICATION.INFO and second part should  be the value of a Document Group No. (field     DOC.GROUP in DOC.GEN.CONDITION) for the application defined in the first     part.If no record exists for a Document Group in this file, then documents would be determined as required for that group.
+Example
+For the application: FUNDS.TRANSFER,
+Value of the field APPLN.MNEMONIC in DM.APPLICATION.INFO: FT
+One of the values  of the field DOC.GROUP in DOC.GEN.CONDITION for the Debit Customer in FT (ID:  FT*DEBIT.CUSTOMER): 101
+Then the record with the ID "FT*101"  in DOCUMENT.REQUIRED would define the requirements for documents tracking,  for the Document Group 101 in FT.
+
+
+Validation Rules
+
+
+First     part should be
+the Mnemonic defined for an application in     DM.APPLICATION.INFO.Second part should  be the value of a Document Group No. (field     DOC.GROUP in DOC.GEN.CONDITION) for the application defined in the first     part.
+Both parts are mandatory.
+
+Records of this application  could be reversed. */
+		DOC_REQD_ID -> DM_Foundation:DOCUMENT_REQUIRED PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=46, sysNumber=0.0, core=true, businessType=A, t24Name=DOC.REQD.ID)
+		/* Specifies whether for this group, customer level documents (documents required for CUSTOMER input), should be also tracked in addition to other  application level documents.
+Validation Rules
+
+Input Mandatory.
+Allowed values YES/NO.
+Default value is YES.
+For customer groups (First part of ID refers to CUSTOMER application), this will     a be no input field.
+For other applications,  if the value of the field  CUST.FIELD.NAME      in     DM.APPLICATION.INFO is null (i.e. Documents are not tracked for a direct     input in the application), then only allowed value for this field is NO. */
+		CHECK_CUST_LEVEL : DM_Foundation:DOCUMENT_REQUIRED__CHECK_CUST_LEVEL required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=CHECK.CUST.LEVEL)
+		DOCUMENT_TYPE -> byValue DM_Foundation:DOCUMENT_REQUIRED__DOCUMENT_TYPE *
+		RELATED_APPLN -> byValue DM_Foundation:DOCUMENT_REQUIRED__RELATED_APPLN *
+		RESERVED10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DM_Foundation:DOCUMENT_REQUIRED__INPUTTER *
+		DATE_TIME -> byValue DM_Foundation:DOCUMENT_REQUIRED__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=25.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=27.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=28.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DOCUMENT_REQUIRED__DOCUMENT_TYPE
+	{
+		/* Specifies the Document types which need to be tracked for the group.
+Validation Rules
+
+Input optional.
+Multi value field.
+Must be the ID of a valid record in the file DOCUMENT.TYPE.
+For customer level documents (First part of the ID refers to  CUSTOMER application),      value of the field CONTRACT.SPECIFIC     in DOCUMENT.TYPE should  be NO.  (i.e. cannot specify a Contract     specific document as a required document for Customer input).
+For application level documents (First part of ID refers to any     application other than CUSTOMER), value of the field NEW.ALL.CUST in DOCUMENT.TYPE     should be NO or null. */
+		DOCUMENT_TYPE -> DM_Foundation:DOCUMENT_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=2.0, core=true, businessType=A, t24Name=DOCUMENT.TYPE)
+		/* Specifies  whether the Document Type is mandatory (Value of  YES) or optional (Value of NO) for the group. T24 would track only required documents,  which are defined as mandatory.
+Validation Rules
+
+Allowed values are YES/NO.
+Default value is YES.
+Input mandatory when DOCUMENT.TYPE is specified. */
+		MANDATORY : DM_Foundation:DOCUMENT_REQUIRED__DOCUMENT_TYPE__MANDATORY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=MANDATORY)
+		/* Specifies whether a  transaction needs  to be stopped,  if  a  required Mandatory document exists with an  invalid status or confirmed by the User as "Not Received" for T24 confirmation messages whether a Document has been received.
+Stopping the transaction would be  subject to the value of the field STOP.TXN.DAYS.
+
+Validation Rules
+
+Allowed values are YES/NO.
+Input is mandatory if the value of the field MANDATORY is YES.
+For non-mandatory documents (value of the field MANDATORY is NO), value of     YES is not allowed. */
+		STOP_TXN : DM_Foundation:DOCUMENT_REQUIRED__DOCUMENT_TYPE__STOP_TXN
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=STOP.TXN)
+		/* Specifies the Number of days (calculated from a  document's Status Date in the file CUST.DOCUMENT or TRANS.DOCUMENT) after which a  required Mandatory document with an invalid status, would stop a transaction input.
+Example
+DOCUMENT.REQUIRED ID-SETR*101 (For document group 101 of SEC.TRADE)
+DOCUMENT.TYPE- AGREEMENT
+MANDATORY-YES
+STOP.TXN-YES
+STOP.TXN.DAYS-10
+The Document AGREEMENT is recorded in the file CUST.DOCUMENT for Customer ID 1000 with an invalid status and a Status Date of  4.6.2002. Any SEC.TRADE input,  for which Document AGREEMENT  is required  from Customer ID 1000 would be allowed only upto 13.6.2002 (10 days from the Status Date). Any SEC.TRADE input,  for which Document AGREEMENT  is required  from Customer ID 1000 would  not be allowed after 13.6.2002.
+
+
+Validation Rules
+
+
+Optional.
+
+Multi     value field associated with field DOCUMENT.TYPE.
+
+Input     allowed only if  the value of the field STOP.TXN is YES.
+
+1-3     Numeric characters followed by D in the format  "xxxD".
+
+If      the value of  the field STOP.TXN is YES and that of STOP.TXN.DAYS is     Null, then transactions which require the Document  would be     immeidately stopped. */
+		STOP_TXN_DAYS : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=5.0, core=true, t24Name=STOP.TXN.DAYS)
+		/* Specifies whether the document type needs  to be tracked for transactions input from a related application (if value is YES) or not (if value is NO).
+Example
+DOCUMENT.REQUIRED ID: AC*101 (Document Group for the ACCOUNT application)
+DOCUMENT.TYPE: ELECSTMT (Electronic Statement Agreement)
+MANDATORY: YES
+TXN.PROCESSING: NO
+The document type ELECSTMT would be tracked whenever an Account input belongs to the Document Group 101. For a Loan input (in LD Application), ACCOUNT is defined as a related application and the appropriate Account belongs to Document Group 101. Since TXN.PROCESSING is set to NO, the document ELECSTMT would not be tracked when a loan is input in LD application.
+Validation Rules
+
+Mandatory if  the value of the field MANDATORY is YES.
+Allowed values YES/NO and defaults to YES.
+Multi value field associated with field DOCUMENT.TYPE. */
+		TXN_PROCESSING : DM_Foundation:DOCUMENT_REQUIRED__DOCUMENT_TYPE__TXN_PROCESSING
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, t24Name=TXN.PROCESSING)
+	}
+	DOCUMENT_REQUIRED__RELATED_APPLN
+	{
+		/* Specifies the related application(s) (other than CUSTOMER) whose required mandatory  documents also  need to be tracked.
+Whether Customer level documents (documents required for CUSTOMER application) need to be tracked or not  could be specified by setting the field CHECK.CUST.LEVEL to YES.
+For example, refer to help text  for the field  APPLN.CUS.FLD.
+Validation Rules
+
+Optional input.
+Should be a valid Application Mnemonic (Field APPLN.MNEMONIC) for an     application (other than CUSTOMER and current application) specified in the     file DM.APPLICATION.INFO.
+Associated multi value field.
+Duplicate values of RELATED.APPLN and APPLN.CUS.FLD combination not     allowed. */
+		RELATED_APPLN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=RELATED.APPLN)
+		/* Specifies the name of  a  field in the application specified in the first part of the ID (application in which a transaction is input), which links to the related application.
+Value of this field  would be used as an ID to access the related application's record for document tracking purposes.
+If no record exists in the related application with ID equal to the value of this field, then no document tracking would be done for the related application.
+For example, refer to help text  for the field  APPLN.CUS.FLD.
+Validation Rules
+
+Should be  in the Standard Selection of the application specified in     the first part of the ID.
+Input mandatory if the field RELATED.APPLN has a value.
+Input not allowed if  the field RELATED.APPLN is not specified.
+Multi value field associated with field RELATED.APPLN. */
+		APPLN_ID_LINK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=APPLN.ID.LINK)
+		/* Specifies the name of  a customer field  in the Related Application.
+Documents for the related application would be tracked  for the Customer whose ID is equal to the value of this field in the related application's appropriate  record.
+
+Example
+While inputting a Security Trade in the application SEC.TRADE, required mandatory documents for the Security Account Master of the Customers of the trade  need to be tracked.
+In DM.APPLICATION.INFO, a   record with ID=SEC.ACC.MASTER, and fields with the following values need to be set up: APPLN.MNEMONIC=SAM and CUST.FILED.NAME=CUSTOMER.NUMBER.
+In DM.APPLICATION.INFO, another  record with ID=SEC.TRADE, and fields with the following values need to be set up: APPLN.MNEMONIC=SETR  and CUST.FILED.NAME=CUSTOMER.NO.
+In DOC.GEN.CONDITION, a record with ID=SETR*CUSTOMER.NO or ID=SETR and fields with the following values need to be set up: DOC.GROUP=101, and appropriate conditions, if any for the group.
+In DOCUMENT.REQUIRED a record with  ID: SETR*101 and fields with the following values need to be set up: RELATED.APPLN=SAM, APPLN.ID.LINK=CUST.SEC.ACC  and APPLN.CUS.FLD=CUSTOMER.NUMBER.
+Validation Rules
+
+Multi value field associated with field RELATED.APPLN.
+Must be a value of the field CUST.FIELD.NAME  in  the related     application's record, in DM.APPLICATION.INFO.
+Mandatory if  a value for the field RELATED.APPLN is specified and     the field CUST.FIELD.NAME in DM.APPLICATION.INFO (in the related     application's record) is not null..
+If the value of the field CUST.FILED.NAME in DM.APPLICATION.INFO in      the related application's record is not specified, then no value would be     allowed in this field. */
+		APPLN_CUS_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=APPLN.CUS.FLD)
+	}
+	DOCUMENT_REQUIRED__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=INPUTTER)
+	}
+	DOCUMENT_REQUIRED__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=23.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application  stores the details of Status codes used in the document data files TRANS.DOCUMENT.
+
+
+Records with IDs
+1
+(Received),
+2
+(Not Received) and
+3
+(Expired) are supplied during installation and these records should not be modified, since these Status ID values  are  used by T24
+
+1
+is a valid one, both Status
+2
+and
+3
+are invalid.
+
+
+
+Users could define their own Status codes in this application which could be either Valid or Invalid (Field:
+VALID
+set to
+YES
+or
+NO
+).
+
+
+
+This is an installation level application shared by all Companies and records of this application could not be reversed. */
+	DOCUMENT_STATUS
+		@t24:i (t24Name=DOCUMENT.STATUS, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* This file stores the details of Status codes used in the document files CUST.DOCUMENT and TRANS.DOCUMENT.
+ID can be  any positive integer subject to a maximum of 10 characters.
+Records with IDs 1 (Received), 2 (Not Received) and 3 (Expired) are supplied during installation and they are  used by T24 in processing.
+Records in this file could not be reversed.
+Validation Rules
+
+For user input, 1-10 numeric characters other than the values of 1, 2 or 3. */
+		DOC_STAT_ID -> DM_Foundation:DOCUMENT_STATUS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=A, t24Name=DOC.STAT.ID)
+		DESCRIPTION -> byValue DM_Foundation:DOCUMENT_STATUS__DESCRIPTION *
+		/* Specifies whether this  status,  if attached to a Document tracked for a customer would make it  valid (Value of YES) or  invalid (Value of NO).
+If the status attached to a  required document is invalid, then T24 may  do additional processing like generating overrides, etc. for the document.
+Validation Rules
+
+Input mandatory.
+Allowed values are YES/NO.
+Input not allowed for System generated records with IDs 2 and 3. */
+		VALID : DM_Foundation:DOCUMENT_STATUS__VALID required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=VALID)
+		/* For a valid status (Value of the Field VALID is YES), this field specifies the period up to which a Document of this status is valid.
+
+The validity  period could be calculated  either from Status-Date or from its calendar year beginning for  a document of this status.
+Refer to the help text for the field END.DATE in the file CUST.DOCUMENT for calculation of expiry date using this field.
+
+Example
+
+VALID.PERIOD=Null, No End date would be calculated.
+
+Calculation from Status-Date: VALID.PERIOD= 12M.  For a document with  this status and  a STATUS.DATE of  20.2.2002,  its End date would be calculated as 19.2.2003.
+
+Calculation from Status-Date's calendar year beginning: VALID.PERIOD= 12MS.  For a document of this status and  a STATUS.DATE of  20.2.2002,  its End date would be calculated as 31.12.2002.
+Validation Rule
+
+Optional input.
+For invalid status (value of the field VALID is NO), no value would be     allowed.
+Must be in the format xxxD, xxxM or  xxxY to specify the  number     of days, months or  years respectively  from Status-Date.
+Must be in the format xxxDS, xxxMS or xxxYS to specify the number of days,     months or years respectively from Status-Date's calendar year     beginning. */
+		VALID_PERIOD : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=VALID.PERIOD)
+		RESERVED10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DM_Foundation:DOCUMENT_STATUS__INPUTTER *
+		DATE_TIME -> byValue DM_Foundation:DOCUMENT_STATUS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=19.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=21.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=22.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DOCUMENT_STATUS__DESCRIPTION
+	{
+		/* Description of the status.
+Example
+Fax copy, Email, Signature incomplete, etc.
+Validation Rules
+
+Input Mandatory.
+1-35 Alpha numeric characters.
+Multi language  field. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	DOCUMENT_STATUS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=INPUTTER)
+	}
+	DOCUMENT_STATUS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=17.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application records common characteristics of Document Types, which is a second level of classification of  Documents after Document Type.
+
+
+
+This is an installation level application shared by all Companies and records of this application could not be reversed. */
+	DOCUMENT_TYPE
+		@t24:i (t24Name=DOCUMENT.TYPE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* ID of the DOCUMENT.TYPE.
+Validation Rules
+
+1-10 alpha characters.
+Records of this application could not be reversed. */
+		DOCUMENT_TYPE_ID -> DM_Foundation:DOCUMENT_TYPE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=SSS, t24Name=DOCUMENT.TYPE.ID)
+		DESCRIPTION -> byValue DM_Foundation:DOCUMENT_TYPE__DESCRIPTION *
+		/* Specifies the document class  to which the document type belongs to.
+Validation Rules
+
+Input Mandatory.
+Must be ID of a valid record in the file DOCUMENT.CLASS. */
+		CLASS -> DM_Foundation:DOCUMENT_CLASS required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=2.0, core=true, businessType=SSS, t24Name=CLASS)
+		/* Specifes the version of the Document Type.
+For information purposes only.
+Validation Rules
+
+1-35 alpha numeric characters.
+Optional. */
+		VERSION : T24BusinessTypes:A
+			@i18n:Label (en=Version)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, t24Name=VERSION)
+		/* Defines the date from which the document type would be  tracked.
+Validation Rules
+
+Mandatory.
+Defaults to Bank Date.
+Cannot be less than Bank Date. */
+		BEGIN_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Begin Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=BEGIN.DATE)
+		/* Defines the date up to  which the document type would be effective for tracking purposes.
+Validation Rules
+
+Input optional.
+Date entered should be greater than or equal to BEGIN. DATE.
+Date entered should be greater than or equal to Bank Date.
+Standard T24 date format. */
+		END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="End Date")
+			@i18n:Tooltip (en="End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, t24Name=END.DATE)
+		/* Specifies a  frequency and next date of review  for the document type. A document type could be periodically reviewed for its format, usefulness, etc.
+Validation Rules
+
+Optional input.
+Standard frequency format.
+Date should be greater or equal to Bank Date. */
+		REVIEW_FREQ : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=6.0, core=true, t24Name=REVIEW.FREQ, mask="RDD DDD DDDD #####")
+		/* Specifies whether a signature is required for this document type.
+Validation Rules
+
+Allowed values NO/YES.
+A value of Null would be interpreted as NO. */
+		SIGNATURE_REQD : DM_Foundation:DOCUMENT_TYPE__SIGNATURE_REQD
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, t24Name=SIGNATURE.REQD)
+		EQUIV_DOC -> byValue DM_Foundation:DOCUMENT_TYPE__EQUIV_DOC *
+		/* Specifies whether the document type (if required for Customer creation),  needs to be tracked only for new Customers created on or after the BEGIN.DATE.
+If the value of this field is YES:
+Document type would be tracked  for new customers created  on or     after the BEGIN.DATE, provided it is a required document type for     them.
+When an existing  Customer  is modified, and if this document     type is a required one, it  would be tracked (its Status would be     tested  for processing) only if it has been already tracked (record     exists in the file  CUST.DOCUMENT) for that  Customer.
+Validation Rules
+
+Optional input with allowed values YES/NO.
+A Null value would be interpreted as NO.
+YES  not allowed if the field CONTRACT.SPECIFIC is YES.
+YES not allowed when equivalent documents (Field: EQUIV.DOC) are     specified.
+This Document Type could be specified as a required document type only for     a Customer document group. */
+		NEW_ALL_CUST : DM_Foundation:DOCUMENT_TYPE__NEW_ALL_CUST
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=NEW.ALL.CUST)
+		/* The desired period, prior to the expiry date of a document of this type, notices need to be sent to Customers, could be specified here.
+
+For information purposes only.
+Validation Rule
+
+Optional input.
+1-999 D (day), M (month) or Y (year) accepted. */
+		NOTICE_DAYS : T24BusinessTypes:S
+			@i18n:Label (en="Notice Days")
+			@i18n:Tooltip (en="Calendar days post to a aging status ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=10.0, core=true, t24Name=NOTICE.DAYS)
+		/* Specifies whether a document of this type needs to be obtained separately for each contract (Transaction) from the customer.
+Example: A Promissory Note might be obtained for each loan granted to a Customer.
+Validation Rule
+
+Input mandatory.
+Allowed values YES/NO. Defaults to NO.
+Once input and authorized can not be changed.
+Both the fields NEW.ALL.CUST and CONTRACT.SPECIFIC cannot be YES.
+If YES, the document type cannot be specified as a required document type     for a Customer Document Group. */
+		CONTRACT_SPECIFIC : DM_Foundation:DOCUMENT_TYPE__CONTRACT_SPECIFIC required
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=11.0, core=true, t24Name=CONTRACT.SPECIFIC)
+		/* Specifies the period up to which a Document of this type would be  valid from the date specified in the field VALID.BASE.DATE.
+
+
+The validity  period could be specified  either from the date specified in the field VALID.BASE.DATE or from its  calendar year beginning.
+If the status attached to a document of this type is invalid, then T24 would not calculate its expiry date, using the definition of this field.
+Refer to the help text for the field END.DATE in the file CUST.DOCUMENT for calculation of expiry date using this field.
+
+Example
+
+VALID.PERIOD=Null, No End date would be calculated.
+
+VALID.PERIOD= 12M, VALID.BASE.DATE=STATUS.DATE. For a document of this type with a STATUS.DATE of  20.2.2002,  its End date would be calculated as 19.2.2003.
+
+VALID.PERIOD= 12MS, VALID.BASE.DATE=STATUS.DATE -  calculation to be done from year Beginning. For a document of this type with a STATUS.DATE of  20.2.2002,  its End date would be calculated as 31.12.2002.
+
+VALID.PERIOD= 12M, VALID.BASE.DATE=SIG.DATE. For a document of this type with a SIG.DATE of  19.2.2002,  its End date would be calculated as 18.2.2003.
+
+VALID.PERIOD= 12MS, VALID.BASE.DATE=SIG.DATE - calculation to done from year beginning. For a document of this type with a SIG.DATE of  19.2.2002,  its End date would be calculated as 31.12.2002.
+Validation Rule
+
+Optional input.
+Must be in the format xxxD, xxxM or  xxxY to specify the  number     of days, months or  years respectively  from the VALID.BASE.DATE.
+Must be in the format xxxDS, xxxMS or xxxYS to specify the number of days,     months or years respectively from the VALD.BASE.DATE's calendar year     beginning. */
+		VALID_PERIOD : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=12.0, core=true, t24Name=VALID.PERIOD)
+		/* Specifies which of the fields STAUS.DATE or SIG.DATE   would be used to calculate the  validity for  a Document of  this type.
+Validation Rule
+
+Mandatory if the field VALID.PERIOD has a value.
+
+
+
+Allowed values are STATUS.DATE or  SIG.DATE.
+
+
+Value
+of SIG.DATE is allowed only if  the value of the field SIGNATURE.REQD is Yes. */
+		VALID_BASE_DATE : DM_Foundation:DOCUMENT_TYPE__VALID_BASE_DATE
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=13.0, core=true, t24Name=VALID.BASE.DATE)
+		VALID_COMPANY -> byValue DM_Foundation:DOCUMENT_TYPE__VALID_COMPANY *
+		RESERVED10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=25.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=27.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DM_Foundation:DOCUMENT_TYPE__INPUTTER *
+		DATE_TIME -> byValue DM_Foundation:DOCUMENT_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=30.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=31.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=32.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=33.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=34.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DOCUMENT_TYPE__DESCRIPTION
+	{
+		/* Description of the Document Type.
+Validation Rules
+
+Multi value language field.
+Input mandatory.
+1-35 Alpha numeric characters. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	DOCUMENT_TYPE__EQUIV_DOC
+	{
+		/* Specifies document type(s) which are considered as equivalent to this document type,  in terms of purpose and processing.
+If an equivalent document type exists  with a valid status, it would be treated for the purposes of document tracking as if  the main document type exists  with a valid status.
+Equivalence of document types would be checked at only one level. i.e. If Document Type A has an equivalent Document Type B and Document Type B has an equivalent Document Type C, when A is tracked only the existence of B with a valid status would be checked and any status of C would be ignored.
+Validation Rules
+
+Must be the ID of a valid record in the file DOCUMENT.TYPE except ID of     the current Document Type.
+Not allowed for Contract specific documents (Field CONTACT.SPECIFIC is     YES) */
+		EQUIV_DOC -> DM_Foundation:DOCUMENT_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=8.0, core=true, businessType=SSS, t24Name=EQUIV.DOC)
+	}
+	DOCUMENT_TYPE__VALID_COMPANY
+	{
+		/* Specifies the Companies in which Documents of  this  Type needs to be tracked.
+Example: For an LD contract, Document Type A is specified as a required Document Type in all Companies. However, if the Document Type A is restricted here to only Companies BNK and BN2, then Document A would be tracked,  only when an  LD contract is input from either Company BNK or BN2.
+Validation Rule
+
+Multi-value Optional field.
+Must be a valid id of the table MNEMONIC.COMPANY.
+A value of Null signifies that there is  no Company dependent     restriction for tracking documents of this type. */
+		VALID_COMPANY : T24BusinessTypes:MNE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=14.0, core=true, t24Name=VALID.COMPANY)
+	}
+	DOCUMENT_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=28.0, core=true, t24Name=INPUTTER)
+	}
+	DOCUMENT_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=29.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	MNEMONIC_APPLN
+		@t24:i (t24Name=MNEMONIC.APPLN, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		MNEMONIC_ID -> DM_Foundation:MNEMONIC_APPLN PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=0.0, core=true, businessType=A, t24Name=MNEMONIC.ID)
+		APPLICATION_ID : T24BusinessTypes:A
+			@i18n:Label (en="Application Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=APPLICATION.ID)
+	}
+	/* This file stores details of  Contract specific documents tracked for customers, in all applications other than CUSTOMER.
+
+When a transaction  is authorized, Contract specific documents tracked for it  would be created by T24 in this application. Users also could create or modify the records in this application.
+
+Records of this application could not be reversed.
+
+When a transaction is reversed in an application, its related documents in this application  would be reversed by T24. */
+	TRANS_DOCUMENT
+		@t24:i (t24Name=TRANS.DOCUMENT, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This file stores details of  contract specific documents tracked for customers.
+Format of the ID must be "Customer ID.*  Application Mnemonic * Transaction ID * Document Type ID",  where the first part refers to  the ID of a valid CUSTOMER record, second part refers to  the Mnemonic of an  application (field APPLN.MNEMONIC in DM.APPLICATION.INFO), third part refers to the ID of a valid  record in the application, and the last part refers to the  ID  of a valid DOCUMENT.TYPE record.
+Value of the last  part of ID (DOCUMENT.TYPE)  would be  used by T24 in calculation of Expiry Date  (Field: END.DATE) of  a  Document with valid status.
+Records in this file cannot be reversed.
+Validation Rules
+
+First part of the ID should be the ID of a valid CUSTOMER record.
+Second part of the ID should be a valid value of the field APPLN.MNEMONIC     in DM.APPLICATION.INFO for an application.
+Third part must be the ID of  a valid record in the application     referred to in the second part.
+Last part must be the ID of a valid DOCUMENT.TYPE record.
+Value of the field CONTRACT.SPECIFC in the relevant DOCUMENT.TYPE record     should be YES. */
+		TRANS_DOC_ID -> DM_Foundation:TRANS_DOCUMENT PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=59, sysNumber=0.0, core=true, businessType=A, t24Name=TRANS.DOC.ID)
+		/* Specifies the Reference for the document, if any.
+For information purposes only.
+Validation Rules
+
+Optional.
+1-35 Alpha numeric characters. */
+		REFERENCE_NO : T24BusinessTypes:A
+			@i18n:Label (en="Reference No")
+			@i18n:Tooltip (en="Unique reference which identifies the transaction")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=REFERENCE.NO)
+		/* Specifies the date from which the document is tracked in T24.
+For information purposes only.
+Validation Rules
+
+No input field.
+Defaults to Bank Date of  original input. */
+		BEGIN_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Begin Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=2.0, core=true, t24Name=BEGIN.DATE)
+		/* Specifies the status of the document.
+Value of this field would  be  used by T24 in calculation of Expiry Date (Field: END.DATE), of a Document with valid status.
+T24 would update the value of  this field to 3 ("Expired") at Batch processing on Expiry Date (Field: END.DATE), if this field refers to a valid status.
+Validation Rules
+
+Mandatory field.
+Should be the ID of  a valid record in the file      DOCUMENT.STATUS. */
+		STATUS -> DM_Foundation:DOCUMENT_STATUS required
+			@i18n:Label (en=Status)
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=3.0, core=true, businessType=A, t24Name=STATUS)
+		/* Specifies the Date from which the status applies to the document.
+Value of this field might   be  used by T24 in calculation of Expiry Date (Field: END.DATE), of a Document with valid status.
+Validation Rules
+
+Mandatory.
+Defaults to the Bank Date.
+Can not be greater than the Bank Date.
+Standard T24 date format. */
+		STATUS_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Status Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=STATUS.DATE)
+		STAT_DETAILS -> byValue DM_Foundation:TRANS_DOCUMENT__STAT_DETAILS *
+		/* Specifies the date on which Signature has been obtained on the Document.
+Value of this field might   be  used by T24 in calculation of Expiry Date (Field: END.DATE), of a Document with valid status.
+
+Validation Rules
+
+Standard T24 date format.
+Date, if entered, should be less than or equal to Bank Date.
+Input allowed only if  value of the filed SIGNATURE.REQD is YES       in  the document type's record  in the file DOCUMENT.TYPE.
+If the attached status is a valid one, and value of the field      SIGNATURE.REQD is YES  in  the document type's record  in the     file DOCUMENT.TYPE, then input is mandatory for this field. */
+		SIG_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Sig date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=SIG.DATE)
+		/* Specifies the expiry  date in case of  a document with a  valid status. The document would be valid till  the date specified here and would expire afterwards.
+If for a valid document, this field is not specified (Null), then the document would be valid for ever with no expiry date.
+In case a document is invalid, this field conveys no special meaning for processing; for invalid documents it  might be used to set up a date for reminder purposes. For example, in case a document is not received (an invalid status) and a reminder is sent to the customer, this field might be used to specify a date on which a chaser has to be sent to the customer.
+T24 would not update  the value of this field for documents with an invalid status, exception being when a document is created by T24 with a Status 1 (based on User Confirmation of YES to T24 confirmation message: "Have you received...."), irrespective of whether Status 1 is valid or invalid. For invalid  documents, user might input any date greater than or equal to Bank date.
+
+T24 would calculate the value of this field for documents  as follows:
+1. As per the definition of  document  validity  in the record with ID equal to attached status (Field STATUS) in the file DOCUMENT.STATUS.
+2. As per the definition of  document  validity  in the record with ID equal to the value of Document Type (specified in the first part of ID)  in the file DOCUMENT.TYPE.
+3. The calculated END.DATE would be the least of the dates calculated as per 1 and 2 above.
+User could override a T24 calculated END.DATE with a  lesser date.
+Example
+The following table shows how the END.DATE is calculated by T24 and how  User could override it. The table shows the calculations for Documents with any valid Status. The Bank Date is  20.03.02. In column 9, in all cases,  user input should be greater than or equal to Bank Date 20.03.02. LE means "Less than or Equal to"
+
+STATUS.
+
+DATE
+
+
+
+VALID.
+
+PERIOD
+
+
+
+(IN DOCUMENT.
+
+
+STATUS)
+
+
+
+
+
+
+
+
+
+End-Date as per       STATUS
+
+
+
+
+
+VALID.
+
+PERIOD
+
+
+
+(
+IN
+
+DOCUMENT.
+
+
+TYPE)
+
+
+
+
+
+VALID.BASE.
+
+DATE
+
+(in DOCUMENT.
+
+
+TYPE)
+
+
+
+
+
+
+
+
+SIG.DATE
+
+
+
+
+
+
+
+
+
+
+End-Date
+
+as per DOCUMENT.
+
+TYPE
+
+
+
+
+
+
+
+
+T24
+
+Calculated
+End-Date
+
+
+
+
+
+(Lesser of 3 and 7)
+
+
+User Input
+
+
+
+
+
+
+
+
+Final End-Date
+
+(1)
+(2)
+(3)
+(4)
+(5)
+(6)
+(7)
+(8)
+(9)
+(10)
+
+15.3.02
+
+
+30 Days
+
+
+13.4.02
+
+
+1 Year
+
+
+STATUS.DATE
+
+
+
+Not Relevant
+
+
+14.3.03
+
+
+13.4.02
+
+
+Any date LE 13.4.02
+
+
+13.4.02 or User Input
+
+
+15.3.02
+
+
+30 Days
+
+
+13.4.02
+
+
+1 Year
+
+
+STATUS.DATE
+
+
+
+Not Relevant
+
+
+14.3.03
+
+
+13.4.02
+
+
+Any date LE 13.4.02
+
+13.4.02 or User Input
+
+
+15.3.02
+
+
+30 Days
+
+
+13.4.02
+
+
+60 Days
+
+
+SIG.DATE
+
+10.3.02
+
+
+8.5.02
+
+
+13.4.02
+
+
+Any date LE 13.4.02
+
+
+13.4.02 or User Input
+
+
+15.3.02
+
+
+Null
+
+
+Null
+
+
+60 Days
+
+
+SIG.DATE
+
+10.3.02
+
+
+8.5.02
+
+
+8.5.02
+
+
+Any date LE 8.5.02
+
+8.5.02 or User Input
+
+
+15.3.02
+
+
+30 Days
+
+
+13.4.02
+
+
+Null
+
+
+Null
+
+
+Not Relevant
+
+
+Null
+
+
+13.4.02
+
+
+Any date LE 13.4.02
+
+
+13.4.02 or User Input
+
+
+15.3.02
+
+
+Null
+
+
+Null
+
+
+Null
+
+
+Null
+
+
+Not Relevant
+
+
+Null
+
+
+Null
+
+
+Null or any date       greater than or equal to 20.3.02 (Bank Date)
+
+
+Null
+
+or User Input
+Validation Rules
+
+Optional.
+Standard T24 date format.
+Must be Greater than or Equal to the Bank Date.
+Calculation, default and user input rules as per above defined conditions.
+If END.DATE is less than Bank Date, then only allowed Status would be     "Expired" (value of 3).
+If the status is changed to "Expired", End Date would default to     previous working  Date and can not be changed. */
+		END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="End Date")
+			@i18n:Tooltip (en="End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=END.DATE)
+		/* Specifies the sequence number of  a document, to distinguish a new document obtained on expiry of the original one.
+Validation Rules
+
+Mandatory.
+Input allowed only when one of  the fields STATUS or STATUS.DATE     is  updated.
+Value could be updated only in increments of 1. */
+		DOC_SEQUENCE : mml:Integer
+			@i18n:Label (en="Doc Sequence")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=8.0, core=true, t24Name=DOC.SEQUENCE)
+		/* T24 maintained field.
+Validation Rules
+
+Date of last update to the record.
+Standard T24 date format. */
+		LAST_UPD_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Last Update Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=9.0, core=true, t24Name=LAST.UPD.DATE)
+		LAST_UPD_APPLN -> byValue DM_Foundation:TRANS_DOCUMENT__LAST_UPD_APPLN *
+		/* T24 maintained field.
+Validation Rules
+
+Value would be MANUAL if updated by User.
+Value would be SYSTEM is updated by T24. */
+		UPDATE_BY : DM_Foundation:TRANS_DOCUMENT__UPDATE_BY
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=12.0, core=true, t24Name=UPDATE.BY)
+		/* Specifies the status of the next document (document to replace the current one).
+This might be used to specify user defined status such as "Advice sent", etc. for the next document, when an advice is sent to the customer for a new document,  before the expiry of the current one. It might also represent the status of the next document which might have been obtained from the Customer before the expiry of the current one, and which could be effective from a future date.
+Value of this field would  be  used by T24 in calculation of  Expiry  Date (Field: NEXT.END.DATE) of the Next Document, if it  has  a  valid status.
+On the End-of-day of  the current document expiry (Field: END.DATE), if the  next document is with an  invalid status and its end date (Field:NEXT.END.DATE) is either null or not less than next working day, then T24 would update the current document details with that of the next one. i.e. the fields
+STATUS by NEXT.STATUS, STATUS.DATE by NEXT.STATUS.DATE,  END.DATE by NEXT.END.DATE,  STAT.DETAILS by NEXT.DETAILS,  SIG.DATE by NEXT.SIG.DATE; also the DOC.SEQUENCE would be incremented by 1.
+Validation Rules
+
+Mandatory field.
+Should be the ID of  a valid record in the file      DOCUMENT.STATUS.
+Value of 3 ("Expired") not allowed. */
+		NEXT_STATUS -> DM_Foundation:DOCUMENT_STATUS
+			@i18n:Label (en="Next Status")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=14.0, core=true, businessType=A, t24Name=NEXT.STATUS)
+		NEXT_DETAILS -> byValue DM_Foundation:TRANS_DOCUMENT__NEXT_DETAILS *
+		/* Specifies the mandatory
+
+future effective date of
+a next document (document to replace the current one), with a valid status.
+When a next document is obtained from a Customer before the expiry of the current one, it could  be made immediately effective,  by directly updating the fields for the current document i.e. REFERENCE.NO to DOC.SEQUENCE
+However, if the next document is with a valid status (Field: NEXT.STATUS is valid), then it would  be possible to make it effective from any  future date.
+
+If the status of the next document is valid (Field: NEXT.STATUS is valid), on the start-of-day of  its effective date, T24 would update the details of the current document with that of the next one as follows:  STATUS by NEXT.STATUS, STATUS.DATE by NEXT.STATUS.DATE,  END.DATE by NEXT.END.DATE,  STAT.DETAILS by NEXT.DETAILS,  SIG.DATE by NEXT.SIG.DATE; also the DOC.SEQUENCE would be incremented by 1.
+
+Validation Rules
+
+Value allowed only if the status of the next document (Field:     NEXT.STATUS)  is specified.
+
+
+Value not     allowed if  the status of the next document (Field: NEXT.STATUS)      is invalid.
+
+
+Value     mandatory if the status of the next document (Field: NEXT.STATUS) is valid.
+
+
+If specified,     its value should be greater than Bank Date. */
+		NEXT_EFF_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Next Eff Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=NEXT.EFF.DATE)
+		/* Specifies the Date from which the status (Field: NEXT.STATUS) applies to the next document (document to replace the current one).
+Value of this field might   be  used by T24 in calculation of Expiry  Date (Field: NEXT.END.DATE) of the next document, if it  has a valid status.
+Validation Rules
+
+Value now allowed if the field NEXT.STATUS is not specified.
+Mandatory if the field NEXT.STATUS is specified.
+Defaults to Bank Date if NEXT.STATUS is invalid and to NEXT.EFF.DATE if     NEXT.STATUS is valid.
+If NEXT.STATUS is invalid, it should be less than or equal to Bank Date.
+
+If NEXT.STATUS is valid, it should be less than or     equal to NEXT.EFF.DATE.
+Standard T24 date format. */
+		NEXT_STATUS_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Next Status Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=NEXT.STATUS.DATE)
+		/* Specifies the date on which Signature has been obtained on the Next Document (document to replace the current one).
+Value of this field might   be  used by T24 in calculation of Expiry Date (Field: NEXT.END.DATE) of  the next document, if it  has  a valid status.
+Validation Rules
+
+Standard T24 date format.
+Value not allowed if NEXT.STATUS is not specified.
+Date, if entered, should be less than or equal to Bank Date.
+Input allowed only if  value of the filed SIGNATURE.REQD is YES       in  the document type's record  in the file DOCUMENT.TYPE.
+If the attached status (Field: NEXT.STATUS) is a valid one, and value of     the field  SIGNATURE.REQD is YES  in  the document type's     record  in the file DOCUMENT.TYPE, then input is mandatory for this     field. */
+		NEXT_SIG_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Next Sig Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=NEXT.SIG.DATE)
+		/* Specifies the expiry  date in case of  a next document (document to replace the current one).
+T24 would not calculate the value of this field, if the next document is with an invalid status (Field: NEXT.STATUS).
+T24 would calculate the value of this field, if the next  document is  with a valid status, as follows:
+1. As per  document  validity  defined in  the record with ID equal to attached status (Field: NEXT.STATUS), in the file DOCUMENT.STATUS.
+2. As per document  validity defined in  the  record with ID equal to  value of Document Type (specified in the first part of ID),  in the file DOCUMENT.TYPE.
+3. The calculated NEXT.END.DATE would be the least of the dates calculated as per 1 and 2 above.
+User could override a T24 calculated NEXT.END.DATE with a  lesser date.
+Validation Rules
+
+Optional.
+Standard T24 date format.
+Value allowed only if NEXT.STATUS is specified.
+If NEXT.STATUS is invalid, it is optional; if specified, it must be     greater than or equal to the Bank Date.
+If NEXT.STATUS is valid, then calculated or user input NEXT.END.DATE, if     not null, should be greater than or equal to NEXT.EFF.DATE. */
+		NEXT_END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Next End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=19.0, core=true, t24Name=NEXT.END.DATE)
+		RESERVED4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue DM_Foundation:TRANS_DOCUMENT__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DM_Foundation:TRANS_DOCUMENT__INPUTTER *
+		DATE_TIME -> byValue DM_Foundation:TRANS_DOCUMENT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=29.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=30.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=31.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=32.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=33.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		ARRANGEMENT : T24BusinessTypes:ANY
+			@i18n:Label (en="Arrangement Id")
+			@i18n:Tooltip (en="Unique number for the arrangement contract")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=13.1, core=false, t24Name=ARRANGEMENT)
+		CUSTOMER_ID -> ST_Customer:CUSTOMER
+			@i18n:Label (en="Customer Id")
+			@i18n:Tooltip (en="Identifies the Customer for the transaction.")
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, core=false, businessType=CUS, t24Name=CUSTOMER.ID, genOperation="FIELD(TRANS.DOC.ID, \'*\', 1,1)")
+	}
+	TRANS_DOCUMENT__STAT_DETAILS
+	{
+		/* Specifies the remarks if any, on the current status of the document.
+For information purposes only.
+Validation Rules
+
+Optional.
+1-35 Alpha numeric characters. */
+		STAT_DETAILS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=5.0, core=true, t24Name=STAT.DETAILS)
+	}
+	TRANS_DOCUMENT__LAST_UPD_APPLN
+	{
+		/* When the document record is updated by
+T24
+, this field specifies the application from which T24 is updating it.
+Validation Rules
+
+Optional.
+If specified, should be same as the Application mnemonic forming part of     the ID of the record. */
+		LAST_UPD_APPLN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=10.0, core=true, t24Name=LAST.UPD.APPLN)
+		/* When the document record is updated by
+T24
+, this field specifies the transaction reference number of the application,
+from which T24 is updating it.
+Validation Rules
+
+Mandatory if LAST.UPD.APPLN is specified.
+Value not allowed if LAST.UPD.APPLN is not specified.
+If specified, its value should be same as the Transaction ID which forms a     part of the record ID. */
+		APPLN_TXN_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=APPLN.TXN.REF)
+	}
+	TRANS_DOCUMENT__NEXT_DETAILS
+	{
+		/* Specifies the remarks if any, on the status of the next document (document to replace the current one).
+For information purposes only.
+Validation Rules
+
+Optional.
+Input allowed only if the field NEXT.STATUS is specified.
+1-35 Alpha numeric characters. */
+		NEXT_DETAILS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=15.0, core=true, t24Name=NEXT.DETAILS)
+	}
+	TRANS_DOCUMENT__OVERRIDE
+	{
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=OVERRIDE)
+	}
+	TRANS_DOCUMENT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=27.0, core=true, t24Name=INPUTTER)
+	}
+	TRANS_DOCUMENT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=28.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	CUST_DOCUMENT__UPDATE_BY : mml:string
+		MANUAL=MANUAL
+		SYSTEM=SYSTEM
+	DM_APPLICATION_INFO__CUST_DOC_OVERRIDE : mml:string
+		YES=YES
+		NO=NO
+	DOC_GEN_CONDITION__SCAN_ALL_GROUP : mml:string
+		YES=YES
+		NO=NO
+	DOC_GEN_CONDITION__DOC_GROUP__DECISN_FIELD__DECISION : mml:string
+		EQ=EQ
+		GE=GE
+		GT=GT
+		LE=LE
+		LK=LK
+		LT=LT
+		NE=NE
+		UL=UL
+		NR=NR
+		RG=RG
+	DOCUMENT_REQUIRED__CHECK_CUST_LEVEL : mml:string
+		YES=YES
+		NO=NO
+	DOCUMENT_REQUIRED__DOCUMENT_TYPE__MANDATORY : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	DOCUMENT_REQUIRED__DOCUMENT_TYPE__STOP_TXN : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	DOCUMENT_REQUIRED__DOCUMENT_TYPE__TXN_PROCESSING : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	DOCUMENT_STATUS__VALID : mml:string
+		YES=YES
+		NO=NO
+	DOCUMENT_TYPE__SIGNATURE_REQD : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	DOCUMENT_TYPE__NEW_ALL_CUST : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	DOCUMENT_TYPE__CONTRACT_SPECIFIC : mml:string
+		YES=YES
+		NO=NO
+	DOCUMENT_TYPE__VALID_BASE_DATE : mml:string
+		STATUS_DATE=STATUS.DATE
+		SIG_DATE=SIG.DATE
+	TRANS_DOCUMENT__UPDATE_BY : mml:string
+		SYSTEM=SYSTEM
+		MANUAL=MANUAL
+}

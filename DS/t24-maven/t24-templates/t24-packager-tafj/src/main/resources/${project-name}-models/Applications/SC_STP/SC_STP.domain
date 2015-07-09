@@ -1,0 +1,390 @@
+# UTF-8
+# UTF-8
+/* Deliver Definition and Processing for Securities */
+Domain SC_STP
+	@t24:i (module=SC)
+	@java:Package (value=com.temenos.t24.datamodel.sc.sc_stp)
+namespace "http://www.temenos.com/t24/SC_STP"
+metamodelVersion 1.30.6
+Classes {
+	/* This Application holds the various matching codes details processed against inbound SWIFT MT548.
+
+Based on the Matching code the SC.MT548.MATCH.QUEUE is updated.
+
+If MATCH.CODE is missing or incorrect then the SC.MT548.REPAIR.QUEUE is updated. */
+	SC_MT548_MATCH_CODE
+		@t24:i (t24Name=SC.MT548.MATCH.CODE, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Specifies the matching codes which is used in the Inbound MT548 message.
+
+Validation Rules
+Mandatory input.
+Maximum allowed character is 16 .
+
+Eg :- MTCH/MACH, MTCH/NMAT, SETT/PEND */
+		MT548_MATCH_KEY -> SC_STP:SC_MT548_MATCH_CODE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=AA, t24Name=MT548.MATCH.KEY)
+		DESCRIPTION -> byValue SC_STP:SC_MT548_MATCH_CODE__DESCRIPTION *
+		/* Specifies the application type of the Matching code.
+
+Validation Rules
+Allowed Input is S or L .
+S – Swift standard
+L – Local */
+		APPLICATION_TYPE : SC_STP:SC_MT548_MATCH_CODE__APPLICATION_TYPE
+			@i18n:Label (en="Application Type")
+			@i18n:Tooltip (en="How the payment rules apply to an arrangement")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=2.0, core=true, t24Name=APPLICATION.TYPE)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=3.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue SC_STP:SC_MT548_MATCH_CODE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SC_STP:SC_MT548_MATCH_CODE__INPUTTER *
+		DATE_TIME -> byValue SC_STP:SC_MT548_MATCH_CODE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=13.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=14.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=16.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=17.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_MT548_MATCH_CODE__DESCRIPTION
+	{
+		/* Specifies the description of the matching code.
+
+Validation Rules
+Multi Language and Multi value field .
+Maximum allowed character is 35.
+
+Eg :- MTCH/MACH  - Matched */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	SC_MT548_MATCH_CODE__OVERRIDE
+	{
+		/* Contains details of any overrides applicable to this Application.
+
+Validation Rules
+Up to 35 type A (alphanumeric) characters. Multivalue field. (Internal field.) */
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=OVERRIDE)
+	}
+	SC_MT548_MATCH_CODE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, core=true, t24Name=INPUTTER)
+	}
+	SC_MT548_MATCH_CODE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=12.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* The MT548 message is used to advise the status of a settlement instruction previously sent by the account owner and is usually sent by custodians before the settlement confirmations.
+
+A new record is created in this application each time a new SC.SETTLEMENT record gets created, provided the field PROCESS.MT548.IN in SC.PARAMETER should be set to ‘Y’.
+
+The fields in this application are updated automatically by the system upon receipt of MT548 incoming messages. */
+	SC_MT548_MATCH_QUEUE
+		@t24:i (t24Name=SC.MT548.MATCH.QUEUE, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The reference of this application that would holds SEC.TRADE or SECURITY.TRANSFER transaction reference as value whenever a new SC.SETTLEMENT record gets created.
+
+The transaction reference is picked up either from the reference in SEME or RELA based on set-up in the field MT548.IN.TXN.REF (in CUSTOMER.SECURITY record of the counter party). The system picked up the Reference from the Tag 20C in MT548 message.
+
+If the Transaction reference in the 20C tag matches with the MT548.TRANS.KEY then the system starts updating the other fields. Otherwise it will write the Error message in SC.MT548.REPAIR.QUEUE.
+
+Validation Rules
+Mandatory input.
+Maximum allowed character is 16 and is prefixed with SCTRSC or SECTSC */
+		MT548_TRANS_KEY -> SC_STP:SC_MT548_MATCH_QUEUE PK required
+			@i18n:Label (en="MT548 Ref")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=S, t24Name=MT548.TRANS.KEY)
+		/* This field is updated by the system with the value in the tag 25D while processing MT548 message.
+
+Validation Rules
+Single value field.
+Maximum allowed character is 16. */
+		MATCH_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Match Code")
+			@i18n:Tooltip (en="Indicates the Matching code details")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=1.0, core=true, t24Name=MATCH.CODE)
+		/* This field is updated by the system with the value in the tag 24B while processing MT548 message.
+
+Validation Rules
+Single value field.
+Maximum allowed character is 35 . */
+		REASON_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Reason code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=REASON.CODE)
+		REASON_NARRATIVE -> byValue SC_STP:SC_MT548_MATCH_QUEUE__REASON_NARRATIVE *
+		/* This field is updated by the system with the value in the tag 98C while processing MT548 message.
+
+Validation Rules
+Single value field.
+Format of this field is Date-Time */
+		MSG_DATE_TIME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=4.0, core=true, t24Name=MSG.DATE.TIME)
+		/* This field is updated by the system with the value in the tag 36B while processing MT548 message.
+
+Validation Rules
+Single value field.
+Maximum allowed character is 1-18 numeric characters. */
+		NO_NOMINAL : T24BusinessTypes:NOMAMT
+			@i18n:Label (en=Nominal)
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=5.0, core=true, t24Name=NO.NOMINAL)
+		/* This field is updated by the system with the value in the tag 19A while processing Mt548 message.
+
+Validation Rules
+Single value field.
+Maximum allowed character is 1-18 numeric characters. */
+		AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en=Amount)
+			@i18n:Tooltip (en="Indicates the Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=6.0, core=true, t24Name=AMOUNT)
+		DELIVERY_REF -> byValue SC_STP:SC_MT548_MATCH_QUEUE__DELIVERY_REF *
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue SC_STP:SC_MT548_MATCH_QUEUE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SC_STP:SC_MT548_MATCH_QUEUE__INPUTTER *
+		DATE_TIME -> byValue SC_STP:SC_MT548_MATCH_QUEUE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=19.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=21.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=22.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_MT548_MATCH_QUEUE__REASON_NARRATIVE
+	{
+		/* This field is updated by the system with the value in the tag 70D while processing MT548 message.
+
+Validation Rules
+Multi value field.
+Maximum allowed character is 35. */
+		REASON_NARRATIVE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, t24Name=REASON.NARRATIVE)
+	}
+	SC_MT548_MATCH_QUEUE__DELIVERY_REF
+	{
+		/* The Delivery Reference identifies each separate Delivery advice which has been produced by the Delivery module for MT548 incoming message.
+
+Validation Rules
+No input allowed. Internally generated field. */
+		DELIVERY_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=DELIVERY.REF)
+	}
+	SC_MT548_MATCH_QUEUE__OVERRIDE
+	{
+		/* Contains details of any overrides applicable to this Application.
+
+Validation Rules
+Up to 35 type A (alphanumeric) characters. Multivalue field. (Internal field.) */
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=OVERRIDE)
+	}
+	SC_MT548_MATCH_QUEUE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=INPUTTER)
+	}
+	SC_MT548_MATCH_QUEUE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=17.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* On receipt of a MT548 message with invalid reference (or) the matching code is missing or if it is incorrect, SC.MT548.REPAIR.QUEUE is updated with the rejection reason. */
+	SC_MT548_REPAIR_QUEUE
+		@t24:i (t24Name=SC.MT548.REPAIR.QUEUE, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* A unique key is generated by the system using the Time function.
+
+Validation Rules
+Mandatory input.
+Maximum allowed character is 20. */
+		MT548_REPAIR_KEY -> SC_STP:SC_MT548_REPAIR_QUEUE PK required
+			@i18n:Label (en="Repair Key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=MT548.REPAIR.KEY)
+		/* The TRANS.REF field is updated by the system with the transaction reference specified in the tag 20C while processing MT548 message.
+
+Validation Rules
+Single value field.
+Maximum allowed character is 16 and is prefixed with SCTRSC or SECTSC */
+		TRANS_REF : T24BusinessTypes:A
+			@i18n:Label (en="Transaction No")
+			@i18n:Tooltip (en="Indicates the transaction reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=1.0, core=true, t24Name=TRANS.REF)
+		/* Specifies the Matching code details from the tag 25D in MT548 incoming message
+
+Validation Rules
+Single value field.
+Maximum allowed character is 16. */
+		MATCH_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Match Code")
+			@i18n:Tooltip (en="Indicates the Matching code details")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=2.0, core=true, t24Name=MATCH.CODE)
+		REASON_NARRATIVE -> byValue SC_STP:SC_MT548_REPAIR_QUEUE__REASON_NARRATIVE *
+		/* This field is updated by the system with the value in the tag 98C while processing MT548 message.
+
+Validation Rules
+Single value field.
+Format of this field is Date-Time */
+		MSG_DATE_TIME : T24BusinessTypes:A
+			@i18n:Label (en="Message Date Time")
+			@i18n:Tooltip (en="Message Date Time")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=4.0, core=true, t24Name=MSG.DATE.TIME)
+		/* This field is updated by the system with the value in the tag 36B while processing MT548 message.
+
+Validation Rules
+Single value field.
+Maximum allowed character is 1-18 numeric characters. */
+		NO_NOMINAL : T24BusinessTypes:NOMAMT
+			@i18n:Label (en=Nominal)
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=5.0, core=true, t24Name=NO.NOMINAL)
+		/* This field is updated by the system with the value in the tag 19A while processing Mt548 message.
+
+Validation Rules
+Single value field.
+Maximum allowed character is 1-18 numeric characters. */
+		AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en=Amount)
+			@i18n:Tooltip (en="Indicates the Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=6.0, core=true, t24Name=AMOUNT)
+		/* This field updated by the system with the rejection reason while processing  MT548 message.
+
+Validation Rules
+Single value field.
+Maximum allowed character is 35 .
+
+Eg. “Matching code inexistent in matching table” or “Inexistent T24 reference” */
+		REJECT_REASON : T24BusinessTypes:A
+			@i18n:Label (en="Reject Reason")
+			@i18n:Tooltip (en="Indicates the reason for rejection")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=REJECT.REASON)
+		DELIVERY_REF -> byValue SC_STP:SC_MT548_REPAIR_QUEUE__DELIVERY_REF *
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue SC_STP:SC_MT548_REPAIR_QUEUE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SC_STP:SC_MT548_REPAIR_QUEUE__INPUTTER *
+		DATE_TIME -> byValue SC_STP:SC_MT548_REPAIR_QUEUE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_MT548_REPAIR_QUEUE__REASON_NARRATIVE
+	{
+		/* This field is updated by the system with the value in the tag 70D while processing MT548 message.
+
+Validation Rules
+Multi value field.
+Maximum allowed character is 35 . */
+		REASON_NARRATIVE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, t24Name=REASON.NARRATIVE)
+	}
+	SC_MT548_REPAIR_QUEUE__DELIVERY_REF
+	{
+		/* The Delivery Reference identifies each separate Delivery advice which has been produced by the Delivery module for MT548 incoming message.
+
+Validation Rules
+No input allowed. Internally generated field. */
+		DELIVERY_REF : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=DELIVERY.REF)
+	}
+	SC_MT548_REPAIR_QUEUE__OVERRIDE
+	{
+		/* Contains details of any overrides applicable to this Application.
+
+Validation Rules
+Up to 35 type A (alphanumeric) characters. Multivalue field. (Internal field.) */
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=OVERRIDE)
+	}
+	SC_MT548_REPAIR_QUEUE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=INPUTTER)
+	}
+	SC_MT548_REPAIR_QUEUE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	SC_MT548_MATCH_CODE__APPLICATION_TYPE : mml:string
+		S=S
+		L=L
+}

@@ -1,0 +1,286 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="com.odcgroup.workbench.core" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appInfo>
+         <meta.schema plugin="com.odcgroup.workbench.core" id="natureExtension" name="Design Studio Nature Extension"/>
+      </appInfo>
+      <documentation>
+         This extension point allows to add specific behaviour to Design Studio model projects.
+It is invoked when creating a new model project and thus all registered nature extensions can add their own nature to the project and do special things for initialization of the project.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appInfo>
+            <meta.element />
+         </appInfo>
+      </annotation>
+      <complexType>
+         <choice>
+            <element ref="natureExtension"/>
+         </choice>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appInfo>
+                  <meta.attribute translatable="true"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="natureExtension">
+      <annotation>
+         <documentation>
+            This extension offers a generic mechanism to enhance the capabilities of an Design Studio model project.
+The main use case is to add code generation and validation support to the projects.
+         </documentation>
+      </annotation>
+      <complexType>
+         <choice minOccurs="0" maxOccurs="unbounded">
+            <element ref="projectImpl" minOccurs="0" maxOccurs="1"/>
+            <element ref="dependencyMgr" minOccurs="0" maxOccurs="1"/>
+            <element ref="initializer" minOccurs="0" maxOccurs="unbounded"/>
+         </choice>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  A unique id for this extension.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="natureId" type="string" use="required">
+            <annotation>
+               <documentation>
+                  the nature id that this extension relates to
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="enabledByDefault" type="boolean" use="default" value="true">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="label" type="string" use="required">
+            <annotation>
+               <documentation>
+                  This label text appears on the project creation wizard with a checkbox
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="markerId" type="string">
+            <annotation>
+               <documentation>
+                  An optional marker Id which should be used for problem markers that are created based on the check result of the initializer.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="priority" use="default" value="3">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="0">
+                  </enumeration>
+                  <enumeration value="1">
+                  </enumeration>
+                  <enumeration value="2">
+                  </enumeration>
+                  <enumeration value="3">
+                  </enumeration>
+                  <enumeration value="4">
+                  </enumeration>
+                  <enumeration value="5">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="projectImpl">
+      <annotation>
+         <documentation>
+            An optional property can be defined in order to replace the standard OfsProject implementation with a custom one for projects of this nature.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The class that implements the nature-specific behaviour.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":com.odcgroup.workbench.core.IOfsProject"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="priority" use="required">
+            <annotation>
+               <documentation>
+                  The project impl with the highest priority is chosen for projects of this nature.
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="0">
+                  </enumeration>
+                  <enumeration value="1">
+                  </enumeration>
+                  <enumeration value="2">
+                  </enumeration>
+                  <enumeration value="3">
+                  </enumeration>
+                  <enumeration value="4">
+                  </enumeration>
+                  <enumeration value="5">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="dependencyMgr">
+      <annotation>
+         <documentation>
+            An optional property can be defined in order to replace the standard IDependencyManager implementation with a custom one for projects of this nature.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The class that implements the nature-specific behaviour.
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":com.odcgroup.workbench.core.repository.IDependencyManager"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="priority" use="required">
+            <annotation>
+               <documentation>
+                  The project impl with the highest priority is chosen for projects of this nature.
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="0">
+                  </enumeration>
+                  <enumeration value="1">
+                  </enumeration>
+                  <enumeration value="2">
+                  </enumeration>
+                  <enumeration value="3">
+                  </enumeration>
+                  <enumeration value="4">
+                  </enumeration>
+                  <enumeration value="5">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="initializer">
+      <complexType>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  A class that handles the project initialization
+               </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn=":com.odcgroup.workbench.core.init.ProjectInitializer"/>
+               </appInfo>
+            </annotation>
+         </attribute>
+         <attribute name="priority" use="default" value="3">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="0">
+                  </enumeration>
+                  <enumeration value="1">
+                  </enumeration>
+                  <enumeration value="2">
+                  </enumeration>
+                  <enumeration value="3">
+                  </enumeration>
+                  <enumeration value="4">
+                  </enumeration>
+                  <enumeration value="5">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="since"/>
+      </appInfo>
+      <documentation>
+         1.30.5
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="examples"/>
+      </appInfo>
+      <documentation>
+         This extension point is e.g. used by the technical/generation nature and the customization support.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="apiInfo"/>
+      </appInfo>
+      <documentation>
+         [Enter API information here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appInfo>
+         <meta.section type="implementation"/>
+      </appInfo>
+      <documentation>
+         [Enter information about supplied implementation of this extension point.]
+      </documentation>
+   </annotation>
+
+
+</schema>

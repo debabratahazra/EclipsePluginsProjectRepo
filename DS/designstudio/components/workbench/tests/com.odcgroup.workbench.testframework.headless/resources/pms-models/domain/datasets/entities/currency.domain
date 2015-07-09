@@ -1,0 +1,124 @@
+# UTF-8
+# UTF-8
+# UTF-8
+Domain AAADSCurrency 
+	@java:Package (value=com.odcgroup.aaa.administration) 
+namespace "http://www.odcgroup.com/aaa-ds-currency" 
+metamodelVersion 4.3.0.20110527 
+Datasets { 
+	CurrencyAll basedOn AAAEntities:Currency synchronized 
+	{ 
+		autocreatedF -> autocreatedF 
+		calendar -> calendar [AAAIdentifierDatasets:CalendarIdentifer] 
+			@svc:Services (LoadPermittedValues=true) 
+		code -> code 
+			@svc:Services (LoadPermittedValues=true) 
+		denom -> denom 
+		euroConvD -> euroConvD 
+		euroExchRate -> euroExchRate 
+		extBestDispCode -> extBestDispCode 
+			@svc:Services (MMLSpecific=true) 
+		extDenomination -> extDenomination 
+			@svc:Services (MMLSpecific=true) 
+		extDenominationDe -> extDenominationDe 
+			@svc:Services (MMLSpecific=true) 
+		extDenominationEn -> extDenominationEn 
+			@svc:Services (MMLSpecific=true) 
+		extDenominationFr -> extDenominationFr 
+			@svc:Services (MMLSpecific=true) 
+		extIsoSynC -> extIsoSynC 
+			@svc:Services (MMLSpecific=true) 
+		extSqlCalcD -> extSqlCalcD 
+			@svc:Services (MMLSpecific=true) 
+		geographic -> geographic [AAAIdentifierDatasets:GeographicIdentifier] 
+			@svc:Services (LoadPermittedValues=true) 
+		id -> id 
+		lastExchD -> lastExchD 
+		lastExchThird -> lastExchThird [AAAIdentifierDatasets:ThirdPartyIdentifier] 
+		lastExchType -> lastExchType [AAAIdentifierDatasets:TypeIdentifier] 
+			@svc:Services (LoadPermittedValues=true) 
+		lastNoteD -> lastNoteD 
+		marketThird -> marketThird [AAAIdentifierDatasets:ThirdPartyIdentifier] 
+		name -> name 
+		providerThird -> providerThird [AAAIdentifierDatasets:ThirdPartyIdentifier] 
+		rankN -> rankN 
+		roundRuleE -> roundRuleE 
+		roundUnitE -> roundUnitE 
+	} 
+	CurrencyList basedOn AAAEntities:Currency 
+	{ 
+		/* It is the code of the Currency */ 
+		code -> code 
+			@i18n:Label 
+		/* It is the denomination of the Currency.Only the default denomination is taken into account, translated denominations are not evaluated. */ 
+		denom -> denom 
+		/* It is a logical structure that allows defining and ordering the attributes identifying a business object displayed in a field of a form or in a column of a table.
+According to the attributes in that structure and to their display priority, the first attribute, which is not empty, is shown.
+It is a pre-computed value, associated to a format element.
+For Currency, the structure uses the following order:
+1. ISO (extended attribute ext_iso_syn_c)
+2. Code */ 
+		extBestDispCode -> extBestDispCode 
+			@svc:Services (MMLSpecific=true) 
+		/* It is the denomination of the Currency. Denomination is displayed in user's language, but if it is not available then the default translation is used instead.
+It is calculated via pre-computed data based on the slave format PCK_PREC_CUR_SQL using SQL language. */ 
+		extDenomination -> extDenomination 
+			@svc:Services (MMLSpecific=true) 
+		/* It is the ISO code of the currency.
+It is calculated via pre-computed data based on the slave format PCK_PREC_CUR_SQL using SQL language. */ 
+		extIsoSynC -> extIsoSynC 
+			@svc:Services (MMLSpecific=true) 
+		/* It is the denomination of the country from where the Currency is emitted. Translated denomination is taken into account first, but if it is not available then the default denomination is taken into account.
+It is calculated via pre-computed data based on the slave format PCK_PREC_GEO_SQL using SQL language. */ 
+		geographicExtDenomination -> geographic.extDenomination 
+			@i18n:Label (en=Country, fr=Pays, de=Land) 
+			@svc:Services (MMLSpecific=true) 
+		/* It is the name of the country from where the Currency is emitted */ 
+		geographicName -> geographic.name 
+			@i18n:Label (de="Name des Lands", en="Country Name", fr="Nom du pays") 
+		/* It is the identifier of the Currency */ 
+		id -> id 
+		/* It is the name of the Currency */ 
+		name -> name 
+		/* It is the rank of the Currency */ 
+		rankN -> rankN 
+	} 
+	CurrencySearchCriteria basedOn AAAEntities:Currency 
+	{ 
+		/* It is the code of the Currency */ 
+		code -> code 
+			@i18n:Label 
+			@svc:Services (LoadPermittedValues=true) 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=2) 
+		/* It is the denomination of the Currency.Only the default denomination is taken into account, translated denominations are not evaluated. */ 
+		denom -> denom 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=4) 
+		/* It is the denomination of the Currency. Translated denomination is taken into account first, but if it is not available then the default denomination is taken into account.
+It is calculated via pre-computed data based on the slave format PCK_PREC_CUR_SQL using SQL language. */ 
+		extDenomination -> extDenomination 
+			@svc:Services (MMLSpecific=true) 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=4) 
+		/* It is the ISO code of the currency.
+It is calculated via pre-computed data based on the slave format PCK_PREC_CUR_SQL using SQL language. */ 
+		extIsoSynC -> extIsoSynC 
+			@i18n:Label 
+			@svc:Services (MMLSpecific=true) 
+		/* It is the identifier of the Currency */ 
+		id -> id 
+		/* It is the name of the Currency */ 
+		name -> name 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=3) 
+		/* It is the rank of the Currency */ 
+		rankN -> rankN 
+		/* It is a logical structure grouping several attributes allowing to identify a business object (Instrument, Portfolio, &hellip;) used as framework of search when a user enter a value into a search field.
+According to the attributes in that structure, the records with one of those attributes with a value starting by the value set by the user are loaded.
+For Currency, the structure includes:
+- Code
+- Name
+- Denomination
+- ISO */ 
+		searchCode : mml:string 
+			@i18n:Label (de=Suchmuster, en="Search Pattern", fr="Modèle de recherche") 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuery="exists (select 1 from vs_currency v where v.id = t0.id and v.pattern @operator @valueToUpper and (v.language_code = @language or v.language_code=\'\'))", DisplayRank=1) 
+	} 
+} 

@@ -1,0 +1,427 @@
+Enquiry "%25SampleEnquiry" for "name:/ST_Something:app12#" {
+	metamodelVersion: "9.0.0.20130126"
+	description {
+		fr = "bla ># � &;   bla bla"
+	}
+
+	header {
+		label {
+			en = "My Header", fr = "Mon Entete", de = "zzz"
+		} // to be discussed, diff. coordinates per locale.
+
+		column: 1
+		line: 2
+	}
+
+	account-field: "@ID"
+	customer-field: "Name2"
+	companies: "cmp-1", "cmp-2", "cmp-3" // alternative is  company: ALL
+
+	//no-selection: no
+	//show-all-books: yes
+	/* 
+	 * Declare Build Routines 
+	 */
+	build-routines {
+		jBC: "Routine123"
+		jBC: "Routine456"
+		jBC: "Routine789"
+		java: "RoutineABC"
+		java: "RoutineDEF"
+		java: "RoutineGHI"
+	}
+	/*
+	 * Declare Fixed Selection
+	 */
+	fixed-selection  { field "FieldA1" {
+		Between "AAA", "BBB"
+		
+		}
+		field "FieldA3" {
+		DoesNotContain "."
+		
+		}
+		 field "FieldA2" {
+		Contains "Values", "hello", "."
+		
+		}
+	}
+
+	
+	/**
+	 * Declare the Fixed Sorts
+	 */
+	fixed-sort: "FieldA" Ascending
+	fixed-sort: "FieldB" Descending
+	fixed-sort: "FieldC" Ascending
+	fixed-sort: "FieldD" Ascending
+	/*
+	 * Declare Custom Selections
+	 */
+	custom-selection { 
+		
+		field "@ID" {
+			label {
+				fr = "bla bla"
+			}
+
+			mandatory: false
+			popup-dropdown: false
+			operands: Contains, Between, DoesNotBeginWith
+			
+		}
+		
+
+		OR
+
+		field "Field3" {
+			label {
+				fr = "bla bla", de = "yx,myxcm"
+			}
+
+			mandatory: true
+			popup-dropdown: true
+			operands: Equals, Matches
+		}
+
+		AND
+
+		field "Field4" {
+			label {
+				fr = "bla bla"
+			}
+
+			mandatory: true
+			popup-dropdown: true
+			operands: Contains, Between, Matches
+		}
+
+		
+
+		AND
+
+		field "Field5" {
+			label {
+				fr = "blabla"
+			}
+
+			mandatory: true
+			popup-dropdown: false
+			operands: NotBetween
+		} None
+
+	}
+
+	field "Name0" {
+		label {
+			en = "Hello my friend", fr = "Salut mon ami"
+		}
+
+		format: Date
+		break-condition { break:None }
+		length: 2
+		alignment: Left
+		comma-separator: false
+		decimals: 12
+		display-section: None
+		position {
+			page-throw: true
+		}
+
+		column-width: 2
+		spool-break: true
+		processing-mode: Multi
+		hidden: true
+		operation: if "MyField" NotBetween "MyOtherField" process "firstField" "secondField"
+		conversion: call
+		java: "RoutineGHI" // XLS 16
+
+		attributes: "value-1", "value-2", "...", "Value-N"
+	}
+
+	field "Name1" {
+		label {
+			fr = "Salut"
+		}
+
+		format: Translate
+		break-condition { break: NewPage}
+		length: 2
+		alignment: Left
+		comma-separator: true
+		decimals: 12
+		display-section: Header
+		position { // lkjdlksdjhfl�khj
+
+			column: 10
+			line: + 5
+		}
+
+		column-width: 2
+		spool-break: true
+		processing-mode: Multi
+		hidden: false
+		operation: calc "XXX * YYYY + ZZZ - SSS"
+		conversion: abs
+	}
+
+	field "Name2" {
+		label {
+			fr = "Bonjour", en = "Good Morning", de = "Guten Tag"
+		}
+
+		format: Currency "MyField" negative-pattern <#>
+		break-condition { break:Once } 
+		length: 2
+		alignment: Left
+		comma-separator: true
+		decimals: 12
+		display-section: Footer
+		position {
+			column: 10 // display on current line, column 10
+
+		}
+
+		column-width: 12
+		spool-break: true
+		processing-mode: Single
+		hidden: true
+		operation: local-currency
+		conversion: extract from 1 to 5 delimited by "AAA"
+		attributes: "Value-1", "Value-2", "Value-3"
+	}
+
+	field "Name3" {
+		format: User
+		length: 2
+		alignment: Right
+		decimals: 3
+		display-section: NoDisplay
+		position {
+			column: 10 
+			line: 0 // current line
+		}
+		column-width: 5
+		spool-break: false
+		processing-mode: Single
+		operation: next-working-day
+	}
+
+	field "Name4" {
+		format: Date
+		break-condition { break:NewPage}
+		length: 2
+		alignment: Right
+		decimals: 3
+		display-section: None
+		position {
+			column: 10
+			line: - 2
+		}
+
+		column-width: 5
+		spool-break: false
+		processing-mode: Multi
+		operation: field-extract "Field"
+	}
+
+	field "Name5" {
+		format: User
+		length: 2
+		alignment: Right
+		decimals: 3
+		display-section: Footer
+		column-width: 5
+		spool-break: false
+		processing-mode: Single
+		operation: constant "Value"
+		conversion: extract from 7 to 9
+	}
+
+	field "Name6" {
+		label {
+			en = "Good Morning"
+		}
+
+		format: User
+		length: 2
+		alignment: Right
+		decimals: 3
+		display-section: Footer
+		column-width: 5
+		spool-break: false
+		processing-mode: Single // TODO application-field-name
+
+		operation:
+		label {
+			fr = "Bonjour", en = "Good Morning", de = "Guten Tag"
+		}
+
+		conversion: extract from 7 to 9
+	}
+
+	field "@ID" {
+		format: User
+		length: 2
+		alignment: Right
+		decimals: 3
+		display-section: Footer
+		column-width: 5
+		spool-break: false
+		processing-mode: Single 
+		operation: field-extract "Field123"
+		conversion: extract from 7 to 9
+	}
+	/**
+	 * Declare the single toolbar. This toolbar takes precedence over the tool below, right ? 
+	 */
+	toolbar: "Toolbar"
+	/**
+	 * Declare the tools 
+	 */
+	tool Tool1 {
+		label {
+			fr = "Bonjour", en = "Good \"\\> Morning", de = "Guten Tag"
+		}
+
+		command: "MyCommand-1"
+		command: "MyCommand-2"
+		command: "MyCommand-3"
+	}
+
+	tool Tool2 {
+		label {
+			fr = "Bonjour", en = "Good Morning", de = "Guten Tag"
+		}
+
+		command: "MyCommand-4"
+	}
+	/**
+	 * Declare the target 
+	 */
+	target-for-application "Application" {
+		screen: "MyScreen,"
+		map-field: "Myfield" to "toFieldA"
+		map-field: "MyOtherfield" to "toAnotherFieldB"
+	}
+	/**
+	 * Declare Drill Downs 
+	 */
+	drilldown {
+		description {
+			fr = "bla bla"
+		}
+
+		trigger-field: "@ID"
+		info: "Informatin"
+		from-field: "fromField"
+		image: "STRING"
+		screen: "SCREEN1," 
+			reference: 'CUSTOMER' "@ID" 
+	        reference: 'CUSTOMER' "MNEMONIC"
+		
+	}
+
+	drilldown  {
+	    description {
+	    	fr = "bla bla"
+	    }
+		image: "STRING"
+		trigger-field: "triggerField3"
+		info: "Informatin1"
+		from-field: "fromField"
+		enquiry "SampleEnquiry"
+			criteria: "Field123" Contains "Solar"
+			criteria: "Field567" NotBetween "Values", "Values"
+			
+        options: COS compositeScreen {
+        	reference: 'CUSTOMER' "@ID"
+	        reference: 'CUSTOMER' "MNEMONIC"
+        }
+		
+
+	}
+
+	drilldown {
+		description {
+			fr = "bla bla"
+		}
+        image: "STRING"
+		trigger-field: "triggerField4" 
+		from-field: "fromField"
+		enquiry "SampleEnquiry" 
+			criteria: "Field123" Contains "Solar"
+			criteria: "Field567" NotBetween "Values", "Values"
+			reference: 'CUSTOMER' "@ID" 
+	        reference: 'CUSTOMER' "MNEMONIC"
+		
+		options: Quit-SEE
+	}
+	drilldown {
+		description {
+			fr = "bla bla"
+		}
+        image: "STRING"
+		trigger-field: "triggerField4" 
+		from-field: "fromField"
+		application: "testApplication"  Delete   
+		options: Quit-SEE
+	}
+	/**
+	 * Declare the Security (SMS) info  
+	 */
+	security {
+		application: "ApplicationABC"
+		field: "FieldABC"
+		abort: true
+	}
+	/**
+	 * Declare graphic informations 
+	 */
+	graph {
+		type: "MyType"
+		label {
+			x: 1 y: 1
+			fr = "mon premier graphe", en = "my first graph"
+		}
+
+		dimension {
+			width: 300 height: 400
+		}
+
+		margins {
+			right: 20 left: 10 top: 10 bottom: 40
+		}
+
+		scale {
+			x: 10 y: 20
+		}
+
+		legend {
+			x: 3 y: 4
+		}
+
+		x-axis {
+			show-grid: true
+			display-legend: true
+			field: "FieldABC"
+		}
+
+		y-axis {
+			show-grid: false
+			display-legend: false
+			field: "FieldDEF"
+		}
+
+	}
+	/* Declare a web service */
+	web-service {
+		publish: true
+		names: "abc", "def", "ghijk"
+		activity: "MyActivity"
+		description: "This service\" \\is used to ..."
+	}
+
+} 
+
+	

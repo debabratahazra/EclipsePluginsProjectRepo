@@ -1,0 +1,3581 @@
+# UTF-8
+# UTF-8
+/* Parameter Definitions for Derivatives */
+Domain DX_Configuration
+	@t24:i (module=DX)
+	@java:Package (value=com.temenos.t24.datamodel.dx.dx_configuration)
+namespace "http://www.temenos.com/t24/DX_Configuration"
+metamodelVersion 1.30.6
+Classes {
+	DX_CONTRACT_CLASS
+		@t24:i (t24Name=DX.CONTRACT.CLASS, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Each contract that are planned to trade under derivatives module has to be classified for both margin and commission purposes. This classification is done through DX.CONTRACT.CLASS. The classifications are
+BOND, COMMODITY, CURRENCY, EQUITY, STIRS etc. This contract class will be attached to DX.TRADE.
+Validation Rules
+Alphanumerical characters maximum 15 characters. any combination allowed. */
+		CONTRACT_CLASS -> DX_Configuration:DX_CONTRACT_CLASS PK required
+			@i18n:Label (en="Contract Class")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.CLASS)
+		CLASS_NAME -> byValue DX_Configuration:DX_CONTRACT_CLASS__CLASS_NAME *
+		/* product category code used for particular derivative. Must exist in category code.
+Validation Rules
+
+Up to 5 numerical characters &#150; input must exist on         CATEGORY application
+Mandatory Input */
+		CLASS_CATEGORY -> ST_Config:CATEGORY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=2.0, core=true, t24Name=CLASS.CATEGORY)
+		O_BUY_CALL -> byValue DX_Configuration:DX_CONTRACT_CLASS__O_BUY_CALL *
+		O_BUY_PUT -> byValue DX_Configuration:DX_CONTRACT_CLASS__O_BUY_PUT *
+		O_SELL_CALL -> byValue DX_Configuration:DX_CONTRACT_CLASS__O_SELL_CALL *
+		O_SELL_PUT -> byValue DX_Configuration:DX_CONTRACT_CLASS__O_SELL_PUT *
+		F_BUY -> byValue DX_Configuration:DX_CONTRACT_CLASS__F_BUY *
+		F_SELL -> byValue DX_Configuration:DX_CONTRACT_CLASS__F_SELL *
+		/* This field defines whether back to back closeout can happen for the trades covered under this contract class recordValidation Rules
+
+Valid values are YES      and NO
+
+
+Input can be YES only when B2B.ACTIVE field in      DX.PARAMETER is set to YES */
+		B2B_CO_OK : DX_Configuration:DX_CONTRACT_CLASS__B2B_CO_OK
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=B2B.CO.OK)
+		CONTRACT_TYPE : DX_Configuration:DX_CONTRACT_CLASS__CONTRACT_TYPE
+			@i18n:Label (en="Contract Type")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=10.0, core=true, t24Name=CONTRACT.TYPE)
+		/* Rerserved For Future Use
+Validation Rules
+
+No Input field */
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=11.0, core=true, t24Name=RESERVED2)
+		/* Reserved For Future Use
+Validation Rules
+
+No Input field */
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=12.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue DX_Configuration:DX_CONTRACT_CLASS__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Configuration:DX_CONTRACT_CLASS__INPUTTER *
+		DATE_TIME -> byValue DX_Configuration:DX_CONTRACT_CLASS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_CONTRACT_CLASS__CLASS_NAME
+	{
+		/* Description of the contract class.
+Validation Rules
+
+Up to 35 characters of free format text
+Mandatory Input */
+		CLASS_NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=CLASS.NAME)
+	}
+	DX_CONTRACT_CLASS__O_BUY_CALL
+	{
+		/* Product category can be defined separately this multi-valued field defines brought call options. Must exist in category code.
+Validation Rules
+
+Up to 5 numerical characters &#150; input must exist on         CATEGORY application
+Multi-valued. */
+		O_BUY_CALL -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=O.BUY.CALL)
+	}
+	DX_CONTRACT_CLASS__O_BUY_PUT
+	{
+		/* Product category can be defined separately this multi-valued field defines brought put options. Must exist in category code.
+Validation Rules
+
+Up to 5 numerical characters &#150; input must exist on         CATEGORY application
+Multi-valued. */
+		O_BUY_PUT -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=O.BUY.PUT)
+	}
+	DX_CONTRACT_CLASS__O_SELL_CALL
+	{
+		/* Product category can be defined separately this multi-valued field defines sold call options. Must exist in category code.
+Validation Rules
+
+Up to 5 numerical characters &#150; input must exist on         CATEGORY application
+Multi-valued. */
+		O_SELL_CALL -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=5.0, core=true, t24Name=O.SELL.CALL)
+	}
+	DX_CONTRACT_CLASS__O_SELL_PUT
+	{
+		/* Product category can be defined separately this multi-valued field defines sold put options. Must exist in category code.
+Validation Rules
+
+Up to 5 numerical characters &#150; input must exist on         CATEGORY application
+Multi-valued. */
+		O_SELL_PUT -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=6.0, core=true, t24Name=O.SELL.PUT)
+	}
+	DX_CONTRACT_CLASS__F_BUY
+	{
+		/* Product category can be defined separately this multi-valued field defines brought futures contracts. Must exist in category code.
+Validation Rules
+
+Up to 5 numerical characters &#150; input must exist on         CATEGORY application
+Multi-valued. */
+		F_BUY -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=7.0, core=true, t24Name=F.BUY)
+	}
+	DX_CONTRACT_CLASS__F_SELL
+	{
+		/* Product category can be defined separately this multi-valued field defines sold futures contracts. Must exist in category code.
+Validation Rules
+
+Up to 5 numerical characters &#150; input must exist on         CATEGORY application
+Multi-valued. */
+		F_SELL -> ST_Config:CATEGORY
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=8.0, core=true, t24Name=F.SELL)
+	}
+	DX_CONTRACT_CLASS__OVERRIDE
+	{
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_CONTRACT_CLASS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=INPUTTER)
+	}
+	DX_CONTRACT_CLASS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_CONTRACT_DATES
+		@t24:i (t24Name=DX.CONTRACT.DATES, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		CON_MAT_DATE -> DX_Configuration:DX_CONTRACT_DATES PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=CON.MAT.DATE)
+		CONTRACT_CODE -> DX_Configuration:DX_CONTRACT_MASTER required
+			@i18n:Label (en=Contract)
+			@i18n:Tooltip (en="Identifies the contract code of the transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=1.0, core=true, businessType=DXCM, t24Name=CONTRACT.CODE)
+		MATURITY_DATE : T24BusinessTypes:A
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=2.0, core=true, t24Name=MATURITY.DATE)
+		LAST_TRADE_DATE : T24BusinessTypes:D required
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=LAST.TRADE.DATE)
+		FIRST_NOTICE : T24BusinessTypes:D
+			@i18n:Label (en="First Notice")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=FIRST.NOTICE)
+		LAST_NOTICE : T24BusinessTypes:D
+			@i18n:Label (en="Last Notice")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, t24Name=LAST.NOTICE)
+		FIRST_DELIVERY : T24BusinessTypes:D
+			@i18n:Label (en="First Delivery")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=FIRST.DELIVERY)
+		LAST_DELIVERY : T24BusinessTypes:D
+			@i18n:Label (en="Last Delivery")
+			@i18n:Tooltip (en="Last date when Delivery can take place")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=LAST.DELIVERY)
+		SPOT_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Spot Date")
+			@i18n:Tooltip (en="The start date for calculation of Profit and Loss")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=SPOT.DATE)
+		DEC_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Decision Date")
+			@i18n:Tooltip (en="Last Date by which a customer may exercise option")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=DEC.DATE)
+		AMORT_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Amort Date")
+			@i18n:Tooltip (en="Amort Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=AMORT.DATE)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Configuration:DX_CONTRACT_DATES__INPUTTER *
+		DATE_TIME -> byValue DX_Configuration:DX_CONTRACT_DATES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_CONTRACT_DATES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=INPUTTER)
+	}
+	DX_CONTRACT_DATES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application holds the contract definitions of all of the contract types tradable in the derivatives module. */
+	DX_CONTRACT_MASTER
+		@t24:i (t24Name=DX.CONTRACT.MASTER, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This records holds details pertaining to each instrument that is supposed to be trading. On input of DX.TRADE details will be updated from this record once the DX.CONTRACT.MASTER id is input and validation is taking place when a manual input of price, lot, trade dates / month etc are input.
+This record hold the information on whether it is a FUTURE, OPTION or STOCK. STOCK and FUTURE behave same way it is only for internal classification.
+Validation Rules
+
+
+numeric value upto 12 characters.
+mandatory input */
+		CONTRACT_CODE -> DX_Configuration:DX_CONTRACT_MASTER PK required
+			@i18n:Label (en=Contract)
+			@i18n:Tooltip (en="Identifies the contract code of the transaction")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=0.0, core=true, businessType=DXCM, t24Name=CONTRACT.CODE)
+		/* Specifies an alternative easy means of referencing the Contract.
+Like the ID, the Mnemonic must be unique across T24.
+Care should be taken when assigning Mnemonics to Contracts and some rules should ideally be defined across the bank to allow easy identification of the Customers by their Mnemonics.
+Validation Rules
+
+
+3-10 type MNE (Uppercase alpha or numeric, first         character alpha, or ".") characters.
+Mandatory input */
+		MNEMONIC : T24BusinessTypes:MNE required
+			@i18n:Label (en=Mnemonic)
+			@i18n:Tooltip (en="The alternate short way of calling the record")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, t24Name=MNEMONIC)
+		DESCRIPT -> byValue DX_Configuration:DX_CONTRACT_MASTER__DESCRIPT *
+		SHORT_NAME -> byValue DX_Configuration:DX_CONTRACT_MASTER__SHORT_NAME *
+		/* This field requires the name of the Exchange on which this contract is traded.
+eg. LIFFE, EUREX, CBOT etc&#133;&#133;
+Validation Rules
+
+
+Up to 10 characters (Mnemonic or Numeric Id of the         Exchange)
+Must be a valid ID/Mnemonic on DX.EXCHANGE.MASTER
+Mandatory input
+No change */
+		EXCHANGE -> DX_Configuration:DX_EXCHANGE_MASTER required
+			@i18n:Label (en="Exchange Name")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=4.0, core=true, businessType=DXEM, t24Name=EXCHANGE)
+		/* This Field requires the Code Identifier provided by an Exchange for clearing and reporting purposes. No input is required if it does not differ from the T24 mnemonic.
+Validation Rules
+
+
+Up to 10 Alpha characters long.
+Default to mnemonic if NULL. */
+		EXCHANGE_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Exchange Code")
+			@i18n:Tooltip (en="The name of the stock exchange ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=5.0, core=true, t24Name=EXCHANGE.CODE)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=6.0, core=true, t24Name=RESERVED1)
+		/* The type of contract that has been traded on an exchange, choose from a drop down menu for FUTURE or OPTION.
+
+
+
+
+
+
+Validation Rules
+
+
+Up to 10 Alpha characters available
+Mandatory input
+Input must be one of the following: OPTION/FUTURE */
+		CONTRACT_TYPE : DX_Configuration:DX_CONTRACT_MASTER__CONTRACT_TYPE required
+			@i18n:Label (en="Contract Type")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=7.0, core=true, t24Name=CONTRACT.TYPE)
+		/* The type of instruments being traded on the relative exchange.
+e.g. Bond, Interest Rate, Metals, Softs, Stock Index etc&#133;.
+Validation Rules
+
+
+Up to 15 Alpha characters available
+Mandatory Input
+No Change field */
+		CONTRACT_CLASS -> DX_Configuration:DX_CONTRACT_CLASS required
+			@i18n:Label (en="Contract Class")
+			@t24:i (align=L, inputBehaviour=F, maxLength=11, sysNumber=8.0, core=true, businessType=A, t24Name=CONTRACT.CLASS, isValidateOnChange=true)
+		/* Details of the contract specification currency are entered in this field as set by the relative exchange. This is the user-defined alpha currency code
+This field is mandatory and contains the currency code and entered in Alpha format. This code will then comprise three alpha characters as defined in the currency table. It is recommended to use the standard SWIFT currency code which is the internationally recognised convention for currency codes. The following are examples of ISO/SWIFT codes:
+- USD = US Dollars - GBP = Pounds Sterling - DEM = Deutsche Marks - FRF = French Francs
+
+
+Validation Rules
+
+
+3 characters - currency code entered must appear on the         Currency table.
+Mandatory Input
+No Change Field */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=9.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* Identifies the group of like Contracts, which are reported together.
+Validation Rules
+
+
+1-5 Alphanumeric characters &#150; code must exist on the         SUB.ASSET.TYPE table.
+Mandatory Input
+No Change Field */
+		SUB_ASSET_TYPE -> SC_Config:SUB_ASSET_TYPE required
+			@i18n:Label (en="Sub Asset Type")
+			@t24:i (align=L, inputBehaviour=F, maxLength=5, sysNumber=10.0, core=true, businessType=A, t24Name=SUB.ASSET.TYPE)
+		/* Delivery method for specified contract at maturity
+CASH - Delivery of cash equivalent to contract realized value
+PHYSICAL - Physical delivery of underlying instrument
+NONE - No delivery method specified (defaults to NONE)
+Validation Rules
+
+
+Up to 8 alpha characters
+This is a mandatory field
+Default is NONE
+No Change field */
+		DELIVERY_METHOD : DX_Configuration:DX_CONTRACT_MASTER__DELIVERY_METHOD required
+			@i18n:Label (en="Delivery Method")
+			@t24:i (align=L, inputBehaviour=F, maxLength=8, sysNumber=11.0, core=true, t24Name=DELIVERY.METHOD)
+		/* The currency to be delivered on maturity of the contract.
+Validation Rules
+
+
+Up to 3 CCY character available
+No Input if DELVERY.METHOD is Not CASH
+Mandatory if DELIVERY.METHOD is CASH. */
+		DELIVERY_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en="Delivery Ccy")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, businessType=CCY, t24Name=DELIVERY.CURRENCY)
+		/* Price multiplication factor. Defaults to 1 if null.
+Example: LIFFE 3 Month Short Sterling contract price quoted ref full year&#146;s interest- MULT.FACTOR = 0.25
+Validation Rules
+
+
+Up to 11 characters
+No Change field. */
+		MULT_FACTOR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=13.0, core=true, t24Name=MULT.FACTOR)
+		/* The basis on which the price for this contract is quoted.
+Choose from the drop down menu of INTEREST or NORMAL.
+e.g. 3-month Short Sterling; 100-Libor rate = Quote Price, therefore is interest rate based.
+Validation Rules
+
+
+Up to 8 Alpha characters available
+Default to NORMAL
+No Change field */
+		PRICE_BASIS : DX_Configuration:DX_CONTRACT_MASTER__PRICE_BASIS
+			@i18n:Label (en="Price Basis")
+			@t24:i (align=L, inputBehaviour=F, maxLength=8, sysNumber=14.0, core=true, t24Name=PRICE.BASIS)
+		/* The number of decimal places for the price quote. This also changes the number of decimal places in the multi-value set of Price Band.
+Validation Rules
+
+
+1 Numeric character allowed
+Default number of decimals from the CURRENCY if NULL.
+Reformat the other prices e.g. PRICE BAND
+No Change field */
+		PRICE_DPS : mml:Integer
+			@i18n:Label (en="Price Decimals")
+			@t24:i (align=R, inputBehaviour=F, maxLength=1, sysNumber=15.0, core=true, t24Name=PRICE.DPS)
+		/* The scale of which the price is denominated in.
+ie. Decimal prices are in 100's. e.g. Short Sterling Future 94.59
+Fraction's could be in 32
+Validation Rules
+
+
+Up to 3 Numeric characters available.
+No Change field
+Defaults to 100 */
+		PRICE_SCALE : mml:Integer
+			@i18n:Label (en="Price Scale")
+			@t24:i (align=R, inputBehaviour=F, maxLength=3, sysNumber=16.0, core=true, t24Name=PRICE.SCALE)
+		/* The unit of measure relative to which the price is quoted.
+Validation Rules
+
+
+Up to 10 alpha characters available
+No Input field
+For Future Use */
+		PRICE_UNIT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=17.0, core=true, t24Name=PRICE.UNIT)
+		PRICE_BAND -> byValue DX_Configuration:DX_CONTRACT_MASTER__PRICE_BAND *
+		PRICE_SET -> byValue DX_Configuration:DX_CONTRACT_MASTER__PRICE_SET *
+		/* Indicates the percentage margin allowable on this Contract.
+If not entered, the margin allowed for the "SUB.ASSET.TYPE" will be used.
+Example: 70 = 70% Margin (Contract is worth 70% actual value for Client valuation purposes).
+Validation Rules
+
+
+Up to 5 Alphanumeric characters.
+Must exist on the MARGIN.CONTROL file */
+		MARGIN_CONTROL -> SCV_Config:MARGIN_CONTROL
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=32.0, core=true, businessType=A, t24Name=MARGIN.CONTROL)
+		/* The units of measure in which the contract specification is set too, by the relative exchange.
+E.g. Tonnes, Bushels, Lots, etc&#133;.
+Validation Rules
+
+
+Up to 35 Alpha characters available
+Mandatory field
+Must exist on DX.UNITS */
+		UNITS_OF_MEASURE : T24BusinessTypes:A required
+			@i18n:Label (en="Unit of Measure")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=33.0, core=true, t24Name=UNITS.OF.MEASURE)
+		/* Decimal places for the CONTRACT SIZE.
+Validation Rules
+
+
+1 Numeric character allowed
+Default to '0' if not populated/null
+No Change Field */
+		CONTRACT_DPS : mml:Integer
+			@i18n:Label (en="Contract DPS")
+			@t24:i (align=R, inputBehaviour=F, maxLength=1, sysNumber=34.0, core=true, t24Name=CONTRACT.DPS)
+		/* The nominal or Trading unit of the contract, specified according to the contract specifications set by the relative Exchange per trading Lot, Tonne etc&#133;..
+e.g. 3-month Short Sterling (LIFFE) ; Trading unit of 500,000 per lot
+Validation Rules
+
+
+Up to 16 Numeric characters available
+Default to 1 if Null
+Mandatory Input
+No Change field */
+		CONTRACT_SIZE : T24BusinessTypes:AMT required
+			@i18n:Label (en="Contract Size")
+			@i18n:Tooltip (en="Specifies the size of the contract")
+			@t24:i (align=R, inputBehaviour=F, maxLength=16, sysNumber=35.0, core=true, t24Name=CONTRACT.SIZE)
+		/* The contract maturity type as set on the contract specifications by the relative exchange. Choose from the drop down menu, DAILY, MONTHLY, OTHER.
+MATURITY.TYPE is part of the setup for trading periods on a contract specified to the relative exchange. This field works in conjunction with AVAILABLE PERIODS, MONTHS FORWARD, MATURITY MONTHS AND MATURITY DAYS
+Validation Rules
+
+
+Up to 7 Alpha characters available
+Mandatory Input
+No Change field */
+		MATURITY_TYPE : DX_Configuration:DX_CONTRACT_MASTER__MATURITY_TYPE required
+			@i18n:Label (en="Maturity Type")
+			@t24:i (align=L, inputBehaviour=F, maxLength=7, sysNumber=36.0, core=true, t24Name=MATURITY.TYPE)
+		/* For contracts where the available maturity months are quoted as
+e.g. LIFFE Cocoa Futures - maturity on March, May, July, September, December cycle such that 10 trading months are available:
+AVAIL.MONTHS = 10
+MONTHS.FORWARD = OPEN
+MATURITY.MONTHS = 03,05,07,09,12
+Validation Rules
+
+
+Up to 3 characters
+No Change field */
+		AVAIL_PERIODS : mml:Integer
+			@i18n:Label (en="Avail Periods")
+			@t24:i (align=R, inputBehaviour=F, maxLength=3, sysNumber=37.0, core=true, t24Name=AVAIL.PERIODS)
+		MONTHS_FWD -> byValue DX_Configuration:DX_CONTRACT_MASTER__MONTHS_FWD *
+		/* In addition to specifying a delivery cycle, contracts also specify the precise time when trading in a particular delivery month will cease. This will generally relate to a particular business day in the month. It follows that this does not necessarily tie into the last business day of the month.
+
+
+e.g. The 3
+
+
+Validation Rules
+
+
+Up to 35 date format characters available.
+Date Formula "+3WE,-1BD" = 3
+No Input if MATURITY.TYPE = DAILY or OTHER */
+		LAST_TRADE_DATE : T24BusinessTypes:DFMT
+			@i18n:Label (en="Last Trade Date")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=45.0, core=true, t24Name=LAST.TRADE.DATE)
+		/* The first notice period
+
+Validation Rules
+
+
+Up to 35 date format characters available.
+Date Formula "+3WE,-1BD" = 3
+No Input if MATURITY TYPE = DAILY or OTHER */
+		FIRST_NOTICE : T24BusinessTypes:DFMT
+			@i18n:Label (en="First Notice")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=46.0, core=true, t24Name=FIRST.NOTICE)
+		/* The last day on which notice can be given that physical delivery is intended, or expected, on a futures contract
+Validation Rules
+
+
+Up to 35 date format characters available.
+Date Formula "+3WE,-1BD" = 3
+No Input if MATURITY TYPE = DAILY or OTHER */
+		LAST_NOTICE : T24BusinessTypes:DFMT
+			@i18n:Label (en="Last Notice")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=47.0, core=true, t24Name=LAST.NOTICE)
+		/* Delivery date.
+
+In the case of cash settled contracts, the delivery day is known as the 'final settlement day'.
+e.g.
+Italian Government Bond : delivery must be notified on the specified notice day
+Long Gilts : delivery can be notified by the seller of the contract, on any day in a specified delivery period.(from the start of the delivery month to the expiry day)
+For Options, unless cash settlement applies, the delivery day is the day on which the underlying instrument must be delivered, if the contract has been exercised.
+
+
+Validation Rules
+
+
+Up to 35 date format characters available.
+Date Formula "+3WE,-1BD" = 3 */
+		FIRST_DELIVERY : T24BusinessTypes:DFMT
+			@i18n:Label (en="First Delivery")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=48.0, core=true, t24Name=FIRST.DELIVERY)
+		/* The Last day on which, for a given futures or options contract, delivery can take place.
+In the case of cash settled contracts, the delivery day is known as the 'final settlement day'.
+e.g. below
+Long Gilts and some Commodity Contracts: delivery can be notified by the seller of the contract, on any day in a specified delivery period.(from the Start/First of the delivery month to the Expiry/Last day)
+For Options, unless cash settlement applies, the delivery day is the day on which the underlying instrument must be delivered, if the contract has been exercised.
+
+
+Validation Rules
+
+
+Up to 35 date format characters available.
+Date Formula "+3WE,-1BD" = 3 */
+		LAST_DELIVERY : T24BusinessTypes:DFMT
+			@i18n:Label (en="Last Delivery")
+			@i18n:Tooltip (en="Last date when Delivery can take place")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=49.0, core=true, t24Name=LAST.DELIVERY)
+		/* Trading spot date
+Validation Rules
+
+
+Up to 35 date format characters available.
+Date Formula "+3WE,-1BD" = 3 */
+		SPOT_DATE : T24BusinessTypes:DFMT
+			@i18n:Label (en="Spot Date")
+			@i18n:Tooltip (en="The start date for calculation of Profit and Loss")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=50.0, core=true, t24Name=SPOT.DATE)
+		/* The Last Date by which a customer may exercise an option. The exercise date (European Options) or last exercise date (American Options) for this contract.
+
+
+Validation Rules
+
+
+Up to 35 date format characters
+No Input unless CONTRACT.TYPE = "OPTION"
+Date Formula "+3WE,-1BD" = 3 */
+		DEC_DATE : T24BusinessTypes:DFMT
+			@i18n:Label (en="Decision Date")
+			@i18n:Tooltip (en="Last Date by which a customer may exercise option")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=51.0, core=true, t24Name=DEC.DATE)
+		/* Amortise; accounting procedure that gradually reduces the cost value of a limited life or intangible asset through periodic charges to income.
+The start date that the amortisation should occur from.
+Validation Rules
+
+
+Up to 35 Date Format Characters
+Input as a Date Format */
+		AMORT_DATE : T24BusinessTypes:DFMT
+			@i18n:Label (en="Amort Date")
+			@i18n:Tooltip (en="Date from which amortisation starts")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=52.0, core=true, t24Name=AMORT.DATE)
+		OVR_YEAR_MONTH -> byValue DX_Configuration:DX_CONTRACT_MASTER__OVR_YEAR_MONTH *
+		/* Amortise; accounting procedure that gradually reduces the cost value of a limited life or intangible asset through periodic charges to income.
+The number of days that the profit or loss should be amortised over.
+Validation Rules
+
+
+Up to 3 numeric characters */
+		AMORT_PERIOD : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=62.0, core=true, t24Name=AMORT.PERIOD)
+		/* This field is defaulted from the EXCHANGE.MASTER if not populated
+Validation Rules
+
+
+Up to 25 alpha characters
+Default from EXCHANGE.MASTER Null.
+Must be a valid record in DX.MARGIN.CALC with TYPE =         "VARIATION" */
+		VAR_MARGIN_CALC -> DX_Margining:DX_MARGIN_CALC
+			@i18n:Label (en="Var Margin Calc")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=63.0, core=true, businessType=A, t24Name=VAR.MARGIN.CALC)
+		/* This field is defaulted from the EXCHANGE.MASTER if not populated
+Validation Rules
+
+
+Up to 25 alpha characters
+Default from EXCHANGE.MASTER if Null.
+Must be a valid record in DX.MARGIN.CALC with TYPE =         "INITIAL" */
+		INIT_MARGIN_CALC -> DX_Margining:DX_MARGIN_CALC
+			@i18n:Label (en="Init Margin Calc")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=64.0, core=true, businessType=A, t24Name=INIT.MARGIN.CALC)
+		UNDERLYING -> byValue DX_Configuration:DX_CONTRACT_MASTER__UNDERLYING *
+		OPTION_TYPE -> byValue DX_Configuration:DX_CONTRACT_MASTER__OPTION_TYPE *
+		/* The rule of settlement of an option according to the type populated in this field, choose from the drop down menu:
+AMERICAN; An option that may be exercised at any time prior to its expiry date
+EUROPEAN; An option that may only be exercised on its expiry date.
+CARRIBEAN:
+A type of option that can only be exercised on predetermined dates, usually every month.
+Validation Rules
+
+Up to 10 alpha characters available
+No Input unless CONTRACT.TYPE is "OPTION"
+No Change field */
+		OPTION_STYLE : DX_Configuration:DX_CONTRACT_MASTER__OPTION_STYLE
+			@i18n:Label (en="Option Style")
+			@i18n:Tooltip (en="Type of option style like Americal or European")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=69.0, core=true, t24Name=OPTION.STYLE)
+		/* Attached with if the type of contract is an OPTION otherwise no input field. It defines whether a partial delivery is allowed for the contract or not.
+Validation Rules
+
+
+Up to 3 characters
+No Input unless CONTRACT.TYPE = &#145;OPTION&#146;. Input         must be YES/NO
+No Change field */
+		PARTIAL_ACTIVITY : DX_Configuration:DX_CONTRACT_MASTER__PARTIAL_ACTIVITY
+			@i18n:Label (en="Partial Activity")
+			@i18n:Tooltip (en="Partial delivery allowed or not")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=70.0, core=true, t24Name=PARTIAL.ACTIVITY)
+		/* This field allows the choice of when the premium should be posted to an account. Choose from the drop down menu of "TRADE", "SETTLEMENT" ".
+TRADE; The premium will be paid or received in full on the trade date.
+SETTLEMENT; The premium will be posted on the day of settlement, close/expiry of the trade.
+
+
+Validation Rules
+
+
+Up to 10 alpha characters
+If field is left Null - will default from DX.EXCHANGE.MASTER
+No Change field */
+		PREM_POST_TIME : DX_Configuration:DX_CONTRACT_MASTER__PREM_POST_TIME
+			@i18n:Label (en="Premium Post time")
+			@i18n:Tooltip (en="Premium to be posted at Trade or Settlement")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=71.0, core=true, t24Name=PREM.POST.TIME)
+		/* This is the numeric entry for the number of Offset days is required to post an accounting entry.
+'n' (being the numeric in days).
+Validation Rules
+
+
+Up to 3 numeric characters
+If field is Null &#150; will default from DX.EXCHANGE.MASTER
+No Change field */
+		PREM_POST_OFFSET : mml:Integer
+			@i18n:Label (en="Premium Post Offset")
+			@i18n:Tooltip (en="No.of offset days to post Premium entries")
+			@t24:i (align=R, inputBehaviour=F, maxLength=3, sysNumber=72.0, core=true, t24Name=PREM.POST.OFFSET)
+		/* Basis of the strike price for this contract.
+Validation Rules
+
+
+Up to 11 numeric characters available
+NO INPUT unless CONTRACT.TYPE is OPTION
+Default to PRICE.SCALE
+No Change field */
+		STRIKE_SCALE : mml:Integer
+			@i18n:Label (en="Strike Scale")
+			@t24:i (align=R, inputBehaviour=F, maxLength=3, sysNumber=73.0, core=true, t24Name=STRIKE.SCALE)
+		/* The valid Strike price interval on an Option contract. Quoted in the contract Currency.
+e.g. exercise Price Intervals for 3-month Short Sterling Option
+
+
+
+
+
+
+0.25 (i.e 0.25%); 94.00, 94.25, 94.50
+Therefore                 the interval movements are 0.25
+Validation Rules
+
+
+Up to 14 numeric characters
+No Input unless CONTRACT.TYPE = "OPTION"
+No Change field */
+		STRIKE_INTERVAL : T24BusinessTypes:DEC
+			@i18n:Label (en="Strike Interval")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=74.0, core=true, t24Name=STRIKE.INTERVAL, typeModifiers="9")
+		/* The latest time on the expiration date on which the Seller must accept notice of Exercise as specified in a confirmation.
+Validation Rules
+
+
+Up to 5 characters in TIME format
+No Input unless CONTRACT.TYPE = &#145;OPTION&#146; */
+		DEC_TIME_CALL : T24BusinessTypes:TIME
+			@i18n:Label (en="Dec Time Call")
+			@i18n:Tooltip (en="Time by which Decision has to made for Call Option")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=75.0, core=true, t24Name=DEC.TIME.CALL)
+		/* The latest time on the expiration date on which the Seller must accept notice of Exercise as specified in a confirmation.
+Validation Rules
+
+
+Up to 5 characters in TIME format
+No Input unless CONTRACT.TYPE = &#145;OPTION&#146; */
+		DEC_TIME_PUT : T24BusinessTypes:TIME
+			@i18n:Label (en="Dec Time Put")
+			@i18n:Tooltip (en="Time by which Decision has to made for Put Option")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=76.0, core=true, t24Name=DEC.TIME.PUT)
+		GEN_DATA_NAME -> byValue DX_Configuration:DX_CONTRACT_MASTER__GEN_DATA_NAME *
+		TRADING_OPEN -> byValue DX_Configuration:DX_CONTRACT_MASTER__TRADING_OPEN *
+		/* Choose from the drop down menu YES or NO to confirm contracts traded are allowed to settle/close out with other contracts or left open as a held position.
+Validation Rules
+
+
+Up to 3 Alpha character allowed.
+If this field is left Null it will default information         from DX.EXCHANGE.MASTER.
+Input is YES/NO */
+		SETT_ALLOWED : DX_Configuration:DX_CONTRACT_MASTER__SETT_ALLOWED
+			@i18n:Label (en="Settlement Allowed")
+			@i18n:Tooltip (en="If contracts can be closed one against other")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=84.0, core=true, t24Name=SETT.ALLOWED)
+		/* Value per lot to be used in calculating the off-balance sheet liability/asset posting to be made when contract traded.
+If left blank, system will use 'contract value' i.e. internal price per lot to make posting.
+Validation Rules
+
+
+Up to 19 numeric characters */
+		CONTINGENT_VALUE : T24BusinessTypes:AMT
+			@i18n:Label (en="Contingent Value")
+			@i18n:Tooltip (en="Value to use for off-balance sheet reporting")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=85.0, core=true, t24Name=CONTINGENT.VALUE)
+		/* THIS FIELD IS NO LONGER USED
+
+Eg : Australian Bills & Bonds on the SFE */
+		INT_PRICE_CALC -> DX_Foundation:DX_OBJECT_LIBRARY
+			@i18n:Label (en="Int Price Calc")
+			@i18n:Tooltip (en="Any internal price calculation routine")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=86.0, core=true, businessType=A, t24Name=INT.PRICE.CALC)
+		/* Time in contract lifecycle when commissions/charges applied to a trade should be charged.
+TRADE charges applied on-line immediately trade verified.
+SETTLEMENT charges applied when trade closed-out, matured or exercised/expired (option trades only).
+Validation Rules
+
+
+Up to 10 alpha characters
+If left Null will default from DX.EXCHANGE.MASTER
+Input must be either TRADE/SETTLEMENT */
+		CHG_POST_TIME : DX_Configuration:DX_CONTRACT_MASTER__CHG_POST_TIME
+			@i18n:Label (en="Chg Post Time")
+			@i18n:Tooltip (en="When Charges are to be posted")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=87.0, core=true, t24Name=CHG.POST.TIME)
+		/* Number of days offset from charge posting date to actually generate postings.
+Validation Rules
+
+
+Up to 3 characters
+If left null will default from DX.EXCHANGE.MASTER */
+		CHG_POST_OFFSET : mml:Integer
+			@i18n:Label (en="Chg Post Offset")
+			@i18n:Tooltip (en="No of days offset to post charge account entries")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=88.0, core=true, t24Name=CHG.POST.OFFSET)
+		/* Days offset to apply settlement postings
+Validation
+
+
+Input defaults from DX.EXCHANGE.MASTER
+No Change */
+		SETT_POST_OFFSET : mml:Integer
+			@i18n:Label (en="Sett Post Offset")
+			@i18n:Tooltip (en="No.of days Offset to post Settlement entries")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=89.0, core=true, t24Name=SETT.POST.OFFSET)
+		/* This field is to differentiate, whether this is an Interest rate based contract or a normal contract.
+Validation Rules
+
+
+
+
+Input allowed YES or NO
+
+
+If */
+		INT_RATE_CONTRACT : DX_Configuration:DX_CONTRACT_MASTER__INT_RATE_CONTRACT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=90.0, core=true, t24Name=INT.RATE.CONTRACT)
+		/* This field specifies the original life of the underlying of this contract  in days ,or months or years
+Validation Rules
+
+
+This field is inputtable , only if the
+I
+NT.RATE.CONTRACT
+DX.CONTRACT.MASTER
+
+
+
+Should be specified in number of days or months       or years. Eg :- 20D, 5M, 2Y and so on */
+		LIFE_UNDERLYING : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=91.0, core=true, t24Name=LIFE.UNDERLYING)
+		YIELD : mml:Integer
+			@i18n:Label (en=Yield)
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=92.0, core=true, t24Name=YIELD)
+		/* The routine used for automatic assignment of options. For exchange regulated contracts, the routine must meet any rules governing the assigment of options. See application DX.CO.ASSIGN.AUTO for details on running automatic assignment.
+Validation Rules
+
+
+Input must be a valid record on DX.OBJECT.LIBRARY
+25 Alpha */
+		AUTO_ASSIGNMENT -> DX_Foundation:DX_OBJECT_LIBRARY
+			@i18n:Label (en="Assign Routine")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=93.0, core=true, businessType=A, t24Name=AUTO.ASSIGNMENT)
+		ALT_IND_NAME -> byValue DX_Configuration:DX_CONTRACT_MASTER__ALT_IND_NAME *
+		/* Select YES to enable system exercise of options when process routine is included as part of End of Exchange processing.
+Validation Rules
+
+
+Input must be either YES or NO or blank */
+		SYSTEM_EXERCISE : DX_Configuration:DX_CONTRACT_MASTER__SYSTEM_EXERCISE
+			@i18n:Label (en="System Exercise")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=96.0, core=true, t24Name=SYSTEM.EXERCISE)
+		/* Price offset from strike price when exercising for customers who are exchange members.
+Some exchanges specify for certain contracts a price difference where the option will automatically be exercised when they are so much "in the money" (in profit). This may be to take into account the additional costs of exercising the option.
+Therefore for exchange members, an option is in the money, and will therefore be exercised if.
+For a call option (buying at the strike price):-
+Market price of underlying - strike price GE (>=) EXER.PRI.MEM
+For a put option (selling at the strike price):-
+Strike price - market price of underlying GE (>=) EXER.PRI.MEM
+Validation Rules
+
+
+Must be valid price scale and minimum price movement for         the underlying asset / product. */
+		EXER_PRI_MEM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=97.0, core=true, t24Name=EXER.PRI.MEM)
+		/* Internal price defaulted from EXER.PRI.MEM field.
+Validation Rules
+
+
+NOINPUT */
+		INT_EXER_PRI_MEM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=98.0, core=true, t24Name=INT.EXER.PRI.MEM, typeModifiers=-)
+		/* Price offset from strike price when exercising for customers who are not exchange members.
+Some exchanges specify for certain contracts a price difference where the option will automatically be exercised when they are so much "in the money" (in profit). This may be to take into account the additional costs of exercising the option.
+Therefore for non exchange members, an option is in the money, and will therefore be exercised if.
+For a call option (buying at the strike price):-
+Market price of underlying - strike price GE (>=) EXER.PRI.NON
+For a put option (selling at the strike price):-
+Strike price - market price of underlying GE (>=) EXER.PRI.NON
+Validation Rules
+
+
+Must be valid price scale and minimum price movement for         the underlying asset / product */
+		EXER_PRI_NON : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=99.0, core=true, t24Name=EXER.PRI.NON)
+		/* Internal price defaulted from EXER.PRI.NON field
+Validation Rules
+
+
+NOINPUT */
+		INT_EXER_PRI_NON : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=100.0, core=true, t24Name=INT.EXER.PRI.NON, typeModifiers=-)
+		/* Select YES to enable system expiry of options when process routine is included as part of End of Exchange processing.
+Validation Rules
+
+
+Input must be either YES or NO or blank */
+		SYSTEM_EXPIRY : DX_Configuration:DX_CONTRACT_MASTER__SYSTEM_EXPIRY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=101.0, core=true, t24Name=SYSTEM.EXPIRY)
+		/* Price offset from strike price for expiring options.
+Some exchanges specify for certain contracts a price difference where the option will automatically be exercised when they are so much "in the money" (in profit). Conversely there may be a margin where an option is "out of the money" (in loss, i.e. negative profit) but some customers may still wish to exercise. For this reason exchanges may stipulate a greater degree of loss before an option is automatically expired.
+An option is out of the money, and will therefore be expired if.
+For a call option (buying at the strike price):-
+Market price of underlying - strike price GT (>) EXPIRY.PRI
+For put option (selling at the strike price):-
+Strike price - market price of underlying GT (>) EXPIRY.PRI
+Validation Rules
+
+
+Must be valid price scale and minimum price movement for         the underlying asset / product */
+		EXPIRY_PRI : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=102.0, core=true, t24Name=EXPIRY.PRI)
+		/* Internal price defaulted from EXPIRY.PRI field
+Validation Rules
+
+
+NOINPUT */
+		INT_EXPIRY_PRI : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=103.0, core=true, t24Name=INT.EXPIRY.PRI)
+		/* The number of business days after the specified option declaration date to delay system expiring of options. This is to allow an additional period after the declaration date when automatic assignment of options can take place.
+Validation Rules
+
+
+Integer value
+Must be less than PRICE.DAYS for EOE.PRICE.SET on DX.PARAMETER */
+		ADD_EXPIRY_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=104.0, core=true, t24Name=ADD.EXPIRY.DAYS)
+		/* This field represents the Risk Currency, the most frequent examples are unit trusts. A German Fund Administration might decide to issue a US equity fund, and, because it might be more convenient for the investors, might issue and price the units in Euro. The legal security currency is Euro. But if the Dollar changes its value to the Euro, this will have an impact on the market value of this fund because the underlying equities are mostly exposed to the USD. Another example is a European Bond Fund quoted in Sterling and issued in the UK. The risk currency in such a case could be Euro, but could as well be artificial like 'European currency'. Another example is a German Certificate of a US company. It is issued in Germany, priced in Euro, but the risk currency is not Euro but USD.  Apart from the asset type breakdown, within the field of asset management, the risk currency is usually considered to be one of the most important attributes of an instrument. As a general rule about 10 % of all instruments have a different security and risk currency.
+On RISK.CURRENCY field a drop down list will be made available showing valid entries from the T24 application currency
+Validation Rules
+
+
+Default to trade currency if no input
+Taken from theT24 applicationn"CURRENCY" */
+		RISK_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=105.0, core=true, businessType=CCY, t24Name=RISK.CURRENCY)
+		/* Regarding the Risk country: The problem here is similar to that of the risk currency. Many instruments are issued in a tax haven and will have this as security country. The security country has tax implications, it is relevant when it comes to Double Tax Treaties and will cause a certain withholding tax. It is also relevant for the Swiss stamp duty calculation. But when Japanese Company decides to issue a Eurobond in London, the risk country will most probably be Japan in such a case. Many unit trusts are issued in Guernsey, in British Virgin Islands or in the Bermudas, but the underlying instruments come from other countries. Also it should be possible to open artificial countries such as Europe or World as risk countries. It can be estimated that about 20 % of instruments have different risk- and security countries in a security database. For this reason the security country is not generally applicable for asset management decisions.
+On RISK.COUNTRY field a drop down list will be made available showing valid entries from the T24 application COUNTRY.
+Each position in clients portfolio must be attributed a risk currency and risk country back office users will update this information to correctly show where the risk for an instrument lies.
+Validation Rules
+
+
+If No input this field would default to the contract         currency.
+Country from the T24 application COUNTRY. */
+		RISK_COUNTRY -> ST_Config:COUNTRY
+			@i18n:Label (en="Risk Country")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=106.0, core=true, businessType=SSS, t24Name=RISK.COUNTRY)
+		/* Average Price
+
+Validation Rules */
+		AVERAGE_PRICE : DX_Configuration:DX_CONTRACT_MASTER__AVERAGE_PRICE
+			@i18n:Label (en="Average Price")
+			@i18n:Tooltip (en="Average price for valuation P and L calculations.")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=107.0, core=true, t24Name=AVERAGE.PRICE)
+		/* Validation Rules
+1 Numeric character allowed
+Default to '2' if not populated/null */
+		AVERAGE_DPS : mml:Integer
+			@i18n:Label (en="Avg Price Decimals")
+			@i18n:Tooltip (en="No. of Decimals allowed for Average Price")
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=108.0, core=true, t24Name=AVERAGE.DPS)
+		/* This field specifies the type of rounding method to be applied, which can be one of the following:
+
+
+STANDARD - It will round either upwards or downwards whichever is nearer integer, to the required number of decimal places
+
+
+UP               -  It will round upwards to the required number of decimal places
+
+
+DOWN        -  It will round downwards to the required number of decimal places
+Validation Rules
+
+
+Input can be STANDARD, UP or DOWN, default being STANDARD */
+		ROUNDING : DX_Configuration:DX_CONTRACT_MASTER__ROUNDING
+			@i18n:Label (en=Rounding)
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=109.0, core=true, t24Name=ROUNDING)
+		/* Rounding factor is an optional input with the following restrictions on the integer and fractional part :
+1.    The fraction is restricted to the Strike price scale i.e. < scale factor
+2.    Unless the Price Scale  factor is 100, integer part cannot be used
+Validation Rules
+
+
+Optional Input */
+		RND_FACTOR : T24BusinessTypes:DEC
+			@i18n:Label (en="Rounding Factor")
+			@i18n:Tooltip (en="Rounding Factor")
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=110.0, core=true, t24Name=RND.FACTOR, typeModifiers="90")
+		LINK_CONT_ID -> byValue DX_Configuration:DX_CONTRACT_MASTER__LINK_CONT_ID *
+		/* This field specifies the last date that this contract can be traded. */
+		LAST_VALID_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=112.0, core=true, t24Name=LAST.VALID.DATE)
+		/* This field defines at the contract master level whether the trades covered by this contract master record can undergo back to back closeout
+Validation Rules
+
+
+Defaults from      DX.CONTRACT.CLASS but can be amended manually */
+		B2B_CO_OK : DX_Configuration:DX_CONTRACT_MASTER__B2B_CO_OK
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=113.0, core=true, t24Name=B2B.CO.OK)
+		/* Indicates the risk level of this particular product.
+
+Validation Rules
+
+Optional Input as per virtual table RISK.LEVEL. */
+		RISK_LEVEL : T24BusinessTypes:A
+			@i18n:Label (en="Risk Level")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=114.0, core=true, t24Name=RISK.LEVEL)
+		MATURITY_DATE : DX_Configuration:DX_CONTRACT_MASTER__MATURITY_DATE
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=115.0, core=true, t24Name=MATURITY.DATE)
+		LOSS_MARGIN_CNTRL -> SCV_Config:MARGIN_CONTROL
+			@i18n:Label (en="Loss Margin Control")
+			@i18n:Tooltip (en="Margin rate for determining liability value in case of negative positions")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=116.0, core=true, businessType=A, t24Name=LOSS.MARGIN.CNTRL)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=117.0, core=true, t24Name=RESERVED5)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=118.0, core=true, t24Name=RESERVED6)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=119.0, core=true, t24Name=RESERVED7)
+		OVERRIDE -> byValue DX_Configuration:DX_CONTRACT_MASTER__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=122.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=123.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Configuration:DX_CONTRACT_MASTER__INPUTTER *
+		DATE_TIME -> byValue DX_Configuration:DX_CONTRACT_MASTER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=126.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=127.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=128.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=129.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=130.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_CONTRACT_MASTER__DESCRIPT
+	{
+		DESCRIPT -> byValue DX_Configuration:DX_CONTRACT_MASTER__DESCRIPT__DESCRIPT *
+	}
+	DX_CONTRACT_MASTER__DESCRIPT__DESCRIPT
+	{
+		/* The full description of the contract
+Eg. Long Gilt, 3-Month Short Sterling, etc&#133;
+Validation Rules
+
+
+Up to 35 Alpha characters Multi-value field
+Mandatory field. */
+		DESCRIPT : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=2.0, core=true, t24Name=DESCRIPT)
+	}
+	DX_CONTRACT_MASTER__SHORT_NAME
+	{
+		/* Identifies the name of the Contract in a more descriptive form, and will be used for on-line enrichments in any field where a Contract ID or Mnemonic has been input.
+A clear and unique identification of the Contract must be entered in this field. When entering or displaying data where a Contract ID or Mnemonic is involved, the content of this field will be used as the enrichment of the Contract number/Mnemonic.
+Validation Rules
+
+
+3-35 characters. Multi value field
+Mandatory input */
+		SHORT_NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=3.0, core=true, t24Name=SHORT.NAME)
+	}
+	DX_CONTRACT_MASTER__PRICE_BAND
+	{
+		/* Some contracts are subject to a price band, specified on the contract specification set by the relative Exchange. This field works in conjunction with Tick Size, Tick Value, and Minimum Price Movement.
+An example of price band contract is the 3 Month Short Sterling Option;
+<7(note not equal too) price units the Tick Size is 0.01, Tick Value is 12.50(6.25 1/2 tick) and the minimum price movement is 0.005
+>7 price units the Tick Size is 0.01, Tick Value is 12.50 and the minimum price movement is 0.01
+This equates; the movement up to 7 price units will be per half tick and above 7 price units per one tick.
+The set is then multi-valued where the,
+
+
+
+
+
+
+
+
+Validation Rules
+
+
+Up to 16 characters available in "CURRENCY'"         format or Alpha "OPEN" for no price band.
+Multi-value Set with Tick Size, Tick Value, Minimum Price         Movement and Price Tolerance.
+Price Band, field is shown as an "Up Too"         figure.
+No Change field */
+		PRICE_BAND : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=16, sysNumber=18.0, core=true, t24Name=PRICE.BAND)
+		/* The unit of quotation allowed is conventionally known as the "TICK". To avoid potentially infinitely small price fluctuations, the relative exchange, limits the minimum amount by which prices may change. This is set within the contract specification as the tick size.
+The tick size for a 3-month Short Sterling future is 0.01.
+The tick size for a 3-month Short Sterling option to a level of 7 price units is 0.005
+The tick size for a 3-month Eurodollar futures is 1/32.
+Validation Rules
+
+
+Up to 11 Numeric characters available
+Mandatory field
+Multi-value set with Price Band
+No Change field */
+		TICK_SIZE : T24BusinessTypes:DEC required
+			@t24:i (align=L, inputBehaviour=F, maxLength=11, sysNumber=19.0, core=true, t24Name=TICK.SIZE, typeModifiers="9")
+		/* Derived from the "Tick Size" is the "Tick Value". Since the contract has a fixed size the smallest price movement can be given a monetary value.
+e.g.
+Validation Rules
+
+
+Up to 11 numeric characters
+Mandatory field
+Multi-valued set by price band
+No Change field */
+		TICK_VALUE : T24BusinessTypes:DEC required
+			@t24:i (align=L, inputBehaviour=F, maxLength=11, sysNumber=20.0, core=true, t24Name=TICK.VALUE, typeModifiers="9")
+		/* To avoid potentially infinite small price fluctuations, an exchange limits the minimum amount by which prices may change. This is movement conventionally known as the "Tick".
+The tick size of a 3-month Short Sterling Contract is 0.01; therefore the quote will change by 0.01 tick.
+e.g. 93.95, 93.96, 93.97 and so on.
+The minimum price movement does not necessarily move by the tick size, as half and quarter price movements are now practiced in the markets of today.
+
+
+Validation Rules
+
+
+Up to 11 numeric characters available, expressed in the         same format as price
+Mandatory field
+Multi-valued set by price band
+No Change field */
+		MIN_PRICE_MVMT : T24BusinessTypes:DEC required
+			@t24:i (align=L, inputBehaviour=F, maxLength=11, sysNumber=21.0, core=true, t24Name=MIN.PRICE.MVMT, typeModifiers="9")
+		/* The price variance allowed from the official market price, populated to the field in percentage terms.
+Validation Rules
+
+
+Up to 3 numeric characters available
+2 Multi-value set by price band. */
+		PRICE_TOLERANCE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, core=true, t24Name=PRICE.TOLERANCE)
+		/* Main price data such as the price basis (INTEREST for interest-rate basis prices, NORMAL otherwise) are same for all prices on a contract, but in same cases values like tick size and value may vary when the contract price falls within different bands. This is catered for by mulvaluing the PRICE.BAND to INT.PRICE.BAND set.
+The value is calculated by price band / tick size x tick value. This is a system generated field.
+Validation Rules
+
+
+
+
+Up to 11 character
+
+
+
+
+No Input field */
+		INT_PRICE_BAND : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=23.0, core=true, t24Name=INT.PRICE.BAND)
+		/* Reserved For Future Use
+
+Validation Rules
+No Input Field */
+		MVRESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=24.0, core=true, t24Name=MVRESERVED1)
+	}
+	DX_CONTRACT_MASTER__PRICE_SET
+	{
+		/* Identifies a price set that holds prices for this contract.
+Validation Rules
+
+
+Must be a valid Price set in DX PRICE SET
+Multi-value set with Price Source
+15 Alpha */
+		PRICE_SET -> DX_Pricing:DX_PRICE_SET
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=25.0, core=true, businessType=A, t24Name=PRICE.SET)
+		/* Identifier of a price interface known to T24. Can be an actual interface or TRADE to define T24 trade entry price format.
+Validation Rules
+
+
+Must be a valid Price set in DX PRICE SOURCE
+Multi value set with Price Set
+15 Alpha */
+		PRICE_SOURCE -> DX_Pricing:DX_PRICE_SOURCE
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=26.0, core=true, businessType=A, t24Name=PRICE.SOURCE)
+		/* The display format of the price for the relevant price interface quoted by the quote vendor.
+There must be an entry for PRICE.SOURCE 'TRADE' which represents the format that the price can be entered in on DX.TRADE
+Validation Rules
+
+
+Up to 20 PFMT Alpha Numeric characters available
+Must have an entry for 'TRADE'
+Multi-value set with PRICE SOURCE
+No Input field */
+		PRICE_FMT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=27.0, core=true, t24Name=PRICE.FMT)
+		PRICE_CODE -> byValue DX_Configuration:DX_CONTRACT_MASTER__PRICE_SET__PRICE_CODE *
+		/* Reserved For Future Use
+
+Validation Rules
+No Input field */
+		MVRESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=29.0, core=true, t24Name=MVRESERVED4)
+		/* Reserved For Future Use
+
+Validation Rules
+No Input field */
+		MVRESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=30.0, core=true, t24Name=MVRESERVED5)
+		/* Reserved For Future Use
+
+Validation Rules
+No Input field */
+		MVRESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=31.0, core=true, t24Name=MVRESERVED6)
+	}
+	DX_CONTRACT_MASTER__PRICE_SET__PRICE_CODE
+	{
+		/* The code for the relevant price of the contract on the relevant exchange or price vendor system, the "Ticker Symbol". This can be left as to "LOOK UP" which allows DX.PRICE.INTERFACE to determine the format.
+Validation Rules
+
+
+Up to 20 Alpha characters available
+Multi-value set with PRICE SOURCE
+No Input field */
+		PRICE_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=28.0, core=true, t24Name=PRICE.CODE)
+	}
+	DX_CONTRACT_MASTER__MONTHS_FWD
+	{
+		/* The available months forward to trade according to the contract specifications set by the relative exchange.
+e.g. 3-month Short Sterling :
+March, June, September, December and two serial months, such that 22 delivery months are available for trading, with the nearest 3 delivery months being consecutive calendar months.
+This equates to, trading 3 months consecutively and then quarterly up to 22 periods.
+
+
+
+
+
+
+
+
+
+
+Validation Rules
+
+
+Up to 4 Alpha characters available
+OPEN (Infinite availability) can be used to populate the         field or if Null it will default to the field from DX.EXCHANGE.MASTER
+Multi-value set with MATURITY MONTHS, MATURITY DAYS
+No Change field */
+		MONTHS_FWD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=4, sysNumber=38.0, core=true, t24Name=MONTHS.FWD)
+		MAT_MONTHS -> byValue DX_Configuration:DX_CONTRACT_MASTER__MONTHS_FWD__MAT_MONTHS *
+		MAT_DAYS -> byValue DX_Configuration:DX_CONTRACT_MASTER__MONTHS_FWD__MAT_DAYS *
+		/* Reserved For Future Use
+
+Validation Rules
+No Input field */
+		MVRESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=41.0, core=true, t24Name=MVRESERVED7)
+		/* Reserved For Future Use
+
+Validation Rules
+No Input */
+		MVRESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=42.0, core=true, t24Name=MVRESERVED8)
+		/* Reserved For Future Use
+
+Validation Rules
+No Input */
+		MVRESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=43.0, core=true, t24Name=MVRESERVED9)
+		/* Reserved For Future Use
+
+Validation Rules
+No Input field */
+		MVRESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=44.0, core=true, t24Name=MVRESERVED10)
+	}
+	DX_CONTRACT_MASTER__MONTHS_FWD__MAT_MONTHS
+	{
+		/* Maturity/Delivery months are generally set to meet the needs of the underlying cash market. A traded contract has a specified delivery month set by the relative exchange within the contract specifications. This field is used to populate the said month for that period.
+The drop down menu allows the choice of numeric (1-12) or alpha ALL to populate this field. The numeric of 1-12 represents the twelve calendar months.
+e.g. 3-month Short Sterling :
+March, June, September, December and two serial months, such that 22 delivery months are available for trading, with the nearest 3 delivery months being consecutive calendar months.
+This equates to, trading 3 months consecutively and then quarterly up to 22 periods.
+
+
+
+
+
+
+
+
+
+
+
+
+Validation Rules
+
+
+Up to 3 alpha or numeric characters Available
+Enrich with month abbreviation from REMTEXT
+No Change field */
+		MAT_MONTHS : DX_Configuration:DX_CONTRACT_MASTER__MONTHS_FWD__MAT_MONTHS__MAT_MONTHS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=39.0, core=true, t24Name=MAT.MONTHS)
+	}
+	DX_CONTRACT_MASTER__MONTHS_FWD__MAT_DAYS
+	{
+		/* The valid maturity days for the delivery period defined in MONTHS.FWD.
+Validation Rules
+
+
+Up to 35 date formula characters available
+Unless MATURITY.TYPE is populated by 'DAILY' or 'OTHER'         this field is NOINPUT. */
+		MAT_DAYS : T24BusinessTypes:DFMT
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=40.0, core=true, t24Name=MAT.DAYS)
+	}
+	DX_CONTRACT_MASTER__OVR_YEAR_MONTH
+	{
+		/* This field allows the use of a manual input date to override the field populated by a formula used to calculate the year and month delivery date.
+When populated, the date formula in the previously populated LAST.TRADE, FIRST NOTICE, etc&#133;., will not be used in the fixing and calculation routine for this contract.
+Validation Rules
+
+
+Up to 8 alpha/numeric characters available.(YYYYMM)
+This is a multi-set field with OVR.LAST.TRADE, OVR.FIRST.NOTICE,         OVR.LAST.NOTICE, OVR.FIRST.DLV, OVR.LAST.DLV, OVR.SPOT.DATE,         and OVR.DEC.DATE */
+		OVR_YEAR_MONTH : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=53.0, core=true, t24Name=OVR.YEAR.MONTH)
+		/* This field allows the use of a manual input date to override the field populated by a formula used to calculate the Last Trade Date.
+When populated, the date formula in the previously populated LAST.TRADE, FIRST NOTICE, etc&#133;., will not be used in the fixing and calculation routine for this contract
+Validation Rules
+
+
+Up to 8 Date Format characters available.(YYYYMMDD)
+This is part of a multi-set field with OVR.MONTH.YEAR */
+		OVR_LAST_TRADE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=54.0, core=true, t24Name=OVR.LAST.TRADE)
+		/* This field allows the use of a manual input date to override the field populated by a formula used to calculate the First Notice Date.
+When populated, the date formula in the previously populated LAST.TRADE, FIRST NOTICE, etc&#133;., will not be used in the fixing and calculation routine for this contract.
+Validation Rules
+
+
+Up to 8 Date Format characters available.(YYYYMMDD)
+This is part of a multi-set field with OVR.MONTH.YEAR */
+		OVR_FIRST_NTICE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=55.0, core=true, t24Name=OVR.FIRST.NTICE)
+		/* This field allows the use of a manual input date to override the field populated by a formula used to calculate the Last Notice Date.
+When populated, the date formula in the previously populated LAST.TRADE, FIRST NOTICE, etc&#133;., will not be used in the fixing and calculation routine for this contract.
+Validation Rules
+
+
+Up to 8 Date Format characters available.(YYYYMMDD)
+This is part of a multi-set field with OVR.MONTH.YEAR */
+		OVR_LAST_NTICE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=56.0, core=true, t24Name=OVR.LAST.NTICE)
+		/* This field allows the use of a manual input date to override the field populated by a formula used to calculate the First Delivery Date.
+When populated, the date formula in the previously populated LAST.TRADE, FIRST NOTICE, etc., will not be used in the fixing and calculation routine for this contract.
+Validation Rules
+
+
+
+
+Up to 8 Date Format characters available.(YYYYMMDD)
+
+
+
+
+This is part of a multi-set field with OVR.MONTH.YEAR */
+		OVR_FIRST_DELIV : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=57.0, core=true, t24Name=OVR.FIRST.DELIV)
+		/* This field allows the use of a manual input date to override the field populated by a formula used to calculate the Last Delivery Date.
+When populated, the date formula in the previously populated LAST.TRADE, FIRST NOTICE, etc&#133;., will not be used in the fixing and calculation routine for this contract
+Validation Rules
+
+
+Up to 8 Date Format characters available.(YYYYMMDD)
+This is part of a multi-set field with OVR.MONTH.YEAR */
+		OVR_LAST_DELIV : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=58.0, core=true, t24Name=OVR.LAST.DELIV)
+		/* This field allows the use of a manual input date to override the field populated by a formula used to calculate the SPOT.DATE
+When populated, the date formula in the previously populated LAST.TRADE, FIRST NOTICE, etc&#133;., will not be used in the fixing and calculation routine for this contract.
+Validation Rules
+
+
+Up to 8 Date Format characters available. (YYYYMMDD)
+This is part of a multi-set field with OVR.MONTH.YEAR */
+		OVR_SPOT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=59.0, core=true, t24Name=OVR.SPOT.DATE)
+		/* This field allows the use of a manual input date to override the field populated by a formula used to calculate the Declaration Date.
+When populated, the date formula in the previously populated LAST.TRADE, FIRST NOTICE, etc&#133; will not be used in the fixing and calculation routine for this contract.
+Validation Rules
+
+
+Up to 8 Date Format characters available. (YYYYMMDD)
+This is part of a multi-set field with OVR.MONTH.YEAR
+No Input unless CONTRACT.TYPE = &#145;OPTION&#146; */
+		OVR_DEC_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=60.0, core=true, t24Name=OVR.DEC.DATE)
+		/* This field allows the use of a manual input date to override the field populated by a formula used to calculate the Amortisation Date.
+When populated, the date formula in the previously populated LAST.TRADE, FIRST NOTICE, etc&#133; will not be used in the fixing and calculation routine for this contract
+Validation Rules
+
+
+Up to 8 Date Format characters available. (YYYYMMDD)
+This is part of a multi-set field with OVR.MONTH.YEAR */
+		OVR_AMORT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=61.0, core=true, t24Name=OVR.AMORT.DATE)
+	}
+	DX_CONTRACT_MASTER__UNDERLYING
+	{
+		/* The financial instrument, equity or commodity upon which a futures or options contract is based.
+These may be a specific instrument, as in the case of stock options, or maybe a notional instrument, as in the case of the Euro Bund futures.
+In the case of many Options, such as the Long Gilt and Euro Bond options on LIFFE, the underlying instrument is a corresponding futures contract.
+This field requires to be set as 'OTHER' for Interest rate Caps, Floors and Swaptions
+If underlying is cash Delivery currency field is mandatory
+Validation Rules
+
+
+Up to 12 Alpha characters
+Input must be a valid record on either DX.CONTRACT.MASTER         or SECURITY.MASTER, or 'CASH' or 'OTHER' */
+		UNDERLYING : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=65.0, core=true, t24Name=UNDERLYING, mvSvExpansionAccess=NOMODIFY)
+		/* Reserved For Future Use
+
+Validation Rules
+No Input field */
+		MVRESERVED11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=66.0, core=true, t24Name=MVRESERVED11, mvSvExpansionAccess=NOMODIFY)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input field */
+		MVRESERVED12 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=67.0, core=true, t24Name=MVRESERVED12, mvSvExpansionAccess=NOMODIFY)
+	}
+	DX_CONTRACT_MASTER__OPTION_TYPE
+	{
+		/* The type of option traded, normal (vanilla) or Exotic.
+Exotic; Digital, Currency, etc&#133;..
+
+
+This multivalue set will contain a list of valid option.types for this contract.code Or ALL. This is linked to a record in
+DX.OPTION.TYPE
+Validation Rules
+
+
+Up to 8 alpha characters */
+		OPTION_TYPE -> DX_Configuration:DX_OPTION_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=68.0, core=true, businessType=A, t24Name=OPTION.TYPE)
+	}
+	DX_CONTRACT_MASTER__GEN_DATA_NAME
+	{
+		/* Populate this field for reporting purposes. The field allows for Regulatory, Internal, or other reporting requirements on this contract to the appropriate body/department.
+Validation Rules
+
+
+Up to 15 alpha characters
+DX.GEN.DATA will contain the information for the         Regulatory Body, Internal Department or other reporting         requirements, which will populate this field.
+Multi-valued set with GEN,DATA.CODE AND GEN.DATA.LIMIT.
+If not populated this field will default to the         information contained in GEN.DATA.NAME in EXCHANGE.MASTER */
+		GEN_DATA_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=77.0, core=true, t24Name=GEN.DATA.NAME)
+		/* Identifier code used by the Regulatory Body, Internal or other reporting system for this contract
+Validation Rules
+
+
+Up to 15 alpha characters.
+Multi-value set with GEN.DATA.NAME */
+		GEN_DATA_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=78.0, core=true, t24Name=GEN.DATA.CODE)
+		/* Limit related to reporting/regulatory procedure named in GEN.DATA.NAME
+Validation Rules
+
+
+Up to 11 numeric characters available.
+Multi-value set with GEN.DATA.NAME
+If not populated this field will default to the         information contained in GEN.DATA.NAME in EXCHANGE.MASTER */
+		GEN_DATA_LIMIT : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=79.0, core=true, t24Name=GEN.DATA.LIMIT)
+		/* Reserved For Future Use
+
+Validation Rules
+No Input Field */
+		MVRESERVED13 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=80.0, core=true, t24Name=MVRESERVED13)
+		/* Reserved For Future Use
+
+Validation Rules
+No Input field */
+		MVRESERVED14 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=81.0, core=true, t24Name=MVRESERVED14)
+	}
+	DX_CONTRACT_MASTER__TRADING_OPEN
+	{
+		/* The Open trading time of the exchange as listed by contract according to the trading sessions.
+Validation Rules
+
+
+Up to 5 numeric characters in TIME format
+Input as HHMM or HH:MM
+Multi-value field and set for multiple trading sessions,         part of TRADING.CLOSE, EXCHANGE.SESSION and EXCH-MNEMONIC
+Quoted in Exchange's local time. */
+		TRADING_OPEN : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=82.0, core=true, t24Name=TRADING.OPEN)
+		/* The Closing trading time of the exchange as listed by contract according to the trading sessions.
+Validation Rules
+
+
+Up to 5 numeric characters in TIME format
+Input as HHMM or HH:MM
+Multi-value set for multiple trading sessions, part of         TRADING.OPEN
+Quoted in Exchange's local time. */
+		TRADING_CLOSE : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=83.0, core=true, t24Name=TRADING.CLOSE)
+	}
+	DX_CONTRACT_MASTER__ALT_IND_NAME
+	{
+		/* Identifies a list of possible alternate ID Names thar can be used to identify this contract in the system.
+Validation Rules
+
+
+No Input Field
+Input defaults from DX.PARAMETER
+35 Alpha */
+		ALT_IND_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=94.0, core=true, t24Name=ALT.IND.NAME, mvSvExpansionAccess=NOMODIFY)
+		/* The Alternate Index Id releated to the listed ALT.IND.NAME.
+The contents of this field will be validated against using the routine identified in the DX.PARAMETER record when the list of ALT.IND.NAMES is taken from.
+Validation Rules
+
+
+No Input Field
+Input defaults from DX.PARAMETER
+35 Alpha */
+		ALT_IND_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=95.0, core=true, t24Name=ALT.IND.ID, mvSvExpansionAccess=NOMODIFY)
+	}
+	DX_CONTRACT_MASTER__LINK_CONT_ID
+	{
+		/* This field specifies the id of the new contract master record created on corporate action, which supersedes this contract master record
+Validation Rules
+
+
+No input field */
+		LINK_CONT_ID : T24BusinessTypes:DXCM
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=111.0, core=true, t24Name=LINK.CONT.ID)
+	}
+	DX_CONTRACT_MASTER__OVERRIDE
+	{
+		/* Holds override messages generated during input of this record.
+
+Validation Rules
+No Input */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=121.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_CONTRACT_MASTER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=124.0, core=true, t24Name=INPUTTER)
+	}
+	DX_CONTRACT_MASTER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=125.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application holds details of all of the procesing / accounting events that can occur in the derivatives modules.
+
+By default this application does not come pre-setup as the user must consider the impact of each events setup.
+
+The following is a list of items that should be setup.
+
+ID "Event Description"
+AR Contract Assignment (Rev)
+AS Contract Assignment
+BV Back Valuation
+CA Contract Amendment
+CC Contract Cancellation
+CD Unauth Contract Deletion
+CI Contract Inception
+CM Contract Maturity
+CN Internal Transfer
+CO External Transfer
+CP Corporate Action
+CR Contract Amendment (Reversal)
+CS Contract Settlement
+CT Incoming Transfer
+CU Unauth Contract Amendment
+CX Corporate Action (Rev)
+ER Contract Exercise (Rev)
+EX Contract Exercise
+FC Commission posting
+FE Execution fee/csn posting
+FL Clearing fee/csn posting
+FM Misc fee posting
+FR Regulatory fee posting
+IM Initial Margin
+OA Order Amendment
+OB Order Blocking
+OC Order Cancellation (Reversal)
+OD Order Deletion
+OF Order Fill
+OI Order Input
+OM Option Variation Margin
+OR Order Stage Superseded
+OX Order Abandon
+PC Closed position
+PO Open position
+PP Premium Posting
+RO Realised Option P and L
+RP Realised P and L
+SR Settlement Reversal
+TT Tax posting
+UO Unrealised Option P and L
+VM Variation Margin
+XO Exotic Event
+XO-XYZ Exotic Event for OPTION.TYPE "XYZ" *
+XP Contract Expiry
+XR Contract Expiry (Rev)
+
+* Can set up specific event types for each exotic option type defined in OPTION.TYPE. */
+	DX_EVENT_TYPE
+		@t24:i (t24Name=DX.EVENT.TYPE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This table holds the details of activities that may take place during the life of the contract and these will be used for updating related records like accounting, deliveries and transaction activity record.
+the activities are:
+AR Contract Assignment Reversal
+AS Contract Assignment
+CI contract inception
+CC Cancellation of contract
+CD Deletion of contract
+CU Unauthorised contract amendment
+CA Contract amendment
+CM contract maturity
+CP  Corporate Action
+CR Contract reversal
+CS contract settlement (close out)
+CX Corporate Action Reversal
+EX Contract Exercise
+ER Contract Exercise Reversal
+PP premium posting
+FC commission positing
+FE execution fee posting
+FR regulatory fee positing
+FL clearing fee posting
+FM Miscellanous fee posting
+TT tax positing TRADE
+PO open position
+PC close position
+RP Realised P&L TRADE
+UP Unrealised P&L
+UO Unrealised open value
+IM Initial margin
+VM variation margin
+XP  Contract Expiry
+XR  Contract Expiry Reversal
+Validation Rules
+
+
+two alphabets. predefined with activity. */
+		DX_EVENT_TYPE -> DX_Configuration:DX_EVENT_TYPE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=DX.EVENT.TYPE)
+		DESCRIPTION -> byValue DX_Configuration:DX_EVENT_TYPE__DESCRIPTION *
+		/* TRANSACTION code used for positng credit entries.
+Validation Rules
+
+
+Up to 3 characters, input must exist on the TRANSACTION         application
+Mandatory Field */
+		CR_TRANSACTION -> ST_Config:TRANSACTION required
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=CR.TRANSACTION)
+		/* TRANSCTIONS used for passing debit entries
+Validation Rules
+
+
+Up to 3 characters, input must exist on TRANSACTION         appliction
+Mandatory Field */
+		DR_TRANSACTION -> ST_Config:TRANSACTION required
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=DR.TRANSACTION)
+		/* CATEGORY code used for posting the entries. This can be either an internal account category code or a profit and loss category code range depnding upon the type of contract event. A field validation is provided to determin whether a profit and loss category code to accepted or an internal account category code.
+Validation Rules
+
+
+Up to 5 character, input must exist on the CATEGORY  application
+Mandatory for events requiring a category code for
+P/L reporting or internal account set up
+
+
+The following EVENT.TYPE falls under Category Code  range of '10000-19999'
+
+'IM','CA','CC','CI','SR','CU','PO',PC','RO','OI','OA','OC','OD','OX','OB','AM','FX','CR'
+
+
+
+The following EVENT.TYPE falls under the Category Code range of '50000-59999'
+
+'CM','CS','FC','FE','FR','FL','FM','RP','VM','OM','BP','TT'
+
+
+Apart from these there are two EVENT.TYPE which accepts two different range
+
+'PP' = '10000-19999' and '50000-59999'
+'UO' = '24000-24999' and '50000-59999' */
+		CATEGORY -> ST_Config:CATEGORY
+			@i18n:Label (en=Category)
+			@i18n:Tooltip (en="Specifies the Category")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=CATEGORY)
+		/* If this event is associated with FT.CHARGE.TYPE or FT.COMMISSION.TYPE record (i.e. entered or defaulted in DX.TRADE), use the txn codes and category from those tables, if NO overridewith the codes entered in DX.EVENT.TYPE= YES-NO.
+This validates the transaction type to be used for own book accounting
+Validation Rules
+
+
+Input must be Y/N */
+		USE_FT_TXN_CODE : DX_Configuration:DX_EVENT_TYPE__USE_FT_TXN_CODE
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=5.0, core=true, t24Name=USE.FT.TXN.CODE)
+		/* This field represents the Securities transaction code to reference when a CALL option is brought
+Validation Rules
+
+
+Linked to SC.TRANS.NAME
+3 Alpha */
+		O_BUY_CALL -> SC_Config:SC_TRANS_NAME
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, businessType=A, t24Name=O.BUY.CALL)
+		/* This field represents the Securities transaction code to reference when a stock PUT option is brought
+Validation Rules
+
+
+Linked to SC.TRANS.NAME
+3 Alpha */
+		O_BUY_PUT -> SC_Config:SC_TRANS_NAME
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, businessType=A, t24Name=O.BUY.PUT)
+		/* This field represents the Securities transaction code to reference when a stock CALL option is sold
+Validation Rules
+
+
+Linked to SC.TRANS.NAME
+3 Alpha */
+		O_SELL_CALL -> SC_Config:SC_TRANS_NAME
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, businessType=A, t24Name=O.SELL.CALL)
+		/* This field represents the Securities transaction code to reference when a stock PUT option is sold.
+Validation Rules
+
+
+Linked to SC.TRANS.NAME
+3 Alpha */
+		O_SELL_PUT -> SC_Config:SC_TRANS_NAME
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, businessType=A, t24Name=O.SELL.PUT)
+		/* This field represents the Securities transaction code to reference when a future is brought.
+Validation Rules
+
+
+Linked to SC.TRANS.NAME
+3 Alpha */
+		F_BUY -> SC_Config:SC_TRANS_NAME
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=10.0, core=true, businessType=A, t24Name=F.BUY)
+		/* This field represents the Securities transaction code to reference when a future is sold.
+Validation Rules
+
+
+Linked to SC.TRANS.NAME
+3 Alpha */
+		F_SELL -> SC_Config:SC_TRANS_NAME
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=11.0, core=true, businessType=A, t24Name=F.SELL)
+		/* This field represents an enrichment from the CATEGORY file description. Only Mandatory for events requiring a category code for P&L reporting or internal account (non P&L) set-up
+Validation Rules
+
+
+5 digit Numeric
+Linked to CATEGORY */
+		FWD_CATEGORY -> ST_Config:CATEGORY
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=12.0, core=true, businessType=CAT, t24Name=FWD.CATEGORY)
+		EB_ACTIVITY -> byValue DX_Configuration:DX_EVENT_TYPE__EB_ACTIVITY *
+		/* This field defines whether event activity should be stored in DX.TXN.ACTIVITY
+Validation Rules
+
+
+Valid inputs are YES, NO and REPORTING
+Defaults to YES */
+		TX_ACT_UPD : DX_Configuration:DX_EVENT_TYPE__TX_ACT_UPD
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=14.0, core=true, t24Name=TX.ACT.UPD)
+		/* This field determines the source of the currency to use when posting option premiums to an internal account. This field can only be used for a Premium Posting event (PP)
+
+Valid inputs are Local, Trade or blank. */
+		WASH_ACC_TYPE : DX_Configuration:DX_EVENT_TYPE__WASH_ACC_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=15.0, core=true, t24Name=WASH.ACC.TYPE)
+		OVERRIDE -> byValue DX_Configuration:DX_EVENT_TYPE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Configuration:DX_EVENT_TYPE__INPUTTER *
+		DATE_TIME -> byValue DX_Configuration:DX_EVENT_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=23.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=24.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=25.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=26.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_EVENT_TYPE__DESCRIPTION
+	{
+		/* Description of an event in the derivative system
+Validation Rules
+
+
+Up to 35 characters of free format text
+Mandatory Field */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	DX_EVENT_TYPE__EB_ACTIVITY
+	{
+		/* EB.ACTIVITY is the activity that takes place in all T24 applications using soft delivery. The Derivatives module uses the events in DX.EVENT.TYPE to generate the hand off records. (records for delivery.)
+Validation Rules
+
+
+Must be set in EB.ACTIVITY a 4 digit numeric code         definning each activity.
+
+
+E.g. DX-0202 for Derivatives (premium for options) */
+		EB_ACTIVITY -> EB_Delivery:EB_ACTIVITY
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=13.0, core=true, businessType=A, t24Name=EB.ACTIVITY)
+	}
+	DX_EVENT_TYPE__OVERRIDE
+	{
+		/* Holds override messages previously generated on validation of this record.
+
+System Generated field (non-inputtable). */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_EVENT_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=INPUTTER)
+	}
+	DX_EVENT_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=21.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application defines setup specific to a particular derivatives exchange.
+
+An exchange is any entity through which you can trade a product, or alternatively a grouping device for OTC trades.
+
+For example all OTC trades should be traded on a OTC exchange setup in T24.
+
+Keys to this table are numeric. */
+	DX_EXCHANGE_MASTER
+		@t24:i (t24Name=DX.EXCHANGE.MASTER, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This table gives the details of exchange on which trades can be done. This will have the trading dates, trading hours, maring calculation strategies, settlement criteria to trade on it etc.
+Validation Rules
+
+Numeric - 10 characters */
+		EXCHANGE_ID -> DX_Configuration:DX_EXCHANGE_MASTER PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=DXEM, t24Name=EXCHANGE.ID)
+		/* Specifies an alternative means of referencing the Exchange as an alternative to the numeric key (ID).
+Like the ID, the Mnemonic must be unique within the T24 Derivatives module and additionally must not be the name of a strategy entered in the system.
+Note : The field allows the user to use either the numeric key or this mnemonic when entering exchange information in the system.
+Validation Rules
+
+
+3-10 characters, type MNE - Uppercase alpha or numeric,         first character alpha, or ".".
+Mandatory input, */
+		MNEMONIC : T24BusinessTypes:MNE required
+			@i18n:Label (en=Mnemonic)
+			@i18n:Tooltip (en="The alternate short way of calling the record")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, t24Name=MNEMONIC)
+		SHORT_NAME -> byValue DX_Configuration:DX_EXCHANGE_MASTER__SHORT_NAME *
+		DESCRIPT -> byValue DX_Configuration:DX_EXCHANGE_MASTER__DESCRIPT *
+		STREET_TOWN -> byValue DX_Configuration:DX_EXCHANGE_MASTER__STREET_TOWN *
+		COUNTRY -> byValue DX_Configuration:DX_EXCHANGE_MASTER__COUNTRY *
+		/* Is this an Investment Exchange traded product or is it an OTC (Over The Counter) traded product. Choose from the drop down menu of "NORMAL" OR "OTC".
+Exchange Traded (NORMAL); Products governed by rules set by an exchange, defined contract specifications, dates fixed, no counterparty risk, margin requirement and subject to regulation.
+OTC; Tailored products according to customer needs, limited, risky with no margin requirement and less actively regulated.
+Validation Rules
+
+
+Up to 6 alpha characters available
+Input must be NORMAL/OTC */
+		EXCHANGE_TYPE : DX_Configuration:DX_EXCHANGE_MASTER__EXCHANGE_TYPE
+			@i18n:Label (en=Type)
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=6.0, core=true, t24Name=EXCHANGE.TYPE)
+		/* Region to which the Exchange belongs (REGION code). */
+		REGION -> ST_Config:REGION required
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=7.0, core=true, businessType=A, t24Name=REGION)
+		/* The Identifier code for the Firm/Bank assigned by an exchange to members. This allows for the capture and reporting of products traded on this exchange.
+Validation Rules
+
+
+Up to 6 alpha characters */
+		FIRM_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=8.0, core=true, t24Name=FIRM.CODE)
+		/* Defaults Premium Post Time for Options Contracts traded on this Exchange.
+
+This field allows the choice of when the premium should be posted to an account.
+
+TRADE: The premium will be paid or received in full on the trade date.
+
+SETTLEMENT: The premium will be posted on the day of settlement, close/expiry of the trade.
+
+Note:  When creating new Options Contracts on DX.CONTRACT.MASTER, if the corresponding field is not explicitly set, it will default to this value, otherwise the value input into the DX.CONTRACT.MASTER record will be used. */
+		PREM_POST_TIME : DX_Configuration:DX_EXCHANGE_MASTER__PREM_POST_TIME
+			@i18n:Label (en="Premium Post time")
+			@i18n:Tooltip (en="Premium to be posted at Trade or Settlement")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=9.0, core=true, t24Name=PREM.POST.TIME)
+		/* Defaults the Premium Post Offset for Options Contracts traded on this Exchange.
+
+This is the numeric entry for the number of Offset days is required to post an accounting entry.
+
+'n' (being the numeric in days).
+
+Note:  When creating new Options Contracts on DX.CONTRACT.MASTER, if the corresponding field is not explicitly set, it will default to this value, otherwise the value input into the DX.CONTRACT.MASTER record will be used. */
+		PREM_POST_OFFSET : mml:Integer
+			@i18n:Label (en="Premium Post Offset")
+			@i18n:Tooltip (en="No.of offset days to post Premium entries")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=10.0, core=true, t24Name=PREM.POST.OFFSET)
+		/* Defaults the Premium Post Offset for Contracts traded on this Exchange.
+
+Time in contract lifecycle when commissions/charges applied to a trade should be charged.
+
+TRADE charges applied on-line immediately trade verified.
+
+SETTLEMENT charges applied when trade closed-out, matured or exercised/expired (option trades only).
+
+Note:  When creating new contracts on DX.CONTRACT.MASTER, if the corresponding field is not explicitly set, it will default to this value, otherwise the value input into the DX.CONTRACT.MASTER record will be used. */
+		CHG_POST_TIME : DX_Configuration:DX_EXCHANGE_MASTER__CHG_POST_TIME
+			@i18n:Label (en="Chg Post Time")
+			@i18n:Tooltip (en="When Charges are to be posted")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=11.0, core=true, t24Name=CHG.POST.TIME)
+		/* This is where the number of Offset days is required if the CHG.POST.TIME is populated with "TRADE + n".
+'n' being the numeric in days.
+Validation Rules
+
+
+Up to 3 numeric characters */
+		CHG_POST_OFFSET : mml:Integer
+			@i18n:Label (en="Chg Post Offset")
+			@i18n:Tooltip (en="No of days offset to post charge account entries")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, t24Name=CHG.POST.OFFSET)
+		/* Determines whether Initial Margin Calculations on this Exchange should be nett or gross.
+
+Default is NETT. */
+		NETT_GROSS : DX_Configuration:DX_EXCHANGE_MASTER__NETT_GROSS
+			@i18n:Label (en="Nett Gross")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=13.0, core=true, t24Name=NETT.GROSS)
+		/* Defaults the Variation Margin Calculation Method for Contracts traded on this Exchange.
+
+This is the default Method to use for Variation Margin calculations, and should be a valid record on DX.MARGIN.CALC.
+
+Note:  When creating new contracts on DX.CONTRACT.MASTER, if the corresponding field is not explicitly set, it will default to this value, otherwise the value input into the DX.CONTRACT.MASTER record will be used. */
+		VAR_MARGIN_CALC -> DX_Margining:DX_MARGIN_CALC required
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=14.0, core=true, businessType=A, t24Name=VAR.MARGIN.CALC)
+		/* The deposit required by the clearing-house from clearing members as protection against default on futures or options contracts that they trade.
+Validation Rules
+
+
+Up to 8 alpha characters
+This must be a valid record in DX.MARGIN.CALC with         MARGIN.TYPE as "INITIAL".
+Mandatory input field */
+		INIT_MARGIN_CALC -> DX_Margining:DX_MARGIN_CALC required
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=15.0, core=true, businessType=A, t24Name=INIT.MARGIN.CALC)
+		TRADING_DAYS -> byValue DX_Configuration:DX_EXCHANGE_MASTER__TRADING_DAYS *
+		TRADING_OPEN -> byValue DX_Configuration:DX_EXCHANGE_MASTER__TRADING_OPEN *
+		RESERVED20 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=23.0, core=true, t24Name=RESERVED20)
+		RESERVED19 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=24.0, core=true, t24Name=RESERVED19)
+		/* The available months forward to trade according to the contract specifications set by the relative exchange
+Open is suggested for this field as in CONTRACT.MASTER this field is populated to the contract specification related to the Contract.
+Validation Rules
+
+
+Up to 4 Alpha characters available)
+If not populated this field will default to 'OPEN' */
+		MAX_MONTHS_FWD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=25.0, core=true, t24Name=MAX.MONTHS.FWD)
+		/* This field can be used to hold details of the Clearing House for this Exchange.
+Information only. */
+		CLEARING_HOUSE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=26.0, core=true, t24Name=CLEARING.HOUSE)
+		RESERVED18 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=27.0, core=true, t24Name=RESERVED18)
+		RESERVED17 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=28.0, core=true, t24Name=RESERVED17)
+		MUTUAL_OFFSET -> byValue DX_Configuration:DX_EXCHANGE_MASTER__MUTUAL_OFFSET *
+		REMOTE_TRADING -> byValue DX_Configuration:DX_EXCHANGE_MASTER__REMOTE_TRADING *
+		ELEC_TRADING -> byValue DX_Configuration:DX_EXCHANGE_MASTER__ELEC_TRADING *
+		GEN_DATA_NAME -> byValue DX_Configuration:DX_EXCHANGE_MASTER__GEN_DATA_NAME *
+		/* Defaults whether or not to allow Settlement of Contracts traded on this Exchange.
+
+Choose from the drop down menu YES or NO to confirm contracts traded are allowed to settle/close out with other contracts or left open as a held position.
+
+Note:  When creating new contracts on DX.CONTRACT.MASTER, if the corresponding field is not explicitly set, it will default to this value, otherwise the value input into the DX.CONTRACT.MASTER record will be used. */
+		SETT_ALLOWED : DX_Configuration:DX_EXCHANGE_MASTER__SETT_ALLOWED
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=37.0, core=true, t24Name=SETT.ALLOWED)
+		/* Defaults the Settlement Postings Offset for Contracts traded on this Exchange.
+
+Days offset to apply settlement postings
+
+Note:  When creating new contracts on DX.CONTRACT.MASTER, if the corresponding field is not explicitly set, it will default to this value, otherwise the value input into the DX.CONTRACT.MASTER record will be used. */
+		SETT_POST_OFFSET : mml:Integer
+			@i18n:Label (en="Sett Post Offset")
+			@i18n:Tooltip (en="No.of days Offset to post Settlement entries")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=38.0, core=true, t24Name=SETT.POST.OFFSET)
+		/* Not used. */
+		OVN_POSITION : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=39.0, core=true, t24Name=OVN.POSITION)
+		/* This is a Customer associated with the Exchange, which can be used to record trades transacted directly with the Exchange. */
+		EXCHANGE_CUSTOMER -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=40.0, core=true, businessType=CUS, t24Name=EXCHANGE.CUSTOMER)
+		/* This is a segregated Customer associated with the Exchange, which can be used to record trades transacted directly with the Exchange. */
+		SEG_CUSTOMER -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=41.0, core=true, businessType=CUS, t24Name=SEG.CUSTOMER)
+		/* This is the status of that the bank is holding a house customer status with the particular exchange.
+Validation Rules
+
+
+Must be defined as &#145;EXCHANGE&#146; in DX.CUSTOMER
+10 Alpha */
+		HOUSE_CUSTOMER -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=42.0, core=true, businessType=CUS, t24Name=HOUSE.CUSTOMER)
+		RESERVED16 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=43.0, core=true, t24Name=RESERVED16)
+		RESERVED15 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=44.0, core=true, t24Name=RESERVED15)
+		RESERVED14 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=45.0, core=true, t24Name=RESERVED14)
+		RESERVED13 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=46.0, core=true, t24Name=RESERVED13)
+		RESERVED12 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=47.0, core=true, t24Name=RESERVED12)
+		RESERVED11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=48.0, core=true, t24Name=RESERVED11)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=49.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=50.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=51.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=52.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=53.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=54.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=55.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=56.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=57.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=58.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue DX_Configuration:DX_EXCHANGE_MASTER__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=61.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=62.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Configuration:DX_EXCHANGE_MASTER__INPUTTER *
+		DATE_TIME -> byValue DX_Configuration:DX_EXCHANGE_MASTER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=65.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=66.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=67.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=68.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=69.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_EXCHANGE_MASTER__SHORT_NAME
+	{
+		/* Short name for this Exchange */
+		SHORT_NAME : T24BusinessTypes:S required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.NAME)
+	}
+	DX_EXCHANGE_MASTER__DESCRIPT
+	{
+		DESCRIPT -> byValue DX_Configuration:DX_EXCHANGE_MASTER__DESCRIPT__DESCRIPT *
+	}
+	DX_EXCHANGE_MASTER__DESCRIPT__DESCRIPT
+	{
+		/* Description of the Exchange */
+		DESCRIPT : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=3.0, core=true, t24Name=DESCRIPT)
+	}
+	DX_EXCHANGE_MASTER__STREET_TOWN
+	{
+		/* Postal Address for the Exchange (Street and Town) */
+		STREET_TOWN : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=4.0, core=true, t24Name=STREET.TOWN)
+	}
+	DX_EXCHANGE_MASTER__COUNTRY
+	{
+		/* Country in which the Exchange is located (COUNTRY code). */
+		COUNTRY : T24BusinessTypes:S required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=5.0, core=true, t24Name=COUNTRY)
+	}
+	DX_EXCHANGE_MASTER__TRADING_DAYS
+	{
+		/* Denotes which days of the week the Exchange is open for trading.
+Normally this is not required, as it would match the HOLIDAY table for the region.  However, for some exchanges, there may be unusual trading day rules, which can then be defined here. */
+		TRADING_DAYS : DX_Configuration:DX_EXCHANGE_MASTER__TRADING_DAYS__TRADING_DAYS
+			@t24:i (align=L, inputBehaviour=I, maxLength=9, sysNumber=16.0, core=true, t24Name=TRADING.DAYS)
+	}
+	DX_EXCHANGE_MASTER__TRADING_OPEN
+	{
+		/* This is the Open Trading Time of the exchange.
+
+Validation Rules
+
+Up to 5 numeric characters in TIME format
+
+Input as HHMM or HH:MM
+
+Quoted in Exchange's local time. */
+		TRADING_OPEN : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=17.0, core=true, t24Name=TRADING.OPEN)
+		/* This is the Close Trading Time of the exchange.
+
+Validation Rules
+
+Up to 5 numeric characters in TIME format
+
+Input as HHMM or HH:MM
+
+Quoted in Exchange's local time. */
+		TRADING_CLOSE : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=18.0, core=true, t24Name=TRADING.CLOSE)
+		/* This field holds any trading 'sessions' during the exchange day for trading certain products. */
+		EXCH_SESSION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=19.0, core=true, t24Name=EXCH.SESSION)
+		/* This is the Mnemonic by which the Exchange is known. */
+		EXCH_MNEMONIC : T24BusinessTypes:MNE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=20.0, core=true, t24Name=EXCH.MNEMONIC)
+		/* Reserved For Future Use */
+		MVRESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=21.0, core=true, t24Name=MVRESERVED2)
+		/* Reserved For Future Use */
+		MVRESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=22.0, core=true, t24Name=MVRESERVED1)
+	}
+	DX_EXCHANGE_MASTER__MUTUAL_OFFSET
+	{
+		/* Does this Investment Exchange have links with others to allow fungibility on some of its products? Populate this field with the Investment Exchange the product relates too.
+Validation Rules
+Up to 10 alpha characters
+Multi-value field */
+		MUTUAL_OFFSET : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=29.0, core=true, t24Name=MUTUAL.OFFSET)
+	}
+	DX_EXCHANGE_MASTER__REMOTE_TRADING
+	{
+		/* This field can be used to store information about Remote Trading on this Exchange.
+Information only. */
+		REMOTE_TRADING : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=30.0, core=true, t24Name=REMOTE.TRADING)
+	}
+	DX_EXCHANGE_MASTER__ELEC_TRADING
+	{
+		/* This field can be used to store information about Electronic Trading on this Exchange.
+Information only. */
+		ELEC_TRADING : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=31.0, core=true, t24Name=ELEC.TRADING)
+	}
+	DX_EXCHANGE_MASTER__GEN_DATA_NAME
+	{
+		/* Populate this field for reporting purposes. The field allows for Regulatory, Internal, or other reporting requirements on this Exchange to the appropriate body/department.
+Validation Rules
+
+
+Up to 15 alpha characters
+DX.GEN.DATA will contain the information for the         Regulatory Body, Internal Department or other reporting         requirements, which will populate this field.
+Multi-valued set with GEN,DATA.CODE AND GEN.DATA.LIMIT. */
+		GEN_DATA_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=32.0, core=true, t24Name=GEN.DATA.NAME)
+		/* Identifier code used by the Regulatory Body, Internal or other reporting system for this Exchange
+Validation Rules
+
+
+Up to 15 alpha characters available.
+Multi-value set with GEN.DATA.NAME */
+		GEN_DATA_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=33.0, core=true, t24Name=GEN.DATA.CODE)
+		/* Certain Regulatory Bodies require reports only when a certain limit is reached in the number of lots dealt. The limit lot set by this body is populated in this field.
+Validation Rules
+
+
+Up to 11 numeric characters
+Multi-value set with GEN.DATA.NAME */
+		GEN_DATA_LIMIT : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, core=true, t24Name=GEN.DATA.LIMIT)
+		/* Reserved for Future Use */
+		MVRESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=35.0, core=true, t24Name=MVRESERVED3)
+		/* Reserved for Future Use */
+		MVRESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=36.0, core=true, t24Name=MVRESERVED4)
+	}
+	DX_EXCHANGE_MASTER__OVERRIDE
+	{
+		/* Holds override messages that have been produced and accepted on input of this record. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=60.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_EXCHANGE_MASTER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=63.0, core=true, t24Name=INPUTTER)
+	}
+	DX_EXCHANGE_MASTER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=64.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* DX.GROUPING is an application that allows generic heirarchical group structures to be defined. Group id's defined in DX.GROUPING may be used to group DX.CUSTOMER records into entities for reporting or revaluation purposes. */
+	DX_GROUPING
+		@t24:i (t24Name=DX.GROUPING, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The ID of the DX.GROUPING file allows the user to set up heirarchical group structures of derivatives customers.
+The structure of the ID is as follows:
+AAA##Top level group##
+AAA.BBB##Group - member of group AAA##
+AAA.BBB.CCC##Group - member of group AAA.BBB##
+When the relevant group ID is attached to a DX.CUSTOMER record using the field GROUP, that customer becomes a member of that group (and by extension a member of any 'parent' groups of which the group is itself a member.
+Validation Rules
+
+Alphanumeric, maximum 35 characters
+Period separated key */
+		DX_GROUPING -> DX_Configuration:DX_GROUPING PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=DX.GROUPING)
+		NAME -> byValue DX_Configuration:DX_GROUPING__NAME *
+		SHORT_NAME -> byValue DX_Configuration:DX_GROUPING__SHORT_NAME *
+		/* This flag designates this group as being the level in a group heirarchy which should be used for the calculation of official margin figures.
+Validation Rules
+
+Input must be either Y/N
+Must not have more than one level set to &#145;Yes&#146;         within a group hierarchy */
+		MARGIN_LEVEL : DX_Configuration:DX_GROUPING__MARGIN_LEVEL
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=3.0, core=true, t24Name=MARGIN.LEVEL)
+		GEN_DATA_NAME -> byValue DX_Configuration:DX_GROUPING__GEN_DATA_NAME *
+		/* Reserved For Future Use
+Validation Rules
+
+No Input field */
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=9.0, core=true, t24Name=RESERVED5)
+		/* Reserved For Future Use
+Validation Rules
+
+No Input Field */
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=10.0, core=true, t24Name=RESERVED4)
+		/* Reserved For Future Use
+Validation Rules
+
+No Input Field */
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=11.0, core=true, t24Name=RESERVED3)
+		/* Reserved For Future Use
+Validation Rules
+
+No Input Field */
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=12.0, core=true, t24Name=RESERVED2)
+		/* Reserved For Future Use
+Validation Rules
+
+No Input Field */
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=13.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue DX_Configuration:DX_GROUPING__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Configuration:DX_GROUPING__INPUTTER *
+		DATE_TIME -> byValue DX_Configuration:DX_GROUPING__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=21.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=23.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=24.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_GROUPING__NAME
+	{
+		/* Full name of the group.
+Validation Rules
+
+Up to 35 characters of free format text
+Mandatory Field */
+		NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=NAME)
+	}
+	DX_GROUPING__SHORT_NAME
+	{
+		/* Short (reporting) name of the group
+Validation Rules
+
+Up to 35 characters of free format text
+Mandatory Field */
+		SHORT_NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.NAME)
+	}
+	DX_GROUPING__GEN_DATA_NAME
+	{
+		/* Name of a report or process that will be updated using the group information.
+Validation Rules
+
+Up to 15 characters
+
+There must not be more than one occurrence of each item         within a group hierarchy. */
+		GEN_DATA_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=4.0, core=true, t24Name=GEN.DATA.NAME)
+		/* Code or symbol representing the group for reporting purposes in the process named in GEN.DATA.NAME.
+Validation Rules
+
+Up to 15 characters of free format text */
+		GEN_DATA_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=5.0, core=true, t24Name=GEN.DATA.CODE)
+		/* Limit figure or other input data referring to the group that may be required by the process named in GEN.DATA.NAME.
+Validation Rules
+
+Up to 11 numerical characters */
+		GEN_DATA_LIMIT : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=GEN.DATA.LIMIT)
+		/* Reserved for Future use
+Validation Rules
+
+No Input Field */
+		MVRESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=7.0, core=true, t24Name=MVRESERVED1)
+		/* Reserved For Future Use
+Validation Rules
+
+No Input Field */
+		MVRESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=8.0, core=true, t24Name=MVRESERVED2)
+	}
+	DX_GROUPING__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_GROUPING__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=INPUTTER)
+	}
+	DX_GROUPING__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=19.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Holds index of Derivatives Contract Codes against their Mnemonic Codes.
+
+Mnemonics for the Derivatives Contracts are set within the DX.CONTRACT.MASTER application. */
+	DX_MNEMONIC_CONTRACT
+		@t24:i (t24Name=DX.MNEMONIC.CONTRACT, level=I, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Mnemonic Code for Contract - as held in the MNEMONIC field of DX.CONTRACT.MASTER record, . */
+		MNEMONIC -> DX_Configuration:DX_MNEMONIC_CONTRACT PK required
+			@i18n:Label (en=Mnemonic)
+			@i18n:Tooltip (en="The alternate short way of calling the record")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=MNE, t24Name=MNEMONIC)
+		/* Contract Code
+
+DX.CONTRACT.MASTER id. */
+		CONTRACT_CODE -> DX_Configuration:DX_CONTRACT_MASTER
+			@i18n:Label (en=Contract)
+			@i18n:Tooltip (en="Identifies the contract code of the transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, t24Name=CONTRACT.CODE)
+	}
+	/* Holds index of Derivatives Exchanges against their Mnemonic Codes.
+
+Mnemonics for the Exchanges are set within the DX.EXCHANGE.MASTER application. */
+	DX_MNEMONIC_EXCHANGE
+		@t24:i (t24Name=DX.MNEMONIC.EXCHANGE, level=I, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Mnemonic Code for Exchange - as held in the MNEMONIC field of DX.EXCHANGE.MASTER record. */
+		MNEMONIC -> DX_Configuration:DX_MNEMONIC_EXCHANGE PK required
+			@i18n:Label (en=Mnemonic)
+			@i18n:Tooltip (en="The alternate short way of calling the record")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=MNE, t24Name=MNEMONIC)
+		/* DX.EXCHANGE.MASTER id. */
+		EXCHANGE -> DX_Configuration:DX_EXCHANGE_MASTER
+			@i18n:Label (en="Exchange Name")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, t24Name=EXCHANGE)
+	}
+	/* This record holds the user-defined fields which will appear on orders and trades associated with this option type and the routine which is to be run during closeout when the EXOTIC.EVENT flag is set. */
+	DX_OPTION_TYPE
+		@t24:i (t24Name=DX.OPTION.TYPE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The record key - option type.  Can be up to 35 alphanumeric characters. */
+		OPTION_TYPE -> DX_Configuration:DX_OPTION_TYPE PK required
+			@i18n:Label (en="Call or Put")
+			@i18n:Tooltip (en="Type of option to be chosen like call or put")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=OPTION.TYPE)
+		DESCRIPTION -> byValue DX_Configuration:DX_OPTION_TYPE__DESCRIPTION *
+		SHORT_DESC -> byValue DX_Configuration:DX_OPTION_TYPE__SHORT_DESC *
+		RESERVED_15 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=3.0, core=true, t24Name=RESERVED.15)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=4.0, core=true, t24Name=RESERVED.14)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=5.0, core=true, t24Name=RESERVED.13)
+		RESERVED_12 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=6.0, core=true, t24Name=RESERVED.12)
+		RESERVED_11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=7.0, core=true, t24Name=RESERVED.11)
+		RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=8.0, core=true, t24Name=RESERVED.10)
+		RESERVED_09 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=9.0, core=true, t24Name=RESERVED.09)
+		RESERVED_08 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=10.0, core=true, t24Name=RESERVED.08)
+		USR_FLD_NAME -> byValue DX_Configuration:DX_OPTION_TYPE__USR_FLD_NAME *
+		RESERVED_07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=18.0, core=true, t24Name=RESERVED.07)
+		/* A user defined program or API which is triggered during closeout processing when the EXOTIC.EVENT flag is set on a DX.ORDER or DX.TRADE record associated with this option type.
+
+Validation Rules
+
+Must be a valid record on DX.OBJECT.LIBRARY */
+		CO_PGM -> DX_Foundation:DX_OBJECT_LIBRARY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, businessType=A, t24Name=CO.PGM)
+		RESERVED_06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=20.0, core=true, t24Name=RESERVED.06)
+		RESERVED_05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=21.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=22.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=23.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=24.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=25.0, core=true, t24Name=RESERVED.01)
+		OVERRIDE -> byValue DX_Configuration:DX_OPTION_TYPE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=28.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=29.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Configuration:DX_OPTION_TYPE__INPUTTER *
+		DATE_TIME -> byValue DX_Configuration:DX_OPTION_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=32.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=33.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=34.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=35.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=36.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_OPTION_TYPE__DESCRIPTION
+	{
+		/* A description of the purpose of this record/option type
+Validation Rules
+
+Up to 35 characters
+Mandatory */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	DX_OPTION_TYPE__SHORT_DESC
+	{
+		/* A short description for this option/record type
+Validation Rules
+
+Up to 12 characters */
+		SHORT_DESC : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.DESC)
+	}
+	DX_OPTION_TYPE__USR_FLD_NAME
+	{
+		/* Name of the user field. The key to a record in DX.USR.FLD.OPT, and will then default in the rest of the USR.FLD. . . fields.
+
+For example, if storing the FX Kick in rate on an option type, this could be called "KI.RATE".
+
+Validation Rules
+
+Must be a valid DX.USR.FLD.OPT record.
+
+Up to 35 characters */
+		USR_FLD_NAME -> DX_Exotics:DX_USR_FLD_OPT
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, businessType=A, t24Name=USR.FLD.NAME)
+		/* Reserved for future use. */
+		USR_RSVD_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=12.0, core=true, t24Name=USR.RSVD.02)
+		/* The user defined prompt for the USR.FLD.VAL field e.g. "FX Kick In Rate".
+
+Defaulted from the DX.USR.FLD.OPT record specified in USR.FLD.NAME.
+
+Validation Rules
+
+No Duplicates     Allowed */
+		USR_FLD_TEXT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=USR.FLD.TEXT, mvSvExpansionAccess=NOMODIFY)
+		/* Defines if the value of the user defined field is to used as a component of the exotic options price and position keys.
+
+Defaulted from the DX.USR.FLD.OPT record specified in USR.FLD.NAME.
+
+Validation Rules
+
+Value can be YES or blank, by default left blank. */
+		USR_FLD_PRICE : DX_Configuration:DX_OPTION_TYPE__USR_FLD_NAME__USR_FLD_PRICE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=14.0, core=true, t24Name=USR.FLD.PRICE, mvSvExpansionAccess=NOMODIFY)
+		/* User field minimum length. Defaults from the DX.USR.FLD.OPT record specified in USR.FLD.NAME.
+
+This value should be less than the value held in  USR.VAL.MAX.
+
+Validation Rules
+
+Any number between 1 and 99. */
+		USR_FLD_MIN : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=15.0, core=true, t24Name=USR.FLD.MIN)
+		/* User field length.  Defaults from the DX.USR.FLD.OPT record specified in USR.FLD.NAME.
+
+This value in this field should be greater than that held in USR.VAL.MIN
+
+Validation Rules
+
+Defaults to the value 35.  Any number between 1 and 99. */
+		USR_FLD_MAX : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=16.0, core=true, t24Name=USR.FLD.MAX)
+		/* Reserved for future use. */
+		USR_RSVD_01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, core=true, t24Name=USR.RSVD.01)
+	}
+	DX_OPTION_TYPE__OVERRIDE
+	{
+		/* Holds override messages generated when accepting overrides on previous validations of this record.
+
+System generated field (non-inputtable). */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=27.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_OPTION_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=30.0, core=true, t24Name=INPUTTER)
+	}
+	DX_OPTION_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=31.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This parameter file is the central point of control for the derivatives module.
+
+Information from here either, controls, or is inherited by other applications in the derivatives module. */
+	DX_PARAMETER
+		@t24:i (t24Name=DX.PARAMETER, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The key to the file.
+
+Currently "SYSTEM" */
+		DX_SYSTEM -> DX_Configuration:DX_PARAMETER PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, t24Name=DX.SYSTEM)
+		/* This field defines how the system should post initial and variation margins. If this field is set to YES then when a new margin figure has been calculated, the difference between the previous margin amount and the new amount will be posted. If this field is set to NO then the previous margin amount will be reversed and the new margin amount will be posted.
+Margins are only posted during the End Of Exchange or the End Of Day processing, other re-valuations will report the new margin figures but no postings are created.
+Validation Rules
+
+3 character either YES/ NO */
+		MARGIN_DIFFERENCE : DX_Configuration:DX_PARAMETER__MARGIN_DIFFERENCE
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=1.0, core=true, t24Name=MARGIN.DIFFERENCE)
+		PRICE_ORDER -> byValue DX_Configuration:DX_PARAMETER__PRICE_ORDER *
+		PRICE_TO_STORE -> byValue DX_Configuration:DX_PARAMETER__PRICE_TO_STORE *
+		/* Where Margin payments are reversed and re-booked each day, if this option is set to YES, each of the reversal entries for the suspense accounts are put through the exact suspense account from which they are being reversed, regardless of direction, otherwise all DRs are put through the DR suspense account and all CRs are put through the CR suspense account.
+If the suspense accounts are set up such that both debits and credits go through the same account, then this parameter has no effect on the system. */
+		MARGIN_NETTING : DX_Configuration:DX_PARAMETER__MARGIN_NETTING
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=5.0, core=true, t24Name=MARGIN.NETTING)
+		ORTR_OV_RPR -> byValue DX_Configuration:DX_PARAMETER__ORTR_OV_RPR *
+		/* If specified, this API will be invoked during valuation of a futures position as reported in SC.POS.ASSET and associated valuation tables.
+The arguments passed to the API are ESTIMATION.VAL,MARKET.PRICE,INT.COST.PRICE,NO.LOTS,R.DX.CONTRACT.MASTER
+ESTIMATION.VAL is to be returned by the API as the estimated valuation in trade currency in internal T24 format
+MARKET.PRICE is the current market price of the futures contract in trade currency, passed to the API in internal T24 format
+INT.COST.PRICE is the cost price of this position in trade currency, passed to the API in internal T24 format
+NO.LOTS is the number of lots held in this position, passed to the API
+CONTRACT.SIZE is the contract size as held on the corresponding DX.CONTRACT.MASTER record, passed to the API
+Please note that this API is not invoked during valuation of an option. */
+		FUT_EST_API -> DX_Foundation:DX_OBJECT_LIBRARY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, businessType=A, t24Name=FUT.EST.API)
+		/* If the user requires the Suppression of the variation margin (profit and loss) the flag should be set to YES.
+Validation Rules
+
+3 Characters YES/NO */
+		SUPPRESS_VM_POST : DX_Configuration:DX_PARAMETER__SUPPRESS_VM_POST
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=8.0, core=true, t24Name=SUPPRESS.VM.POST)
+		/* If the user requires the Suppression of the initial margin the flag should be set to YES.
+Validation Rules
+
+3 Characters YES/NO */
+		SUPPRESS_IM_POST : DX_Configuration:DX_PARAMETER__SUPPRESS_IM_POST
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=9.0, core=true, t24Name=SUPPRESS.IM.POST)
+		/* As well as the standard method of posting the calculated Variation margin (P&L Category in the currency of the contract), several choices are available:
+PL (default) - P&L calculated in contract currency. Posted to P&L Category in DX.EVENT.TYPE "VM"
+PLLCCY - P&L calculated in contract currency, then converted to Local Currency Posted to P&L Category in DX.EVENT.TYPE "VM"
+PLRP - P&L calculated in contract currency. Posted to P&L Category in DX.EVENT.TYPE "VM" Sign reversed, posted to Premium Payment account (maintains "replacement value")
+PLLCCYRP - P&L calculated in contract currency, then converted to Local Currency Posted to P&L Category in DX.EVENT.TYPE "VM" Sign reversed, posted to Premium Payment account in Premium ccy (maintains "replacement value")
+
+Validation Rules
+
+Choose from PL, PLLCCY, PLRP or PLLCCYRP */
+		VM_POST_STYLE : DX_Configuration:DX_PARAMETER__VM_POST_STYLE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=10.0, core=true, t24Name=VM.POST.STYLE)
+		/* The Derivatives module offers the ability to choose two styles of contingent asset/liability posting for own-book trading.The DX.PARAMETER field CONT.ULYING.VAL has the following effect:
+
+If CONT.ULYING.VAL is set to "NO":
+Existing style - Only for futures and options with premium unposted
+
+For Forex Derivatives (DX.CONTRACT.MASTER DELIVERY.METHOD = "CASH") - CR or DB CRF asset type Amount - cost of position or contingent value currency - contract currency
+
+For all other Derivatives - CR or DB CRF asset type Amount - cost of position or contingent value Currency - contract currency
+
+If CONT.ULYING.VAL is set to "YES":
+New style for all trades
+
+For Forex Derivatives (DX.CONTRACT.MASTER DELIVERY.METHOD = "CASH") - CR CRF asset type Amount - underlying receivable ccy amount currency - receivable currency DB CRF Amount - underlying payable ccy amount currency - payable currency
+
+For all other Derivatives - CR and DB CRF asset type Amount - cost of position currency - contract currency
+
+The CRF asset types used are:
+
+DXFUTBUY
+DXFUTSELL
+DXOPTBUY
+DXOPTSELL
+Validation Rules
+
+3 Characters, YES/NO */
+		CONT_ULYING_VAL : DX_Configuration:DX_PARAMETER__CONT_ULYING_VAL
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=11.0, core=true, t24Name=CONT.ULYING.VAL)
+		/* Only required for users running on jBase 4.1.4.10
+
+jBase 4.1.4.10 has incompatabilityes with Derivatives Montly Date format. This is not a problem in lower releases and has been fixed in higher released of jBase.
+
+Values
+D         - Use this option for internal processing of Dates in  jBase 4.1.4.10
+DYMD - This is the default/standard option. */
+		DCLC_MSK : DX_Configuration:DX_PARAMETER__DCLC_MSK
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=12.0, core=true, t24Name=DCLC.MSK)
+		/* If it is 1 or null then costprice in sc.pos.asset will be calculated as COST.PRICE = PRICE + (COMMISSION.AMOUNT / NOMINALS) ,  If it is 2 then costprice will be calculated as COST.PRICE = ((PRICE * CONTRACT.SIZE) + (COMMISSION.AMOUNT / NOMINALS) / CONTRACT.SIZE).
+
+Values
+1 , 2 or NULL */
+		COST_PR_METHOD -> DX_Foundation:DX_OBJECT_LIBRARY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, businessType=A, t24Name=COST.PR.METHOD)
+		FEEDS_TO_CLEAR -> byValue DX_Configuration:DX_PARAMETER__FEEDS_TO_CLEAR *
+		/* Methods to calculate Estimation and Regulatory Fees
+One:  Will Not Include Contract Size for calculation
+Two:  Will Include Contract Size for calculation */
+		EST_METHOD : DX_Configuration:DX_PARAMETER__EST_METHOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=15.0, core=true, t24Name=EST.METHOD)
+		/* If set to 'New' and MARGIN.DIFF set to Yes, local currency amount of VM
+is retrieved from field VM.LCY.AMOUNT in DX.TRANSACTION.
+Otherwise, local ccy amount is arrived using rate in PREV.VM.EXC */
+		VM_REVERSAL_STYLE : DX_Configuration:DX_PARAMETER__VM_REVERSAL_STYLE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=16.0, core=true, t24Name=VM.REVERSAL.STYLE)
+		/* User-defined API to append additional accounting entries as required to core accounting entries raised by T24. */
+		ACCOUNTING_API -> DX_Foundation:DX_OBJECT_LIBRARY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=17.0, core=true, businessType=A, t24Name=ACCOUNTING.API)
+		SPECIAL_RATE -> byValue DX_Configuration:DX_PARAMETER__SPECIAL_RATE *
+		/* It controls the number of Restrictions to be executed to restrict a transaction
+Single - When the first restriction is met stops further checks and reports
+Multiple - Executes all the restrictions and reports
+Blank or Null - Represents Single. */
+		CONSTRAINT_FAILURE : DX_Configuration:DX_PARAMETER__CONSTRAINT_FAILURE
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=19.0, core=true, t24Name=CONSTRAINT.FAILURE)
+		/* It controls the number of Permissions to be met to allow a transaction to be completed
+Single - If single permission is met, will allow the transaction to complete
+Blank or Null - All permissions should be met, to allow the transaction to complete */
+		GRANT_PERMISSION : DX_Configuration:DX_PARAMETER__GRANT_PERMISSION
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=20.0, core=true, t24Name=GRANT.PERMISSION)
+		/* This field defines how the system should calculate the average price of a position. The average price is shown on reports and enquires for each specific contract held by a customer.
+There are three methods that can be used to calculate the average price. These are
+NORMAL         Weighted average of absolute value of prices of trades in         position; weighted by number of lots traded
+UNWEIGHTED         Straight average of absolute value of prices of trades in         position by number of trades
+PURCHASE         Average of buy prices in position only; weighted by the         number of lots traded.
+4.   NONE
+No average price will be calculated. This will apply mainly for options with deferred premium payments and for futures      contracts, as average price is not applicable.
+5.   OPENING
+
+
+Note. In phase one of the module only NORMAL is supported.
+Validation Rules
+
+Up to 10 character field.
+Must be one of NORMAL, UNWEIGHTED, PURCHASE, NONE AND OPENING */
+		AVE_PRICE_METHOD : DX_Configuration:DX_PARAMETER__AVE_PRICE_METHOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=21.0, core=true, t24Name=AVE.PRICE.METHOD)
+		/* This field controls the VALUE.DATE which is applied to statement entries for premium posting when premium is due on SETTLEMENT.
+When this field is set to Default the value date will be: settlement date (today) + days offset
+Otherwise the value date will be: trade date + days offset
+Possible Values are Default and null */
+		PREM_SETT : DX_Configuration:DX_PARAMETER__PREM_SETT
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=22.0, core=true, t24Name=PREM.SETT)
+		/* This field defines after how many calendar days the historical position records will be automatically deleted. Storing these records enables reports and enquiries to be performed on historical positions.
+After the specified number of days, the End of Day routine will delete the position records.
+Input must be a valid number.
+Validation Rules
+
+Up to 3 numeric characters. (Optional input.) */
+		HOLD_POSN_HIST : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=23.0, core=true, t24Name=HOLD.POSN.HIST)
+		/* This field specifies the PRICE.SET that will be checked to ensure all the prices required for the end of exchange revaluation have been updated. When the end of exchange process is started any prices in this set required for revaluation that are not present or have not been updated on the run date will be listed in a warning report.
+Input must be a valid price set.
+Validation Rules
+
+Up to 15 characters. Multivalue field associated with         DX.PRICE.SET application.
+Mandatory input. */
+		PRICE_CHECK_SET -> DX_Pricing:DX_PRICE_SET required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=24.0, core=true, businessType=A, t24Name=PRICE.CHECK.SET)
+		/* This field specifies the default PRICE.SET that will be used when the end of exchange process is run. When the end of exchange process is started this will be the default price set to use for revaluation however it maybe overridden.
+Input must be a valid price set.
+Validation Rules
+
+Up to 15 characters. Multivalue field associated with DX.PRICE.SET application.
+Mandatory input */
+		EOE_PRICE_SET -> DX_Pricing:DX_PRICE_SET required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=25.0, core=true, businessType=A, t24Name=EOE.PRICE.SET)
+		/* This field specifies the default PRICE.SET that will be used when an on-line revaluation process is run. When an on-line revaluation is requested this will be the default price set to use however it maybe overridden.
+Input must be a valid price set.
+Validation Rules
+
+Up to 15 characters. Multivalue field associated with DX.PRICE.SET application.
+Mandatory input. */
+		ONLINE_PRICE_SET -> DX_Pricing:DX_PRICE_SET required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=26.0, core=true, businessType=A, t24Name=ONLINE.PRICE.SET)
+		POS_DATE -> byValue DX_Configuration:DX_PARAMETER__POS_DATE *
+		/* Controls Event Based reporting.  Concerns whether the reporting files DX.REP.POS.ACTIVITY and DX.REP.POS.ACT.HIST are to be updated or not. */
+		REP_UPDATES : DX_Configuration:DX_PARAMETER__REP_UPDATES
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=29.0, core=true, t24Name=REP.UPDATES)
+		/* This represents the number of seconds that a transaction can await processing before being deemed to have timed out. This field is non-mandatory and if left empty, no timeout checking is made. */
+		STP_TIMEOUT : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=30.0, core=true, t24Name=STP.TIMEOUT)
+		/* If this field is set to 'Yes' it will use OFS.GLOBUS.MANAGER else by default it will use OFS.BULK.QUEUE.MANAGER for executing DX transaction */
+		OGM_SUPPORT : DX_Configuration:DX_PARAMETER__OGM_SUPPORT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=31.0, core=true, t24Name=OGM.SUPPORT)
+		RP_GROUP_PARTS -> byValue DX_Configuration:DX_PARAMETER__RP_GROUP_PARTS *
+		/* Set this option to enable Straight-Through-Processing.  Applications enabled for STP produce child records in INAU status rather than IHLD status. */
+		STP_ENABLED : DX_Configuration:DX_PARAMETER__STP_ENABLED
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=33.0, core=true, t24Name=STP.ENABLED)
+		STP_ENABLED_APPS -> byValue DX_Configuration:DX_PARAMETER__STP_ENABLED_APPS *
+		/* If set to YES, automatically authorise closeout when exercising internal transfers. */
+		AUTO_CO_TRANS : DX_Configuration:DX_PARAMETER__AUTO_CO_TRANS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=35.0, core=true, t24Name=AUTO.CO.TRANS)
+		/* Blocking of the Security position happens during the authorised or the unauthorised stage based upon this field.
+
+If this field is set to 'YES', the position blocking will happen during authorisation otherwise it will happen while commiting the DX.TRADE. */
+		BLOCK_AUTH : DX_Configuration:DX_PARAMETER__BLOCK_AUTH
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=36.0, core=true, t24Name=BLOCK.AUTH)
+		/* This field specifies if the system should post initial and variation amounts to a separate "margin" account or to the customers "normal" account.
+If this field is set to YES then all initial and variation margin postings created by an End OF Exchange or End Of Day revaluations will be posted to the margin account, specified in the associated MARGIN.ACC.CCY and MARGIN.ACCOUNT fields in the DX.CUSTOMER application. If this field is set to NO then the initial and variation margin amount will be posted to the normal customer accounts.
+Setting this field to yes enables the use of the maintenance margin facility to reduce the payments required by a customer.
+Validation Rules
+
+Up to a 3 character field.
+Must be one of YES or NO
+Default to NO */
+		USE_MARGIN_ACCT : DX_Configuration:DX_PARAMETER__USE_MARGIN_ACCT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=37.0, core=true, t24Name=USE.MARGIN.ACCT)
+		/* No of days to hold trade and transaction records in their live files after the trade has been marked inactive.
+Validation Rules
+
+Up to 3 characters */
+		HLD_TRADE_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=38.0, core=true, t24Name=HLD.TRADE.DAYS)
+		/* No of Days to hold revaluation details on the live files before deleting them
+Validation Rules
+
+Up to 3 characters */
+		HLD_REVAL_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=39.0, core=true, t24Name=HLD.REVAL.DAYS)
+		/* No of Days to hold revaluation details on the live files before liquidating them to history
+Validation Rules
+
+Up to 3 characters */
+		HLD_EOE_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=40.0, core=true, t24Name=HLD.EOE.DAYS)
+		/* No of Days to hold historical revaluation details DX.COB.WORKFILE.HISTORY file before deletion
+Validation Rules
+
+Up to 3 characters */
+		HLD_WORK_HIST_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=41.0, core=true, t24Name=HLD.WORK.HIST.DAYS)
+		/* No of days to hold a price record held whose PRICE.SET is held in PRICE.TO.STORE before liquidating it.
+Validation Rules
+
+Up to 3 characters */
+		HLD_PS_PRI_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=42.0, core=true, t24Name=HLD.PS.PRI.DAYS)
+		/* No of days to hold an ad-hoc price record held whose PRICE.SET is not held in PRICE.TO.STORE before liquidating /deleting it.
+Validation Rules
+
+Up to 3 characters */
+		HLD_AD_PRI_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=43.0, core=true, t24Name=HLD.AD.PRI.DAYS)
+		/* No of days to hold Price Input records before deleting them.
+Validation Rules
+
+Up to 3 characters */
+		HLD_PRI_INP_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=44.0, core=true, t24Name=HLD.PRI.INP.DAYS)
+		/* No of days before price checking routine should complain about prices not being updated.
+Validation Rules
+
+Up to 3 characters */
+		CHK_PRICE_UPD : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=45.0, core=true, t24Name=CHK.PRICE.UPD)
+		/* This field dictates which value is associated to a trade to update the Limits system.
+Contingent         Calculates a value for the trade using CONTINGENT.VALUE         specified in DX.CONTRACT.MASTER         number of lots * contingent value
+Value         Calculates a value for the trade based on the following         principles :-         For futures: number of lots * internal price         For options (buyer): number of lots * internal price         For options (seller): number of lots * internal strike         price
+Validation Rules
+
+Must be one of VALUE or CONTINGENT */
+		LIM_AMT_VAL_CONT : DX_Configuration:DX_PARAMETER__LIM_AMT_VAL_CONT
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=46.0, core=true, t24Name=LIM.AMT.VAL.CONT)
+		ALT_IND_NAME -> byValue DX_Configuration:DX_PARAMETER__ALT_IND_NAME *
+		/* If specified, this API will be invoked during closeout/exercise/expire/assignment of the DX.TRADE.  The API has one argument, the DX.CLOSEOUT record, as a dynamic array.
+The purpose of this API is to update the TAX.CODE, TAX.TYPE, TAX.ACY and TAX.TCY fields on the DX.CLOSEOUTrecord.  Any changes to other fields on the DX.CLOSEOUT record by the API will be ignored by the core processing.
+Please note that the settings of these fields do not affect the values input into the DX.TRADE tax fields, as theseonly affect tax liable at trade inception. */
+		CLOSEOUT_API -> DX_Foundation:DX_OBJECT_LIBRARY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=50.0, core=true, businessType=A, t24Name=CLOSEOUT.API)
+		/* If no commissions are matched, there is functionality to allow other commissions to be searched. If set to 'NO', the application will stop searching after the first match is found. If set to 'YES', the application will search all commissions to see if a match can be made.
+Validation Rules
+
+Input must be either YES/NO
+If no input, field will default to NO */
+		SEARCH_ALL_COMMSN : DX_Configuration:DX_PARAMETER__SEARCH_ALL_COMMSN
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=51.0, core=true, t24Name=SEARCH.ALL.COMMSN)
+		/* Specifies whether forward postings held in DX.FWD.POSTINGS should be posted at the start or at the end of the business day.
+Controls whether the postings are generated in DX.END.OF.DAY or DX.START.OF.DAY in the batch.
+Validation Rules
+
+Input must be either START/END
+If left NULL, field will default to END */
+		FWD_POST_EOD : DX_Configuration:DX_PARAMETER__FWD_POST_EOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=52.0, core=true, t24Name=FWD.POST.EOD)
+		/* A valid routine should be selected, this can be tested using DX.GET.OBJECT the object should be attached to the application DX.ORDER.
+Validation Rules
+Input must be a valid record on DX.OBJECT.LIBRARY */
+		ORD_ASSIGN_PGM -> DX_Foundation:DX_OBJECT_LIBRARY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=53.0, core=true, businessType=A, t24Name=ORD.ASSIGN.PGM)
+		/* If the checking of a customers availibility of funds is required enter 'YES' otherwise enter 'NO'
+Validation Rules
+
+3 Characters YES/NO */
+		CHECK_CUST_FUNDS : DX_Configuration:DX_PARAMETER__CHECK_CUST_FUNDS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=54.0, core=true, t24Name=CHECK.CUST.FUNDS)
+		/* This field defines the OFS (Open Financial Services providing an interface to allow update and interrogation of T24 applications) source.
+i.e. Blocking of Securities
+Validation Rules
+
+15, A */
+		OFSSOURCE -> EB_Interface:OFS_SOURCE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=55.0, core=true, businessType=A, t24Name=OFSSOURCE)
+		/* This field defines how  the user requires the SC.POS.ASSET file updated.
+By either Transactional which is transaction by transaction or Positional or
+BUY.SELL.POS
+which updates SC.POS.ASSET  for total long and short positions separately
+Validation Rules
+
+Either Postional or Transactional or
+BUY.SELL.POS
+
+Upto 13 characters */
+		SC_ASSET_UPD : DX_Configuration:DX_PARAMETER__SC_ASSET_UPD
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=56.0, core=true, t24Name=SC.ASSET.UPD)
+		STK_UPD_TYPE -> byValue DX_Configuration:DX_PARAMETER__STK_UPD_TYPE *
+		/* This field holds the name of the routine which calculates values to be shown in NET. COST field in DX. TRANSACTION.
+Validation Rules
+
+The routine has to be defined as API in DX.OBJECT.LIBRARY */
+		COST_CALC_API -> DX_Foundation:DX_OBJECT_LIBRARY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=58.0, core=true, businessType=A, t24Name=COST.CALC.API)
+		/* This field is used to store the Credit.Exposure Calculation API  routine (DX.BB.CREDIT.EXPOSURE). This API routine should be defined in DX.OBJECT.LIBRARY
+Validation Rules
+
+
+Inputtable field, upto 35 Alphanumeric characters
+
+If the Credit.Exposure calculation is needed,       then this field should hold the API routine DX.BB.CREDIT.EXPOSURE */
+		CR_EXP_CALC_API -> DX_Foundation:DX_OBJECT_LIBRARY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=60.0, core=true, businessType=A, t24Name=CR.EXP.CALC.API)
+		/* This field controls creation of DX trades at average price on filling of DX order. This value defaults to DX.ORDER
+Validation Rules
+
+Valid inputs are YES      and NO */
+		ORD_CREATE_TRADES : DX_Configuration:DX_PARAMETER__ORD_CREATE_TRADES
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=61.0, core=true, t24Name=ORD.CREATE.TRADES)
+		/* This field defines whether the back to back closeout processing has been activated across the derivative module. This is the global setting which prevails over any other setup in any other application viz. DX.CONTRACT.CLASS, DX.CONTRACT.MASTER etc
+Validation Rules
+
+Valid inputs are YES      and NO */
+		B2B_ACTIVE : DX_Configuration:DX_PARAMETER__B2B_ACTIVE
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=62.0, core=true, t24Name=B2B.ACTIVE)
+		/* Control the mechanism which copies the LOCAL.REF field on DX.ORDER into the generated records in DX.TRADE
+
+3 Characters YES/NO */
+		COPY_LOCAL_REF : DX_Configuration:DX_PARAMETER__COPY_LOCAL_REF
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=63.0, core=true, t24Name=COPY.LOCAL.REF)
+		USE_CATEG_CODE : DX_Configuration:DX_PARAMETER__USE_CATEG_CODE
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=64.0, core=true, t24Name=USE.CATEG.CODE)
+		EXCH_LIMIT_UPD : DX_Configuration:DX_PARAMETER__EXCH_LIMIT_UPD
+			@i18n:Label (en="Update Limit for ETD")
+			@i18n:Tooltip (en="Update Limit for derivatives trades")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=65.0, core=true, t24Name=EXCH.LIMIT.UPD)
+		STP_VERSION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=66.0, core=true, t24Name=STP.VERSION)
+		REINVOICE : DX_Configuration:DX_PARAMETER__REINVOICE
+			@i18n:Label (en=Reinvoice)
+			@i18n:Tooltip (en="Reinvoice Commission and Charges")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=67.0, core=true, t24Name=REINVOICE)
+		MARGIN_CALC_RTN : T24BusinessTypes:A
+			@i18n:Label (en="Margin Calculation Routine")
+			@i18n:Tooltip (en="Margin Calculation Routine")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=68.0, core=true, t24Name=MARGIN.CALC.RTN)
+		NETTING_REQD : DX_Configuration:DX_PARAMETER__NETTING_REQD
+			@i18n:Label (en="Netting Required")
+			@i18n:Tooltip (en="Netting Required")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=69.0, core=true, t24Name=NETTING.REQD)
+		SAME_STRIKE : DX_Configuration:DX_PARAMETER__SAME_STRIKE
+			@i18n:Label (en="Same Strike")
+			@i18n:Tooltip (en="Same Strike")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=70.0, core=true, t24Name=SAME.STRIKE)
+		MATURITY_DAYS : mml:Integer
+			@i18n:Label (en="Maturity Days")
+			@i18n:Tooltip (en="Maturity Days")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=71.0, core=true, t24Name=MATURITY.DAYS)
+		EXPOSURE_CALC : DX_Configuration:DX_PARAMETER__EXPOSURE_CALC
+			@i18n:Label (en="Exposure Calculation")
+			@i18n:Tooltip (en="Exposure Calculation")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=72.0, core=true, t24Name=EXPOSURE.CALC)
+		HLD_CONTRACT_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=73.0, core=true, t24Name=HLD.CONTRACT.DATE)
+		USE_SC_MARGIN : DX_Configuration:DX_PARAMETER__USE_SC_MARGIN
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=74.0, core=true, t24Name=USE.SC.MARGIN)
+		CLOSEOUT_VERSION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=75.0, core=true, t24Name=CLOSEOUT.VERSION)
+		IGNORE_PORT_VAL -> byValue DX_Configuration:DX_PARAMETER__IGNORE_PORT_VAL *
+		VM_REV_TYPE : DX_Configuration:DX_PARAMETER__VM_REV_TYPE
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=77.0, core=true, t24Name=VM.REV.TYPE)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=78.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=79.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=80.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Configuration:DX_PARAMETER__INPUTTER *
+		DATE_TIME -> byValue DX_Configuration:DX_PARAMETER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=83.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=84.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=85.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=86.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=87.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_PARAMETER__PRICE_ORDER
+	{
+		/* This field defines the order that the PRICE.SETS should be searched in order to find missing prices when running the End Of Exchange process.
+Input must be a valid price set.
+
+
+Validation Rules
+
+Up to 12 characters. Multivalue field associated with DX.PRICE.SET         application. (Optional input) */
+		PRICE_ORDER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=2.0, core=true, t24Name=PRICE.ORDER)
+	}
+	DX_PARAMETER__PRICE_TO_STORE
+	{
+		/* This field specifies when the prices stored in the PRICE.SETS should be deleted from the system. Unless specified no prices will be deleted.
+This field, along with the associated PRICE.DAYS filed specifies how long the prices should be stored in the system. After the specfied number of days, the End of Day routine will delete the specified price sets.
+Input must be a valid price set.
+Validation Rules
+
+Up to 12 characters multi value field associated with PRICE.SET. (Optional input) */
+		PRICE_TO_STORE -> DX_Pricing:DX_PRICE_SET
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=3.0, core=true, businessType=A, t24Name=PRICE.TO.STORE)
+		/* In association with the PRICE TO STORE field this defines after how many business days the PRICE SETS should be deleted.
+After the specified number of days, the End of Day routine will delete the specified price sets.
+Input must be a valid number.
+Validation Rules
+
+Numeric up to 3 digits. Multivalue field associated with PRICE TO STORE. (Optional input) */
+		PRICE_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=PRICE.DAYS)
+	}
+	DX_PARAMETER__ORTR_OV_RPR
+	{
+		/* This field is for TEMENOS internal use only.
+
+Before using this field please consult with Temenos Helpdesk. */
+		ORTR_OV_RPR : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=6.0, core=true, t24Name=ORTR.OV.RPR)
+	}
+	DX_PARAMETER__FEEDS_TO_CLEAR
+	{
+		/* List of manual Cash Settlement Input Feeds to be cleared during DX COB processing */
+		FEEDS_TO_CLEAR : DX_Configuration:DX_PARAMETER__FEEDS_TO_CLEAR__FEEDS_TO_CLEAR
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=14.0, core=true, t24Name=FEEDS.TO.CLEAR)
+	}
+	DX_PARAMETER__SPECIAL_RATE
+	{
+		/* This Field Indicates whether the Best Rate has to be applied to or not. If the Field is left Blank Mid Rate will be Applied
+Validation Rules
+
+
+Upto 12 characters
+
+Can take one of the below values
+
+CUSTOMER, BROKER, DEALER, EXCHANGE, COUNTERPARTY */
+		SPECIAL_RATE : DX_Configuration:DX_PARAMETER__SPECIAL_RATE__SPECIAL_RATE
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=18.0, core=true, t24Name=SPECIAL.RATE)
+	}
+	DX_PARAMETER__POS_DATE
+	{
+		/* NO-INPUT field.
+
+This field is part of a multivalue set with POS.COMPANY. */
+		POS_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=27.0, core=true, t24Name=POS.DATE)
+		/* NO-INPUT field.
+Holds company mnemonic for company to which the POS.DATE in the related multivalue corresponds.
+
+See POS.DATE. */
+		POS_COMPANY -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=9, sysNumber=28.0, core=true, businessType=A, t24Name=POS.COMPANY)
+	}
+	DX_PARAMETER__RP_GROUP_PARTS
+	{
+		/* Allows the user to specify the granularity of the chunks in which DX.REP.POSITION is rebuilt.
+Accepts the following values: ALL,NONE,OPTION.TYPE,CONTRACT.CODE,TRADE.CCY,MATURITY.DATE,CALL.PUT,STRIKE. */
+		RP_GROUP_PARTS : DX_Configuration:DX_PARAMETER__RP_GROUP_PARTS__RP_GROUP_PARTS
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=32.0, core=true, t24Name=RP.GROUP.PARTS)
+	}
+	DX_PARAMETER__STP_ENABLED_APPS
+	{
+		/* Applications which will be enabled for Straight-Through-Processing. Must be a valid T24 Application. */
+		STP_ENABLED_APPS -> EB_SystemTables:PGM_FILE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=34.0, core=true, businessType=PG, t24Name=STP.ENABLED.APPS, typeModifiers=H)
+	}
+	DX_PARAMETER__ALT_IND_NAME
+	{
+		/* Indentifies the alternate for contracts in this system. i.e. CUSIP, ISIN etc.
+Once an ALT.IND.NAME has been entered and committed the ALT.IND.NAME must not be changed or removed. New ALT.IND.NAME may be added.
+In order to stop an ALT.IND.NAME from being used, for example if CUSIP's stoped being used in the system then the associated ALT.IND.VAL can be removed.
+Validation Rules
+
+Up to 35 alpha numeric characters allowed
+No Duplicates allowed
+No change field */
+		ALT_IND_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=47.0, core=true, t24Name=ALT.IND.NAME)
+		/* Identifies a routine used to validate a alternate index routine entered into a contract
+Validation Rules
+
+35, A
+DX.OBJECT.LIBRARY */
+		ALT_IND_VAL -> DX_Foundation:DX_OBJECT_LIBRARY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=48.0, core=true, businessType=A, t24Name=ALT.IND.VAL)
+		/* Defines if the alternative index should default onto the DX.MARKET.PRICE record. */
+		AI_DEFAULT_REQD : DX_Configuration:DX_PARAMETER__ALT_IND_NAME__AI_DEFAULT_REQD
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=49.0, core=true, t24Name=AI.DEFAULT.REQD)
+	}
+	DX_PARAMETER__STK_UPD_TYPE
+	{
+		/* This field controls generation of SC. STOCK. ENTRY records for derivative contracts depending on the underlying defined in relevant
+DX. CONTRACT. MASTER
+Validation Rules
+
+Valid inputs are  CCY, STOCK, FUTURE ,ALL and NULL
+Default set to NULL in which case no SC. STOCK. ENTRY records will be     generated */
+		STK_UPD_TYPE : DX_Configuration:DX_PARAMETER__STK_UPD_TYPE__STK_UPD_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=57.0, core=true, t24Name=STK.UPD.TYPE)
+	}
+	DX_PARAMETER__IGNORE_PORT_VAL
+	{
+		IGNORE_PORT_VAL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=76.0, core=true, t24Name=IGNORE.PORT.VAL)
+	}
+	DX_PARAMETER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=81.0, core=true, t24Name=INPUTTER)
+	}
+	DX_PARAMETER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=82.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_STRATEGY
+		@t24:i (t24Name=DX.STRATEGY, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* It is common to link individual transactions to form trading strategy in derivatives.
+
+These strategies are linked to DX.TRADE
+and depending upon this the combined or individual margin calculation
+will take place.Each client can have their own strategy defined in this parameter.
+Validation Rules
+
+19 alphanumerical      characters
+
+
+mandatory field
+
+should not be a record in DX.EXCHANGE.MASTER */
+		STRATEGY -> DX_Configuration:DX_STRATEGY PK required
+			@i18n:Label (en=Strategy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=STRATEGY)
+		DESCRIPTION -> byValue DX_Configuration:DX_STRATEGY__DESCRIPTION *
+		SHORT_DESC -> byValue DX_Configuration:DX_STRATEGY__SHORT_DESC *
+		/* The name of variation margin routine to be used by the system.
+Validation Rules
+
+Up         to 25 characters, input must be a valid record on the DX.MARGIN.CALC         Application
+The         TYPE field for the DX.MARGIN.CALC record must be set to         &#145;VARIATION&#146; */
+		VAR_MARGIN_CALC -> DX_Margining:DX_MARGIN_CALC
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=3.0, core=true, businessType=A, t24Name=VAR.MARGIN.CALC)
+		/* Initial margin calculation routine. Allows the user to choose variation margin calculation at strategy level if required. The method chosen must be of type INITIAL.
+Validation Rules
+
+Must be a valid entry on DX.MARGIN.CALC. */
+		INIT_MARGIN_CALC -> DX_Margining:DX_MARGIN_CALC
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=4.0, core=true, businessType=A, t24Name=INIT.MARGIN.CALC)
+		/* Are positions in this strategy margined Nett or Gross
+Validation Rules
+
+NETT_GROSS. Default to NETT
+5, Alpha */
+		NETT_GROSS : DX_Configuration:DX_STRATEGY__NETT_GROSS
+			@i18n:Label (en="Nett Gross")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=NETT.GROSS)
+		GEN_DATA_NAME -> byValue DX_Configuration:DX_STRATEGY__GEN_DATA_NAME *
+		/* Reserved For Future Use
+Validation Rules
+
+No Input Field */
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=9.0, core=true, t24Name=RESERVED2)
+		/* Rerserved For Future Use
+Validation Rules
+
+No Input Field */
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=10.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue DX_Configuration:DX_STRATEGY__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue DX_Configuration:DX_STRATEGY__INPUTTER *
+		DATE_TIME -> byValue DX_Configuration:DX_STRATEGY__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=18.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=20.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=21.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DX_STRATEGY__DESCRIPTION
+	{
+		/* Description of the strategy.
+Validation Rules
+
+Up         to 35 characters &#150; multi-field
+Mandatory         Field */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	DX_STRATEGY__SHORT_DESC
+	{
+		/* Short description of the strategy
+Validation Rules
+
+Up         to 15 characters &#150; multi-field
+Mandatory         Field */
+		SHORT_DESC : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.DESC)
+	}
+	DX_STRATEGY__GEN_DATA_NAME
+	{
+		/* Name/ID of a regulatory body, Bank -defined trading limit or valuation/margin method.
+Validation Rules
+
+Up to 15 characters. Must be a valid valuation/margin         method
+Multi-Valued set. */
+		GEN_DATA_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=6.0, core=true, t24Name=GEN.DATA.NAME)
+		/* Code representing this contract in the report/limit/valuation method named above. Multivalued set with GEN.DATA.NAME
+Validation Rules
+
+Up to 35 characters , must be a valid code.
+Multivalued with GEN.DATA.NAME */
+		GEN_DATA_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=GEN.DATA.CODE)
+		/* Reserved For Future Use
+Validation Rules
+
+No Input Field */
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=8.0, core=true, t24Name=RESERVED3)
+	}
+	DX_STRATEGY__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=OVERRIDE)
+	}
+	DX_STRATEGY__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=15.0, core=true, t24Name=INPUTTER)
+	}
+	DX_STRATEGY__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=16.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	DX_CONTRACT_CLASS__B2B_CO_OK : mml:string
+		YES=YES
+		NO=NO
+	DX_CONTRACT_CLASS__CONTRACT_TYPE : mml:string
+		FUTURE=FUTURE
+		OPTION=OPTION
+		FX__OPTION=FX-OPTION
+		SWAPTION=SWAPTION
+		CDS=CDS
+		NONE=NONE
+	DX_CONTRACT_MASTER__CONTRACT_TYPE : mml:string
+		FUTURE=FUTURE
+		OPTION=OPTION
+	DX_CONTRACT_MASTER__DELIVERY_METHOD : mml:string
+		NONE=NONE
+		CASH=CASH
+		PHYSICAL=PHYSICAL
+	DX_CONTRACT_MASTER__PRICE_BASIS : mml:string
+		NORMAL=NORMAL
+		INTEREST=INTEREST
+	DX_CONTRACT_MASTER__MATURITY_TYPE : mml:string
+		DAILY=DAILY
+		MONTHLY=MONTHLY
+		OTHER=OTHER
+	DX_CONTRACT_MASTER__MONTHS_FWD__MAT_MONTHS__MAT_MONTHS : mml:string
+		ALL=ALL
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+		n5=5
+		n6=6
+		n7=7
+		n8=8
+		n9=9
+		n10=10
+		n11=11
+		n12=12
+	DX_CONTRACT_MASTER__OPTION_STYLE : mml:string
+		AMERICAN=AMERICAN
+		EUROPEAN=EUROPEAN
+		CARRIBEAN=CARRIBEAN
+	DX_CONTRACT_MASTER__PARTIAL_ACTIVITY : mml:string
+		YES=YES
+		NO=NO
+	DX_CONTRACT_MASTER__PREM_POST_TIME : mml:string
+		TRADE=TRADE
+		SETTLEMENT=SETTLEMENT
+	DX_CONTRACT_MASTER__SETT_ALLOWED : mml:string
+		YES=YES
+		NO=NO
+	DX_CONTRACT_MASTER__CHG_POST_TIME : mml:string
+		TRADE=TRADE
+		SETTLEMENT=SETTLEMENT
+	DX_CONTRACT_MASTER__INT_RATE_CONTRACT : mml:string
+		YES=YES
+		NO=NO
+	DX_CONTRACT_MASTER__SYSTEM_EXERCISE : mml:string
+		YES=YES
+		NO=NO
+	DX_CONTRACT_MASTER__SYSTEM_EXPIRY : mml:string
+		YES=YES
+		NO=NO
+	DX_CONTRACT_MASTER__AVERAGE_PRICE : mml:string
+		NORMAL=NORMAL
+		UNWEIGHTED=UNWEIGHTED
+		PURCHASE=PURCHASE
+		NONE=NONE
+		OPENING=OPENING
+	DX_CONTRACT_MASTER__ROUNDING : mml:string
+		STANDARD=STANDARD
+		UP=UP
+		DOWN=DOWN
+	DX_CONTRACT_MASTER__B2B_CO_OK : mml:string
+		NO=NO
+		YES=YES
+	DX_CONTRACT_MASTER__MATURITY_DATE : mml:string
+		NULL=NULL
+		CALC_ONLY=CALC.ONLY
+		TABLE_CALC_UPDATE=TABLE.CALC.UPDATE
+		TABLE_ONLY=TABLE.ONLY
+	DX_EVENT_TYPE__USE_FT_TXN_CODE : mml:string
+		Y=Y
+		N=N
+	DX_EVENT_TYPE__TX_ACT_UPD : mml:string
+		NO=NO
+		YES=YES
+		REPORTING=REPORTING
+	DX_EVENT_TYPE__WASH_ACC_TYPE : mml:string
+		NULL=NULL
+		Local=Local
+		Trade=Trade
+	DX_EXCHANGE_MASTER__EXCHANGE_TYPE : mml:string
+		NORMAL=NORMAL
+		OTC=OTC
+	DX_EXCHANGE_MASTER__PREM_POST_TIME : mml:string
+		TRADE=TRADE
+		SETTLEMENT=SETTLEMENT
+	DX_EXCHANGE_MASTER__CHG_POST_TIME : mml:string
+		TRADE=TRADE
+		SETTLEMENT=SETTLEMENT
+	DX_EXCHANGE_MASTER__NETT_GROSS : mml:string
+		GROSS=GROSS
+		NETT=NETT
+	DX_EXCHANGE_MASTER__TRADING_DAYS__TRADING_DAYS : mml:string
+		MONDAY=MONDAY
+		TUESDAY=TUESDAY
+		WEDNESDAY=WEDNESDAY
+		THURSDAY=THURSDAY
+		FRIDAY=FRIDAY
+		SATURDAY=SATURDAY
+		SUNDAY=SUNDAY
+	DX_EXCHANGE_MASTER__SETT_ALLOWED : mml:string
+		YES=YES
+		NO=NO
+	DX_GROUPING__MARGIN_LEVEL : mml:string
+		Y=Y
+		N=N
+	DX_OPTION_TYPE__USR_FLD_NAME__USR_FLD_PRICE : mml:string
+		YES=YES
+		NO=NO
+	DX_PARAMETER__MARGIN_DIFFERENCE : mml:string
+		YES=YES
+		NO=NO
+	DX_PARAMETER__MARGIN_NETTING : mml:string
+		YES=YES
+		NO=NO
+	DX_PARAMETER__SUPPRESS_VM_POST : mml:string
+		YES=YES
+		NO=NO
+		CLIENT=CLIENT
+	DX_PARAMETER__SUPPRESS_IM_POST : mml:string
+		YES=YES
+		NO=NO
+		CLIENT=CLIENT
+	DX_PARAMETER__VM_POST_STYLE : mml:string
+		PL=PL
+		PLLCCY=PLLCCY
+		PLRP=PLRP
+		PLLCCYRP=PLLCCYRP
+	DX_PARAMETER__CONT_ULYING_VAL : mml:string
+		YES=YES
+		NO=NO
+	DX_PARAMETER__DCLC_MSK : mml:string
+		DYMD=DYMD
+		D=D
+	DX_PARAMETER__FEEDS_TO_CLEAR__FEEDS_TO_CLEAR : mml:string
+		DX_CO_MATURITY_INPUT=DX.CO.MATURITY.INPUT
+		DX_CO_EXERCISE_MANUAL=DX.CO.EXERCISE.MANUAL
+		DX_CO_ASSIGN_MANUAL=DX.CO.ASSIGN.MANUAL
+		DX_CO_EXPIRE_MANUAL=DX.CO.EXPIRE.MANUAL
+		DX_CO_MANUAL_INPUT=DX.CO.MANUAL.INPUT
+	DX_PARAMETER__EST_METHOD : mml:string
+		"ONE"="ONE"
+		TWO=TWO
+	DX_PARAMETER__VM_REVERSAL_STYLE : mml:string
+		New=New
+	DX_PARAMETER__SPECIAL_RATE__SPECIAL_RATE : mml:string
+		CUSTOMER=CUSTOMER
+		BROKER=BROKER
+		DEALER=DEALER
+		EXCHANGE=EXCHANGE
+		COUNTERPARTY=COUNTERPARTY
+	DX_PARAMETER__CONSTRAINT_FAILURE : mml:string
+		Single=Single
+		Multiple=Multiple
+	DX_PARAMETER__GRANT_PERMISSION : mml:string
+		Single=Single
+		NULL=NULL
+	DX_PARAMETER__AVE_PRICE_METHOD : mml:string
+		NORMAL=NORMAL
+		UNWEIGHTED=UNWEIGHTED
+		PURCHASE=PURCHASE
+		NONE=NONE
+		OPENING=OPENING
+	DX_PARAMETER__PREM_SETT : mml:string
+		Default=Default
+		NULL=NULL
+	DX_PARAMETER__REP_UPDATES : mml:string
+		ON=ON
+		OFF=OFF
+	DX_PARAMETER__OGM_SUPPORT : mml:string
+		Yes=Yes
+	DX_PARAMETER__RP_GROUP_PARTS__RP_GROUP_PARTS : mml:string
+		ALL=ALL
+		NONE=NONE
+		OPTION_TYPE=OPTION.TYPE
+		CONTRACT_CODE=CONTRACT.CODE
+		TRADE_CCY=TRADE.CCY
+		MATURITY_DATE=MATURITY.DATE
+		CALL_PUT=CALL.PUT
+		STRIKE=STRIKE
+		DELIVERY_CCY=DELIVERY.CCY
+		OPTION_STYLE=OPTION.STYLE
+	DX_PARAMETER__STP_ENABLED : mml:string
+		YES=YES
+		NO=NO
+	DX_PARAMETER__AUTO_CO_TRANS : mml:string
+		NO=NO
+		YES=YES
+	DX_PARAMETER__BLOCK_AUTH : mml:string
+		YES=YES
+		NO=NO
+	DX_PARAMETER__USE_MARGIN_ACCT : mml:string
+		YES=YES
+		NO=NO
+		IM=IM
+		VM=VM
+	DX_PARAMETER__LIM_AMT_VAL_CONT : mml:string
+		CONTINGENT=CONTINGENT
+		VALUE=VALUE
+	DX_PARAMETER__ALT_IND_NAME__AI_DEFAULT_REQD : mml:string
+		YES=YES
+		NO=NO
+	DX_PARAMETER__SEARCH_ALL_COMMSN : mml:string
+		YES=YES
+		NO=NO
+	DX_PARAMETER__FWD_POST_EOD : mml:string
+		START=START
+		END=END
+	DX_PARAMETER__CHECK_CUST_FUNDS : mml:string
+		YES=YES
+		NO=NO
+	DX_PARAMETER__SC_ASSET_UPD : mml:string
+		TRANSACTIONAL=TRANSACTIONAL
+		POSITIONAL=POSITIONAL
+		BUY_SELL_POS=BUY.SELL.POS
+	DX_PARAMETER__STK_UPD_TYPE__STK_UPD_TYPE : mml:string
+		STOCK=STOCK
+		FUTURE=FUTURE
+		CCY=CCY
+		ALL=ALL
+	DX_PARAMETER__ORD_CREATE_TRADES : mml:string
+		YES=YES
+		NO=NO
+	DX_PARAMETER__B2B_ACTIVE : mml:string
+		NO=NO
+		YES=YES
+	DX_PARAMETER__COPY_LOCAL_REF : mml:string
+		NO=NO
+		YES=YES
+	DX_PARAMETER__USE_CATEG_CODE : mml:string
+		ACCOUNT_CLASS=ACCOUNT.CLASS
+		DX_EVENT_TYPE=DX.EVENT.TYPE
+	DX_PARAMETER__EXCH_LIMIT_UPD : mml:string
+		YES=YES
+		NO=NO
+	DX_PARAMETER__REINVOICE : mml:string
+		YES=YES
+	DX_PARAMETER__NETTING_REQD : mml:string
+		NULL=NULL
+		YES=YES
+	DX_PARAMETER__SAME_STRIKE : mml:string
+		NULL=NULL
+		YES=YES
+		NO=NO
+	DX_PARAMETER__EXPOSURE_CALC : mml:string
+		NULL=NULL
+		MAX_NEGATIVE=MAX.NEGATIVE
+		TOTAL_NEGATIVE=TOTAL.NEGATIVE
+	DX_PARAMETER__USE_SC_MARGIN : mml:string
+		NULL=NULL
+		YES=YES
+	DX_PARAMETER__VM_REV_TYPE : mml:string
+		NULL=NULL
+		INDIVIDUAL=INDIVIDUAL
+	DX_STRATEGY__NETT_GROSS : mml:string
+		NETT=NETT
+		GROSS=GROSS
+}

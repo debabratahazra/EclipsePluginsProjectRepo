@@ -1,0 +1,76 @@
+## BasicApi.vm
+*-----------------------------------------------------------------------------
+      SUBROUTINE $service.$operation.getLowerName()#set($paramList = $operation.getParameters() )#if( $paramList.size() >= 1)(#{end}#foreach($param in $paramList)$param.getLowerCamelCaseName()#if( $paramList.size() <= $velocityCount)#{else}, #end#{end}#if( $paramList.size() >= 1))#{end}
+      
+*-----------------------------------------------------------------------------
+*
+* Note : This subroutine is auto-generated and should not be changed.
+*
+* @author Auto-generated
+* @stereotype subroutine
+* @package infra.eb
+*!
+*-----------------------------------------------------------------------------
+ 
+#set($classesList = $operation.getComplexClassNames())
+#foreach($class in $classesList)
+    $INSERT I_${service}_$class
+#end
+
+*-----------------------------------------------------------------------------
+
+      GOSUB initialise
+      GOSUB process
+      GOSUB finalise
+      
+      RETURN
+*-----------------------------------------------------------------------------
+process:
+
+#if (${operation.stereotypeIsApplied('integrationFlowSupportable')})
+## Check if operation supports the following Stereotype, if YES, then do what is necessary
+* Prepare and call IntegrationFlow as required
+	operationArgsName = ''; operationArgs = ''	;* Initialise
+	operationArgsName = ${argsName}
+	operationArgs	  = ${argsValue}
+	CALL IF.EXIT.COMPONENT.SERVICE('$service.${operation.getLowerName()}', operationArgsName, operationArgs)
+
+* Resume the normal flow
+#end
+	CALL GetProxyInterface("${service}", "$operation.getLowerName()", proxyAdaptorInterfaceName)
+	IF proxyAdaptorInterfaceName EQ '' THEN
+		CALL T24${service}Impl.$operation.getLowerName()(#set($paramList = $operation.getParameters() )#foreach($param in $paramList)#if(${param.getDirection()} == "IN")(#end$param.getLowerCamelCaseName()#if(${param.getDirection()} == "IN"))#end, #{end}responseDetails)
+	END ELSE
+## Adding ( ) around all input parameters from jBC API so that changes made to IN params are not visible to outside world
+		CALL @proxyAdaptorInterfaceName(#set($paramList = $operation.getParameters() )#foreach($param in $paramList)#if(${param.getDirection()} == "IN")(#end$param.getLowerCamelCaseName()#if(${param.getDirection()} == "IN"))#end, #{end}responseDetails)
+	END 
+      
+	RETURN
+*-----------------------------------------------------------------------------
+initialise:
+* Routine which will handle and set up response as required
+	responseHandlerName = ''
+	
+#foreach($param in $paramList)
+#if ($param.getDirection() =="OUT")    $param.getLowerCamelCaseName() = ''
+#end
+#end
+    responseDetails = '' 
+
+    RETURN
+
+*-----------------------------------------------------------------------------
+finalise:
+
+    * Process responseDetails and return errors/overrides in the
+    * standard T24 Common variables
+    
+    * Get the handler routine name for processing the response
+    CALL GetServiceResponseHandler (responseHandlerName)
+    
+    * Now call the routine
+    CALL @responseHandlerName (responseDetails)
+   
+    RETURN
+
+END

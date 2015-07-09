@@ -1,0 +1,199 @@
+# UTF-8
+# UTF-8
+/* Fee Calculation for Loans and Money Market */
+Domain LM_Fees
+	@t24:i (module=LM)
+	@java:Package (value=com.temenos.t24.datamodel.lm.lm_fees)
+namespace "http://www.temenos.com/t24/LM_Fees"
+metamodelVersion 1.30.6
+Classes {
+	LMM_CHARGE_CATEGORY
+		@t24:i (t24Name=LMM.CHARGE.CATEGORY, level=I, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+Mandatory input.
+A maximum of 16 characters may be entered.
+Must be the key to a valid entry on the CATEGORY file. */
+		CATEGORY_CODE -> LM_Fees:LMM_CHARGE_CATEGORY PK required
+			@i18n:Label (en="Category Code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=A, t24Name=CATEGORY.CODE)
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered.
+Must be the key to a valid entry on the LMM.CHARGE.CONDITIONS file. */
+		CHARGE_CONDITION -> LM_Fees:LMM_CHARGE_CONDITIONS
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=CHARGE.CONDITION)
+	}
+	/* The LMM.CHARGE.CONDITIONS table contains the attributes for each type of fee or charge that can be applied.
+These attributes are:-
+(i)  the name that is used to define a            particular charge type,
+(ii)  the Profit and Loss Category code that            will be credited with the amount of the            charge.
+(iii)  the amortisation period over which the            charge will be taken to Profit & Loss.
+The Loans and Deposits system does differentiate between fees and charges. Charges are taken on the value date of the contract whereas fees can be taken on any day other than the value date.  Additionally, fees are defined on the contract schedule whereas charges are defined on the main body of the contract. */
+	LMM_CHARGE_CONDITIONS
+		@t24:i (t24Name=LMM.CHARGE.CONDITIONS, level=I, type=H, additionalInfo="UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Represents the reference number which uniquely identifies a charge type.
+This code allows users to identify the appropriate charge description and consequently its accompanying amortisation period.
+Validation Rules
+Numeric field - 3 characters only. (Mandatory input)
+Input must be in the form of valid numeric characters. */
+		CHARGE_CODE -> LM_Fees:LMM_CHARGE_CONDITIONS PK required
+			@i18n:Label (en="Charge Code")
+			@i18n:Tooltip (en="Indicates the Charge code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, t24Name=CHARGE.CODE)
+		SHORT_NAME -> byValue LM_Fees:LMM_CHARGE_CONDITIONS__SHORT_NAME *
+		DESCRIPTION -> byValue LM_Fees:LMM_CHARGE_CONDITIONS__DESCRIPTION *
+		/* Defines the Profit and Loss Category or internal Accounts where the charges are to be booked.
+Normally the fee/charge being collected from the customer is always in favour of the Bank and consequently a valid Profit and Loss category code should be entered.  However, if for any reason, the bankis also acting as a collecting agent for a third party (e.g. Government), then an Internal Account should be instead be entered.
+Validation Rules
+4 to 5 numeric character Category code or 6 to 12 type SS (uppercase alpha or numeric, first character alpha) character local currency internal Account number. or 3 to 10 type MNE (uppercase alpha or numeric or ".") character Account Mnemonic. (Mandatory input.)
+Where MTHLY.AMORTISATION is set to YES, the same code cannot be used as any exsiting value in LMM.INSTALL.CONDS */
+		CATEGORY_CODE : T24BusinessTypes:A required
+			@i18n:Label (en="Category Code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=3.0, core=true, t24Name=CATEGORY.CODE)
+		/* Specifies whether the fees or charges are to be amortised.
+The value in this field indicates whether the fees/charges are to be amortised:
+(Y)es indicates that the component will be            amortised (taken into P+L over the life of            the contract).
+(N)o indicates that the component will be            treated on a cash basis.
+Validation Rules
+Alpha field - up to 3 characters. Only input allowed is Y(ES) or N(O). (Mandatory input.)
+Once the record has been authorised this field cannot be changed.
+Input must be in the form of valid alphabetic characters.
+Money Market contracts can only use charges that are on a cash basis. */
+		MTHLY_AMORTISATION : LM_Fees:LMM_CHARGE_CONDITIONS__MTHLY_AMORTISATION required
+			@i18n:Label (en="Monthly Amortisation")
+			@i18n:Tooltip (en="Monthly Amortisation")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=4.0, core=true, t24Name=MTHLY.AMORTISATION)
+		/* This field specifies the period over which the fees / charges will be amortised.
+The following example indicates the format of the amortisation periods that can be specified.
+1M to 11M     range = 1 to 11 months            1A to 99A     range = 1 to 99 years            R             until next "R" schedule            c             until end of contract.
+Validation Rules
+1-3 type AAA (alpha) characters. (Optional input.)
+Once authorised this field cannot be changed.
+Input must be in the form of valid alphanumeric characters.
+Mandatory input if value in MTHLY AMORTISATION is YES.
+Input prohibited if value in MTHLY AMORTISATION is NO. */
+		AMORTISN_PERIOD : T24BusinessTypes:A
+			@i18n:Label (en="Amortisation Period")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=5.0, core=true, t24Name=AMORTISN.PERIOD)
+		/* Defines the FT.COMMISSION.TYPE or FT.CHARGE.TYPE which specifies the percentage structure or flat amount to be used when calculating the charge amount.
+Any exsiting FT.CHARGE.TYPE or FT.COMMISSION.TYPE record may be linked. When a charge is linked to a P or I schedule the amount of fee to be levied will be calculated using the definition contained in the charge type record, based on the schedule amount. When Charges are entered on the LD application, the charge amount will be defaulted using the linked charge code if defined.
+If the linked FT.CHARGE.TYPE or FT.COMMISSION.TYPE is linked to a TAX.CODE, the TAX amount will NOT be included in the defaulted amount.
+Validation Rules
+CHARGE.CODE is mandatory for payable charges. Once a CHARGE.CODE has been defined, it may be replaced with another CHARGE.CODE, but cannot be removed */
+		CHARGE_CODE_KEY : T24BusinessTypes:CHG
+			@i18n:Label (en="Charge Code Key")
+			@i18n:Tooltip (en="Indicates the charge key")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=CHARGE.CODE.KEY, typeModifiers="COMCHG")
+		/* Specifies whether the Charge defined is to Paid by the bank (PAY) or Received from the customer (RECEIVE).
+Default value is RECEIVE. No change is allowed once authorised. When a PAYable charge is processed the amount will be credited to FEE.PAY.ACCOUNT on the LD contract when entered as CHRG.CODE on the LD contract, or as a type F schedule. Similary when a RECEIVEable charge is processed the amount will be debited from the CHRG.LIQ.ACCOUNT on the LD contract. When the charge is linked to P or I schedules, the PRIN.LIQ.ACCT or INT.LIQ.ACCT respectively will be debited or credited. */
+		PAY_RECEIVE : LM_Fees:LMM_CHARGE_CONDITIONS__PAY_RECEIVE required
+			@i18n:Label (en="Pay Receive")
+			@i18n:Tooltip (en="Pay Receive")
+			@t24:i (align=L, inputBehaviour=F, maxLength=7, sysNumber=7.0, core=true, t24Name=PAY.RECEIVE)
+		/* If this flag is set to 'Y' then the calculation of this fee would be as follows:
+If the charge was attached to the SCHEDULE type 'I'(nterest ) then the tax relief fee would be:
+((Interest Amount * Interest relief rate)) * (  Maximum Amt ) (                100                     )   (Outstanding Amt)
+If however the 'Outstanding Amt' was below the 'Maximum Amt' then the tax relief would be:
+(Interest Amount * Interest relief rate)                 100
+Validation Rules
+1-3 Alpha characters Valid values are 'YES' and 'NO'  (Optional input - Default = 'NO') */
+		TAX_RELIEF_FLG : LM_Fees:LMM_CHARGE_CONDITIONS__TAX_RELIEF_FLG
+			@i18n:Label (en="Tax Relief Flg")
+			@i18n:Tooltip (en="Tax Relief Flg")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=8.0, core=true, t24Name=TAX.RELIEF.FLG)
+		/* If this flag is set to 'Y' then the TXN codes from the FT table of the record in CHARGE.CODE.KEY will be used, instead of the default TXN codes.
+Validation Rules
+1-3 Alpha characters Valid values are 'YES' and 'NO'  (Optional input - Default = 'NO') */
+		USE_FT_TXN : LM_Fees:LMM_CHARGE_CONDITIONS__USE_FT_TXN
+			@i18n:Label (en="Use Ft Txn")
+			@i18n:Tooltip (en="Use Ft Txn")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=USE.FT.TXN)
+		/* If this flag is set to 'Y' then the cash flow due to the Charge/commission will be excluded from EIR calculation when IFRS
+Classification is set at contract level. If FT.CHARGE.TYPE/FT.COMMISSION.TYPE is also defined, then EXCLUDE.FROM.EIR of FT template takes
+precedence over this field
+Validation Rules
+1-3 Alpha characters Valid values are 'YES' and null  (Optional input - Default = 'null').
+Applicable for LD.LOANS.AND.DEPOSITS application ONLY */
+		EXCLUDE_FROM_EIR : LM_Fees:LMM_CHARGE_CONDITIONS__EXCLUDE_FROM_EIR
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=10.0, core=true, t24Name=EXCLUDE.FROM.EIR)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=11.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=12.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue LM_Fees:LMM_CHARGE_CONDITIONS__INPUTTER *
+		DATE_TIME -> byValue LM_Fees:LMM_CHARGE_CONDITIONS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=19.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=21.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=22.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LMM_CHARGE_CONDITIONS__SHORT_NAME
+	{
+		/* This is the abbreviated name which describes the charge type.
+This is a descriptive field and is simply a way of recording the title of the Charge Type.
+Validation Rules
+Alphanumeric field - up to 20 type A characters. (Mandatory input.  Multivalue field.)
+Input of alphanumeric characters cannot exceed 20 characters. */
+		SHORT_NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, multiLanguage=true, sysNumber=1.0, core=true, t24Name=SHORT.NAME)
+	}
+	LMM_CHARGE_CONDITIONS__DESCRIPTION
+	{
+		/* This is an expanded version of the short name indicated in field GB SHORT NAME.
+This is a descriptive field and is simply a means of describing the full name of the charge type.
+Validation Rules
+Alphanumeric field - up to 35 type A characters. (Mandatory input.  Multivalue field.)
+Input of alphanumeric characters cannot exceed 35 characters. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=2.0, core=true, t24Name=DESCRIPTION)
+	}
+	LMM_CHARGE_CONDITIONS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=INPUTTER)
+	}
+	LMM_CHARGE_CONDITIONS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=17.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	LMM_CHARGE_CONDITIONS__MTHLY_AMORTISATION : mml:string
+		YES=YES
+		NO=NO
+	LMM_CHARGE_CONDITIONS__PAY_RECEIVE : mml:string
+		PAY=PAY
+		RECEIVE=RECEIVE
+	LMM_CHARGE_CONDITIONS__TAX_RELIEF_FLG : mml:string
+		YES=YES
+		NO=NO
+	LMM_CHARGE_CONDITIONS__USE_FT_TXN : mml:string
+		YES=YES
+		NO=NO
+	LMM_CHARGE_CONDITIONS__EXCLUDE_FROM_EIR : mml:string
+		YES=YES
+}

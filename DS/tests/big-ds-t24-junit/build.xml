@@ -1,0 +1,148 @@
+<project name="designstudio-junit-tests" default="test-big-tests">
+    
+    <property environment="env"/>
+    <property file="../../version.properties"/>
+
+	<property name="ds.maven.extra.args" value=""/>
+
+	<condition property="mvn.exec" value="mvn.bat" else="mvn">
+		<os family="windows"/>
+	</condition>
+	
+	<target name="test-big-tests" depends="project-clean-big-tests, project-test-big-tests"/>
+    
+    <!-- 
+      ++ Runs unit tests in an headless Eclipse.
+      ++ 
+      ++ This macro expects a RCP product to be deployed.
+      ++
+      ++ @param base the directory where the RCP product to test is deployed.
+      ++ @param plugin the id of the plugin that contains the test class.
+      ++ @param class-name the fully qualified class name of the JUnit Test Case to execute.
+      ++ @param workspace the workspace location, Defaults to <tt>${base}/workspace</tt>.
+      -->
+    <macrodef name="eclipse-tests-runner">
+        <attribute name="base" />
+        <attribute name="plugin" />
+        <attribute name="class-name" />
+        <attribute name="workspace" default="@{base}/workspace"/>
+        <sequential>
+            <echo taskname="eclipse-tests-runner">
+                base            : @{base}
+                plugin          : @{plugin}
+                class-name      : @{class-name}
+                workspace       : @{workspace}
+            </echo>
+
+            <java taskname="eclipse-tests-runner" 
+                jvm="java" fork="yes" 
+                classname="org.eclipse.core.launcher.Main"
+                failonerror="false" 
+				timeout="6000000"
+                output="@{base}/.log">      
+            <classpath>
+              <fileset dir="@{base}/plugins">
+                    <include name="org.eclipse.equinox.launcher_*.jar"/>
+              </fileset>
+            </classpath>
+                
+            <sysproperty key="baseLocation" value="@{base}" />
+
+            <jvmarg value="-Xms128m"/>
+            <jvmarg value="-Xmx768m"/>
+            <jvmarg value="-XX:PermSize=64m"/>
+            <jvmarg value="-XX:MaxPermSize=256m"/>
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xnoagent"/>
+			<jvmarg value="-Dlogback.configurationFile=@{base}/configuration/standard-logging.xml"/>
+<!-- uncomment this line to remote debug the tests
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"/>
+-->
+            <arg line="-application org.eclipse.test.uitestapplication"/>
+            <arg line="-data @{workspace}"/>
+            <arg line="formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,${basedir}/big/test-results/TEST-@{plugin}-@{class-name}.xml"/>
+            <arg line="-testPluginName @{plugin}"/>
+            <arg line="-className @{class-name}"/>
+            <arg line="-consolelog"/>
+            <arg line="-clean"/>
+        </java>
+        <!-- </jacoco:coverage> -->
+        </sequential>
+    </macrodef>
+    
+    <target name="project-clean-big-tests">
+			<delete failonerror="false" dir="${basedir}/big" />
+    </target>
+
+<!--******************************************************************************
+    **** Execute unit tests														  						  				  ****
+    *******************************************************************************-->
+    <target name="project-test-big-tests">
+		
+		<!-- Prepare the testable product -->
+		<echo message="Copying Design Studio Binaries"/>
+		<mkdir dir="${basedir}/big" />
+		<copy todir="big">
+			<fileset dir="../${full.plan.dir}/products/.b2/products/designstudio-common/target/products/designstudio-common/win32/win32/x86_64"/>
+		</copy>
+		<copy file="standard-logging.xml" tofile="big/configuration/standard-logging.xml"/>
+
+		<!-- build the Eclipse products through Maven -->
+		<echo message="Running Maven/Tycho build for Design Studio Test Plugin - big tests" />
+
+		<!-- Will produce ${basedir}/.b2/sites/com.odcgroup.ds.tests.internal.site/target/repository -->
+    	<exec executable="${env.M2_HOME}/bin/${mvn.exec}" failonerror="true" >
+			<arg value="-U"/>
+			<arg value="clean"/>
+			<arg value="install"/>
+			<arg value="-Dds.p2cache.location=${ds.p2cache.location}"/>
+			<arg line="${ds.maven.extra.args}"/>
+		</exec>
+
+		<echo/>
+		<echo message="Installing Test Feature" />
+
+		<!-- convert the path to use / instead of \ -->
+		<pathconvert targetos="unix" property="full.plan.dir.absolute.unix">
+			<path location="../${full.plan.dir}"/>
+		</pathconvert>
+		<echo message="full.plan.dir.absolute.unix: ${full.plan.dir.absolute.unix}"/>
+
+		<!-- convert the path to use / instead of \ -->
+		<pathconvert targetos="unix" property="ds.p2cache.location.absolute.unix">
+			<path location="${ds.p2cache.location}/repositories"/>
+		</pathconvert>
+		<echo message="ds.p2cache.location.absolute.unix: ${ds.p2cache.location.absolute.unix}"/>
+
+		<!-- convert the path to use / instead of \ -->
+		<pathconvert targetos="unix" property="basedir.unix">
+			<path location="${basedir}"/>
+		</pathconvert>
+		<echo message="basedir.unix: ${basedir.unix}"/>
+
+		<exec executable="${basedir}/big/eclipsec" failonerror="true" timeout="720000" output="${basedir}/big/install-test-feature.log">
+			<arg line="-application org.eclipse.equinox.p2.director"/>
+			<arg line="-repository file:/${full.plan.dir.absolute.unix}/products/.b2/products/designstudio-common/target/repository,file:/${basedir}/.b2/sites/com.odcgroup.ds.tests.internal.site/target/repository,file:/${ds.p2cache.location.absolute.unix}/releases/org.eclipse.orbit-R20140525021250,file:/${ds.p2cache.location.absolute.unix}/releases/org.eclipse.xtext-2.5.3,file:/${ds.p2cache.location.absolute.unix}/releases/org.eclipse.test-3.7.2"/>
+			<arg line="-installIU com.odcgroup.workbench.big.t24.tests"/>
+			<arg line="-destination ${basedir}/big"/>
+			<arg line="-consoleLog"/>
+		</exec>
+		<exec executable="${basedir}/big/eclipsec" failonerror="true" timeout="720000" output="${basedir}/big/install-test-feature.log">
+			<arg line="-application org.eclipse.equinox.p2.director"/>
+			<arg line="-repository file:/${full.plan.dir.absolute.unix}/products/.b2/products/designstudio-common/target/repository,file:/${basedir}/.b2/sites/com.odcgroup.ds.tests.internal.site/target/repository,file:/${ds.p2cache.location.absolute.unix}/releases/org.eclipse.orbit-2012-01-19,file:/${ds.p2cache.location.absolute.unix}/releases/org.eclipse.xtext-2.5.3,file:/${ds.p2cache.location.absolute.unix}/releases/org.eclipse.test-3.7.2"/>
+			<arg line="-installIU org.eclipse.ant.optional.junit"/>
+			<arg line="-destination ${basedir}/big"/>
+			<arg line="-consoleLog"/>
+		</exec>
+
+		<echo/>
+		<echo message="Running Design Studio Unit Tests" />
+		<mkdir dir="${basedir}/big/test-results" />
+		<mkdir dir="${basedir}/big/junit-workspace" />
+		<eclipse-tests-runner base="${basedir}/big"
+				plugin="com.odcgroup.workbench.big.t24.tests" 
+				class-name="com.odcgroup.workbench.big.t24.tests.AllJunit4BigTests" 
+				workspace="${basedir}/big/junit-workspace" />
+	</target>
+
+</project>

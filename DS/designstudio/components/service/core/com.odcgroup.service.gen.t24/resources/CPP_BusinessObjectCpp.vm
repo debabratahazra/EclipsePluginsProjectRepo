@@ -1,0 +1,35 @@
+#set($stdClassRefList = ${umlClass.getStdClsRefListInBOCpp()})
+#foreach($stdClassRef in $stdClassRefList)
+\#include <${stdClassRef}>
+#end
+\#include <sstream>
+
+#set($temenosClassRefList = ${umlClass.getTemenosClsRefListInBOCpp()})
+#foreach($temenosClassRef in $temenosClassRefList)
+\#include <${temenosClassRef}.h>
+#end
+#set($userClassRefList = ${umlClass.getUserClsRefListInBOCpp()})
+#foreach($userClassRef in $userClassRefList)
+\#include "${userClassRef}.h"
+#end
+\#include "${umlClass.getClassHeaderFileName()}"
+
+namespace temenos {${formatter.indent()}
+  namespace soa {${formatter.indent()}
+    namespace ${namespace} {${formatter.indent()}
+	
+${umlClass.defineDefaultConstructor()}
+${umlClass.defineConstructor()}
+${umlClass.defineDestructor()}
+
+#set($members = ${umlClass.getMembers()})
+#foreach($member in $members)
+${member.defineCppMemberOperationMethod()}
+#end
+
+${umlClass.defineToStringMethod()}
+
+	}${formatter.outdent()}
+  }${formatter.outdent()}
+}${formatter.outdent()}
+

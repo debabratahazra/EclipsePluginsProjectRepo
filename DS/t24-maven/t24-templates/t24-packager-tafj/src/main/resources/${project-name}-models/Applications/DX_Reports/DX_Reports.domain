@@ -1,0 +1,233 @@
+# UTF-8
+# UTF-8
+/* Reports of Derivatives */
+Domain DX_Reports
+	@t24:i (module=DX)
+	@java:Package (value=com.temenos.t24.datamodel.dx.dx_reports)
+namespace "http://www.temenos.com/t24/DX_Reports"
+metamodelVersion 1.30.6
+Classes {
+	DX_TXN_ACT_CUST
+		@t24:i (t24Name=DX.TXN.ACT.CUST, level=F, type=L, additionalInfo="Link to DX Transaction Activity File", allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key to this DX.TXN.ACT.CUST record */
+		TXN_ACT_CUST -> DX_Reports:DX_TXN_ACT_CUST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=TXN.ACT.CUST)
+		/* This is linked to the ID of transaction activity application DX.TXN.ACTIVITY
+Validation Rules
+
+No input field */
+		TXN_ACTIVITY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=68, sysNumber=1.0, core=true, t24Name=TXN.ACTIVITY)
+	}
+	/* This file enables retrieving of transactional reporting information easily. The events which update this application can be controlled using the set up parameter in the DX. EVENT. TYPE application. This will hold only flat records without any multivalued contents */
+	DX_TXN_ACTIVITY
+		@t24:i (t24Name=DX.TXN.ACTIVITY, level=F, type=L, additionalInfo="DX Transaction Activity File", allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Record key for this record.
+
+DX.TXN.ACTIVITY keys are constructed in the format:
+
+DX.EVENT.TYPE key * DX.TRADE or DX.ORDER key * DX.TRANSACTION key * booking date
+
+if the DX.TXN.ACTIVITY record is written as part of end of exchange processing, this is followed by:
+
+* trade date * value date.
+
+so the key would take the format:
+aa*DXTRAnnnnnnnnnn*DXTRAnnnnnnnnnn.nnnnn-n*yyyymmdd*yyyymmdd*yyyymmdd */
+		DX_TXN_ACTIVITY -> DX_Reports:DX_TXN_ACTIVITY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=71, sysNumber=0.0, core=true, businessType=A, t24Name=DX.TXN.ACTIVITY)
+		/* This is a link to the DX.REP.POS.ACTIVITY that this event is a constituent part of */
+		REP_POS_ACT -> DX_Position:DX_REP_POS_ACTIVITY
+			@i18n:Label (en="Rep Pos Act")
+			@t24:i (align=L, inputBehaviour=I, maxLength=68, sysNumber=1.0, core=true, businessType=A, t24Name=REP.POS.ACT)
+		/* REP.POS.ACT.HIST - Key to the corresponding DX.REP.POS.ACT.HIST record.  Takes the form
+
+Customer/ContractId/Currency/MaturityDate/CallOrPut/StrikePrice*ExoticOptionDetails*ReportingDate */
+		REP_POS_ACT_HIST -> DX_Position:DX_REP_POS_ACT_HIST
+			@i18n:Label (en="Rep Pos Act Hist")
+			@t24:i (align=L, inputBehaviour=I, maxLength=68, sysNumber=2.0, core=true, businessType=A, t24Name=REP.POS.ACT.HIST)
+		/* Customer involved in this side of the deal */
+		CUSTOMER -> DX_Customer:DX_CUSTOMER
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=3.0, core=true, businessType=A, t24Name=CUSTOMER)
+		/* Portfolio against which this side of the contract is being traded. */
+		PORTFOLIO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER
+			@i18n:Label (en=Portfolio)
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=4.0, core=true, businessType=A, t24Name=PORTFOLIO)
+		/* This is the Portfolio ID of the Customer and is linked to the Customer Activity file DX.TXN.ACT.CUST. */
+		PORT_CUST_ID -> DX_Reports:DX_TXN_ACT_CUST
+			@i18n:Label (en=Customer/Portfolio)
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=5.0, core=true, t24Name=PORT.CUST.ID)
+		/* Key to the DX.CONTRACT.MASTER record which holds definition of the contract being traded */
+		CONTRACT_CODE -> DX_Configuration:DX_CONTRACT_MASTER
+			@i18n:Label (en=Contract)
+			@i18n:Tooltip (en="Identifies the contract code of the transaction")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=6.0, core=true, businessType=A, t24Name=CONTRACT.CODE)
+		/* Maturity date for the contract.  Held in yyyymm format for monthly maturity types or yyyymmdd for daily maturity types. */
+		MATURITY_DATE : T24BusinessTypes:DXMATDT
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=MATURITY.DATE)
+		/* Options contracts only - strike price for the contract, held in internal format.  See also STRIKE. */
+		INT_STRIKE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=INT.STRIKE)
+		/* Used for options trades only - denotes whether this is a CALL or PUT option. */
+		CALL_PUT : T24BusinessTypes:A
+			@i18n:Label (en=Call/Put)
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=9.0, core=true, t24Name=CALL.PUT)
+		/* Options contracts only - strike price, held in external format.  See also INT.STRIKE. */
+		STRIKE : mml:Integer
+			@i18n:Label (en=Strike)
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=STRIKE)
+		/* This is the transactional event that has occurred */
+		EVENT -> DX_Configuration:DX_EVENT_TYPE
+			@i18n:Label (en=Event)
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=11.0, core=true, t24Name=EVENT)
+		/* This is the date on which the event has occurred and is same as system date */
+		REP_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=REP.DATE)
+		/* This is the time at which the event has occurred and is same as the system time */
+		REP_TIME : T24BusinessTypes:TIME
+			@i18n:Label (en="Rep Time")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=13.0, core=true, t24Name=REP.TIME)
+		/* INACTIVE - This field is here as a placeholder - if the DX.SOD.RPA.TIDY job is active, the contents of this field will be changed to 'YES' in the corresponding DX.REP.POS.ACT.HIST record. */
+		INACTIVE : DX_Reports:DX_TXN_ACTIVITY__INACTIVE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=14.0, core=true, t24Name=INACTIVE)
+		/* This denotes whether this transaction is required for reporting purposes.  Set to YES or NO. */
+		REPORTING_FLAG : DX_Reports:DX_TXN_ACTIVITY__REPORTING_FLAG
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=15.0, core=true, t24Name=REPORTING.FLAG)
+		/* This is the date on which the relevant DX. EVENT.TYPE  is authorised */
+		BOOKING_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Booking Date")
+			@i18n:Tooltip (en="Booking Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=BOOKING.DATE)
+		/* This is obtained from the field Trade.date from the relevant DX. TRADE or DX. ORDER record. In case of Closeout, it displays the date on which the Closeout record is authorised */
+		TRADE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Trade Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=TRADE.DATE)
+		/* This is the date on which option premium becomes payable and is linked to the field PREM.VAL.DATE in DX.TRANSACTION */
+		PREM_VAL_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Prem Val Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=PREM.VAL.DATE)
+		RESERVED11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=19.0, core=true, t24Name=RESERVED11)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=20.0, core=true, t24Name=RESERVED10)
+		/* This is the link to the trade which caused the trade based event */
+		TRADE -> DX_Trade:DX_TRADE
+			@i18n:Label (en=Trade)
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=21.0, core=true, t24Name=TRADE)
+		/* This is the link to the constituent transaction which was caused by the trade based event */
+		TRANSACTION -> DX_Trade:DX_TRANSACTION
+			@i18n:Label (en=Transaction)
+			@i18n:Tooltip (en="The reference number of the Transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=22.0, core=true, t24Name=TRANSACTION)
+		/* This is the link to the order which caused an order based event */
+		ORDER_ID -> DX_Order:DX_ORDER
+			@i18n:Label (en="Order ID")
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=23.0, core=true, t24Name=ORDER.ID)
+		/* This is the link to the constituent order transaction, which was caused by the order based event */
+		ORD_TXN -> DX_Trade:DX_TRANSACTION
+			@i18n:Label (en="Ord Txn")
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=24.0, core=true, t24Name=ORD.TXN)
+		/* For closed out or partially closed out deals - key for the DX.CLOSEOUT record which has closed out lots against this side of the deal.  See also CO.TXN. */
+		CLOSEOUT -> DX_Closeout:DX_CLOSEOUT
+			@i18n:Label (en=Closeout)
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=25.0, core=true, t24Name=CLOSEOUT)
+		/* For closed out or partially closed out deals - key for the DX.TRANSACTION record which has closed out lots against this side of the deal.  See also CLOSEOUT. */
+		CO_TXN -> DX_Trade:DX_TRANSACTION
+			@i18n:Label (en="Co Txn")
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=26.0, core=true, t24Name=CO.TXN)
+		/* This is the link to the end of exchange processing which calculated margin for this position */
+		END_OF_EXCH -> DX_Configuration:DX_EXCHANGE_MASTER
+			@i18n:Label (en="End Of Exch")
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=27.0, core=true, t24Name=END.OF.EXCH)
+		/* This is the link to the transaction generated at the end of exchange processing which calculated margin for this position */
+		EOE_TXN -> DX_Trade:DX_TRANSACTION
+			@i18n:Label (en="Eoe Txn")
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=28.0, core=true, t24Name=EOE.TXN)
+		/* This is the link to the diary event that has affected this position */
+		DIARY -> DX_CorporateActions:DX_DIARY
+			@i18n:Label (en=Diary)
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=29.0, core=true, t24Name=DIARY)
+		/* This is the link to the entitlement record, which holds details of the effect of a diary event on this position */
+		ENTITLEMENT -> DX_CorporateActions:DX_ENTITLEMENT
+			@i18n:Label (en=Entitlement)
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=30.0, core=true, t24Name=ENTITLEMENT)
+		/* This is a unique key used to differentiate transaction events and prevent duplication of entries */
+		UNQ_ENTRY : T24BusinessTypes:A
+			@i18n:Label (en="Unq Entry")
+			@t24:i (align=L, inputBehaviour=I, maxLength=68, sysNumber=31.0, core=true, t24Name=UNQ.ENTRY)
+		USR_FLD_NAME -> byValue DX_Reports:DX_TXN_ACTIVITY__USR_FLD_NAME *
+		RESERVED05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=36.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=37.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=38.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=39.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=40.0, core=true, t24Name=RESERVED01)
+	}
+	DX_TXN_ACTIVITY__USR_FLD_NAME
+	{
+		/* This field is defaulted from DX.TRANSACTION
+
+
+Validation Rules
+
+This is a No Input Field
+1  35 */
+		USR_FLD_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=USR.FLD.NAME)
+		/* This field is defaulted from DX.TRANSACTION. All values entered into the multivalue must pass through the following validation.
+
+
+
+
+USR.FLD.MIN
+DX.OPTION.TYPE
+
+
+
+USR.FLD.MAX
+DX.OPTION.TYPE
+
+
+
+USR.FLD.IN2
+DX.OPTION.TYPE
+
+
+
+
+Validation Rules
+
+No Input Field
+
+1  35 */
+		USR_FLD_VAL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=33.0, core=true, t24Name=USR.FLD.VAL)
+		/* USR.FLD.TEXT - Exotic options only.  Derived from the DX.OPTION.TYPE record for the exotic option.  Description of the user defined field for the exotic option. */
+		USR_FLD_TEXT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=34.0, core=true, t24Name=USR.FLD.TEXT)
+		/* USR.FLD.PRICE - Exotic options only.  Derived from the DX.OPTION.TYPE record for the exotic option.  Defines if the value of the user defined field is to used as a component of the exotic options price and position keys. */
+		USR_FLD_PRICE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=35.0, core=true, t24Name=USR.FLD.PRICE)
+	}
+}
+Enumerations {
+	DX_TXN_ACTIVITY__INACTIVE : mml:string
+		YES=YES
+		NO=NO
+	DX_TXN_ACTIVITY__REPORTING_FLAG : mml:string
+		YES=YES
+		NO=NO
+	DX_TXN_ACTIVITY__USR_FLD_NAME__USR_FLD_PRICE : mml:string
+		YES=YES
+		NO=NO
+}

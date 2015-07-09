@@ -1,0 +1,33 @@
+Available funds on account
+ACCT.BAL.TODAYıGET.ACC.UNAUTH.ENTRIESıIMAGE.VIEW
+ACCOUNT.NUMBERıACCOUNT.NUMBERıIMAGE.REFERENCE
+EQıEQıEQ
+DEBIT.ACCT.NOıDEBIT.ACCT.NOıDEBIT.ACCT.NO
+ıı
+ıı
+ıı
+ıı
+ENQUIRYıENQUIRYıENQUIRY
+ıı
+ıı
+ıı
+ıı
+Available Balance TodayıUnauthorised EntriesıCustomer's Signature
+NOıNOıNO
+
+
+
+
+
+
+
+
+
+
+
+3
+31599_BASEAUTH
+1112291121
+60329_BASEUSER
+GB0010001
+1

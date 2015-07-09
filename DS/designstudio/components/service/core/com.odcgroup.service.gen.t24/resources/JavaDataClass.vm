@@ -1,0 +1,83 @@
+## JavaDataClass.vm
+package ${service.getPackageName()}.data;
+
+// Java Import
+#set( $listImported = 0)
+#set( $attributeList = ${classDescriptor.getAttributes()} )
+#foreach($attribute in $attributeList)  
+#if(${attribute.getCardinality()} == "MULTIPLE" && $listImported == 0)
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+#set( $listImported = 1)
+#break
+#end
+#end 
+import java.io.Serializable;
+
+public class $classDescriptor.getName() implements Serializable  {
+	// Java Serialization
+	private static final long serialVersionUID = ${classDescriptor.getSerialVersionUID()}L;
+
+#set( $attributeList = $classDescriptor.getAttributes() )
+#foreach($attribute in $attributeList)  
+    private #if($attribute.getCardinality() == "MULTIPLE")List<${attribute.getTypeName()}>#else${attribute.getTypeName()}#end ${attribute.getName()};
+#end
+
+// Constructors
+##We will skipping constructor definition for complex objects 
+##with attributes > 255 because Java max number of parameter 
+#if(${attributeList.size()} <= 255)	
+	public ${classDescriptor.getName()}(#foreach($attribute in $attributeList)${attribute.getTypeName()}#if($attribute.getCardinality() == "MULTIPLE")[]#end ${attribute.getName()}#if($attributeList.size() > $velocityCount), #end#end) {
+		init();		// Initialise and then assign		
+#foreach($attribute in $attributeList)
+#if($attribute.getCardinality() == "MULTIPLE")
+	    Collections.addAll(this.${attribute.getName()}, ${attribute.getName()});
+#else
+        this.${attribute.getName()} = ${attribute.getName()};
+#end
+#end
+    }
+#end
+
+    public ${classDescriptor.getName()}() {
+		init();
+    }
+	
+	// Initialise members
+	private void init() {
+#foreach($attribute in $attributeList)
+#if($attribute.getCardinality() == "MULTIPLE")
+		this.${attribute.getName()} = new ArrayList<${attribute.getTypeName()}>();
+#else
+		this.${attribute.getName()} = $typeUtils.getEmptyTypeValue(${attribute.getTypeName()});
+#end
+#end
+	}
+// Getters
+
+#set( $attributeList = $classDescriptor.getAttributes() )
+#foreach($attribute in $attributeList)  
+    public ${attribute.getTypeName()}#if($attribute.getCardinality() == "MULTIPLE")[]#end get${attribute.getCamelCaseName()}(){
+#if($attribute.getCardinality() == "MULTIPLE")
+		return ${attribute.getName()}.toArray(new ${attribute.getTypeName()}[]{});
+#else	
+        return ${attribute.getName()};
+#end
+    }
+#end
+
+//Setters
+
+#set( $attributeList = $classDescriptor.getAttributes() )
+#foreach($attribute in $attributeList) 
+    public void set${attribute.getCamelCaseName()}(${attribute.getTypeName()}#if($attribute.getCardinality() == "MULTIPLE")[]#end new${attribute.getCamelCaseName()}){
+#if($attribute.getCardinality() == "MULTIPLE")
+		${attribute.getName()}.clear();
+		Collections.addAll(${attribute.getName()}, new${attribute.getCamelCaseName()});
+#else
+	    ${attribute.getName()} = new${attribute.getCamelCaseName()};
+#end
+    }
+#end
+}

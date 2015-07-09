@@ -1,0 +1,527 @@
+domain T24 {
+	use common.CoreCommands.*
+	use common.HTTPEvents.*
+	use common.ODataCommands.*
+	use common.T24Commands.*
+	use common.T24Events.*
+	use common.NextState.*
+	use common.Errors.*
+	use T24.ContextEnquiry.*
+	rim verCustomer_CrmKyc {
+		command T24FieldMetadata
+		command NoopGET
+		command GETEntities
+		command GetLiveEntity
+		command GetIauthEntity
+		command GetHauthEntity
+		command GetIauthEntities
+		command CreateEntity
+		command InputEntity
+		command HoldEntity
+		command AuthoriseEntity
+		command ReviewEntity
+		command ReverseEntity
+		command ValidateEntity
+		command RestoreEntity
+		command DeleteEntity
+		command T24Enrichment
+		command CheckAutoIdSupport
+		command GetHauthEntities
+		command T24NextState
+		basepath: "/{companyid}"
+	
+		resource verCustomer_CrmKyc_errorHandler {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ GET : NoopGET ]
+			relations [ "http://temenostech.temenos.com/rels/error" ]
+			path: "/verCustomer_CrmKycs('{id}')/error"
+			GET +-> ProcessErrors {
+				title: "errors"
+			}
+			POST +-> verCustomer_CrmKyc_metadata {
+				title: "metadata"
+			}
+		}
+	
+		resource verCustomer_CrmKycs {
+			type: collection
+			entity: verCustomer_CrmKyc
+			commands [ GET : GETEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			path: "/verCustomer_CrmKycs()"
+			GET *-> verCustomer_CrmKyc {
+				parameters [ id = "{CustomerCode}" ]
+			}
+			GET *-> verCustomer_CrmKyc_see {
+				parameters [ id = "{CustomerCode}" ]
+				title: "see record"
+			}
+			POST -> verCustomer_CrmKyc_new {
+				title: "create new deal"
+				condition: OK(verCustomer_CrmKyc_autoId)
+			}
+			POST -> verCustomer_CrmKyc_populate {
+				title: "populate existing deal"
+			}
+			PUT *-> verCustomer_CrmKyc_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST *-> verCustomer_CrmKyc_audit {
+				parameters [ id = "{CustomerCode}" ]
+				title: "audit deal"
+			}
+			POST *-> verCustomer_CrmKyc_reverse {
+				parameters [ id = "{CustomerCode}" ]
+				title: "reverse deal"
+			}
+		}
+	
+		resource verCustomer_CrmKyc {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ GET : GetLiveEntity ]
+			path: "/verCustomer_CrmKycs('{id}')"
+			POST +-> verCustomer_CrmKyc_metadata {
+				title: "metadata"
+			}
+			GET --> verCustomer_CrmKyc_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmKyc_IAuth)
+			}
+			POST -> verCustomer_CrmKyc_validate {
+				parameters [ id = "{CustomerCode}" ]
+				title: "validate deal"
+			}
+			PUT -> verCustomer_CrmKyc_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST -> verCustomer_CrmKyc_audit {
+				parameters [ id = "{CustomerCode}" ]
+				title: "audit deal"
+			}
+			POST -> verCustomer_CrmKyc_reverse {
+				parameters [ id = "{CustomerCode}" ]
+				title: "reverse deal"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmKyc" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verCustomer_CrmKyc_see {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ GET : GetLiveEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmKyc","http://temenostech.temenos.com/rels/see" ]
+			path: "/verCustomer_CrmKycs('{id}')/see"
+			POST +-> verCustomer_CrmKyc_metadata {
+				title: "metadata"
+			}
+		}
+	
+		resource verCustomer_CrmKyc_IAuth_see {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ GET : GetIauthEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmKyc_IAuth","http://temenostech.temenos.com/rels/see" ]
+			path: "/verCustomer_CrmKycs_IAuth('{id}')/see"
+		}
+	
+		resource verCustomer_CrmKyc_HAuth_see {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ GET : GetHauthEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmKyc_HAuth","http://temenostech.temenos.com/rels/see" ]
+			path: "/verCustomer_CrmKycs_HAuth('{id}')/see"
+		}
+	
+		resource verCustomer_CrmKyc_metadata {
+			type: collection
+			entity: T24FieldMetadata
+			commands [ POST : T24FieldMetadata ]
+			relations [ "http://temenostech.temenos.com/rels/metadata" ]
+			path: "/verCustomer_CrmKycs()/metadata"
+		}
+	
+		resource verCustomer_CrmKycs_IAuth {
+			type: collection
+			entity: verCustomer_CrmKyc
+			commands [ GET : GetIauthEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			path: "/verCustomer_CrmKycs_IAuth()"
+			GET *-> verCustomer_CrmKyc_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+			}
+			POST -> verCustomer_CrmKyc_new {
+				title: "create new deal"
+				condition: OK(verCustomer_CrmKyc_autoId)
+			}
+			POST -> verCustomer_CrmKyc_populate {
+				title: "populate existing deal"
+			}
+			PUT *-> verCustomer_CrmKyc_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			DELETE *-> verCustomer_CrmKyc_delete {
+				parameters [ id = "{CustomerCode}" ]
+				title: "delete"
+			}
+			PUT *-> verCustomer_CrmKyc_authorise {
+				parameters [ id = "{CustomerCode}" ]
+				title: "authorise deal"
+			}
+		}
+	
+		resource verCustomer_CrmKyc_new {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ POST : CreateEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmKyc","http://temenostech.temenos.com/rels/new" ]
+			path: "/verCustomer_CrmKycs()/new"
+			POST +-> verCustomer_CrmKyc_metadata {
+				title: "metadata"
+			}
+			POST -> verCustomer_CrmKyc_validate {
+				parameters [ id = "{CustomerCode}" ]
+				title: "validate deal"
+			}
+			PUT -> verCustomer_CrmKyc_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST -> verCustomer_CrmKyc_hold {
+				parameters [ id = "{CustomerCode}" ]
+				title: "hold deal"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmKyc" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verCustomer_CrmKyc_input {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ PUT : InputEntity, POST : InputEntity ]
+			relations [ "http://temenostech.temenos.com/rels/input" ]
+			path: "/verCustomer_CrmKycs('{id}')"
+			GET --> nextState {
+				condition: OK(nextState)
+			}
+			GET --> verCustomer_CrmKyc_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmKyc_IAuth)
+			}
+			GET --> verCustomer_CrmKyc {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmKyc)
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmKyc" ]
+				title: "Context Enquiries"
+			}
+			onerror --> T24.verCustomer_CrmKyc.verCustomer_CrmKyc_errorHandler
+		}
+	
+		resource verCustomer_CrmKyc_hold {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ POST : HoldEntity ]
+			relations [ "http://temenostech.temenos.com/rels/hold" ]
+			path: "/verCustomer_CrmKycs('{id}')/hold"
+			PUT -> verCustomer_CrmKyc_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			DELETE -> verCustomer_CrmKyc_delete {
+				parameters [ id = "{CustomerCode}" ]
+				title: "delete"
+			}
+			onerror --> common.Errors.Errors
+		}
+	
+		resource verCustomer_CrmKyc_authorise {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ PUT : AuthoriseEntity ]
+			relations [ "http://temenostech.temenos.com/rels/authorise" ]
+			path: "/verCustomer_CrmKycs('{id}')/authorise"
+			GET --> verCustomer_CrmKyc_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmKyc_IAuth)
+			}
+			GET --> verCustomer_CrmKyc {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmKyc)
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmKyc" ]
+				title: "Context Enquiries"
+			}
+			onerror --> common.Errors.Errors
+		}
+	
+		resource verCustomer_CrmKyc_audit {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ POST : ReviewEntity ]
+			relations [ "http://temenostech.temenos.com/rels/review" ]
+			path: "/verCustomer_CrmKycs('{id}')/review"
+			GET -> verCustomer_CrmKyc {
+				parameters [ id = "{CustomerCode}" ]
+			}
+			onerror --> common.Errors.Errors
+		}
+	
+		resource verCustomer_CrmKyc_reverse {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ PUT : ReverseEntity ]
+			relations [ "http://temenostech.temenos.com/rels/reverse" ]
+			path: "/verCustomer_CrmKycs('{id}')/reverse"
+			GET --> verCustomer_CrmKyc_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmKyc_IAuth)
+			}
+			GET --> verCustomer_CrmKyc_HAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmKyc_HAuth)
+			}
+			onerror --> T24.verCustomer_CrmKyc.verCustomer_CrmKyc_errorHandler
+		}
+	
+		resource verCustomer_CrmKyc_validate {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ POST : ValidateEntity ]
+			relations [ "http://temenostech.temenos.com/rels/validate" ]
+			path: "/verCustomer_CrmKycs('{id}')/validate"
+			GET +-> ProcessErrors {
+				title: "errors"
+				condition: OK(CheckIfError)
+			}
+			POST +-> verCustomer_CrmKyc_metadata {
+				title: "metadata"
+			}
+			PUT -> verCustomer_CrmKyc_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST -> verCustomer_CrmKyc_hold {
+				parameters [ id = "{CustomerCode}" ]
+				title: "hold deal"
+			}
+		}
+	
+		resource verCustomer_CrmKyc_IAuth {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ GET : GetIauthEntity ]
+			path: "/verCustomer_CrmKycs_IAuth('{id}')"
+			POST +-> verCustomer_CrmKyc_metadata {
+				title: "metadata"
+			}
+			POST -> verCustomer_CrmKyc_validate {
+				parameters [ id = "{CustomerCode}" ]
+				title: "validate deal"
+			}
+			PUT -> verCustomer_CrmKyc_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST -> verCustomer_CrmKyc_hold {
+				parameters [ id = "{CustomerCode}" ]
+				title: "hold deal"
+			}
+			POST -> verCustomer_CrmKyc_authorise {
+				parameters [ id = "{CustomerCode}" ]
+				title: "authorise deal"
+			}
+			DELETE -> verCustomer_CrmKyc_delete {
+				parameters [ id = "{CustomerCode}" ]
+				title: "delete"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmKyc" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verCustomer_CrmKyc_delete {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ DELETE : DeleteEntity ]
+			relations [ "http://temenostech.temenos.com/rels/delete" ]
+			path: "/verCustomer_CrmKycs('{id}')/delete"
+		}
+	
+		resource verCustomer_CrmKycEntry {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ GET : NoopGET ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmKyc","http://temenostech.temenos.com/rels/contract" ]
+			path: "/verCustomer_CrmKycEntry"
+			POST -> verCustomer_CrmKyc_new {
+				title: "create new deal"
+				condition: OK(verCustomer_CrmKyc_autoId)
+			}
+			POST -> verCustomer_CrmKyc_populate {
+				title: "populate existing deal"
+			}
+			GET +-> verCustomer_CrmKyc_see {
+				parameters [ id = "@" ]
+				title: "See transaction"
+			}
+			GET +-> verCustomer_CrmKyc_IAuth_see {
+				parameters [ id = "@" ]
+				title: "GetIauthEntity"
+			}
+			GET +-> verCustomer_CrmKyc_HAuth_see {
+				parameters [ id = "@" ]
+				title: "GetHauthEntity"
+			}
+			GET +-> verCustomer_CrmKyc_IAuth {
+				parameters [ id = "@" ]
+				title: "GetIauthEntity"
+			}
+			GET +-> verCustomer_CrmKyc_HAuth {
+				parameters [ id = "@" ]
+				title: "GetHauthEntity"
+			}
+		}
+	
+		resource verCustomer_CrmKyc_populate {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ POST : CreateEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmKyc","http://temenostech.temenos.com/rels/populate" ]
+			path: "/verCustomer_CrmKycs()/populate"
+			POST -> verCustomer_CrmKyc_validate {
+				parameters [ id = "{CustomerCode}" ]
+				title: "validate deal"
+			}
+			POST -> verCustomer_CrmKyc_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			DELETE -> verCustomer_CrmKyc_delete {
+				parameters [ id = "{CustomerCode}" ]
+				title: "delete"
+				condition: OK(verCustomer_CrmKyc_IAuth)
+			}
+			POST -> verCustomer_CrmKyc_metadata {
+				title: "metadata"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmKyc" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verCustomer_CrmKycs_enrichment {
+			type: item
+			entity: Enrichment
+			commands [ GET : T24Enrichment {
+				properties [ entity = "verCustomer_CrmKyc" ]
+				} ]
+			relations [ "http://temenostech.temenos.com/rels/enrichment" ]
+			path: "/verCustomer_CrmKycs()/enrichment"
+		}
+	
+		resource verCustomer_CrmKyc_autoId {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ GET : CheckAutoIdSupport ]
+		}
+	
+		resource verCustomer_CrmKyc_restore {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ POST : RestoreEntity ]
+			relations [ "http://temenostech.temenos.com/rels/restore" ]
+			path: "/verCustomer_CrmKycs('{id}')/restore"
+			GET --> verCustomer_CrmKyc_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmKyc_IAuth)
+			}
+			GET --> verCustomer_CrmKyc {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmKyc)
+			}
+			POST -> verCustomer_CrmKyc_metadata {
+				title: "metadata"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmKyc" ]
+				title: "Context Enquiries"
+			}
+			onerror --> common.Errors.Errors
+		}
+	
+		resource verCustomer_CrmKycs_HAuth {
+			type: collection
+			entity: verCustomer_CrmKyc
+			commands [ GET : GetHauthEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			path: "/verCustomer_CrmKycs_HAuth()"
+			GET *-> verCustomer_CrmKyc_HAuth {
+				parameters [ id = "{CustomerCode}" ]
+			}
+			POST -> verCustomer_CrmKyc_new {
+				title: "create new deal"
+				condition: OK(verCustomer_CrmKyc_autoId)
+			}
+			POST -> verCustomer_CrmKyc_populate {
+				title: "populate existing deal"
+			}
+			POST *-> verCustomer_CrmKyc_restore {
+				parameters [ id = "{CustomerCode}" ]
+				title: "restore deal"
+			}
+		}
+	
+		resource verCustomer_CrmKyc_HAuth {
+			type: item
+			entity: verCustomer_CrmKyc
+			commands [ GET : GetHauthEntity ]
+			path: "/verCustomer_CrmKycs_HAuth('{id}')"
+			POST +-> verCustomer_CrmKyc_metadata {
+				title: "metadata"
+			}
+			POST -> verCustomer_CrmKyc_validate {
+				parameters [ id = "{CustomerCode}" ]
+				title: "validate deal"
+			}
+			PUT -> verCustomer_CrmKyc_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST -> verCustomer_CrmKyc_hold {
+				parameters [ id = "{CustomerCode}" ]
+				title: "hold deal"
+			}
+			POST -> verCustomer_CrmKyc_authorise {
+				parameters [ id = "{CustomerCode}" ]
+				title: "authorise deal"
+			}
+			DELETE -> verCustomer_CrmKyc_delete {
+				parameters [ id = "{CustomerCode}" ]
+				title: "delete"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmKyc" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+	}
+	
+}

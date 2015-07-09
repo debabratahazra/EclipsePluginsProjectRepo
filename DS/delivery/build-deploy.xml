@@ -1,0 +1,263 @@
+<project name="ds-core" default="publish">
+	
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
+	<import file="../master-build/macrodefs.xml"/>
+	<property file="${ds.jenkins.workspace}/${ds.master.plan.name}/version.properties"/>
+	<property environment="env"/>
+
+	<property name="eclipse.home" location="${ds.build.plan.to.publish}/designstudio/products/.b2/products/designstudio-common/target/products/designstudio-common/win32/win32/x86_64"/>
+
+	<property name="remote.user" value="${user.name}"/>
+	<property name="remote.password" value="00cmsbm"/>
+	<property name="remote.host" value="laulxcmt"/>
+
+	<target name="publish" depends="init,ensure-no-parallel-working-dir,publish-maven,publish-fs,publish-t24-binaries"/>
+	<target name="publish-beta-products" depends="init-beta,init,publish-fs"/>
+	<target name="publish-beta-t24binaries" depends="init-beta,init,publish-t24-binaries"/>
+	
+	<target name="init">
+		<property name="ds.delivery" location="${ds.jenkins.workspace}/${ds.master.plan.name}/master-build/delivery"/>
+		<find.branch property="ds.branch" delivery-location="${ds.delivery}"/>
+		<property name="ds.build.plan.to.publish" value="${ds.delivery}/${ds.branch}"/>
+		
+		<property name="last.successful.tap.build" location="${ds.build.plan.to.publish}/product/ds-tap"/>
+		<property name="last.successful.t24.build" location="${ds.build.plan.to.publish}/product/ds-t24"/>
+		<property name="last.successful.generator.build" location="${ds.build.plan.to.publish}/product/generators"/>
+		<property name="last.successful.doc" location="${ds.build.plan.to.publish}"/>
+
+		<property name="ds.beta.publication" value="false"/>
+
+		<condition property="remote.dir" 
+			value= "/nas/delivery/incoming_packages/tmp/SDK-DS/${ds.branch}"
+			else="/nas/delivery/incoming_packages/SDK-DS/${ds.branch}">
+			<istrue value="${ds.beta.publication}"/>
+		</condition>
+		
+		<condition property="remote.eds.dir" 
+			value= "/nas/software/internal/EDS/beta/${ds.branch}"
+			else="/nas/software/internal/EDS/${ds.branch}">
+			<istrue value="${ds.beta.publication}"/>
+		</condition>
+		
+		<condition property="t24.distrib.dir" 
+			value= "/oams/p2/dist/beta/${ds.branch}"
+			else="/oams/p2/dist/latest/${ds.branch}">
+			<istrue value="${ds.beta.publication}"/>
+		</condition>
+		
+		<condition property="p2.update.site.dir" 
+			value= "//p2/p2/ds/beta/${ds.branch}"
+			else="//p2/p2/ds/${ds.branch}">
+			<istrue value="${ds.beta.publication}"/>
+		</condition>
+
+		<echo message="All properties:"/>
+		<echoproperties/>
+	</target>
+	
+	<target name="init-beta">
+		<property name="ds.beta.publication" value="true"/>
+		<property name="ds.delivery" location="../master-build/delivery"/>
+	</target>
+	
+	<target name="ensure-no-parallel-working-dir">
+		<fail message="ERROR: Main master build doesn't exist (${ds.build.plan.to.publish})">
+			<condition>
+				<not>
+					<resourceexists>
+						<file file="${ds.build.plan.to.publish}" />
+					</resourceexists>
+				</not>
+			</condition>
+		</fail>
+
+		<property name="multiple-working-dir-pattern" value="${ds.master.plan.name}*"/>
+		<echo message="Searching for multiple working dir (${multiple-working-dir-pattern})..."/>
+		<dirset id="master.plan.working.dirs" dir="${ds.jenkins.workspace}">
+			<include name="${multiple-working-dir-pattern}"/>
+		</dirset>
+
+		<fail message="ERROR: Master build used multiple working dir: ${toString:master.plan.working.dirs}">
+			<condition>
+				<resourcecount refid="master.plan.working.dirs" when="greater" count="1"/>
+			</condition>
+		</fail>
+
+		<echo message="Not parallel working dir found"/>
+	</target>
+
+	<target name="publish-fs">
+		<sshexec password="${remote.password}" host="${remote.host}" username="${remote.user}"
+				command="rm -rf ${remote.dir}/Core; mkdir -p ${remote.dir}/Core" trust="true"/>
+		<sleep seconds="5"/>
+		<echo message="Using last.successful.tap.build = ${last.successful.tap.build}"/>
+		<echo message="Publishing DS TAP..."/>
+		<scp password="${remote.password}" todir="${remote.user}@${remote.host}:${remote.dir}/Core" trust="true" preserveLastModified="true" >
+			<fileset dir="${last.successful.tap.build}">
+				<!-- <exclude name="EDS-*.zip"/> -->
+				<include name="**/*.zip"/>
+			</fileset>
+		</scp>
+		<echo message="Publishing DS TAP Generator..."/>
+		<scp password="${remote.password}" todir="${remote.user}@${remote.host}:${remote.dir}/Core" trust="true" preserveLastModified="true" >
+			<fileset dir="${last.successful.generator.build}">
+				<include name="**/*TAP*.zip"/>
+			</fileset>
+		</scp>
+		<echo message="Publishing DS TAP Documentation..."/>
+		<sshexec password="${remote.password}" host="${remote.host}" username="${remote.user}"
+				command="rm -rf ${remote.dir}/Doc; mkdir -p ${remote.dir}/Doc/eclipse-design-studio" trust="true"/>
+		<sleep seconds="5"/>
+		<scp password="${remote.password}" todir="${remote.user}@${remote.host}:${remote.dir}/Doc/eclipse-design-studio" trust="true" preserveLastModified="true" >
+			<fileset dir="${last.successful.doc}">
+				<include name="**/*.chm"/>
+			</fileset>
+		</scp>
+
+		<echo message="Publishing EDS TAP..."/>
+		<sshexec password="${remote.password}" host="${remote.host}" username="${remote.user}"
+				command="rm -rf ${remote.eds.dir}; mkdir -p ${remote.eds.dir}" trust="true"/>
+		<scp password="${remote.password}" todir="${remote.user}@${remote.host}:${remote.eds.dir}" trust="true" preserveLastModified="true" >
+			<fileset dir="${last.successful.tap.build}">
+				<include name="**/EDS-*.zip"/>
+			</fileset>
+		</scp>
+
+		<echo message="Publishing DS and EDS T24..."/>
+		<sshexec password="${remote.password}" host="${remote.host}" username="${remote.user}" 
+				command="mkdir -p ${t24.distrib.dir}; rm -f ${t24.distrib.dir}/DesignStudioT24-*.*; rm -f ${t24.distrib.dir}/EDS-T24-*.*" trust="true"/>
+		<sleep seconds="5"/>
+		<!-- lauvmcmtds cannot access //p2/p2, so, upon Jerome's recommandation, we're using scp instead -->
+		<scp password="${remote.password}" todir="${remote.user}@${remote.host}:${t24.distrib.dir}" trust="true" preserveLastModified="true" >
+			<fileset dir="${last.successful.t24.build}" includes="**/*T24*.*"/>
+			<fileset dir="${last.successful.generator.build}" includes="**/*T24*.zip"/>
+		</scp>
+	</target>
+
+	<target name="publish-t24-binaries">
+		<echo message="Publishing T24 binaries..."/>
+		<sshexec password="${remote.password}" host="${remote.host}" username="${remote.user}" 
+				command="mkdir -p ${t24.distrib.dir}; rm -f ${t24.distrib.dir}/*t24-binaries*.zip" trust="true"/>
+		<sleep seconds="5"/>
+		
+		<!-- lauvmcmtds cannot access //p2/p2, so, upon Jerome's recommandation, we're using scp instead -->
+		<scp password="${remote.password}" todir="${remote.user}@${remote.host}:${t24.distrib.dir}" trust="true" preserveLastModified="true" >
+		    <fileset dir="${ds.build.plan.to.publish}" includes="*t24-binaries*.zip"/> 
+		</scp>
+	</target>
+	
+	<target name="publish-maven">
+		<!-- set the property to an empty string if not defined. Required because Bamboo cannot pass an empty string -->
+		<condition property="version.postfix" value="${ds.generator.version.postfix}">
+			<not>
+				<equals arg1="${ds.generator.version.postfix}" arg2=" "/>
+			</not>
+		</condition>
+		<property name="version.postfix" value=""/>
+		<echo message="Publishing TAP generator..."/>
+		<echo message="Source: ${last.successful.generator.build}/dsgenerator.zip" />
+		<exec executable="${mvn.installation}/bin/mvn.bat" failonerror="true">
+			<arg value="deploy:deploy-file"/>
+			<arg value="-Durl=http://maven.oams.com/content/repositories/${mvnrepo}"/>
+			<arg value="-DrepositoryId=snapshots"/>
+			<arg value="-Dfile=${last.successful.generator.build}/dsgenerator.zip"/>
+			<arg value="-DgroupId=com.odcgroup.ds"/>
+			<arg value="-DartifactId=DesignStudio-Generator"/>
+			<arg value="-Dversion=${ds.release}.${ds.patch}${version.postfix}"/>
+			<arg value="-Dpackaging=zip"/>
+			<arg value="-s${mvn.installation}/conf/settings.xml"/>
+		</exec>
+		
+		<echo message="Publishing T24 generator..."/>
+		<echo message="Source: ${toString:dsgeneratorT24.zip.path}" />
+		<exec executable="${mvn.installation}/bin/mvn.bat" failonerror="true">
+			<arg value="deploy:deploy-file"/>
+			<arg value="-Durl=http://maven.oams.com/content/repositories/t24-${mvnrepo}"/>
+			<arg value="-DrepositoryId=t24-snapshots"/>
+			<arg value="-Dfile=${last.successful.generator.build}/DesignStudioT24-GeneratorEdition-${ds.release}.${ds.patch}.zip"/>
+			<arg value="-DgroupId=com.temenos.ds"/>
+			<arg value="-DartifactId=DesignStudioT24-Generator"/>
+			<arg value="-Dversion=${ds.release}.${ds.patch}${version.postfix}"/>
+			<arg value="-Dpackaging=zip"/>
+			<arg value="-s${mvn.installation}/conf/settings.xml"/>
+		</exec>
+	</target>
+<!--
+	<target name="publish-p2">
+		<echo message="Publishing TAP plugins to p2"/>
+		<first id="ds.tap.p2repo.path">
+		    <fileset includes="${last.successful.tap.build}/p2repo" />
+		</first>
+		<pathconvert property="sourcerepo-tap" targetos="unix">
+			<path location="{toString:ds.tap.p2repo.path}"/>
+		</pathconvert>
+		<antcall target="run.MirrorRepository">
+			<! - - <param name="eclipse.home" value="${eclipse.home}"/> - - >
+			<param name="p2.source" value="file://${sourcerepo-tap}"/>
+			<param name="p2.destination" value="file:/${p2.update.site.dir}/tap"/>
+		</antcall>
+
+		<echo message="Publishing T24 plugins to p2"/>
+		    <fileset includes="${last.successful.t24.build}/p2repo" />
+		</first>
+		<pathconvert property="sourcerepo-t24" targetos="unix">
+			<path location="${toString:ds.t24.p2repo.path}"/>
+		</pathconvert>
+		<antcall target="run.MirrorRepository">
+			<param name="eclipse.home" value=" ??? /eclipseframework/sdk/eclipse"/>
+			<param name="p2.source" value="file://${sourcerepo-t24}"/>
+			<param name="p2.destination" value="file:/${p2.update.site.dir}/t24"/>
+		</antcall>
+
+		<delete dir="${basedir}/tmp"/>
+	</target>
+-->
+	<target name="run.MirrorRepository">
+		<exec executable="${eclipse.home}/eclipsec" failonerror="true">
+			<arg line="-verbose"/>
+			<arg line="-data ${basedir}/workspace-mirrorApplication-metadata"/>
+			<arg line="-application org.eclipse.equinox.p2.metadata.repository.mirrorApplication"/>
+			<arg line="-source ${p2.source}"/>
+			<arg line="-destination ${p2.destination}"/>
+			<arg line="-vmargs"/>
+			<arg line="-Xms128m"/>
+			<arg line="-Xmx512m"/>
+			<arg line="-XX:PermSize=64m"/>
+			<arg line="-XX:MaxPermSize=128m"/>
+		</exec>
+		<exec executable="${eclipse.home}/eclipsec" failonerror="true">
+			<arg line="-verbose"/>
+			<arg line="-data ${basedir}/workspace-mirrorApplication-artifact"/>
+			<arg line="-application org.eclipse.equinox.p2.artifact.repository.mirrorApplication"/>
+			<arg line="-source ${p2.source}"/>
+			<arg line="-destination ${p2.destination}"/>
+			<arg line="-vmargs"/>
+			<arg line="-Xms128m"/>
+			<arg line="-Xmx512m"/>
+			<arg line="-XX:PermSize=64m"/>
+			<arg line="-XX:MaxPermSize=128m"/>
+		</exec>
+	</target>
+
+	<target name="run.FeaturesAndBundlesPublisher">
+		<exec executable="${eclipse.home}/eclipsec" failonerror="true">
+			<arg line="-verbose"/>
+			<arg line="-data workspace-FeaturesAndBundlesPublisher"/>
+			<arg line="-application org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
+			<arg line="-nosplash"/>
+			<arg line="-consoleLog"/>
+			<arg line="-metadataRepository ${p2.repo}"/>
+			<arg line="-artifactRepository ${p2.repo}"/>
+			<arg line="-source ${p2.source}"/>
+			<arg line="-configs win32.win32.x86"/>
+			<arg line="-publishArtifacts"/>
+			<arg line="-vmargs"/>
+			<arg line="-Xms128m"/>
+			<arg line="-Xmx512m"/>
+			<arg line="-XX:PermSize=64m"/>
+			<arg line="-XX:MaxPermSize=128m"/>
+		</exec>
+	</target>
+
+</project>

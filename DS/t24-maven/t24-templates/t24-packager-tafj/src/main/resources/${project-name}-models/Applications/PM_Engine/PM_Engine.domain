@@ -1,0 +1,437 @@
+# UTF-8
+# UTF-8
+/* Processing for Position Management */
+Domain PM_Engine
+	@t24:i (module=PM)
+	@java:Package (value=com.temenos.t24.datamodel.pm.pm_engine)
+namespace "http://www.temenos.com/t24/PM_Engine"
+metamodelVersion 1.30.6
+Classes {
+	/* This is a live  file which gets updated for each transaction input in an application related to PM through generic interface.
+This file stores for each transaction input in an application related to PM through generic interface, the IDs of  PM.TRAN.ACTIVITY records generated for it. */
+	CONTRACT_TRAN_ACTIVITY
+		@t24:i (t24Name=CONTRACT.TRAN.ACTIVITY, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Specifies the ID of the table, which is a transaction ID.
+Validation Rules
+
+System generated field. */
+		CONTRACT_ID -> PM_Engine:CONTRACT_TRAN_ACTIVITY PK required
+			@i18n:Label (en="Contract Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.ID)
+		/* Specifies the IDs  of  PM.TRAN.ACTIVITY records  generated for the transaction specified in the ID of this record. */
+		TRAN_ACTIVITY_ID : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=44, sysNumber=1.0, core=true, t24Name=TRAN.ACTIVITY.ID)
+	}
+	/* PM.POSITION.CAPTURE
+
+This mini application allows the user to update the Position Management system directly without generating any accounting entry.  In other words, it enables the user to introduce movements deriving from transactions not supported by the applications currently available in T24 or from other third party or manual systems.
+This is the case, for example, for products such as Interest Swaps, or options for which, today, there is no automated module available in T24.
+Great care must be exercised when updating the Position Management module with this facility because all data is exclusively under the sole user control. */
+	PM_POSITION_CAPTURE
+		@t24:i (t24Name=PM.POSITION.CAPTURE, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Identifies the key of each transaction introduced within this application.
+Validation Rules
+'PM' + YY + DDD + NNNNN where PM      =  Identification of the PM Module YY  =  Last 2 digits of the current year DDD =  Current Julian day NNNNN =    Sequence Number */
+		PM_POSN_TRAN_ID -> PM_Engine:PM_POSITION_CAPTURE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=A, t24Name=PM.POSN.TRAN.ID)
+		/* Specifies the currency market applicable to the movement.
+Validation Rules
+1 numeric character Optional Input Default value = 1
+Must exist on the table "CURRENCY.MARKET" */
+		CURRENCY_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET
+			@i18n:Label (en=Market)
+			@t24:i (align=R, inputBehaviour=F, maxLength=1, sysNumber=1.0, core=true, t24Name=CURRENCY.MARKET)
+		/* Specifies the dealer desk applicable to the movement.
+Validation Rules
+2 numeric characters Mandatory Input
+Must be a valid record on the table "DEALER.DESK" */
+		DEALER_DESK -> ST_Config:DEALER_DESK required
+			@i18n:Label (en="Dealer Desk")
+			@i18n:Tooltip (en="Specifies the Dealer Desk handling the transaction")
+			@t24:i (align=L, inputBehaviour=F, maxLength=4, sysNumber=2.0, core=true, businessType=A, t24Name=DEALER.DESK)
+		/* Specifies the Position type applicable to the movement.
+Validation Rules
+Optional Input. Only TR is allowed
+Default value = "TR"
+Must be a valid record on the table "FX.POS TYPE" */
+		POSITION_TYPE -> RE_Config:FX_POS_TYPE
+			@i18n:Label (en="Position Type")
+			@i18n:Tooltip (en="Position Type")
+			@t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=3.0, core=true, businessType=IFRSPOSTYPE, t24Name=POSITION.TYPE)
+		/* Identifies the movement as an Asset or a Liability.
+Validation Rules
+1 numeric character with the following values: '1' Asset '2' Liability Mandatory Input */
+		ASST_LIAB_CD : PM_Engine:PM_POSITION_CAPTURE__ASST_LIAB_CD required
+			@t24:i (align=R, inputBehaviour=F, maxLength=2, sysNumber=4.0, core=true, t24Name=ASST.LIAB.CD)
+		/* Specifies the value date associated with the movement.
+Validation Rules
+Standard date format Mandatory Input
+Must be greater than or equal to the bank's date. */
+		POSITION_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Spot Date")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=5.0, core=true, t24Name=POSITION.DATE)
+		/* Identifies the type of product which is generating this position movement.
+The user should invent meaningful product identifiers such as, for example,
+'FF' for Financial Futures               'IS' for Interest (rate) Swaps               'OP' for Options               etc.
+Current product identifiers such as "MM", "AC", "LD" etc are refused because movements originating from these transactions should NOT be introduced by this mini application but instead will be generated automatically from the deal/contract entered by the user in the relevant application.
+Validation Rules
+Any 2 alpha characters type "SSS" Mandatory Input
+The product identification may not be an existing T24 application such as "MM", "FX", "LD" etc. */
+		PM_PRODUCT : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=6.0, core=true, t24Name=PM.PRODUCT)
+		/* Identifies the ID of the position which the user wishes to update.  It must refer to one of the Positions defined on the "PM.POSN.REFERENCE" file.
+The fact that the position ID is part of the details of the movement introduced entails that the user will need to create 2 or more movements in this mini application when the underlying deal/contract (such as Financial Future, IRS etc...) has an influence on various positions.
+Validation Rules
+2 to 3 characters type "AA" Mandatory Input
+Must be a valid record on the file "PM.POSN.REFERENCE". */
+		POSITION_ID -> PM_Config:PM_POSN_REFERENCE required
+			@t24:i (align=L, inputBehaviour=F, maxLength=7, sysNumber=7.0, core=true, businessType=A, t24Name=POSITION.ID)
+		/* Identifies the position class associated with this movement activity.  The position class must have been defined previously on the file "PM.POSN.CLASS"
+To include this activity/movement in the various enquiries/reports existing in the Position Management module, it is important to remember that the position class ID entered in this field must be included in the appropriate position(s) defined on the file "PM.POSN.REFERENCE".
+Validation Rules
+5 characters type "AA" Mandatory Input
+Must be a valid record on the file "PM.POSN.CLASS". */
+		POSITION_CLASS_ID -> PM_Config:PM_POSN_CLASS required
+			@t24:i (align=L, inputBehaviour=F, maxLength=5, sysNumber=8.0, core=true, businessType=A, t24Name=POSITION.CLASS.ID)
+		/* Identifies the currency of the movement.
+Validation Rules
+3 characters type SSS Mandatory Input
+Must be a valid record on the file "CURRENCY". */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY required
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=9.0, core=true, businessType=A, t24Name=CURRENCY)
+		/* Identifies the amount of movement.  This amount is in the currency specified in the previous field.
+Validation Rules
+Standard amount format Mandatory Input */
+		AMOUNT : T24BusinessTypes:AMT required
+			@i18n:Label (en=Amount)
+			@i18n:Tooltip (en="Indicates the Amount")
+			@t24:i (align=R, inputBehaviour=F, maxLength=18, sysNumber=10.0, core=true, t24Name=AMOUNT, typeModifiers="9D")
+		/* Specifies the exchange rate associated with the movement.
+When the user wants to update a currency position type, it is obvious that an exchange rate should be input in this field when the movement is entered.
+Validation Rules
+Standard rate format
+Either a value must be entered in this field or the next field INTEREST.RATE. */
+		EXCHANGE_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Exchange Rate")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=11.0, core=true, t24Name=EXCHANGE.RATE)
+		/* Specifies the interest rate associated with the movement.
+When the user wants to update a interest position type, it is clear that an interest rate should be input in this field when the movement is entered.
+Validation Rules
+Standard rate format
+Either a value must be entered in this field or the previous field EXCHANGE RATE. */
+		INTEREST_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Interest Rate")
+			@i18n:Tooltip (en="Indicates interest rate")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=12.0, core=true, t24Name=INTEREST.RATE)
+		/* Allows the user to associate a free text description to the movement.
+Could be used to describe the underlying contract/deal which is at the origin of this movement.
+Validation Rules
+35 alphanumeric characters Optional Input */
+		PRODUCT_DESC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=13.0, core=true, t24Name=PRODUCT.DESC)
+		/* This field is reserved for future use. */
+		R1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=14.0, core=true, t24Name=R1)
+		/* This field is reserved for future use. */
+		R2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=15.0, core=true, t24Name=R2)
+		/* This field is reserved for future use. */
+		R3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=16.0, core=true, t24Name=R3)
+		/* This field is reserved for future use. */
+		R4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=17.0, core=true, t24Name=R4)
+		/* This field is reserved for future use. */
+		R5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=18.0, core=true, t24Name=R5)
+		/* This field is reserved for future use. */
+		R6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=19.0, core=true, t24Name=R6)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PM_Engine:PM_POSITION_CAPTURE__INPUTTER *
+		DATE_TIME -> byValue PM_Engine:PM_POSITION_CAPTURE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=25.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=27.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=28.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PM_POSITION_CAPTURE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=INPUTTER)
+	}
+	PM_POSITION_CAPTURE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=23.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* OVERVIEW PM.TRAN.ACTIVITY
+This file contains for each transaction all the activities that are generated from deals.  Activities are the breakdowns of deals.
+Each activity relates to an entry defined on the file PM.POSN.CLASS. The various activities which exist for each application are explained in that same table.
+'L', 'P' and 'S' are the only permissible functions on this file. */
+	PM_TRAN_ACTIVITY
+		@t24:i (t24Name=PM.TRAN.ACTIVITY, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key to PM.TRAN.ACTIVITY.
+For applications  in the modules  DC, FR, FT, FX, LD, MM, ND, PD, SC, SW, TT, it can be, for example, the batch number ID or the deal number preceded by the application identifier.
+The value of this field is the same as the deal-id except for
+i) Negotiated deals which are stored as 'NE' followed by the Negotiated Reference Number.
+ii) Data Capture entries where DC is part of the Dept code, batch Number and item number.
+
+For applications related to PM through the generic interface, it could be one of:
+Deal ID*GAP - Recording Gap movements
+Deal ID*REAL - Recording real account movements
+Deal ID*FWD - Recording forward (cash-flow) account movements
+
+Validation Rules
+
+Updated by system. */
+		TRANSACTION_REF_NO -> PM_Engine:PM_TRAN_ACTIVITY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=44, sysNumber=0.0, core=true, businessType=A, t24Name=TRANSACTION.REF.NO)
+		CURRENCY_MARKET -> byValue PM_Engine:PM_TRAN_ACTIVITY__CURRENCY_MARKET *
+		TRAN_PROC_CD -> byValue PM_Engine:PM_TRAN_ACTIVITY__TRAN_PROC_CD *
+		/* Specifies the source application name of  the transaction.
+System generated field. */
+		APPLICATION : T24BusinessTypes:A
+			@i18n:Label (en=Application)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, t24Name=APPLICATION)
+		/* The booking date of the underlying contract. With non stop processing where contracts can be booked during the CB processing the booking date will be for the next working day. THis then allows these contracts to be bypassed by the PM COB processing/ */
+		BOOKING_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Booking Date")
+			@i18n:Tooltip (en="Booking Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, core=true, t24Name=BOOKING.DATE)
+		/* Indicates the date and time when the activity was last created/updated
+Validation Rules
+12 characters, type ''. System generated field. */
+		DATE_TIME : mml:Integer
+			@i18n:Label (en="Date time")
+			@i18n:Tooltip (en="Date and time when record was input or authorised")
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=22.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PM_TRAN_ACTIVITY__CURRENCY_MARKET
+	{
+		/* Defines the currency market of the deal.
+The association of multivalue fields is done for each "activity" of the deal.
+Validation Rules
+1 character, type ''. System generated field. (Multi-value associated with fields 2.1 to 17.1.) */
+		CURRENCY_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=1.0, core=true, t24Name=CURRENCY.MARKET)
+		/* Indicates the dealer desk of the deal.
+Validation Rules
+2 characters, type ''. System generated deal. (Multi-value associated with field 1.1 and fields 3.1 to 17.1.) */
+		DEALER_DESK -> ST_Config:DEALER_DESK
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=2.0, core=true, t24Name=DEALER.DESK)
+		/* Indicates the position type of the deal.
+Validation Rules
+2 characters, type 'A'. System generated field. (Multi-value associated with fields 1.1 to 2.1 and 4.1 to 17.1.) */
+		POSN_TYPE -> RE_Config:FX_POS_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, businessType=A, t24Name=POSN.TYPE)
+		/* Indicates the asset/liability code for each individual activity of the deal.
+The value of the code is assigned according to the nature of each activity.
+For example, for a Money Market placement:
+-         The value date principal activity will receive the code           value of "2" (liability) because it refers to an activity           generating OUTgoing funds.
+-         The maturity principal activity will receive the code value           of "1" (Asset) because it refers to an activity generating           Incoming funds.
+-         The Maturity Interest activity will receive the code value           of "1" (Asset) because it refers to an activity generating           INcoming funds
+Opposite code values will be generated for a M.M. Deposit           deal.
+Validation Rules
+1 numeric character, with the values: 1 - Asset 2 - Liability System generated field (Multi-value associated with fields 1.1 to 3.1 and fields 5.1 to 17.1.) */
+		ASST_LIAB_CD : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=4.0, core=true, t24Name=ASST.LIAB.CD)
+		/* Indicates the value date on which the activity takes place.
+On a Money Market transaction, for example:
+-         This field, for the value date activity, will contain the           value date from the deal.
+-         For the maturity activity, this field will contain the           maturity date from the deal.
+Validation Rules
+8 characters, type 'D'. System generated field. (Multi-value associated with fields 1.1 to 4.1 and fields 6.1 to 17.1.) */
+		VALUE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, t24Name=VALUE.DATE)
+		/* This field is reserved for future use.
+Validation Rules
+Presently, standard value of "8" System generated field. (Multi value associated with fields 1.1 to 5.1 and fields 7.1 to 17.1.) */
+		VALUE_DATE_SFX : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=6.0, core=true, t24Name=VALUE.DATE.SFX)
+		/* Indicates the position class assigned to each activity of the deal.
+Please refer to the help text for the PM.POSN.CLASS file for details of position class records.
+Validation Rules
+5 characters, type 'A'. System generated field. (Multi-value associated with fields 1.1 to 6.1 and fields 8.1 to 17.1). */
+		POSN_CLASS -> PM_Config:PM_POSN_CLASS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, businessType=A, t24Name=POSN.CLASS)
+		/* Indicates the currency of the activity generated.
+Validation Rules
+3 characters, type 'CCY' System generated field. (Multi-value associated with fields 1.1 to 7.1 and fields 9.1 to 17.1). */
+		CURRENCY : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, t24Name=CURRENCY)
+		/* Indicates the amount relating to the activity specified earlier.  This amount is in the currency shown in the previous field.
+Validation Rules
+1 to 14 characters, type 'AMT'. System generated field. (Multi-value associated with fields 1.1 to 8.1 and fields 10.1.1 to 17.1). */
+		CCY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, core=true, t24Name=CCY.AMT, typeModifiers="-8.X")
+		/* Indicates either the exchange rate or the interest rate of the transaction.
+For Money Market and Loan transactions this field will contain the interest rate specified on the contract.  It will only be shown on Maturity principal activity and on the Interest activity.
+For MM and LD transactions done on a floating rate basis, this field will contain the amount value of the rate adjusted by the margin/spread.
+For Forex transactions, this field will specify the exchange rate for the base currency or the inverted rate for the non base currency.
+For Data Caputre and Funds Transfer, this field is not used.
+Validation Rules
+1 to 10 characters, standard rate format. System generated field. (Multi-value associated with fields 1.1 to 9.1 and fields 11.1 to 17.1.) */
+		RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=RATE)
+		/* Indicates the associated movement is related to an interest condition group or table.
+Only applicable for contracts or associated draw down accounts which are linked to an interest group / table.
+Validation Rules
+Alpha numeric characters. System generated field. (Optional.) (Multi-value associated with fields 1.1 to 10.1.1 and 12.1 to 17.1) */
+		INT_KEY : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=11.0, core=true, t24Name=INT.KEY)
+		/* Indicates the margin/spread attached to the interest key.
+Only applicable to contracts which are linked to an interest key.
+Validation Rules
+1 to 12 characters, type 'A'. System generated field. (Optional.) (Multi-value associated with fields 1.1 to 11.1.1 and fields 13.1 to 17.1.) */
+		MARGIN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=12.0, core=true, t24Name=MARGIN)
+		EQUIV_CODE -> byValue PM_Engine:PM_TRAN_ACTIVITY__CURRENCY_MARKET__EQUIV_CODE *
+		/* Defines any special processing that may be required for the activity.
+Value of 'RC' implies that the value date associated with the activity has to be recalculated in the EOD process.  A typical example is the value date associated to the maturity activity on Call/Notice contracts.  Every night the new maturity will be recalculated according to the number of days to the next working day.
+Validation Rules
+1 to 3 characters, type 'A'. "RC" = Recalculate System generated field. (Optional.) (Multi-value associated with fields 1.1 to 14.1.1 and fields 16.1 to 17.1.) */
+		ACTY_PROC_CD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=15.0, core=true, t24Name=ACTY.PROC.CD)
+		/* Displays the currency code of the Fixed currency.
+Validation Rules
+Display Only. */
+		FIXED_CCY : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=16.0, core=true, t24Name=FIXED.CCY)
+		/* Displays the equivalent Fixed Currency amount.  The field is not used in any calculations.
+Validation Rules
+Display only. */
+		FIXED_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=FIXED.AMT)
+	}
+	PM_TRAN_ACTIVITY__CURRENCY_MARKET__EQUIV_CODE
+	{
+		/* Indicates the type of amount stored in the following field.
+Only applicable on foreign currency transactions.
+Validation Rules
+1 numeric character with the value: '3' = Local currency equivalent. System generated field. (Optional.) (Multi-value associated with fields 1.1 to 12.1.1 and fields 14.1 to 17.1.) */
+		EQUIV_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=13.0, core=true, t24Name=EQUIV.CODE)
+		/* This is the equivalent amount of the CCY.AMT
+Only applicable on foreign currency transactions.
+Validation Rules
+1 to 14 characters, type 'AMT'. System generated field (Optional.) (Multi-value associated with fields 1.1 to 13.1.1 and fields 15.1 to 17.1) */
+		EQUIV_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=EQUIV.AMT, typeModifiers="-USD")
+	}
+	PM_TRAN_ACTIVITY__TRAN_PROC_CD
+	{
+		/* This indicates special processing that may be required for all the activites of the deal.
+'CA' -Create Activity  e.g. when Rollover dates or                 principal increase date has been input, this                 record needs to be recreated.
+'LM' -Last Maturity  e.g. end of a swap forex contract
+'NE' -Negotiated deal
+'D'  -Delete  e.g. when contract has been reversed or                 deleted on line and the end of day processing is to                 remove record from file.
+Validation Rules
+1 to 3 characters, type 'A'. System generated field. (Multi-value associated with field 19.1.) */
+		TRAN_PROC_CD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=18.0, core=true, t24Name=TRAN.PROC.CD)
+		/* Indicates the date when the special processing must take place.
+This specifies the date when the action described in TRAN.PROC.CD should take place if TRAN.PROC.CD is 'CA' or 'LM'. If TRAN.PROC.CD is 'NE', this contains the deal-id of the Negotiated deal.
+Validation Rules
+1 to 11 characters, type 'A'. (No input.) (Multi-value associated with field 18.1.) */
+		TRAN_PROC_DETL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=19.0, core=true, t24Name=TRAN.PROC.DETL)
+	}
+	PM_UPDATE_APPL
+		@t24:i (t24Name=PM.UPDATE.APPL, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Validation Rules
+Mandatory input.
+A maximum of 6 characters may be entered.
+The following values are permitted:       ADD      DELETE */
+		PM_CHANGE_KEY -> PM_Engine:PM_UPDATE_APPL PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, t24Name="PM CHANGE KEY")
+		APPLICATION -> byValue PM_Engine:PM_UPDATE_APPL__APPLICATION *
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 12 characters may be entered.
+This is a NOINPUT field. */
+		PROCESSED_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=12, sysNumber=2.0, core=true, t24Name=PROCESSED.DATE)
+		RESERVE_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=3.0, core=true, t24Name=RESERVE.3)
+		RESERVE_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=4.0, core=true, t24Name=RESERVE.2)
+		RESERVE_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=5.0, core=true, t24Name=RESERVE.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=6.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=7.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PM_Engine:PM_UPDATE_APPL__INPUTTER *
+		DATE_TIME -> byValue PM_Engine:PM_UPDATE_APPL__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=13.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=14.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PM_UPDATE_APPL__APPLICATION
+	{
+		/* Specifies a valid T24 Product to be updated in the field APPLN.INC of PM.PARAMETER.
+Validation Rules
+
+Mandatory input.
+A maximum of 2 characters may be entered. */
+		APPLICATION -> EB_SystemTables:EB_PRODUCT required
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, businessType=A, t24Name=APPLICATION)
+	}
+	PM_UPDATE_APPL__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, core=true, t24Name=INPUTTER)
+	}
+	PM_UPDATE_APPL__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=9.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	PM_POSITION_CAPTURE__ASST_LIAB_CD : mml:string
+		n1=1
+		n2=2
+}

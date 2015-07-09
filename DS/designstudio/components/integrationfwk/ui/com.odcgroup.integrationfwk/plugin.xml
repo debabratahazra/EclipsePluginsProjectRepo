@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+<extension point="org.eclipse.ui.editors">
+	<editor 
+ 		extensions="event"
+ 		default="true"
+ 		name="Events Editor"
+ 		icon="icons/event.gif"
+ 		class="com.odcgroup.integrationfwk.ui.editors.EventsEditor" 		
+ 		contributorClass="com.odcgroup.integrationfwk.ui.editors.EventsEditorContributor" 		 
+ 		id="com.temenos.tws.consumer.plugin.editors.EventsEditor">
+ 	</editor>
+ 	
+ 	<editor
+ 		extensions="flow"
+ 		default="true"
+ 		name="Flows Editor"
+ 		icon="icons/flow.gif"
+ 		class="com.odcgroup.integrationfwk.ui.editors.FlowsEditor"
+ 		contributorClass="com.odcgroup.integrationfwk.ui.editors.FlowsEditorContributor" 		
+ 		id="com.temenos.tws.consumer.plugin.editors.FlowsEditor" >
+ </editor>
+</extension>
+
+<extension point="org.eclipse.ui.newWizards">
+      <category
+            id="com.temenos.tws.plugin.category.wizard"
+            name="T24 Integration Studio">
+      </category>
+      <category
+            id="com.temenos.tws.plugin.category.editor.wizard"
+            name="T24 Integration Editors">
+      </category>
+      <wizard
+            category="com.temenos.tws.plugin.category.wizard"
+            class="com.odcgroup.integrationfwk.ui.wizard.TWSConsumerWizard"
+            finalPerspective="com.temenos.tws.perspectives.SOAStudioPerspective"
+            icon="icons/integration.gif"
+            id="com.temenos.tws.consumer.plugin.wizard"
+            name="T24 Integration Project"
+            preferredPerspectives="com.temenos.tws.perspectives.SOAStudioPerspective"
+            project="true">
+      </wizard>
+      <wizard
+            category="com.temenos.tws.plugin.category.editor.wizard"
+            class="com.odcgroup.integrationfwk.ui.wizard.NewEventWizard"
+            finalPerspective="com.temenos.tws.perspectives.SOAStudioPerspective"
+            icon="icons/event.gif"
+            id="com.temenos.tws.consumer.plugin.wizard.NewEventWizard"
+            name="T24 Event Wizard"
+            preferredPerspectives="com.temenos.tws.perspectives.SOAStudioPerspective"
+            project="true">
+      </wizard>
+        <wizard
+              category="com.temenos.tws.plugin.category.editor.wizard"
+              class="com.odcgroup.integrationfwk.ui.wizard.NewFlowWizard"
+              finalPerspective="com.temenos.tws.perspectives.SOAStudioPerspective"
+              icon="icons/flow.gif"
+              id="com.temenos.tws.consumer.plugin.wizard.NewFlowWizard"
+              name="T24 Flow Wizard"
+              preferredPerspectives="com.temenos.tws.perspectives.SOAStudioPerspective"
+              project="true">
+      </wizard>
+</extension>
+   
+<extension point="org.eclipse.core.resources.natures"
+         id="com.temenos.tws.consumer.plugin.natures.TWSConsumerNature"
+         name="com.temenos.tws.consumer.plugin.natures.TWSConsumerNature">
+      <runtime>
+         <run
+               class="com.odcgroup.integrationfwk.ui.natures.TWSConsumerNature">
+         </run>
+      </runtime>
+</extension>
+   
+<extension  point="org.eclipse.ui.perspectives">
+   		<perspective id="com.temenos.tws.perspectives.SOAStudioPerspective"
+   		name="Integration Studio"
+   		icon="icons/integration.gif"
+   		class="com.odcgroup.integrationfwk.ui.perspectives.PerspectiveFactory"/>
+</extension>
+  
+<extension point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.odcgroup.integrationfwk.ui.prefprop.TWSPreferencePage"
+            id="com.temenos.tws.consumer.plugin.prefprop.TWSPreferencePage"
+            name="Integration Studio">
+      </page>
+</extension>
+
+<extension point="org.eclipse.ui.propertyPages">
+       <page
+             class="com.odcgroup.integrationfwk.ui.prefprop.TWSConsumerPropertyPage"
+             id="com.temenos.tws.consumer.plugin.prefprop.TWSConsumerPropertyPage"
+             name="Integration Studio"
+             >
+        <enabledWhen>
+          <and>
+              <instanceof
+                    value="org.eclipse.core.resources.IProject">
+              </instanceof>
+              <test
+                    property="org.eclipse.core.resources.projectNature"
+                    value="com.temenos.tws.consumer.plugin.natures.TWSConsumerNature">
+              </test>
+           </and>
+          </enabledWhen>          
+       </page>
+</extension>
+
+<extension point="org.eclipse.ui.popupMenus">
+      <objectContribution 
+            adaptable="true"
+            id="com.temenos.tws.consumer.popupMenu"
+            objectClass="org.eclipse.core.resources.IProject"
+             >
+            <visibility>
+            <and>
+               <objectState name="nature" value="com.temenos.tws.consumer.plugin.natures.TWSConsumerNature"/>
+            </and>
+            </visibility>
+         <action
+               class="com.odcgroup.integrationfwk.ui.cache.CreateDataLibrary"
+               enablesFor="?"
+               icon="icons/directoryImage2.gif"
+               id="com.temenos.t24.action.popup.setLocalDefaultProject"
+               label="Create Data Library"
+               menubarPath="com.temenos.integration.flow.popupSubMenu/content"/>
+               
+         <action
+               class="com.odcgroup.integrationfwk.ui.cache.PublishAction"
+               enablesFor="?"
+               icon="icons/directoryImage2.gif"
+               id="com.temenos.t24.action.popup.setLocalDefaultProject"
+               label="Publish"
+               menubarPath="com.temenos.integration.flow.popupSubMenu/content"/>
+
+         <menu
+               id="com.temenos.integration.flow.popupSubMenu"
+               label="Integration Studio">
+            <groupMarker name="content"/>
+         </menu>
+      </objectContribution>
+</extension>
+   
+<!-- ******************************************************************** -->
+<extension point="org.eclipse.ui.decorators">
+		<decorator
+			adaptable="true"
+			objectClass="org.eclipse.core.resources.IFile"
+			label="Integration Studio Decorator"
+			state="true"
+			class="com.odcgroup.integrationfwk.ui.decorators.Decorator"
+			id="com.temenos.tws.consumer.decorators.ui.decorators.Decorator">
+			<description>
+				Integration Studio Decorator
+			</description>
+		</decorator>
+</extension>
+	
+<!-- ************** Global Preferences *************** -->
+<extension point="org.eclipse.ui.preferencePages">
+		<page id="com.temenos.tws.consumer.decorators.ui.GlobalPreferencePage"
+		      name="PublishDecorator"
+		      class="com.odcgroup.integrationfwk.ui.decorators.GlobalPreferencePage"/>
+</extension>
+	
+<!-- Individual Decorator Preference Page -->	
+<extension point="org.eclipse.ui.preferencePages">
+   		<page id="com.temenos.tws.consumer.DecoratorDemo.ui.DemoLabelDecoratorPreferencePage"
+   			name="Label Decorator Preference"
+   			category="com.temenos.tws.consumer.DecoratorDemo.ui.DemoGlobalPreferencePage"
+   			class="com.temenos.tws.consumer.DecoratorDemo.ui.DemoLabelDecoratorPreferencePage"/>
+</extension>
+      
+<!-- *********************** File Property Page ************** -->
+<extension point="org.eclipse.ui.propertyPages">
+	   <page 
+	   		name="Decorator Demo File Properties"
+	   		id="com.temenos.tws.consumer.decorators.ui.FilePropertyPage"
+			objectClass="org.eclipse.core.resources.IFile"
+			class="com.odcgroup.integrationfwk.ui.decorators.FilePropertyPage" 
+			adaptable="true">
+		</page>
+	</extension>
+<extension
+       point="org.eclipse.ui.navigator.navigatorContent">
+        <commonWizard
+	        		type="new"
+					wizardId="com.temenos.tws.consumer.plugin.wizard.NewEventWizard">
+				<enablement>
+					
+		         </enablement>
+			</commonWizard>   
+		<commonWizard
+	        		type="new"
+					wizardId="com.temenos.tws.consumer.plugin.wizard.NewFlowWizard">
+				<enablement>
+					
+		         </enablement>
+			</commonWizard>
+			<commonWizard
+	        		type="new"
+					wizardId="com.temenos.tws.consumer.plugin.wizard">
+				<enablement>
+					
+		         </enablement>
+			</commonWizard> 	 	
+</extension>
+
+<extension id="com.temenos.handlers.RenameHandler"
+       point="org.eclipse.ui.handlers">
+<!-- Handler for java rename element -->  
+  <handler
+        class="com.odcgroup.integrationfwk.ui.RenameHandler"
+        commandId="org.eclipse.ltk.ui.refactoring.commands.renameResource">
+     <activeWhen>
+        <iterate>
+           <and>
+              <instanceof
+                    value="org.eclipse.core.resources.IProject">
+              </instanceof>
+              <test
+                    property="org.eclipse.core.resources.projectNature"
+                    value="com.temenos.tws.consumer.plugin.natures.TWSConsumerNature">
+              </test>
+           </and>
+        </iterate>
+     </activeWhen>
+  </handler>
+  <!-- Handler for global rename element -->
+  <handler
+        class="com.odcgroup.integrationfwk.ui.RenameHandler"
+        commandId="org.eclipse.ui.edit.rename">
+     <activeWhen>
+        <iterate>
+           <and>
+              <instanceof
+                    value="org.eclipse.core.resources.IProject">
+              </instanceof>
+              <test
+                    property="org.eclipse.core.resources.projectNature"
+                    value="com.temenos.tws.consumer.plugin.natures.TWSConsumerNature">
+              </test>
+           </and>
+        </iterate>
+     </activeWhen>
+  </handler>  
+ </extension>
+<!-- ****************************************************************** -->
+</plugin>

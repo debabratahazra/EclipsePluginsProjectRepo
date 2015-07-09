@@ -1,0 +1,46 @@
+domain T24 {
+	use common.CoreCommands.*
+	use common.HTTPEvents.*
+	use common.ODataCommands.*
+	use common.T24Commands.*
+	use common.T24Events.*
+	use common.NextState.*
+	rim enqCustomerPosition {
+		command GETEntities
+		command GETEntity
+		basepath: "/{companyid}"
+	
+		resource enqCustomerPositions {
+			type: collection
+			entity: enqCustomerPosition
+			commands [ GET : GETEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			path: "/enqCustomerPositions()"
+			GET *-> enqCustomerPosition {
+				parameters [ id = "{PrimaryKey}" ]
+			}
+			GET *-> locator t24ResourceLocator("{Nenq}") {
+				parameters [ id = "{id}" ]
+				title: "More detail..."
+			}
+			GET *-> "T24.enqCo100.enqCo100s" {
+				parameters [ filter = "CollateralRight eq '{CollRightCover1}'" ]
+				title: "Collateral Cover Details"
+			}
+			GET *-> locator t24ResourceLocator("{DrillEnq}") {
+				parameters [ filter = "CollatRight eq '{DrillCollRight}'" ]
+				title: "Collateral Right Details"
+			}
+		}
+	
+		resource enqCustomerPosition {
+			type: item
+			entity: enqCustomerPosition
+			commands [ GET : GETEntity ]
+			path: "/enqCustomerPositions('{id}')"
+		}
+	
+	}
+	
+}

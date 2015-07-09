@@ -1,0 +1,83 @@
+<project name="build-hothouse" default="build">
+
+	<property name="url" value="https://temhudson:jbase99@github.com/temenostech/Hothouse.git"/>
+	<property name="ds.maven.extra.args" value=""/>
+	<property name="checkout.dir" value="Hothouse"/>
+	<property name="git.branch.to.clone" value=""/>
+	<property name="git.revision.to.checkout" value=""/> <!-- for example ff59696914b0b0bb531a8873c05a7bbf5e1dec1c -->
+	
+	<condition property="git.branch.option" value="-b ${git.branch.to.clone}" else="">
+		<length string="${git.branch.to.clone}" when="greater" length="0"/>
+	</condition>
+	
+	<condition property="full.hothouse.build.extra.parameter" value="-f ${checkout.dir}/pom.xml" else="">
+		<istrue value="${ds.test.full.hothouse.build}"/>
+	</condition>
+
+	<available file="${checkout.dir}/.git" property="already.cloned"/>
+	
+	<condition property="mvn.exec" value="mvn.bat" else="mvn">
+		<os family="windows"/>
+	</condition>
+	
+	<target name="build" depends="get-sources,build-hothouse"/>
+	
+	<target name="get-sources" depends="clone-git-repo,fetch-from-git-repo,latest-from-git-repo"/>
+	
+	<target name="clone-git-repo" unless="already.cloned">
+		<echo>Cloning hothouse repo to ${checkout.dir}...</echo>
+		<mkdir dir="${checkout.dir}"/>
+		<exec executable="git" dir="${checkout.dir}">
+			<arg line="clone ${git.branch.option} ${url} ."/>
+		</exec>
+	</target>
+	
+	<target name="fetch-from-git-repo">
+			<echo>Getting latest commits of hothouse sources...</echo>
+			<mkdir dir="${checkout.dir}"/>
+			<exec executable="git" dir="${checkout.dir}">
+				<arg line="fetch --all"/>
+			</exec>
+	</target>
+
+	<target name="latest-from-git-repo">
+		<echo>Getting latest hothouse sources...</echo>
+		<mkdir dir="${checkout.dir}"/>
+		<!-- This revision is the latest successful revision built on the hothouse Jenkins
+			at the time of writing this script. This will have to be replaced by a fixed git 
+			tag once the hothouse team (J.Dean) has time to do set up the tag creation -->
+		<exec executable="git" dir="${checkout.dir}">
+			<arg line="checkout ${git.revision.to.checkout}"/>
+		</exec>
+	</target>
+	
+	<target name="build-hothouse">
+		<first id="dsgenerator.zip.path">
+		    <dirset dir="../.." includes="master-build/delivery/**/product/generators/t24-generator" />
+		</first>
+		<property name="t24-generator-to-validate" location="${toString:dsgenerator.zip.path}"/>
+
+		<echo>Building hothouse using ${t24-generator-to-validate}...</echo>
+		<!-- TODO DS-8188 REMOVE -Dds.ignoreValidationErrors=true -Dds.t24.gen.xml.failonerror=false -->
+		<echo>Building hothouse using ${env.M2_HOME}...</echo>
+		<run.execScript executable="${env.M2_HOME}/bin/${mvn.exec}" dir="." argLine="clean package -U -DframeworkPackaging=tafc -Ddesign.studio.home=${t24-generator-to-validate} -Dds.ignoreValidationErrors=true -Dds.t24.gen.xml.failonerror=false ${full.hothouse.build.extra.parameter} ${ds.maven.extra.args}"/>
+	</target>
+	
+	<macrodef name="run.execScript">
+		<attribute name="executable" />
+		<attribute name="dir" />
+		<attribute name="argLine" />
+		<sequential>
+			<echo>exec script '@{executable} @{argLine}'</echo>
+			<exec executable="@{executable}" dir="@{dir}" osfamily="windows" output="hothouse-build.log">
+				<redirector alwayslog="true"/>
+				<arg line="@{argLine}"/>
+			</exec>
+			<exec executable="@{executable}" dir="@{dir}" osfamily="unix" output="hothouse-build.log">
+				<redirector alwayslog="true"/>
+				<arg line="@{argLine}"/>
+			</exec>
+		</sequential>
+	</macrodef>
+
+</project>

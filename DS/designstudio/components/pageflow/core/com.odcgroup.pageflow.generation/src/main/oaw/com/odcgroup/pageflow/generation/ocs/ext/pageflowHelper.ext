@@ -1,0 +1,103 @@
+import pageflow;
+
+extension com::odcgroup::pageflow::generation::ext::helper reexport;
+
+//String getPageflowConfigFileName(Pageflow pageflow) :
+//	domainName() + "-pageflow-" + pageflow.name + ".xml";
+
+
+String systemUser(): GLOBALVAR systemUser;
+
+String projectName() : GLOBALVAR projectName;
+
+String packageName() : GLOBALVAR packageName;
+
+String currentDate() :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.getCurrentDate();
+	
+String getBuildID() :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.getDSBuildID();
+
+String getPageflowConfigFileName() :
+	"META-INF/config/" + pageflowFileName()+ ".xml";
+
+String resolveUrl(String url) :
+	resolveUrl(url, false);
+		
+String resolveUrl(String url, boolean optimizePageUrl) :
+	escape(url) ->
+	manipulateUrl(url, optimizePageUrl);
+		
+String resolveActionUrl(String url) :		
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.parseClassURL(java.lang.String);
+
+String resolveResourcePageURL(String url) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.resolveDesignStudioPageURIforGeneration(java.lang.String);	
+	
+String resolveResourceModuleURL(String url) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.resolveDesignStudioModuleURIforGeneration(java.lang.String);	
+
+String escape(java::lang::String text) :
+	JAVA com.odcgroup.workbench.core.helper.StringHelper.toXMLString(java.lang.String);
+
+String manipulateUrl(String url) :
+	manipulateUrl(url, false);
+
+String manipulateUrl(String url, boolean optimizePageUrl) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.parseViewURL(java.lang.String, java.lang.Boolean);
+
+//List[Action] getInitTransition(Pageflow pf) : 
+//	pf.transitions.typeSelect(Transition).selectFirst(t|t.fromState.metaType==InitState).actions; 
+//	
+//List[Action] getEndTransition(Pageflow pf) : 
+//	pf.transitions.typeSelect(Transition).selectFirst(t|t.fromState.metaType==EndState).actions; 	
+//
+//String getInitTransitionName(Pageflow pf,int i) : 
+//	pf.getTransition(i)!=null ? pf.getTransition(i).name : null; 	
+	
+Transition getTransition(Pageflow pf,int i) : 
+ 	i==0? pf.transitions.typeSelect(Transition).selectFirst(t|t.fromState.metaType==InitState):
+ 	pf.transitions.typeSelect(Transition).selectFirst(t|t.fromState.metaType==EndState); 
+	
+String getGraphName() :
+	"Graph";
+	
+List[Transition] getEndStateTransitions(List[SubPageflowState] list, Transition transition) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.getAllEndStateTransitions(java.util.List, com.odcgroup.pageflow.model.Transition);	
+/*	
+String getPageflowNamePrefix(List[Pageflow] list) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.getPageflowNamePrefix(java.util.List);	
+*/
+String getPageflowNamePrefix(List[Pageflow] list, Pageflow container) :		
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.getPageflowNamePrefix(java.util.List, com.odcgroup.pageflow.model.Pageflow);
+
+	
+String getSubPageflowNamePrefix(List[SubPageflowState] list) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.getSubPageflowNamePrefix(java.util.List);	
+	
+String getSubPageflowNamePrefixByPageflow(List[SubPageflowState] list,Pageflow container) : 
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.getSubPageflowNamePrefixByPf(java.util.List, com.odcgroup.pageflow.model.Pageflow);
+	
+String getSubPageflowNamePrefix(List[SubPageflowState] list, SubPageflowState state) : 
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.getSubPageflowNamePrefix(java.util.List, com.odcgroup.pageflow.model.SubPageflowState); 
+		
+Pageflow getParent(List[Pageflow] list, Pageflow container) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.getParentPageflow(java.util.List, com.odcgroup.pageflow.model.Pageflow);
+
+List[Pageflow] addToHierarchy(List[Pageflow] list, Pageflow container) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.addToList(java.util.List, com.odcgroup.pageflow.model.Pageflow);
+	
+List[Pageflow] removeFromHierarchy(List[Pageflow] list, Pageflow container) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.removeFromList(java.util.List, com.odcgroup.pageflow.model.Pageflow);
+	
+List[Pageflow] removeFromSubPageflowList(List[SubPageflowState] list, SubPageflowState container) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.removeFromSubPageflowList(java.util.List, com.odcgroup.pageflow.model.SubPageflowState);
+	
+List[SubPageflowState] addToStates(List[SubPageflowState] list, SubPageflowState container) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.addToSubPageflowList(java.util.List, com.odcgroup.pageflow.model.SubPageflowState);
+
+Boolean isDuplicateRedirectTransition(List[String] flows, String tName, String tState) :
+	flows.contains(tName+tState+"-redirector");
+	
+List[String] addToFlows(List[String] flows, String tName, String tState) :
+	JAVA com.odcgroup.pageflow.generation.internal.ocs.GenerationHelper.addToTransitions(java.util.List, java.lang.String, java.lang.String);

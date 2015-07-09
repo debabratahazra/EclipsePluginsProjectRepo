@@ -1,0 +1,2628 @@
+# UTF-8
+# UTF-8
+/* Facility Processing for Syndicated Loans */
+Domain SL_Facility
+	@t24:i (module=SL)
+	@java:Package (value=com.temenos.t24.datamodel.sl.sl_facility)
+namespace "http://www.temenos.com/t24/SL_Facility"
+metamodelVersion 1.30.6
+Classes {
+	/* On flagging CREATE.FACILITY field in PRESYNDICATION.FILE, appropriate            facility records are created in IHLD status.
+Currently direct creation of facility record otherwise than through            Presyndication file is not permitted. Hence, the records created in            IHLD status cannot be deleted until first authorisation.
+In the FACILITY file the bank may record details of type of credit            line, it validity in terms of drawings and maturity, the countries            of risk and exposure, the rate of commitment fee and its calculation            methodology, the rates and method of calculation of interest for            drawings under the line, details of participation and the            appropriate lending  rates applicable to each participant etc.
+In the event that the bank desires to phase out disbursement, it            would be possible to break the facility into different tranches.            Both sequential and overlapping types of tranches may be defined. It            would be possible to record the details of participation at the            tranche level as well as other covenants like currencies in which            drawings are permissible and currencies prohibited, the validity of            the tranche, the customers who may draw under the tranche and the            amounts reserved and allowed to them, the maximum number of loans            and currrencies in which drawings are permissible under the tranche etc. */
+	FACILITY
+		@t24:i (t24Name=FACILITY, level=F, type=H, additionalInfo="NOH UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Unique reference number that identifies a particular contract.
+Contract numbers would be generated automatically. The ID of                    the facility record would be the ID of the pre-syndication                    record plus a two digit sequence number. As many sequence                    numbers commencing from 01 would be generated as the number                    of multi-values in the presyn record.
+Ex - A presyn record is created by multi-valuing the                    SL.CURRENCY 3 times. In this case three facility records                    with Presyn ID plus sequence numbers 01 to 03 would be generated.
+Validation Rules
+
+System generated ID. */
+		ID -> SL_Facility:FACILITY PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=ID, mask="##/#####/#####/##")
+		/* Customer (Borrower) of the FACILITY, defaulted from                    Presyndication file. Drawings are permitted only for this                    customer or any ALLOWED.CUST in the respective tranche.
+Validation Rules
+
+3-10 alphanumeric customer mnemonic or 1-10 numeric character                    customer       code
+System written from pre-syndication record.
+Input by user not allowed */
+		CUSTOMER -> ST_Customer:CUSTOMER required
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, businessType=CUS, t24Name=CUSTOMER)
+		SL_DESC -> byValue SL_Facility:FACILITY__SL_DESC *
+		/* This field is used to record the customer reference for the                    said facility.
+Validation Rules
+
+3-35 alphanumeric character free text field */
+		CUSTOMER_REFERENCE : T24BusinessTypes:A
+			@i18n:Label (en="Customer Ref")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, t24Name=CUSTOMER.REFERENCE)
+		/* The type of credit line granted to the borrower. A mandate                    could comprise of different types of credit lines, funded                    and non-funded. Classic examples of types of credit lines                    are Working capital, Term loans, Project loans etc.
+Upto 99 different types of credit lines could be listed in                    SL.FACILITY table and the appropriate reference captured in                    this field.
+Validation Rules
+
+2 digit numeric character
+Must be a valid record on SL.FACILITY
+Mandarory input */
+		SL_FACILITY -> SL_Facility:SL_FACILITY required
+			@i18n:Label (en="Facility Type")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=4.0, core=true, t24Name=SL.FACILITY)
+		/* The date of obtaining the mandate from the borrower                    (customer). This information is captured in the                    presyndication table and is system written in Facility
+Validation Rules
+
+1-9 type A alpha numeric character date field
+System written from Presyndication file
+No input allowed */
+		MANDATE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Mandate Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, t24Name=MANDATE.DATE)
+		/* Contains the category code to which this transaction would be                    assigned. The category code must lie within the range 20000-49999.
+The category code captured in presyndication file is                    defaulted here and is changeable by the user.
+Validation Rules
+
+1-5 numeric characters
+Mandatory input
+Must be a valid record on the CATEGORY table */
+		CATEGORY -> ST_Config:CATEGORY required
+			@i18n:Label (en=Category)
+			@i18n:Tooltip (en="Specifies the Category")
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=6.0, core=true, businessType=PRODCAT, t24Name=CATEGORY, typeModifiers="2000049999")
+		/* Indicates the account officer identified for MIS reporting                    and profitability purposes.
+This field could be changed anytime during the life of the facility
+Validation Rules
+
+1-4 numeric characters
+Optional input
+Must be a valid record on DEPT.ACCT.OFFICER table */
+		ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Account Officer")
+			@i18n:Tooltip (en="Indicates Account Officer responsible")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=7.0, core=true, businessType=DAO, t24Name=ACCOUNT.OFFICER)
+		/* Specifies an alternative easy means of referencing the                    facility. The Mnemonic must be unique across the SL module.                    The same Mnemonic cannot be assigned to a facility record                    and a loan record.
+For each facility and loan the system will update an internal                    file SL.MNEMONIC.
+While taking charges on the SL.CHARGES template, the mnemonic                    of the facility or loan could be input in place of  the                    actual ID
+Validation Rules
+
+3-10 type MNE Uppercase alpha or numeric first character alpha
+Optional input
+Mnemonic should be unique across SL module for FACILITY&                    SL.LOANS. Same       mnemonic cannot be assigned to FACILITY                    & SL.LOANS */
+		MNEMONIC : T24BusinessTypes:MNE required
+			@i18n:Label (en=Mnemonic)
+			@i18n:Tooltip (en="The alternate short way of calling the record")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=8.0, core=true, t24Name=MNEMONIC)
+		/* The country code representing the country where the credit                    risk is deemed to reside.
+This field could be used for generating country risk information
+Validation Rules
+
+2 type A alphanumeric characters
+Optional input. System defaults the country of the customer.
+Must be a valid record on the COUNTRY table
+This field is maintainable anytime during the life of the facility */
+		COUNTRY_OF_RISK -> ST_Config:COUNTRY
+			@i18n:Label (en="Country of Risk")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=9.0, core=true, businessType=S, t24Name=COUNTRY.OF.RISK)
+		/* Identifies the manner in which overdue payments are handled.                    The default for all contracts is AUTOMATIC.
+Two options are provided;
+AUTOMATIC - When a commitment fee schedule is processed,                    accounting entries would be passed across the liquidation                    account for the entire dues and the respective                    participant's share would be disbursed through their                    Nostro accounts automatically. In this scenario, the Agent                    expects funds to be credited to his Nostro on the due dates                    and hence automates the liquidation and disbursement entries.
+INTERNAL - In this scenario the Agent would pay the                    participants only on actual receipt of funds in his                    Nostro/liquidation account. The Agent's share (in case                    the Agent is also a participant) would be liquidated to the                    account provided in the deal for the respective due but no                    amounts would be disbursed to the participants. The overdue                    amounts would get captured in SL.OD.DUES and SL.OD.PART                    files. On receipt of funds, the application SL.OD.DUES may                    be used to pay off the participant's share as well as                    to reverse out own share in the internal account where                    Agent's share is stored.
+In case the borrower has followed a different method of                    rounding with that compared to the Agent, the                    participant's share of interest, commitment fee and tax                    on both could differ. In such scenario the borrower would                    remit an amount different to the one calculated and stored                    by the Agent in his overdue files. Hence an application                    SL.ROUND.ADJ has been provided where the Agent could                    re-allocate the share of interest, commitment fee and tax                    thereon between the participants, to be in line with the                    borrower's calculation. This front-end could also be                    used in case the Agent does a skimming of the interest (on                    loans) or commitment fee. In this case the borrower is                    charged a different rate than the one quoted by the                    participants and the Agent skims the difference.
+Liquidation mode INTERNAL could hence be used where ;
+(a) The agent would repay the participants only on sighting                    the funds
+(b) Where the agent would require to do rounding adjustments                    to re-allocate the participant's share
+
+Validation Rules
+
+Only allowed values are AUTOMATIC & INTERNAL
+Once authorised this field may not be changed */
+		LIQUIDATION_MODE : SL_Facility:FACILITY__LIQUIDATION_MODE
+			@i18n:Label (en="Liquidation Mode")
+			@i18n:Tooltip (en="Indicates how overdue payments are handled.")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=10.0, core=true, t24Name=LIQUIDATION.MODE)
+		/* Reserved for future use
+Validation Rules */
+		OVERDUE_STATUS : mml:Integer
+			@i18n:Label (en="Overdue Status")
+			@i18n:Tooltip (en="Overdue or aging status of the contract")
+			@t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=11.0, core=true, t24Name=OVERDUE.STATUS)
+		/* This field is used within the MI module to define the profit                    centre that funded the contract. It is used in the                    generation of cost of funds entries when either                    MIS.Interest.Key or MIS.Interest.Rate is used
+Validation Rules
+
+Must be a valid record on DEPT.ACCT.OFFICER table
+Optional input */
+		MIS_FUND_DEPT -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="MIS Funding Department")
+			@i18n:Tooltip (en="MIS Funding Department")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=12.0, core=true, businessType=DAO, t24Name=MIS.FUND.DEPT)
+		/* Represents the financing rate for funds. It would be used in                    profitability analysis in MI module.
+If the rate to be reckoned is of fixed type then this field                    is used.
+Validation Rules
+
+1-10 numeric characters plus a decimal point
+Input in either this field or in MIS.Interest.Key would be accepted */
+		MIS_INTEREST_RATE : T24BusinessTypes:R
+			@i18n:Label (en="MIS Interest Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, core=true, t24Name=MIS.INTEREST.RATE)
+		/* Contains the reference number indicating the MI cost of funds rate
+A change in BASIC.INTEREST table will automatically update                    during end of day all the applicable MIS interest rates on                    contracts that contain the relevant code.
+Validation Rules
+
+1-3 numeric characters
+Optional input
+Input disallowed if MIS.INTEREST.RATE is present */
+		MIS_INTEREST_KEY -> ST_RateParameters:BASIC_RATE_TEXT
+			@i18n:Label (en="MIS Interest Key")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=14.0, core=true, t24Name=MIS.INTEREST.KEY)
+		/* Indicates the contract currency.
+Information in this field is system written from                    pre-syndication file.
+Validation Rules
+
+3 alpha currency mnemonic or 1-3 numeric character currency code
+Must be a valid entry on the CURRENCY table
+System written from Presyndication file. Input not allowed. */
+		SL_CURRENCY -> FIN_CurrencyConfig:CURRENCY required
+			@i18n:Label (en="Sl Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=15.0, core=true, businessType=CCY, t24Name=SL.CURRENCY)
+		SL_AMOUNT -> byValue SL_Facility:FACILITY__SL_AMOUNT *
+		/* Indicates those countries whose calendars must be checked                    with regard to holiday validation.
+The default value will be the country of the currency of the                    contract but the user could modify this value.
+Validation Rules
+
+4 type A alphanumeric characters
+Optional input. System will default the country code of SL.CURRENCY */
+		BUS_DAY_DEFN : T24BusinessTypes:S
+			@i18n:Label (en="Business Day Definition")
+			@i18n:Tooltip (en="Indicates Business day defenition to check holiday")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=17.0, core=true, t24Name=BUS.DAY.DEFN)
+		/* The value date of the facility. No drawings under the                    facility is permitted till this date.
+If no tranche details are input, the start date of the                    tranche will be defaulted with date equal to value date.
+Validation Rules
+
+1-9 type A alphanumeric characters
+Value entered in this field should be greater than mandate                    date in the       presyndication file */
+		VALUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=18.0, core=true, t24Name=VALUE.DATE)
+		/* Date when the facility is due to mature. Drawings with                    maturity date beyond this date are not allowed.
+In case of REVOLVING facility the Draw.Mat.Date will have to                    be equal to the value in this field.
+Validation Rules
+
+1-9 type A alphanumeric characters.
+Mandatory input
+Date entered should be greater than VALUE.DATE */
+		MATURITY_DATE : T24BusinessTypes:MATLMM required
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=19.0, core=true, t24Name=MATURITY.DATE, typeModifiers=DAYS)
+		/* Date beyond which the facility may not be drawn.
+While granting a facility, the bank could provide for a                    period within which the amount could be drawn. Such                    stipulations could in fact be made for every tranche in case                    the disbursement is to be phased out.
+In case of REVOLVING facility, the tranche end date must be                    equal to the value in this field. In the case of                    NON-REVOLVING facility, at least one tranche should have an                    end date equal to the value in this field
+Beyond this date no fresh drawings are permitted under the                    facility. Also when rollover/mergers are handled, principal                    increase is not permitted beyond this date.
+Validation Rules
+
+1-9 type A alphanumeric characters
+Mandatory input.
+For REVOLVING facility the date in this field will have to be                    equal to       MATURITY.DATE
+For NON-REVOLVING facility the value in this field should be                    less than or       equal to MATURITY.DATE */
+		DRAW_MAT_DATE : T24BusinessTypes:MATLMM required
+			@i18n:Label (en="Last Draw Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=20.0, core=true, t24Name=DRAW.MAT.DATE, typeModifiers=DAYS)
+		/* Indicates the calculation method for interest computation purposes.
+Input in this field determines the components for the                    interest calculation.
+For illustrations of all supported interest basis types see INTEREST.BASIS
+Validation Rules
+
+2 type A alphanumeric characters
+Optional input. System defaults currency table value
+Interest basis 'S' not allowed */
+		INT_DAY_BASIS -> ST_RateParameters:INTEREST_BASIS
+			@i18n:Label (en="Interest Day Basis")
+			@i18n:Tooltip (en="Interest basis used for interest and commission")
+			@t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=21.0, core=true, t24Name=INT.DAY.BASIS)
+		CMT_FEE_PERC -> byValue SL_Facility:FACILITY__CMT_FEE_PERC *
+		/* Reserved for future use
+Validation Rules
+
+Rule 1
+Rule 2 */
+		FEE_BAND_LEVEL : SL_Facility:FACILITY__FEE_BAND_LEVEL
+			@i18n:Label (en="Fee Band Level")
+			@t24:i (align=L, inputBehaviour=F, maxLength=5, sysNumber=23.0, core=true, t24Name=FEE.BAND.LEVEL)
+		/* The basis of calculation of commitment fee. This field                    indicates the base on which commitment fee would be calculated.
+Following values are allowed
+O - Original - Base amount is the SL.AMOUNT through the life                    of the contract. Fee would be calculated for the period                    Value.Date to Draw.Mat.Date
+U - UNUSED - Initial calculation is on the value in                    SL.AMOUNT. Whenever drawings are made, the fee amount is                    re-calulated on the aggregate commitment that is unused                    (undrawn). Fee would be calculated for the period Value.Date                    to Maturity.Date
+TU - Tranche UNUSED - Fee calculation is on the unused amount                    in each tranche. Fee would be calculated for period                    Tranche.Start.Date to Tranche.End.Date for each tranche
+Validation Rules
+
+2 type A alpha characters
+Only allowed values are O, U & TU
+Once authorised this field cannot be changed */
+		FEE_CALC_BASIS : SL_Facility:FACILITY__FEE_CALC_BASIS
+			@i18n:Label (en="Fee Calculation Basis")
+			@t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=24.0, core=true, t24Name=FEE.CALC.BASIS)
+		/* The total computed commitment fee for the current fee period                    of the contract. Specifies the automatically calculated fee                    amount due for the current period.
+Value in this field would be calculated based on input in                    field Fee.Calc.Basis
+Validation Rules
+
+1-14 numeric characters plus a decimal point
+System maintained field. No input allowed. */
+		TOT_FEE_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Fee Amount")
+			@i18n:Tooltip (en="Total Fee Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=25.0, core=true, t24Name=TOT.FEE.AMT, typeModifiers="15")
+		/* The liquidation account for commitment fee.
+Contains the account number where entries are made for the                    reimbursement of commitment fee together with any taxes                    applicable on liquidation.
+The account input must be denominated in the same currency as SL.CURRENCY
+This field is maintainable anytime during the life of the                    contract. Such changes will not be retrospective.
+Validation Rules
+
+1-14 numeric characters
+Any internal account may also be input in this field
+Must be an account denominated in the same currency as SL.CURRENCY
+Must be a valid record on ACCOUNT table */
+		FEE_LIQ_ACCT -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Fee Debit Account")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=26.0, core=true, businessType=ANT, t24Name=FEE.LIQ.ACCT)
+		NEW_CMT_FEE -> byValue SL_Facility:FACILITY__NEW_CMT_FEE *
+		/* Effective date for the change of new commitment fee.
+Validation Rules
+
+Standard date format
+May be back valued only within the current fee period.
+Mandatory input if New.Cmt.Fee is defined, otherwise not allowed.
+Cannot be greater than value in Maturity.Date */
+		NEW_CMT_EFF_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Commitment Effective Date")
+			@i18n:Tooltip (en="Commitment Effective Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, core=true, t24Name=NEW.CMT.EFF.DATE)
+		/* Indicates the type of interest rate to be used for drawings                    under the facility.
+Once authorised the value in this field cannot be changed.
+One of the following two values are supported;
+1 - FIXED - The rate of interest to be charged over the life                    of the contract is fixed at a specific percentage and is                    input as a numeric value. The rate is inclusive of spread if any
+2 - FLOATING - A rate of interest that would be charged on a                    non-determined basis with immediate impact. Input is in the                    form of a valid key from the BASIC.RATE.TEXT with the                    associated rate defined in BASIC.INTEREST table.
+Validation Rules
+
+1 numeric character
+Only allowed value is 1 or 2
+Mandatory input */
+		INT_RATE_TYPE : T24BusinessTypes:DEF required
+			@i18n:Label (en="Interest Type")
+			@t24:i (align=L, inputBehaviour=F, maxLength=1, sysNumber=29.0, core=true, t24Name=INT.RATE.TYPE)
+		/* Indicates the annual interest rate applicable on the                    contract. When a credit facility is extended to the borrower                    the interest rate quoted for drawings under the facility                    could either be a fixed rate or a floating rate (with or                    without spread). If the rate quoted is fixed the value is                    input here.
+Validation Rules
+
+1-10 numeric characters plus a decimal point
+Optional input. Input allowed only if INT.RATE.TYPE is 1 FIXED
+Input prohibited for INT.RATE.TYPE 2 (FLOATING)
+Value input here must be greater than zero */
+		INTEREST_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Fixed Intt Rate")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=30.0, core=true, t24Name=INTEREST.RATE)
+		/* Contains the reference number of the appropriate interest                    rate that would be used for interest calculation purposes.
+A rate change on the interest rate table will automatically,                    during End of Day, all contracts linked to the basic                    interest table
+Validation Rules
+
+1-4 numeric characters. Optional input
+Input mandatory if INT.RATE.TYPE is 2 (Floating) and not                    allowed other     wise. */
+		INTEREST_KEY : mml:Integer
+			@i18n:Label (en="Interest Key")
+			@i18n:Tooltip (en="Indicates key to apply floating rate of interest")
+			@t24:i (align=R, inputBehaviour=F, maxLength=4, sysNumber=31.0, core=true, t24Name=INTEREST.KEY)
+		/* Indicates the spread or margin on the floating rate. This                    spread or margin would be applied to the percentage interest                    derived from Basic Interest table.
+Validation Rules
+
+1-9 numeric characters plus a decimal point
+Optional input
+Input prohibited for FIXED interest rate type
+Cannot be greater than 100% */
+		INTEREST_SPR : T24BusinessTypes:R
+			@i18n:Label (en="Interest Spread")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=32.0, core=true, t24Name=INTEREST.SPR)
+		CAP_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Int.Spread Capitalisation")
+			@i18n:Tooltip (en="Define Capitalisation of accrued Interest Spread in percentage")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=33.0, core=true, t24Name=CAP.SPREAD)
+		SPECIAL_SPREAD -> byValue SL_Facility:FACILITY__SPECIAL_SPREAD *
+		/* Represents a reference on the TAX table that will indicate                    the rate to be used for computation of interest tax (tax on                    commitment fee)
+Interest tax in all instances is charged on the relevant fee                    payment dates. No accrual will be performed. Fee would be                    grossed up to include the tax component.
+Validation Rules
+
+2 numeric characters
+Optional input. Default is no tax
+Must be a valid ID on the tax table
+Either Int.Tax.Key or WHT.Tax.Key only may be defined */
+		INT_TAX_KEY : T24BusinessTypes:TAX
+			@i18n:Label (en="Intt Tax Key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=36.0, core=true, t24Name=INT.TAX.KEY)
+		/* This field is used to indicate whether the Facility granted                    is REVOLVING or NON REVOLVING type.
+A revolving type facility is re-instated on repayment of the                    drawings made (a classic example being working capital                    finance), while a non-revolving facility is of reducing type                    and may be drawn only once.
+If LIQUIDATION.MODE chosen is INTERNAL, a Revolving Facility                    is re-instated only if the principal portion is repaid using                    SL.OD.SETTLE application. For option AUTOMATIC in field                    LIQUIDATION.MODE such reinstatement would happen on                    processing of maturity of the loan.
+Validation Rules
+Only either of the two values REVOLVING or NON-REVOLVING is accepted
+Value input in presyndication file is system written in this                    field and     user input is not allowed. */
+		REVOL_TYPE : SL_Facility:FACILITY__REVOL_TYPE
+			@i18n:Label (en="Revolving Type")
+			@t24:i (align=L, inputBehaviour=F, maxLength=13, sysNumber=37.0, core=true, t24Name=REVOL.TYPE)
+		/* Specifies the credit line reference number that the                    transaction was granted
+If no input is made in this field, LIMITS system will provide                    a default value according to the LIMIT.REFERENCE record that                    has its Application.Ident set to SL. If no match is found in                    selective reference the default value will be the reference                    with its field reference blank
+Validation Rules
+
+3-7 numeric characters. Conditional input. Default if                    applicable =       LIMIT.REFREENCE table entry
+Must be a valid reference on LIMIT.REFERENCE table
+The contract value date must be prior to the limit expiry date
+Where input permitted, LIMIT.REFERENCE must match                    requirements specified       in LIMIT.PARAMETER for that contract
+An override is required if the line expires prior to the                    facility       maturity date */
+		LIMIT_REF : mml:Integer
+			@i18n:Label (en="Limit Ref")
+			@i18n:Tooltip (en="Limit Reference")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=38.0, core=true, t24Name=LIMIT.REF)
+		/* YES/NO indicator to define whether rollover/merger/splits are                    permitted for drawings under the contract.
+If this field contains value NO, then SL.ROLLOVER application                    is not permitted for the Facility
+Validation Rules
+Only allowed values are YES/NO. Optional input
+Null indicates NO. Default value is NO if no input is made. */
+		ROLLOVER_Y_N : T24BusinessTypes:DEF
+			@i18n:Label (en="Roll over")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=39.0, core=true, t24Name=ROLLOVER.Y.N)
+		/* Indicator to define whether any un-used balance in the                    tranche would get carried forward to the next available                    tranche on the expiry of the earlier tranche.
+If the facility contains multiple tranches, then a decision                    is required on the tranche end date as to whether any                    un-drawn balance is to be cancelled or carried forward.
+If value is 'NC' (NON CUMULATIVE), the undrawn                    balance in the tranche is cancelled and commitment available                    amount is reduced accordingly.
+If value is 'C' (CUMULATIVE), the undrawn balance                    is carried over to the next available tranche
+'C' allowed only if tranches are sequential. For                    overlapping tranches (where there could be more than one                    live tranche at any point) only allowed value is 'NC'
+Validation Rules
+
+Only allowed values are C & NC
+NC allowed only for sequential tranches and not for                    overlapping       tranches
+Once authorised no changes are allowed */
+		TRANCHE_C_FWD : T24BusinessTypes:DEF
+			@i18n:Label (en="Trance Carry Fwd")
+			@t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=40.0, core=true, t24Name=TRANCHE.C.FWD)
+		PARTICIPANT_LIMIT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=41.0, core=true, t24Name=PARTICIPANT.LIMIT)
+		/* Field that indicates whether the Facility is available for                    drawings or not.
+In many instances there could be a need to temporarily                    suspend the facility for a certain time period. The bank                    would require suspension of facility in instances where                    documentation is pending (or to be renewed), need for                    additional collateral or existing collateral to be                    substituted etc. In such circumstances, the facility is                    withdrawn for a certain time period till such time the                    requirement is fulfilled.
+During such period of suspension the bank may or may not                    charge commitment fee for the undrawn portion.
+One of the following values are allowed in this field;
+YES - Facility is available for drawing
+STF - Suspend Take Fee - Facility is suspended but fee would                    be taken for the period of suspension.
+SWF - Suspend Waive Fee - Facility is suspended and                    commitment fee is waived during the period of suspension
+If this field contains values STF or SWF, drawings in the                    form of fresh loans are not allowed. Also while doing                    rollovers, principal increase is not allowed and loans could                    be rolled over, merged or split without any increase to the                    existing level of exposure.
+Validation Rules
+
+Only allowed values are YES, STF & SWF
+Optional input. Defaults to YES if no input is made */
+		AVBL_MARKER : SL_Facility:FACILITY__AVBL_MARKER
+			@i18n:Label (en="Available Marker")
+			@i18n:Tooltip (en="Indicates whether facility is available to draw")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=42.0, core=true, t24Name=AVBL.MARKER)
+		/* Effective date for the suspension of facility or the                    cancellation thereof.
+Only allowed value is process (today's) date
+Validation Rules
+
+Standard T24 date field of format YYYYMMDD
+Only allowed value is today's date */
+		SUSP_EFF_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Suspension Eff Dt")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=43.0, core=true, t24Name=SUSP.EFF.DATE)
+		/* Indicates the status of the contract.
+One of the following values will be system written.
+FWD - If the loan is forward dated, between booking date and                    value date
+CUR - Live contract, appears between value date and maturity date
+LIQ - Contract that has been liquidated and waiting to be                    moved to history.
+MAT - Contract that has been moved to history.
+Validation Rules
+
+System written field.
+User input not allowed. */
+		CONTRACT_STATUS : SL_Facility:FACILITY__CONTRACT_STATUS
+			@i18n:Label (en="Contract Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=44.0, core=true, t24Name=CONTRACT.STATUS)
+		/* Indicates next interest due date and its associated frequency                    code that is to be defaulted to SL.LOANS. If interest on all                    loans under the facility is to be collected say at month                    ends, this value could be once input so as to get defaulted                    whenever a loan is drawn under the facility.
+The system would produce a single schedule for the first                    period. Upon reaching the event date, a subsequent schedule                    would be cycled based on the frequency defined in this field.
+Ex- 31MAR2002M0131 could be input in this field where
+31MAR2002 stands for the date the first schedule is to be                    processed and M0131 for cycling the next due date (in this                    case every month on the last date). For this value, the next                    cycled date would be 30APR2002M0131
+
+Validation Rules
+
+Standard date format plus frequency
+To be used to default in SL.LOANS template
+Date can only be forward
+Optional input */
+		INT_DUE_DATE : T24BusinessTypes:FQU
+			@i18n:Label (en="Interest Due Date")
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=45.0, core=true, t24Name=INT.DUE.DATE, mask="RDDDD DD  DD #####")
+		CMT_FEE_DUE_DT -> byValue SL_Facility:FACILITY__CMT_FEE_DUE_DT *
+		/* This field captures the commitment fee percentage to be calculated on the unavailable commitment amount
+
+Validation Rules
+
+Standard amount field
+Nochange field */
+		CMT_FEE_UNAVL : T24BusinessTypes:R
+			@i18n:Label (en="Cmt Fee Unavl")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=47.0, core=true, t24Name=CMT.FEE.UNAVL)
+		/* This field holds the total fee amount on the unavailable amount
+
+Validation Rules
+
+Standard T24 amount type field
+Noinput field */
+		TOT_FEE_AMT_UNAVL : T24BusinessTypes:AMT
+			@i18n:Label (en="Tot Fee Amt Unavl")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=48.0, core=true, t24Name=TOT.FEE.AMT.UNAVL, typeModifiers="15")
+		/* This field capture the new commitment fee percentage to be calculated on the unavailable commitment amount
+Validation Rules
+Standard T24 rate type field */
+		NEW_CMT_FEE_UAVL : T24BusinessTypes:R
+			@i18n:Label (en="New Commit Fee Unavailed")
+			@i18n:Tooltip (en="New Commit Fee Unavailed")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=49.0, core=true, t24Name=NEW.CMT.FEE.UAVL)
+		/* This field captures the new commitment fee percentage effictive date.  Input to the field is mandatory when NEW.CMT.FEE.UAVL is given.
+
+Validation Rules
+Standard T24 date  type field */
+		NEW_CT_FEE_UAVL_DT : T24BusinessTypes:D
+			@i18n:Label (en="New Commit Fee Unav.Date")
+			@i18n:Tooltip (en="New Commit Fee Unav.Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=50.0, core=true, t24Name=NEW.CT.FEE.UAVL.DT)
+		RESERVED_12 : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=51.0, core=true, t24Name=RESERVED.12)
+		PARTICIPATOR -> byValue SL_Facility:FACILITY__PARTICIPATOR *
+		/* Aggregate commitment available (undrawn portion) under the facility.
+This field contains the total undrawn commitment of tranches                    that are live. If there are any tranches with start date as                    future date, undrawn facility in respect of those tranches                    are not considered.
+If there are multiple tranches, this field would show the                    overall commitment available amount and the amount available                    under each tranche is shown in Commt.Av.Amt field within the                    tranche multi-value set
+Validation Rules
+
+1-14 numeric characters plus decimal point
+System maintained. No input allowed */
+		COMMT_AVAILABLE : T24BusinessTypes:AMT
+			@i18n:Label (en="Commitment Available")
+			@i18n:Tooltip (en="Commitment Available")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=60.0, core=true, t24Name=COMMT.AVAILABLE, typeModifiers="15")
+		TRANCHE_CODE -> byValue SL_Facility:FACILITY__TRANCHE_CODE *
+		/* Identifies the ID of the consolidation record on the                    CONSOLIDATE.ASST.LIAB (CAL) file into which this contract is                    to be consolidated for financial reporting.
+Outstanding balance for each contract is recorded in the CAL                    file so that they could be included in the financial reports                    produced via the reporting module. This field identifies the                    CAL record into which balance details for the contract is consolidated.
+The criteria for the consolidation are defined in                    CONSOLIDATE.COND table.
+This field is maintained by the system during end of day                    batch processing. Whenever this field is updated by the                    system, a history record would be written for audit trail purposes.
+Validation Rules
+
+Alphanumeric as specified on the CONSOLIDATE.COND table
+System maintained field. No input allowed. */
+		CONSOL_KEY : mml:Integer
+			@i18n:Label (en="Consol Key")
+			@t24:i (align=R, inputBehaviour=N, maxLength=70, sysNumber=86.0, core=true, t24Name=CONSOL.KEY)
+		DELIVERY_CUST -> byValue SL_Facility:FACILITY__DELIVERY_CUST *
+		DELIVERY_REF -> byValue SL_Facility:FACILITY__DELIVERY_REF *
+		DEC_EFF_DT -> byValue SL_Facility:FACILITY__DEC_EFF_DT *
+		BK_TO_BK_INFO -> byValue SL_Facility:FACILITY__BK_TO_BK_INFO *
+		PENDING_TRANS -> byValue SL_Facility:FACILITY__PENDING_TRANS *
+		/* Represents a reference on the TAX table that will indicate                    the rate to be used for computation of withholding tax (tax                    on commitment fee)
+Withholding tax in all instances is charged on the relevant                    fee payment dates. No accrual will be performed.
+Accounting for these two types of tax would happen as follows;
+Eg Interest amount for the period is 1,000 and tax amount                    100. T24 banks portion is 50% and two other participants                    share is 30% and 20% respectively
+On the interest/commitment fee due date; liquidation mode is AUTOMATIC
+Dr
+
+
+Cr
+
+
+
+
+Cr
+
+
+
+
+Cr
+
+
+
+
+------------------------------------------------------
+
+Dr
+
+
+
+Cr
+
+
+
+
+
+---------------------------------------------------------------------
+
+Following accounting would happen for liquidation mode INTERNAL;
+Dr
+
+
+
+Cr
+
+
+
+Dr
+
+
+
+Cr
+
+
+
+
+
+------------------------------------------------------------
+
+Note that no tax amount is to be written to SL.OD.DUES if the                    tax type is WHT. Only interest tax would be written to SL.OD.DUES.
+For liquidation both modes (automatic and internal) on                    receipt of the actual tax certificate, the user should                    reverse out the certificate and reserve accounts manually.
+The WHT Certificate a/c and WHT Reserve a/c may be                    denominated only in the Facility currency (for commitment                    fee). Note that the interest rate quoted by the bank would                    be exclusive of tax thereon.
+
+For this purpose, two fields are provided in FACILITY, one                    for WHT.CERT.ACCT and one for WHT.RES.ACCT. These are                    mandatory input if WHT.TAX.KEY is defined and not allowed                    otherwise. The values defined in WHT.CERT.ACCT and                    WHT.RES.ACCT must be an authorized record in the ACCOUNT file.
+
+Validation Rules
+
+2 numeric characters
+Optional input. Default is no tax
+Must be a valid ID on the tax table
+Either Int.Tax.Key or WHT.Tax.Key only may be defined */
+		WHT_TAX_KEY -> ST_ChargeConfig:TAX
+			@i18n:Label (en="WHT Tax Key")
+			@i18n:Tooltip (en="Define Withholding Tax Key")
+			@t24:i (align=R, inputBehaviour=F, maxLength=2, sysNumber=102.0, core=true, t24Name=WHT.TAX.KEY)
+		/* Account number where entries for WHT reserve is to be                    credited. For details see help on WHT.Tax.Key
+Validation Rules
+
+Must be a valid record on the ACCOUNT table
+Account must be denominated in the SL.CURRENCY */
+		WHT_RESERVED_ACCT -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="WHT Reserved Account")
+			@i18n:Tooltip (en="Define Witholding Tax Reserve Account")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=103.0, core=true, businessType=INT, t24Name=WHT.RESERVED.ACCT)
+		/* Account number where WHT certificate amount is to be posted.                    For details see help on WHT.Tax.Key
+Validation Rules
+
+Must be a valid record on ACCOUNT table
+Account must be denominated in SL.CURRENCY */
+		WHT_CERT_ACCT -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="WHT certificate Account")
+			@i18n:Tooltip (en="Define Withholding Tax Account")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=104.0, core=true, businessType=INT, t24Name=WHT.CERT.ACCT)
+		/* Tax amount on commitment fee calculated and written by system                    for the current period. Amount is populated for both WHT and                    Interest tax
+Validation Rules
+
+System written. No input allowed */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Tax Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=105.0, core=true, t24Name=TAX.AMOUNT, typeModifiers="15")
+		/* Field to capture the consideration when a mere participant                    enters the syndicate buying a portion of the contingent                    share from one of the existing participants.
+A bank that acts as a mere participant could enter the                    syndicate right at the beginning or during the life of the                    syndicate by buying the share (or a portion of it) from an                    existing participant. For the later type, the transaction                    could involve a premium/discount paid/received by the buying bank.
+This field is used to capture the consideration (grossed-up                    to include the contingent portion plus the premium/discount                    portion) for the transaction. The premium or discount could                    be either written directly to P&L or amortised over the                    life of the Facility. The account from which the                    consideration is paid out is provided in Bs.Settle.Account.
+For example - T24 bank enters the syndicate buying a                    contingent portion of 1,000,000 from bank A for a premium of                    10,000. In such case SL.AMOUNT would show 1,000,000 and                    value to be input in Bs.Consideration field is 1,010,000.                    The decision to amortise or not is provided in                    Bs.Amortisation field. The accounting entries that would be                    raised are
+Dr Amortisation asset type / P&L category *        10,000
+Cr Account in Bs.Settle.Account                          10,000
+* Category defined in SL.PARAMETER based on decision to amortise.
+In the above instance if the buy happens at a discount of                    10,000 the value to be input in Bs.Consideration is                    (1,000,000 - 10,000) = 990,000
+Validation Rules
+
+1-14 numeric characters plus decimal point
+Negative values not allowed
+Input permitted only for Only participant Facility and only                    during first       input */
+		BS_CONSIDERATION : T24BusinessTypes:AMT
+			@i18n:Label (en="Consideration Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=106.0, core=true, t24Name=BS.CONSIDERATION)
+		/* Decision to amortise the premium or discount on the purchase                    of facility is entered here.
+Only values allowed are YES or NO.
+If value YES is defined the premium or discount is accounted                    to the Asset type specified in SL.PARAMETER (field                    PL.CAT.SALE.PRFT or PL.CAT.SALE.LOSS) depending on profit or                    loss (premium or discount)
+For value NO the amount is directly debited to P&L.
+Validation Rules
+
+Optional input. Default value is NO
+Input allowed only for mere participant facility and only                    during first       input of facility. */
+		BS_AMORTISATION : SL_Facility:FACILITY__BS_AMORTISATION
+			@i18n:Label (en="Amortise Prem/Disc")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=107.0, core=true, t24Name=BS.AMORTISATION)
+		/* The account reference over which accounting entries are to be                    raised for the consideration paid. For more details see help                    on Bs.Consideration
+Validation Rules
+
+Must be a valid record on the ACCOUNT table
+Must be denominated in the SL.CURRENCY
+Input allowed only for mere participant facility and only                    during first       input */
+		BS_SETTLE_ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Settlement Account")
+			@i18n:Tooltip (en="Account used for payment of consideration")
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=108.0, core=true, businessType=ANT, t24Name=BS.SETTLE.ACCOUNT)
+		/* This field is used to flag the multi product for the Facility
+Allowed values YES or NO
+Default value is NO
+Multiple products can be defined only when this field is flagged 'YES'. */
+		MULTI_PROD_FAC : SL_Facility:FACILITY__MULTI_PROD_FAC
+			@i18n:Label (en="Multi Product Facility")
+			@i18n:Tooltip (en="Multi Product Facility")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=109.0, core=true, t24Name=MULTI.PROD.FAC)
+		PRODUCT_TYPE -> byValue SL_Facility:FACILITY__PRODUCT_TYPE *
+		/* This field is mapped to field 23-B Operation Code of MT103.
+Presently  CRED is the only value allowed in this field.
+Validation Rules */
+		BNK_OP_CODE : T24BusinessTypes:DEF
+			@i18n:Label (en="Bank Operation Code")
+			@i18n:Tooltip (en="Bank operation code mapped to field 23-B of MT-103")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=114.0, core=true, t24Name=BNK.OP.CODE)
+		/* This field is mapped to field 71A of MT103 message.
+Only SHA is supported
+Validation Rules
+
+Input of BEN, OUR and SHA is allowed.
+Default value is SHA. */
+		DTLS_OF_CHRG : T24BusinessTypes:DEF
+			@i18n:Label (en="Details Of Charges")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=115.0, core=true, t24Name=DTLS.OF.CHRG)
+		/* This field will hold contract level rounding rule for commitment fee calculations.
+Validation Rules
+Should be a valid EB.ROUNDING.RULE id.
+No change permitted after first authorization
+For detailed options on different rounding options help text on EB.ROUNDING.RULE file can be referred. */
+		ROUNDING_RULE -> ST_Config:EB_ROUNDING_RULE
+			@i18n:Label (en="Rounding Rule")
+			@i18n:Tooltip (en="Indicates the rounding rule")
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=116.0, core=true, businessType=A, t24Name=ROUNDING.RULE)
+		/* Key to EB.ACCRUAL.PARAM record which could be used  when it needs to be referred.
+
+Validation Rules
+A valid key in EB.ACCRUAL.PARAM file
+Nochange field */
+		ACCRUAL_ID -> AC_Fees:EB_ACCRUAL_PARAM
+			@i18n:Label (en="Accrual Method")
+			@i18n:Tooltip (en="Indicates the method by which accrual is to happen")
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=117.0, core=true, businessType=A, t24Name=ACCRUAL.ID)
+		/* This field determines whether skimming is allowed or not
+
+Validation Rules
+
+Only allowed values are NO
+NOCHANGE field */
+		ALLOW_SKIMMING : SL_Facility:FACILITY__ALLOW_SKIMMING
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=118.0, core=true, t24Name=ALLOW.SKIMMING)
+		/* Frequency at which the amortisation of the premium/discount amount should be carried out in a loan trading operation
+
+Validation rules
+Standard frequency field
+Allowed only in number of months or days */
+		AMORTISE_FREQ : T24BusinessTypes:FQU
+			@i18n:Label (en="Amortize Frequency")
+			@i18n:Tooltip (en="Frequency for Amortisation")
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=119.0, core=true, t24Name=AMORTISE.FREQ, mask="RDDDD DD  DD #####")
+		/* This field is used to determine the process stage of the event. If the fieldis set to YES then the system will process the event during SOD of the event date.
+
+Validation rules
+Only valid input is YES
+Nochange field */
+		PROCESS_AT_SOD : SL_Facility:FACILITY__PROCESS_AT_SOD
+			@i18n:Label (en="Process at Sod")
+			@i18n:Tooltip (en="Process at Sod")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=120.0, core=true, t24Name=PROCESS.AT.SOD)
+		COMP_METHOD : SL_Facility:FACILITY__COMP_METHOD
+			@i18n:Label (en="Method of Calculation")
+			@i18n:Tooltip (en="Define method of calculation in Brazil Method")
+			@t24:i (align=L, inputBehaviour=F, maxLength=5, sysNumber=121.0, core=true, t24Name=COMP.METHOD)
+		COMP_FQY : T24BusinessTypes:COMPFQU
+			@i18n:Label (en="Frequency componding Accrual")
+			@i18n:Tooltip (en="Define frequency for Compound Accruals of Loan in Brazil Method")
+			@t24:i (align=L, inputBehaviour=F, maxLength=5, sysNumber=122.0, core=true, t24Name=COMP.FQY)
+		CAP_PERC : T24BusinessTypes:R
+			@i18n:Label (en="Interest Capitalisation")
+			@i18n:Tooltip (en="Define Capitalisation accrued interest in Percentage")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=123.0, core=true, t24Name=CAP.PERC)
+		PIK_REFERENCE -> byValue SL_Facility:FACILITY__PIK_REFERENCE *
+		RESERVED_05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=129.0, core=true, t24Name=RESERVED.05)
+		RESERVED_04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=130.0, core=true, t24Name=RESERVED.04)
+		RESERVED_03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=131.0, core=true, t24Name=RESERVED.03)
+		RESERVED_02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=132.0, core=true, t24Name=RESERVED.02)
+		RESERVED_01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=133.0, core=true, t24Name=RESERVED.01)
+		STMT_NO -> byValue SL_Facility:FACILITY__STMT_NO *
+		OVERRIDE -> byValue SL_Facility:FACILITY__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=137.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=138.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SL_Facility:FACILITY__INPUTTER *
+		DATE_TIME -> byValue SL_Facility:FACILITY__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=141.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=142.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=143.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=144.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=145.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		/* This is an 'I' type field which holds the value from product currency */
+		PRODCCY : mml:Integer
+			@i18n:Label (en="Product Currency")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=PRODCCY, genOperation=SL.CURRENCY)
+		/* This is an 'I' type field which holds the  customer ID */
+		CUSTOMER_NO : mml:Integer
+			@i18n:Label (en="Customer No")
+			@i18n:Tooltip (en="Identifies the Customer for the transaction.")
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, core=false, t24Name=CUSTOMER.NO, genOperation=CUSTOMER)
+		/* This is an 'I' type field which holds the value from product category . */
+		PRODCAT : mml:Integer
+			@i18n:Label (en="Deal Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, core=false, t24Name=PRODCAT, genOperation=CATEGORY)
+		/* This is an 'I' type field which holds the value from INT.DAY.BASIS */
+		INTEREST_BASIS : mml:Integer
+			@i18n:Label (en="Interest Basis")
+			@i18n:Tooltip (en="Indicates the interest day basis")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=INTEREST.BASIS, genOperation=INT.DAY.BASIS)
+	}
+	FACILITY__SL_DESC
+	{
+		/* Free text field to enable the user define the general                    description of the facility.
+Validation Rules
+
+3-35 alphanumeric characters free text field
+Mandatory input */
+		SL_DESC : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SL.DESC)
+	}
+	FACILITY__SL_AMOUNT
+	{
+		/* The principal amount of the contract. Value defined in                    Presyndication file is system written in this field and is                    not available for user input.
+Validation Rules
+
+1-14 numeric characters plus a decimal point
+System written. No input allowed. */
+		SL_AMOUNT : T24BusinessTypes:AMT required
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=16.0, core=true, t24Name=SL.AMOUNT, typeModifiers="15")
+	}
+	FACILITY__CMT_FEE_PERC
+	{
+		/* Rate of commitment fee payable on the Facility by the                    borrower. Indicates the annual commitment fee rate applicable.
+Validation Rules
+
+1-10 numeric characters plus a decimal point
+Mandatory input
+System defaults value in presyndication file, if input there.
+Input must be a positive value */
+		CMT_FEE_PERC : T24BusinessTypes:R required
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=22.0, core=true, t24Name=CMT.FEE.PERC)
+	}
+	FACILITY__NEW_CMT_FEE
+	{
+		/* New commitment fee to be applied to the customer.
+Represents the new commitment fee applicable on the facility                    and the effective date of such change could be provided in New.Cmt.Eff.Date
+Validation Rules
+
+1-10 numeric characters plus decimal point
+Optional input
+Input permitted only after first authorisation of facility
+One forward dated action may be pending at any one time
+Value entered should not be negative. Zero value accepted. */
+		NEW_CMT_FEE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=27.0, core=true, t24Name=NEW.CMT.FEE)
+	}
+	FACILITY__SPECIAL_SPREAD
+	{
+		SPECIAL_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=34.0, core=true, t24Name=SPECIAL.SPREAD)
+		SPL_CAP_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=35.0, core=true, t24Name=SPL.CAP.SPREAD)
+	}
+	FACILITY__CMT_FEE_DUE_DT
+	{
+		/* This is the due date for payment of Commitment fee and its frequency.
+This field indicates the next scheduled date for payment of                    Commitment fee and its related frequency.
+E.g. 31MAR2002M0131, where  31MAR2002 indicates the scheduled                    date and M0131, its frequency.
+Where the User intends having a commitment fee schedule, that                    is not frequency based, it can be achieved by defining them                    as dates as shown below:
+
+
+
+Validation Rules
+
+Standard date format or with frequency
+Cannot     be back-dated.
+Mandatory     input */
+		CMT_FEE_DUE_DT : T24BusinessTypes:FQO required
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=46.0, core=true, t24Name=CMT.FEE.DUE.DT, mask="LDDDD DD  D #####")
+	}
+	FACILITY__PARTICIPATOR
+	{
+		/* Identification number or mnemonic assigned to the customer                    who is a participator in the syndicate. This set of fields                    is used to record details of participation like name of                    participant, extent of participation allotted and the                    commitment fee payable to each party.
+System written from Presyndication file.
+Validation Rules
+
+3-10 alphanumeric customer mnemonic or 1-10 numeric character                    customer     code
+Must be a valid record on the CUSTOMER table
+Multi-valued field to assist recording participation details                    of more than     one party.
+System written from Presyndication file. Input not allowed. */
+		PARTICIPATOR -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=52.0, core=true, businessType=CUS, t24Name=PARTICIPATOR)
+		/* Field used to record the date on which the participation                    agreement was entered into. Stored for information only.                    System written from presyndication file.
+Validation Rules
+
+Standard date field
+System written
+Input not allowed */
+		PART_AGR_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=53.0, core=true, t24Name=PART.AGR.DT)
+		/* Indicates the share of the participant in the facility,                    system written from presyndication file.
+When SL.BUY.SELL is used, the revised share of the                    participants in the syndicate is updated.
+Validation Rules
+
+1-14 numeric characters plus decimal point
+System written. Input not allowed */
+		PART_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=54.0, core=true, t24Name=PART.AMOUNT, typeModifiers="15")
+		PART_ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=55.0, core=true, businessType=ANT, t24Name=PART.ACCOUNT)
+		/* Share of the participator expressed in percentage format and                    stored for information only.
+Validation Rules
+
+System written. Input not allowed */
+		PART_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=13, sysNumber=56.0, core=true, t24Name=PART.PERC)
+		/* Percentage of commitment fee payable to the participant.                    System written from presyndication file. Input not allowed.
+Validation Rules
+
+1-10 numeric characters plus decimal point
+System written. Input not allowed */
+		PART_CMT_FEE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=57.0, core=true, t24Name=PART.CMT.FEE)
+		/* Holds the margin applicable for fees of each participant for 'OU' method of fee calculation method
+Validation rules
+Maximum of 11 chars is allowed
+Negative margin should be indicated by '-' followed by actual margin rate. */
+		PART_CMT_MARGIN : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=58.0, core=true, t24Name=PART.CMT.MARGIN, typeModifiers=-)
+		/* This field captures the participant commitment fee percentage to be calculated on the unavailable commitment amount
+
+Validation Rules
+Standard T24 rate type field
+Nochange field */
+		PART_FEE_UNAVL : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=59.0, core=true, t24Name=PART.FEE.UNAVL)
+	}
+	FACILITY__TRANCHE_CODE
+	{
+		/* Unique 3 digit numeric code to identify the tranche reference                    within the facility.
+In case disbursement is phased out, the bank may define                    different tranches, each with  distinct validity, amount and purpose.
+This field is used to store the reference number of tranche                    and when loans are drawn, the reference in this field is                    quoted in order to identify the tranche against which the                    drawing is made.
+The reference number of a tranche within a presyndication                    reference (multiple facility records within the same presyn                    record) has to be unique.
+Ex - SL0025000012 is the ID of the presyn record that has 3                    facility records namely
+SL0025000012-01- Revolving USD facility (only one tranche)
+SL0025000012-02 - Non revolving GBP facility with two tranches
+SL0025000012-03.- Non revolving GBP facility with three tranches
+The tranche code of all tranches within SL0025000012 have to                    be unique.
+Hence, the tranche code could be defined as follows;
+Facility                        Tranche codes                    Alternately *
+SL0025000012-01     001                            100
+SL0025000012-02     002, 003                    200, 300
+SL0025000012-01    004, 005                    400, 500
+* Such numbering can also be followed if found convenient.
+In the event that no details are input in this field or if a                    tranche is created by default, the reference number                    commencing from 001 are generated sequentially.
+Validation Rules
+
+3 digit numeric
+Tranche.code within a presyn reference has to be unique.
+Once input, this field cannot be modified.
+For revolving facility only one tranche is allowed. */
+		TRANCHE_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=F, maxLength=3, sysNumber=61.0, core=true, t24Name=TRANCHE.CODE)
+		/* Amount of commitment allotted to the respective tranche. If                    it is required to phase out disbursement, tranches with                    different validy could be defined. The amount (portion)                    allotted to respective tranche is defined in this field.
+Aggregate of TRANCHE.AMT should equal SL.AMOUNT.
+Validation Rules
+
+1-14 numeric characters plus decimal point
+
+Aggregate of TRANCHE.AMT should equal SL.AMOUNT. */
+		TRANCHE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=62.0, core=true, t24Name=TRANCHE.AMT, typeModifiers="15", isValidateOnChange=true)
+		/* Indicates commitment available amount under the respective tranche.
+This field depicts the undrawn portion under the tranche.                    Aggregate of undrawn portion in all tranches will be shown                    at the facility level in field Commt.available.
+For tranches with Tranche.St.Dt as forward (as compared to                    system date) also, this field is updated with the total                    tranche amount initially, and updated thereafter with                    drawings made.
+Validation Rules
+
+1-14 numeric characters plus decimal point
+System maintained field. No input allowed */
+		COMMT_AV_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=63.0, core=true, t24Name=COMMT.AV.AMT, typeModifiers="15")
+		/* 3-35 characters free text field to enable the user define the                    description of the tranche.
+Validation Rules
+
+3-35 characters free text field
+Optional input */
+		TRANCHE_DESC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=64.0, core=true, t24Name=TRANCHE.DESC)
+		ALLOWED_CCY -> byValue SL_Facility:FACILITY__TRANCHE_CODE__ALLOWED_CCY *
+		RESTRICT_CCY -> byValue SL_Facility:FACILITY__TRANCHE_CODE__RESTRICT_CCY *
+		/* When tranches are defined, the start of the validity (date)                    is defined in this field.
+Drawings with value date prior to this date is not allowed                    under the tranche.
+It would be possible to define a forward dated loan prior to                    the commencement of the Tranche.St.Dt provided the value                    date of the SL.LOAN is greater than or equal to the date in                    this field.
+Validation Rules
+
+1-9 type A alpha numeric characters
+Standard date field
+Must be greater than or equal to VALUE.DATE of the Facility                    and less       than or equal to Draw.Mat.Date */
+		TRANCHE_ST_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=69.0, core=true, t24Name=TRANCHE.ST.DT)
+		/* Date when the tranche validity expires.
+On the date mentioned in this field, the tranche validity                    expires and the undrawn balance in the tranche is carried                    forward based on value in field Tranche.C.Fwd
+No fresh loans would be permitted after the expiry of this                    date under the tranche. Also while handling rollovers,                    principal increases are prohibited after this date.
+For a revolving facility, the date in this field should be                    equal to Draw.Mat.Date. If no tranche is defined, a tranche                    is created by default with Tranche.End.Dt equal to the Draw.Mat.Date
+For a non revolving facility, atleast one tranche should have                    an end date equal to the Draw.Mat.Date
+
+Validation Rules
+
+1-9 type A alphanumeric characters
+Must be less than or equal to Draw.Mat.Date.
+Must be greater than Tranche.St.Dt
+
+For a non revolving facility, atleast one tranche should have                    an end       date equal to the Draw.Mat.Date */
+		TRANCHE_END_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=70.0, core=true, t24Name=TRANCHE.END.DT)
+		/* This Field will define the tranche maturity as the Drawing under each tranche cannot be defined with the maturity date beyond the Tranche maturity date
+Validation Rules
+
+Date should not be less than the Tranche end date.
+Mandatory for Revolving type of Contracts. */
+		TRANCHE_MAT_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=71.0, core=true, t24Name=TRANCHE.MAT.DT)
+		ALLOWED_CUST -> byValue SL_Facility:FACILITY__TRANCHE_CODE__ALLOWED_CUST *
+		/* YES/NO indicator as to whether sale of contingent portion is                    permitted in the facility.
+If this field contains value NO, sale of commitments (undrawn                    facility) is prohibited under SL.BUY.SELL
+Validation Rules
+
+Only allowed values are YES and NO.
+Optional input. Default value is NO. */
+		ALLOW_CONT_SALE : T24BusinessTypes:DEF
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=75.0, core=true, t24Name=ALLOW.CONT.SALE)
+		/* YES/NO indicator as to whether sale of loans are permitted                    under the facility.
+Should this field contain NO, sale of loans using application                    SL.BUY.SELL is prohibited
+Validation Rules
+
+Only allowed values are YES & NO
+Optional input. Default value is NO */
+		ALLOW_NC_SALE : T24BusinessTypes:DEF
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=76.0, core=true, t24Name=ALLOW.NC.SALE)
+		/* Maximum number of loans that could exist under the tranche is                    defined in this field. Should the facility have a covenant                    stipulating the maximum number of drawings that are allowed                    to exist at any one point in time, that value is specified                    in this field.
+Forward dated loans are also reckoned for the purpose of                    calculating the max loans. However, if a loan is rolled                    over/merged/split the old loans are ignored and the new ones                    considered for this validation.
+Validation Rules
+
+2 numeric code. Negative values not allowed. Maximum allowed                    value is       99.
+Rule is applicable considering live and forward dated drawings. */
+		TR_MAX_LOANS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=77.0, core=true, t24Name=TR.MAX.LOANS)
+		/* 2 numeric charateer to define the maximum number of                    currencies in which drawings could exist.
+Ex; The facility has five Allowed.Ccy. Value in this field is                    03. In this case, drawings could exist in any allowed                    currency but maximum of three currencies only could be used                    at any one point. This field helps the bank to restrict the                    exposure to a few currencies so that managing is easier.
+For validation, both live and forward dated drawings are                    considered. However, while using SL.ROLLOVER, the currencies                    of the old loans are dropped and the new loans considered                    for validation.
+Validation Rules
+
+2 numeric character
+Maximum allowed value is 99. Negative values not allowed. */
+		TR_MAX_CURRENCY : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=78.0, core=true, t24Name=TR.MAX.CURRENCY)
+		/* Field to control that Drawings could be made only in in                    multiples of this amount.
+The value would be construed to be in the base currency                    (SL.CURRENCY) equivalent, irrespective of the currency of                    the drawing.
+In SL.LOANS it would be possible to define either the deal                    currency amount or the base currency equivalent. For both                    instances, a validation that the base currency equivalent is                    a multiple of the value in DD.MULT.AMOUNT would be performed.
+Eg Facility currency is USD and two drawings, one in USD and                    one in GBP are made. Value in DD.MULT.AMOUNT is 100,000
+For USD drawings, the value in AMOUNT field and for GBP                    drawings, the value in BASE.CCY.AMT should be a multiple of DD.MULT.AMOUNT
+Validation Rules
+
+1-14 numeric character plus decimal point
+Optional input. In case there is no input above validation                    would not be       performed */
+		DD_MULT_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=79.0, core=true, t24Name=DD.MULT.AMOUNT, typeModifiers="15")
+		/* Minimum amount that should be drawn against the facility. If                    any value is defined in this field, every drawing under the                    facility would be validated to check whether the value drawn                    in facility currency equivalent, is greater than or equal to                    this amount.
+Amount is construed to be expressed in facility currency equivalent.
+Validation Rules
+
+1-14 numeric character plus decimal point
+Optional input.
+No drawing for less than the value input in this field would                    be allowed.       This validation would be performed in                    facility currency equivalent. */
+		DD_MIN_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=80.0, core=true, t24Name=DD.MIN.AMOUNT, typeModifiers="15")
+		/* Drawings in excess of this amount would be prohibited under                    the facility.
+When the facility is drawn, the amount drawn would be                    validated to be lower or equal to the value in this field.                    Input in this field is construed to be expressed in facility                    currency. Validations would also be performed (when drawings                    are made) in the facility currency equivalent of the amount drawn.
+Validation Rules
+
+1-14 numeric character plus decimal point
+Optional input
+Drawings in excess of this amount (expressed in facility                    currency) is       prohibited */
+		DD_MAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=81.0, core=true, t24Name=DD.MAX.AMOUNT, typeModifiers="15")
+		TR_PART -> byValue SL_Facility:FACILITY__TRANCHE_CODE__TR_PART *
+		RESERVE_TRANCHE : SL_Facility:FACILITY__TRANCHE_CODE__RESERVE_TRANCHE
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=85.0, core=true, t24Name=RESERVE.TRANCHE)
+	}
+	FACILITY__TRANCHE_CODE__ALLOWED_CCY
+	{
+		/* Field to indicate list of currencies in which loans could be                    drawn under the tranche.
+When a facility is granted, there could be stipulations that                    permit drawings in specific currencies only. This field is                    used to list out the currencies in which loans could be                    drawn (Deal.Currency).
+If loans are allowed in certain currencies those currencies                    could be defined by multi-valuing this field. If loans are                    allowed except in one or more currencies, such exceptions                    could be listed in Restrict.Ccy
+When loans are rolled over, this validation is checked again.
+Validation Rules
+
+3 alpha currency mnemonic or 1-3 numeric character currency code
+Multi-value field to define more than one currency in which                    drawings are       allowed.
+Input allowed only if Restrict.Ccy is not defined
+Optional input. If no input is made drawings are allowed only                    in       Sl.Currency */
+		ALLOWED_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=65.0, core=true, businessType=CCY, t24Name=ALLOWED.CCY)
+		/* Exchange variance for the allowed currency. For further                    details see helptext on field EXCH.VARIANCE in SL.ROLLOVER
+Validation Rules */
+		EX_VARIANCE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=66.0, core=true, t24Name=EX.VARIANCE)
+		/* Defines that rate to be defaulted to the loan (if drawn in                    the respective allowed currency) in field Holding Rate
+When loan is drawn, there could be circumstances when the                    interest rate is not determinable in advance. The interest                    rate is agreed/fixed at a date prior to the maturity of the                    loan, but well after the value date.
+In such cases, the bank may accrue interest at a holding rate                    for the interim period. Once the actual interest rate is                    defined in the loan contract, the accruals done at the                    holding rate is dropped and are made at the newly defined                    interest rate.
+Validation Rules
+
+1-10 numeric characters plus decimal point
+Must be greater than zero
+Maximum value allowed is 100 */
+		HOLDING_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=67.0, core=true, t24Name=HOLDING.RATE)
+	}
+	FACILITY__TRANCHE_CODE__RESTRICT_CCY
+	{
+		/* Exclusion list of currencies in which loans are not allowed                    in the tranche.
+List of allowed currencies could be defined in Allowed.Ccy                    field or the restricted currencies in this field.
+Validation Rules
+
+3 alpha currency mnemonic or 1-3 numeric character currency code
+Input in either Allowed.Ccy or Restrict.Ccy is permitted */
+		RESTRICT_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=68.0, core=true, businessType=CCY, t24Name=RESTRICT.CCY)
+	}
+	FACILITY__TRANCHE_CODE__ALLOWED_CUST
+	{
+		/* This set of multi-value fields are used to support group                    lending. When a facility is extended to a
+Conglomerate there could be multiple customers who are                    eligible for drawals. The list of customers who could draw                    under the facility is defined in
+Any customer input in this field should have the facility                    customer as the LIABILITY.CUSTOMER
+If no input is made in this field, the facility could be                    drawn only by the customer mentioned in CUSTOMER.
+Validation Rules
+
+Rule 1
+Rule 2 */
+		ALLOWED_CUST -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=72.0, core=true, businessType=CUS, t24Name=ALLOWED.CUST)
+		/* The maximum amount that the Allowed.Cust could draw under the                    facility. When a facility is extended to a
+Conglomerate, there could be more than one customer who is                    eligible to draw under the facility.
+
+If the user desires to restrict the amounts drawn by a                    specific customer, the maximum exposure level to this client                    could be defined in this field.
+
+Any drawing resulting in exposure (aggregate live drawings                    including the drawing that is input) breaching this level                    would not be allowed.
+Validation Rules
+
+1-14 numeric characters plus a decimal point
+Maximum allowed value is the SL.AMOUNT
+Allow amount for a customer may not exceed the facility                    amount less       aggregate reserved amount for others in                    the group
+Negative values not allowed.
+Aggregate of Allowed.Amt could exceed the SL.AMOUNT */
+		ALLOWED_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=73.0, core=true, t24Name=ALLOWED.AMT, typeModifiers="15")
+		/* The amount of facility that is reserved for the Allowed.Cust
+The amount that is mentioned in this field is reserved for                    the allowed customer and not available for others in the group.
+Ex.; A, B, C are part of a
+Conglomerate where A is the facility customer. A credit line                    of 1,000,000 is shared as follows;
+
+Customer        Reserved.amt        Allow.amt
+
+A                 250,000                    400,000
+
+B                 100,000                    250,000
+
+C                 300,000                    500,000
+
+Total                650,000                        -----
+
+In this case the 'free float' in the facility is                    1,000,000 less the aggregate reserved amount of 650,000, ie,                    350,000. This 'free float' is usable on a first                    come basis subject to the allow amount not getting breached.                    In order to protect the reserved amount for others in the                    group, the allowed amount for a specific customer may not                    exceed the facility amount less the aggregate of reserved                    amount of all other customers. In this specific example, the                    allowed amount for A may not exceed 600,000 (1,000,000 less                    400,000 reserved for B & C).
+
+Both allowed and reserved amounts are expressed in facility                    currency (Sl.Currency)
+
+Validation Rules
+
+1-14 numeric characters plus decimal point. Negative values                    not allowed
+Aggregate Reserved.Amt may not exceed Sl.Amount
+Allow amount for a customer may not exceed the facility                    amount less       aggregate reserved amount for others in                    the group
+Must be less than or equal to Allowed.Amt for the respective       Allow.customer */
+		RESERVED_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=74.0, core=true, t24Name=RESERVED.AMT, typeModifiers="15")
+	}
+	FACILITY__TRANCHE_CODE__TR_PART
+	{
+		/* Name of the participant in the tranche. Multi-value field to                    assist definition of several participants under a tranche.
+When a facility is defined in tranches, the ratio of each                    participant's share in the facility could different at                    tranche level. It would also be possible to define                    facilities where different banks participate in each tranche.
+Ex. Facility of 1,000,000 is subscribed by A = 100,000, B =                    200,000, C = 300,000 & D = 400,000. This share is at the                    top level and the facility has two tranches 001 for 600,000                    & 002 for 400,000. The following types of tranche                    definitions are possible;
+(A) Ratio of share being different
+Tranche ref        Bank        Share        Tranche ref                    Bank        Share
+001                      A             50,000          002                    A             50,000
+B            100,000                                   B            100,000
+C            200,000                                   C            100,000
+D            2,50,000                                   D            150,000
+
+
+(B) Tranche participants are different
+Tranche ref           Bank      Share        Tranche ref                    Bank      Share
+001                         D            400,000        002                    A          100,000
+B            200,000                                      C           300,000
+TOTAL                      6,000,000                                                4,000,000
+
+Validation Rules
+
+3-10 alphanumeric customer mnemonic or 1-10 numeric character                    customer       code
+Must be a valid participant of the facility */
+		TR_PART -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=82.0, core=true, businessType=CUS, t24Name=TR.PART)
+		/* Share of the participant in the respective tranche
+When a facility is defined in tranches, the ratio of each                    participant's share in the facility could different at                    tranche level. It would also be possible to define                    facilities where different banks participate in each tranche.
+Ex. Facility of 1,000,000 is subscribed by A = 100,000, B =                    200,000, C = 300,000 & D = 400,000. This share is at the                    top level and the facility has two tranches 001 for 600,000                    & 002 for 400,000. The following types of tranche                    definitions are possible;
+(A) Ratio of share being different
+Tranche ref        Bank        Share        Tranche ref                    Bank        Share
+001                      A             50,000          002                    A             50,000
+B            100,000                                   B            100,000
+C            200,000                                   C            100,000
+D            2,50,000                                   D            150,000
+
+
+(B) Tranche participants are different
+Tranche ref           Bank      Share        Tranche ref                    Bank      Share
+001                         D            400,000        002                    A          100,000
+B            200,000                                      C           300,000
+TOTAL                      6,000,000                                                4,000,000
+Validation Rules
+
+1-14 numeric characters plus decimal point
+Aggregate amount of share of participant at each tranche                    should equal       the share of the participant at the                    facility level. In other words,       aggregate value of                    TR.PART.AMT of each participant across tranches should                    equal PART.AMOUNT
+Once the facility authorised, this field cannot be input.
+After first authorisation this field is system maintained.                    The result of       change in share owing to a transaction                    in SL.BUY.SELL. will be updated in       this field. */
+		TR_PART_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=83.0, core=true, t24Name=TR.PART.AMT, typeModifiers="15")
+		/* Share of participant in respective tranche expressed in                    percentage format.
+Validation Rules
+
+System maintained field
+Input by user not allowed. */
+		TR_PART_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=13, sysNumber=84.0, core=true, t24Name=TR.PART.PERC)
+	}
+	FACILITY__DELIVERY_CUST
+	{
+		/* The ID of the customer who is the addressee of the message is                    system written in this field.
+This field is the first of the set of multi-value fields                    which contain the delivery related information.
+Validation Rules
+
+System written. */
+		DELIVERY_CUST -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=87.0, core=true, businessType=CUS, t24Name=DELIVERY.CUST)
+		/* System written field.  Forms part of the multi-value set of                    delivery related fields.
+This field holds the 4 digit activity code generated by the                    system and written in the form SL-....
+Each of the 4 digits are arrived at as below :
+The first digit indicates the application for which the                    activity has been generated. Presently it has three values                    viz. 1 -  PRE    2 - FACILITY and  3 - SL.LOAN
+The second digit indicates the operation done under each                    application.  Presently it has six values viz.       0 -                    OTHERS     1 - INPUT     2 - AMENDMENT     3 - NOTICE      4                    - CONFIRMATION           5 - REVERSAL
+The third digit indicates the component for which the message                    is being generated viz. Principal or Interest or commitment                    fee etc.  Presently it has five values viz.   0 - OTHERS   1                    - PRINCIPAL                         2 - COMMITMENT FEE     3                    - INTEREST     4 - CHARGES
+The fourth digit indicates to whom the message is being                    generated, whether to the participant or to the borrower  or                    to both.  Presently it has three values viz.  1 -                    PARTICIPANT ONLY                             2 - PARTICIPANT                    AND BORROWER    3 - BORROWER ONLY
+For example when a new facility is granted, the activity                    generated would be SL-2102 meaning 2-FACILITY, 1-INPUT,                    0-OTHERS(since it involves all components) and                    2-PARTICIPANTS AND BORROWER.
+Validation Rules
+
+System generated
+Four digits will be prefixed by SL- */
+		ACTIVITY_CODE -> EB_Delivery:EB_ACTIVITY
+			@t24:i (align=L, inputBehaviour=N, maxLength=7, sysNumber=88.0, core=true, businessType=A, t24Name=ACTIVITY.CODE)
+		/* The date on which the activity is generated is system written                    in this field. T
+Validation Rules
+
+System Written. */
+		ACTIVITY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=89.0, core=true, t24Name=ACTIVITY.DATE)
+		/* Reserved for future use.
+Validation Rules
+
+Rule 1
+Rule 2 */
+		PRIOR_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=90.0, core=true, t24Name=PRIOR.DAYS)
+		MSG_TYPE -> byValue SL_Facility:FACILITY__DELIVERY_CUST__MSG_TYPE *
+	}
+	FACILITY__DELIVERY_CUST__MSG_TYPE
+	{
+		/* The type of the message produced for this activity is system                    written in this field. Forms a part of the multi-value set                    of delivery related fields.
+Validation Rules
+
+System Written
+Will be a valid record in the DE.MESSAGE file. */
+		MSG_TYPE -> DE_Config:DE_MESSAGE
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=91.0, core=true, businessType=A, t24Name=MSG.TYPE)
+		/* Forms a part of the multi-value set of delivery related                    fields.  This field is system written and is used to                    determine whether message is to be sent to BORROWER or PARTICIPANT.
+At present the values allowed are ADVICEBORR  and                    ADVICEPART, which are defined in the EB.MESSAGE.CLASS file.
+Validation Rules
+
+Values now used are ADVICEBORR and ADVICEPART. */
+		MSG_CLASS -> EB_Delivery:EB_MESSAGE_CLASS
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=92.0, core=true, businessType=A, t24Name=MSG.CLASS)
+		/* An integral part of the 'Delivery' multi-value set,                    this field enables the user to override the defaulted                    carrier for a particular message type and select a new carrier.
+For example : If a specific message is generated by SWIFT,                    the user is able to override this by choosing other                    available options from the CARRIER table, eg TELEX or PRINT.
+Validation Rules
+
+Must be a valid record in the DE.CARRIER application. */
+		OVR_CARRIER -> DE_Config:DE_CARRIER
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, sysNumber=93.0, core=true, businessType=A, t24Name=OVR.CARRIER)
+		/* Acting as part of the delivery multivale set, this field                    provides the user with the ability to decide whether to send                    or withhold sending the delivery of any message produced                    under the contract.
+Validation Rules
+
+Options available are (Y)es - Send Message or (N)o - Do Not                    Send Message
+Default is YES. */
+		SEND_MSG : SL_Facility:FACILITY__DELIVERY_CUST__MSG_TYPE__SEND_MSG
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=94.0, core=true, t24Name=SEND.MSG)
+		/* The date on which the message will be generated is system                    written in this field.
+Validation Rules
+
+System written. */
+		MSG_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=95.0, core=true, t24Name=MSG.DATE)
+	}
+	FACILITY__DELIVERY_REF
+	{
+		/* System written and maintained field.
+Contains the delivery keys used for the generation of the advices.
+Validation Rules
+
+System written.
+User input not allowed. */
+		DELIVERY_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=46, sysNumber=96.0, core=true, t24Name=DELIVERY.REF)
+	}
+	FACILITY__DEC_EFF_DT
+	{
+		/* When a revolving facility is issued, the phased reduction of                    facility amounts could be defined in this set of fields.
+For a non revolving facility, repayment schedules could be                    defined in SL.REPAYMENT.SCHEDULES table.
+For a revolving facility, the facility amount could be                    reduced in a phased manner by using DEC.EFF.DT, DEC.AMOUNT                    & DEC.PERC. Based on input in this set of fields an                    internal file called SL.EXPOSURE.LEVEL would be built.
+When drawings are made, validations would be performed in                    order to check that the drawings does not breach the                    exposure levels. The following example would illustrate the functionality.
+A facility is granted for 1,000,000 with value date as                    01JAN02, maturity date 01JAN05 with reductions as follows;
+DEC.EFF.DT        DEC.AMOUNT        DEC.PERC
+01JAN03                    250,000                    25%
+01JAN04                    500,000                    50%
+01JAN05                    250,000                    25%
+Assume a single drawdown is made on value date 01JAN02 for                    the entire amount of 1,000,000. The latest maturity date                    that may be given for this drawing can be 31DEC02 as a                    decrease of 25% is contemplated on 01JAN03. If the borrower                    has made the drawing for 750,000 the latest maturity date                    that could be given is 31DEC03 as maximum exposure permitted                    beyond this date is 250,000 only.
+In case the borrower has taken the loan (full value of                    1,000,000) for a shorter period, say with value date 01JAN02                    and maturity date 31OCT02. On this maturity date, there are                    two options open;
+(a) To rollover the loan in full with maturity date less than 01JAN03
+(b) To split the loan so that one or more loans aggregating                    to value 250,000 have maturity date less than 01JAN03 and                    one or more loans aggregating to value 750,000 having                    maturity date less than 01JAN04
+On each Exposure Date, LIVECMT would be reversed out with an                    amount equal to Dec.Amount. If no input is made in                    Dec.Eff.Dt set of fields, LIVECMT should be reversed on the                    Maturity.Date for the full value. This is to ensure that the                    utilized amount under the Facility never exceeds the                    Exposure Level.
+Validation Rules
+
+9 type A alphanumeric character. Standard date format
+Optional input.
+If no phased reduction is contemplated, the entire facility                    is scheduled       to for cancellation on maturity date. */
+		DEC_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=97.0, core=true, t24Name=DEC.EFF.DT)
+		/* When a revolving facility is issued, the phased reduction of                    facility amounts could be defined in this set of fields.
+For a non revolving facility, repayment schedules could be                    defined in SL.REPAYMENT.SCHEDULES table.
+For a revolving facility, the facility amount could be                    reduced in a phased manner by using DEC.EFF.DT, DEC.AMOUNT                    & DEC.PERC. Based on input in this set of fields an                    internal file called SL.EXPOSURE.LEVEL would be built.
+When drawings are made, validations would be performed in                    order to check that the drawings does not breach the                    exposure levels. The following example would illustrate the functionality.
+A facility is granted for 1,000,000 with value date as                    01JAN02, maturity date 01JAN05 with reductions as follows;
+DEC.EFF.DT        DEC.AMOUNT        DEC.PERC
+01JAN03                    250,000                    25%
+01JAN04                    500,000                    50%
+01JAN05                    250,000                    25%
+Assume a single drawdown is made on value date 01JAN02 for                    the entire amount of 1,000,000. The latest maturity date                    that may be given for this drawing can be 31DEC02 as a                    decrease of 25% is contemplated on 01JAN03. If the borrower                    has made the drawing for 750,000 the latest maturity date                    that could be given is 31DEC03 as maximum exposure permitted                    beyond this date is 250,000 only.
+In case the borrower has taken the loan (full value of                    1,000,000) for a shorter period, say with value date 01JAN02                    and maturity date 31OCT02. On this maturity date, there are                    two options open;
+(a) To rollover the loan in full with maturity date less than 01JAN03
+(b) To split the loan so that one or more loans aggregating                    to value 250,000 have maturity date less than 01JAN03 and                    one or more loans aggregating to value 750,000 having                    maturity date less than 01JAN04
+On each Exposure Date, LIVECMT would be reversed out with an                    amount equal to Dec.Amount. If no input is made in                    Dec.Eff.Dt set of fields, LIVECMT should be reversed on the                    Maturity.Date for the full value. This is to ensure that the                    utilized amount under the Facility never exceeds the                    Exposure Level.
+Validation Rules
+
+1-14 numeric characters plus decimal point
+Optional input
+If no reduction is contemplated, the entire facility is                    scheduled for       cancellation on the maturity date. */
+		DEC_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=98.0, core=true, t24Name=DEC.AMOUNT, typeModifiers="15")
+		/* The decrease amount expressed in percentage format.
+Percentage expressed on SL.AMOUNT
+
+Validation Rules
+
+Optional input
+Input could be made in either DEC.AMOUNT or in DEC.PERC.
+If input is made in DEC.PERC, system would calculate and                    write       DEC.AMOUNT */
+		DEC_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=99.0, core=true, t24Name=DEC.PERC)
+	}
+	FACILITY__BK_TO_BK_INFO
+	{
+		/* Bank to Bank information can be user input in this field.                    This can be mapped to the appropriate field in the SWIFT message.
+Validation Rules
+
+User Input */
+		BK_TO_BK_INFO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=100.0, core=true, t24Name=BK.TO.BK.INFO)
+	}
+	FACILITY__PENDING_TRANS
+	{
+		/* Field that would list any pending (INAU status) transactions                    under the facility. If this field contains any value, the                    facility is not available for input.
+Once the pending transactions are authorised, this field is                    cleared and the facility could be input.
+Validation Rules
+
+System maintained field to prevent input of the facility                    while other       transactions are unauthorised.
+Input not allowed */
+		PENDING_TRANS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=101.0, core=true, t24Name=PENDING.TRANS)
+	}
+	FACILITY__PRODUCT_TYPE
+	{
+		/* Indicates the product type. The module supports loan type products, Guarantees and Stand by Letter of Credits. Drawdown for loan type products is handled in this module. Issue of Guarantee or Stand by Letter of Credit under the facility is handled in MD module. This is enabled by  providing a link to the MD module by inputting the facility reference number in the MD deal. Though the processing of MD deal would be done by the MD module the management of facility would be handled in SL module.
+This field is a mutivalue field which can accept all the three defined values there by enabling the Facility to be utilised on any of the defined multiple products.
+This field has the Associated set of fields PRODUCT.AMT,PRODUCT.TR.CODE, PRODUCT.TR.AMT for defining multiple product utilisation for the facility amount under each tranche
+An example to define the Functionality
+The field PRODUCT.TYPE and PRODUCT.AMT is used to define the amount utilisation under the product and the associated sub-value fields PRODUCT.TR.CODE and PROD.TR.AMT is used to define the Tranche level utilisation on each Product.
+Consider a Total Facility amount of 100M with TR1 as 50M, TR2 as 30M and TR3 as 20M
+The PRODUCT.TYPE and PRODUCT.AMT can be defined as below
+LOANS USD 100M(LN-PRODUCT)   TR1 50M, TR2 30M, TR3 20M
+GTEES USD 100M(GT-PRODUCT)   TR1 50M, TR2 30M, TR3 20M
+SBLC's USD 100M(SC-PRODUCT)   TR1 50M, TR2 30M, TR3 20M , The tranche codes and amounts can be defined in PRODUCT.TR.CODE and PRODUCT.TR.AMT
+The above examples determines that a Facility of 100M can be utilised in the LN product type by a maximum of 50M utilisation from TR1, 30M from TR2 and 20M from TR3. Similarly for the GT and SC products. The amount utilisation is in the first come first serve basis and the utilisation on each product is allowed only on the outstanding tranche amount
+Allowed values in this field are LN, SC, GT.
+LN implies Loan Product
+SC implies Stand by Letter of Credit
+GT implies Guarantee assistance.
+Validation Rules
+
+Default value is Null implying loan type product.
+Sum of the product amount can be greater than the Facility amount
+Sum of the PRODUCT.TR.AMT should be equal to the PRODUCT.AMT */
+		PRODUCT_TYPE : SL_Facility:FACILITY__PRODUCT_TYPE__PRODUCT_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=110.0, core=true, t24Name=PRODUCT.TYPE)
+		/* This is a Amount field that will accept the maximum amount that can be utilised against the PRODUCT defined in the PRODUCT.TYPE field. */
+		PRODUCT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=111.0, core=true, t24Name=PRODUCT.AMT, typeModifiers="15")
+		PROD_TR_CODE -> byValue SL_Facility:FACILITY__PRODUCT_TYPE__PROD_TR_CODE *
+	}
+	FACILITY__PRODUCT_TYPE__PROD_TR_CODE
+	{
+		/* Tranche reference number which is used to define the tranche level utilisation on the Product for a Phased out Disbursement. */
+		PROD_TR_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=112.0, core=true, t24Name=PROD.TR.CODE)
+		/* This amount field will hold the tranche level utilisation of the amount against each product. */
+		PROD_TR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=113.0, core=true, t24Name=PROD.TR.AMT, typeModifiers="15")
+	}
+	FACILITY__PIK_REFERENCE
+	{
+		PIK_REFERENCE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=124.0, core=true, t24Name=PIK.REFERENCE)
+		PIK_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=125.0, core=true, t24Name=PIK.RATE)
+		PIK_START_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=126.0, core=true, t24Name=PIK.START.DATE)
+		PIK_END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=127.0, core=true, t24Name=PIK.END.DATE)
+		PIK_INT_FQY : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=128.0, core=true, t24Name=PIK.INT.FQY, mask="LDDDD DD  D #####")
+	}
+	FACILITY__STMT_NO
+	{
+		/* The ids of the accounting entries raised by the accounting system NOINPUT field */
+		STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=29, sysNumber=135.0, core=true, t24Name=STMT.NO)
+	}
+	FACILITY__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=136.0, core=true, t24Name=OVERRIDE)
+	}
+	FACILITY__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=139.0, core=true, t24Name=INPUTTER)
+	}
+	FACILITY__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=140.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	FACILITY_REPAY_SCHEDULES
+		@t24:i (t24Name=FACILITY.REPAY.SCHEDULES, level=F, type=H, additionalInfo="NOH UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		ID_NUMBER -> SL_Facility:FACILITY_REPAY_SCHEDULES PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=0.0, core=true, businessType=A, t24Name=ID.NUMBER)
+		FACILITY_CCY : T24BusinessTypes:CCY required
+			@i18n:Label (en="Facility Ccy")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=1.0, core=true, t24Name=FACILITY.CCY)
+		TOTAL_REPAY_AMT : T24BusinessTypes:AMT required
+			@i18n:Label (en="Total Repayment Amount")
+			@i18n:Tooltip (en="Total Repayment Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=TOTAL.REPAY.AMT, typeModifiers="1")
+		TR_RPY_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Tranche Repay Date")
+			@i18n:Tooltip (en="Tranche Repay Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=3.0, core=true, t24Name=TR.RPY.DATE)
+		PRO_RATA : SL_Facility:FACILITY_REPAY_SCHEDULES__PRO_RATA
+			@i18n:Label (en=Prodata)
+			@i18n:Tooltip (en="Whether to be settled pro data or Adhoc Settlement")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=PRO.RATA)
+		LOAN_CCY -> byValue SL_Facility:FACILITY_REPAY_SCHEDULES__LOAN_CCY *
+		REP_SCH_TYPE : SL_Facility:FACILITY_REPAY_SCHEDULES__REP_SCH_TYPE
+			@i18n:Label (en="Repayment Schedule Type")
+			@i18n:Tooltip (en="Repayment Schedule Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=12.0, core=true, t24Name=REP.SCH.TYPE)
+		TR_REDEM_TYPE : SL_Facility:FACILITY_REPAY_SCHEDULES__TR_REDEM_TYPE
+			@i18n:Label (en="Tranche Redem Type")
+			@i18n:Tooltip (en="Whether Schedule/Unscheduled Payment")
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=TR.REDEM.TYPE)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=14.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=15.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=16.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=17.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue SL_Facility:FACILITY_REPAY_SCHEDULES__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SL_Facility:FACILITY_REPAY_SCHEDULES__INPUTTER *
+		DATE_TIME -> byValue SL_Facility:FACILITY_REPAY_SCHEDULES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=25.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=27.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=28.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	FACILITY_REPAY_SCHEDULES__LOAN_CCY
+	{
+		LOAN_CCY : T24BusinessTypes:CCY required
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=5.0, core=true, t24Name=LOAN.CCY)
+		LOAN_ID : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=6.0, core=true, t24Name=LOAN.ID)
+		LOAN_AMT : T24BusinessTypes:AMT required
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=7.0, core=true, t24Name=LOAN.AMT, typeModifiers="5.X")
+		LOAN_BCCY_AMT : T24BusinessTypes:AMT required
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=8.0, core=true, t24Name=LOAN.BCCY.AMT, typeModifiers="1")
+		LOAN_REPAY_AMT : T24BusinessTypes:AMT required
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, core=true, t24Name=LOAN.REPAY.AMT, typeModifiers="5.X")
+		LN_REP_BCY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=10.0, core=true, t24Name=LN.REP.BCY.AMT, typeModifiers="1")
+		LN_END_PRD_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, t24Name=LN.END.PRD.DT)
+	}
+	FACILITY_REPAY_SCHEDULES__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=OVERRIDE)
+	}
+	FACILITY_REPAY_SCHEDULES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=INPUTTER)
+	}
+	FACILITY_REPAY_SCHEDULES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=23.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	FACILITY_REPAY_SCHEDULES_HIST
+		@t24:i (t24Name=FACILITY.REPAY.SCHEDULES.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		ID_NUMBER -> SL_Facility:FACILITY_REPAY_SCHEDULES_HIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=0.0, core=true, businessType=A, t24Name=ID.NUMBER)
+		FACILITY_CCY : T24BusinessTypes:CCY required
+			@i18n:Label (en="Facility Ccy")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=FACILITY.CCY)
+		TOTAL_REPAY_AMT : T24BusinessTypes:AMT required
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=TOTAL.REPAY.AMT, typeModifiers="1")
+		TR_RPY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=TR.RPY.DATE)
+		PRO_RATA : SL_Facility:FACILITY_REPAY_SCHEDULES_HIST__PRO_RATA
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=PRO.RATA)
+		LOAN_CCY -> byValue SL_Facility:FACILITY_REPAY_SCHEDULES_HIST__LOAN_CCY *
+		REP_SCH_TYPE : SL_Facility:FACILITY_REPAY_SCHEDULES_HIST__REP_SCH_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=12.0, core=true, t24Name=REP.SCH.TYPE)
+		TR_REDEM_TYPE : SL_Facility:FACILITY_REPAY_SCHEDULES_HIST__TR_REDEM_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=TR.REDEM.TYPE)
+	}
+	FACILITY_REPAY_SCHEDULES_HIST__LOAN_CCY
+	{
+		LOAN_CCY : T24BusinessTypes:CCY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=LOAN.CCY)
+		LOAN_ID : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=6.0, core=true, t24Name=LOAN.ID)
+		LOAN_AMT : T24BusinessTypes:AMT required
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=LOAN.AMT, typeModifiers="5.X")
+		LOAN_BCCY_AMT : T24BusinessTypes:AMT required
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=LOAN.BCCY.AMT, typeModifiers="1")
+		LOAN_REPAY_AMT : T24BusinessTypes:AMT required
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, core=true, t24Name=LOAN.REPAY.AMT, typeModifiers="5.X")
+		LN_REP_BCY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=LN.REP.BCY.AMT, typeModifiers="1")
+		LN_END_PRD_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=LN.END.PRD.DT)
+	}
+	SL_FAC_PROD_DETAILS
+		@t24:i (t24Name=SL.FAC.PROD.DETAILS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the id of FACILITY */
+		KEY -> SL_Facility:SL_FAC_PROD_DETAILS PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* This holds the currency of the FACILITY contract */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		PROD_TYPE -> byValue SL_Facility:SL_FAC_PROD_DETAILS__PROD_TYPE *
+	}
+	SL_FAC_PROD_DETAILS__PROD_TYPE
+	{
+		/* This holds Product type set in FACILITY when multi product is defined.Possible values are LN,GT and SC */
+		PROD_TYPE : SL_Facility:SL_FAC_PROD_DETAILS__PROD_TYPE__PROD_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=PROD.TYPE)
+		/* This indicates the maximum amount that can be utilised against the product */
+		PROD_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=PROD.OUTS.AMT, typeModifiers="1.X")
+		PROD_TR_CODE -> byValue SL_Facility:SL_FAC_PROD_DETAILS__PROD_TYPE__PROD_TR_CODE *
+	}
+	SL_FAC_PROD_DETAILS__PROD_TYPE__PROD_TR_CODE
+	{
+		/* This holds tranche reference number which is used to define the tranche level utilisation on the Product for a Phased out Disbursement */
+		PROD_TR_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=PROD.TR.CODE)
+		/* This field holds the amount yet to utilise at tranche level against each product . It can be utilised only when the commitment available amount under the respective tranche exists. */
+		PROD_TR_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=PROD.TR.OUTS.AMT, typeModifiers="1.X")
+		/* This field holds the amount utilised at tranche level against each product */
+		PROD_TR_AMT_MVD : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=PROD.TR.AMT.MVD, typeModifiers="1.X")
+	}
+	SL_FAC_PROD_DETAILS_SAVE
+		@t24:i (t24Name=SL.FAC.PROD.DETAILS.SAVE, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		KEY -> SL_Facility:SL_FAC_PROD_DETAILS_SAVE PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		PROD_TYPE -> byValue SL_Facility:SL_FAC_PROD_DETAILS_SAVE__PROD_TYPE *
+	}
+	SL_FAC_PROD_DETAILS_SAVE__PROD_TYPE
+	{
+		PROD_TYPE : SL_Facility:SL_FAC_PROD_DETAILS_SAVE__PROD_TYPE__PROD_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=PROD.TYPE)
+		PROD_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=PROD.OUTS.AMT, typeModifiers="1.X")
+		PROD_TR_CODE -> byValue SL_Facility:SL_FAC_PROD_DETAILS_SAVE__PROD_TYPE__PROD_TR_CODE *
+	}
+	SL_FAC_PROD_DETAILS_SAVE__PROD_TYPE__PROD_TR_CODE
+	{
+		PROD_TR_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=PROD.TR.CODE)
+		PROD_TR_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=PROD.TR.OUTS.AMT, typeModifiers="1.X")
+		PROD_TR_AMT_MVD : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=PROD.TR.AMT.MVD, typeModifiers="1.X")
+	}
+	SL_FAC_PROD_MVMT_DETAILS
+		@t24:i (t24Name=SL.FAC.PROD.MVMT.DETAILS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the id of FACILITY */
+		KEY -> SL_Facility:SL_FAC_PROD_MVMT_DETAILS PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* This holds the currency of the FACILITY contract */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		PROD_TYPE -> byValue SL_Facility:SL_FAC_PROD_MVMT_DETAILS__PROD_TYPE *
+	}
+	SL_FAC_PROD_MVMT_DETAILS__PROD_TYPE
+	{
+		/* This holds Product type of the drawings made under the FACILITY. */
+		PROD_TYPE : SL_Facility:SL_FAC_PROD_MVMT_DETAILS__PROD_TYPE__PROD_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=PROD.TYPE)
+		/* This holds tranche code of the drawings made under the FACILITY */
+		PROD_TR_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=PROD.TR.CODE)
+		/* This holds amount utilised in the drawings made under the FACILITY */
+		PROD_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=PROD.AMT.MOVED, typeModifiers="1.X")
+		/* This holds the date on which the drawings made under the FACILITY */
+		PROD_MVMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, t24Name=PROD.MVMT.EFF.DATE)
+		/* This holds the ID of the drawings made under the FACILITY */
+		PROD_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=6.0, core=true, t24Name=PROD.ID)
+	}
+	SL_FACI_BALANCES
+		@t24:i (t24Name=SL.FACI.BALANCES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key field to the file which holds the FACILITY ID for which this Corresponding balance record is created */
+		KEY -> SL_Facility:SL_FACI_BALANCES PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* Holds the currency of the facility record */
+		SL_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en="Sl Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=SL.CURRENCY)
+		SL_INIT_AMOUNT -> byValue SL_Facility:SL_FACI_BALANCES__SL_INIT_AMOUNT *
+		SL_OUTS_AMT -> byValue SL_Facility:SL_FACI_BALANCES__SL_OUTS_AMT *
+		TRANCHE_CODE -> byValue SL_Facility:SL_FACI_BALANCES__TRANCHE_CODE *
+		FEE_CALC_ST -> byValue SL_Facility:SL_FACI_BALANCES__FEE_CALC_ST *
+		FEE_PERC -> byValue SL_Facility:SL_FACI_BALANCES__FEE_PERC *
+		FEE_PERC_UAVL -> byValue SL_Facility:SL_FACI_BALANCES__FEE_PERC_UAVL *
+	}
+	SL_FACI_BALANCES__SL_INIT_AMOUNT
+	{
+		/* Initial facility amount expressed in the  facility currency. This amount is updated from the facility record */
+		SL_INIT_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=SL.INIT.AMOUNT, typeModifiers="1")
+		/* The effective date for the amount defined in the corresponding SL.INIT.AMOUNT field */
+		TOT_AMT_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=3.0, core=true, t24Name=TOT.AMT.EFF.DT)
+	}
+	SL_FACI_BALANCES__SL_OUTS_AMT
+	{
+		/* Holds the outstanding balance of the facility effective on a date defined in the corresponding AMT.EFF.DATE field */
+		SL_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=SL.OUTS.AMT, typeModifiers="1")
+		/* Holds the movement amount when there is a movement in the facility on a date defined at the corresponding field AMT.EFF.DATE */
+		SL_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=SL.AMT.MOVED, typeModifiers="1")
+		/* Records the positive movement of the facility */
+		SL_INCR_MVT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=SL.INCR.MVT, typeModifiers="1")
+		/* Records the negative movement of the facility */
+		SL_DECR_MVT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=SL.DECR.MVT, typeModifiers="1")
+		/* effective date for the amounts defined in the corresponding fields SL.OUTS.AMT and SL.AMT.MOVED */
+		AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=AMT.EFF.DATE)
+	}
+	SL_FACI_BALANCES__TRANCHE_CODE
+	{
+		/* Holds the tranche code defined under the facility.  This is a multivalue field associated with tranche level balances. */
+		TRANCHE_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=9.0, core=true, t24Name=TRANCHE.CODE)
+		/* Holds the  total tranche amount to the corresponding tranche define in the field TRANCHE.CODE */
+		TRANCHE_TOT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=TRANCHE.TOT.AMT, typeModifiers="1")
+		/* Indicates whether the corresponding tranche is alive or passed. If the tranche end date is not crossed then  is updated with Y. A past tranch is indicated by updating N to " */
+		TRANCHE_IND : SL_Facility:SL_FACI_BALANCES__TRANCHE_CODE__TRANCHE_IND
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=11.0, core=true, t24Name=TRANCHE.IND)
+		TR_OUTS_AMT -> byValue SL_Facility:SL_FACI_BALANCES__TRANCHE_CODE__TR_OUTS_AMT *
+	}
+	SL_FACI_BALANCES__TRANCHE_CODE__TR_OUTS_AMT
+	{
+		/* Holds the outstanding balance of the corresponding tranche defined in TRANCHE.CODE field and effective on a date defined in the corresponding AMT.EFF.DATE field */
+		TR_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, core=true, t24Name=TR.OUTS.AMT, typeModifiers="1")
+		/* Holds the movement amount when there is a movement in the tranche defined in the corresponding TRANCHE.CODE field and effective from a date defined at the corresponding field AMT.EFF.DATE */
+		TR_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=TR.AMT.MOVED, typeModifiers="1")
+		/* Records the positive movement of the facility within a Tranche */
+		TR_AMT_INCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=TR.AMT.INCR, typeModifiers="1")
+		/* Records the negative movement of the facility within a Tranche */
+		TR_AMT_DECR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=TR.AMT.DECR, typeModifiers="1")
+		/* Holds the effective date for the amounts defined in the corresponding fields TR.OUTS.AMT and TR.AMT.MOVED" */
+		TR_AMT_MV_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=TR.AMT.MV.DT)
+	}
+	SL_FACI_BALANCES__FEE_CALC_ST
+	{
+		/* The date which is used as the starting date for the fee calculation */
+		FEE_CALC_ST : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=FEE.CALC.ST)
+		/* The date which is used as the end date for the fee calculation */
+		FEE_CALC_END : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=FEE.CALC.END)
+		/* The tax amount calculated on the total fee amount from the corresponding field TOT.FEE.AMT */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=TAX.AMOUNT, typeModifiers="1")
+		/* Holds Tax amount calculated on the unavailable fee amount. This amount is calculated using the value in FEE.PERC.UVAL on the fee amount available in TOT.FEE.UVAL field
+. */
+		TAX_AMOUNT_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=20.0, core=true, t24Name=TAX.AMOUNT.UAVL, typeModifiers="1")
+		/* Total fee amount for the  facility record */
+		TOT_FEE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, core=true, t24Name=TOT.FEE.AMT, typeModifiers="1")
+		/* Total unavailable portion of fee amount for the facility record */
+		TOT_FEE_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=TOT.FEE.UAVL, typeModifiers="1")
+	}
+	SL_FACI_BALANCES__FEE_PERC
+	{
+		FEE_PERC -> byValue SL_Facility:SL_FACI_BALANCES__FEE_PERC__FEE_PERC *
+		FEE_PERC_AMT -> byValue SL_Facility:SL_FACI_BALANCES__FEE_PERC__FEE_PERC_AMT *
+		/* Holds the effective date of the processing  fee amount */
+		FEE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=FEE.EFF.DATE)
+	}
+	SL_FACI_BALANCES__FEE_PERC__FEE_PERC
+	{
+		/* Holds the percentage used to calculate the fee amount. This field is updated from the commitment fee percentage defined at the facility record */
+		FEE_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=FEE.PERC)
+	}
+	SL_FACI_BALANCES__FEE_PERC__FEE_PERC_AMT
+	{
+		/* Holds the fee calculation base amount each fee calculation date */
+		FEE_PERC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=24.0, core=true, t24Name=FEE.PERC.AMT)
+	}
+	SL_FACI_BALANCES__FEE_PERC_UAVL
+	{
+		/* Holds the commitment fee percentage to be calculated on the unavailable amount */
+		FEE_PERC_UAVL : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=FEE.PERC.UAVL)
+		/* The commitment fee percentage effective date for the unavailable amount.  It is associated with the commitment fee percentage field */
+		FEE_EFF_DT_UAVL : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=27.0, core=true, t24Name=FEE.EFF.DT.UAVL)
+	}
+	SL_FACI_BALANCES_HIST
+		@t24:i (t24Name=SL.FACI.BALANCES.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		KEY -> SL_Facility:SL_FACI_BALANCES_HIST PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* Please refer help text section of SL.FACI.BALANCES */
+		SL_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en="Sl Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=SL.CURRENCY)
+		SL_INIT_AMOUNT -> byValue SL_Facility:SL_FACI_BALANCES_HIST__SL_INIT_AMOUNT *
+		SL_OUTS_AMT -> byValue SL_Facility:SL_FACI_BALANCES_HIST__SL_OUTS_AMT *
+		TRANCHE_CODE -> byValue SL_Facility:SL_FACI_BALANCES_HIST__TRANCHE_CODE *
+		FEE_CALC_ST -> byValue SL_Facility:SL_FACI_BALANCES_HIST__FEE_CALC_ST *
+		FEE_PERC -> byValue SL_Facility:SL_FACI_BALANCES_HIST__FEE_PERC *
+		FEE_PERC_UAVL -> byValue SL_Facility:SL_FACI_BALANCES_HIST__FEE_PERC_UAVL *
+	}
+	SL_FACI_BALANCES_HIST__SL_INIT_AMOUNT
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		SL_INIT_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=SL.INIT.AMOUNT, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TOT_AMT_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=3.0, core=true, t24Name=TOT.AMT.EFF.DT)
+	}
+	SL_FACI_BALANCES_HIST__SL_OUTS_AMT
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		SL_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=SL.OUTS.AMT, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		SL_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=SL.AMT.MOVED, typeModifiers="1")
+		/* Please refer the help text section of SL.FACI.BALANCES */
+		SL_INCR_MVT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=SL.INCR.MVT, typeModifiers="1")
+		/* Please refer the help text section of SL.FACI.BALANCES */
+		SL_DECR_MVT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=SL.DECR.MVT, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=AMT.EFF.DATE)
+	}
+	SL_FACI_BALANCES_HIST__TRANCHE_CODE
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TRANCHE_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=9.0, core=true, t24Name=TRANCHE.CODE)
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TRANCHE_TOT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=TRANCHE.TOT.AMT, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TRANCHE_IND : SL_Facility:SL_FACI_BALANCES_HIST__TRANCHE_CODE__TRANCHE_IND
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=11.0, core=true, t24Name=TRANCHE.IND)
+		TR_OUTS_AMT -> byValue SL_Facility:SL_FACI_BALANCES_HIST__TRANCHE_CODE__TR_OUTS_AMT *
+	}
+	SL_FACI_BALANCES_HIST__TRANCHE_CODE__TR_OUTS_AMT
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TR_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, core=true, t24Name=TR.OUTS.AMT, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TR_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=TR.AMT.MOVED, typeModifiers="1")
+		/* Please refer the help text section of SL.FACI.BALANCES */
+		TR_AMT_INCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=TR.AMT.INCR, typeModifiers="1")
+		/* Please refer the help text section of SL.FACI.BALANCES */
+		TR_AMT_DECR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=TR.AMT.DECR, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TR_AMT_MV_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=TR.AMT.MV.DT)
+	}
+	SL_FACI_BALANCES_HIST__FEE_CALC_ST
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		FEE_CALC_ST : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=FEE.CALC.ST)
+		/* Please refer help text section of SL.FACI.BALANCES */
+		FEE_CALC_END : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=FEE.CALC.END)
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=TAX.AMOUNT, typeModifiers="1")
+		/* Please refer the help text section of SL.FACI.BALANCES */
+		TAX_AMOUNT_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=20.0, core=true, t24Name=TAX.AMOUNT.UAVL, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TOT_FEE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, core=true, t24Name=TOT.FEE.AMT, typeModifiers="1")
+		/* Please refer the help text section of SL.FACI.BALANCES */
+		TOT_FEE_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=TOT.FEE.UAVL, typeModifiers="1")
+	}
+	SL_FACI_BALANCES_HIST__FEE_PERC
+	{
+		FEE_PERC -> byValue SL_Facility:SL_FACI_BALANCES_HIST__FEE_PERC__FEE_PERC *
+		FEE_PERC_AMT -> byValue SL_Facility:SL_FACI_BALANCES_HIST__FEE_PERC__FEE_PERC_AMT *
+		/* Please refer help text section of SL.FACI.BALANCES */
+		FEE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=FEE.EFF.DATE)
+	}
+	SL_FACI_BALANCES_HIST__FEE_PERC__FEE_PERC
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		FEE_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=FEE.PERC)
+	}
+	SL_FACI_BALANCES_HIST__FEE_PERC__FEE_PERC_AMT
+	{
+		FEE_PERC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=24.0, core=true, t24Name=FEE.PERC.AMT)
+	}
+	SL_FACI_BALANCES_HIST__FEE_PERC_UAVL
+	{
+		/* Please refer the help text section of SL.FACI.BALANCES */
+		FEE_PERC_UAVL : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=FEE.PERC.UAVL)
+		/* Please refer the help text section of SL.FACI.BALANCES */
+		FEE_EFF_DT_UAVL : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=27.0, core=true, t24Name=FEE.EFF.DT.UAVL)
+	}
+	SL_FACI_BALANCES_SAVE
+		@t24:i (t24Name=SL.FACI.BALANCES.SAVE, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		KEY -> SL_Facility:SL_FACI_BALANCES_SAVE PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* Please refer help text section of SL.FACI.BALANCES */
+		SL_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en="Sl Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=SL.CURRENCY)
+		SL_INIT_AMOUNT -> byValue SL_Facility:SL_FACI_BALANCES_SAVE__SL_INIT_AMOUNT *
+		SL_OUTS_AMT -> byValue SL_Facility:SL_FACI_BALANCES_SAVE__SL_OUTS_AMT *
+		TRANCHE_CODE -> byValue SL_Facility:SL_FACI_BALANCES_SAVE__TRANCHE_CODE *
+		FEE_CALC_ST -> byValue SL_Facility:SL_FACI_BALANCES_SAVE__FEE_CALC_ST *
+		FEE_PERC -> byValue SL_Facility:SL_FACI_BALANCES_SAVE__FEE_PERC *
+		FEE_PERC_UAVL -> byValue SL_Facility:SL_FACI_BALANCES_SAVE__FEE_PERC_UAVL *
+	}
+	SL_FACI_BALANCES_SAVE__SL_INIT_AMOUNT
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		SL_INIT_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=SL.INIT.AMOUNT, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TOT_AMT_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=3.0, core=true, t24Name=TOT.AMT.EFF.DT)
+	}
+	SL_FACI_BALANCES_SAVE__SL_OUTS_AMT
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		SL_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=SL.OUTS.AMT, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		SL_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=SL.AMT.MOVED, typeModifiers="1")
+		SL_INCR_MVT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=SL.INCR.MVT, typeModifiers="1")
+		SL_DECR_MVT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=SL.DECR.MVT, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=AMT.EFF.DATE)
+	}
+	SL_FACI_BALANCES_SAVE__TRANCHE_CODE
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TRANCHE_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=9.0, core=true, t24Name=TRANCHE.CODE)
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TRANCHE_TOT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=TRANCHE.TOT.AMT, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TRANCHE_IND : SL_Facility:SL_FACI_BALANCES_SAVE__TRANCHE_CODE__TRANCHE_IND
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=11.0, core=true, t24Name=TRANCHE.IND)
+		TR_OUTS_AMT -> byValue SL_Facility:SL_FACI_BALANCES_SAVE__TRANCHE_CODE__TR_OUTS_AMT *
+	}
+	SL_FACI_BALANCES_SAVE__TRANCHE_CODE__TR_OUTS_AMT
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TR_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, core=true, t24Name=TR.OUTS.AMT, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TR_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=TR.AMT.MOVED, typeModifiers="1")
+		TR_AMT_INCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=TR.AMT.INCR, typeModifiers="1")
+		TR_AMT_DECR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=TR.AMT.DECR, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TR_AMT_MV_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=TR.AMT.MV.DT)
+	}
+	SL_FACI_BALANCES_SAVE__FEE_CALC_ST
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		FEE_CALC_ST : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=FEE.CALC.ST)
+		/* Please refer help text section of SL.FACI.BALANCES */
+		FEE_CALC_END : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=FEE.CALC.END)
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=TAX.AMOUNT, typeModifiers="1")
+		TAX_AMOUNT_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=20.0, core=true, t24Name=TAX.AMOUNT.UAVL, typeModifiers="1")
+		/* Please refer help text section of SL.FACI.BALANCES */
+		TOT_FEE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, core=true, t24Name=TOT.FEE.AMT, typeModifiers="1")
+		TOT_FEE_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=TOT.FEE.UAVL, typeModifiers="1")
+	}
+	SL_FACI_BALANCES_SAVE__FEE_PERC
+	{
+		FEE_PERC -> byValue SL_Facility:SL_FACI_BALANCES_SAVE__FEE_PERC__FEE_PERC *
+		FEE_PERC_AMT -> byValue SL_Facility:SL_FACI_BALANCES_SAVE__FEE_PERC__FEE_PERC_AMT *
+		/* Please refer help text section of SL.FACI.BALANCES */
+		FEE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=FEE.EFF.DATE)
+	}
+	SL_FACI_BALANCES_SAVE__FEE_PERC__FEE_PERC
+	{
+		/* Please refer help text section of SL.FACI.BALANCES */
+		FEE_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=FEE.PERC)
+	}
+	SL_FACI_BALANCES_SAVE__FEE_PERC__FEE_PERC_AMT
+	{
+		FEE_PERC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=24.0, core=true, t24Name=FEE.PERC.AMT)
+	}
+	SL_FACI_BALANCES_SAVE__FEE_PERC_UAVL
+	{
+		FEE_PERC_UAVL : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=FEE.PERC.UAVL)
+		FEE_EFF_DT_UAVL : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=27.0, core=true, t24Name=FEE.EFF.DT.UAVL)
+	}
+	SL_FACI_PART_BALANCES
+		@t24:i (t24Name=SL.FACI.PART.BALANCES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Key field which holds the FACILITY ID appended with the ID of the participant for whom the balance record is created */
+		KEY -> SL_Facility:SL_FACI_PART_BALANCES PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=24, sysNumber=0.0, core=true, businessType=A, t24Name=KEY, mask="##/#####/#####/##/##########")
+		PART_TOT_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES__PART_TOT_AMT *
+		PART_OUTS_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES__PART_OUTS_AMT *
+		/* This field is updated with the total fee amount */
+		TOT_FEE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=TOT.FEE.AMT)
+		TRANCHE_CODE -> byValue SL_Facility:SL_FACI_PART_BALANCES__TRANCHE_CODE *
+		FEE_CALC_ST -> byValue SL_Facility:SL_FACI_PART_BALANCES__FEE_CALC_ST *
+		FEE_PERC -> byValue SL_Facility:SL_FACI_PART_BALANCES__FEE_PERC *
+		FEE_PERC_UAVL -> byValue SL_Facility:SL_FACI_PART_BALANCES__FEE_PERC_UAVL *
+	}
+	SL_FACI_PART_BALANCES__PART_TOT_AMT
+	{
+		/* Holds the total amount of the participant under this Facility */
+		PART_TOT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=1.0, core=true, t24Name=PART.TOT.AMT)
+		/* The effective date for the amount defined in the corresponding PART.TOT.AMT field */
+		TOT_AMT_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=2.0, core=true, t24Name=TOT.AMT.EFF.DT)
+	}
+	SL_FACI_PART_BALANCES__PART_OUTS_AMT
+	{
+		/* Holds the outstanding balance of the participanT under the facility. This is effective from the date defined in the corresponding PART.AMT.EFF.DATE field */
+		PART_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=PART.OUTS.AMT)
+		/* Holds  the movement amount when there is a movement for the participant under the facility on a date defined at the corresponding field PART.AMT.EFF.DT */
+		PART_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=PART.AMT.MOVED)
+		/* Records the positive movement of the FACILITY for the  participant */
+		PART_INCR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=PART.INCR.AMT)
+		/* Records the negative movement of the FACILITY for the  participant */
+		PART_DECR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=PART.DECR.AMT)
+		/* Effective date for the amounts defined in the corresponding fields PART.OUTS.AMT and PART.AMT.MOVED */
+		PART_AMT_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=PART.AMT.EFF.DT)
+	}
+	SL_FACI_PART_BALANCES__TRANCHE_CODE
+	{
+		/* Holds the tranche code defined under the facility.  This is a multivalue field associated with tranche level balances */
+		TRANCHE_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=9.0, core=true, t24Name=TRANCHE.CODE)
+		/* Holds the outstanding balance of the participant under the tranche defined in TRANCHE.CODE field and effective on a date defined in the corresponding AMT.EFF.DATE field */
+		TR_PART_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=TR.PART.AMT)
+		TR_OUTS_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES__TRANCHE_CODE__TR_OUTS_AMT *
+	}
+	SL_FACI_PART_BALANCES__TRANCHE_CODE__TR_OUTS_AMT
+	{
+		/* Holds the outstanding balance of the participant under the tranche defined in TRANCHE.CODE field and effective on a date defined in the corresponding AMT.EFF.DATE field */
+		TR_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=11.0, core=true, t24Name=TR.OUTS.AMT)
+		/* Holds  the movement amount when there is a movement in the facility for the participant on a date defined at the corresponding field AMT.EFF.DATE */
+		AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, core=true, t24Name=AMT.MOVED)
+		/* Records the positive movement of the FACILITY for the  participant under the Tranche */
+		AMT_INCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=AMT.INCR)
+		/* Records the negative movement of the FACILITY for the  participant under the Tranche */
+		AMT_DECR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=AMT.DECR)
+		/* The effective date for the amounts defined in the corresponding fields TR.OUTS.AMT and AMT.MOVED */
+		AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=AMT.EFF.DATE)
+	}
+	SL_FACI_PART_BALANCES__FEE_CALC_ST
+	{
+		/* The date which is used as the starting date for the fee calculation */
+		FEE_CALC_ST : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=FEE.CALC.ST)
+		/* The date which is used as the end  date for the fee calculation */
+		FEE_CALC_END : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=FEE.CALC.END)
+		/* Calculated fee amount for the participant under this facility record */
+		FEE_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=FEE.AMOUNT)
+		/* Calculated fee amount for the participant under this facility record(UNAVAILABLE PORTION). */
+		FEE_AMOUNT_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=FEE.AMOUNT.UAVL)
+		/* The tax amount calculated on the fee amount from the corresponding FEE.AMOUNT field */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=20.0, core=true, t24Name=TAX.AMOUNT)
+		/* The tax amount calculated on the FEE.AMOUNT.UVAL is updated in this field */
+		TAX_AMOUNT_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, core=true, t24Name=TAX.AMOUNT.UAVL)
+		/* Holds the total accrued amount on the commitment amount */
+		OUTS_ACCR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=OUTS.ACCR.AMT)
+		/* Holds the total accrued amount on the unavailable commitment amount */
+		OUTS_ACCR_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=23.0, core=true, t24Name=OUTS.ACCR.UAVL)
+	}
+	SL_FACI_PART_BALANCES__FEE_PERC
+	{
+		FEE_PERC -> byValue SL_Facility:SL_FACI_PART_BALANCES__FEE_PERC__FEE_PERC *
+		FEE_PERC_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES__FEE_PERC__FEE_PERC_AMT *
+		/* Holds the  effective date of processing the fee amount . */
+		FEE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=FEE.EFF.DATE)
+	}
+	SL_FACI_PART_BALANCES__FEE_PERC__FEE_PERC
+	{
+		/* Holds the percentage used to calculate the fee amount. This  field is updated from the commitment fee percentage defined at the  facility record */
+		FEE_PERC : SL_Facility:SL_FACI_PART_BALANCES__FEE_PERC__FEE_PERC__FEE_PERC
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=24.0, core=true, t24Name=FEE.PERC)
+	}
+	SL_FACI_PART_BALANCES__FEE_PERC__FEE_PERC_AMT
+	{
+		/* Holds the  fee calculation base amount for FEE.EFF.DATE */
+		FEE_PERC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=25.0, core=true, t24Name=FEE.PERC.AMT)
+	}
+	SL_FACI_PART_BALANCES__FEE_PERC_UAVL
+	{
+		/* Holds the commitment fee percentage to be calculated on the unavailable amount */
+		FEE_PERC_UAVL : SL_Facility:SL_FACI_PART_BALANCES__FEE_PERC_UAVL__FEE_PERC_UAVL
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=27.0, core=true, t24Name=FEE.PERC.UAVL)
+		/* Holds the total fee amount calculated on the commitment unavailable amount using the rate from the corresponding FEE.PER.UVAL field */
+		FEE_EFF_DT_UAVL : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, core=true, t24Name=FEE.EFF.DT.UAVL)
+	}
+	SL_FACI_PART_BALANCES_HIST
+		@t24:i (t24Name=SL.FACI.PART.BALANCES.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		KEY -> SL_Facility:SL_FACI_PART_BALANCES_HIST PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=24, sysNumber=0.0, core=true, businessType=A, t24Name=KEY, mask="##/#####/#####/##/##########")
+		PART_TOT_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES_HIST__PART_TOT_AMT *
+		PART_OUTS_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES_HIST__PART_OUTS_AMT *
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TOT_FEE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=TOT.FEE.AMT)
+		TRANCHE_CODE -> byValue SL_Facility:SL_FACI_PART_BALANCES_HIST__TRANCHE_CODE *
+		FEE_CALC_ST -> byValue SL_Facility:SL_FACI_PART_BALANCES_HIST__FEE_CALC_ST *
+		FEE_PERC -> byValue SL_Facility:SL_FACI_PART_BALANCES_HIST__FEE_PERC *
+		FEE_PERC_UAVL -> byValue SL_Facility:SL_FACI_PART_BALANCES_HIST__FEE_PERC_UAVL *
+	}
+	SL_FACI_PART_BALANCES_HIST__PART_TOT_AMT
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		PART_TOT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=1.0, core=true, t24Name=PART.TOT.AMT)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TOT_AMT_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=2.0, core=true, t24Name=TOT.AMT.EFF.DT)
+	}
+	SL_FACI_PART_BALANCES_HIST__PART_OUTS_AMT
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		PART_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=PART.OUTS.AMT)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		PART_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=PART.AMT.MOVED)
+		PART_INCR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=PART.INCR.AMT)
+		PART_DECR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=PART.DECR.AMT)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		PART_AMT_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=PART.AMT.EFF.DT)
+	}
+	SL_FACI_PART_BALANCES_HIST__TRANCHE_CODE
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TRANCHE_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=9.0, core=true, t24Name=TRANCHE.CODE)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TR_PART_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=TR.PART.AMT)
+		TR_OUTS_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES_HIST__TRANCHE_CODE__TR_OUTS_AMT *
+	}
+	SL_FACI_PART_BALANCES_HIST__TRANCHE_CODE__TR_OUTS_AMT
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TR_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=11.0, core=true, t24Name=TR.OUTS.AMT)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, core=true, t24Name=AMT.MOVED)
+		AMT_INCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=AMT.INCR)
+		AMT_DECR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=AMT.DECR)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=AMT.EFF.DATE)
+	}
+	SL_FACI_PART_BALANCES_HIST__FEE_CALC_ST
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		FEE_CALC_ST : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=FEE.CALC.ST)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		FEE_CALC_END : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=FEE.CALC.END)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		FEE_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=FEE.AMOUNT)
+		FEE_AMOUNT_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=FEE.AMOUNT.UAVL)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=20.0, core=true, t24Name=TAX.AMOUNT)
+		TAX_AMOUNT_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, core=true, t24Name=TAX.AMOUNT.UAVL)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		OUTS_ACCR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=OUTS.ACCR.AMT)
+		OUTS_ACCR_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=23.0, core=true, t24Name=OUTS.ACCR.UAVL)
+	}
+	SL_FACI_PART_BALANCES_HIST__FEE_PERC
+	{
+		FEE_PERC -> byValue SL_Facility:SL_FACI_PART_BALANCES_HIST__FEE_PERC__FEE_PERC *
+		FEE_PERC_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES_HIST__FEE_PERC__FEE_PERC_AMT *
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		FEE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=FEE.EFF.DATE)
+	}
+	SL_FACI_PART_BALANCES_HIST__FEE_PERC__FEE_PERC
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		FEE_PERC : SL_Facility:SL_FACI_PART_BALANCES_HIST__FEE_PERC__FEE_PERC__FEE_PERC
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=24.0, core=true, t24Name=FEE.PERC)
+	}
+	SL_FACI_PART_BALANCES_HIST__FEE_PERC__FEE_PERC_AMT
+	{
+		FEE_PERC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=25.0, core=true, t24Name=FEE.PERC.AMT)
+	}
+	SL_FACI_PART_BALANCES_HIST__FEE_PERC_UAVL
+	{
+		FEE_PERC_UAVL : SL_Facility:SL_FACI_PART_BALANCES_HIST__FEE_PERC_UAVL__FEE_PERC_UAVL
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=27.0, core=true, t24Name=FEE.PERC.UAVL)
+		FEE_EFF_DT_UAVL : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, core=true, t24Name=FEE.EFF.DT.UAVL)
+	}
+	SL_FACI_PART_BALANCES_SAVE
+		@t24:i (t24Name=SL.FACI.PART.BALANCES.SAVE, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		KEY -> SL_Facility:SL_FACI_PART_BALANCES_SAVE PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=24, sysNumber=0.0, core=true, businessType=A, t24Name=KEY, mask="##/#####/#####/##/##########")
+		PART_TOT_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES_SAVE__PART_TOT_AMT *
+		PART_OUTS_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES_SAVE__PART_OUTS_AMT *
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TOT_FEE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=TOT.FEE.AMT)
+		TRANCHE_CODE -> byValue SL_Facility:SL_FACI_PART_BALANCES_SAVE__TRANCHE_CODE *
+		FEE_CALC_ST -> byValue SL_Facility:SL_FACI_PART_BALANCES_SAVE__FEE_CALC_ST *
+		FEE_PERC -> byValue SL_Facility:SL_FACI_PART_BALANCES_SAVE__FEE_PERC *
+		FEE_PERC_UAVL -> byValue SL_Facility:SL_FACI_PART_BALANCES_SAVE__FEE_PERC_UAVL *
+	}
+	SL_FACI_PART_BALANCES_SAVE__PART_TOT_AMT
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		PART_TOT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=1.0, core=true, t24Name=PART.TOT.AMT)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TOT_AMT_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=2.0, core=true, t24Name=TOT.AMT.EFF.DT)
+	}
+	SL_FACI_PART_BALANCES_SAVE__PART_OUTS_AMT
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		PART_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=PART.OUTS.AMT)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		PART_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=PART.AMT.MOVED)
+		/* Please refer the help text section of SL.FACI.PART.BALANCES */
+		PART_INCR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=PART.INCR.AMT)
+		/* Please refer the help text section of SL.FACI.PART.BALANCES */
+		PART_DECR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=PART.DECR.AMT)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		PART_AMT_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=PART.AMT.EFF.DT)
+	}
+	SL_FACI_PART_BALANCES_SAVE__TRANCHE_CODE
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TRANCHE_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=9.0, core=true, t24Name=TRANCHE.CODE)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TR_PART_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=TR.PART.AMT)
+		TR_OUTS_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES_SAVE__TRANCHE_CODE__TR_OUTS_AMT *
+	}
+	SL_FACI_PART_BALANCES_SAVE__TRANCHE_CODE__TR_OUTS_AMT
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TR_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=11.0, core=true, t24Name=TR.OUTS.AMT)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, core=true, t24Name=AMT.MOVED)
+		/* Please refer the help text section of SL.FACI.PART.BALANCES */
+		AMT_INCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=AMT.INCR)
+		/* Please refer the help text section of SL.FACI.PART.BALANCES */
+		AMT_DECR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=AMT.DECR)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=AMT.EFF.DATE)
+	}
+	SL_FACI_PART_BALANCES_SAVE__FEE_CALC_ST
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		FEE_CALC_ST : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=FEE.CALC.ST)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		FEE_CALC_END : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=FEE.CALC.END)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		FEE_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=FEE.AMOUNT)
+		/* Please refer the help text section of SL.FACI.PART.BALANCES */
+		FEE_AMOUNT_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=FEE.AMOUNT.UAVL)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=20.0, core=true, t24Name=TAX.AMOUNT)
+		/* Please refer the help text section of SL.FACI.PART.BALANCES */
+		TAX_AMOUNT_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, core=true, t24Name=TAX.AMOUNT.UAVL)
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		OUTS_ACCR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=OUTS.ACCR.AMT)
+		/* Please refer the help text section of SL.FACI.PART.BALANCES */
+		OUTS_ACCR_UAVL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=23.0, core=true, t24Name=OUTS.ACCR.UAVL)
+	}
+	SL_FACI_PART_BALANCES_SAVE__FEE_PERC
+	{
+		FEE_PERC -> byValue SL_Facility:SL_FACI_PART_BALANCES_SAVE__FEE_PERC__FEE_PERC *
+		FEE_PERC_AMT -> byValue SL_Facility:SL_FACI_PART_BALANCES_SAVE__FEE_PERC__FEE_PERC_AMT *
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		FEE_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=FEE.EFF.DATE)
+	}
+	SL_FACI_PART_BALANCES_SAVE__FEE_PERC__FEE_PERC
+	{
+		/* Please refer help text section of SL.FACI.PART.BALANCES */
+		FEE_PERC : SL_Facility:SL_FACI_PART_BALANCES_SAVE__FEE_PERC__FEE_PERC__FEE_PERC
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=24.0, core=true, t24Name=FEE.PERC)
+	}
+	SL_FACI_PART_BALANCES_SAVE__FEE_PERC__FEE_PERC_AMT
+	{
+		FEE_PERC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=25.0, core=true, t24Name=FEE.PERC.AMT)
+	}
+	SL_FACI_PART_BALANCES_SAVE__FEE_PERC_UAVL
+	{
+		/* Please refer the help text section of SL.FACI.PART.BALANCES */
+		FEE_PERC_UAVL : SL_Facility:SL_FACI_PART_BALANCES_SAVE__FEE_PERC_UAVL__FEE_PERC_UAVL
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=27.0, core=true, t24Name=FEE.PERC.UAVL)
+		/* Please refer the help text section of SL.FACI.PART.BALANCES */
+		FEE_EFF_DT_UAVL : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, core=true, t24Name=FEE.EFF.DT.UAVL)
+	}
+	/* List of credit facilities offered within the syndication. The @ID would be a two alpha character that will serve as a short form of the loan type. The table is user definable based on individual requirement. In the description field the type of loan facility is entered.
+
+Typical values for such table would be TL (Term Loans), PF (Project Finance), GT (Guarantees) etc.
+The table would contain only two fields 'Description' and 'Short Description' (apart from the @ID) where the role is defined. Field length is 3-35 type AA characters for description and 3-15 type AA characters for short description. Short description is the description in an abbreviated format that is used for enrichment */
+	SL_FACILITY
+		@t24:i (t24Name=SL.FACILITY, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		ID -> SL_Facility:SL_FACILITY PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=0.0, core=true, t24Name="@ID")
+		DESCRIPTION -> byValue SL_Facility:SL_FACILITY__DESCRIPTION *
+		/* List The table is user definable based on individual requirement. In this field the short description of type of facility is entered.
+
+Typical values for such table would be TL (Term Loans), PF (Project Finance), GT (Guarantees) etc.
+3-15 type AA characters free text field
+Validation Rules
+
+
+3-15 type AA     characters free text field */
+		SHORT_DESC : T24BusinessTypes:A required
+			@i18n:Label (en="Short Description")
+			@i18n:Tooltip (en="Short Description of the record")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=2.0, core=true, t24Name=SHORT.DESC)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=4.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=5.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SL_Facility:SL_FACILITY__INPUTTER *
+		DATE_TIME -> byValue SL_Facility:SL_FACILITY__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=9.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=11.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=12.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SL_FACILITY__DESCRIPTION
+	{
+		/* List The table is user definable based on individual requirement. In the description field the type of loan facility is entered.
+
+Typical values for such table would be TL (Term Loans), PF (Project Finance), GT (Guarantees) etc.
+3-35 type AA characters free text field
+Validation Rules
+
+
+3-35 type AA       characters free text field */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	SL_FACILITY__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=6.0, core=true, t24Name=INPUTTER)
+	}
+	SL_FACILITY__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=7.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	FACILITY__LIQUIDATION_MODE : mml:string
+		AUTOMATIC=AUTOMATIC
+		INTERNAL=INTERNAL
+	FACILITY__FEE_BAND_LEVEL : mml:string
+		BAND=BAND
+		LEVEL=LEVEL
+	FACILITY__FEE_CALC_BASIS : mml:string
+		O=O
+		U=U
+		TU=TU
+		CA=CA
+		OU=OU
+	FACILITY__INT_RATE_TYPE : mml:string
+		n1=1
+		n2=2
+		n3=3
+	FACILITY__REVOL_TYPE : mml:string
+		REVOLVING=REVOLVING
+		NON__REVOLVING=NON-REVOLVING
+	FACILITY__ROLLOVER_Y_N : mml:string
+		NO=NO
+		YES=YES
+	FACILITY__TRANCHE_C_FWD : mml:string
+		NC=NC
+		C=C
+	FACILITY__AVBL_MARKER : mml:string
+		YES=YES
+		STF=STF
+		SWF=SWF
+	FACILITY__CONTRACT_STATUS : mml:string
+		FWD=FWD
+		CUR=CUR
+		LIQ=LIQ
+	FACILITY__TRANCHE_CODE__ALLOW_CONT_SALE : mml:string
+		NO=NO
+		YES=YES
+	FACILITY__TRANCHE_CODE__ALLOW_NC_SALE : mml:string
+		NO=NO
+		YES=YES
+	FACILITY__TRANCHE_CODE__RESERVE_TRANCHE : mml:string
+		YES=YES
+	FACILITY__DELIVERY_CUST__MSG_TYPE__SEND_MSG : mml:string
+		NO=NO
+		NULL=NULL
+	FACILITY__BS_AMORTISATION : mml:string
+		YES=YES
+		NO=NO
+	FACILITY__MULTI_PROD_FAC : mml:string
+		YES=YES
+		NO=NO
+	FACILITY__PRODUCT_TYPE__PRODUCT_TYPE : mml:string
+		SC=SC
+		GT=GT
+		LN=LN
+		LCI=LCI
+		LCE=LCE
+	FACILITY__BNK_OP_CODE : mml:string
+		CRED=CRED
+		CRTS=CRTS
+		SPAY=SPAY
+		SPRI=SPRI
+		SSTD=SSTD
+	FACILITY__DTLS_OF_CHRG : mml:string
+		OUR=OUR
+		BEN=BEN
+		SHA=SHA
+	FACILITY__ALLOW_SKIMMING : mml:string
+		NO=NO
+	FACILITY__PROCESS_AT_SOD : mml:string
+		YES=YES
+		NULL=NULL
+	FACILITY__COMP_METHOD : mml:string
+		YIELD=YIELD
+		NULL=NULL
+	FACILITY_REPAY_SCHEDULES__PRO_RATA : mml:string
+		YES=YES
+		NO=NO
+	FACILITY_REPAY_SCHEDULES__REP_SCH_TYPE : mml:string
+		NULL=NULL
+		PRO_RATA=PRO.RATA
+		FIRST=FIRST
+		LAST=LAST
+	FACILITY_REPAY_SCHEDULES__TR_REDEM_TYPE : mml:string
+		SCHEDULED=SCHEDULED
+		UNSCHEDULED=UNSCHEDULED
+	FACILITY_REPAY_SCHEDULES_HIST__PRO_RATA : mml:string
+		YES=YES
+		NO=NO
+	FACILITY_REPAY_SCHEDULES_HIST__REP_SCH_TYPE : mml:string
+		NULL=NULL
+		PRO_RATA=PRO.RATA
+		FIRST=FIRST
+		LAST=LAST
+	FACILITY_REPAY_SCHEDULES_HIST__TR_REDEM_TYPE : mml:string
+		SCHEDULED=SCHEDULED
+		UNSCHEDULED=UNSCHEDULED
+	SL_FAC_PROD_DETAILS__PROD_TYPE__PROD_TYPE : mml:string
+		SC=SC
+		GT=GT
+		LN=LN
+	SL_FAC_PROD_DETAILS_SAVE__PROD_TYPE__PROD_TYPE : mml:string
+		SC=SC
+		GT=GT
+		LN=LN
+	SL_FAC_PROD_MVMT_DETAILS__PROD_TYPE__PROD_TYPE : mml:string
+		SC=SC
+		GT=GT
+		LN=LN
+	SL_FACI_BALANCES__TRANCHE_CODE__TRANCHE_IND : mml:string
+		A=A
+		NULL=NULL
+	SL_FACI_BALANCES_HIST__TRANCHE_CODE__TRANCHE_IND : mml:string
+		A=A
+		NULL=NULL
+	SL_FACI_BALANCES_SAVE__TRANCHE_CODE__TRANCHE_IND : mml:string
+		A=A
+		NULL=NULL
+	SL_FACI_PART_BALANCES__FEE_PERC__FEE_PERC__FEE_PERC : mml:string
+		R=R
+	SL_FACI_PART_BALANCES__FEE_PERC_UAVL__FEE_PERC_UAVL : mml:string
+		R=R
+	SL_FACI_PART_BALANCES_HIST__FEE_PERC__FEE_PERC__FEE_PERC : mml:string
+		R=R
+	SL_FACI_PART_BALANCES_HIST__FEE_PERC_UAVL__FEE_PERC_UAVL : mml:string
+		R=R
+	SL_FACI_PART_BALANCES_SAVE__FEE_PERC__FEE_PERC__FEE_PERC : mml:string
+		R=R
+	SL_FACI_PART_BALANCES_SAVE__FEE_PERC_UAVL__FEE_PERC_UAVL : mml:string
+		R=R
+}

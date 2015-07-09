@@ -1,0 +1,644 @@
+# UTF-8
+# UTF-8
+/* Error and Exception Handling */
+Domain EB_ErrorProcessing
+	@t24:i (module=EB)
+	@java:Package (value=com.temenos.t24.datamodel.eb.eb_errorprocessing)
+namespace "http://www.temenos.com/t24/EB_ErrorProcessing"
+metamodelVersion 1.30.6
+Classes {
+	/* This application is used to hold the details of any non fatal errors which occurred during the T24 batch phase and the status of these errors after the batch phase has been completed.
+There are two types of errors which will be reported to this file : critical errors and non critical errors.  Currently only non critical errors are reported.
+Each record on the file represents a single batch run for each company. The status of each record is held in the idescriptor "UNRESOLVED" which will contain one of the following values:
+OK           - Used to indicate that all errors on the record have                     been resolved.
+UNRESOLVED   - This value indicates that the record contains at least                     one non critical error which has yet to be resolved.
+CRITICAL     - When at least one critical error is left unresolved on                     the file this value is used.
+The status of each record on this file is checked each time the BATCH.CONTROL application is invoked and the status of the errors checked. If the errors on the file are UNRESOLVED then an override is required before the BATCH.CONTROL application is invoked.
+If the errors on the file are CRITICAL the BATCH.CONTROL application may not be invoked until these errors are resolved.
+Once an error has been resolved, the date on which the error was resolved should be input in the DATE.RESOLVED field. This resolves the individual error but may not modify the overall status. This will only occur if the last critical error on the record has been resolved, or if the last non critical error on the file has been resolved and there are no critical errors. */
+	EB_EOD_ERROR
+		@t24:i (t24Name=EB.EOD.ERROR, level=I, type=U, additionalInfo=NOD, allowedFunctions="A C D E I L P Q R S", localRefAllowed=false)
+	{
+		/* This field holds the unique key to the records on this file and is comprised of two parts. The first part of the key is the company code of the company in which the error took place, and the second part is the system date on which the batch run began.
+Input onto this file is only allowed for records which already exist - users may not create new records.
+Validation Rules
+The key to records on this file must consist of a valid company code or a valid company mnemonic.  Followed by a '.' character.  Then followed by a valid date in the format YYYMMDD.
+The record must already exist on the file. */
+		EB_EOD_ERROR_ID -> EB_ErrorProcessing:EB_EOD_ERROR PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=EB.EOD.ERROR.ID)
+		TIME_DATE -> byValue EB_ErrorProcessing:EB_EOD_ERROR__TIME_DATE *
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_12 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=9.0, core=true, t24Name=RESERVED.12)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=10.0, core=true, t24Name=RESERVED.11)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=11.0, core=true, t24Name=RESERVED.10)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=12.0, core=true, t24Name=RESERVED.9)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=13.0, core=true, t24Name=RESERVED.8)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=14.0, core=true, t24Name=RESERVED.7)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=15.0, core=true, t24Name=RESERVED.6)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=16.0, core=true, t24Name=RESERVED.5)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=17.0, core=true, t24Name=RESERVED.4)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=18.0, core=true, t24Name=RESERVED.3)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=19.0, core=true, t24Name=RESERVED.2)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=20.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_ErrorProcessing:EB_EOD_ERROR__INPUTTER *
+		DATE_TIME -> byValue EB_ErrorProcessing:EB_EOD_ERROR__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=25.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=26.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=27.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=28.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=29.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		COMPANY : T24BusinessTypes:COM
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=9, core=false, t24Name=COMPANY, genOperation="@ID[\'.\',1,1]")
+	}
+	EB_EOD_ERROR__TIME_DATE
+	{
+		/* The time and date on which the error occurred is held in this field. Note that the information in this field will hold the machine date and time, not the system date.
+Fields TIME.DATE to FIX.REQUIRED form a related multi value set.
+Validation Rules
+This is a NOINPUT field. */
+		TIME_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=1.0, core=true, t24Name=TIME.DATE)
+		DESCRIPTION -> byValue EB_ErrorProcessing:EB_EOD_ERROR__TIME_DATE__DESCRIPTION *
+		/* The application identifier which created the error is stored in this field.
+Fields TIME.DATE to FIX.REQUIRED form a related multi value set.
+Validation Rules
+This is a NOINPUT field. */
+		APPLICATION_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=3.0, core=true, t24Name=APPLICATION.ID)
+		/* The name of the routine in which the error occured is held in this field.
+Fields TIME.DATE to FIX.REQUIRED form a related multi value set.
+Validation Rules
+This is a NOINPUT field. */
+		ROUTINE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=4.0, core=true, t24Name=ROUTINE)
+		RECORD_KEY -> byValue EB_ErrorProcessing:EB_EOD_ERROR__TIME_DATE__RECORD_KEY *
+		DETAIL_KEY -> byValue EB_ErrorProcessing:EB_EOD_ERROR__TIME_DATE__DETAIL_KEY *
+		/* This field is the only field which is open for input on the EB.EOD.ERROR records. When an error has been resolved, the date on which this resolution occurred should be entered into this field.
+This will then resolve the error in the eyes of this application, and if this error was blocking access to the BATCH.CONTROL application then the BATCH.CONTROL application will no longer be blocked.
+Fields TIME.DATE to FIX.REQUIRED form a related multi value set.
+Validation Rules
+Up to eleven date characters.  Must be a valid date. */
+		DATE_RESOLVED : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=DATE.RESOLVED)
+		/* This field details whether the error is considered to be a critical error or not. If the value in this field is set to YES, then the error is considered to be a critical error and the BATCH.CONTROL application will not be able to be invoked until this error has been resolved.
+When this field contains the value NO then the error is not considered to be a critical error, and as such the BATCH.CONTROL application may be invoked when this error is unresolved - but an override will be required.
+Fields TIME.DATE to FIX.REQUIRED form a related multi value set.
+Validation Rules
+This is a NOINPUT field. */
+		FIX_REQUIRED : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=8.0, core=true, t24Name=FIX.REQUIRED)
+	}
+	EB_EOD_ERROR__TIME_DATE__DESCRIPTION
+	{
+		/* A description of the error is held in this field.
+Fields TIME.DATE to FIX.REQUIRED form a related multi value set.
+Validation Rules
+This is a NOINPUT field. */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=2.0, core=true, t24Name=DESCRIPTION)
+	}
+	EB_EOD_ERROR__TIME_DATE__RECORD_KEY
+	{
+		/* If any specific records were related to the error then the keys to these records will be held in this field.
+Fields TIME.DATE to FIX.REQUIRED form a related multi value set.
+Validation Rules
+This is a NOINPUT field. */
+		RECORD_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=5.0, core=true, t24Name=RECORD.KEY)
+	}
+	EB_EOD_ERROR__TIME_DATE__DETAIL_KEY
+	{
+		/* If any records were saved at the time the error was reported then these records are saved to the EB.EOD.ERROR.DETAIL file. The keys to these records are held in this field.
+Fields TIME.DATE to FIX.REQUIRED form a related multi value set.
+Validation Rules
+This is a NOINPUT field. */
+		DETAIL_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=6.0, core=true, t24Name=DETAIL.KEY)
+	}
+	EB_EOD_ERROR__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, core=true, t24Name=INPUTTER)
+	}
+	EB_EOD_ERROR__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=24.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* When a non fatal error is reported in the batch it is possible to save certain records which may be of use in tracking down the cause of the problem.
+The records which are saved when a non fatal error is reported in the batch are saved to this file. Each saved record has a record on this file, the keys to which are held on the EB.EOD.ERROR file.
+This is a live file and hence input is not allowed. */
+	EB_EOD_ERROR_DETAIL
+		@t24:i (t24Name=EB.EOD.ERROR.DETAIL, level=I, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* A unique key by which the Entry may be identified.  It is generated by the system, based on the date and time (in hundredths of a second) at which the record was generated and a sequence number.
+The key is made up as follows:
+(a)        4 digit date expressed as the number of days since 31st            December 1967.
+(b)        Time in seconds since midnight, consisting of 5 integers and            (usually) 2 decimals.  If the time is an exact number of            seconds since midnight, the decimals are omitted.
+(c)        Sequence number.
+If several records are generated at the same time, all the Entries have parts (a) and (b) the same and are distinguished from each other by their Sequence numbers.
+Validation Rules
+13 numeric characters            or 16 characters consisting of 15 numeric characters with a decimal    point after the 9th.
+Internal file.  This is a NOINPUT field. */
+		DETAIL_ID -> EB_ErrorProcessing:EB_EOD_ERROR_DETAIL PK required
+			@i18n:Label (en=Detail)
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=A, t24Name=DETAIL.ID)
+		/* The machine date and time at which the error occurred.
+Validation Rules
+This is a system maintained field. This is a NOINPUT field. */
+		DATE_AND_TIME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=1.0, core=true, t24Name=DATE.AND.TIME)
+		/* The application identifier from which the error originated is held in this field.
+Validation Rules
+This is a system maintained field. This is a NOINPUT field. */
+		APPLIC_ID : T24BusinessTypes:A
+			@i18n:Label (en="Application Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=2.0, core=true, t24Name=APPLIC.ID)
+		/* The name of the routine from which the error originated is held in this field.
+Validation Rules
+This is a system maintained, NOINPUT field. */
+		ROUTINE : T24BusinessTypes:A
+			@i18n:Label (en=Routine)
+			@i18n:Tooltip (en=Routine)
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=3.0, core=true, t24Name=ROUTINE)
+		/* The name of the module from which the error originated is held in this field.
+Validation Rules
+This is a system maintained, NOINPUT field. */
+		MODULE : T24BusinessTypes:A
+			@i18n:Label (en=Module)
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=4.0, core=true, t24Name=MODULE)
+		/* The error code used in the call to the EXCEPTION.LOG.FILE is held in this field.
+Validation Rules
+This is a system maintained, NOINPUT field. */
+		ERROR_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=30, sysNumber=5.0, core=true, t24Name=ERROR.CODE)
+		RE_CCY_MKT -> byValue EB_ErrorProcessing:EB_EOD_ERROR_DETAIL__RE_CCY_MKT *
+		REC_DESC -> byValue EB_ErrorProcessing:EB_EOD_ERROR_DETAIL__REC_DESC *
+		ADDITIONAL -> byValue EB_ErrorProcessing:EB_EOD_ERROR_DETAIL__ADDITIONAL *
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		SYSTEM_DATE : T24BusinessTypes:D
+			@i18n:Label (en="System Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, core=true, t24Name=SYSTEM.DATE)
+	}
+	EB_EOD_ERROR_DETAIL__RE_CCY_MKT
+	{
+		/* When a mismatch occurs between the CRB and the position files during the end of day revaluation processing a record is created on this file which uses the fields RE.CCY.MKT to RE.CRF.AMT, which form a related multi value set.
+This field holds the currency market in which the mismatch has occurred.
+Validation Rules
+This is a system maintained, NOINPUT field. */
+		RE_CCY_MKT -> FIN_CurrencyConfig:CURRENCY_MARKET
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=6.0, core=true, t24Name=RE.CCY.MKT)
+		/* When a mismatch occurs between the CRB and the position files during the end of day revaluation processing a record is created on this file which uses the fields RE.CCY.MKT to RE.CRF.AMT, which form a related multi value set.
+This field details the position type in which the mismatch occurred.
+Validation Rules
+This is a system maintained, NOINPUT field. */
+		RE_POS_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=7.0, core=true, t24Name=RE.POS.TYPE)
+		/* When a mismatch occurs between the CRB and the position files during the end of day revaluation processing a record is created on this file which uses the fields RE.CCY.MKT to RE.CRF.AMT, which form a related multi value set.
+This field details the currency in which the mismatch occurred.
+Validation Rules
+This is a system maintained, NOINPUT field. */
+		RE_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, businessType=CCY, t24Name=RE.CURRENCY)
+		/* When a mismatch occurs between the CRB and the position files during the end of day revaluation processing a record is created on this file which uses the fields RE.CCY.MKT to RE.CRF.AMT, which form a related multi value set.
+This field holds the amount with which the position files have been updated.
+Validation Rules
+This is a system maintained, NOINPUT field. */
+		RE_POSITION_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, core=true, t24Name=RE.POSITION.AMT)
+		/* When a mismatch occurs between the CRB and the position files during the end of day revaluation processing a record is created on this file which uses the fields RE.CCY.MKT to RE.CRF.AMT, which form a related multi value set.
+This fields holds the amount with which the CRB has been updated.
+Validation Rules
+This is a system maintained, NOINPUT field. */
+		RE_CRF_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=RE.CRF.AMT)
+	}
+	EB_EOD_ERROR_DETAIL__REC_DESC
+	{
+		/* The description of the record held in the ADDITIONAL field is held in this field.
+Validation Rules
+This is a system maintained, NOINPUT field. */
+		REC_DESC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=11.0, core=true, t24Name=REC.DESC)
+	}
+	EB_EOD_ERROR_DETAIL__ADDITIONAL
+	{
+		ADDITIONAL -> byValue EB_ErrorProcessing:EB_EOD_ERROR_DETAIL__ADDITIONAL__ADDITIONAL *
+	}
+	EB_EOD_ERROR_DETAIL__ADDITIONAL__ADDITIONAL
+	{
+		/* This field is used to actually hold the record. Each field is represented by a multi value and each multivalue is represented by a sub value. Sub value fields are included on the same line as their related multi values.
+Validation Rules
+This is a system maintained field. This is a NOINPUT field. */
+		ADDITIONAL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=12.0, core=true, t24Name=ADDITIONAL)
+	}
+	EB_ERROR
+		@t24:i (t24Name=EB.ERROR, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The key to the record that would be used to identify the error message required.
+The field is comprised of two parts:
+
+
+Part 1: The PRODUCT code. Eg: OF for Universal Interface
+Part 2: An abbreviated description of the error message.
+Eg: For the error message "Mandatory for IB User" that is produced by the OFS.SOURCE application.  OFS.SOURCE application appears in the OF Product class.  An example key would be:  OF.SRC.MAND.IB.USER */
+		EB_ERROR_ID -> EB_ErrorProcessing:EB_ERROR PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=55, sysNumber=0.0, core=true, businessType=A, t24Name=EB.ERROR.ID)
+		ERROR_MSG -> byValue EB_ErrorProcessing:EB_ERROR__ERROR_MSG *
+		ERROR_INFO -> byValue EB_ErrorProcessing:EB_ERROR__ERROR_INFO *
+		ERROR_SOL -> byValue EB_ErrorProcessing:EB_ERROR__ERROR_SOL *
+		/* Alternative Error Code (ALT.ERROR.CD)
+The field ALT.ERROR.CD has been created to:
+
+Save duplication of same error messages in the same application
+Save duplication of same error messages in different applications
+Reduce maintenance of duplicated error messages in one, or more applications.  Only the "Alternative" Error record has to be updated.  The ALT.ERROR.CD field acts as a link.
+
+On entry of a valid error code, the Description of the Error message is extracted from the Alternative Error Code record and displayed in this fields associated enrichment field.
+
+When linking this Error record to an Alternative Error record, there are only two fields that need to be defined; this field, and the record ID.  Whenever this Error record is referenced by T24 the Message, Information, and Solution fields will be extracted from the Alternative Error record.
+
+To prevent a potential hanging situation where one record references an alternative record, and the alternative record references the original record, and so ononly the ID of the original record is reported. The Error message, Error Info, Error Solution fields are not reported.
+
+Validation Rules
+35 alphanumeric characters in length
+Cannot be linked to itself
+Must be a valid ID to a record on the EB.ERROR table. */
+		ALT_ERROR_CD -> EB_ErrorProcessing:EB_ERROR
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, businessType=A, t24Name=ALT.ERROR.CD)
+		/* This field is the key identification number for error message.
+
+Validation Rules
+
+System generated field */
+		NUMERIC_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=NUMERIC.ID)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=12.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=13.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=14.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=15.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=16.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=17.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=18.0, core=true, t24Name=RESERVED2)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_ErrorProcessing:EB_ERROR__INPUTTER *
+		DATE_TIME -> byValue EB_ErrorProcessing:EB_ERROR__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=25.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=27.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=28.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_ERROR__ERROR_MSG
+	{
+		ERROR_MSG -> byValue EB_ErrorProcessing:EB_ERROR__ERROR_MSG__ERROR_MSG *
+		/* Used to define channel specific messages. Every OFS.SOURCE record can be set to a specific channel
+If there is a channel specified, the channel specific message will be displayed as en error
+Validation Rules
+20 characters long */
+		CHANNEL -> EB_ARC:EB_CHANNEL
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=2.0, core=true, businessType=A, t24Name=CHANNEL)
+		RESERVED1_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=3.0, core=true, t24Name=RESERVED1.1)
+		RESERVED1_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=4.0, core=true, t24Name=RESERVED1.2)
+		RESERVED1_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=5.0, core=true, t24Name=RESERVED1.3)
+		RESERVED1_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=6.0, core=true, t24Name=RESERVED1.4)
+		RESERVED1_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=7.0, core=true, t24Name=RESERVED1.5)
+	}
+	EB_ERROR__ERROR_MSG__ERROR_MSG
+	{
+		/* This multi-language field contains the message that will be displayed in the event of an application triggering this error.
+On selecting and validating a second multi language field, a mirror record for the multi language text will be created in DYNAMIC.TEXT with the GB version of the Error message as the key.  All spaces in the DYNAMIC.TEXT record Key are replaced by the "." character.
+Note: When Multi valuing language fields the fields appear in a pre set order, so in order to use a set language you will need to have the languages preceding it multi valued as well.
+Validation Rules
+50 characters in length.
+Alpha, Numeric and symbol input accepted */
+		ERROR_MSG : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=55, multiLanguage=true, sysNumber=1.0, core=true, t24Name=ERROR.MSG)
+	}
+	EB_ERROR__ERROR_INFO
+	{
+		/* This field is only visible in Desktop and has no presence in Classic.
+This field contains an explanation of the error in more detail.
+This Field can multi value to allow multi language.
+Note: When Multi valuing language fields the fields appear in a pre set order, so in order to use a set language you will need to have the languages preceding it multi valued as well.
+Validation Rules
+50 characters long
+Can accept alpha, numeric and symbol data */
+		ERROR_INFO : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, multiLanguage=true, sysNumber=8.0, core=true, t24Name=ERROR.INFO)
+	}
+	EB_ERROR__ERROR_SOL
+	{
+		/* This filed is only visible in Desktop and has no presence in Classic.
+This field contains possible solutions to the error.
+The Field can multi value to allow multi language
+Note: When Multi valuing language fields the fields appear in a pre set order, so in order to use a set language you will need to have the languages preceding it multi valued as well.
+Validation Rules
+50 characters long
+Can accept alpha, numeric and symbol data */
+		ERROR_SOL : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, multiLanguage=true, sysNumber=9.0, core=true, t24Name=ERROR.SOL)
+	}
+	EB_ERROR__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=INPUTTER)
+	}
+	EB_ERROR__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=23.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EXCEPTION_LOG_FILE
+		@t24:i (t24Name=EXCEPTION.LOG.FILE, level=I, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+Mandatory input.
+A maximum of 25 characters may be entered. */
+		DATE_TIME -> EB_ErrorProcessing:EXCEPTION_LOG_FILE PK required
+			@i18n:Label (en="Date time")
+			@i18n:Tooltip (en="Date and time when record was input or authorised")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=A, t24Name=DATE.TIME)
+		/* Validation Rules
+A maximum of 1 characters may be entered.
+The following values are permitted:       S      U */
+		SYS_USER : EB_ErrorProcessing:EXCEPTION_LOG_FILE__SYS_USER
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=1.0, core=true, t24Name=SYS.USER)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		APPLICATION : T24BusinessTypes:A
+			@i18n:Label (en=Application)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=APPLICATION)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 30 characters may be entered. */
+		ROUTINE : T24BusinessTypes:A
+			@i18n:Label (en=Routine)
+			@i18n:Tooltip (en=Routine)
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=3.0, core=true, t24Name=ROUTINE)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 30 characters may be entered. */
+		MODULE : T24BusinessTypes:A
+			@i18n:Label (en=Module)
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=4.0, core=true, t24Name=MODULE)
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		CODE : mml:Integer
+			@i18n:Label (en=Code)
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=CODE)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 35 characters may be entered. */
+		VALUE : T24BusinessTypes:A
+			@i18n:Label (en=Value)
+			@i18n:Tooltip (en=Value)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=VALUE)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 30 characters may be entered. */
+		FILENAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=7.0, core=true, t24Name=FILENAME)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 30 characters may be entered. */
+		REC_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=8.0, core=true, t24Name=REC.KEY)
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=CURR.NO)
+		ERROR_MSG -> byValue EB_ErrorProcessing:EXCEPTION_LOG_FILE__ERROR_MSG *
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 4 characters may be entered. */
+		ACC_OFFICER : T24BusinessTypes:A
+			@i18n:Label (en="Account Officer")
+			@i18n:Tooltip (en="The Officer who will take care of this account")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=11.0, core=true, t24Name=ACC.OFFICER)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		COMP_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Company Code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=COMP.CODE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RUN_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, core=true, t24Name=RUN.DATE)
+	}
+	EXCEPTION_LOG_FILE__ERROR_MSG
+	{
+		/* This is a multi valued field. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 70 characters may be entered. */
+		ERROR_MSG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=10.0, core=true, t24Name=ERROR.MSG)
+	}
+	EXCEPTION_LOG_HIST
+		@t24:i (t24Name=EXCEPTION.LOG.HIST, level=I, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules
+Mandatory input.
+A maximum of 25 characters may be entered. */
+		DATE_TIME -> EB_ErrorProcessing:EXCEPTION_LOG_HIST PK required
+			@i18n:Label (en="Date time")
+			@i18n:Tooltip (en="Date and time when record was input or authorised")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=A, t24Name=DATE.TIME)
+		/* Validation Rules
+A maximum of 1 characters may be entered.
+The following values are permitted:       S      U */
+		SYS_USER : EB_ErrorProcessing:EXCEPTION_LOG_HIST__SYS_USER
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=1.0, core=true, t24Name=SYS.USER)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		APPLICATION : T24BusinessTypes:A
+			@i18n:Label (en=Application)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=APPLICATION)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 30 characters may be entered. */
+		ROUTINE : T24BusinessTypes:A
+			@i18n:Label (en=Routine)
+			@i18n:Tooltip (en=Routine)
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=3.0, core=true, t24Name=ROUTINE)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 30 characters may be entered. */
+		MODULE : T24BusinessTypes:A
+			@i18n:Label (en=Module)
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=4.0, core=true, t24Name=MODULE)
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		CODE : mml:Integer
+			@i18n:Label (en=Code)
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=CODE)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 35 characters may be entered. */
+		VALUE : T24BusinessTypes:A
+			@i18n:Label (en=Value)
+			@i18n:Tooltip (en=Value)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=VALUE)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 30 characters may be entered. */
+		FILENAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=7.0, core=true, t24Name=FILENAME)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 30 characters may be entered. */
+		REC_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=8.0, core=true, t24Name=REC.KEY)
+		/* Standard T24 numeric field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=CURR.NO)
+		ERROR_MSG -> byValue EB_ErrorProcessing:EXCEPTION_LOG_HIST__ERROR_MSG *
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 4 characters may be entered. */
+		ACC_OFFICER : T24BusinessTypes:A
+			@i18n:Label (en="Account Officer")
+			@i18n:Tooltip (en="The Officer who will take care of this account")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=11.0, core=true, t24Name=ACC.OFFICER)
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		COMP_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Company Code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=COMP.CODE)
+		/* Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered. */
+		RUN_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, core=true, t24Name=RUN.DATE)
+	}
+	EXCEPTION_LOG_HIST__ERROR_MSG
+	{
+		/* This is a multi valued field. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 70 characters may be entered. */
+		ERROR_MSG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=10.0, core=true, t24Name=ERROR.MSG)
+	}
+}
+Enumerations {
+	EXCEPTION_LOG_FILE__SYS_USER : mml:string
+		S=S
+		U=U
+	EXCEPTION_LOG_HIST__SYS_USER : mml:string
+		S=S
+		U=U
+}

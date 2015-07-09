@@ -1,0 +1,1495 @@
+# UTF-8
+# UTF-8
+/* Corporate Cash Management */
+Domain PO_Cashpooling
+	@t24:i (module=PO)
+	@java:Package (value=com.temenos.t24.datamodel.po.po_cashpooling)
+namespace "http://www.temenos.com/t24/PO_Cashpooling"
+metamodelVersion 1.30.6
+Classes {
+	/* This Application contains the cash pool group id's which are scheduled for
+ various time. This application is updated on Inputting the sweep time details in
+ INTRA.DAY.SWEEP. */
+	AC_AUTO_SWEEP_SCHD
+		@t24:i (t24Name=AC.AUTO.SWEEP.SCHD, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This application has the list of Cash pool groups which are scheduled for a
+ time. */
+		SWEEP_TIME -> PO_Cashpooling:AC_AUTO_SWEEP_SCHD PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=0.0, core=true, businessType=TIME, t24Name=SWEEP.TIME)
+		AC_GROUP_IDS -> byValue PO_Cashpooling:AC_AUTO_SWEEP_SCHD__AC_GROUP_IDS *
+	}
+	AC_AUTO_SWEEP_SCHD__AC_GROUP_IDS
+	{
+		/* This contains the cash pool group id's which are scheduled for the time
+ available in the ID. */
+		AC_GROUP_IDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=1.0, core=true, t24Name=AC.GROUP.IDS)
+	}
+	/* The AC.CASH.POOL application is used to record 'rules' which will be checked against to see if a transfer of funds needs to be made from one account to another.
+The record id is an Account number, which is one of the Accounts involved in the transfer, it can be a feeder type Account when surplus type sweeps are defined (meaning any surplus is taken from this account and fed to another); it can be a fed account when a maintenance sweep is defined (meaning any shortfall is taken from the other account). It can also be both if the sweep type is a two-way type (meaning it will take funds when required or give funds - this is the same as a maintenance and sweep in one rule).
+The record is multi-valued so several rules can be applied to the record id Account. For example a daily sweep can be made to take surplus funds to a higher level Account on a daily basis, but at the end of each month the Account needs to maintain a certain balance for payments to be made. */
+	AC_CASH_POOL
+		@t24:i (t24Name=AC.CASH.POOL, level=F, type=H, allowedFunctions="A C D E I L Q S", localRefAllowed=true)
+	{
+		ID -> PO_Cashpooling:AC_CASH_POOL PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=ANT, t24Name="@ID")
+		/* This mandatory field defines which group this Account is to be included in, this will be used for checking the Account currency and the options set in the AC.CP.GROUP.PARAM. If the related field SUB.GROUP has been entered then this field will automatically default since the relationship already exists.
+Validation Rules
+Must be a valid id on the AC.CP.GROUP.PARAM file */
+		GROUP_ID -> PO_Cashpooling:AC_CP_GROUP_PARAM
+			@i18n:Label (en="Group Id")
+			@i18n:Tooltip (en="Group Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=1.0, core=true, businessType=A, t24Name=GROUP.ID)
+		/* The sub group that this pool belongs to. A group may be split into many subgroups to enable a subgroup to be processed separately via the on line application INTRA.DAY.SWEEP.
+Validation Rules
+Must be a valid ID on the AC.CP.GROUP.PARAM file
+Must have been defined as a sub group on the AC.CP.GROUP.PARAM file. */
+		SUB_GROUP -> PO_Cashpooling:AC_CP_GROUP_PARAM
+			@i18n:Label (en="Sub Group")
+			@i18n:Tooltip (en="Sub Group")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=2.0, core=true, businessType=A, t24Name=SUB.GROUP)
+		/* NOINPUT field. This field is not used at present. */
+		MAIN_DEPOSIT -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Main Deposit")
+			@i18n:Tooltip (en="Main Deposit")
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=3.0, core=true, businessType=ACC, t24Name=MAIN.DEPOSIT)
+		/* The Account that is defined as the Main Master on AC.CP.GROUP.PARAM. The field is defaulted by the system on entering the GROUP.ID and is not user accessible.
+Validation Rules
+No user input */
+		MAIN_MASTER -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Main Master")
+			@i18n:Tooltip (en="Main Master")
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=4.0, core=true, businessType=ACC, t24Name=MAIN.MASTER)
+		/* A non input system generated field that shows the balance for this cash pool account. The balance shown depends on the BALANCE.TO.USE field set in the pools corresponding group parameter record.
+If this pool record is seen via the input function then the balance shown will be its current balance.
+If it is viewed via the See function then it will be the balance of the account , the last time the pool record was updated , either online or during the end of day run.
+It is merely a visual aid only. */
+		CURRENT_BALANCE : T24BusinessTypes:AMT
+			@i18n:Label (en="Current Balance")
+			@i18n:Tooltip (en="Current Balance")
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=5.0, core=true, t24Name=CURRENT.BALANCE)
+		/* The sequence in which this cash pool record will be processed within the group. There is the option to sequence automatically via the SEQUENCING field on the AC.CP.GROUP.PARAM record. If this is set then this field becomes no input.
+Typical input would be low sequence number for the top of the group and higher numbers for those lower in the pyramid. The processing is in descending order, so the rules in the lowest part of the pyramid usually get effected first (as they usually have higher sequence numbers).
+Validation Rules
+Mandatory when SEQUENCING = MANUAL */
+		SEQUENCE : T24BusinessTypes:AMT
+			@i18n:Label (en=Sequence)
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=6.0, core=true, t24Name=SEQUENCE)
+		LINK_ACCT -> byValue PO_Cashpooling:AC_CASH_POOL__LINK_ACCT *
+		NARRATIVE -> byValue PO_Cashpooling:AC_CASH_POOL__NARRATIVE *
+		LINKS_PRODUCED -> byValue PO_Cashpooling:AC_CASH_POOL__LINKS_PRODUCED *
+		/* System updates the level or hierarchy of Cash pool in the group when a record is added.
+For future use.
+Validation Rules
+No input     -Internal field
+Updated by     System. */
+		LEVEL_NO : mml:Integer
+			@i18n:Label (en="Level No")
+			@i18n:Tooltip (en="Level Number")
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=31.0, core=true, t24Name=LEVEL.NO)
+		/* NOINPUT field. This field is not used at present. */
+		INTEREST_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Interest Rate")
+			@i18n:Tooltip (en="Indicates interest rate")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=32.0, core=true, t24Name=INTEREST.RATE)
+		/* NOINPUT field. This field is not used at present. */
+		INTEREST_KEY : mml:Integer
+			@i18n:Label (en="Interest Key")
+			@i18n:Tooltip (en="Indicates key to apply floating rate of interest")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=33.0, core=true, t24Name=INTEREST.KEY)
+		/* NOINPUT field. This field is not used at present. */
+		INTEREST_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Interest Spread")
+			@i18n:Tooltip (en="Indicates the spread or margin on the contract.")
+			@t24:i (align=R, inputBehaviour=N, maxLength=12, sysNumber=34.0, core=true, t24Name=INTEREST.SPREAD, typeModifiers=-)
+		/* NOINPUT field. This field is not used at present. */
+		INT_LIQ_ACCT : T24BusinessTypes:ACC
+			@i18n:Label (en="Interest Liq Acct")
+			@i18n:Tooltip (en="Indicates Interest Liquidation Account")
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=35.0, core=true, t24Name=INT.LIQ.ACCT)
+		/* NOINPUT field. This field is not used at present. */
+		CATEGORY : T24BusinessTypes:PRODCAT
+			@i18n:Label (en=Category)
+			@i18n:Tooltip (en="Specifies the Category")
+			@t24:i (align=R, inputBehaviour=N, maxLength=6, sysNumber=36.0, core=true, t24Name=CATEGORY, typeModifiers="2100121039", mask="R##-###")
+		/* Holds the date on which the AC.CASH.POOL record got created or changed.
+If a live AC.CASH.POOL record is changed, then new cash pool link will be created with the latest details. In such case, for those links, any transaction done with a back value date before the maintained date will not get processed and no adjustment entries will be raised.
+Validation Rules
+No input- Internal field */
+		LAST_MAINT_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Last Maint Date")
+			@i18n:Tooltip (en="Last Maintenance Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=37.0, core=true, t24Name=LAST.MAINT.DATE)
+		/* Value as given in Multi rule in the respective cash pool group parameter is defaulted here. Cash pool with multi-rule is created to handle the cases where there is a restriction on the number of entries to Accounts.
+When multi-rule is set to "Yes" - then the cash pool should be created with two links-consists of Surplus & maintenance sweep rules and the frequency component for the maintenance should be greater than surplus sweep.
+For example surplus is mentioned as "BSNSS-Daily" then the Maintenance sweep should be either "Weekly" or "Monthly".
+Also the rules priority should be given at the cash pool level to prioritize the execution of cash pool links. Refer to multi-rule field at group level and AI-Accounts, Interest & Charges user guide related to Cash pool section for more details.
+Validation Rules
+No input-updated by System. */
+		MULTI_RULE : mml:Integer
+			@i18n:Label (en="Multi Rule")
+			@i18n:Tooltip (en="Multi Rule")
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=38.0, core=true, t24Name=MULTI.RULE)
+		/* If set to YES then the system expects the local routine to have 4 parameters in the following order:
+1. Balance of TO account
+2. Balance of FROM account
+3. Sweep amount calculated by system4.
+Cash pool link record.Except paremeter 3, all the other parameters are input parameters and are not supposed to be modified by the local routine. Sweep amount is an input/output parameter and the modified value from the local routine will be used by the system as the final sweep amount.
+Validation Rules
+Must be either YES or blank */
+		RTN_WITH_SW_AMT : PO_Cashpooling:AC_CASH_POOL__RTN_WITH_SW_AMT
+			@i18n:Label (en="Sweep Amount")
+			@i18n:Tooltip (en="Sweep Amount")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=39.0, core=true, t24Name=RTN.WITH.SW.AMT)
+		CHARGE_CODE : T24BusinessTypes:CHG
+			@i18n:Label (en="Charge Code")
+			@i18n:Tooltip (en="Indicates the Charge code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=40.0, core=true, t24Name=CHARGE.CODE, typeModifiers="CHGCOM")
+		CHARGE_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Charge Amount")
+			@i18n:Tooltip (en="Indicates charge amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=41.0, core=true, t24Name=CHARGE.AMOUNT)
+		CHARGE_ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Charge Debit Account")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=42.0, core=true, businessType=ACC, t24Name=CHARGE.ACCOUNT)
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Tax Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=43.0, core=true, t24Name=TAX.AMOUNT)
+		SWEEP_CHG_CODE : T24BusinessTypes:CHG
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=44.0, core=true, t24Name=SWEEP.CHG.CODE, typeModifiers="CHGCOM")
+		SWEEP_CHG_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=45.0, core=true, t24Name=SWEEP.CHG.AMOUNT)
+		WAIVE_CHARGES : PO_Cashpooling:AC_CASH_POOL__WAIVE_CHARGES
+			@i18n:Label (en="Waive Charges")
+			@i18n:Tooltip (en="Waive charges Y/N?")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=46.0, core=true, t24Name=WAIVE.CHARGES)
+		SUSP_START_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=47.0, core=true, t24Name=SUSP.START.DATE)
+		SUSP_END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=48.0, core=true, t24Name=SUSP.END.DATE)
+		SWEEP_CANCEL_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=49.0, core=true, t24Name=SWEEP.CANCEL.DATE)
+		ALLOCATE_SWEEP_AMT : PO_Cashpooling:AC_CASH_POOL__ALLOCATE_SWEEP_AMT
+			@t24:i (align=L, inputBehaviour=F, maxLength=1, sysNumber=50.0, core=true, t24Name=ALLOCATE.SWEEP.AMT)
+		RESERVED05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=52.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=53.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=54.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=55.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=56.0, core=true, t24Name=RESERVED01)
+		STMT_NOS -> byValue PO_Cashpooling:AC_CASH_POOL__STMT_NOS *
+		OVERRIDE -> byValue PO_Cashpooling:AC_CASH_POOL__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=59.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=60.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PO_Cashpooling:AC_CASH_POOL__INPUTTER *
+		DATE_TIME -> byValue PO_Cashpooling:AC_CASH_POOL__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=63.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=64.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=65.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=66.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=67.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		NEXT_RUN_DATE -> byValue PO_Cashpooling:AC_CASH_POOL__NEXT_RUN_DATE *
+	}
+	AC_CASH_POOL__LINK_ACCT
+	{
+		/* The account which with the source account (the cash pool key) has the sweep relationship. Depending on the rule entered ,  the 'link' (LINK.ACCT) will either debit or credit the source account. There are 3 basic types of sweep; the surplus, the maintenance and the two-way. Surplus sweeps will debit the 'source' account and credit the 'link'; maintenance sweeps will credit the 'source' and debit the 'link'; whilst two-way will debit the 'link' if funds are needed or credit the 'link' if a surplus is present.
+Sweep type#Debit Account#Credit Account#Condition##
+SURPLUS#'source'#'link'#When a surplus exists on 'source'##
+MAINT#'link'#'source'#When the 'source' is below defined amount##
+TWO-WAY#'source'#'link'#When a surplus exists on 'source'##
+TWO-WAY#'link'#'source'#When the 'source' is below defined amount##
+
+Validation Rules
+Must be a valid ID on the ACCOUNT file
+The account must be of the same currency as the group.
+At least one link account must be present on the cash pool record */
+		LINK_ACCT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=7.0, core=true, businessType=ACC, t24Name=LINK.ACCT)
+		/* This determines what type of sweeping will occur within the pool between the source account and the link account. The value entered is the id of an AC.SWEEP.TYPE record which is user configurable, the actual type is set within that record. However, they must be based on one of four types of rules used within cash pooling:
+MAINTENANCE
+If the source account balance falls below the specified amount in the minimum amt field then the link account is debited and the source account credited with the amount required (subject to user controlled conditions) or with the funds available.
+SURPLUS
+If the balance in the source account is above the amount specified in the  maximum amt field then the surplus is debited from the source account and credited to the link account.
+TWO-WAY
+This is like a combination of the two above. First the balances are checked for a maintenance sweep. If the specified balance is not below the minimum amount then it will then be checked for a surplus amount.
+CASHFLOW
+A cash flow type rule will only occur between those accounts linked to the   main master account. It is similar to the two way rule but with a restriction   on the amount of money that the Main Master (MM) account can pass down to the   account below it. Basically when a pool is being set up a limit will be set on   the maximum amount that the main master will pass down. This is held in the   CASHFLOW.AMT field. There is an additional check on how much money has been   passed up to the MM. This running total of monies transferred is held in the   AGREGATE.BAL field. The available amount is the net of the CASHFLOW.AMT and   AGREGATE.AMT fields.
+Example
+A cashflow limit of USD 100,000.00 is set in field CASHFLOW.AMT. The link account is credited today with USD 50,000.00 and is automatically transferred up to the higher level account. On the next day the fields will show:
+CASHFLOW.AMT     100,000.00
+AGREGATE.BAL        50,000.00
+This means that the amount that can be taken to cover shortfalls is now USD 150,000.00 i.e. the net amount of the two fields. The next transaction causes an overdraft on the link account of USD 200,000.00 so ideally it would need that amount to bring the balance to zero (it's minimum balance). However, as only USD 150,000.00 is allowed that amount is transferred down. The next day the fields will then show:
+CASHFLOW.AMT     100,000.00
+AGREGATE.BAL     -100,000.00
+So now the net amount is zero so no further funds can be taken until there have been more transfers to the higher level account to change the AGREGATE.BAL value. Note the CASHFLOW.AMT is not changed by the system and would remain as USD 100,000.00.
+Validation Rules
+Must be a valid ID on the AC.SWEEP.TYPE file.
+If GROUP.ID has BACK.VALUE.ADJ as YES in AC.CP.GROUP.PARAM, then   CASHFLOW rule not allowed. */
+		RULE -> ST_Sweeping:AC_SWEEP_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=8.0, core=true, businessType=A, t24Name=RULE)
+		ID_BAL_TYPE -> ENT_SoftAccounting:AC_BALANCE_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=9.0, core=true, businessType=A, t24Name=ID.BAL.TYPE)
+		LINK_BAL_TYPE -> ENT_SoftAccounting:AC_BALANCE_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=10.0, core=true, businessType=A, t24Name=LINK.BAL.TYPE)
+		/* This field is used in conjunction with CASHFLOW type rules. These are essentially the same as a Two Way sweep rule except there is a controlling limit on how much can be taken from higher level account.
+This limit and the AGREGATE.BAL field control how much can be taken from the higher level account. There is no limit on how much can be transferred to the higher level account.
+An example is given in the AGREGATE.BAL field helptext explaining how the two fields control the amount that can be debited.
+Validation Rules
+Only valid for CASHFLOW rule types. */
+		CASHFLOW_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=11.0, core=true, t24Name=CASHFLOW.AMT)
+		/* This field is used in conjunction with CASHFLOW type rules. These are essentially the same as a Two Way sweep rule except there is a controlling limit on how much can be taken from higher level account.
+The CASHFLOW.AMT and AGREGATE.BAL fields control how much can be taken from  the higher level account. There is no limit on how much can be transferred to the higher level account.
+Example
+A cashflow limit of USD 100,000.00 is set in field CASHFLOW.AMT. The link account is credited today with USD 50,000.00 and is automatically transferred up to the higher level account. On the next day the fields will show:
+CASHFLOW.AMT     100,000.00
+AGREGATE.BAL        50,000.00
+This means that the amount that can be taken to cover shortfalls is now USD 150,000.00 i.e. the net amount of the two fields. The next transaction causes an overdraft on the link account of USD 200,000.00 so ideally it would need that amount to bring the balance to zero (it's minimum balance). However, as only USD 150,000.00 is allowed that amount is transferred down. The next day the fields will then show:
+CASHFLOW.AMT     100,000.00
+AGREGATE.BAL     -100,000.00
+So now the net amount is zero so no further funds can be taken until there have been more transfers to the higher level account to change the AGREGATE.BAL value. Note the CASHFLOW.AMT is not changed by the system and would remain as USD 100,000.00.
+For take-on purposes the AGREGATE.BAL field can be given a starting value at first input only, once authorised the field is no longer changeable by the user.
+Validation Rules
+Only valid for CASHFLOW rule types.
+Initial input allowed, no change to authorised records. */
+		AGREGATE_BAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=F, maxLength=16, sysNumber=12.0, core=true, t24Name=AGREGATE.BAL)
+		DR_NARR_TXT -> byValue PO_Cashpooling:AC_CASH_POOL__LINK_ACCT__DR_NARR_TXT *
+		CR_NARR_TXT -> byValue PO_Cashpooling:AC_CASH_POOL__LINK_ACCT__CR_NARR_TXT *
+		/* Standard Frequency which defines when the rule will be run.
+Validation Rules
+Standard T24 frequency  e.g. 101101BSNSS , 150701WEEKLY */
+		FREQUENCY : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=15.0, core=true, t24Name=FREQUENCY)
+		/* This amount field (MINIMUM.AMT) is used in conjunction with either a Cashflow, Maintenance or Two Way sweep rule. It controls the minimum amount that needs to be in place on the account. Should the minimum not be there (shortfall) then rule will be triggered and sufficient funds (subject to availability or Limit settings) will be transferred to bring the account up to this amount.
+Use of the OVERRIDE.AMT, OVERRIDE.PERCNT or AMT.ROUTINE may change the amount to be transferred if there is a shortfall.
+Tip: Where a zero amount is required enter as 0.00
+Validation Rules
+Only allowed with CASHFLOW, TWO WAY or MAINTENANCE type sweep rules */
+		MINIMUM_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=16.0, core=true, t24Name=MINIMUM.AMT)
+		/* This amount field (MAXIMUM.AMT) is used in conjunction with either a Cashflow,Surplus or Two Way sweep rule. It controls the maximum amount that can be in place on the account. Should the maximum be exceeded (excess) then rule will be triggered and excess funds will be transferred to bring the account down to this amount.
+Use of the OVERRIDE.AMT, OVERRIDE.PERCNT or AMT.ROUTINE may change the amount to be transferred if there is a excess.
+Tip: Where a zero amount is required enter as 0.00
+Validation Rules
+Only allowed with CASHFLOW, TWO WAY or SURPLUS type sweep rules */
+		MAXIMUM_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=17.0, core=true, t24Name=MAXIMUM.AMT)
+		/* An override amount can be invoked to calculate the amount to be transferred between the id account and the linked account.
+It should be noted that the override amount is only triggered once the rule conditions have been met.
+For example a SURPLUS rule with a maximum amount set at 100.00 would be run whenever the account is in credit by more than USD100.00. Setting this field to 90.00 would cause the transfer amount to be USD90.00 no matter how large the surplus was. If the account only had a USD50.00 balance the rule, and therefore the override amount, would not be triggered.
+Validation Rules
+Standard T24 amount field */
+		OVERRIDE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=18.0, core=true, t24Name=OVERRIDE.AMT)
+		/* An override percentage can be invoked to calculate the amount to be transferred between the id account and the linked account.
+It should be noted that the override percentage is only triggered once the rule conditions have been met.
+For example a SURPLUS rule with a maximum amount set at 100.00 would be run whenever the account is in credit by more than USD100.00. Setting this field to 90% would cause the transfer amount to be 90% of the balance instead. If the account only had a USD50.00 balance the rule, and therefore the percentage amount, would not be triggered.
+Validation Rules
+Standard T24 percentage field
+If the cash pool belongs to a group with shared balances then this field but used to make the whole balance available . i.e It must be 100% */
+		OVERRIDE_PERCNT : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=19.0, core=true, t24Name=OVERRIDE.PERCNT)
+		/* A user sub-routine which can be invoked to calculate the amount to be transferred between the id account and the linked account.
+A PGM.FILE record will be required before the sub-routine name can be input.
+It should be noted that the sub-routine is only triggered once the rule conditions have been met.
+For example a SURPLUS rule with a maximum amount set at 100.00 would be run whenever the account is in credit by more than USD100.00. Instead of transferring the surplus the sub-routine could provide the amount to transfer based on its own criteria. If the account only had a USD50.00 balance the rule, and therefore the sub-routine, would not be triggered.
+Validation Rules
+Must be present on PGM.FILE */
+		AMT_ROUTINE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, t24Name=AMT.ROUTINE)
+		/* For most sweep types the amount to be transferred is the surplus or shortfall on an account. This field will put a ceiling on the amount that is transferred. If no more than say USD 5Million should be transferred then setting that value in this field will ensure if a surplus of USD10 million was present only USD5 Million would be passed on. Or for a shortfall of USD 20Million only USD5Million would be requested.
+Validation Rules
+Standard T24 amount format */
+		UP_TO_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=21.0, core=true, t24Name=UP.TO.AMOUNT)
+		UP_TO_PERCENT : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=22.0, core=true, t24Name=UP.TO.PERCENT)
+		/* The priority level that this link has over other links in this pool. It is used to decide which link will be processed should two links fall on the same day. 1 being the highest priority.
+Validation Rules
+Standard T24 numeric field
+Only used when the corresponding GROUP.PARAM record is set to use priorities */
+		RULE_PRIORITY : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=23.0, core=true, t24Name=RULE.PRIORITY)
+		/* Indicates where this pool may be run :
+INTRA  It will be picked up through the online application INTRA.DAY.SWEEP. If not run during the day then it may be picked up during EOD in which case the sweep does not take place but the frequency dates will cycle.
+EOD  If INTRA.DAY.SWEEP is run for this pools corresponding group then this record will not be included in the sweep. This sweep will only occur during end of day.
+If blank then the pool may be processed both on-line and during the end of day processing.
+Validation Rules
+Can be either Intra , Eod or blank */
+		SCHEDULE : PO_Cashpooling:AC_CASH_POOL__LINK_ACCT__SCHEDULE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=24.0, core=true, t24Name=SCHEDULE)
+		EXCH_RATE_SPR : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=25.0, core=true, t24Name=EXCH.RATE.SPR)
+		/* This field used to restrict the creation of sweep amount for a small amount.
+The amount entered here will get validated against the sweep amount and only when the sweep amount is greater than this, sweep takes place.
+For example:
+An account with a maximum balance of USD 1,000.00 could trigger a sweep of USD 0.01 if the balance of the account was increased to USD 1,000.01. If we specify USD10.00 as MIN.TFR.DR, then sweep will take place only when the sweep amount is more than or equal to USD10.00 (ie when the Balance is more than or equal to USD1010.00).
+Validation Rules
+Allowed only for Surplus type     of Sweep.
+Allowed Numeric values */
+		MIN_TFR_DR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=26.0, core=true, t24Name=MIN.TFR.DR)
+		/* This field used to restrict the creation of sweep amount for a small amount.
+The amount entered here will get validated against the sweep amount and only when the sweep amount is greater than this, sweep takes place.
+For example
+An account with a Minimum balance of USD 1,000.00 could trigger a sweep of USD 1 if the balance of the account was decreased to USD 999.00. If we specify USD10.00 as MIN.TFR.CR, then sweep will take place only when the sweep amount is more than or equal to USD 10.00 (ie when the Balance is less than or equal to USD 990.00).
+
+Validation Rules
+Allowed only for Maintenance  type of Sweep.
+Numeric value */
+		MIN_TFR_CR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=27.0, core=true, t24Name=MIN.TFR.CR)
+		/* Holds the oldest back value date done for the ID account.
+Whenever any back value dated transaction done to the Cash pool account (ID Account), this field will get updated with the oldest back value date and after processing back value dated adjustment this field will be made cleared.l
+Applicable only for cash pool groups where Back.value.adj is set to "YES"
+Validation Rules
+No Input-Internal field
+Updated by system when there is a back value dated entries. */
+		ADJ_START_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=28.0, core=true, t24Name=ADJ.START.DATE)
+	}
+	AC_CASH_POOL__LINK_ACCT__DR_NARR_TXT
+	{
+		/* Narrative to be used on the debit entries for this rule.
+Validation Rules
+Free format text */
+		DR_NARR_TXT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, t24Name=DR.NARR.TXT)
+	}
+	AC_CASH_POOL__LINK_ACCT__CR_NARR_TXT
+	{
+		/* Narrative to be used on the credit entries for this rule.
+Validation Rules
+Free format text */
+		CR_NARR_TXT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=14.0, core=true, t24Name=CR.NARR.TXT)
+	}
+	AC_CASH_POOL__NARRATIVE
+	{
+		/* Text field for insertion of details or comments regarding the cashpool entered. This text field is used for comments at the record level. There are separate fields for the debit and credit entry texts.
+Validation Rules
+Standard T24 narrative field */
+		NARRATIVE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=29.0, core=true, t24Name=NARRATIVE)
+	}
+	AC_CASH_POOL__LINKS_PRODUCED
+	{
+		/* When the AC.CASH.POOL record is authorised it creates one or more AC.CASH.POOL.LINK records with details of each rule from the AC.CASH.POOL, detailing the run dates etc. These are then used for in-line and eod processing.
+Validation Rules
+System field, no user input. */
+		LINKS_PRODUCED : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=14, sysNumber=30.0, core=true, t24Name=LINKS.PRODUCED)
+	}
+	AC_CASH_POOL__STMT_NOS
+	{
+		STMT_NOS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=57.0, core=true, t24Name=STMT.NOS)
+	}
+	AC_CASH_POOL__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=58.0, core=true, t24Name=OVERRIDE)
+	}
+	AC_CASH_POOL__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=61.0, core=true, t24Name=INPUTTER)
+	}
+	AC_CASH_POOL__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=62.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AC_CASH_POOL__NEXT_RUN_DATE
+	{
+		NEXT_RUN_DATE : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, core=false, t24Name=NEXT.RUN.DATE, genOperation="SUBSTRINGS(FREQUENCY,1,8)")
+	}
+	/* The AC.CASH.POOL.LINK file is maintained by AC.CASH.POOL (used to record 'rules' which will be checked against to see if a transfer of funds needs to be made from one account to another). This file record each individual rule and details the amounts and frequency dates.
+Since the System maintains this file it there is no user intervention. All changes are made on the AC.CASH.POOL record. */
+	AC_CASH_POOL_LINK
+		@t24:i (t24Name=AC.CASH.POOL.LINK, level=F, type=L, allowedFunctions="L S", localRefAllowed=false)
+	{
+		/* The record id of the AC.CASH.POOL.LINK is a standard T24 transaction reference type. It is created by the system when the AC.CASH.POOL record is authorised.
+Validation Rules
+
+System maintained */
+		LIST_ID -> PO_Cashpooling:AC_CASH_POOL_LINK PK required
+			@i18n:Label (en="List ID")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=LIST.ID, mask="####/#####/#####")
+		/* Details which AC.CASH.POOL record created this record.
+Validation Rules
+
+System maintained - no user input */
+		DESCRIPTION : T24BusinessTypes:A required
+			@i18n:Label (en=Description)
+			@i18n:Tooltip (en=Description)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+		/* Contains the GROUP.ID from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		GROUP_ID : T24BusinessTypes:A
+			@i18n:Label (en="Group Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=2.0, core=true, t24Name=GROUP.ID)
+		/* Contains the SUB.GROUP.ID from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		SUB_GROUP_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, t24Name=SUB.GROUP.ID)
+		/* Contains the SEQUENCE from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		SEQUENCE : T24BusinessTypes:AMT
+			@i18n:Label (en=Sequence)
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=4.0, core=true, t24Name=SEQUENCE)
+		/* Contains the CURRENCY of the Account.
+Validation Rules
+
+System maintained - no user input */
+		LINK_CURRENCY : T24BusinessTypes:CCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=LINK.CURRENCY)
+		SWEEP_TYPE -> byValue PO_Cashpooling:AC_CASH_POOL_LINK__SWEEP_TYPE *
+		INTEREST_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Interest Rate")
+			@i18n:Tooltip (en="Indicates interest rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=29.0, core=true, t24Name=INTEREST.RATE)
+		INTEREST_KEY : mml:Integer
+			@i18n:Label (en="Interest Key")
+			@i18n:Tooltip (en="Indicates key to apply floating rate of interest")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=30.0, core=true, t24Name=INTEREST.KEY)
+		INTEREST_SPREAD : mml:Integer
+			@i18n:Label (en="Interest Spread")
+			@i18n:Tooltip (en="Indicates the spread or margin on the contract.")
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=31.0, core=true, t24Name=INTEREST.SPREAD)
+		INT_LIQ_ACCT : T24BusinessTypes:ACC
+			@i18n:Label (en="Interest Liq Acct")
+			@i18n:Tooltip (en="Indicates Interest Liquidation Account")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=32.0, core=true, t24Name=INT.LIQ.ACCT)
+		CATEGORY : mml:Integer
+			@i18n:Label (en=Category)
+			@i18n:Tooltip (en="Specifies the Category")
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=33.0, core=true, t24Name=CATEGORY)
+		MM_CONTRACT -> byValue PO_Cashpooling:AC_CASH_POOL_LINK__MM_CONTRACT *
+		MULTI_RULE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=35.0, core=true, t24Name=MULTI.RULE)
+		LAST_RUN_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Last Payment")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=36.0, core=true, t24Name=LAST.RUN.DATE)
+		SEQUENCE_PRIORITY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=37.0, core=true, t24Name=SEQUENCE.PRIORITY)
+		/* If the field contains the text "YES", this indicates that the cash pool link record is in the Euro currency conversion process.
+Validation Rules
+
+System maintained - no user input */
+		EUCC_SOD_PROCESS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=3, sysNumber=38.0, core=true, t24Name=EUCC.SOD.PROCESS)
+		RESERVED02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=39.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=40.0, core=true, t24Name=RESERVED01)
+		CASH_POOL_ID : mml:Integer
+			@i18n:Label (en="Cash Pool Id")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, core=false, t24Name=CASH.POOL.ID, genOperation="DESCRIPTION[22,18]")
+	}
+	AC_CASH_POOL_LINK__SWEEP_TYPE
+	{
+		/* Contains the RULE from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		SWEEP_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=SWEEP.TYPE)
+		/* Contains the CASHFLOW.AMT from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		CASHFLOW_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=7.0, core=true, t24Name=CASHFLOW.AMT)
+		/* Contains the AGREGATE.BAL from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		AGREGATE_BAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=8.0, core=true, t24Name=AGREGATE.BAL)
+		/* Contains the FREQUENCY from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		FREQUENCY : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=9.0, core=true, t24Name=FREQUENCY)
+		/* Contains next date that the cashpool sweep will run this record
+Validation Rules
+
+System maintained - no user input */
+		NEXT_RUN_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=10.0, core=true, t24Name=NEXT.RUN.DATE)
+		DR_NARR_TXT -> byValue PO_Cashpooling:AC_CASH_POOL_LINK__SWEEP_TYPE__DR_NARR_TXT *
+		CR_NARR_TXT -> byValue PO_Cashpooling:AC_CASH_POOL_LINK__SWEEP_TYPE__CR_NARR_TXT *
+		/* Contains the ACCOUNT that the funds are being sent to.
+Validation Rules
+
+System maintained - no user input */
+		ACCOUNT_TO -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, businessType=ACC, t24Name=ACCOUNT.TO)
+		/* Contains the ACCOUNT that the funds are being taken from.
+Validation Rules
+
+System maintained - no user input */
+		ACCOUNT_FROM -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, businessType=ACC, t24Name=ACCOUNT.FROM)
+		MAXIMUM_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=MAXIMUM.AMT)
+		MINIMUM_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=16.0, core=true, t24Name=MINIMUM.AMT)
+		/* Contains the OVERRIDE.AMT from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		OVERRIDE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=OVERRIDE.AMT)
+		/* Contains the OVERRIDE.PERCNT from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		OVERRIDE_PERCNT : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=OVERRIDE.PERCNT)
+		/* Contains the AMT.ROUTINE from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		AMT_ROUTINE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=AMT.ROUTINE)
+		/* Contains the UP.TO.AMOUNT from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		UP_TO_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=20.0, core=true, t24Name=UP.TO.AMOUNT)
+		UP_TO_PERCENT : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=21.0, core=true, t24Name=UP.TO.PERCENT)
+		RULE_PRIORITY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=22.0, core=true, t24Name=RULE.PRIORITY)
+		SCHEDULE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=23.0, core=true, t24Name=SCHEDULE)
+		BACK_VALUE_IND : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=24.0, core=true, t24Name=BACK.VALUE.IND)
+		MIN_TFR_DR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=25.0, core=true, t24Name=MIN.TFR.DR)
+		MIN_TFR_CR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=26.0, core=true, t24Name=MIN.TFR.CR)
+		FROM_AC_BAL_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=27.0, core=true, t24Name=FROM.AC.BAL.TYPE)
+		TO_AC_BAL_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=28.0, core=true, t24Name=TO.AC.BAL.TYPE)
+	}
+	AC_CASH_POOL_LINK__SWEEP_TYPE__DR_NARR_TXT
+	{
+		/* Contains the DR.NARR.TXT from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		DR_NARR_TXT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=DR.NARR.TXT)
+	}
+	AC_CASH_POOL_LINK__SWEEP_TYPE__CR_NARR_TXT
+	{
+		/* Contains the CR.NARR.TXT from AC.CASH.POOL, see HELPTEXT on that field for details.
+Validation Rules
+
+System maintained - no user input */
+		CR_NARR_TXT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, t24Name=CR.NARR.TXT)
+	}
+	AC_CASH_POOL_LINK__MM_CONTRACT
+	{
+		MM_CONTRACT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=34.0, core=true, t24Name=MM.CONTRACT)
+	}
+	/* The AC.CP.GROUP.PARAM defines the basic details of a group. A group is a collection of Accounts that are linked for Cash Pooling purposes. The Accounts need to be of the same Currency but can be owned by different customers.
+The group concept has a main Account and is usually a pyramid type structure where lower level accounts feed funds to/from higher level accounts until the main Account rules are run. */
+	AC_CP_GROUP_PARAM
+		@t24:i (t24Name=AC.CP.GROUP.PARAM, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		ID -> PO_Cashpooling:AC_CP_GROUP_PARAM PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name="@ID")
+		/* The description of the group used for enrichment and reporting purposes and therefore set as a mandatory input.
+Standard T24 text field */
+		DESCRIPTION : T24BusinessTypes:A required
+			@i18n:Label (en=Description)
+			@i18n:Tooltip (en=Description)
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+		/* Indicates whether the group is defined as a sub group within the main group. If so then the main group must also be entered.
+Entering YES defines this as a sub-group of the group entered in the field MAIN.GROUP.ID If not entered then it is assumed to be NO
+Validation Rules
+Options are YES, NO or blank */
+		SUB_GROUP : PO_Cashpooling:AC_CP_GROUP_PARAM__SUB_GROUP
+			@i18n:Label (en="Sub Group")
+			@i18n:Tooltip (en="Sub Group")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=SUB.GROUP)
+		/* This is the main group id that this group being entered is to be a sub group of.  Used in conjunction with the field SUB.GROUP
+Validation Rules
+Must exist on AC.CP.GROUP.PARAM file.
+Value must not be a sub group itself. */
+		MAIN_GROUP_ID -> PO_Cashpooling:AC_CP_GROUP_PARAM
+			@i18n:Label (en="Main Group Id")
+			@i18n:Tooltip (en="Main Group Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, businessType=A, t24Name=MAIN.GROUP.ID)
+		/* The settings here dictate whether the group sweep can be performed just once during the on-line session (set as SINGLE), or if it can be run many times (set as MULTIPLE).
+On-line sweeps are run using the INTRA.DAY.SWEEP application.
+If BALANCE.TO.USE is set as VALUE.DATED then this field must be set to SINGLE
+Validation Rules
+Value may be either SINGLE or MULTIPLE.
+Default is SINGLE */
+		INTRA_DAY : PO_Cashpooling:AC_CP_GROUP_PARAM__INTRA_DAY
+			@i18n:Label (en="Intra Day")
+			@i18n:Tooltip (en="Intra Day")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=4.0, core=true, t24Name=INTRA.DAY)
+		/* Within the concept of Cash Pooling there is a top level account. This master account is at the top of the pyramid of any sweep rules.
+Validation Rules
+Must be an existing ACCOUNT
+Mandatory value, no default */
+		MAIN_MASTER -> ACM_AccountOpening:ACCOUNT required
+			@i18n:Label (en="Main Master")
+			@i18n:Tooltip (en="Top level Account")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=5.0, core=true, businessType=ACC, t24Name=MAIN.MASTER)
+		/* System field containing the Currency of the MAIN.MASTER Account.
+Validation Rules
+System field. No user input. */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=6.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* NOINPUT field. This field is not used at present. */
+		MAIN_DEPOSIT : T24BusinessTypes:ACC
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=7.0, core=true, t24Name=MAIN.DEPOSIT)
+		/* Specify whether the balances in the Cash pool accounts are to be grouped or not.
+If SHARED.BALANCES is set as YES, then all the accounts in Cash Pool link will be updated with the cash pool group id in SB.GROUP.ID field in their respective Account and their total available balances will be considered in case of Overdraft during the Maintenance sweep. The balance to use in this case can only be WORKING.
+When SHARED.BALANCES is "PARTIAL" balances will be grouped and BALANCE.TO.USE can be other than Working balance.
+Above two cases system creates a record in AC.SHARED.ACCOUNT with ID as Group id and with all accounts involved in the group.
+Option "NO" can be given when the Balances in Cash pool accounts not to be grouped.
+Validation Rules
+Valid Values Yes or No or Partial
+SHARED.BALANCES is Yes, then  Balance.to.Use should be "Working" */
+		SHARED_BALANCES : PO_Cashpooling:AC_CP_GROUP_PARAM__SHARED_BALANCES
+			@i18n:Label (en="Shared Balances")
+			@i18n:Tooltip (en="Shared Balances")
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=8.0, core=true, t24Name=SHARED.BALANCES)
+		/* Defines whether the user may enter the sequence that the cash pool is to run. If AUTO then the sequence is worked out automatically from the bottom of the pyramid upwards, if MANUAL then the user can enter a sequence on the AC.CASH.POOL records.
+Validation Rules
+Must be either AUTO or MANUAL . */
+		SEQUENCING : PO_Cashpooling:AC_CP_GROUP_PARAM__SEQUENCING
+			@i18n:Label (en=Sequencing)
+			@i18n:Tooltip (en=Sequencing)
+			@t24:i (align=L, inputBehaviour=F, maxLength=6, sysNumber=9.0, core=true, t24Name=SEQUENCING)
+		/* NOINPUT field. This field is not used at present. */
+		MAX_NUMBER : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=6, sysNumber=10.0, core=true, t24Name=MAX.NUMBER)
+		/* When calculating the amount that needs to be transferred to/from an Account the Cash Pool rules can use one of three possible values as the Account balance.
+
+1. ONLINE CLEARED
+The balance will be based on the Account cleared balance. This balance will not include any uncleared items (for example cheques deposited with a future exposure date).
+
+2. ONLINE ACTUAL
+The balance will be based on the Account uncleared balance. This balance will include uncleared items (for example cheques deposited with a future exposure date).
+
+3. WORKING
+This is the 'worst case' scenario balance as it will be impacted by unauthorised debits and would show a lower balance than the actual balance if there were entries due to be passed to this account. This balance type is more critical for on-line sweeps since during the eod any unauthorised items are placed on hold and the working balance adjusted accordingly.
+
+4.VALUE.DATED
+This balance reflects the current balance after excluding any forward dated FT, Teller or DC entries. If back value dated adjustment is required then the balance to use can be only Value.dated.
+
+5. USER DEFINED
+To arrive Account balance for sweeping purpose based on Bank's requirement instead of any of the above Balance to use option, it can be defined as USER.DEFINED and a valid "S" type of routine from PGM.FILE can be specified in BALANCE.ROUTINE. The balance as arrived by this routine will be used and checked against the Condition as defined in AC.CASH.POOL. To invoke user defined Balances,  the rule should have NULL value in BALANCE.TO.USE for the corresponding record in AC.SWEEP.TYPE.
+
+The user must enter one of the ABOVE possible values, there is no default.
+Validation Rules
+Values allowed are ONLINE CLEARED, ONLINE ACTUAL, VALUE.DATED or WORKING or USER DEFINED.
+When using SHARED.BALANCES,BALANCES.TO.USE must be WORKING.
+When BACK.VALUE.ADJ is set to YES, BALANCE.TO.USE must be VALUE.DATED */
+		BALANCE_TO_USE : PO_Cashpooling:AC_CP_GROUP_PARAM__BALANCE_TO_USE required
+			@i18n:Label (en="Balance To Use")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=11.0, core=true, t24Name=BALANCE.TO.USE)
+		/* When an account has been set up via cash pooling to debit or credit two other accounts on the same processing date then only one update can take place. By setting this field to PRIORITY the user can set priorities to each link. If set to FREQUENCY then Daily has presidence over weekly , weekly over monthly and so on.
+Validation Rules
+Must be either Priority or Frequency
+Defaults to frequency */
+		RULE_PRIORITY : PO_Cashpooling:AC_CP_GROUP_PARAM__RULE_PRIORITY
+			@i18n:Label (en="Rule Priority")
+			@i18n:Tooltip (en="Rule Priority")
+			@t24:i (align=L, inputBehaviour=F, maxLength=12, sysNumber=12.0, core=true, t24Name=RULE.PRIORITY)
+		/* A no input , system updated field showing the main master account balance as specified in the BALANCE.TO.USE field . The balance is the balance of the main master after either last cash pool sweep , whether it occurred on line or during the end of day.
+
+
+Validation Rules */
+		GROUP_BALANCE : T24BusinessTypes:AMT
+			@i18n:Label (en="Group Balance")
+			@i18n:Tooltip (en="Group Balance")
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=GROUP.BALANCE)
+		/* NOINPUT field. This field is not used at present. */
+		OFS_SOURCE : T24BusinessTypes:A
+			@i18n:Label (en="OFS Source")
+			@i18n:Tooltip (en="The OFS Source record ID")
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=14.0, core=true, t24Name=OFS.SOURCE)
+		/* NOINPUT field. This field is not used at present. */
+		MM_OFS_VERSION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=MM.OFS.VERSION)
+		/* Setting this flag to YES, will allow back value dated adjustment entries to be passed, if any back value dated transaction is done to the cash pool account, which would affect the sweeps already done to that account.
+Validation Rules
+Valid values YES or Null
+If this field is set to YES, then BALANCE.TO.USE must be VALUE.DATED and field BACK.VALUE.CAP will default to setting of 31 - which can be amended if required. */
+		BACK_VALUE_ADJ : PO_Cashpooling:AC_CP_GROUP_PARAM__BACK_VALUE_ADJ
+			@i18n:Label (en="Back Value Adjustment")
+			@i18n:Tooltip (en="Back Value Adjustment is required$")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=16.0, core=true, t24Name=BACK.VALUE.ADJ)
+		/* The number of days up to which back value dated transaction can be processed, this is applicable for all Cash pool links using this Group id.
+The start date for back value process is arrived from the latest among the following:
+LAST.MAINTENANCE.DATE, which is available in AC.CASH.POOL Cap Back value date arrived using BACK.VALUE.CAP from AC.CP.GROUP.PARAM and Actual oldest back value dated transaction entered for the ACCOUNT.
+For example
+Cash pool record got created on 05-12-2005
+Then start date for back value adjustment start from the latest of the above i.e. 05-12-2005
+Validation Rules
+Defaults to 31 if the previous field, BACK.VALUE.ADJ is set to YES otherwise not allowed.
+2 digit Numeric field determined in units of days.
+Defaulted values can be changed - But must be between 1 to 31. */
+		BACK_VALUE_CAP : mml:Integer
+			@i18n:Label (en="Back Value Capitalisation")
+			@i18n:Tooltip (en="Back Value Capitalisation is required$")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=17.0, core=true, t24Name=BACK.VALUE.CAP)
+		/* Multi rule can be set to YES where there is restrictions on number of debits to the link account and hence to be processed differently.
+For more details see AI User guide related to cash pool.
+Validation Rules
+Valid values YES or Null
+If MULTI.RULE is set to YES, BALANCE.TO.USE must be VALUE.DATED, BACK.VALUE.ADJ should be as YES and RULE.PRIORITY should be as PRIORITY. */
+		MULTI_RULE : PO_Cashpooling:AC_CP_GROUP_PARAM__MULTI_RULE
+			@i18n:Label (en="Multi Rule is Required$")
+			@i18n:Tooltip (en="Define Multi Rule is required$")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=18.0, core=true, t24Name=MULTI.RULE)
+		/* If a user defined balance is required for sweeping purposes, specify a routine here which will supply the Account balance.
+An "S" type PGM.FILE of the same name as specified here must exist. Instead of using the standard account balances, the balance to be used is supplied by the routine will be considered and checked against the Rule as defined in AC.CASH.POOL.
+The routine should be called with 2 parameters, namely the cash pool id (In-Parameter) & the resultant Current Balance (Out-Parameter)
+Validation Rules
+Input allowed only when BALANCE.TO.USE is USER.DEFINED
+Should be a valid "S" type of record in PGM.FILE */
+		BALANCE_ROUTINE -> EB_SystemTables:PGM_FILE
+			@i18n:Label (en="Balance Routine")
+			@i18n:Tooltip (en="Balance Routine")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, businessType=A, t24Name=BALANCE.ROUTINE)
+		/* System field.
+Validation Rules
+System field. No user input. */
+		BUILD_SEQUENCE : PO_Cashpooling:AC_CP_GROUP_PARAM__BUILD_SEQUENCE
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=20.0, core=true, t24Name=BUILD.SEQUENCE)
+		BV_SWEEP_TYPE : PO_Cashpooling:AC_CP_GROUP_PARAM__BV_SWEEP_TYPE
+			@i18n:Label (en="Back Value Sweep Type")
+			@i18n:Tooltip (en="Back Value Sweep Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=21.0, core=true, t24Name=BV.SWEEP.TYPE)
+		/* System field containing "YES", if the cash pool group is in the Euro currency conversion process.
+Validation Rules
+System field. No user input. */
+		EUCC_PROCESS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=E, maxLength=3, sysNumber=22.0, core=true, t24Name=EUCC.PROCESS)
+		ACC_IN_MUL_POOL : PO_Cashpooling:AC_CP_GROUP_PARAM__ACC_IN_MUL_POOL
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=23.0, core=true, t24Name=ACC.IN.MUL.POOL)
+		SWEEP_CHG_CODE : T24BusinessTypes:CHG
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=24.0, core=true, t24Name=SWEEP.CHG.CODE, typeModifiers="CHGCOM")
+		EXCH_RATE_TYPE : PO_Cashpooling:AC_CP_GROUP_PARAM__EXCH_RATE_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=25.0, core=true, t24Name=EXCH.RATE.TYPE)
+		EXCH_RATE_SPR : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=26.0, core=true, t24Name=EXCH.RATE.SPR)
+		RESERVED03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=27.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=28.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=29.0, core=true, t24Name=RESERVED01)
+		OVERRIDE -> byValue PO_Cashpooling:AC_CP_GROUP_PARAM__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=32.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=33.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PO_Cashpooling:AC_CP_GROUP_PARAM__INPUTTER *
+		DATE_TIME -> byValue PO_Cashpooling:AC_CP_GROUP_PARAM__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=36.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=37.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=38.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=39.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=40.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AC_CP_GROUP_PARAM__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, core=true, t24Name=OVERRIDE)
+	}
+	AC_CP_GROUP_PARAM__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=34.0, core=true, t24Name=INPUTTER)
+	}
+	AC_CP_GROUP_PARAM__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=35.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AC_GROUP_CASH_POOL
+		@t24:i (t24Name=AC.GROUP.CASH.POOL, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		GROUP_ID -> PO_Cashpooling:AC_GROUP_CASH_POOL PK required
+			@i18n:Label (en="Group Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.ID)
+		CASH_POOL_ID : T24BusinessTypes:ANT required
+			@i18n:Label (en="Cash Pool Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=1.0, core=true, t24Name=CASH.POOL.ID)
+	}
+	AC_GROUP_CP_LIST
+		@t24:i (t24Name=AC.GROUP.CP.LIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		GROUP_ID -> PO_Cashpooling:AC_GROUP_CP_LIST PK required
+			@i18n:Label (en="Group Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.ID)
+		CP_LINK_ID -> byValue PO_Cashpooling:AC_GROUP_CP_LIST__CP_LINK_ID *
+	}
+	AC_GROUP_CP_LIST__CP_LINK_ID
+	{
+		CP_LINK_ID -> PO_Cashpooling:AC_CASH_POOL_LINK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, businessType=A, t24Name=CP.LINK.ID)
+	}
+	AC_SHARED_ACCOUNT
+		@t24:i (t24Name=AC.SHARED.ACCOUNT, level=F, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		ID -> PO_Cashpooling:AC_SHARED_ACCOUNT PK required
+			@i18n:Label (en="@ID")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name="@ID")
+		/* Currently a no input field
+
+Validation rules */
+		DESCRIPTION : T24BusinessTypes:A
+			@i18n:Label (en=Description)
+			@i18n:Tooltip (en=Description)
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+		/* System field which contains the Group Account leader.  This is the account found in the MAIN.MASTER on the AC.CP.GROUP.PARAM record.
+
+Validation rules
+
+System field.  No Input */
+		MAIN_ACCT -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Main Account")
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=2.0, core=true, businessType=ACC, t24Name=MAIN.ACCT)
+		CP_ID -> byValue PO_Cashpooling:AC_SHARED_ACCOUNT__CP_ID *
+		ADD_ACCT -> byValue PO_Cashpooling:AC_SHARED_ACCOUNT__ADD_ACCT *
+		DEL_ACCT -> byValue PO_Cashpooling:AC_SHARED_ACCOUNT__DEL_ACCT *
+		/* System field showing the content of concat file.
+
+Validation Rules
+
+System field.  No Input. */
+		ACCT_LIST -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Account List")
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=7.0, core=true, businessType=ACC, t24Name=ACCT.LIST)
+		RESERVED05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED01)
+		OVERRIDE -> byValue PO_Cashpooling:AC_SHARED_ACCOUNT__OVERRIDE *
+	}
+	AC_SHARED_ACCOUNT__CP_ID
+	{
+		/* System field contains the account which is mentioned in the cash pool ID.
+
+Validation Rules
+
+System field.  No input */
+		CP_ID -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=3.0, core=true, businessType=ACC, t24Name=CP.ID)
+		CP_ACCT -> byValue PO_Cashpooling:AC_SHARED_ACCOUNT__CP_ID__CP_ACCT *
+	}
+	AC_SHARED_ACCOUNT__CP_ID__CP_ACCT
+	{
+		/* System field which contains accounts used in AC.CASH.POOL records linked to this group
+
+Validation Rules
+
+System field.  No input */
+		CP_ACCT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=4.0, core=true, businessType=ACC, t24Name=CP.ACCT)
+	}
+	AC_SHARED_ACCOUNT__ADD_ACCT
+	{
+		/* Currently a no input field
+Validation rules */
+		ADD_ACCT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=5.0, core=true, businessType=ACC, t24Name=ADD.ACCT)
+	}
+	AC_SHARED_ACCOUNT__DEL_ACCT
+	{
+		/* Currently a no input field */
+		DEL_ACCT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=6.0, core=true, businessType=ACC, t24Name=DEL.ACCT)
+	}
+	AC_SHARED_ACCOUNT__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=OVERRIDE)
+	}
+	AC_SWEEP_BAL_WORK
+		@t24:i (t24Name=AC.SWEEP.BAL.WORK, level=F, type=L, allowedFunctions="L S", localRefAllowed=false)
+	{
+		SWEEP_ACCT_ID -> PO_Cashpooling:AC_SWEEP_BAL_WORK PK required
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=0.0, core=true, businessType=ACC, t24Name=SWEEP.ACCT.ID)
+		SWEEP_DATE : T24BusinessTypes:D
+			@i18n:Label (en=Date)
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=SWEEP.DATE)
+		TOTAL_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=TOTAL.AMOUNT)
+	}
+	/* This is a live file which gets updated when adjustments happens to the sweeps which are already taken place. This happens when there is a change in the balance of the account because of some back value dated transactions. */
+	CORR_GROUP_CP
+		@t24:i (t24Name=CORR.GROUP.CP, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		KEY -> PO_Cashpooling:CORR_GROUP_CP PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=28, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* This field holds the back value date from which adjustment for the cash pool was started. */
+		PERIOD_START_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=1.0, core=true, t24Name=PERIOD.START.DATE)
+		PERIOD_END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=2.0, core=true, t24Name=PERIOD.END.DATE)
+		/* This field holds the number of days for which adjustment was done in the cash pool because of back value transaction. */
+		PERIOD_DAYS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=PERIOD.DAYS)
+		/* This field holds the cash pool link group id. */
+		GROUP_ID : T24BusinessTypes:A
+			@i18n:Label (en="Group Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=4.0, core=true, t24Name=GROUP.ID)
+		/* This field holds the amount for which back value adjustment was done in the cash pool. */
+		TRAN_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=5.0, core=true, t24Name=TRAN.AMOUNT)
+		SWEEP_DATE -> byValue PO_Cashpooling:CORR_GROUP_CP__SWEEP_DATE *
+		ACCOUNT_FROM -> byValue PO_Cashpooling:CORR_GROUP_CP__ACCOUNT_FROM *
+		RESERVED11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=26.0, core=true, t24Name=RESERVED11)
+		RESERVED12 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=27.0, core=true, t24Name=RESERVED12)
+		RESERVED13 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=28.0, core=true, t24Name=RESERVED13)
+		RESERVED14 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=RESERVED14)
+		RESERVED15 -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=30.0, core=true, t24Name=RESERVED15)
+	}
+	CORR_GROUP_CP__SWEEP_DATE
+	{
+		/* This is a multivalue field which holds the dates on which back value adjustment was done in the cash pool. The related information i.e. how much amount is adjusted and from which account to which account is held at corresponding sub value fields from ACCOUNT.FROM to TRAN.CODE */
+		SWEEP_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=6.0, core=true, t24Name=SWEEP.DATE)
+	}
+	CORR_GROUP_CP__ACCOUNT_FROM
+	{
+		ACCOUNT_FROM -> byValue PO_Cashpooling:CORR_GROUP_CP__ACCOUNT_FROM__ACCOUNT_FROM *
+		RESERVED07 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED07)
+		RESERVED08 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED08)
+		RESERVED09 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=RESERVED09)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=25.0, core=true, t24Name=RESERVED10)
+	}
+	CORR_GROUP_CP__ACCOUNT_FROM__ACCOUNT_FROM
+	{
+		/* This field holds the account number from which amount is debited corresponding to back value adjustment. */
+		ACCOUNT_FROM : T24BusinessTypes:ACC
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=7.0, core=true, t24Name=ACCOUNT.FROM)
+		BACK_VAL_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=8.0, core=true, t24Name=BACK.VAL.AMT)
+		SWEEP_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=9.0, core=true, t24Name=SWEEP.REF)
+		HIST_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=10.0, core=true, t24Name=HIST.KEY)
+		/* This field holds the account number to which amount is credited corresponding to back value adjustment. */
+		ACCOUNT_TO : T24BusinessTypes:ACC
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=11.0, core=true, t24Name=ACCOUNT.TO)
+		/* This will hold the value which was there in the earlier swap */
+		NETTING : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, t24Name=NETTING)
+		/* This will hold the value which was there in the earlier swap */
+		PERCENTAGE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=13.0, core=true, t24Name=PERCENTAGE)
+		/* This field contains the amount that was adjusted because of the back value transactions. */
+		BACK_VAL_ADJ : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=14.0, core=true, t24Name=BACK.VAL.ADJ)
+		/* This holds the transaction code that is used for the transfer of funds. */
+		TRAN_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=15.0, core=true, t24Name=TRAN.CODE)
+		RESERVED01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED01)
+		RESERVED02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED02)
+		RESERVED03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED03)
+		RESERVED04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED04)
+		RESERVED05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED05)
+		RESERVED06 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED06)
+	}
+	/* This application is used to run the Cash Pooling on-line ,in Info mode, if the group
+ permits. The user needs to enter the group name (id of AC.CP.GROUP.PARAM) or the
+ sub-group name (also id of AC.CP.GROUP.PARAM).
+The run is invoked by using the V (verify) function at the action line,
+ against a list of groups or via a Desktop menu/shortcut. */
+	INFO_GROUP_CP
+		@t24:i (t24Name=INFO.GROUP.CP, level=F, type=L, allowedFunctions="L P S V", localRefAllowed=false)
+	{
+		/* The group.id (record id of AC.CP.GROUP.PARAM) of the sweep to be run. */
+		GROUP_ID -> PO_Cashpooling:INFO_GROUP_CP PK required
+			@i18n:Label (en="Group Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.ID)
+		AVAILABLE_CREDIT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=1.0, core=true, t24Name=AVAILABLE.CREDIT)
+		SWEEP_DATE -> byValue PO_Cashpooling:INFO_GROUP_CP__SWEEP_DATE *
+		RESERVED12 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=10.0, core=true, t24Name=RESERVED12)
+		RESERVED11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=11.0, core=true, t24Name=RESERVED11)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=12.0, core=true, t24Name=RESERVED10)
+		RESERVED09 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=13.0, core=true, t24Name=RESERVED09)
+		RESERVED08 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=14.0, core=true, t24Name=RESERVED08)
+		RESERVED07 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=15.0, core=true, t24Name=RESERVED07)
+		RESERVED06 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=16.0, core=true, t24Name=RESERVED06)
+		RESERVED05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=18.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=19.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=20.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=21.0, core=true, t24Name=RESERVED01)
+	}
+	INFO_GROUP_CP__SWEEP_DATE
+	{
+		SWEEP_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=2.0, core=true, t24Name=SWEEP.DATE)
+		SWEEP_REF -> byValue PO_Cashpooling:INFO_GROUP_CP__SWEEP_DATE__SWEEP_REF *
+	}
+	INFO_GROUP_CP__SWEEP_DATE__SWEEP_REF
+	{
+		SWEEP_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=45, sysNumber=3.0, core=true, t24Name=SWEEP.REF)
+		SWEEP_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=4.0, core=true, t24Name=SWEEP.AMT)
+		SEQ_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=5.0, core=true, t24Name=SEQ.NO)
+		SWEEP_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=6.0, core=true, t24Name=SWEEP.TYPE)
+		ACCOUNT_BAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=7.0, core=true, t24Name=ACCOUNT.BAL)
+		OVERDRAFT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=8.0, core=true, t24Name=OVERDRAFT)
+		POOL_BAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=9.0, core=true, t24Name=POOL.BAL)
+	}
+	/* This application is used to run the Cash Pooling on-line if the group permits. The user needs to enter the group name (id of AC.CP.GROUP.PARAM) or the sub-group name (also id of AC.CP.GROUP.PARAM).
+All cash pool groups added in AC.CP.GROUP.PARAM except with Balance.to.use as "Value dated" is updated here.
+The run is invoked by using the V (verify) function at the action line, against a list of groups or via a Desktop menu/shortcut.
+To trigger sweep process automatically through phantom process, the sweep execution time can be specified here for the relevant group.  By invoking the EB.PHANTOM with Run.Routine as "AC.AUTO.SWEEP.SELECT", all the cash pool records relevant for the Group with execution date as today will be invoked on the specified time.
+When first time Eb.Phantom process is invoked, all the cash pool records with execution time Less than or Equal to the system time will be invoked. */
+	INTRA_DAY_SWEEP
+		@t24:i (t24Name=INTRA.DAY.SWEEP, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The group.id (record id of AC.CP.GROUP.PARAM) of the sweep to be run.
+Function allowed are "V"- to trigger intra day sweep online (Manually) & "I" - to input scheduled time for sweep to execute automatically. */
+		GROUP_ID -> PO_Cashpooling:INTRA_DAY_SWEEP PK required
+			@i18n:Label (en="Group Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.ID)
+		/* This contains the description of group record as given in AC.CP.GROUP.PARAM for the relevant group.
+Validation Rules
+
+No input -Updated by the system from description given in AC.CP.GROUP.PARAM */
+		DESCRIPTION : T24BusinessTypes:A required
+			@i18n:Label (en=Description)
+			@i18n:Tooltip (en=Description)
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+		SWEEP_TIME -> byValue PO_Cashpooling:INTRA_DAY_SWEEP__SWEEP_TIME *
+		/* This has the latest time on which the phantom got executed for the time specified for this Group.
+Note this field is updated only when the group has scheduled date as today & scheduled time less than or equal to system time.
+Validation Rules
+
+No input -Updated by System. */
+		PH_END_TIME : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=3.0, core=true, t24Name=PH.END.TIME)
+		/* This has the user-id relevant to the phantom process.
+Validation Rules
+
+No Input-Updated by System. */
+		PH_USER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=PH.USER)
+		CHARGE_CODE : T24BusinessTypes:CHG
+			@i18n:Label (en="Charge Code")
+			@i18n:Tooltip (en="Indicates the Charge code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, t24Name=CHARGE.CODE, typeModifiers="CHGCOM")
+		CHARGE_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Charge Amount")
+			@i18n:Tooltip (en="Indicates charge amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=CHARGE.AMOUNT)
+		CHARGE_ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Charge Debit Account")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=7.0, core=true, businessType=ACC, t24Name=CHARGE.ACCOUNT)
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Tax Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=8.0, core=true, t24Name=TAX.AMOUNT)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.1)
+		SW_DATE_TIME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=SW.DATE.TIME)
+		RESERVED_14 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.14)
+		RESERVED_13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.13)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.12)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.11)
+		STMT_NOS -> byValue PO_Cashpooling:INTRA_DAY_SWEEP__STMT_NOS *
+		OVERRIDE -> byValue PO_Cashpooling:INTRA_DAY_SWEEP__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PO_Cashpooling:INTRA_DAY_SWEEP__INPUTTER *
+		DATE_TIME -> byValue PO_Cashpooling:INTRA_DAY_SWEEP__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=23.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=24.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=25.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=26.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	INTRA_DAY_SWEEP__SWEEP_TIME
+	{
+		/* Specify the time at which this group has to be executed automatically using phantom process.
+All the cash pool records relevant to this Group id with scheduled execution date as  today, will be executed at the time specified here.
+To trigger above process, a record in EB.PHANTOM has to be added with Run.Routine as "AC.AUTO.SWEEP.SELECT" , which can be invoked either as Phantom or Interactive. This routine selects & triggers the cash pooling process for all the AC.CASH.POOL records which are scheduled for today with scheduled time less than system time.
+Incase the INTRA.DAY is mentioned as SINGLE, then after the cash pool group is executed, the next execution date in AC.CASH.POOL moved as per the frequency given.
+Incase the INTRA.DAY is mentioned as MULTIPLE, then after the cash pool execution, the next execution remains the same.
+Input is in the hh:mm format where:
+hh is the hour (in 24 hour format). Hours of 01 to 09 can also be entered as 1 to 9.
+mm is the minutes past that hour.
+The input of
+:
+is optional.The details given here is updated in AC.AUTO.SWEEP.SCHD application with id as the scheduled time along with the list of cash pool groups relevant for the scheduled time.
+Please note incase the sweep time mentioned here is Less than the system time-then system will not execute it, unless & otherwise the phantom process is re-started again. Moreover whenever the phantom process is restarted, all the cash pool with scheduled time less than the system time & with scheduled execution date as of today is executed once again.
+Validation Rules
+
+Optional Multi value field
+Duplicate not allowed
+Must be in standard time format. */
+		SWEEP_TIME : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=2.0, core=true, t24Name=SWEEP.TIME)
+	}
+	INTRA_DAY_SWEEP__STMT_NOS
+	{
+		STMT_NOS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=STMT.NOS)
+	}
+	INTRA_DAY_SWEEP__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=OVERRIDE)
+	}
+	INTRA_DAY_SWEEP__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=INPUTTER)
+	}
+	INTRA_DAY_SWEEP__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=21.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	NOFILE_GROUP_POSITION
+		@t24:i (t24Name=NOFILE.GROUP.POSITION, level=I, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		ID : mml:Integer required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=N, maxLength=100000, core=false, t24Name="@ID", genOperation=E.MB.GET.GROUP.BALANCE)
+		GROUP_NAME : mml:Integer
+			@i18n:Label (en="Group Name")
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, core=false, t24Name=GROUP.NAME)
+		SUB_GROUP -> byValue PO_Cashpooling:NOFILE_GROUP_POSITION__SUB_GROUP *
+	}
+	NOFILE_GROUP_POSITION__SUB_GROUP
+	{
+		SUB_GROUP : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, core=false, t24Name=SUB.GROUP)
+	}
+	NOFILE_PROJECTED_SWEEP_MOVEMENTS
+		@t24:i (t24Name=NOFILE.PROJECTED.SWEEP.MOVEMENTS, level=I, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		INFO_CP_RECORDS -> byValue PO_Cashpooling:NOFILE_PROJECTED_SWEEP_MOVEMENTS__INFO_CP_RECORDS *
+		ID -> byValue PO_Cashpooling:NOFILE_PROJECTED_SWEEP_MOVEMENTS__ID *
+	}
+	NOFILE_PROJECTED_SWEEP_MOVEMENTS__INFO_CP_RECORDS
+	{
+		INFO_CP_RECORDS : mml:Integer required
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, core=false, t24Name=INFO.CP.RECORDS, genOperation=E.MB.GET.FUTURE.SWEEP.MVMTS)
+	}
+	NOFILE_PROJECTED_SWEEP_MOVEMENTS__ID
+	{
+		ID : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, core=false, t24Name="@ID")
+	}
+	NOFILE_SWEEP_MOVEMENTS_GROUP
+		@t24:i (t24Name=NOFILE.SWEEP.MOVEMENTS.GROUP, level=I, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		RETURN_ARRAY : mml:Integer required
+			@t24:i (align=L, inputBehaviour=N, maxLength=100000, core=false, t24Name=RETURN.ARRAY, genOperation=E.MB.GET.SWEEP.HIST)
+		ID -> byValue PO_Cashpooling:NOFILE_SWEEP_MOVEMENTS_GROUP__ID *
+		FROM_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Start Date")
+			@i18n:Tooltip (en="Date from which it is effective")
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, core=false, t24Name=FROM.DATE)
+		TO_DATE : T24BusinessTypes:D
+			@i18n:Label (en="To Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, core=false, t24Name=TO.DATE)
+		GROUP_NAME : mml:Integer
+			@i18n:Label (en="Group Name")
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, core=false, t24Name=GROUP.NAME)
+	}
+	NOFILE_SWEEP_MOVEMENTS_GROUP__ID
+	{
+		ID : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=40, core=false, t24Name="@ID")
+	}
+	RERUN_CP_SWEEP
+		@t24:i (t24Name=RERUN.CP.SWEEP, level=F, type=L, allowedFunctions="L P S V", localRefAllowed=false)
+	{
+		GROUP_ID -> PO_Cashpooling:RERUN_CP_SWEEP PK required
+			@i18n:Label (en="Group Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.ID)
+		DUMMY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, t24Name=DUMMY)
+	}
+	/* This application is used to Reverse out a sweep already run. The use of the V
+ function and the group.id (from AC.CP.GROUP.PARAM) will reverse out the impact
+ of a sweep process already run. */
+	REV_GROUP_CP
+		@t24:i (t24Name=REV.GROUP.CP, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		ID -> PO_Cashpooling:REV_GROUP_CP PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=ID)
+		DESCRIPTION : T24BusinessTypes:A
+			@i18n:Label (en=Description)
+			@i18n:Tooltip (en=Description)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+		RESERVED11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=2.0, core=true, t24Name=RESERVED11)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=3.0, core=true, t24Name=RESERVED10)
+		RESERVED09 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=4.0, core=true, t24Name=RESERVED09)
+		RESERVED08 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=5.0, core=true, t24Name=RESERVED08)
+		RESERVED07 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=6.0, core=true, t24Name=RESERVED07)
+		RESERVED06 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=7.0, core=true, t24Name=RESERVED06)
+		RESERVED05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=8.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=9.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=10.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=11.0, core=true, t24Name=RESERVED02)
+		STMT_NOS -> byValue PO_Cashpooling:REV_GROUP_CP__STMT_NOS *
+		OVERRIDE -> byValue PO_Cashpooling:REV_GROUP_CP__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PO_Cashpooling:REV_GROUP_CP__INPUTTER *
+		DATE_TIME -> byValue PO_Cashpooling:REV_GROUP_CP__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	REV_GROUP_CP__STMT_NOS
+	{
+		STMT_NOS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=STMT.NOS)
+	}
+	REV_GROUP_CP__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=OVERRIDE)
+	}
+	REV_GROUP_CP__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=INPUTTER)
+	}
+	REV_GROUP_CP__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	AC_CASH_POOL__LINK_ACCT__SCHEDULE : mml:string
+		EOD=EOD
+		INTRA=INTRA
+		NULL=NULL
+	AC_CASH_POOL__RTN_WITH_SW_AMT : mml:string
+		YES=YES
+		NULL=NULL
+	AC_CASH_POOL__WAIVE_CHARGES : mml:string
+		YES=YES
+		NO=NO
+	AC_CASH_POOL__ALLOCATE_SWEEP_AMT : mml:string
+		Y=Y
+		NULL=NULL
+	AC_CASH_POOL_LINK__EUCC_SOD_PROCESS : mml:string
+		YES=YES
+		NULL=NULL
+	AC_CP_GROUP_PARAM__SUB_GROUP : mml:string
+		YES=YES
+		NO=NO
+	AC_CP_GROUP_PARAM__INTRA_DAY : mml:string
+		MULTIPLE=MULTIPLE
+		SINGLE=SINGLE
+	AC_CP_GROUP_PARAM__SHARED_BALANCES : mml:string
+		YES=YES
+		NO=NO
+		PARTIAL=PARTIAL
+	AC_CP_GROUP_PARAM__SEQUENCING : mml:string
+		AUTO=AUTO
+		MANUAL=MANUAL
+	AC_CP_GROUP_PARAM__BALANCE_TO_USE : mml:string
+		WORKING=WORKING
+		ONLINE_ACTUAL="ONLINE ACTUAL"
+		ONLINE_CLEARED="ONLINE CLEARED"
+		VALUE_DATED=VALUE.DATED
+		USER_DEFINED="USER DEFINED"
+		AC_BALANCE_TYPE=AC.BALANCE.TYPE
+		WORKING_LESS_LOCKED_AMT="WORKING LESS LOCKED AMT"
+	AC_CP_GROUP_PARAM__RULE_PRIORITY : mml:string
+		FREQUENCY=FREQUENCY
+		PRIORITY=PRIORITY
+	AC_CP_GROUP_PARAM__BACK_VALUE_ADJ : mml:string
+		YES=YES
+		NULL=NULL
+	AC_CP_GROUP_PARAM__MULTI_RULE : mml:string
+		YES=YES
+		NULL=NULL
+	AC_CP_GROUP_PARAM__BUILD_SEQUENCE : mml:string
+		YES=YES
+		NULL=NULL
+	AC_CP_GROUP_PARAM__BV_SWEEP_TYPE : mml:string
+		SURPLUS=SURPLUS
+		NULL=NULL
+	AC_CP_GROUP_PARAM__EUCC_PROCESS : mml:string
+		YES=YES
+		NULL=NULL
+	AC_CP_GROUP_PARAM__ACC_IN_MUL_POOL : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	AC_CP_GROUP_PARAM__EXCH_RATE_TYPE : mml:string
+		MID=MID
+		BUY_SELL=BUY/SELL
+}

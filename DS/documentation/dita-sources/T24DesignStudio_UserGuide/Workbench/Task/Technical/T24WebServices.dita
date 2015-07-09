@@ -1,0 +1,164 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "http://docs.oasis-open.org/dita/dtd/task.dtd" []>
+<task id="t24WebServices">
+	<title>T24 Web Services for Design Studio</title>
+	<shortdesc>This task provides guidance for debugging T24 web service connection with Design Studio</shortdesc>
+	<taskbody>
+		<prereq>
+			<p>Design Studio for T24 compiled in Java (TAFJ) requires so-called component framework web services to be available
+				in T24.
+			</p>
+		</prereq>
+		<steps>
+			<step>
+				<cmd>
+					Determine the hostname and port to form the “base URL” appropriate for your T24 environment, e.g.
+					<userinput>http://localhost:9089</userinput>
+					.
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					Check the basic availability and configuration of the Axis WS library, by opening e.g.
+					<userinput>http://localhost:9089/axis2/axis2-web/HappyAxis.jsp</userinput>
+					in a web browser. This "Axis2 Happiness Page" should show some
+					green messages, and no errors. If this does not work,
+					please ensure that the axis2.war is correctly deployed on
+					your application server.
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					Check the availability of the two T24 web services required by Design Studio, by opening e.g.
+					<userinput>http://localhost:9089/axis2/services/listServices</userinput>
+					in a web browser:
+				</cmd>
+				<substeps>
+					<substep>
+						<cmd>
+							Ensure that the CatalogServiceWS is in Service Status : Active, has no errors, and lists Available Operations
+							such as getApplicationAsXml, and others. If this is not listed, please ensure that the
+							t24-CatalogService-tafj-jws.aar is available inside your
+							<filepath>axis2.war/WEB-INF/services</filepath>
+							.
+						</cmd>
+					</substep>
+					<substep>
+						<cmd>
+							Likewise, ensure that the DesignStudioInstallerServiceWS is in Service Status : Active, has no errors, and
+							lists
+							available operations such as deployDsXml. If this is not listed, please ensure that the
+							t24-DesignStudioInstallerService-tafj-jws.aar is available inside your
+							<filepath>axis2.war/WEB-INF/services</filepath>
+							.
+						</cmd>
+					</substep>
+				</substeps>
+			</step>
+			<step>
+				<cmd>
+					To easily verify that these web services are indeed fully working, before using Design Studio, please download
+					a
+					tool such as e.g. SOAPui from
+					<userinput>http://www.soapui.org</userinput>
+					, and install it.
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					In SOAPui, right-click New SOAP Project
+					&lt;Ctrl-N&gt; and use
+					<userinput>http://localhost:9089/axis2/services/CatalogServiceWS?wsdl</userinput>
+					as Initial WSDL. This URL may also be
+					obtained by clicking on the CatalogServiceWS header on the /listServices
+					status page in a web browser.
+				</cmd>
+				<substeps>
+					<substep>
+						<cmd>
+							Open the getApplicationAsXml Request1, click the Play/Run icon in the upper left hand corner. It will fail
+							with a SECURITY VIOLATION.
+						</cmd>
+					</substep>
+					<substep>
+						<cmd>
+							Replace everything inside the &lt;cat:getApplicationAsXml&gt; element, but keep the enclosing
+							&lt;cat:getApplicationAsXml&gt;, and copy/paste the following, replacing the T24 default UID/PWD/Company used
+							below with what is suitable for your respective T24 environment (these later will match the username, password
+							and branch in the server.properties used in Design Studio):
+						</cmd>
+						<info>
+							<lines>
+								<![CDATA[
+									<cat:userDetails>
+										<xsd:user>INPUTT</xsd:user>
+										<xsd:password>123456</xsd:password>
+										<xsd:coCode>GB0010001</xsd:coCode>
+									</cat:userDetails>
+									<cat:name>CUSTOMER</cat:name>
+								]]>
+							</lines>
+						</info>
+					</substep>
+					<substep>
+						<cmd>
+							Again click the Play/Run button in SOAPui. You should obtain a &lt;ax21:returnCode&gt; SUCCESS. In
+							&lt;ax23:xml&gt; there will be a big blob of XML as CDATA.
+						</cmd>
+					</substep>
+				</substeps>
+			</step>
+			<step>
+				<cmd>
+					Should you still get any errors from Axis or propagated from T24, please seek assistance from your operations
+					team, before attempting to use Design Studio features.
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					Now try to connect from within the Design Studio IDE UI. It is recommended to, in the structure created by the
+					demo-t24-packager-tafj template.
+				</cmd>
+				<substeps>
+					<substep>
+						<cmd>
+							Do a menu
+							<userinput>File > Import > Design Studio > Import T24 Applications</userinput>
+						</cmd>
+					</substep>
+					<substep>
+						<cmd>
+							Import T24 Screen (Version)
+						</cmd>
+					</substep>
+					<substep>
+						<cmd>
+							Change the Version and Deploy it back to T24.
+						</cmd>
+					</substep>
+				</substeps>
+			</step>
+			<step>
+				<cmd>
+					Should you get any errors in Deployment of Versions, Enquiries or Local Refs from DS T24 (only), then first
+					please
+					double check that in the designStudioInstallerServiceContext.xml file inside the
+					t24-DesignStudioInstallerService-tafj-jws.aar, which is in your
+					<filepath>axis2.war/WEB-INF/services</filepath>
+					, the OFS_SOURCE is
+					DS.TELNET instead of GCS (which is the correct OFS SOURCE for the catalogServiceContext.xml in
+					the
+					t24-CatalogService-tafj-jws.aar). Some older earlier released versions of the
+					t24-DesignStudioInstallerService-tafj-jws.aar are known to have this misconfigured out of the box. (This has been
+					corrected on recent releases.)
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					Should you find SOAP UI working, but still have issues connecting from Design Studio, it can be helpful to spy
+					onto the communication between DS and T24 WS using SoapUI’s built-in HTTP Recording feature.
+				</cmd>
+			</step>
+		</steps>
+	</taskbody>
+</task>

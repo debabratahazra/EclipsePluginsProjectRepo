@@ -1,0 +1,52 @@
+## JBC_GetCustomizedTypeSchema.vm
+*-----------------------------------------------------------------------------
+      SUBROUTINE ${service.getName()}.getCustomizedTypeSchema(listOfSchemaXML)
+      
+*-----------------------------------------------------------------------------
+* Subroutine to return Customized Type Schema Definitions for a Component 
+*
+* Note : This subroutine is auto-generated and should not be changed.
+*
+* @author Auto-generated
+* @stereotype subroutine
+*!
+*-----------------------------------------------------------------------------
+      GOSUB initialise      
+      GOSUB process
+      GOSUB finalise
+      
+      RETURN
+*-----------------------------------------------------------------------------
+process: 
+	
+	listOfSchemaXML = ''
+	
+#if(${service.getClassDefDescriptors().isEmpty()} == false)
+#foreach($classDescriptor in ${service.getClassDefDescriptors()})
+	GOSUB get${classDescriptor.getName()}Schema
+#end
+#end
+
+	RETURN
+
+#if(${service.getClassDefDescriptors().isEmpty()} == false)
+#foreach($classDescriptor in ${service.getClassDefDescriptors()})
+get${classDescriptor.getName()}Schema:
+	listOfSchemaXML<-1> = '${service.getClassDefDescSchema($classDescriptor)}' 
+	RETURN
+	
+#end
+#end
+	  
+*-----------------------------------------------------------------------------
+initialise:
+    listOfSchemaXML = ''
+		
+    RETURN
+
+*-----------------------------------------------------------------------------
+finalise:    
+
+    RETURN
+
+END

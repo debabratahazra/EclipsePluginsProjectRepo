@@ -1,0 +1,51 @@
+#ifndef SOA_${umlClass.getClassName().toUpperCase()}_H
+\#define SOA_${umlClass.getClassName().toUpperCase()}_H
+
+#set($stdClassRefList = ${umlClass.getStdClsRefListInBOHeader()})
+#foreach($stdClassRef in $stdClassRefList)
+\#include <${stdClassRef}>
+#end
+
+\#include <jsystem.h>
+#set($temenosClassRefList = ${umlClass.getTemenosClsRefListInBOHeader()})
+#foreach($temenosClassRef in $temenosClassRefList)
+\#include <${temenosClassRef}.h>
+#end
+
+#set($userClassRefList = ${umlClass.getUserClsRefListInBOHeader()})
+#foreach($userClassRef in $userClassRefList)
+\#include "${userClassRef}.h"
+#end
+
+\#include "${umlClass.getParent().getDLLDeclHeaderFileName()}"
+
+namespace temenos {${formatter.indent()}
+  namespace soa {${formatter.indent()}
+    namespace ${namespace} {${formatter.indent()}
+    class ${umlClass.getClassName()} {${formatter.indent()}
+    public:
+${umlClass.declareDefaultConstrutor()}
+${umlClass.declareConstructor()}
+${umlClass.declareDestructor()}
+
+#set($members = ${umlClass.getMembers()})
+#foreach($member in $members)
+${member.declareCppMemberOperationMethod()}
+
+#end
+
+${umlClass.declareToStringMethod()}
+
+      private:
+#set($members = ${umlClass.getMembers()})
+#foreach($member in $members)
+${member.declareCppMemberInBO()}
+
+#end
+	  };${formatter.outdent()}	  
+	}${formatter.outdent()}
+  }${formatter.outdent()}
+}${formatter.outdent()}
+
+
+#endif

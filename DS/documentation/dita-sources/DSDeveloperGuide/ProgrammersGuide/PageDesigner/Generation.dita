@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "http://docs.oasis-open.org/dita/dtd/concept.dtd">
+<concept id="devguide_programmersguide_pagedesigner_generation">
+	<title>Code Generation</title>
+	<prolog>
+		<author type="creator">Alain Tripod</author>
+
+		<metadata>
+			<keywords>
+				<indexterm>page</indexterm>
+			</keywords>
+		</metadata>
+	</prolog>
+	<conbody>
+		<p>The process that transforms the Platform Independent Models (fragments, 
+		modules and pages) into a target technologies is done in two steps.</p>
+		
+		<ol>
+			<li>
+				<p>The first step transforms the platform independent models into a 
+				set of <i>XSP Pages</i> that contains XSP and XGUI tags.</p>
+				
+				<p>The plugin <b>com.odcgroup.page.transformmodel</b> implements this
+				transformation.</p>
+				
+				<p>The plugin <b>com.odcgroup.page.generation</b> is the code generation
+				cartridge</p>.
+				
+			</li>
+			<li>
+				<p>The second step is actually done by Cocoon and a set of XSL scripts 
+				to transform the XSP Pages into HTML/Javascript pages (Platform Specific 
+				Model). This step is outside the scope of the Page Designer.</p>
+			</li>
+		</ol>
+		
+		<section>
+			<title>Transformation Principles</title>
+		
+			<p>The transformation proceeds as follows:
+				<ul>
+					<li>The XmlTransformer is created containing the root Widget to be transformed.</li>
+					
+					<li>A TransformationContext is created. This contains contextual information specific 
+					to this transformation such as the current parent XML Element to which child elements 
+					should be attached.</li> 
+					
+					<li>The WidgetTransformer for the root Widget is found (using the method isTransformer 
+					for each Transformer and returning the first occurrence which returns true).</li>
+					
+					<li>This Transformer is handed the responsibility to:
+						<ul>
+							<li>Transform the root Widget</li>
+							<li>Choose whether to transform its properties and child Widgets. 
+								This is optional. For example the DefaultWidgetTransformer:
+								<ul>
+									<li>Finds the PropertyTransformer for each Property and transforms them</li>
+									<li>Finds the WidgetTransformer for each of its children and transforms them</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</p>
+			
+			<image href="images/transformations.png" width="17cm"><alt>no figure available</alt></image>
+			
+		</section>
+
+	</conbody>
+
+</concept>

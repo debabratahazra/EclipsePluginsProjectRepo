@@ -1,0 +1,1348 @@
+# UTF-8
+ /* Template Servicing of Repo Contracts */ 
+ Domain RP_Contract 
+ @t24:i (module=RP) 
+ @java:Package (value=com.temenos.t24.datamodel.rp.rp_contract) 
+ namespace "http://www.temenos.com/t24/RP_Contract" 
+ metamodelVersion 4.3.0.20110527 
+ Classes { 
+ RP_ALT_NOSTRO 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ DIARY_ID : mml:string PK required 
+ @i18n:Label (en="Diary Id") 
+ @i18n:Tooltip (en="Indicates the diary Id") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=0.0, t24Name=DIARY.ID) 
+ 
+ DEP_NO -> byValue RP_Contract:RP_ALT_NOSTRO__DEP_NO * 
+ } 
+ RP_ALT_NOSTRO__DEP_NO 
+ { 
+ DEP_NO -> SC_Config:CUSTOMER_SECURITY 
+ @t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=1.0, t24Name=DEP.NO) 
+ 
+ RP_ACCOUNT -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=2.0, t24Name=RP.ACCOUNT) 
+ 
+ COUNTERPARTY -> byValue RP_Contract:RP_ALT_NOSTRO__DEP_NO__COUNTERPARTY * 
+ } 
+ RP_ALT_NOSTRO__DEP_NO__COUNTERPARTY 
+ { 
+ COUNTERPARTY -> SCO_PortfolioMaintenance:SEC_ACC_MASTER 
+ @t24:i (align=L, inputBehaviour=N, maxLength=14, sysNumber=3.0, t24Name=COUNTERPARTY) 
+ 
+ RP_NOMINAL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=4.0, t24Name=RP.NOMINAL) 
+ 
+ RP_GROSS_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=5.0, t24Name=RP.GROSS.AMT) 
+ 
+ RP_SRC_TAX : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=6.0, t24Name=RP.SRC.TAX) 
+ 
+ RP_TOT_CHGS : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=7.0, t24Name=RP.TOT.CHGS) 
+ 
+ RP_NET_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=8.0, t24Name=RP.NET.AMT) 
+ 
+ RP_CASH_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=9.0, t24Name=RP.CASH.CCY) 
+ 
+ RP_CASH_XCH : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=10.0, t24Name=RP.CASH.XCH) 
+ 
+ RP_NET_LCY : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=11.0, t24Name=RP.NET.LCY) 
+ 
+ RP_ENTL_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=12.0, t24Name=RP.ENTL.AMT) 
+ 
+ RP_MBS_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=13.0, t24Name=RP.MBS.AMT) 
+ } 
+ /* This file shows the Bank's overall reverse repo positions. It holds all security positions which have been received by the Bank under its reverse repo transactions. */ 
+ RESO_POSITION 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* The key of the RESO.POSITION file is made up of six elements separated by dots. These elements are; Portfolio Number Security Number Depository Nominee Code Maturity Date Interest Rate  Note: The Maturity Date and Interest Rate are only included in the key if the Sub Asset Type of the Security is flagged as a KassenObligationen security. */ 
+ POSITION_KEY : mml:string PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=80, sysNumber=0.0, t24Name=POSITION.KEY) 
+ 
+ /* This is the portfolio that the reverse repo position is for.  Validation Rules Must be the key to a valid entry on the SEC.ACC.MASTER file. */ 
+ SECURITY_ACCOUNT -> SCO_PortfolioMaintenance:SEC_ACC_MASTER 
+ @i18n:Label (en=Portfolio) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=1.0, t24Name=SECURITY.ACCOUNT) 
+ 
+ /* This field contains the Security Number that the Reverse Repo Position is for.  Validation Rules Must be the key to a valid entry on the SECURITY.MASTER file. */ 
+ SECURITY_NUMBER -> SCO_SecurityMasterMaintenance:SECURITY_MASTER 
+ @i18n:Label (en="Security No") 
+ @i18n:Tooltip (en="Indicates the security number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=2.0, t24Name=SECURITY.NUMBER) 
+ 
+ /* This field contains the Depository where the Reverse Repo Position is held.  It must be valid T24 Customer and is setup as a depository on the CUSTOMER.SECURITY file.  Validation Rules Standard T24 customer field. Must be the key to a valid entry on the CUSTOMER file. */ 
+ DEPOSITORY -> ST_Customer:CUSTOMER 
+ @i18n:Label (en=Depository) 
+ @i18n:Tooltip (en="Depository the Security to be delivered from/to") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=3.0, t24Name=DEPOSITORY) 
+ 
+ /* If this reverse repo position is held by Nominee then this field will contain the ID of the Nominee. If this position is not held by nominee then this field will be blank.  Validation Rules Must be the key to a valid entry on the NOMINEE.CODE file. */ 
+ NOMINEE_CODE -> SC_Config:NOMINEE_CODE 
+ @i18n:Label (en="Nominee Code") 
+ @i18n:Tooltip (en="Identifies the Nominee Company ") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=4.0, t24Name=NOMINEE.CODE) 
+ 
+ /* This field is only updated if this reverse repo position is for a Kassenobligationen security. A Kassenobligationen security is one where the Sub Asset Type record linked to the security has the KASSENOBLIGATIONEN flag set to YES.  Validation Rules Standard T24 date field. */ 
+ MATURITY_DATE : mml:string 
+ @i18n:Label (en="Maturity Date") 
+ @i18n:Tooltip (en="Indicates the Maturity Date of the Transaction") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, t24Name=MATURITY.DATE) 
+ 
+ /* This field is only updated if this reverse repo position is for a Kassenobligationen security. A Kassenobligationen security is one where the Sub Asset Type record linked to the security has the KASSENOBLIGATIONEN flag set to YES.  If the security identified in the SECURITY.NUMBER is a Kassenobligationen security then this will be the interest rate for the security - taken from the INTEREST.RATE field on the Security Master record.  Validation Rules Standard T24 rate field. */ 
+ INTEREST_RATE : mml:string 
+ @i18n:Label (en="Interest Rate") 
+ @i18n:Tooltip (en="Indicates interest rate") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=6.0, t24Name=INTEREST.RATE) 
+ 
+ /* The field contains the sub account where the reverse repo Position is held. It must be a valid sub account in CUSTOMER.SECURITY record keyed on the depository. Validation Rules No-input field Optional field */ 
+ SUB_ACCOUNT : mml:string 
+ @i18n:Label (en="Sub Account") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=7.0, t24Name=SUB.ACCOUNT) 
+ 
+ /* This field contains the Trade Date of the last transaction to update this Reverse Repo Position Record.  Validation Rules Standard T24 date field. */ 
+ DATE_LAST_TRADED : mml:string 
+ @i18n:Label (en=Active) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, t24Name=DATE.LAST.TRADED) 
+ 
+ /* This field contains the trade dated number of securities received by the Bank under its reverse repo transactions.  Validation Rules Standard T24 amount field. (1 - 18 characters) */ 
+ CLOSING_BAL_NO_NOM : mml:string 
+ @i18n:Label (en=Nominal) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=9.0, t24Name=CLOSING.BAL.NO.NOM) 
+ 
+ /* Opening Balance - in number of securities - for this reverse repo position.  This field will always be zero unless it has been updated by the takeover processing when T24 was first installed on the system.  Validation Rules Standard T24 amount field. */ 
+ OPENING_BAL_NO_NOM : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=10.0, t24Name=OPENING.BAL.NO.NOM) 
+ 
+ /* This field holds the issue date of the secruity.  Validation Rules Standard T24 date field. */ 
+ ISSUE_DATE : mml:string 
+ @i18n:Label (en="Issue Date") 
+ @i18n:Tooltip (en="Indicates the date of issue ") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, t24Name=ISSUE.DATE) 
+ 
+ COST_PRICE -> byValue RP_Contract:RESO_POSITION__COST_PRICE * 
+ } 
+ RESO_POSITION__COST_PRICE 
+ { 
+ /* Multi-value field that contains the traded price on which the RESO contract is done.  Validation Rules No-input field. */ 
+ COST_PRICE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, t24Name=COST.PRICE) 
+ 
+ /* Multi-value field that contains the nominal amount on which the RESO contract is done.  Validation Rules No-input field. */ 
+ NOMINAL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, t24Name=NOMINAL) 
+ 
+ /* Multi-value field that contains the contract id on which the RESO contract is done.  Validation Rules No-input field. */ 
+ CONTRACT_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=14.0, t24Name=CONTRACT.ID) 
+ 
+ /* Multi-value field that contains the portfolio number on which the RESO contract is done.  The suffix is determined by the RESO.MARGIN.SUF value in REPO.PARAMETER file. Validation Rules No-input field */ 
+ COUNTERPARTY -> SCO_PortfolioMaintenance:SEC_ACC_MASTER 
+ @t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=15.0, t24Name=COUNTERPARTY) 
+ } 
+ /* A REPO is a Sale and Repurchase agreement where securities are sold to the counterparty at a fixed price and the seller has a commitment to repurchase those securities at a pre-determined price at a fixed point in time in the future.  The price difference can be seen as the interest to the deposit (or loan if reverse repo), and may be defined as a cash price (the buy back amount) or as a rate (the repo rate).  A Reverse Repo is the opposite of a Repo.  Thus for the two parties in any Repo deal, it will be a Repo deal for one party and a Reverse Repo deal for the other.  The two parties are usually referred to as the seller and the buyer to avoid confusion.The seller is the party who receives cash and delivers securities, and the buyer is the one who makes the loan and receives the securities.  The T24 REPO module supports the recording, processing and administration of both REPO and Reverse REPO transactions.  It incorporates these transactions into the Limit, Accounting and Position Management modules within T24 and supports a wide variety of repo and reverse repo types, such as:  Bond repo  Gilt repo  Equity repo  Bilateral repo  Trilateral repo  Cross currency repo  It also covers options such as:  Multiple securities  Substitution of securities  Early maturities  PSA/ISMA Agreement  The REPO application will only run using the T24 Graphical User Interface. */ 
+ REPO 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* A unique reference number which identifies a particular Repo contract.  The reference has the following format RPyydddnnnnn, where :  RP     =  Application indicator for the Repo application yy     =  The last two digits of the year when the transaction           is processed. ddd    = Julian day number within the year when the Swap          transaction is processed. nnnnn = Five digit sequential number.  The above numbering convention enables 99,999 deals to be struck on any one day, and is a standard T24 contract reference number.  Contract numbers can be generated either manually or automatically. Either the Next Id button (right arrow) or F3 key may be used to retrieve the next available contract id.  Manual input requires a sequence number. The Repo application will automatically generate the seven first digits and append them to the front of the sequence number in order to retrieve the requested transaction.  Access to any Repo transaction from a previous day requires the input of the corresponding julian day and year if the contract has been done in a previous year.  Validation Rules  A maximum of 30 characters may be entered.  This reference number may never be altered. */ 
+ CONTRACT_ID : mml:string PK required 
+ @i18n:Label (en="Contract Id") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=0.0, t24Name=CONTRACT.ID) 
+ 
+ /* This field is used define the characteristics of a REPO contract, and references a record on the REPO.TYPE file.  Whether the contract is a Repo or a Reverse Repo is determined by the REPO.TYPE entered here.  The CUSTOMER.REPO flag on the REPO.TYPE is used to determine if the contract is based from a customer portfolio (where the CUSTOMER.REPO flag is set to yes) or from a trading portfolio (i.e. the banks own portfolio).  Validation Rules  Mandatory input.  A maximum of 8 characters may be entered.  This is a NOCHANGE field.  Must be the key to a valid entry on the REPO.TYPE file. */ 
+ REPO_TYPE -> RP_Config:REPO_TYPE required 
+ @i18n:Label (en="Repo Type") 
+ @i18n:Tooltip (en="Repo Type") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=12, sysNumber=1.0, t24Name=REPO.TYPE) 
+ 
+ /* The counterparty with whom the bank makes the Repo contract.  This information is used to determine the margin portfolio to be used, where applicable, and the account numbers from this portfolio that appear in the CU.ACCOUNT.NO field.  Standard T24 customer field.  Validation Rules  Mandatory input except for customer repos where this field will default from the CUST.PORTFOLIO.  A maximum of 10 characters may be entered.  This is a NOCHANGE field.  Must be the key to a valid entry on the CUSTOMER file.  Must exist on the CUSTOMER.SECURITY file. */ 
+ COUNTERPARTY -> ST_Customer:CUSTOMER 
+ @i18n:Label (en=Counterparty) 
+ @i18n:Tooltip (en="Counterparty with whom the deal is made") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=2.0, t24Name=COUNTERPARTY) 
+ 
+ /* This is the base currenecy (also known as the contractual currency) of the Repo contract.  The currency used for the cash side of the Repo contract, whether loan or deposit, is defined in this field.  The securities defined may be of any currency, regardless of the currency defined here. However, the value of the securities is converted to the currency defined here to compare the total value of the securities to the cash value of the contract.  Standard T24 currency field.  Validation Rules  Mandatory input, will default to the local currency.  This is a NOCHANGE field.  Must be the key to a valid entry on the CURRENCY file. */ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=3.0, t24Name=CURRENCY) 
+ 
+ BUSINESS_CENTRE -> byValue RP_Contract:REPO__BUSINESS_CENTRE * 
+ 
+ /* The date on which the contract is agreed should be entered in this field.  This field defaults to the current business date.  Standard T24 date field.  Validation Rules  A maximum of 11 characters may be entered. */ 
+ TRADE_DATE : mml:string 
+ @i18n:Label (en="Trade Date") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=5.0, t24Name=TRADE.DATE) 
+ 
+ /* Records the date on which the trade is to be effected.  The value date for any transaction can vary from 1 day to 1month depending on the security being traded and the stockexchange at which it is being traded.  Will default to the current business date.  Validation Rules  Up to 9 type D date characters (Standard Date Format in        range 1950-2049).  Can not be less than Trade Date.  Mandatory input */ 
+ VALUE_DATE : mml:string 
+ @i18n:Label (en="Value Date") 
+ @i18n:Tooltip (en="Indicates the date the Portfolios will be updated by the event") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=6.0, t24Name=VALUE.DATE) 
+ 
+ /* The date on which the Repo contract matures. Accepts an input of 0 which signifies and Open Repo, i.e. one where the maturity date is not yet known, which can be replaced with a maturity date at a later date.  On this date the securities will be returned to the seller and the buyer will receive the buy back amount specified on this contract (as defined in the PRINCIPAL.AMOUNT.2 field).  In the case of a REPO contract (i.e. the cash side is a deposit) the bank (as seller) will receive the security from the bank, and the counterparty (as buyer) will receive funds. The amount received by the counterparty is the amount specified in the PRINCIPAL.AMOUNT.2 field of this contract.  There is no default for this field.  Validation Rules  Either a valid date must be entered as a date or a number of weeks or months, i.e. 1W or 2M, in which case the date after the number of weeks or months specified from the value date, taking into consideration the business centres defined, will be created.  Will accept an input of 0 (zero) to indicate an open contract. However when the maturity date of the contract is entered it must be greater or equal to the bank date, unless start of day maturity has been selected in which case the date must be greater than the bank date.  Will accept a date in the past, i.e. less than the bank date, but only for term contracts, not open contracts and only for new contracts not contract amendments.  The user has the option to go back into the original trade and enter an early maturity date. The date entered must be greater or equal to the bank date, unless start of day maturity has been selected in which case the date must be greater than the bank date. This will then trigger the required settlement / SWIFT messages in accordance with the lead time.  The accounting  and SECURITY.POSITIONS on the maturing leg of the trade will be updated by the generation of a SECURITY.TRANSFER record.  Mandatory input.  A maximum of 11 characters may be entered. */ 
+ MATURITY_DATE : RP_Contract:REPO__MATURITY_DATE 
+ @i18n:Label (en="Maturity Date") 
+ @i18n:Tooltip (en="Indicates the Maturity Date of the Transaction") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, t24Name=MATURITY.DATE) 
+ 
+ /* This field holds the price for the first leg of the repo contract, specified in the currency defined in the CURRENCY field. It is this price that governs the movemement of funds that will take place on the VALUE.DATE of the contract.  Where the contract is a Reverse Repo, (the cash side of the contract is a loan) the bank (as buyer) pay the counterparty (as seller) the amount specified in this field.  This price should equate to the market price of the security or securities involved in the contract.  The PRINCIPAL.AMOUNT.1 field is effected in its operation by the fields CALCULATION.LINK, TRANS.TYPE  AUTO.CALC.NOMINAL. The table below shows how each setting changes the field.  This is a standard T24 amount field, and as such excepts standard abbreviations for amounts dependant on language.  Validation Rules  Mandatory input  A maximum of 19 characters may be entered.  This is a NOCHANGE field. */ 
+ PRINCIPAL_AMOUNT_1 : mml:string 
+ @i18n:Label (en=Investment) 
+ @i18n:Tooltip (en="Principal Amount of the Repo Deal") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=8.0, t24Name=PRINCIPAL.AMOUNT.1) 
+ 
+ /* This field holds the price for the second leg of the repo contract, specified in the currency defined in the CURRENCY field. It is this price that governs the movemement of funds that will take place on the MATURITY.DATE of the contract.  Where the contract is a Reverse Repo, (the cash side of the contract is a loan) the bank (as buyer) receives the amount specified in this field from the counterparty (as seller).  This price should equate to the market price of the security or securities involved in the contract (the value defined in PRINCIPAL.AMOUNT.1) PLUS the repo interest.  The REPO.RATE is automatically calculated when an amount is entered in this field.  In the case of OPEN.REPOs, this field remains blank as long as the Maturity.Date field holds a value of 0. When a maturity date is input, this fields gets populated with the value defined in the PRINCIPAL.AMOUNT.1 PLUS the interest for the period starting from the date of input of the maturity date till the date of maturity.  This is a standard T24 amount field, and as such excepts standard abbreviations for amounts dependant on language.  Validation Rules  Information must be entered either in this field or the         REPO.RATE.  A maximum of 19 characters may be entered.  This is a NOCHANGE field.  Cannot enter a value in the case of open contracts (i.e.         MATURITY.DATE is 0) */ 
+ PRINCIPAL_AMOUNT_2 : mml:string 
+ @i18n:Label (en="Repurchase Price") 
+ @i18n:Tooltip (en="Maturity Amount/Repurchase Amount of the Deal") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, t24Name=PRINCIPAL.AMOUNT.2) 
+ 
+ /* The interest basis to be used when calculating the REPO.RATE from the PRINCIPAL.AMOUNT.2, or vice versa.  Defaults via the CURRENCY file.  Can accept the following types:  For illustrations of all supported  INTEREST.BASIS types see: INTEREST.BASIS If basis S is used then the system will allow an entry in  REPO.INTEREST field. The value input must be within a tolerance of 5% when compared with what has been defaulted by the system, i.e. the product of principal value * rate * period (the basis is obtained from the CURRENCY table). An override will be required where the tolerance is greater than 1% but below 5 %; and a variance greater than 5% will be rejected.  Validation Rules  Mandatory input.  A maximum of 1 character may be entered.  This is a NOCHANGE field.  The following values are permitted: A, B, C, D, E , F and S.  The special (S) Interest calculation method is only allowed for fixed interest rate contracts.  The Special (S) Interest calculation method is not allowed for Call and Notice contracts. */ 
+ INTEREST_BASIS -> ST_RateParameters:INTEREST_BASIS 
+ @i18n:Label (en="Interest Basis") 
+ @i18n:Tooltip (en="Indicates the interest day basis") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=10.0, t24Name=INTEREST.BASIS) 
+ 
+ /* The rate of interest for the REPO contract.  Where entered, this rate is used to calculate the PRINCIPAL.AMOUNT.2, which is the repayment amount to be made at maturity of the contract, using the interest basis defined.  In the case of OPEN REPOs only, allows change of rate as long as the value in the Maturity Date field is 0  Standard T24 rate field.  Validation Rules  Either this field or PRINCIPAL.AMOUNT.2 must be entered.  A maximum of 11 characters may be entered.  Is a NOCHANGE field for all types of REPOs except OPEN         REPOs.  In the case of OPEN REPOs, allows change of rate as long         as the value in the Maturity Date field is 0. Once a         valid maturity date is input, this field becomes a         NOCHANGE field.  Input is must in the case of open contracts */ 
+ REPO_RATE : mml:string 
+ @i18n:Label (en=Rate) 
+ @i18n:Tooltip (en="Rate of Interest for the Repo Contract") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=11.0, t24Name=REPO.RATE) 
+ 
+ /* The category used to define the cash side of the transaction, and the overall product category for the REPO contract.  This value is taken from the REPO.TYPE.  Standard T24 numeric field.  Validation Rules  Must be in the range 21200 - 21099.  Mandatory input.  A maximum of 5 characters may be entered.  This is a NOCHANGE field.  Must be the key to a valid entry on the CATEGORY file. */ 
+ PRODUCT_CATEGORY -> ST_Config:CATEGORY 
+ @i18n:Label (en="Product Category") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=5, sysNumber=12.0, t24Name=PRODUCT.CATEGORY) 
+ 
+ /* The agreement type for the contract.  Both legs of a REPO or Reverse REPO contract are transacted under the same agreement.  This field refers to the REPO.AGREEMENT.TYPE file, where standard agreements should be defined.  If the REPO contract is not subject to a standard agreement type, then information must be defined in the CONDITION field.  The CONDITION field may be used to hold information in addition to the agreement type defined here.  For BSB/SBB, this field will be optional.  Validation Rules  A maximum of 8 characters may be entered.  Must be the key to a valid entry on the REPO.AGREEMENT.TYPE file.  Either an AGREEMENT.TYPE or CONDITIONs must be defined. */ 
+ AGREEMENT_TYPE -> RP_Config:REPO_AGREEMENT_TYPE 
+ @i18n:Label (en="Agreement Type") 
+ @i18n:Tooltip (en="Agreement Type Eg. ISDA, FRABBA, etc.") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=8, sysNumber=13.0, t24Name=AGREEMENT.TYPE) 
+ 
+ CONDITION -> byValue RP_Contract:REPO__CONDITION * 
+ 
+ /* The LIMIT.REFERENCE applicable to the REPO contract and the cash side of the contract is defined here.  For Reverse repo contracts this limit will be updated as a loan.  However, Repo contracts can update this limit as either a loan or deposit.  This setting is defined in the REPO.PARAMETER file.  The LIMIT.REFERENCE must be defined in LIMIT.PARAMETER both for REPO and for MM.MONEY.MARKET, using the category field as a decision field accordingly.  The default value is determined by the LIMIT.PARAMETER record.  Validation Rules  A maximum of 10 characters may be entered.  This is a NOCHANGE field.  The following values are permitted:             2 */ 
+ LIMIT_REFERENCE : mml:string 
+ @i18n:Label (en="Limit Reference") 
+ @i18n:Tooltip (en="Indicates the limit that will be updated") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=15.0, t24Name=LIMIT.REFERENCE) 
+ 
+ /* Repo contracts may be between two parties (simply the buyer and the seller) and are referred to as bilateral contracts, or may involve a third party.  Contracts that involve a third party are known as Trilateral contracts and require the definition of THIRD.PARTY.  Where the DEAL.TYPE is BILATERAL, the THIRD.PARTY field will be blanked out.  This value should be defaulted from a VERSION.  For BSB/SBB, this field will be populated automatically with either BUY/SELL.BACK orSELL/BUY.BACK by the system itself and will not be open for user change.  For INTERNAL or SBL trades (as set in field RT.DEAL.TYPE) this field must beset to BILATERAL.  Validation Rules  Mandatory input.  A maximum of 10 characters may be entered.  This is a NOCHANGE field.  The following values are permitted:       BILATERAL,      TRILATERAL, BUY/SELL.BACK or SELL/BUY.BACK */ 
+ DEAL_TYPE : RP_Contract:REPO__DEAL_TYPE 
+ @i18n:Label (en="Deal Type") 
+ @i18n:Tooltip (en="Type of Repo deal") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=15, sysNumber=16.0, t24Name=DEAL.TYPE) 
+ 
+ /* Where the DEAL.TYPE is TRILATERAL, this field holds the THIRD.PARTY in the repo contract.  Where the DEAL.TYPE is BILATERAL, this field will be set to blank.  Validation Rules  A maximum of 10 characters may be entered.  This is a NOCHANGE field.  Must be defined as a DEPOSITORY on the CUSTOMER.SECURITY file. */ 
+ THIRD_PARTY -> SC_Config:CUSTOMER_SECURITY 
+ @i18n:Label (en="Third Party") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=17.0, t24Name=THIRD.PARTY) 
+ 
+ /* This field has been added in Release G14.1.  This field is used to make cash based margin calls. If a margin call is to be made in cash, by increasing or decreasing the cash amount in  Principal.Amt.1, then an input would be made in this field. A negative sign can be used for decrease in principal.  For margin calls made in securities, i.e. by increasing or decreasing the number of nominals, the user will be required to change the number of nominals in the NEW.NOMINALS field. The user may also substitute the security at the time of a margin call.  Any value input in the  Prin.Increase field will result in the field  Projected.Cash.Amt being populated with the total of the Principal.Amt.1 + Prin.Increase  The date on which the margin call is to be effected is mentioned in the MGN.CALL.EFF.DATE field. During the Close of Business processing on the MGN.CALL.EFF.DATE, the PRINCIPAL.AMT.1 field is updated with the new PRINCIPAL.AMT.1 (being the PRINCIPAL.AMT.1 + PRIN.INCREASE) and the field PROJECTED.CASH.AMT field becomes null.  Validation Rules  Numeric input  Can accept either a positive or negative sign. */ 
+ PRIN_INCREASE : mml:string 
+ @i18n:Label (en="Principal Increase") 
+ @i18n:Tooltip (en="Indicates the increase / decrease in principal") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=18.0, t24Name=PRIN.INCREASE) 
+ 
+ /* Where the special (S) interest basis is used the system is unable to determine the amount of interest due for a principal increase and this field allows the user to specifiy the interest amount. Unless the interest basis is S the user will not be able to amend this field from the value calculated by the system. */ 
+ PRIN_INCREASE_INT : mml:string 
+ @i18n:Label (en="Principal Increase Interest") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=19.0, t24Name=PRIN.INCREASE.INT) 
+ 
+ /* A date field. Becomes inputtable only if  (1) a value is input in the PRIN.INCREASE field of an Authorised Repo transaction OR (2) the security in the  NEW.SEC.CODE field is substituted OR (3) the nominals in the NEW.NOMINALS field is changed.  This field is used to specify the date with effect from which the substitution of the security or a margin call becomes effective.  Validation Rules  Should lie between the VALUE.DATE and       MATURITY.DATE. */ 
+ MGN_CALL_EFF_DATE : mml:string 
+ @i18n:Label (en="Substitution Eff Date") 
+ @i18n:Tooltip (en="Margin Call Effective Date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=20.0, t24Name=MGN.CALL.EFF.DATE) 
+ 
+ /* Specifies if payment advice needs to be sent using a financial message for cash settlement using the appropriate SWIFT message.  Validation Rules  Valid inputs are YES and NO  Default is NO */ 
+ SEND_PAYMENT : RP_Contract:REPO__SEND_PAYMENT 
+ @i18n:Label (en="Send Payment") 
+ @i18n:Tooltip (en="Send payment - Y/N ?") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=21.0, t24Name=SEND.PAYMENT) 
+ 
+ /* New field added with effect from release G14.1.0  Holds the new value of the PRINCIPAL.AMT.1 that would result on the MGN.CALL.EFF.DATE  for a cash margin call.  This amount will replace PRINCIPAL.AMOUNT.1  Validation Rules  NOINPUT field */ 
+ PROJ_CASH_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=22.0, t24Name=PROJ.CASH.AMT) 
+ 
+ NEW_SEC_CODE -> byValue RP_Contract:REPO__NEW_SEC_CODE * 
+ 
+ /* For non customer repo contract, as defined on the REPO.TYPE field CUSTOMER.REPO is not Yes, the portfolio that is the source of the securities for a repo contract is defined here.  Where the REPO.TYPE is set as a CUSTOMER.REPO = Yes, this field should remain empty.  Validation Rules  A maximum of 14 characters may be entered.  This is a NOCHANGE field.  Must be the key to a valid entry on the SEC.ACC.MASTER file.  Can be either a Bank (own book/dealer book) portfolio or a customer portfolio. If a non Bank portfolio is selected then an override message will be generated. */ 
+ BANK_PORTFOLIO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER 
+ @i18n:Label (en="Own Book Portfolio") 
+ @i18n:Tooltip (en="Own Book Portfolio from which security is repo\'d") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=54.0, t24Name=BANK.PORTFOLIO) 
+ 
+ /* For customer repos, or INTERNAL repo types this field should remain blank.  For non customer repos, the portfolio used to evaluate the REPO contract is defined here. Such valuation should be performed using the SC.VAL.REPO, or some variation thereof.  The default value for this field is taken from theCOUNTERPARTY and the MARGIN.PORT.SUFFIX defined in the REPO.TYPEfor this contract.  This portfolio is used to provide the defaults for the NEW.CU.ACCT.NO field.  Accounts that are defined as part of the margin portfolio mustnot be defined as drawdown, interest liquidation or principal liquidation accounts.  For BSB/SBB type REPOs, this field will be NULL  Validation Rules  The suffix used must be defined in the REPO.PARAMETER file, either in the REPO.MARGIN.SUF field for Repo contracts, or in the RESO.MARGIN.SUF for Reverse Repo contract, unless the contract is a Customer repo, Stock Borrow/Lend or an Internal repo (as defined in REPO.TYPE)  A maximum of 14 characters may be entered.  This is a NOCHANGE field.  Must be the key to a valid entry on the SEC.ACC.MASTER file. */ 
+ MARGIN_PORTFOLIO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER 
+ @i18n:Label (en="Margin Portfolio") 
+ @i18n:Tooltip (en="Margin Portfolio of the Deal for Valuation") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=55.0, t24Name=MARGIN.PORTFOLIO) 
+ 
+ /* The initial margin of the contract, where applicable.  The initial margin of a REPO contract can be used as a device to undervalue the securities involved; hence to cover the risk of the adverse movement of the securities which may arise before a margin call can be paid.  This field is used to calculate the INIT.MARGIN.AMT from the principal of the REPO contract defined in PRINCIPAL.AMOUNT.1.  Standard T24 rate field.  Validation Rules  A maximum of 11 characters may be entered. */ 
+ INIT_MARGIN_RATE : mml:string 
+ @i18n:Label (en="Initial Margin Rate") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=56.0, t24Name=INIT.MARGIN.RATE) 
+ 
+ /* The account across which movements of cash will be effected upon the value date of the contract is defined in this field.  Where the REPO.TYPE is defined as being a CUSTOMER.REPO, the internal accounts that are used to record the cash side of the deal are defined here. The category that is used as the default for the internal account is defined on the REPO.TYPE record.  Otherwise - where the REPO.TYPE is  The contents of this field is used as the default value for the fields INT.LIQ.ACCT and PRIN.LIQ.ACCT.  Validation Rules  Must NOT be present as a margin account.  A maximum of 16 characters may be entered.  Must be the key to a valid entry on the ACCOUNT file. */ 
+ DRAWDOWN_ACCOUNT -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Drawdown Account") 
+ @i18n:Tooltip (en="Drawdown account of the deal") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=57.0, t24Name=DRAWDOWN.ACCOUNT) 
+ 
+ /* Identifies the account number where entries are made for the reimbursement of the principal at liquidation or MATURITY DATE.  Validation Rules  A maximum of 16 characters may be entered.  Must be the key to a valid entry on the ACCOUNT file. */ 
+ PRIN_LIQ_ACCT -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Prin Liq Acct") 
+ @i18n:Tooltip (en="Principal Liquidation account of the deal") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=58.0, t24Name=PRIN.LIQ.ACCT) 
+ 
+ /* Identifies the Beneficiary Bank that is to be used for the Principal Amount of a REPO contract at maturity or for a Reverse REPO contract Drawdown when the customer has requested external delivery of the proceeds of the transaction.  This field is used when the customer does not require the funds to be credited to his current account but instead requests an external delivery of the funds to a Bank different to the one where you maintain your Nostro account.  Validation Rules  A maximum of 10 characters may be entered.  Must be the key to a valid entry on the CUSTOMER file. */ 
+ PRIN_BEN_BANK_1 -> ST_Customer:CUSTOMER 
+ @i18n:Label (en="Prin Ben Bank") 
+ @i18n:Tooltip (en="Principal Beneficiary Bank for payment") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=59.0, t24Name=PRIN.BEN.BANK.1) 
+ 
+ /* Contains the Customer reference for the second Beneficiary Bank for the Principal Amount in the case of contracts involving four-party transfers of funds.  Validation Rules  A maximum of 10 characters may be entered.  Must be the key to a valid entry on the CUSTOMER file. */ 
+ PRIN_BEN_BANK_2 -> ST_Customer:CUSTOMER 
+ @i18n:Label (en="Prin Ben Bank.2") 
+ @i18n:Tooltip (en="2nd bank involved in 4 party transfer of principal") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=60.0, t24Name=PRIN.BEN.BANK.2) 
+ 
+ PRIN_ADDRESS -> byValue RP_Contract:REPO__PRIN_ADDRESS * 
+ 
+ BENEF_PRIN_ACCT -> byValue RP_Contract:REPO__BENEF_PRIN_ACCT * 
+ 
+ /* Identifies the account number where entries are made for the payment of interest.  Defaults from DRAWDOWN.ACCOUNT.  Input in this field will only be necessary when the disposal of the interest is different from the disposal of the principal.  This field may be changed at any time during the life of the contract but the change will only have an effect on future Interest  payments.  Validation Rules  A maximum of 16 characters may be entered.  Must be the key to a valid entry on the ACCOUNT file. */ 
+ INT_LIQ_ACCT -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=63.0, t24Name="INT.LIQ.ACCT ") 
+ 
+ /* For the cash side of the REPO  contract, identifies the Beneficiary Bank which is to be used for the payment of the Interest Amount of Deposit contract types when the customer has requested external delivery of the interest resulting from the transaction.  This field is used when the customer does not require the funds to be credited to his current account but instead requests an external delivery of the funds to a Bank different to the one where you maintain your Nostro account.  Validation Rules  A maximum of 10 characters may be entered.  Must be the key to a valid entry on the CUSTOMER file. */ 
+ INT_BEN_BANK_1 -> ST_Customer:CUSTOMER 
+ @i18n:Label (en="Interest Beneficiary Bank") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=64.0, t24Name=INT.BEN.BANK.1) 
+ 
+ /* For the cash side of the REPO contract, contains the customer reference for the second Beneficiary Bank for the Interest Amount.  Used where contracts involve four party transfers of funds and where disposal of interest on Deposits will be different from disposal of principal.  Validation Rules  A maximum of 10 characters may be entered.  Must be the key to a valid entry on the CUSTOMER file. */ 
+ INT_BEN_BANK_2 -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=65.0, t24Name=INT.BEN.BANK.2) 
+ 
+ INT_ADDRESS -> byValue RP_Contract:REPO__INT_ADDRESS * 
+ 
+ BEN_INT_ACCT -> byValue RP_Contract:REPO__BEN_INT_ACCT * 
+ 
+ OLD_SEC_CODE -> byValue RP_Contract:REPO__OLD_SEC_CODE * 
+ 
+ /* This field is only used where the CUSTOMER.REPO flag of the REPO.TYPE is set to Yes. Otherwise this field becomes no input.  For CUSTOMER.REPO contracts, the portfolio that is the source of, or will receive, the securities side of the contract is defined here.  Validation Rules  Must be a portfolio that belongs to the COUNTERPARTY  Mandatory for customer repos  Noinput for non customer repo contracts */ 
+ CUST_PORTFOLIO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER 
+ @i18n:Label (en="Customer Portfolio") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=14, sysNumber=98.0, t24Name=CUST.PORTFOLIO) 
+ 
+ /* Only allowed for customer repo contracts.  Specifies the broker or depository that forms the other side of a customer repo contract.  Validation Rules  Mandatory input for customer repo contracts  No input allowed for non customer repo contracts */ 
+ BROKER_DEPO -> SC_Config:CUSTOMER_SECURITY 
+ @i18n:Label (en="Broker Depository") 
+ @i18n:Tooltip (en="Identifies the broker depository") 
+ @t24:i (align=R, inputBehaviour=F, maxLength=14, sysNumber=99.0, t24Name=BROKER.DEPO) 
+ 
+ /* Only allowed for Customer Repo contracts.  This is the Bank interest rate.  Validation Rules  Standard numeric entry.  No input if not a customer repo contract. */ 
+ BANK_INT_RATE : mml:string 
+ @i18n:Label (en="Bank Int Rate") 
+ @i18n:Tooltip (en="Indicates the bank interest rate") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=11, sysNumber=100.0, t24Name=BANK.INT.RATE) 
+ 
+ /* This is the difference between the Bank interest rate and the customer interest rate (Repo Rate).  Will only be populated for customer repo contracts.  Validation Rules  Noinput.  Standard T24 Rate field. */ 
+ BANK_SPREAD_RATE : mml:string 
+ @i18n:Label (en="Bank Spread Rate") 
+ @i18n:Tooltip (en="Indicates the bank spread rate") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=101.0, t24Name=BANK.SPREAD.RATE) 
+ 
+ /* This is the Banks spread. Calculated using the BANK.SPREAD.RATE.  Validation Rules  Noinput.  Only applicable to customer repo contracts. */ 
+ BANK_SPREAD : mml:string 
+ @i18n:Label (en="Bank Spread") 
+ @i18n:Tooltip (en="Specifies the bank spread amount") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=102.0, t24Name=BANK.SPREAD) 
+ 
+ SEND_NOTICE -> byValue RP_Contract:REPO__SEND_NOTICE * 
+ 
+ /* This field records the time when the contract has taken place  Validation Rules  Up to 9 T24 characters  Recorded in HH:MM format. The : may be omitted  Input of three valid characters will attract a leading         0 */ 
+ TRADE_TIME : mml:string 
+ @i18n:Label (en="Trade Time") 
+ @i18n:Tooltip (en="Records the time when the contract has taken place") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=104.0, t24Name=TRADE.TIME) 
+ 
+ /* This field specifies the number of working days, in advance of the Process Date, that a message is to be sent by RP.DELIVERY.  If specified, its value will be used instead of the value specified in the corresponding EB.ACTIVITY field DAYS.PRIOR.EVENT.  Validation Rules  1-3 Numeric characters.  Optional input  Defaults to null (0) */ 
+ DAYS_DELIVERY : mml:string 
+ @i18n:Label (en="Delivery Days") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=105.0, t24Name=DAYS.DELIVERY) 
+ 
+ /* The counterparty account number to be used for debiting and crediting cash. */ 
+ BR_ACCOUNT_NO -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Br Sett Acc") 
+ @i18n:Tooltip (en="Broker Settlement Account Number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=106.0, t24Name=BR.ACCOUNT.NO) 
+ 
+ /* The currency of BR.ACCOUNT.NO. */ 
+ BR_ACCOUNT_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @i18n:Label (en="Br Sett Acc Ccy") 
+ @i18n:Tooltip (en="Currency of the broker account number") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=107.0, t24Name=BR.ACCOUNT.CCY) 
+ 
+ /* Tax Code for Customer Repo contracts  Validation Rules  Must be a valid id on TAX record. */ 
+ TAX_CODE : mml:string 
+ @i18n:Label (en="Tax Code") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=108.0, t24Name=TAX.CODE) 
+ 
+ /* For customer repo contracts only.  The calculated tax amount based on the interest amount.  Validation Rules  No Input field. */ 
+ TAX_AMT : mml:string 
+ @i18n:Label (en="Tax Amount") 
+ @i18n:Tooltip (en="Indicates the tax amount") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=109.0, t24Name=TAX.AMT) 
+ 
+ /* For customer repo contracts only.  The calculated tax amount based on the interest amount in the local currency.  Validation Rules  No Input field. */ 
+ TAX_AMT_LCY : mml:string 
+ @i18n:Label (en="Tax Amount Local") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=110.0, t24Name=TAX.AMT.LCY) 
+ 
+ /* Specifies whether the interest has to be capitalized on a daily basis for the open contracts. Gets defaulted to YES in the case of open repos.  The value in this field gets mapped to the CAPITALISATION field in the child MONEY.MARKET contract.  Validation Rules  NOINPUT field */ 
+ CAPITALISATION : mml:string 
+ @i18n:Label (en=Capitalisation) 
+ @i18n:Tooltip (en="Capitalisation of interest") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=111.0, t24Name=CAPITALISATION) 
+ 
+ /* Specifies the next interest capitalization cycle in the case of open contracts. This is defaulted to DAILY frequency.  Validation Rules  NOINPUT field */ 
+ MM_INT_DUE_DATE : mml:string 
+ @i18n:Label (en="Money Market Interest Due Date") 
+ @i18n:Tooltip (en="Money Market Interest Due Date") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=112.0, t24Name=MM.INT.DUE.DATE) 
+ 
+ /* This field will default from the setting stored in the REPO.PARAMETER record but can be manually changed at any time before the Contract is authorised.  Validation Rules  YES or NO  Defaults from the CALCULATION.LINK field in the REPO.PARAMETER         record. */ 
+ CALCULATION_LINK : RP_Contract:REPO__CALCULATION_LINK 
+ @i18n:Label (en="Calculation Link") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=113.0, t24Name=CALCULATION.LINK) 
+ 
+ /* This dictates the calculation method that will be used to calculate the initial margin for securities. The two supported calculations are as follows:  SC.INIT.MGN.AMT = Market Value of Security * Margin  SC.INIT.MGN.AMT = (GROSS.AMOUNT + ACCRUED.INT.AMT) * (SC.INIT.MGN.RTE / 100)  SC.INIT.MGN.AMT = Market Value of Security * Margin  SC.INIT.MGN.AMT = (GROSS.AMOUNT + ACCRUED.INT.AMT) * (1 - (1 / 1 + (SC.INIT.MGN.RTE / 100))  Validation Rules  STANDARD or GMRA  NOINPUT when TRANS.TYPE is set to CASH */ 
+ SC_INIT_MGN_METHOD : RP_Contract:REPO__SC_INIT_MGN_METHOD 
+ @i18n:Label (en="Interest Margin Method") 
+ @i18n:Tooltip (en="Interest Margin Method") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=8, sysNumber=114.0, t24Name=SC.INIT.MGN.METHOD) 
+ 
+ /* This field determines if the contract will be CASHdriven or SECURITY driven.  For cash driven contracts the number of securities is limited to one. If a contract will contain more than one security it must be a security driven contact. The limitation on cash driven contracts only applies to the initial input, once authorised any number of securities may be used when executing a margin call.  Validation Rules  CASH or SECURITY  Mandatory Input */ 
+ TRANS_TYPE : RP_Contract:REPO__TRANS_TYPE 
+ @i18n:Label (en="Trans Type") 
+ @i18n:Tooltip (en="Indicates the Transaction Type") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=8, sysNumber=115.0, t24Name=TRANS.TYPE) 
+ 
+ MM_LOCREF_NAME -> byValue RP_Contract:REPO__MM_LOCREF_NAME * 
+ 
+ STR_LOCREF_NAME -> byValue RP_Contract:REPO__STR_LOCREF_NAME * 
+ 
+ /* Specifies whether REPO has to mature at the start of day of the maturity date.  Gets defaulted to YES if the field PROCESS.REPO.SOD in REPO.PARAMETER is set to MATURITY or BOTH.  The value in this field is mapped to the MATURE.AT.SOD field in the child MONEY.MARKET contract.  Validation Rules  NOINPUT field */ 
+ MATURE_AT_SOD : mml:string 
+ @i18n:Label (en="Mature at Start Of Day") 
+ @i18n:Tooltip (en="Whether to mature at Start Of Day or not") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=120.0, t24Name=MATURE.AT.SOD) 
+ 
+ /* Used by the asset management module when determining risk analysis. */ 
+ COUNTRY_RISK -> ST_Config:COUNTRY 
+ @i18n:Label (en="Country Risk") 
+ @i18n:Tooltip (en="The country risk involved in contract") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=121.0, t24Name=COUNTRY.RISK) 
+ 
+ /* This field determines if the REPO transaction should be considered for the netting of Delivery Instructions.  The following table shows the available settings for this field along with their consequences  Validation Rules  YES, NO or NULL  For INTERNAL or SBL trades (as set in RT.DEAL.TYPE) this field will       default to NO, and cannot be set to NET. */ 
+ GROUP_STATUS : RP_Contract:REPO__GROUP_STATUS 
+ @i18n:Label (en="Group Status") 
+ @i18n:Tooltip (en="Etat de groupe") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=122.0, t24Name=GROUP.STATUS) 
+ 
+ BR_AGENT -> byValue RP_Contract:REPO__BR_AGENT * 
+ 
+ /* Records which Depository the Counterparty is using. Any input in this field is mapped to the  BROKER.DEPO  field in the  SECURITY.TRANSFER  record.  This field is used to create settlement instructions for the Clearing systems which have been set up within the Securities Module of any Particular Bank.  If any entry exists in the  BR.DEF.DEPO  in the  CUSTOMER.SECURITY  record of the Counterparty, that value will be defaulted in this field provided the Depo mentioned in the  NEW.DEPO  field has been setup in the  SC.CLEARING.SYSTEM  application.  Validation Rules  1-6 numeric character Customer Id. or 3-10     type AAA (uppercase alpha or numeric or .) character Mnemonic     Customer Id. or 1-35 type A (alphanumeric) characters, free format input. */ 
+ COUNTERPARTY_DEPO : mml:string 
+ @i18n:Label (en="Counterparty Depository") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=125.0, t24Name=COUNTERPARTY.DEPO) 
+ 
+ /* Records which account number of the Depository the Counterparty is using. Any input in this field is mapped to the  BR.SEC.DEPOT.AC  field in the  SECURITY.TRANSFER  record.  This field is used to create settlement instructions for the Clearing systems which have been set up within the Securities Module of any particular Bank.  If any entry exists in the  BR.SEC.DEPOT.AC  in the  CUSTOMER.SECURITY  record of the Counterparty, that value will be defaulted in this field provided the Depo mentioned in the preceding  COUNTERPARTY.DEPO  field has been setup in the  SC.CLEARING.SYSTEM  application.  Validation Rules */ 
+ CPTY_SEC_DEPO_AC : mml:string 
+ @i18n:Label (en="Counterparty Depo Acc") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=126.0, t24Name=CPTY.SEC.DEPO.AC) 
+ 
+ /* A no-input field. If the value in the  Repo.rate  field is negative, this field is defaulted with a valueYES. If the interest rate in the  Repo.rate  field is positive this field assumes a value NO.  The value in this field is mapped to the field  NEGATIVE.RATE  in the  MM.MONEY.MARKET  Validation Rules */ 
+ NEGATIVE_RATE : RP_Contract:REPO__NEGATIVE_RATE 
+ @i18n:Label (en="Negative Rate") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=127.0, t24Name=NEGATIVE.RATE) 
+ 
+ /* This field is used to determine the place of settlement in MT540-MT543 messages.  Validation Rules */ 
+ PSET : mml:string 
+ @i18n:Label (en="Place of Settlement") 
+ @i18n:Tooltip (en="Place of settlement") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=15, sysNumber=128.0, t24Name=PSET) 
+ 
+ /* This field is used to cancel an unsettled margin call or maturity instructions.  If a margin call was the last action then the associated SECURITY.TRANSFER or FUNDS.TRANSFER contracts will be reversed. If a cash margin call has been through the MM.MONEY.MARKET application then this cannot be cancelled using this field.  If the last action was entry of a maturity date for an open repo then the maturity date will be reset to 0.  Validation Rules  YES or NO  Can only be YES if the last action was either the entry of a maturity     date for an open contract or a cash/security margin call.  If the maturing SECURITY.TRANSFER records have been generated then they     cannot be cancelled. */ 
+ CANCEL_MAT_CALL : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=129.0, t24Name=CANCEL.MAT.CALL) 
+ 
+ /* This field will be mapped through to FUNDS.TRANSFER field TRANSACTION.TYPE. Only used if making a cash margin call using FUNDS.TRANSFER  Validation Rules  NOINPUT  Populated from the same field in the REPO.TYPE application on entry of     the REPO.TYPE field. */ 
+ FT_TRANS_TYPE : mml:string 
+ @i18n:Label (en="FT Transaction Type") 
+ @i18n:Tooltip (en="FT Transaction Type") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=130.0, t24Name=FT.TRANS.TYPE) 
+ 
+ ACTIVITY_CODE -> byValue RP_Contract:REPO__ACTIVITY_CODE * 
+ 
+ /* This is the amount of Initial Margin that is related to the Cash amount entered in PRINCIPAL.AMOUNT.1.  This field will only get populated if the TRANS.TYPE is set to CASH  the INIT.MARGIN.RATE is set.  Validation Rules  A maximum of 19 characters may be entered.  This is a NOINPUT field. */ 
+ INIT_MARGIN_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=135.0, t24Name=INIT.MARGIN.AMT) 
+ 
+ /* Standard T24 numeric field.  For BSB/SBB, this field will be NULL  Validation Rules  A maximum of 3 characters may be entered.  This is a NOINPUT field. */ 
+ MARGIN_PORT_SUFFIX : mml:string 
+ @i18n:Label (en="Margin Port Suffix") 
+ @i18n:Tooltip (en="Margin Port Suffix") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=136.0, t24Name=MARGIN.PORT.SUFFIX) 
+ 
+ /* The BROKER.NO is defaulted from the COUNTERPARTY and is used as the BROKER for the security side of the REPO contract.  Validation Rules  This is a NOINPUT field.  Must be the key to a valid entry on the CUSTOMER.SECURITY file. */ 
+ BROKER_NO -> SC_Config:CUSTOMER_SECURITY 
+ @i18n:Label (en=Broker/Contrepartie) 
+ @i18n:Tooltip (en="Broker/Contrepartie of the Repo Deal") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=137.0, t24Name=BROKER.NO) 
+ 
+ /* The REPO.TYPE of the contract is used to populate this field, and is used to broadly identify the contract as either a Repo contract or as a Reverse Repo contract.  For BSB/SBB, this field will be NULL  Validation Rules  This is a NOINPUT field.  The following values are permitted:       LOAN      DEPOSIT */ 
+ TRANSACTION_INDEX : RP_Contract:REPO__TRANSACTION_INDEX 
+ @i18n:Label (en="Transaction Index") 
+ @i18n:Tooltip (en="Identifies the transaction either as Repo or Reso") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=7, sysNumber=138.0, t24Name=TRANSACTION.INDEX) 
+ 
+ /* The transfer of securities under the REPO application are without charge. This field is used for information purposes to ensure that there are no charges on the underlying SECURITY.TRANSFER deals.  Validation Rules  This is a NOINPUT field. */ 
+ TRANSFER_CHARGES : mml:string 
+ @i18n:Label (en="Transfer Charges") 
+ @i18n:Tooltip (en="Transfer Charges") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=139.0, t24Name=TRANSFER.CHARGES) 
+ 
+ /* This field will be deaulted from the REPO.TYPE application.  This sets the Delivery Instructions for the transfer of securities effected under the REPO contract.  Validation Rules  Must be the key to a valid entry on the SC.DEL.INSTR file.  Mandatory Input */ 
+ DELIVERY_INSTR -> SC_Config:SC_DEL_INSTR 
+ @i18n:Label (en="Delivery Instruction") 
+ @i18n:Tooltip (en="Delivery Instruction for the Repo trades") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=140.0, t24Name=DELIVERY.INSTR) 
+ 
+ /* The transfer type that will be used to include a security in the REPO contract is defined here, and is dependant on the TRANSACTION.INDEX of the REPO.TYPE used by the transaction.  Where the REPO contract is a Reverse REPO - the TRANSACTION.INDEX is set to LOAN - this field will use the transfer type TRI.  Where the REPO contract is REPO - the TRANSACTION.INDEX is set to DEPOSIT - this field will use the transfer type TRO.  Validation Rules  This is a NOINPUT field.  Must be the key to a valid entry on the SC.TRANS.NAME         file. */ 
+ SC_TRANS_TYPE -> SC_Config:SC_TRANS_NAME 
+ @i18n:Label (en="Security Transfer Type") 
+ @i18n:Tooltip (en="Security Transfer Type") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=141.0, t24Name=SC.TRANS.TYPE) 
+ 
+ /* The transfer type that will be used to remove a security from the REPO contract is defined here, and is dependant on the TRANSACTION.INDEX of the REPO.TYPE used by the transaction.  Where the REPO contract is a Reverse REPO - the TRANSACTION.INDEX is set to LOAN - this field will use the transfer type TRO.  Where the REPO contract is REPO - the TRANSACTION.INDEX is set to DEPOSIT - this field will use the transfer type TRI.  Validation Rules  This is a NOINPUT field.  Must be the key to a valid entry on the SC.TRANS.NAME         file. */ 
+ SC_REV_TRANS_TYPE -> SC_Config:SC_TRANS_NAME 
+ @i18n:Label (en="Security Reverse Transfer Type") 
+ @i18n:Tooltip (en="Used for removing the security from repo contract") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=142.0, t24Name=SC.REV.TRANS.TYPE) 
+ 
+ /* The amount of interest for the REPO contract is held here.  This is the calculated interest amount, being the difference between the principal amount of the contract (PRINCIPAL.AMOUNT.1) and the settlement amount (PRINCIPAL.AMOUNT.2).  The settlement amount may be calculated from the REPO.RATE.  Validation Rules  A maximum of 19 characters may be entered.  This is a NOINPUT field. */ 
+ INTEREST_AMOUNT : mml:string 
+ @i18n:Label (en="Interest Amt") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=143.0, t24Name=INTEREST.AMOUNT) 
+ 
+ /* The interest basis that is used on the underlying loan or deposit raised by the REPO contract.  Where a REPO.RATE is entered, this field will contain the INTEREST.BASIS specified on the REPO contract. Where the PRINCIPAL.AMOUNT.2 is entered, this field will contain S.  For BSB/SBB, this field will be NULL  Validation Rules  This is a NOINPUT field. */ 
+ MM_INT_BASIS : mml:string 
+ @i18n:Label (en="Money Market Interest Basis") 
+ @i18n:Tooltip (en="Money Market Interest Basis") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=144.0, t24Name=MM.INT.BASIS) 
+ 
+ /* For the cash side of the REPO contract, a MM.MONEY.MARKET deal is raised.  The key to this deal is held in this field.  For BSB/SBB, this field will be NULL  Validation Rules  This is a no input, no copy field. */ 
+ MM_CONTRACT_ID : mml:string 
+ @i18n:Label (en="MM Ref") 
+ @i18n:Tooltip (en="Reference of MM contract created by system") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=14, sysNumber=145.0, t24Name=MM.CONTRACT.ID) 
+ 
+ ST_CONTRACT_ID -> byValue RP_Contract:REPO__ST_CONTRACT_ID * 
+ 
+ ST_REVERSE_ID -> byValue RP_Contract:REPO__ST_REVERSE_ID * 
+ 
+ ST_HISTORY_ID -> byValue RP_Contract:REPO__ST_HISTORY_ID * 
+ 
+ ST_UNAU_CONT_ID -> byValue RP_Contract:REPO__ST_UNAU_CONT_ID * 
+ 
+ ST_UNAU_REV_ID -> byValue RP_Contract:REPO__ST_UNAU_REV_ID * 
+ 
+ /* The current status of the REPO contract is held here, as a three letter code.  FWD - Contract is yet to reach value date.  CUR - The contract is current, i.e. between value date and maturity.  LIQ - The contract has matured.  INI - Where the SECURITY.TRANSFER record for the near leg of the REPO transaction has been generated prior to the value date on account of (1) the flag UPDATE.SC.POS.SOD in REPO.PARAMETER has been set to YES or (2) the value in the DAYS.DELIVERY field in the REPO transaction or the value in the DAYS.PRIOR.EVENT in EB.ACTIVITY has triggered the generation of the SECURITY.TRANSFER prior to the value date. The INI status would occur between the trade date and the value date.  MAI - Where the SECURITY.TRANSFER record for the far leg of the REPO transaction has been generated before the maturity date on account of the value in the DAYS.DELIVERY field in the REPO transaction or the value in the DAYS.PRIOR.EVENT in EB.ACTIVITY. This status tells the user that the SECURITY.TRANSFER record has been generated even though the Maturity Date has not been reached.  Validation Rules  This is a no input, no copy field. */ 
+ CONTRACT_STATUS : mml:string 
+ @i18n:Label (en="Contract Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=151.0, t24Name=CONTRACT.STATUS) 
+ 
+ FT_LOCREF_NAME -> byValue RP_Contract:REPO__FT_LOCREF_NAME * 
+ 
+ FT_UNAU_MGN_ID -> byValue RP_Contract:REPO__FT_UNAU_MGN_ID * 
+ 
+ FT_MARGIN_ID -> byValue RP_Contract:REPO__FT_MARGIN_ID * 
+ 
+ /* Populated automatically by the system on entry of DEAL.TYPE, will contain the value from application REPO.TYPE field DEAL.TYPE  Validation Rules  NOINPUT */ 
+ RT_DEAL_TYPE : mml:string 
+ @i18n:Label (en="RT Deal Type") 
+ @i18n:Tooltip (en="System populated, no input") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=156.0, t24Name=RT.DEAL.TYPE) 
+ 
+ /* CASH.HOLD.SETTLE will be used to control whether cash will update SC.SETTLEMENT application.  Validation Rules  CASH.HOLD.SETTLE will allow input of YES or NO.  If the ACTUAL.SETTLEMENT field is YES and SETTLE.METHOD is set to US in SC.PARAMETER record and if GENERATE.FT field on REPO.TYPE is YES then input is allowed in this field.  If this field is YES then Cash accounting will use actual settlement.  If REPO transaction is authorised with CASH.HOLD.SETTLE field set to YES then the system will create a SC.SETTLEMENT record from the Corresponding SECURITY.TRANSFER transaction. */ 
+ CASH_HOLD_SETTLE : RP_Contract:REPO__CASH_HOLD_SETTLE 
+ @i18n:Label (en="Settle Cash?") 
+ @i18n:Tooltip (en="If to be cash settled") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=157.0, t24Name=CASH.HOLD.SETTLE) 
+ 
+ /* SEC.HOLD.SETTLE will be used to control whether stock will update SC.SETTLEMENT application.  Validation Rules  SEC.HOLD.SETTLE will allow input of YES or NO.  If the ACTUAL.SETTLEMENT field is YES and SETTLE.METHOD is set to US in SC.PARAMETER record and if GENERATE.FT field on REPO.TYPE is YES then input is allowed in this field.  If REPO transaction is authorised with SEC.HOLD.SETTLE field set to YES then the system will create a SC.SETTLEMENT record from the Corresponding SECURITY.TRANSFER transaction. */ 
+ SEC_HOLD_SETTLE : RP_Contract:REPO__SEC_HOLD_SETTLE 
+ @i18n:Label (en="Settle Stock?") 
+ @i18n:Tooltip (en="If to be stock settled") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=158.0, t24Name=SEC.HOLD.SETTLE) 
+ 
+ /* This field is used as a category reference for the customer.The suspense amount of the customer is posted to it.  The value is picked up from the SC.PARAMETER which holds a similar field in it. The value is defaulted from the SC.PARAMETER fields.  Validation Rules  The value in this field should be a valid entry in CATEGORY file */ 
+ CUST_ACT_SUSP_CAT -> ST_Config:CATEGORY 
+ @i18n:Label (en="Cust Cash Susp") 
+ @i18n:Tooltip (en="Suspense account to post customer cash amount") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=159.0, t24Name=CUST.ACT.SUSP.CAT) 
+ 
+ /* This field is used as a category reference for the broker. The suspense amount of the broker is posted to it.  The value is picked up from the SC.PARAMETER which holds a similar field in it. The value is defaulted from the SC.PARAMETER fields.  Validation Rules  The value in this field should be a valid entry in CATEGORY file. */ 
+ BROK_ACT_SUSP_CAT -> ST_Config:CATEGORY 
+ @i18n:Label (en="Broker Acc Suspense Category") 
+ @i18n:Tooltip (en="The suspense amount of the broker is posted to it") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=160.0, t24Name=BROK.ACT.SUSP.CAT) 
+ 
+ /* This field is used as a category reference for miscellaneous. The suspense amount of miscellaneous is posted to it.  The value is picked up from the SC.PARAMETER which holds a similar field in it. The value is defaulted from the SC.PARAMETER fields.  Validation Rules  The value in this field should be a valid entry in CATEGORY file. */ 
+ MISC_ACT_SUSP_CAT -> ST_Config:CATEGORY 
+ @i18n:Label (en="Misc Acc Suspense Category") 
+ @i18n:Tooltip (en="Miscellaneous Account Suspense Category") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=161.0, t24Name=MISC.ACT.SUSP.CAT) 
+ 
+ /* Enables the automatic settlement of the nominal and cash for the Customers who have contractual agreements with the Bank.  This value will be defaulted to YES, if there is an YES in AUTO.CUST.SETT field in CUSTOMER.SECURITY file. The automatic settlement can be turned OFF at transaction level, though it has been turned ON in the CUSTOMER.SECURITY. If the field AUTO.CUST.SETT is null in CUSTOMER.SECURITY then NO will be defaulted. Input to this field is allowed only if CASH.HOLD.SETTLE or SEC.HOLD.SETTLE is set to YES. If BANK.PORTFOLIO is a dealer book then this field must be set to YES if CASH.HOLD.SETTLE or SEC.HOLD.SETTLE is YES.  Validation Rules  Allows only Yes, No or Null. Null is equivalent to NO */ 
+ AUTO_CUST_SETT : RP_Contract:REPO__AUTO_CUST_SETT 
+ @i18n:Label (en="Auto Cust Settle") 
+ @i18n:Tooltip (en="Automatic settlement of Customer nominal and cash ") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=162.0, t24Name=AUTO.CUST.SETT) 
+ 
+ /* Enables the automatic settlement of the nominal and cash for Brokers who have contractual agreements with the Bank. This value will be defaulted to YES, if there is an YES in AUTO.BROK.SETT field in CUSTOMER.SECURITY file. The automatic settlement can be turned OFF at transaction level, though it has been turned ON in the CUSTOMER.SECURITY. If the field AUTO.BROK.SETT is null in CUSTOMER.SECURITY then NO will be defaulted. Input to this field is allowed only if CASH.HOLD.SETTLE or SEC.HOLD.SETTLE is set to Yes.  Validation Rules  Allows only Yes, No or Null. Null is equivalent to NO */ 
+ AUTO_BROK_SETT : RP_Contract:REPO__AUTO_BROK_SETT 
+ @i18n:Label (en="Settlement type") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=163.0, t24Name=AUTO.BROK.SETT) 
+ 
+ /* Date to be used for when a margin call is made. The date will be used on the subsequent SECURITY.TRANSFER, must be greater than the processing date and greater than or equal to the contract trade date. Must be less than or the same as the margin call value/effective date. If not specified it will be assumed to be the contract trade date. */ 
+ MGN_CALL_TRD_DATE : mml:string 
+ @i18n:Label (en="Margin Call Trade Date") 
+ @i18n:Tooltip (en="Margin Call Trade Date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=164.0, t24Name=MGN.CALL.TRD.DATE) 
+ 
+ /* Interest basis to be used when calculating the EFFECTIVE.RATE from the PRINCIPAL.AMOUNT.2, or vice versa.  Validation rules  Input to this field is allowed only if the field EFFECTIVE.RATE is set in REPO.TYPE. */ 
+ EFF_INT_BASIS : RP_Contract:REPO__EFF_INT_BASIS 
+ @t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=165.0, t24Name="EFF.INT.BASIS ") 
+ 
+ /* This field captures the effective rate of interest of the REPO contract.  Based on this rate the PRINCIPAL.AMOUNT.2 is calculated using EFF.INT.BASIS. Validation Rules  Input to this field is allowed only if the field EFFECTIVE.RATE is set in REPO.TYPE. */ 
+ EFFECTIVE_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=166.0, t24Name=EFFECTIVE.RATE) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=167.0, t24Name=RESERVED.4) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=168.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=169.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=170.0, t24Name=RESERVED.1) 
+ 
+ STATEMENT_NOS -> byValue RP_Contract:REPO__STATEMENT_NOS * 
+ 
+ OVERRIDE -> byValue RP_Contract:REPO__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=174.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=175.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue RP_Contract:REPO__INPUTTER * 
+ 
+ DATE_TIME -> byValue RP_Contract:REPO__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=178.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=179.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=180.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=181.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=182.0, t24Name=AUDIT.DATE.TIME) 
+ 
+ CHK_REC_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=171.1, t24Name=CHK.REC.RTN.FLD) 
+ 
+ INP_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=171.2, t24Name=INP.RTN.FLD) 
+ 
+ AUTH_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=171.3, t24Name=AUTH.RTN.FLD) 
+ 
+ BEF_AUT_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=171.4, t24Name=BEF.AUT.RTN.FLD) 
+ 
+ VAL_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=171.5, t24Name=VAL.RTN.FLD) 
+ } 
+ REPO__BUSINESS_CENTRE 
+ { 
+ /* The business centres used to verify a working day for the value date and maturity date of the Repo contract are defined here.  Where the data specified in either the value date field or the maturity date field is a non working day in one of the business centres defined here, an override will be require.  This is a multi valued field. Standard T24 alphanumeric field.  The field will default from the CURRENCY field by extracting the relevant country code.  Validation Rules  A maximum of 4 characters may be entered.  This is a NOCHANGE field.  Must be the key to a valid entry on the COUNTRY file. */ 
+ BUSINESS_CENTRE -> ST_Config:COUNTRY 
+ @t24:i (align=L, inputBehaviour=F, maxLength=4, sysNumber=4.0, t24Name=BUSINESS.CENTRE) 
+ } 
+ REPO__CONDITION 
+ { 
+ /* Where a standard agreement type does not apply to the REPO contract, this field should be used to define the conditions of the contract.  OR  Conditions may be defined here in addition to those that apply to the standard agreement type.  Validation Rules  This is a text field.  Either an AGREEMENT.TYPE or conditions defined in this field must be entered. */ 
+ CONDITION : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=14.0, t24Name=CONDITION) 
+ } 
+ REPO__NEW_SEC_CODE 
+ { 
+ /* This field defines the security that will form part of theREPO contract.  The securities that will form a part of REPO or Reverse REPOcontract, are defined in the field.  If the securities that currently form the REPO contract,defined in the old fields (OLD.SEC.CODE, OLD.NOMINAL,OLD.DEPO and OLD.CU.ACCT.NO), match the contents of the newfields (NEW.SEC.CODE, NEW.NOMINALL, NEW.DEPO and NEW.CU.ACCT.NO)then no transfers are raised.  Once the REPO contract is authorised, any securities definedin the new security fields (NEW.SEC.CODE, NEW.NOMINALL,NEW.DEPO and NEW.CU.ACCT.NO) are moved into the oldfields.  The addition, removal, increase of nominal, decrease ofnominal and substitution of securities is effected by input to thenew fields. These fields should be seen as an afterimage for the securities that will form the REPO contract.  Fields NEW.SEC.CODE to NEW.CU.BR.XRATE form a related multivalue set.  If the TRANS.TYPE is set to CASH, the CALCULATION.LINKset to YES  the AUTO.CALC.NOMINAL (in REPO.PARAMETER)is set to YES then when this field is populated thesystem will automatically populate the NEW.NOMINAL field based onthe Dirty Price  the PRINCIPAL.AMOUNT.1 value entered.  Validation Rules  Must be the key to a valid entry on the SECURITY.MASTER        file. */ 
+ NEW_SEC_CODE -> SCO_SecurityMasterMaintenance:SECURITY_MASTER 
+ @t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=23.0, t24Name=NEW.SEC.CODE) 
+ 
+ /* Standard T24 amount field that defines the nominal of the security that will become part of the REPO contract once the contract is authorised.  The securities that will form a part of REPO or Reverse REPO contract, are defined in the field.  If the securities that currently form the REPO contract, defined in the old fields (OLD.SEC.CODE, OLD.NOMINAL, OLD.DEPO and OLD.CU.ACCT.NO), match the contents of the new fields (NEW.SEC.CODE, NEW.NOMINALL, NEW.DEPO and NEW.CU.ACCT.NO) then no transfers are raised.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINALL, NEW.DEPO and NEW.CU.ACCT.NO) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Fields NEW.SEC.CODE to NEW.CU.ACCT.NO form a related multi value set.  Validation Rules  Must be a multiple of the TRADING.UNITS - where defined - from the SECURITY.MASTER file.  A maximum of 18 characters may be entered. */ 
+ NEW_NOMINAL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=24.0, t24Name=NEW.NOMINAL) 
+ 
+ /* This field stores the current clean market price for the Security.  It will automatically default from the LAST.PRICE field stored in the SECURITY.MASTER record when the NEW.SEC.CODE field is populated. It can be manually overwritten, in which case, the GROSS.AMOUNT  DIRTY.PRICE fields are recalculated using the following equations:  Validation Rules  A maximum of figure of 6 decimal places is allowed. */ 
+ CLEAN_PRICE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=25.0, t24Name=CLEAN.PRICE) 
+ 
+ /* This is the gross amount which is calculated using the following equation:  Validation Rules  NOINPUT field. */ 
+ GROSS_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=26.0, t24Name=GROSS.AMOUNT) 
+ 
+ /* This field stores the current dirty price for the Security which is inclusive of any accrued coupon interest.  It will automatically default when the NEW.NOMINAL field is populated using the following equation:  It can be manually overwritten, in which case, the GROSS.AMOUNT  CLEAN.PRICE fields are recalculated using the following calculations:  Validation Rules  A maximum of figure of 6 decimal places is allowed. */ 
+ DIRTY_PRICE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=27.0, t24Name=DIRTY.PRICE) 
+ 
+ /* This field stores the accrued coupon interest for the Security  is calculated using information stored in the SECURITY.MASTER record.  Validation Rules  NOINPUT Field. */ 
+ ACCRUED_INT_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=28.0, t24Name=ACCRUED.INT.AMT) 
+ 
+ /* The depository where the security defined in the SEC.CODE field is held is defined in this field.  The securities that will form a part of REPO or Reverse REPO contract, are defined in the field.  If the securities that currently form the REPO contract, defined in the old fields (OLD.SEC.CODE, OLD.NOMINAL, OLD.DEPO and OLD.CU.ACCT.NO), match the contents of the new fields (NEW.SEC.CODE, NEW.NOMINALL, NEW.DEPO and NEW.CU.ACCT.NO) then no transfers are raised.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINALL, NEW.DEPO and NEW.CU.ACCT.NO) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Validation Rules  A maximum of 10 characters may be entered.  Must be the key to a valid entry on the CUSTOMER.SECURITY         file.  Must be defined as a DEPOSITORTY on the CUSTOMER.SECURITY         file. */ 
+ NEW_DEPO -> SC_Config:CUSTOMER_SECURITY 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=29.0, t24Name=NEW.DEPO) 
+ 
+ /* A sub account can be specified for the depository entered in NEW.DEPO  Any input made must be defined as a sub account on the CUSTOMER.SECURITY record for the depository.  Validation Rules  Optional field  1-16 characters */ 
+ SUB_ACCOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=30.0, t24Name=SUB.ACCOUNT) 
+ 
+ /* The margin account, defaulted from the MARGIN.PORTFOLIO for regular REPO or from the CUST.PORTFOLIO for Customer a REPO according to the repo currency is held here.  The securities that will form a part of REPO or Reverse REPO contract, are defined in the field.  If the securities that currently form the REPO contract, defined in the old fields (OLD.SEC.CODE, OLD.NOMINAL, OLD.DEPO and OLD.CU.ACCT.NO), match the contents of the new fields (NEW.SEC.CODE, NEW.NOMINAL, NEW.DEPO and NEW.CU.ACCT.NO) then no transfers are raised.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINALL, NEW.DEPO and NEW.CU.ACCT.NO) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  If BANK.PORTFOLIO is a DEALER.BOOK and the REPO.TYPE field GENERATE.FT is YES then this field will default to the internal account with currency as security currency and category as set in REPO.TYPE field DEALER.BOOK.SUSP.  Validation Rules  A maximum of 16 characters may be entered.  Must be the key to a valid entry on the ACCOUNT file. */ 
+ NEW_CU_ACCT_NO -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=31.0, t24Name=NEW.CU.ACCT.NO) 
+ 
+ /* The initial margin of the Security, where applicable.  The initial margin of a REPO contract can be used as a device to undervalue the securities involved; hence to cover the risk of the adverse movement of the securities which may arise before a margin call can be paid.  This field is used to calculate the SC.INIT.MGN.AMT from the GROSS.AMOUNT  ACCRUED.INT.AMT fields.  Standard T24 rate field.  Validation Rules  A maximum of 11 characters may be entered. */ 
+ SC_INIT_MGN_RTE : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=32.0, t24Name=SC.INIT.MGN.RTE) 
+ 
+ /* This is the amount of Initial Margin that is related to the Security in this multi-value.  This field will only get populated if the TRANS.TYPE is set to SECURITY  the SC.INIT.MGN.RATE is set.  Validation Rules  A maximum of 19 characters may be entered.  This is a NOINPUT field. */ 
+ SC_INIT_MGN_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=33.0, t24Name=SC.INIT.MGN.AMT) 
+ 
+ /* This is the total settlement amount for each security within the contract.  Validation Rules  NOINPUT field. */ 
+ TOTAL_SETTLEMNT : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=18, sysNumber=34.0, t24Name=TOTAL.SETTLEMNT) 
+ 
+ /* This field stores the interest due on the REPO contract using the REPO.RATE in the calculation.  Validation Rules  NOINPUT */ 
+ REPO_INTEREST : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=18, sysNumber=35.0, t24Name=REPO.INTEREST) 
+ 
+ /* This is the total forward settlement amount for the far leg for each security within the contract.  For BSB/SBB, this field will be calculated as  TOTAL.SETTLEMENT + REPO.INTEREST  CPN.AMT  CPN.INVST.AMT  Validation Rules  NOINPUT field. */ 
+ FWD_SETTLEMNT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=36.0, t24Name=FWD.SETTLEMNT) 
+ 
+ /* This is the forward price for the far leg for each security within the contract. It takes into account the accrued interest of the REPO Contract.  For BSB/SBB, this field will be calculated as  ((FWD.SETTLEMENT  FWD.ACCR.INT) / NEW.NOMINAL) / FACTOR * PERCENT  Validation Rules  NOINPUT field. */ 
+ FWD_PRICE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=37.0, t24Name=FWD.PRICE) 
+ 
+ /* When calculating the accrued interest on a bond, certain rounding parameters can be taken into account in the calculation. If a bond rounding method has been used then the method used will be stored in this field.  Validation Rules  NOINPUT field */ 
+ BND_RND_METH : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=38.0, t24Name=BND.RND.METH) 
+ 
+ /* Shows the accrued interest up to the maturity date. Used only when the contract is BSB or SBB.  Validation Rules  NOINPUT field */ 
+ FWD_ACCR_INT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=39.0, t24Name=FWD.ACCR.INT) 
+ 
+ /* Applies only to buy/sell back and sell/buy back contracts.  If the contract spans a coupon date then this is the value of the coupon due on the coupon date. */ 
+ CPN_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=40.0, t24Name=CPN.AMT) 
+ 
+ /* Applies only to buy/sell back and sell/buy back contracts.  Will default from the repo rate and is used to calculate the CPN.INVST.AMT. */ 
+ CPN_INVST_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=41.0, t24Name=CPN.INVST.RATE) 
+ 
+ /* Applies only to buy/sell back and sell/buy back contracts.  The amount interest received for the CPN.AMT invested at a rate of CPN.INVST.RATE from the date of the coupon to the contract maturity date. */ 
+ CPN_INVST_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=42.0, t24Name=CPN.INVST.AMT) 
+ 
+ GRP_TRD_ID -> byValue RP_Contract:REPO__NEW_SEC_CODE__GRP_TRD_ID * 
+ 
+ SBL_DIV_RATE -> byValue RP_Contract:REPO__NEW_SEC_CODE__SBL_DIV_RATE * 
+ } 
+ REPO__NEW_SEC_CODE__GRP_TRD_ID 
+ { 
+ /* If the transaction has been processed by SC.GROUP.TRADES then this field will be populated with the record ID from that application.  Validation Rules  NOINPUT field. */ 
+ GRP_TRD_ID : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=43.0, t24Name=GRP.TRD.ID) 
+ 
+ /* This field is associated with GRP.TRD.ID  describes the action taken by the applciation SC.GROUP.TRADES.  Values could be :  Validation Rules  NOINPUT field. */ 
+ GRP_TRD_PROC : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=44.0, t24Name=GRP.TRD.PROC) 
+ 
+ /* This field indicates the exchange rate between the repo contract currency and the security price currency.Once the contract authorised then the rate cannot be changed. */ 
+ FX_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=45.0, t24Name=FX.RATE) 
+ 
+ /* The gross amount in the security price currency. */ 
+ GROSS_AMT_SEC : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=46.0, t24Name=GROSS.AMT.SEC) 
+ 
+ /* Specifies the delivery instruction code to be used for the margin call  Validation Rules  Input mandatory if the margin call is security       based.  Should be a valid record in SC.DEL.INSTR */ 
+ MGN_DELIV_INSTR -> SC_Config:SC_DEL_INSTR 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=47.0, t24Name=MGN.DELIV.INSTR) 
+ 
+ /* This  field in the security multi-value set can be used to control the SWIFT delivery for a complete or partial change in security (substitution).  Option to select YES or NO with a default of NO. */ 
+ SUPP_DELIVERY : RP_Contract:REPO__NEW_SEC_CODE__GRP_TRD_ID__SUPP_DELIVERY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=48.0, t24Name=SUPP.DELIVERY) 
+ 
+ /* This will shows the account currency for NEW.CU.ACCT.NO, it will be populated automatically when the NEW.CU.ACCT.NO is entered or changed.  Validation Rules  NOINPUT */ 
+ NEW_CU_ACCT_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=49.0, t24Name=NEW.CU.ACCT.CCY) 
+ 
+ /* This field will be mapped to the FUNDS.TRANSFER field TREASURY.RATE when making a cash only margin call through the FUNDS.TRANSFER application. It should only be populated when making a cash margin call, and only if the account currencies (NEW.CU.ACCT.CCY  BR.ACCOUNT.CCY) are different.  Validation Rules  Should only be used if PRIN.INCREASE is populated and FUNDS.TRANSFER is     being used for margin calls. */ 
+ NEW_CU_BR_XRATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=50.0, t24Name=NEW.CU.BR.XRATE) 
+ } 
+ REPO__NEW_SEC_CODE__SBL_DIV_RATE 
+ { 
+ /* This field will hold the rate at which the Stock Borrow/ Lend  transaction takes place.  Should input a valid number */ 
+ SBL_DIV_RATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=51.0, t24Name=SBL.DIV.RATE) 
+ 
+ /* Associated with SBL.DIV.RATE and will indicate the effective date from which the rate applies. If not specified it will be assumed to be the same as the trade date. When mulitple rates are set then these dates must be specivfied. */ 
+ SBL_EFF_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=52.0, t24Name=SBL.EFF.DATE) 
+ 
+ RESERVEDX1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=53.0, t24Name=RESERVEDX1) 
+ } 
+ REPO__PRIN_ADDRESS 
+ { 
+ /* Identifies the full name and address of a Beneficiary Bank, in respect of the Principal Amount, where no Agent details are maintained.  This field provides flexibility during input of transactions where external movement of funds are involved.  When you do not currently maintain a Customer reference for a third or fourth party bank, you can use this field to enter the full details of the name and address of the Beneficiary Bank directly.  However, it is important to note that only one address for the principal, as free format, has been included in this module.  This means that in the case of a four party transfer at least one of the two customers banks involved in the transfer of funds must have a Customer reference and the Agency details defined.  Validation Rules  A maximum of 35 characters may be entered. */ 
+ PRIN_ADDRESS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=61.0, t24Name=PRIN.ADDRESS) 
+ } 
+ REPO__BENEF_PRIN_ACCT 
+ { 
+ /* Contains the Account details (number or name) of the Beneficiary to be credited with the Principal Amount.  This field concerns third party transfers where the customer is requesting an external delivery of funds.  In the case where the customer provides such information, it may then be entered in this field.  Any amendment to this field after contract authorisation will only have an effect on future Principal Disbursements.  Validation Rules  A maximum of 35 characters may be entered. */ 
+ BENEF_PRIN_ACCT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=62.0, t24Name=BENEF.PRIN.ACCT) 
+ } 
+ REPO__INT_ADDRESS 
+ { 
+ /* For the cash side of the REPO contract, identifies the full name and address of a Beneficiary Bank, in respect of the Interest Amount, when the disposal of the interest is different from the disposal of the principal and where no Agent details are maintained.  This field provides flexibility during input of transactions where external movements of funds are involved.  When you do not currently maintain a Customer reference for a third or fourth party bank, you can use this field to enter the full details of the name and address of the Beneficiary Bank directly.  Validation Rules  A maximum of 35 characters may be entered. */ 
+ INT_ADDRESS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=66.0, t24Name=INT.ADDRESS) 
+ } 
+ REPO__BEN_INT_ACCT 
+ { 
+ /* For the cash side, identifies the Account details (number or name) of the Beneficiary to be credited with the Interest Amount (only for a Repo (cash deposit) contract).  This field concerns the interest on Deposits for third party transfers where the customer is requesting an external delivery of funds and for which you have received Account Details corresponding to the final Beneficiary account in respect of the interest.  Any amendment to this field after contract authorisation will only have an effect on future interest disbusements.  Validation Rules  A maximum of 35 characters may be entered. */ 
+ BEN_INT_ACCT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=67.0, t24Name=BEN.INT.ACCT) 
+ } 
+ REPO__OLD_SEC_CODE 
+ { 
+ /* On initial input these fields will be blank.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINAL, etc) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Validation Rules  This is a NOINPUT field. */ 
+ OLD_SEC_CODE -> SCO_SecurityMasterMaintenance:SECURITY_MASTER 
+ @t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=68.0, t24Name=OLD.SEC.CODE) 
+ 
+ /* On initial input these fields will be blank.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINAL, etc) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Validation Rules  This is a NOINPUT field. */ 
+ OLD_NOMINAL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=69.0, t24Name=OLD.NOMINAL) 
+ 
+ /* The value from the field CLEAN.PRICE when the repo contract was authorised. */ 
+ OLD_CLEAN_PRICE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=70.0, t24Name=OLD.CLEAN.PRICE) 
+ 
+ /* The value from the field GROSS.AMT when the repo contract was authorised. */ 
+ OLD_GROSS_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=71.0, t24Name=OLD.GROSS.AMT) 
+ 
+ /* The value from the field DIRTY.PRICE when the repo contract was authorised. */ 
+ OLD_DIRTY_PRICE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=72.0, t24Name=OLD.DIRTY.PRICE) 
+ 
+ /* The value from the field ACCRUED.INT.AMT when the repo contract was authorised. */ 
+ OLD_ACC_INT_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=73.0, t24Name=OLD.ACC.INT.AMT) 
+ 
+ /* The depository where the security defined in the SEC.CODE field is held is defined in this field.  The securities that currently form a part of REPO or Reverse REPO contract are defined in the field OLD.SEC.CODE, OLD.NOMINAL, OLD.DEPO and OLD.CU.ACCT.NO.  On initial input these fields will be blank.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINALL, NEW.DEPO and NEW.CU.ACCT.NO) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Fields OLD.SEC.CODE to OLD.CU.ACCT.NO form a related multi value set.  Validation Rules  This is a no input, no copy field.  Must be the key to a valid entry on the CUSTOMER.SECURITY file.  Must be defined as a DEPOSITORY in the CUSTOMER.SECURITY file. */ 
+ OLD_DEPO -> SC_Config:CUSTOMER_SECURITY 
+ @t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=74.0, t24Name=OLD.DEPO) 
+ 
+ /* The value from the field SUB.ACCOUNT when the repo contract was authorised. */ 
+ OLD_SUB_ACCOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=75.0, t24Name=OLD.SUB.ACCOUNT) 
+ 
+ /* On initial input these fields will be blank.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINAL, etc) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Validation Rules  This is a NOINPUT field. */ 
+ OLD_CU_ACCT_NO -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=76.0, t24Name=OLD.CU.ACCT.NO) 
+ 
+ /* On initial input these fields will be blank.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINAL, etc) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Validation Rules  This is a NOINPUT field. */ 
+ OLD_MGN_RTE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=77.0, t24Name=OLD.MGN.RTE) 
+ 
+ /* On initial input these fields will be blank.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINAL, etc) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Validation Rules  This is a NOINPUT field. */ 
+ OLD_MGN_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=78.0, t24Name=OLD.MGN.AMT) 
+ 
+ /* On initial input these fields will be blank.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINAL, etc) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Validation Rules  This is a NOINPUT field. */ 
+ OLD_TOTAL_SMNT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=79.0, t24Name=OLD.TOTAL.SMNT) 
+ 
+ /* The value from the field REPO.INTEREST when the repo contract was authorised. */ 
+ OLD_REPO_INT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=80.0, t24Name=OLD.REPO.INT) 
+ 
+ /* On initial input these fields will be blank.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINAL, etc) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Validation Rules  This is a NOINPUT field. */ 
+ OLD_FWD_SMNT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=81.0, t24Name=OLD.FWD.SMNT) 
+ 
+ /* On initial input these fields will be blank.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINAL, etc) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Validation Rules  This is a NOINPUT field. */ 
+ OLD_FWD_PRICE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=82.0, t24Name=OLD.FWD.PRICE) 
+ 
+ /* On initial input these fields will be blank.  Once the REPO contract is authorised, any securities defined in the new security fields (NEW.SEC.CODE, NEW.NOMINAL, etc) are moved into the old fields.  The addition, removal, increase of nominal, decrease of nominal and subsitution of securities is effected by input to the new fields. These fields should be seen as an after image for the securities that will form the REPO contract.  Validation Rules  This is a NOINPUT field. */ 
+ OLD_BND_RND_MTH : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=83.0, t24Name=OLD.BND.RND.MTH) 
+ 
+ /* The value from the field FWD.ACCR.INT when the repo contract was authorised. */ 
+ OLD_FWD_ACC_INT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=84.0, t24Name=OLD.FWD.ACC.INT) 
+ 
+ /* The value from the field CPN.AMT when the repo contract was authorised. */ 
+ OLD_CPN_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=85.0, t24Name=OLD.CPN.AMT) 
+ 
+ /* The value from the field CPN.INVST.RATE when the repo contract was authorised. */ 
+ OLD_CPN_INV_RTE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=86.0, t24Name=OLD.CPN.INV.RTE) 
+ 
+ /* The value from the field CPN.INVST.AMT when the repo contract was authorised. */ 
+ OLD_CPN_INV_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=87.0, t24Name=OLD.CPN.INV.AMT) 
+ 
+ OLD_GP_TD_ID -> byValue RP_Contract:REPO__OLD_SEC_CODE__OLD_GP_TD_ID * 
+ 
+ OLD_SBL_RTE -> byValue RP_Contract:REPO__OLD_SEC_CODE__OLD_SBL_RTE * 
+ } 
+ REPO__OLD_SEC_CODE__OLD_GP_TD_ID 
+ { 
+ /* The value from the field GRP.TRD.ID when the repo contract was authorised. */ 
+ OLD_GP_TD_ID : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=88.0, t24Name=OLD.GP.TD.ID) 
+ 
+ /* The value from the field GRP.TRD.PROC when the repo contract was authorised. */ 
+ OLD_GP_TD_PR : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=89.0, t24Name=OLD.GP.TD.PR) 
+ 
+ /* The value from the field GROSS.AMT.SEC when the repo contract was authorised. */ 
+ OLD_GRS_AMT_SEC : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=90.0, t24Name=OLD.GRS.AMT.SEC) 
+ 
+ /* Specifies the delivery instruction code used earlier for the margin call.  Validation Rules  A valid record in SC.DEL.INSTR */ 
+ OLD_MGN_DEL_INS : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=5, sysNumber=91.0, t24Name=OLD.MGN.DEL.INS) 
+ 
+ /* A copy of the field SUPP.DELIVERY from the NEW.SEC.CODE multi-value set, updated when the contract is authorised.  Validation Rules  NOINPUT */ 
+ OLD_SUPP_DEL : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=92.0, t24Name=OLD.SUPP.DEL) 
+ 
+ /* A copy of the field NEW.CU.ACCT.CCY from the NEW.SEC.CODE multi-value set, updated when the contract is authorised.  Validation Rules  NOINPUT */ 
+ OLD_CU_ACCT_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=93.0, t24Name=OLD.CU.ACCT.CCY) 
+ 
+ /* A copy of the field NEW.CU.BR.XRATE from the NEW.SEC.CODE multi-value set, updated when the contract is authorised.  Validation Rules  NOINPUT */ 
+ OLD_CU_BR_XRATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=94.0, t24Name=OLD.CU.BR.XRATE) 
+ } 
+ REPO__OLD_SEC_CODE__OLD_SBL_RTE 
+ { 
+ /* This field is a copy of SBL.DIV.RATE */ 
+ OLD_SBL_RTE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=95.0, t24Name=OLD.SBL.RTE) 
+ 
+ /* Copy of SBL.EFF.DATE */ 
+ OLD_SBL_DTE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=96.0, t24Name=OLD.SBL.DTE) 
+ 
+ RESERVEDXX1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=97.0, t24Name=RESERVEDXX1) 
+ } 
+ REPO__SEND_NOTICE 
+ { 
+ /* This multi-value field is used to determine whether to send the corresponding message or not.  The number of multi-values expansion of this field is determined by the number of records on the EB.MESSAGE.CLASS file.  Validation Rules  Valid input is either YES or NO  Defaults to YES */ 
+ SEND_NOTICE : RP_Contract:REPO__SEND_NOTICE__SEND_NOTICE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=103.0, t24Name=SEND.NOTICE) 
+ } 
+ REPO__MM_LOCREF_NAME 
+ { 
+ /* The name of any local reference field set up in MM.MONEY.MARKET will be displayed in this field.  Forms part of a associated multi-value set along with the fieldMM.LOCREF.DATA.  Validation Rules  NOINPUT */ 
+ MM_LOCREF_NAME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=116.0, t24Name=MM.LOCREF.NAME) 
+ 
+ /* This field is to be used for input of any data that the user may want toinput in the local reference field set up in MM.MONEY.MARKET, the name of whichappears in the preceding field MM.LOCREF.NAME.  Forms part of a associated multi-value set along with the fieldMM.LOCREF.NAME.  Validation Rules */ 
+ MM_LOCREF_DATA : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=117.0, t24Name=MM.LOCREF.DATA) 
+ } 
+ REPO__STR_LOCREF_NAME 
+ { 
+ /* The name of any local reference field set up in SECURITY.TRANSFER will be displayed in this field. A no input field.  Forms part of a associated multi-value set along with the field STR.LOCREF.DATA.  Validation Rules */ 
+ STR_LOCREF_NAME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=118.0, t24Name=STR.LOCREF.NAME) 
+ 
+ /* This field is to be used for input of any data that the user may want to input in the local reference field set up in SECURITY.TRANSFER, the name of which appears in the preceeding field STR.LOCREF.NAME.  Forms part of a associated multi-value set along with the field STR.LOCREF.NAME.  Validation Rules */ 
+ STR_LOCREF_DATA : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=119.0, t24Name=STR.LOCREF.DATA) 
+ } 
+ REPO__BR_AGENT 
+ { 
+ /* New field added for depository messages.  Forms associated sub value with BR.AGENT.AC This field is used to determine the agent (DEAG, DEI1, DEI2 etc, REAG,REI1,REI2 etc) in MT540-MT543 messages.  Validation Rules */ 
+ BR_AGENT : mml:string 
+ @t24:i (align=L, inputBehaviour=F, maxLength=15, sysNumber=123.0, t24Name=BR.AGENT) 
+ 
+ /* New field added for depository messages. Forms associated sub value with BR.AGENT This field is used to determine the agents account in MT540-MT543 messages.  Validation Rules */ 
+ BR_AGENT_AC : mml:string 
+ @t24:i (align=L, inputBehaviour=F, maxLength=15, sysNumber=124.0, t24Name=BR.AGENT.AC) 
+ } 
+ REPO__ACTIVITY_CODE 
+ { 
+ /* This multi-value field holds the activity code(s) of the event(s) taking place.  Validation Rules  NOINPUT field  System generated field */ 
+ ACTIVITY_CODE -> EB_Delivery:EB_ACTIVITY 
+ @t24:i (align=R, inputBehaviour=N, maxLength=7, sysNumber=131.0, t24Name=ACTIVITY.CODE) 
+ 
+ /* This multi-value field holds the date(s) the activity(s) is(are) scheduled for.  Validation Rules  NOINPUT field  System generated field */ 
+ ACTIVITY_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=132.0, t24Name=ACTIVITY.DATE) 
+ 
+ MAPPING_KEY -> byValue RP_Contract:REPO__ACTIVITY_CODE__MAPPING_KEY * 
+ } 
+ REPO__ACTIVITY_CODE__MAPPING_KEY 
+ { 
+ /* This mutli-value field holds the mapping key(s) associated with the message(s) being produced.  Validation Rules  NOINPUT field  System generated field */ 
+ MAPPING_KEY -> DE_Config:DE_MAPPING 
+ @t24:i (align=R, inputBehaviour=N, maxLength=13, sysNumber=133.0, t24Name=MAPPING.KEY) 
+ 
+ /* This multi-value field holds reference number(s) of the message(s) produced and returned by APPLICATION.HANDOFF.  Validation Rules  NOINPUT field  System generated field */ 
+ MSG_REF : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=134.0, t24Name=MSG.REF) 
+ } 
+ REPO__ST_CONTRACT_ID 
+ { 
+ /* The security side of the REPO contract is processed by raising a SECURITY.TRANSFER deal for each security detailed on the REPO contract.  Once the REPO contract is authorised, the keys to those SECURITY.TRANSFER deals that relate to the authorised securities, i.e. those in the old security fields, are stored in this field.  Validation Rules  This is a no input, no copy field. */ 
+ ST_CONTRACT_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=146.0, t24Name=ST.CONTRACT.ID) 
+ } 
+ REPO__ST_REVERSE_ID 
+ { 
+ /* The security side of the REPO contract is processed by raising a SECURITY.TRANSFER deal for each security detailed on the REPO contract.  When a substitution of securities is effected, a SECURITY.TRANSFER deal is raised to back out any securities that have been substituted.  When the substitution is authorised, the keys to these contracts are held in this field.  When the substitution is unauthorised, the keys to these contracts are held in the ST.UNAU.REV.ID field.  Validation Rules  A maximum of 16 characters may be entered.  This is a no input, no copy field. */ 
+ ST_REVERSE_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=147.0, t24Name=ST.REVERSE.ID) 
+ } 
+ REPO__ST_HISTORY_ID 
+ { 
+ /* The security side of the REPO contract is processed by raising a SECURITY.TRANSFER deal for each security detailed on the REPO contract.  Where a subsitution of securities is effected, the original transaction references for the SECURITY.TRANSFER deals are held in this field. The transaction references held in this field are no longer a pert of the REPO contract, and are held purely for information purposes.  Validation Rules  This is a no input, no copy field. */ 
+ ST_HISTORY_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=148.0, t24Name=ST.HISTORY.ID) 
+ } 
+ REPO__ST_UNAU_CONT_ID 
+ { 
+ /* When securities are defined in the REPO contract, SECURITY.TRANSFER deals are raised to effect the movement of the securities. When the REPO contract that has changed the securities information is unauthorised the keys to those SECURITY.TRANSFER deals are held in this field.  Validation Rules  This is a no input field. */ 
+ ST_UNAU_CONT_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=149.0, t24Name=ST.UNAU.CONT.ID) 
+ } 
+ REPO__ST_UNAU_REV_ID 
+ { 
+ /* When a substitution of securities is effected, a SECURITY.TRANSFER deal is raised to back out any securities that have been substituted.  When the substitution is unauthorised, the keys to these contracts are held in this field.  Validation Rules  This is a no input field. */ 
+ ST_UNAU_REV_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=150.0, t24Name=ST.UNAU.REV.ID) 
+ } 
+ REPO__FT_LOCREF_NAME 
+ { 
+ /* The name of any local reference field set up in FUNDS.TRANSFER will be displayed in this field.  Forms part of a associated multi-value set along with the fieldFT.LOCREF.DATA.  Validation Rules  NOINPUT */ 
+ FT_LOCREF_NAME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=152.0, t24Name=FT.LOCREF.NAME) 
+ 
+ /* This field is to be used for input of any data that the user may want toinput in the local reference field set up in FUNDS.TRANSFER, the name of whichappears in the preceding field FT.LOCREF.NAME.  Forms part of a associated multi-value set along with the fieldFT.LOCREF.NAME.  Validation Rules */ 
+ FT_LOCREF_DATA : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=153.0, t24Name=FT.LOCREF.DATA) 
+ } 
+ REPO__FT_UNAU_MGN_ID 
+ { 
+ /* This field contains a multi-valued list of keys to the unauthorised FUNDS.TRANSFER contracts relating to cash margin calls.  Validation Rules  Only used for cash margin calls when application REPO.TYPE field     GENERATE.FT is YES.  NOINPUT */ 
+ FT_UNAU_MGN_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=154.0, t24Name=FT.UNAU.MGN.ID) 
+ } 
+ REPO__FT_MARGIN_ID 
+ { 
+ /* This field contains a multi-valued list of keys to the  authorised FUNDS.TRANSFER contracts relating to cash margin calls.  Validation Rules  Only used for cash margin calls when application REPO.TYPE field     GENERATE.FT is YES.  NOINPUT */ 
+ FT_MARGIN_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=155.0, t24Name=FT.MARGIN.ID) 
+ } 
+ REPO__STATEMENT_NOS 
+ { 
+ /* Standard T24 statement number field */ 
+ STATEMENT_NOS : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=29, sysNumber=172.0, t24Name=STATEMENT.NOS) 
+ } 
+ REPO__OVERRIDE 
+ { 
+ /* This is a multi valued field. Standard T24 alphanumeric field.  Validation Rules  A maximum of 35 characters may be entered.  This is a no input, no copy field. */ 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=173.0, t24Name=OVERRIDE) 
+ } 
+ REPO__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=176.0, t24Name=INPUTTER) 
+ } 
+ REPO__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=177.0, t24Name=DATE.TIME) 
+ } 
+ /* This file holds all security positions which have been repo'd out of the Bank's own book(s). */ 
+ REPO_POSITION 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* The key of the REPO.POSITION file is made up of seven elements separated by dots. These elements are; Portfolio Number Security Number Depository Nominee Code Maturity Date Interest Rate Sub Account Note: The Maturity Date and Interest Rate are only included in the key if the Sub Asset Type of the Security is flagged as a KassenObligationen security. */ 
+ POSITION_KEY : mml:string PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=80, sysNumber=0.0, t24Name=POSITION.KEY) 
+ 
+ /* This is the portfolio that the repo position is for. Validation Rules Must be the key to a valid entry on the SEC.ACC.MASTER file. */ 
+ SECURITY_ACCOUNT -> SCO_PortfolioMaintenance:SEC_ACC_MASTER 
+ @i18n:Label (en=Portfolio) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=1.0, t24Name=SECURITY.ACCOUNT) 
+ 
+ /* This field contains the Security Number that the Repo Position is for. Validation Rules Must be the key to a valid entry on the SECURITY.MASTER file. */ 
+ SECURITY_NUMBER -> SCO_SecurityMasterMaintenance:SECURITY_MASTER 
+ @i18n:Label (en="Security No") 
+ @i18n:Tooltip (en="Indicates the security number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=2.0, t24Name=SECURITY.NUMBER) 
+ 
+ /* This field contains the Depository where the Repo Position is held. It must be valid T24 Customer and is setup as a depository on the CUSTOMER.SECURITY file. Validation Rules Standard T24 customer field. Must be the key to a valid entry on the CUSTOMER file. */ 
+ DEPOSITORY -> ST_Customer:CUSTOMER 
+ @i18n:Label (en=Depository) 
+ @i18n:Tooltip (en="Depository the Security to be delivered from/to") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=3.0, t24Name=DEPOSITORY) 
+ 
+ /* If this repo position is held by Nominee then this field will contain the ID of the Nominee. If this position is not held by nominee then this field will be blank. Validation Rules Must be the key to a valid entry on the NOMINEE.CODE file. */ 
+ NOMINEE_CODE -> SC_Config:NOMINEE_CODE 
+ @i18n:Label (en="Nominee Code") 
+ @i18n:Tooltip (en="Identifies the Nominee Company ") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=4.0, t24Name=NOMINEE.CODE) 
+ 
+ /* This field is only updated if this repo position is for a Kassenobligationen security. A Kassenobligationen security is one where the Sub Asset Type record linked to the security has the KASSENOBLIGATIONEN flag set to YES. Validation Rules Standard T24 date field. */ 
+ MATURITY_DATE : mml:string 
+ @i18n:Label (en="Maturity Date") 
+ @i18n:Tooltip (en="Indicates the Maturity Date of the Transaction") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, t24Name=MATURITY.DATE) 
+ 
+ /* This field is only updated if this repo position is for a Kassenobligationen security. A Kassenobligationen security is one where the Sub Asset Type record linked to the security has the KASSENOBLIGATIONEN flag set to YES. If the security identified in the SECURITY.NUMBER is a Kassenobligationen security then this will be the interest rate for the security - taken from the INTEREST.RATE field on the Security Master record. Validation Rules Standard T24 rate field. */ 
+ INTEREST_RATE : mml:string 
+ @i18n:Label (en="Interest Rate") 
+ @i18n:Tooltip (en="Indicates interest rate") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=6.0, t24Name=INTEREST.RATE) 
+ 
+ /* The field contains the sub account where the Repo Position is held. It must be a valid sub account in CUSTOMER.SECURITY record keyed on the depository. Validation Rules No-input field Optional field */ 
+ SUB_ACCOUNT : mml:string 
+ @i18n:Label (en="Sub Account") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=7.0, t24Name=SUB.ACCOUNT) 
+ 
+ /* This field contains the Trade Date of the last transaction to update this Repo Position Record. Validation Rules Standard T24 date field. */ 
+ DATE_LAST_TRADED : mml:string 
+ @i18n:Label (en=Active) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, t24Name=DATE.LAST.TRADED) 
+ 
+ /* This field contains the trade dated number of securities repo'd out of the Bank's own book(s). Validation Rules Standard T24 amount field. (1 - 18 characters) */ 
+ CLOSING_BAL_NO_NOM : mml:string 
+ @i18n:Label (en="Closing Balance") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=9.0, t24Name=CLOSING.BAL.NO.NOM) 
+ 
+ /* Opening Balance - in number of securities - for this repo position. This field will always be zero unless it has been updated by the takeover processing when T24 was first installed on the system. Validation Rules Standard T24 amount field. */ 
+ OPENING_BAL_NO_NOM : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=10.0, t24Name=OPENING.BAL.NO.NOM) 
+ 
+ /* This field holds the issue date of the secruity. Validation Rules Standard T24 date field. */ 
+ ISSUE_DATE : mml:string 
+ @i18n:Label (en="Issue Date") 
+ @i18n:Tooltip (en="Indicates the date of issue ") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, t24Name=ISSUE.DATE) 
+ 
+ COST_PRICE -> byValue RP_Contract:REPO_POSITION__COST_PRICE * 
+ } 
+ REPO_POSITION__COST_PRICE 
+ { 
+ /* Multi-value field that contains the traded price on which the REPO contract is done. The same process is done for the RESO contracts. Validation Rules No-input field. */ 
+ COST_PRICE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, t24Name=COST.PRICE) 
+ 
+ /* Multi-value field that contains the nominal amount on which the REPO contract is done. The same process is done for the RESO contract. Validation Rules No-input field. */ 
+ NOMINAL : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, t24Name=NOMINAL) 
+ 
+ /* Multi-value field that contains the contract id on which the REPO contract is done. The same process is done for the RESO contracts. Validation Rules No-input field. */ 
+ CONTRACT_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=14.0, t24Name=CONTRACT.ID) 
+ 
+ /* Multi-value field that contains the portfolio number on which the REPO contract is done. The suffix is determined by the REPO.MARGIN.SUF value in REPO.PARAMETER file. The same process is done for the RESO contract. Validation Rules No-input field */ 
+ COUNTERPARTY -> SCO_PortfolioMaintenance:SEC_ACC_MASTER 
+ @t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=15.0, t24Name=COUNTERPARTY) 
+ } 
+ /* This is a 'FIN'ancial level file which holds the financial information of each REPO counterparty and is keyed by T24 customer number. At the moment, it stores the initial margin amounts for both repo and reverse repo contracts. */ 
+ CUSTOMER_REPO 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* Standard T24 customer field. This is the key to the CUSTOMER.REPO file. Validation RulesA maximum of 10 characters may be entered.Must be the key to a valid entry on the CUSTOMER file. */ 
+ CUSTOMER_CODE : mml:string PK required 
+ @i18n:Label (en=Customer) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=CUSTOMER.CODE) 
+ 
+ REPO_IM_CCY -> byValue RP_Contract:CUSTOMER_REPO__REPO_IM_CCY * 
+ 
+ RESO_IM_CCY -> byValue RP_Contract:CUSTOMER_REPO__RESO_IM_CCY * 
+ } 
+ CUSTOMER_REPO__REPO_IM_CCY 
+ { 
+ /* This field specifies the currency of initial margin used in REPO contracts. Fields REPO.IM.CCY to REPO.IM.AMT form a related multi value set. Standard T24 currency field. Validation RulesA maximum of 3 characters may be entered.Must be the key to a valid entry on the CURRENCY file. */ 
+ REPO_IM_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, t24Name=REPO.IM.CCY) 
+ 
+ /* This field holds the initial margin amount used in REPO contracts. Fields REPO.IM.CCY to REPO.IM.AMT form a related multi value set. Validation RulesStandard T24 amount field. (1 to 19 characters). */ 
+ REPO_IM_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, t24Name=REPO.IM.AMT) 
+ } 
+ CUSTOMER_REPO__RESO_IM_CCY 
+ { 
+ /* This field specifies the currency of initial margin used in Reverse REPO contracts. Fields RESO.IM.CCY to RESO.IM.AMT form a related multi value set. Standard T24 currency field. Validation RulesA maximum of 3 characters may be entered.Must be the key to a valid entry on the CURRENCY file. */ 
+ RESO_IM_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, t24Name=RESO.IM.CCY) 
+ 
+ /* This field holds the initial margin amount used in Reverse REPO contracts. Fields RESO.IM.CCY to RESO.IM.AMT form a related multi value set. Validation RulesStandard T24 amount field. (1 to 19 characters). */ 
+ RESO_IM_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, t24Name=RESO.IM.AMT) 
+ } 
+ CUST_REPO_CONCAT 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ CUSTOMER_CCY_TYPE : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, t24Name=CUSTOMER.CCY.TYPE) 
+ 
+ CONTRACT_NUMBER -> RP_Contract:REPO 
+ @i18n:Label (en="Contract Number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=1.0, t24Name=CONTRACT.NUMBER) 
+ } 
+ } 
+ Enumerations { 
+ REPO__MATURITY_DATE : mml:string 
+ DAYS=DAYS 
+ 
+ REPO__DEAL_TYPE : mml:string 
+ BILATERAL=BILATERAL 
+ TRILATERAL=TRILATERAL 
+ BUY_SELL_BACK=BUY/SELL.BACK 
+ SELL_BUY_BACK=SELL/BUY.BACK 
+ 
+ REPO__SEND_PAYMENT : mml:string 
+ NO=NO 
+ YES=YES 
+ 
+ REPO__NEW_SEC_CODE__GRP_TRD_ID__SUPP_DELIVERY : mml:string 
+ YES=YES 
+ NO=NO 
+ NULL=NULL 
+ 
+ REPO__SEND_NOTICE__SEND_NOTICE : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ REPO__CALCULATION_LINK : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ REPO__SC_INIT_MGN_METHOD : mml:string 
+ STANDARD=STANDARD 
+ GMRA=GMRA 
+ NULL=NULL 
+ 
+ REPO__TRANS_TYPE : mml:string 
+ CASH=CASH 
+ SECURITY=SECURITY 
+ 
+ REPO__GROUP_STATUS : mml:string 
+ NET=NET 
+ NO=NO 
+ 
+ REPO__NEGATIVE_RATE : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ REPO__TRANSACTION_INDEX : mml:string 
+ LOAN=LOAN 
+ DEPOSIT=DEPOSIT 
+ 
+ REPO__CASH_HOLD_SETTLE : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ REPO__SEC_HOLD_SETTLE : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ REPO__AUTO_CUST_SETT : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ REPO__AUTO_BROK_SETT : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ REPO__EFF_INT_BASIS : mml:string 
+ A=A 
+ B=B 
+ C=C 
+ D=D 
+ E=E 
+ F=F 
+ E1=E1 
+ W=W 
+ W1=W1 
+ 
+ } 

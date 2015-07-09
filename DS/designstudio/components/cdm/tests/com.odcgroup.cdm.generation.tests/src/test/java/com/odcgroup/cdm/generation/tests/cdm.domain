@@ -1,0 +1,2878 @@
+# UTF-8
+/* The CDM domain. A part of the business model representing all information related to user interactions reflecting the continuous management of client data information. */ 
+Domain CDM 
+	@mdf:Version (value=2.1) 
+	@java:Package (value=com.odcgroup.cdm.front) 
+	@java:Version (value=1.6) 
+namespace "http://www.odcgroup.com/cdm" 
+metamodelVersion 4.3.0.20110527 
+Classes { 
+	/* Designates the formal relationship between the bank and one or more persons. Each client relationship is denoted by a name and is the equivalent of the basic client definition in the back office. A Client Relationship may represent an individual client account, a joint/collective account or a corporate account (company, foundation, trust, etc.). In Odyssey terms, in CDM, client relationship designates a prospective or contracted business relationship that the bank maintains with one or more persons or corporations. It can be thought of as the equivalent of the root that exists in back office systems. Note also that the term "account" is often used in this context. It denotes the bank's commercial/judicial relationship with a client and not a current or deposit account. */ 
+	ClientRelationship 
+		@sql:SQLName (value=cdm_clientrelation) 
+		@gcl:CDMName (value=clientRelation) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.ClientRelationship) 
+	{ 
+		audited : CDM:Trilean 
+			@gcl:CDMName (value=audited.value) 
+			@back:GetterInstruction (value="clientRelationship.getAudited().getValue()") 
+			@back:SetterInstruction (value="clientRelationship.setAudited(new Trilean(audited))") 
+		
+		clientType : CDM:ClientRelationshipType 
+			@gcl:CDMName (value=type) 
+			@back:GetterInstruction (value="clientRelationship.getType()") 
+			@back:SetterInstruction (value="clientRelationship.setType(clientType)") 
+		
+		closeComments : mml:string 
+			@gcl:CDMName (value=closeComments) 
+		
+		financialProfile -> CDM:FinancialProfile 
+		
+		marketingProfile -> CDM:MarketingProfile 
+		
+		name : mml:string 
+			@gcl:CDMName (value=name) 
+		
+		numbered : CDM:Trilean 
+			@gcl:CDMName (value=numbered.value) 
+			@back:GetterInstruction (value="clientRelationship.getNumbered().getValue()") 
+			@back:SetterInstruction (value="clientRelationship.setNumbered(new Trilean(numbered))") 
+		
+		numberedWithPseudonyme : CDM:Trilean 
+			@gcl:CDMName (value=numberedWithPseudonyme.value) 
+			@back:GetterInstruction (value="clientRelationship.getNumberedWithPseudonyme().getValue()") 
+			@back:SetterInstruction (value="clientRelationship.setNumberedWithPseudonyme(new Trilean(numberedWithPseudonyme))") 
+		
+		openingProfile -> CDM:OpeningProfile 
+		
+		participations -> CDM:Participation * 
+		reverse 
+		{ 
+				clientRelationship <- CDM:ClientRelationship:participations 
+		} 
+		
+		providedServices -> CDM:CoreService * 
+		reverse 
+		{ 
+				clientRelationship <- CDM:ClientRelationship:providedServices 
+		} 
+		
+		riskProfile -> CDM:RiskProfile 
+		
+		rootId : mml:string 
+			@gcl:CDMName (value=rootId) 
+		
+		startDate : mml:date 
+			@gcl:CDMName (value=startDate) 
+		
+		status : CDM:ClientRelationshipStatus 
+			@gcl:CDMName (value=status) 
+		
+		statusDescription : mml:string 
+			@gcl:CDMName (value=statusDescription) 
+		
+		stopDate : mml:date 
+			@gcl:CDMName (value=stopDate) 
+		
+		usedCodeNames -> byValue CDM:CodeWord * 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	Participation 
+		@sql:SQLName (value=cdm_participation) 
+		@gcl:CDMName (value=representative) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.accountModel.Participant) 
+	{ 
+		closeComments : mml:string 
+			@gcl:CDMName (value=closeComments) 
+		
+		main : CDM:Trilean 
+			@gcl:CDMName (value=main.value) 
+			@back:GetterInstruction (value="participation.getMain().getValue()") 
+			@back:SetterInstruction (value="participation.setMain(new Trilean(main))") 
+		
+		participantRightJointNumber : mml:integer 
+			@gcl:CDMName (value=participantRight.jointNumber) 
+			@back:GetterInstruction (value="participation.getParticipantRight().getJointNumber()") 
+			@back:SetterInstruction (value="participation.getParticipantRight().setJointNumber(participantRightJointNumber)") 
+		
+		participantRightSignatureAmount : mml:double 
+			@gcl:CDMName (value=participantRight.signatureAmount.value) 
+			@back:GetterInstruction (value="participation.getParticipantRight().getSignatureAmount().getValue()") 
+			@back:SetterInstruction (value="participation.getParticipantRight().getSignatureAmount().setValue(participantRightSignatureAmount)") 
+		
+		participantRightSignatureAmountCurrency : CDM:Currency 
+			@gcl:CDMName (value=participantRight.signatureAmount.amountCurrency.code) 
+			@back:GetterInstruction (value="participation.getParticipantRight().getSignatureAmount().getAmountCurrency().getCode()") 
+			@back:SetterInstruction (value="participation.getParticipantRight().getSignatureAmount().getAmountCurrency().setCode(participantRightSignatureAmountCurrency)") 
+		
+		participantRightType : CDM:ParticipantRightType 
+			@gcl:CDMName (value=participantRight.type.type) 
+			@back:GetterInstruction (value="participation.getParticipantRight().getType().getType()") 
+			@back:SetterInstruction (value="participation.getParticipantRight().setType(new RightType(participantRightType))") 
+		
+		participantRoles -> byValue CDM:ParticipantRole * 
+		
+		powerOfAttorneyItsPowerOfAttorneyType : CDM:PowerOfAttorneyType 
+			@gcl:CDMName (value=powerOfAttorney.itsPowerOfAttorneyType.type) 
+			@back:GetterInstruction (value="participation.getPowerOfAttorney().getItsPowerOfAttorneyType().getType()") 
+			@back:SetterInstruction (value="participation.getPowerOfAttorney().setItsPowerOfAttorneyType(new PowerOfAttorneyType(powerOfAttorneyItsPowerOfAttorneyType))") 
+		
+		powerOfAttorneyMandatePostMortem : CDM:Trilean 
+			@gcl:CDMName (value=powerOfAttorney.mandatePostMortem.value) 
+			@back:GetterInstruction (value="participation.getPowerOfAttorney().getMandatePostMortem().getValue()") 
+			@back:SetterInstruction (value="participation.getPowerOfAttorney().setMandatePostMortem(new Trilean(powerOfAttorneyMandatePostMortem))") 
+		
+		powerOfAttorneyRemarks : mml:string 
+			@gcl:CDMName (value) 
+			@back:GetterInstruction (value="participation.getPowerOfAttorney().getRemarks()") 
+			@back:SetterInstruction (value="participation.getPowerOfAttorney().setRemarks(powerOfAttorneyRemarks)") 
+		
+		remarks : mml:string 
+			@gcl:CDMName (value=remarks) 
+		
+		startDate : mml:date 
+			@gcl:CDMName (value=creationDate) 
+		
+		stopDate : mml:date 
+			@gcl:CDMName (value=stopDate) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	ParticipantRole 
+		@sql:SQLName (value=cdm_participantrolemapping) 
+		@gcl:CDMName (value=participationRoleMapping) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.accountModel.ParticipantRole) 
+	{ 
+		roleType : CDM:ParticipantRoles 
+			@gcl:CDMName (value) 
+			@back:GetterInstruction (value="participantRole.getType()") 
+			@back:SetterInstruction (value="participantRole.setType(roleType)") 
+		
+		seqNumber : mml:integer 
+			@gcl:CDMName (value) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	abstract Party 
+		@sql:SQLName (value=cdm_party) 
+		@gcl:CDMName (value=party) 
+	{ 
+		address -> byValue CDM:PostalAddress * 
+		
+		attachments -> byValue CDM:Attachment 
+		
+		defaultLanguage : CDM:Language 
+			@gcl:CDMName (value=defaultName.language) 
+			@back:GetterInstruction (value="#realClassName#.getDefaultName().getLanguage()") 
+			@back:SetterInstruction (value="#realClassName#.getDefaultName().setLanguage(defaultLanguage)") 
+		
+		domicileAddress -> byValue CDM:PostalAddress 
+		
+		email -> byValue CDM:EmailAddress * 
+		
+		nationalities -> byValue CDM:Nationality * 
+		
+		participations -> CDM:Participation * 
+		reverse 
+		{ 
+				realParty <- CDM:Party:participations 
+		} 
+		
+		phone -> byValue CDM:TelephoneNumber * 
+		
+		shortName : mml:string 
+			@gcl:CDMName (value=defaultName.shortName) 
+			@back:GetterInstruction (value="#realClassName#.getDefaultName().getShortName()") 
+			@back:SetterInstruction (value="#realClassName#.getDefaultName().setShortName(shortName)") 
+		
+		status : mml:string 
+			@gcl:CDMName (value=demographics.status) 
+			@back:GetterInstruction (value="#realClassName#.getDemographics().getStatus()") 
+			@back:SetterInstruction (value="#realClassName#.getDemographics().setStatus(status)") 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	Person extends CDM:Party 
+		@sql:SQLName (value=cdm_person) 
+		@gcl:CDMName (value=person) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.Person) 
+	{ 
+		birthCountry : CDM:Country 
+			@gcl:CDMName (value=demographics.birthCountry) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getBirthCountry()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).setBirthCountry(birthCountry)") 
+		
+		birthDate : mml:date 
+			@gcl:CDMName (value=demographics.birthDate) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getBirthDate()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).setBirthDate(birthDate)") 
+		
+		birthPlace : mml:string 
+			@gcl:CDMName (value=demographics.birthPlace) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getBirthPlace()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).setBirthPlace(birthPlace)") 
+		
+		businessCountry : CDM:Country 
+			@gcl:CDMName (value=demographics.businessCountry) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getBusinessCountry()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).setBusinessCountry(businessCountry)") 
+		
+		deathCountry : CDM:Country 
+			@gcl:CDMName (value=demographics.deathCountry) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getDeathCountry()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).setDeathCountry(deathCountry)") 
+		
+		deathDate : mml:date 
+			@gcl:CDMName (value=demographics.deathDate) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getDeathDate()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).setDeathDate(deathDate)") 
+		
+		deathPlace : mml:string 
+			@gcl:CDMName (value=demographics.deathPlace) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getDeathPlace()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).setDeathPlace(deathPlace)") 
+		
+		firstName : mml:string 
+			@gcl:CDMName (value=defaultName.firstName) 
+			@back:GetterInstruction (value="((PersonName) person.getDefaultName()).getFirstName()") 
+			@back:SetterInstruction (value="((PersonName) person.getDefaultName()).setFirstName(firstName)") 
+		
+		gender : CDM:Gender 
+			@gcl:CDMName (value=demographics.gender.type) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getGender().getType()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).setGender(new Gender(gender))") 
+		
+		lastName : mml:string 
+			@gcl:CDMName (value=defaultName.lastName) 
+			@back:GetterInstruction (value="((PersonName) person.getDefaultName()).getLastName()") 
+			@back:SetterInstruction (value="((PersonName) person.getDefaultName()).setLastName(lastName)") 
+		
+		maidenName : mml:string 
+			@gcl:CDMName (value=demographics.maidenName) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getMaidenName()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).setMaidenName(maidenName)") 
+		
+		maritalStatus : CDM:MaritalStatus 
+			@gcl:CDMName (value=demographics.maritalStatus.status) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getMaritalStatus().getStatus()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).setMaritalStatus(new MaritalStatus(maritalStatus))") 
+		
+		maritalStatusComment : mml:string 
+			@gcl:CDMName (value=demographics.maritalStatusComment) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getMaritalStatusComment()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).setMaritalStatusComment(maritalStatusComment)") 
+		
+		primaryOccupationBasePay : mml:double 
+			@gcl:CDMName (value=demographics.primaryOccupation.basePay.value) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getBasePay().getValue()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getBasePay().setValue(primaryOccupationBasePay)") 
+		
+		primaryOccupationBasePayCurrency : CDM:Currency 
+			@gcl:CDMName (value=demographics.primaryOccupation.basePay.amountCurrency.code) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getBasePay().getAmountCurrency().getCode()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getBasePay().getAmountCurrency().setCode(primaryOccupationBasePayCurrency)") 
+		
+		primaryOccupationBusinessRestriction : mml:string 
+			@gcl:CDMName (value=demographics.primaryOccupation.businessRestriction) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getBusinessRestriction()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().setBusinessRestriction(primaryOccupationBusinessRestriction)") 
+		
+		primaryOccupationEmployerName : mml:string 
+			@gcl:CDMName (value=demographics.primaryOccupation.employerName.fullName) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getEmployerName().getFullName()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getEmployerName().setFullName(primaryOccupationEmployerName)") 
+		
+		primaryOccupationJobComment : mml:string 
+			@gcl:CDMName (value=demographics.primaryOccupation.jobComment) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getJobComment()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().setJobComment(primaryOccupationJobComment)") 
+		
+		primaryOccupationJobDescription : mml:string 
+			@gcl:CDMName (value=demographics.primaryOccupation.jobDescription) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getJobDescription()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().setJobDescription(primaryOccupationJobDescription)") 
+		
+		primaryOccupationJobTitle : mml:string 
+			@gcl:CDMName (value=demographics.primaryOccupation.jobTitle) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getJobTitle()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().setJobTitle(primaryOccupationJobTitle)") 
+		
+		primaryOccupationJobType : mml:string 
+			@gcl:CDMName (value=demographics.primaryOccupation.jobType) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getJobType()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().setJobType(primaryOccupationJobType)") 
+		
+		primaryOccupationPrimaryIndustryTypeCodeISIC3 : mml:string 
+			@gcl:CDMName (value=demographics.primaryOccupation.primaryIndustryType.codeISIC3) 
+			@back:GetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getPrimaryIndustryType().getCodeISIC3()") 
+			@back:SetterInstruction (value="((PersonDemographics) person.getDemographics()).getPrimaryOccupation().getPrimaryIndustryType().setCodeISIC3(primaryOccupationPrimaryIndustryTypeCodeISIC3)") 
+		
+		title : CDM:Title 
+			@gcl:CDMName (value=defaultName.title) 
+			@back:GetterInstruction (value="((PersonName) person.getDefaultName()).getTitle()") 
+			@back:SetterInstruction (value="((PersonName) person.getDefaultName()).setTitle(title)") 
+		
+		writtenLanguage : CDM:Language 
+			@gcl:CDMName (value=writtenLanguage) 
+			@back:GetterInstruction (value="person.getDefaultName().getWrittenLanguage()") 
+			@back:SetterInstruction (value="person.getDefaultName().setWrittenLanguage(writtenLanguage)") 
+	} 
+	Company extends CDM:Party 
+		@sql:SQLName (value=cdm_corporation) 
+		@gcl:CDMName (value=corporation) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.Company) 
+	{ 
+		constitutionCountry : CDM:Country 
+			@gcl:CDMName (value="demographics.locations[0].constitutionCountry") 
+			@back:GetterInstruction (value="((OrganisationDemographics) company.getDemographics()).getLocations(0).getConstitutionCountry()") 
+			@back:SetterInstruction (value="((OrganisationDemographics) company.getDemographics()).getLocations(0).setConstitutionCountry(constitutionCountry)") 
+		
+		creationDate : mml:date 
+			@gcl:CDMName (value=demographics.creationDate) 
+			@back:GetterInstruction (value="company.getDemographics().getCreationDate()") 
+			@back:SetterInstruction (value="company.getDemographics().setCreationDate(creationDate)") 
+		
+		industryType : mml:string 
+			@gcl:CDMName (value=demographics.primaryIndustry.industryType.description) 
+			@back:GetterInstruction (value="((OrganisationDemographics) company.getDemographics()).getPrimaryIndustry().getIndustryType().getDescription()") 
+			@back:SetterInstruction (value="((OrganisationDemographics) company.getDemographics()).getPrimaryIndustry().getIndustryType().setDescription(industryType)") 
+		
+		juridicStatus : mml:string 
+			@gcl:CDMName (value=demographics.juridicStatus) 
+			@back:GetterInstruction (value="((OrganisationDemographics) company.getDemographics()).getJuridicStatus()") 
+			@back:SetterInstruction (value="((OrganisationDemographics) company.getDemographics()).setJuridicStatus(juridicStatus)") 
+		
+		registeredName : mml:string 
+			@gcl:CDMName (value=defaultName.registeredName) 
+			@back:GetterInstruction (value="((CorporationName) company.getDefaultName()).getRegisteredName()") 
+			@back:SetterInstruction (value="((CorporationName) company.getDefaultName()).setRegisteredName(registeredName)") 
+		
+		registeredOffice : mml:string 
+			@gcl:CDMName (value=defaultName.registeredOffice) 
+			@back:GetterInstruction (value="((CorporationName) company.getDefaultName()).getRegisteredOffice()") 
+			@back:SetterInstruction (value="((CorporationName) company.getDefaultName()).setRegisteredOffice(registeredOffice)") 
+		
+		registerOfCommerceNumber : mml:string 
+			@gcl:CDMName (value=registerOfCommerceNumber) 
+		
+		vatNumber : mml:string 
+			@gcl:CDMName (value=vatNumber) 
+	} 
+	abstract ContactPoint 
+		@sql:SQLName (value=cdm_contact_point) 
+		@gcl:CDMName (value=contactPointOther) 
+	{ 
+		comments : mml:string 
+			@gcl:CDMName (value=contactPoint.comments) 
+			@back:GetterInstruction (value="#realClassName#.getContactPoint().getComments()") 
+			@back:SetterInstruction (value="#realClassName#.getContactPoint().setComments(comments)") 
+		
+		contactPointType : CDM:ContactPointType 
+			@gcl:CDMName (value) 
+			@back:GetterInstruction (value="#realClassName#.getContactPoint().getContactPointType().getType()") 
+			@back:SetterInstruction (value="#realClassName#.getContactPoint().setContactPointType(new ContactPointType(contactPointType))") 
+		
+		contactPointUsageType : CDM:ContactPointUsageType 
+			@gcl:CDMName (value=contactPointUsageType.type) 
+			@back:GetterInstruction (value="#realClassName#.getContactPointUsageType().getType()") 
+			@back:SetterInstruction (value="#realClassName#.setContactPointUsageType(new ContactPointUsageType(contactPointUsageType))") 
+		
+		endReachability : mml:date 
+			@gcl:CDMName (value=stopDate) 
+			@back:GetterInstruction (value="#realClassName#.getStopDate()") 
+			@back:SetterInstruction (value="#realClassName#.setStopDate(endReachability)") 
+		
+		reachability : mml:string 
+			@gcl:CDMName (value=reachability) 
+		
+		seqNumber : mml:integer 
+			@gcl:CDMName (value) 
+		
+		startReachability : mml:date 
+			@gcl:CDMName (value=creationDate) 
+			@back:GetterInstruction (value="#realClassName#.getStartDate()") 
+			@back:SetterInstruction (value="#realClassName#.setStartDate(startReachability)") 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	PostalAddress extends CDM:ContactPoint 
+		@sql:SQLName (value=cdm_contact_point) 
+		@gcl:CDMName (value=contactPointOther) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.ContactPointUsage) 
+	{ 
+		addressLine0 : mml:string 
+			@gcl:CDMName (value="contactPoint.addressLines[0]") 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getAddressLines(0)") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setAddressLines(0, addressLine0)") 
+		
+		addressLine1 : mml:string 
+			@gcl:CDMName (value="contactPoint.addressLines[1]") 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getAddressLines(1)") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setAddressLines(1, addressLine1)") 
+		
+		addressLine2 : mml:string 
+			@gcl:CDMName (value="contactPoint.addressLines[2]") 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getAddressLines(2)") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setAddressLines(2, addressLine2)") 
+		
+		addressLine3 : mml:string 
+			@gcl:CDMName (value="contactPoint.addressLines[3]") 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getAddressLines(3)") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setAddressLines(3, addressLine3)") 
+		
+		addressLine4 : mml:string 
+			@gcl:CDMName (value="contactPoint.addressLines[4]") 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getAddressLines(4)") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setAddressLines(4, addressLine4)") 
+		
+		addressLine5 : mml:string 
+			@gcl:CDMName (value="contactPoint.addressLines[5]") 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getAddressLines(5)") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setAddressLines(5, addressLine5)") 
+		
+		addressLine6 : mml:string 
+			@gcl:CDMName (value="contactPoint.addressLines[6]") 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getAddressLines(6)") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setAddressLines(6, addressLine6)") 
+		
+		city : mml:string 
+			@gcl:CDMName (value=contactPoint.city) 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getCity()") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setCity(city)") 
+		
+		countryCodeISOValue : CDM:Country 
+			@gcl:CDMName (value=contactPoint.countryCode.ISOValue) 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getCountryCode().getISOValue()") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setCountryCode(myCountryCode)") 
+		
+		poBox : mml:string 
+			@gcl:CDMName (value=contactPoint.poBox) 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getPoBox()") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setPoBox(poBox)") 
+		
+		postalCode : mml:string 
+			@gcl:CDMName (value=contactPoint.postalCode) 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getPostalCode()") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setPostalCode(postalCode)") 
+		
+		qualifier0 : mml:string 
+			@gcl:CDMName (value=qualifier) 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getQualifiers(0).getQualifier()") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setQualifiers(0, new ContactPointQualifier(qualifier0))") 
+		
+		qualifier1 : mml:string 
+			@gcl:CDMName (value=qualifier) 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getQualifiers(1).getQualifier()") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setQualifiers(1, new ContactPointQualifier(qualifier1))") 
+		
+		qualifier2 : mml:string 
+			@gcl:CDMName (value=qualifier) 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getQualifiers(2).getQualifier()") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setQualifiers(2, new ContactPointQualifier(qualifier2))") 
+		
+		region : mml:string 
+			@gcl:CDMName (value=contactPoint.region) 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getRegion()") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setRegion(region)") 
+		
+		street : mml:string 
+			@gcl:CDMName (value=contactPoint.street) 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getStreet()") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setStreet(street)") 
+		
+		streetNumber : mml:string 
+			@gcl:CDMName (value=contactPoint.streetNumber) 
+			@back:GetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).getStreetNumber()") 
+			@back:SetterInstruction (value="((PostalAddress) postalAddress.getContactPoint()).setStreetNumber(streetNumber)") 
+	} 
+	EmailAddress extends CDM:ContactPoint 
+		@sql:SQLName (value=cdm_contact_point) 
+		@gcl:CDMName (value=contactPointOther) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.ContactPointUsage) 
+	{ 
+		domaineName : mml:string 
+			@gcl:CDMName (value=contactPoint.domaineName) 
+			@back:GetterInstruction (value="((EmailAddress) emailAddress.getContactPoint()).getDomaineName()") 
+			@back:SetterInstruction (value="((EmailAddress) emailAddress.getContactPoint()).setDomaineName(domaineName)") 
+		
+		userName : mml:string 
+			@gcl:CDMName (value=contactPoint.userName) 
+			@back:GetterInstruction (value="((EmailAddress) emailAddress.getContactPoint()).getUserName()") 
+			@back:SetterInstruction (value="((EmailAddress) emailAddress.getContactPoint()).setUserName(userName)") 
+	} 
+	TelephoneNumber extends CDM:ContactPoint 
+		@sql:SQLName (value=cdm_contact_point) 
+		@gcl:CDMName (value=contactPointOther) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.ContactPointUsage) 
+	{ 
+		areaCode : mml:string 
+			@gcl:CDMName (value=contactPoint.areaCode) 
+			@back:GetterInstruction (value="((TelephoneNumber) telephoneNumber.getContactPoint()).getAreaCode()") 
+			@back:SetterInstruction (value="((TelephoneNumber) telephoneNumber.getContactPoint()).setAreaCode(areaCode)") 
+		
+		countryPhoneCode : mml:string 
+			@gcl:CDMName (value=contactPoint.countryPhoneCode) 
+			@back:GetterInstruction (value="((TelephoneNumber) telephoneNumber.getContactPoint()).getCountryPhoneCode()") 
+			@back:SetterInstruction (value="((TelephoneNumber) telephoneNumber.getContactPoint()).setCountryPhoneCode(countryPhoneCode)") 
+		
+		extension : mml:string 
+			@gcl:CDMName (value=contactPoint.extension) 
+			@back:GetterInstruction (value="((TelephoneNumber) telephoneNumber.getContactPoint()).getExtension()") 
+			@back:SetterInstruction (value="((TelephoneNumber) telephoneNumber.getContactPoint()).setExtension(extension)") 
+		
+		inCountryAreaPrefix : mml:string 
+			@gcl:CDMName (value=contactPoint.inCountryAreaPrefix) 
+			@back:GetterInstruction (value="((TelephoneNumber) telephoneNumber.getContactPoint()).getInCountryAreaPrefix()") 
+			@back:SetterInstruction (value="((TelephoneNumber) telephoneNumber.getContactPoint()).setInCountryAreaPrefix(inCountryAreaPrefix)") 
+		
+		localNumber : mml:string 
+			@gcl:CDMName (value=contactPoint.localNumber) 
+			@back:GetterInstruction (value="((TelephoneNumber) telephoneNumber.getContactPoint()).getLocalNumber()") 
+			@back:SetterInstruction (value="((TelephoneNumber) telephoneNumber.getContactPoint()).setLocalNumber(localNumber)") 
+	} 
+	abstract CoreService 
+		@sql:SQLName (value=cdm_services) 
+		@gcl:CDMName (value) 
+		@back:BackEndEntity (value=com.odcgroup.cdm.service.ServiceGeneric) 
+	{ 
+		assignee : mml:URI 
+			@gcl:CDMName (value) 
+		
+		closeComments : mml:string 
+			@gcl:CDMName (value) 
+		
+		closeDate : mml:date 
+			@gcl:CDMName (value) 
+		
+		closedBy : mml:string 
+			@gcl:CDMName (value) 
+			@back:GetterInstruction (value="service.getCloseBy()") 
+			@back:SetterInstruction (value="service.setCloseBy(closedBy)") 
+		
+		code : mml:string 
+			@gcl:CDMName (value=code) 
+		
+		description : mml:string 
+			@gcl:CDMName (value=description) 
+		
+		serviceType : mml:string 
+			@gcl:CDMName (value) 
+			@back:GetterInstruction (value="service.getType().getType()") 
+			@back:SetterInstruction (value="service.setType(new com.odcgroup.cdm.service.ServiceType(serviceType))") 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	CurrentAccount extends CDM:CoreService 
+	{ 
+		CA_Currency : CDM:Currency 
+			@custo:Custom 
+		
+		CA_Usage : mml:string 
+			@custo:Custom 
+	} 
+	CustodyAccount extends CDM:CoreService 
+	{ 
+		CuA_BaseCurrency : CDM:Currency 
+			@custo:Custom 
+		
+		CuA_SystemCurrency : CDM:Currency 
+			@custo:Custom 
+		
+		CuA_Usage : mml:string 
+			@custo:Custom 
+	} 
+	CodeWord 
+		@sql:SQLName (value=cdm_codeword) 
+		@gcl:CDMName (value=codeWord) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.ClientRelationshipCodename) 
+	{ 
+		name : mml:string 
+			@gcl:CDMName (value=name) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	FinancialProfile 
+		@sql:SQLName (value=cdm_financialenvironment) 
+		@gcl:CDMName (value=financialEnvironment) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.ClientRelationshipFinancialEnvironment) 
+	{ 
+		financialRequirementsAmount : mml:double 
+			@gcl:CDMName (value=financialRequirementsAmount) 
+		
+		financialRequirementsCcy : CDM:Currency 
+			@gcl:CDMName (value=financialRequirementsCcy) 
+			@back:GetterInstruction (value="financialProfile.getFinancialRequirementsCcy().getCode()") 
+			@back:SetterInstruction (value="financialProfile.getFinancialRequirementsCcy().setCode(financialRequirementsCcy)") 
+		
+		financialRequirementsDescription : mml:string 
+			@gcl:CDMName (value=financialRequirementsDescription) 
+		
+		globalWealthAmount : mml:double 
+			@gcl:CDMName (value=globalWealthAmount) 
+		
+		globalWealthCcy : CDM:Currency 
+			@gcl:CDMName (value=globalWealthCcy.code) 
+			@back:GetterInstruction (value="financialProfile.getGlobalWealthCcy().getCode()") 
+			@back:SetterInstruction (value="financialProfile.getGlobalWealthCcy().setCode(globalWealthCcy)") 
+		
+		investmentTimeHorizon : CDM:ClientProfileFinancialLongPeriodRange 
+			@gcl:CDMName (value=investmentTimeHorizon) 
+		
+		originOfWealthDescription : mml:string 
+			@gcl:CDMName (value=originOfWealthDescription) 
+		
+		originOfWealthProvider : CDM:ClientProfileFinancialOriginOfWealth 
+			@gcl:CDMName (value=originOfWealthProvider) 
+		
+		otherBanks -> byValue CDM:OtherBank * 
+		
+		otherEntitiesInGroup -> byValue CDM:OtherEntityInGroup * 
+		
+		shortRequirementsCcy : CDM:Currency 
+			@gcl:CDMName (value=shortRequirementsCcy.code) 
+			@back:GetterInstruction (value="financialProfile.getShortRequirementsCcy().getCode()") 
+			@back:SetterInstruction (value="financialProfile.getShortRequirementsCcy().setCode(shortRequirementsCcy)") 
+		
+		shortTermRequirements : mml:double 
+			@gcl:CDMName (value=shortTermRequirements) 
+		
+		shortTermRequirementsPeriodRange : CDM:ClientProfileFinancialShortPeriodRange 
+			@gcl:CDMName (value=shortTermRequirementsPeriodRange) 
+		
+		usageOfAssets -> byValue CDM:UsageOfAssets * 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+		
+		wealthComposition -> byValue CDM:WealthComposition * 
+	} 
+	UsageOfAssets 
+		@sql:SQLName (value=cdm_usageofassets) 
+		@gcl:CDMName (value=usageOfAssets) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.LiteClientRelation) 
+	{ 
+		asset : mml:double 
+			@gcl:CDMName (value=asset) 
+		
+		currency : CDM:Currency 
+			@gcl:CDMName (value=currency.code) 
+			@back:GetterInstruction (value="usageOfAssets.getCurrency().getCode()") 
+			@back:SetterInstruction (value="usageOfAssets.getCurrency().setCode(currency)") 
+		
+		name : CDM:AssetUsageType 
+			@gcl:CDMName (value=name) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	WealthComposition 
+		@sql:SQLName (value=cdm_wealthcomposition) 
+		@gcl:CDMName (value=wealthComposition) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.LiteClientRelation) 
+	{ 
+		assetType : CDM:ClientProfileFinancialAssetTypes 
+			@gcl:CDMName (value=assetType) 
+		
+		percentage : mml:double 
+			@gcl:CDMName (value=percentage) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	OtherEntityInGroup 
+		@sql:SQLName (value=cdm_entitiesingroup) 
+		@gcl:CDMName (value=otherEntitiesInGroup) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.LiteClientRelation) 
+	{ 
+		asset : mml:double 
+			@gcl:CDMName (value=asset) 
+		
+		currency : CDM:Currency 
+			@gcl:CDMName (value=currency) 
+			@back:GetterInstruction (value="otherEntityInGroup.getCurrency().getCode()") 
+			@back:SetterInstruction (value="otherEntityInGroup.getCurrency().setCode(currency)") 
+		
+		name : mml:string 
+			@gcl:CDMName (value=name) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	OtherBank 
+		@sql:SQLName (value=cdm_otherbanks) 
+		@gcl:CDMName (value=otherBanks) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.LiteClientRelation) 
+	{ 
+		asset : mml:double 
+			@gcl:CDMName (value=asset) 
+		
+		currency : CDM:Currency 
+			@gcl:CDMName (value=currency.code) 
+			@back:GetterInstruction (value="otherBank.getCurrency().getCode()") 
+			@back:SetterInstruction (value="otherBank.getCurrency().setCode(currency)") 
+		
+		name : mml:string 
+			@gcl:CDMName (value=name) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	MarketingProfile 
+		@sql:SQLName (value=cdm_marketingdata) 
+		@gcl:CDMName (value=marketingData) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.ClientRelationshipMarketingData) 
+	{ 
+		administrationalLoad : CDM:ClientProfileMarketingAdministrationalLoad 
+			@gcl:CDMName (value=administrationalLoad) 
+		
+		clientTypeAdditionalInfo : mml:string 
+			@gcl:CDMName (value=clientTypeAdditionnalInfo) 
+			@back:GetterInstruction (value="marketingProfile.getClientTypeAdditionnalInfo()") 
+			@back:SetterInstruction (value="marketingProfile.setClientTypeAdditionnalInfo(clientTypeAdditionalInfo)") 
+		
+		contactExpected : CDM:ClientProfileMarketingProbablyContactBank 
+			@gcl:CDMName (value=contactExpected) 
+		
+		expatriated : CDM:Trilean 
+			@gcl:CDMName (value=expatriated.value) 
+			@back:GetterInstruction (value="marketingProfile.getExpatriated().getValue()") 
+			@back:SetterInstruction (value="marketingProfile.setExpatriated(new Trilean(expatriated))") 
+		
+		futureAssetsAcquisitionPotentialAmount : mml:double 
+			@gcl:CDMName (value=futurAssetsAcquisition) 
+			@back:GetterInstruction (value="marketingProfile.getFuturAssetsAcquisition()") 
+			@back:SetterInstruction (value="marketingProfile.setFuturAssetsAcquisition(futureAssetsAcquisitionPotentialAmount)") 
+		
+		futureAssetsAcquisitionPotentialCurrency : CDM:Currency 
+			@gcl:CDMName (value=futurAssetsAcquisitionCcy) 
+			@back:GetterInstruction (value="marketingProfile.getFuturAssetsAcquisitionCcy().getCode()") 
+			@back:SetterInstruction (value="marketingProfile.getFuturAssetsAcquisitionCcy().setCode(futureAssetsAcquisitionPotentialCurrency)") 
+		
+		futureAssetsAcquisitionPotentialDate : mml:date 
+			@gcl:CDMName (value=futurAssetsAcquisitionDate) 
+			@back:GetterInstruction (value="marketingProfile.getFuturAssetsAcquisitionDate()") 
+			@back:SetterInstruction (value="marketingProfile.setFuturAssetsAcquisitionDate(futureAssetsAcquisitionPotentialDate)") 
+		
+		futureAssetsAcquisitionPotentialLevel : CDM:FutureAssetsAcquisitionLevel 
+			@gcl:CDMName (value=futurLevel) 
+			@back:GetterInstruction (value="marketingProfile.getFuturLevel()") 
+			@back:SetterInstruction (value="marketingProfile.setFuturLevel(futureAssetsAcquisitionPotentialLevel)") 
+		
+		generalTypes -> byValue CDM:MarketingDataClientType * 
+		
+		investorType : CDM:ClientProfileMarketingTypeOfInvestor 
+			@gcl:CDMName (value=investorType) 
+		
+		isContactable : CDM:ClientProfileMarketingPermitsContact 
+			@gcl:CDMName (value=isContactable) 
+		
+		percentageAccountAssetsToOveralAssets : mml:double 
+			@gcl:CDMName (value=accountAssets) 
+			@back:GetterInstruction (value="marketingProfile.getAccountAssets()") 
+			@back:SetterInstruction (value="marketingProfile.setAccountAssets(percentageAccountAssetsToOveralAssets)") 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	RiskProfile 
+		@sql:SQLName (value=cdm_riskprofile) 
+		@gcl:CDMName (value=riskProfile) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.ClientRelationshipRiskProfile) 
+	{ 
+		financialKnowledgeLevel : CDM:ClientProfileRiskFinancialKnowledge 
+			@gcl:CDMName (value=financialLevel) 
+			@back:GetterInstruction (value="riskProfile.getFinancialLevel()") 
+			@back:SetterInstruction (value="riskProfile.setFinancialLevel(financialKnowledgeLevel)") 
+		
+		followsNews : CDM:Trilean 
+			@gcl:CDMName (value=followsNews.value) 
+			@back:GetterInstruction (value="riskProfile.getFollowNews().getValue()") 
+			@back:SetterInstruction (value="riskProfile.setFollowNews(new Trilean(followsNews))") 
+		
+		infoSource1 : mml:string 
+			@gcl:CDMName (value=infoSource1) 
+		
+		infoSource2 : mml:string 
+			@gcl:CDMName (value=infoSource2) 
+		
+		infoSource3 : mml:string 
+			@gcl:CDMName (value=infoSource3) 
+		
+		infoSource4 : mml:string 
+			@gcl:CDMName (value=infoSource4) 
+		
+		instrumentsWorkedWith -> byValue CDM:InstrumentWorkedWith * 
+			@gcl:CDMName (value=intrumentsWorked) 
+		
+		investmentActivity : CDM:ClientProfileRiskInvestmentActivity 
+			@gcl:CDMName (value=investmentActivity) 
+		
+		investmentExperience : CDM:ClientProfileRiskInvestmentExperience 
+			@gcl:CDMName (value=investmentExperience) 
+		
+		managementIntensity : CDM:ClientProfileRiskManagementIntensity 
+			@gcl:CDMName (value=managementIntensity) 
+		
+		performanceObjective : mml:double 
+			@gcl:CDMName (value=performanceObjective) 
+		
+		riskProfileChosen : CDM:ClientProfileRiskRiskProfileClient 
+			@gcl:CDMName (value=riskProfileChosen) 
+		
+		riskProfileRecommended : CDM:ClientProfileRiskRiskProfileBank 
+			@gcl:CDMName (value=riskProfileRecommended) 
+		
+		riskReadyness : CDM:ClientProfileRiskRiskReadyness 
+			@gcl:CDMName (value=riskReadyness) 
+			@back:GetterInstruction (value="riskProfile.getRiskReadness()") 
+			@back:SetterInstruction (value="riskProfile.setRiskReadness(riskReadyness)") 
+		
+		toleratedLoss : mml:double 
+			@gcl:CDMName (value=toleratedLoss) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	InstrumentWorkedWith 
+		@sql:SQLName (value=cdm_instrumentsworked) 
+		@gcl:CDMName (value=instrumentWorked) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.LiteClientRelation) 
+	{ 
+		duration : mml:string 
+			@gcl:CDMName (value=duration) 
+		
+		typeName : CDM:ClientProfileRiskInstrumentAlreadyWorkedWith 
+			@gcl:CDMName (value=typeName) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	MarketingDataClientType 
+		@sql:SQLName (value=cdm_marketingdata) 
+		@gcl:CDMName (value=marketingDataClientType) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.MarketingDataClientType) 
+	{ 
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+		
+		value : CDM:ClientProfileMarketingTypeOfClient 
+			@gcl:CDMName (value=value) 
+	} 
+	OpeningProfile 
+		@sql:SQLName (value=cdm_clientrelationopening) 
+		@gcl:CDMName (value=clientRelationOpening) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.ClientRelationshipOpening) 
+	{ 
+		accountHolderContactAbsence : CDM:Trilean 
+			@gcl:CDMName (value=accountHolderContactAbsence.value) 
+			@back:GetterInstruction (value="openingProfile.getAccountHolderContactAbsence().getValue()") 
+			@back:SetterInstruction (value="openingProfile.setAccountHolderContactAbsence(new Trilean(accountHolderContactAbsence))") 
+		
+		acquisitionFactor : CDM:ClientProfileOpeningAcquisitionFactor 
+			@gcl:CDMName (value=acquisitionFactor) 
+		
+		acquisitionFactorDescription : mml:string 
+			@gcl:CDMName (value=acquisitionFactorDescription) 
+		
+		beneficialOwnerContactAbsence : CDM:Trilean 
+			@gcl:CDMName (value=beneficialOwnerContactAbsence.value) 
+			@back:GetterInstruction (value="openingProfile.getBeneficialOwnerContactAbsence().getValue()") 
+			@back:SetterInstruction (value="openingProfile.setBeneficialOwnerContactAbsence(new Trilean(beneficialOwnerContactAbsence))") 
+		
+		clientBackgroundDescription : mml:string 
+			@gcl:CDMName (value=description) 
+			@back:GetterInstruction (value="openingProfile.getDescription()") 
+			@back:SetterInstruction (value="openingProfile.setDescription(clientBackgroundDescription)") 
+		
+		clientRelationshipAim : CDM:ClientProfileOpeningClientRelationshipAim 
+			@gcl:CDMName (value=clientRelationshipAim) 
+		
+		clientRelationshipAimDescription : mml:string 
+			@gcl:CDMName (value=clientRelationshipAimDescription) 
+		
+		decisionMaker : mml:string 
+			@gcl:CDMName (value=decisionMaker) 
+		
+		externalAgent : mml:string 
+			@gcl:CDMName (value=externalAgent) 
+		
+		externalAgentType : CDM:ClientProfileOpeningExternatAgentType 
+			@gcl:CDMName (value=externalAgentType) 
+		
+		futurIncomingTransferAmount : mml:double 
+			@gcl:CDMName (value=futurIncomingTransferAmount) 
+		
+		futurIncomingTransferCcy : CDM:Currency 
+			@gcl:CDMName (value=futurIncomingTransferCcy.code) 
+			@back:GetterInstruction (value="openingProfile.getFuturIncomingTransferCcy().getCode()") 
+			@back:SetterInstruction (value="openingProfile.getFuturIncomingTransferCcy().setCode(futurIncomingTransferCcy)") 
+		
+		futurIncomingTransferExpected : CDM:Trilean 
+			@gcl:CDMName (value=futurIncomingTransferExpected.value) 
+			@back:GetterInstruction (value="openingProfile.getFuturIncomingTransferExpected().getValue()") 
+			@back:SetterInstruction (value="openingProfile.setFuturIncomingTransferExpected(new Trilean(futurIncomingTransferExpected))") 
+		
+		futurIncomingTransferHorizon : CDM:ClientProfileOpeningFutureIncomingHorizon 
+			@gcl:CDMName (value=futurIncomingTransferHorizon) 
+		
+		incomingTransfersCountries -> byValue CDM:IncomingTransfersCountry * 
+		
+		incomingTransfersExpectedFrequency : CDM:ClientProfileOpeningFrequencyTransfers 
+			@gcl:CDMName (value=incomingTransfersExpectedFrequency) 
+		
+		incomingTransfersSize : CDM:ClientProfileOpeningTransfersSize 
+			@gcl:CDMName (value=incomingTransfersSize) 
+		
+		initialTransfers -> CDM:InitialTransfer * 
+		reverse 
+		{ 
+				openingProfile <- CDM:OpeningProfile:initialTransfers 
+		} 
+		
+		moneyLaundringRating : CDM:ClientProfileOpeningMoneyLaundringRating 
+			@gcl:CDMName (value=moneyLaundringRating) 
+		
+		openingPlace : CDM:ClientProfileOpeningOpeniningPlace 
+			@gcl:CDMName (value=openingPlace) 
+		
+		originOfFirstFundsTransfer -> byValue CDM:OriginOfFirstFundsTransfer * 
+		
+		originOfFundsDescription : mml:string 
+			@gcl:CDMName (value=originOfFundsDescription) 
+		
+		outgoingTransfersCountries -> byValue CDM:OutgoingTransfersCountry * 
+		
+		outgoingTransfersExpectedFrequency : CDM:ClientProfileOpeningFrequencyTransfers 
+			@gcl:CDMName (value=outgoingTransfersExpectedFrequency) 
+		
+		outgoingTransfersSize : CDM:ClientProfileOpeningTransfersSize 
+			@gcl:CDMName (value=outgoingTransfersSize) 
+		
+		politicalyExposed : CDM:Trilean 
+			@gcl:CDMName (value=politicalyExposed.value) 
+			@back:GetterInstruction (value="openingProfile.getPoliticalyExposed().getValue()") 
+			@back:SetterInstruction (value="openingProfile.setPoliticalyExposed(new Trilean(politicalyExposed))") 
+		
+		refusalReason : mml:string 
+			@gcl:CDMName (value=refusalReason) 
+		
+		transferReason : CDM:ClientProfileOpeningTransferReason 
+			@gcl:CDMName (value=transferReason) 
+		
+		transferReasonDescription : mml:string 
+			@gcl:CDMName (value=transferReasonDescription) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	OriginOfFirstFundsTransfer 
+		@sql:SQLName (value=cdm_firstfundstransfer) 
+		@gcl:CDMName (value=firstFundTransfer) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.FirstFundsTransfer) 
+	{ 
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+		
+		value : mml:string 
+	} 
+	OutgoingTransfersCountry 
+		@gcl:CDMName (value) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.globalUtil.CountryCode) 
+	{ 
+		countryName : mml:string 
+			@gcl:CDMName (value) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	IncomingTransfersCountry 
+		@gcl:CDMName (value) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.globalUtil.CountryCode) 
+	{ 
+		countryName : mml:string 
+			@gcl:CDMName (value) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	InitialTransfer 
+		@sql:SQLName (value=cdm_initialtransfer) 
+		@gcl:CDMName (value=initialTransfer) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.InitialTransfer) 
+	{ 
+		amount : mml:double 
+			@gcl:CDMName (value=amount) 
+		
+		countryOfProvenance : CDM:Country 
+			@gcl:CDMName (value=countryOfProvenance.ISOValue) 
+			@back:GetterInstruction (value="initialTransfer.getCountryOfProvenance().getISOValue()") 
+			@back:SetterInstruction (value="initialTransfer.setCountryOfProvenance(myCountryCode)") 
+		
+		currency : CDM:Currency 
+			@gcl:CDMName (value=currency.code) 
+			@back:GetterInstruction (value="initialTransfer.getCurrency().getCode()") 
+			@back:SetterInstruction (value="initialTransfer.getCurrency().setCode(currency)") 
+		
+		internalExternal : CDM:Trilean 
+			@gcl:CDMName (value=internalExternal.value) 
+			@back:GetterInstruction (value="initialTransfer.getInternalExternal().getValue()") 
+			@back:SetterInstruction (value="initialTransfer.setInternalExternal(new Trilean(internalExternal))") 
+		
+		nature : CDM:ClientProfileOpeningInitialTransferNature 
+			@gcl:CDMName (value=nature) 
+		
+		provenance : mml:string 
+			@gcl:CDMName (value=provenance) 
+		
+		uUId : mml:string PK 
+			@gcl:CDMName (value) 
+	} 
+	Attachment 
+		@sql:SQLName (value=cdm_attachments) 
+		@gcl:CDMName (value=attachment) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.Attachment) 
+	{ 
+		attachmentObject -> byValue CDM:ScannedDocument 
+		
+		attachmentType : mml:string 
+			@gcl:CDMName (value=attachment.type) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+	ScannedDocument 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.globalUtil.ByteDocument) 
+	{ 
+		datas : mml:byte 
+		
+		documentName : mml:string 
+		
+		documentSize : mml:long 
+		
+		mimeType : mml:string 
+	} 
+	Nationality 
+		@sql:SQLName (value=cdm_person_nationalities) 
+		@gcl:CDMName (value=personNationality) 
+		@back:BackEndEntity (value=com.odafs.mirage.businessComponent.partyModel.Nationality) 
+	{ 
+		countryCode : CDM:Country 
+			@gcl:CDMName (value=countryCode.ISOValue) 
+			@back:GetterInstruction (value="nationality.getCountryCode().getISOValue()") 
+			@back:SetterInstruction (value="nationality.setCountryCode(myCountryCode)") 
+		
+		identifierExpiredDate : mml:date 
+			@gcl:CDMName (value=identifierExpiredDate) 
+		
+		identifierIssuedBy : mml:string 
+			@gcl:CDMName (value=identifierIssuedBy) 
+		
+		identifierIssuedDate : mml:date 
+			@gcl:CDMName (value=identifierIssuedDate) 
+		
+		identifierNumber : mml:string 
+			@gcl:CDMName (value=identifierNumber) 
+		
+		identifierObject -> byValue CDM:ScannedDocument 
+			@gcl:CDMName (value=identifierObject.datas) 
+		
+		nationalityIdentifier : CDM:PartyPersonIdentificationType 
+			@gcl:CDMName (value=nationalityIdentifier) 
+		
+		sequenceNumber : mml:string 
+			@gcl:CDMName (value) 
+		
+		uUId : mml:string PK required 
+			@gcl:CDMName (value) 
+	} 
+} 
+Datasets { 
+	PhysicalProspect basedOn CDM:Person 
+	{ 
+		addressCity singleValued -> address.city 
+		addressCountry singleValued -> address.countryCodeISOValue 
+		addressPostalCode singleValued -> address.postalCode 
+		addressStreet singleValued -> address.street 
+		addressStreetNumber singleValued -> address.streetNumber 
+		birthDate notUnique -> birthDate 
+		clientRelationshipName singleValued -> participations.clientRelationship.name 
+		clientRelationshipType singleValued -> participations.clientRelationship.clientType 
+		clientRelationshipUUId singleValued -> participations.clientRelationship.uUId 
+		emailComments singleValued -> email.comments 
+		emailDomaineName singleValued -> email.domaineName 
+		emailUserName singleValued -> email.userName 
+		firstName notUnique -> firstName 
+		gender notUnique -> gender 
+		lastName notUnique -> lastName 
+		maidenName notUnique -> maidenName 
+		personUUId -> uUId 
+		phoneComments singleValued -> phone.comments 
+		phoneCountryCode singleValued -> phone.countryPhoneCode 
+		phoneLocalNumber singleValued -> phone.localNumber 
+		shortName notUnique -> shortName 
+		title notUnique -> title 
+	} 
+	LegalProspect basedOn CDM:Company 
+	{ 
+		addressCity singleValued -> address.city 
+		addressCountry singleValued -> address.countryCodeISOValue 
+		addressPostalCode singleValued -> address.postalCode 
+		addressStreet singleValued -> address.street 
+		addressStreetNumber singleValued -> address.streetNumber 
+		clientRelationshipName singleValued -> participations.clientRelationship.name 
+		clientRelationshipType singleValued -> participations.clientRelationship.clientType 
+		clientRelationshipUUId singleValued -> participations.clientRelationship.uUId 
+		corporationType notUnique -> juridicStatus 
+		emailComments singleValued -> email.comments 
+		emailDomaineName singleValued -> email.domaineName 
+		emailUserName singleValued -> email.userName 
+		phoneComments singleValued -> phone.comments 
+		phoneCountryCode singleValued -> phone.countryPhoneCode 
+		phoneLocalNumber singleValued -> phone.localNumber 
+		registeredName -> registeredName 
+		shortName notUnique -> shortName 
+	} 
+	ProspectProfile basedOn CDM:ClientRelationship 
+	{ 
+		administrationalLoad -> marketingProfile.administrationalLoad 
+		clientTypeAdditionalInfo -> marketingProfile.clientTypeAdditionalInfo 
+		contactExpected -> marketingProfile.contactExpected 
+		expatriated -> marketingProfile.expatriated 
+		financialKnowledgeLevel -> riskProfile.financialKnowledgeLevel 
+		financialRequirementsAmount -> financialProfile.financialRequirementsAmount 
+		financialRequirementsCcy -> financialProfile.financialRequirementsCcy 
+		financialRequirementsDescription -> financialProfile.financialRequirementsDescription 
+		followsNews -> riskProfile.followsNews 
+		futureAssetsAcquisitionPotentialAmount -> marketingProfile.futureAssetsAcquisitionPotentialAmount 
+		futureAssetsAcquisitionPotentialCurrency -> marketingProfile.futureAssetsAcquisitionPotentialCurrency 
+		futureAssetsAcquisitionPotentialDate -> marketingProfile.futureAssetsAcquisitionPotentialDate 
+		futureAssetsAcquisitionPotentialLevel -> marketingProfile.futureAssetsAcquisitionPotentialLevel 
+		globalWealthAmount -> financialProfile.globalWealthAmount 
+		globalWealthCcy -> financialProfile.globalWealthCcy 
+		infoSource1 -> riskProfile.infoSource1 
+		infoSource2 -> riskProfile.infoSource2 
+		infoSource3 -> riskProfile.infoSource3 
+		infoSource4 -> riskProfile.infoSource4 
+		investmentActivity -> riskProfile.investmentActivity 
+		investmentExperience -> riskProfile.investmentExperience 
+		investmentTimeHorizon -> financialProfile.investmentTimeHorizon 
+		investorType -> marketingProfile.investorType 
+		isContactable -> marketingProfile.isContactable 
+		managementIntensity -> riskProfile.managementIntensity 
+		originOfWealthDescription -> financialProfile.originOfWealthDescription 
+		originOfWealthProvider -> financialProfile.originOfWealthProvider 
+		otherBanks -> financialProfile.otherBanks 
+		percentageAccountAssetsToOveralAssets -> marketingProfile.percentageAccountAssetsToOveralAssets 
+		performanceObjective -> riskProfile.performanceObjective 
+		riskProfileChosen -> riskProfile.riskProfileChosen 
+		riskProfileRecommended -> riskProfile.riskProfileRecommended 
+		riskReadyness -> riskProfile.riskReadyness 
+		shortRequirementsCcy -> financialProfile.shortRequirementsCcy 
+		shortTermRequirements -> financialProfile.shortTermRequirements 
+		shortTermRequirementsPeriodRange -> financialProfile.shortTermRequirementsPeriodRange 
+		toleratedLoss -> riskProfile.toleratedLoss 
+	} 
+	DSClientRelationship basedOn CDM:ClientRelationship 
+	{ 
+		clientType -> clientType 
+		name -> name 
+	} 
+	DSClientRelationResume basedOn CDM:ClientRelationship 
+	{ 
+		clientType -> clientType 
+		name -> name 
+		rootId -> rootId 
+	} 
+	DSDataInputBasicData basedOn CDM:ClientRelationship 
+	{ 
+		audited -> audited 
+		clientType -> clientType 
+		closeComments -> closeComments 
+		name -> name 
+		numbered -> numbered 
+		numberedWithPseudonyme -> numberedWithPseudonyme 
+		rootId -> rootId 
+		usedCodeNames -> usedCodeNames 
+	} 
+	DSParticipantPerson basedOn CDM:Person 
+	{ 
+		/* This derived property is always initialized in the following manner: - If the participation has only the role "Account holder", and not the role "Beneficial owner", set the derived property to false - If the participation has both the role "Account holder" and "Beneficial owner", set the value to true */ 
+		accountHoldersAreAlsoBeneficialOwners : mml:boolean default=true 
+		birthCountry -> birthCountry 
+		birthDate -> birthDate 
+		birthPlace -> birthPlace 
+		businessCountry -> businessCountry 
+		deathCountry -> deathCountry 
+		deathDate -> deathDate 
+		deathPlace -> deathPlace 
+		defaultLanguage -> defaultLanguage 
+		domicileAddressCity -> domicileAddress.city 
+		domicileAddressCountryCodeISOValue -> domicileAddress.countryCodeISOValue 
+		domicileAddressPoBox -> domicileAddress.poBox 
+		domicileAddressPostalCode -> domicileAddress.postalCode 
+		domicileAddressQualifier0 -> domicileAddress.qualifier0 
+		domicileAddressQualifier1 -> domicileAddress.qualifier1 
+		domicileAddressQualifier2 -> domicileAddress.qualifier2 
+		domicileAddressRegion -> domicileAddress.region 
+		domicileAddressStreet -> domicileAddress.street 
+		domicileAddressStreetNumber -> domicileAddress.streetNumber 
+		firstName -> firstName 
+		gender -> gender 
+		lastName -> lastName 
+		maidenName -> maidenName 
+		maritalStatus -> maritalStatus 
+		maritalStatusComment -> maritalStatusComment 
+		nationalities -> nationalities 
+		participationCloseComments -> participations.closeComments 
+		participationMain -> participations.main 
+		participationParticipantRightJointNumber -> participations.participantRightJointNumber 
+		participationParticipantRightSignatureAmount -> participations.participantRightSignatureAmount 
+		participationParticipantRightSignatureAmountCurrency -> participations.participantRightSignatureAmountCurrency 
+		participationParticipantRightType -> participations.participantRightType 
+		participationPowerOfAttorneyItsPowerOfAttorneyType -> participations.powerOfAttorneyItsPowerOfAttorneyType 
+		participationPowerOfAttorneyMandatePostMortem -> participations.powerOfAttorneyMandatePostMortem 
+		participationPowerOfAttorneyRemarks -> participations.powerOfAttorneyRemarks 
+		participationRemarks -> participations.remarks 
+		participationStopDate -> participations.stopDate 
+		phoneCountryPhoneCode -> phone.countryPhoneCode 
+		primaryOccupationBasePay -> primaryOccupationBasePay 
+		primaryOccupationBasePayCurrency -> primaryOccupationBasePayCurrency 
+		primaryOccupationBusinessRestriction -> primaryOccupationBusinessRestriction 
+		primaryOccupationEmployerName -> primaryOccupationEmployerName 
+		primaryOccupationJobComment -> primaryOccupationJobComment 
+		primaryOccupationJobDescription -> primaryOccupationJobDescription 
+		primaryOccupationJobTitle -> primaryOccupationJobTitle 
+		primaryOccupationJobType -> primaryOccupationJobType 
+		primaryOccupationPrimaryIndustryTypeCodeISIC3 -> primaryOccupationPrimaryIndustryTypeCodeISIC3 
+		primaryParticipantRole : mml:integer 
+		shortName -> shortName 
+		status -> status 
+		title -> title 
+		writtenLanguage -> writtenLanguage 
+	} 
+	DSParticipantCorporation basedOn CDM:Company 
+	{ 
+		constitutionCountry -> constitutionCountry 
+		creationDate -> creationDate 
+		defaultLanguage -> defaultLanguage 
+		domicileAddressCity -> domicileAddress.city 
+		domicileAddressCountryCodeISOValue -> domicileAddress.countryCodeISOValue 
+		domicileAddressPoBox -> domicileAddress.poBox 
+		domicileAddressPostalCode -> domicileAddress.postalCode 
+		domicileAddressQualifier0 -> domicileAddress.qualifier0 
+		domicileAddressQualifier1 -> domicileAddress.qualifier1 
+		domicileAddressQualifier2 -> domicileAddress.qualifier2 
+		domicileAddressRegion -> domicileAddress.region 
+		domicileAddressStreet -> domicileAddress.street 
+		domicileAddressStreetNumber -> domicileAddress.streetNumber 
+		industryType -> industryType 
+		juridicStatus -> juridicStatus 
+		nationalities -> nationalities 
+		participationCloseComments -> participations.closeComments 
+		participationMain -> participations.main 
+		participationRemarks -> participations.remarks 
+		participations -> participations [CDM:DSParticipation] 
+		phoneCountryPhoneCode -> phone.countryPhoneCode 
+		primaryParticipantRole : mml:integer 
+		registeredName -> registeredName 
+		registeredOffice -> registeredOffice 
+		registerOfCommerceNumber -> registerOfCommerceNumber 
+		shortName -> shortName 
+		status -> status 
+		vatNumber -> vatNumber 
+	} 
+	DSOtherBank basedOn CDM:OtherBank 
+	{ 
+		asset -> asset 
+		currency -> currency 
+		name -> name 
+	} 
+	DSParticipantList basedOn CDM:Participation 
+	{ 
+		dateOfBirthOrConstitution : mml:date 
+		firstName : mml:string 
+		personNameRegisteredName : mml:string 
+	} 
+	DSParticipation basedOn CDM:Participation 
+	{ 
+		/* This derived property is always initialized in the following manner: - If the participation has only the role "Account holder", and not the role "Beneficial owner", set the derived property to false - If the participation has both the role "Account holder" and "Beneficial owner", set the value to true */ 
+		accountHoldersAreAlsoBeneficialOwners : mml:boolean 
+		clientRelationshipType -> clientRelationship.clientType 
+		closeComments -> closeComments 
+		main -> main 
+		particaptionRoleType notUnique -> participantRoles.roleType 
+		participantRightJointNumber -> participantRightJointNumber 
+		participantRightSignatureAmount -> participantRightSignatureAmount 
+		participantRightSignatureAmountCurrency -> participantRightSignatureAmountCurrency 
+		participantRightType -> participantRightType 
+		powerOfAttorneyItsPowerOfAttorneyType -> powerOfAttorneyItsPowerOfAttorneyType 
+		powerOfAttorneyMandatePostMortem -> powerOfAttorneyMandatePostMortem 
+		powerOfAttorneyRemarks -> powerOfAttorneyRemarks 
+		primaryParticipantRole : mml:integer 
+		remarks -> remarks 
+		stopDate -> stopDate 
+	} 
+	DSNationality basedOn CDM:Nationality 
+	{ 
+		countryCode -> countryCode 
+		identifierExpiredDate -> identifierExpiredDate 
+		identifierIssuedBy -> identifierIssuedBy 
+		identifierIssuedDate -> identifierIssuedDate 
+		identifierNumber -> identifierNumber 
+		nationalityIdentifier -> nationalityIdentifier 
+		sequenceNumber -> sequenceNumber 
+	} 
+	DSOpeningProfile basedOn CDM:OpeningProfile 
+	{ 
+		accountHolderContactAbsence -> accountHolderContactAbsence 
+		acquisitionFactor -> acquisitionFactor 
+		acquisitionFactorDescription -> acquisitionFactorDescription 
+		beneficialOwnerContactAbsence -> beneficialOwnerContactAbsence 
+		clientBackgroundDescription -> clientBackgroundDescription 
+		clientRelationshipAim -> clientRelationshipAim 
+		clientRelationshipAimDescription -> clientRelationshipAimDescription 
+		decisionMaker -> decisionMaker 
+		externalAgent -> externalAgent 
+		externalAgentType -> externalAgentType 
+		futurIncomingTransferAmount -> futurIncomingTransferAmount 
+		futurIncomingTransferCcy -> futurIncomingTransferCcy 
+		futurIncomingTransferExpected -> futurIncomingTransferExpected 
+		futurIncomingTransferHorizon -> futurIncomingTransferHorizon 
+		incomingTransfersCountries1Value -> incomingTransfersCountries.countryName 
+		incomingTransfersExpectedFrequency -> incomingTransfersExpectedFrequency 
+		incomingTransfersSize -> incomingTransfersSize 
+		moneyLaundringRating -> moneyLaundringRating 
+		openingPlace -> openingPlace 
+		originOfFirstFundsTransferValue1 -> originOfFirstFundsTransfer.value 
+		originOfFirstFundsTransferValue2 -> originOfFirstFundsTransfer.value 
+		originOfFirstFundsTransferValue3 -> originOfFirstFundsTransfer.value 
+		originOfFirstFundsTransferValue4 -> originOfFirstFundsTransfer.value 
+		originOfFundsDescription -> originOfFundsDescription 
+		outgoingTransfersCountriesValue1 -> outgoingTransfersCountries.countryName 
+		outgoingTransfersExpectedFrequency -> outgoingTransfersExpectedFrequency 
+		outgoingTransfersSize -> outgoingTransfersSize 
+		politicalyExposed -> politicalyExposed 
+		refusalReason -> refusalReason 
+		toberemoved : mml:string 
+		transferReason -> transferReason 
+		transferReasonDescription -> transferReasonDescription 
+	} 
+	DSInitialTransfer basedOn CDM:InitialTransfer 
+	{ 
+		amount -> amount 
+		countryOfProvenance -> countryOfProvenance 
+		currency -> currency 
+		internalExternal -> internalExternal 
+		nature -> nature 
+		openingProfileUUId -> openingProfile.uUId 
+		provenance -> provenance 
+		uUId -> uUId 
+	} 
+	DSContextValues basedOn CDM:ClientRelationship 
+	{ 
+		primaryParticipantRole : mml:integer 
+	} 
+	DSParticipantAbstract basedOn CDM:Participation 
+	{ 
+		dateOfBirthOrConstitution : mml:date 
+		firstName : mml:string 
+		personNameRegisteredName : mml:string 
+	} 
+	DSMissingFields basedOn CDM:ClientRelationship 
+	{ 
+		concernedEntityName : mml:string 
+		entityAttribute : mml:string 
+		entityContextValue : mml:string 
+	} 
+	DSCurrentAccount basedOn CDM:CurrentAccount 
+	{ 
+		clientRelationshipUUId -> clientRelationship.uUId 
+		code -> code 
+		currency -> CA_Currency 
+		description -> description 
+		usage -> CA_Usage 
+	} 
+	DSCustodyAccount basedOn CDM:CustodyAccount 
+	{ 
+		baseCurrency -> CuA_BaseCurrency 
+		clientRelationshipUUId -> clientRelationship.uUId 
+		code -> code 
+		description -> description 
+		systemCurrency -> CuA_SystemCurrency 
+		usage -> CuA_Usage 
+	} 
+} 
+Enumerations { 
+	MarketingClientType : mml:string 
+		@cdm:CDM (xml=ClientProfile.Marketing.TypeOfClient) 
+		BusinessOwner=BO 
+			@cdm:CDM (key="Business Owner") 
+		Inheritor=I 
+			@cdm:CDM (key=Inheritor) 
+		HighIncomeEarning=HIEI 
+			@cdm:CDM (key="High Income Earning") 
+		ElderlyPerson=EP 
+			@cdm:CDM (key="Elderly Person") 
+	
+	ClientRelationshipStatus : mml:string 
+		@cdm:CDM (xml=ClientRelation.Status) 
+		Prospect=P 
+			@cdm:CDM (key=Prospect) 
+		Unknown=U 
+			@cdm:CDM (key=Unknown) 
+		Closed=C 
+			@cdm:CDM (key=Closed) 
+		Opened=O 
+			@cdm:CDM (key=Opened) 
+		Blocked=B 
+			@cdm:CDM (key="Blocked - The bank has not closed the client relationship but does not accept any order for the moment") 
+		Verify=V 
+			@cdm:CDM (key="Verify - After verification returned to RM for verification") 
+		New=N 
+			@cdm:CDM (key="New - New CR, submitted for client opening") 
+	
+	ClientRelationshipType : mml:string 
+		@cdm:CDM (xml=ClientRelation.Type) 
+		Corporate=C 
+			@cdm:CDM (key=Corporate) 
+		Joint=J 
+			@cdm:CDM (key="Joint - Each account holders has individual signature right") 
+		Undefined=U 
+			@cdm:CDM (key=Undefined) 
+		Collective=L 
+			@cdm:CDM (key="Collective - All account holders must sign together") 
+		Individual=I 
+			@cdm:CDM (key=Individual) 
+	
+	Country : mml:string 
+		@cdm:CDM (xml=General.Country) 
+		Value0=JP 
+		Value1=JE 
+		Value2=US 
+		Value3=BH 
+		Value4=NE 
+		Value5=NL 
+		Value6=OM 
+		Value7=IT 
+		Value8=BN 
+		Value9=MN 
+		Value10=TG 
+		Value11=CY 
+		Value12=LA 
+		Value13=BA 
+		Value14=BM 
+		Value15=IE 
+		Value16=BI 
+		Value17=FJ 
+		Value18=CR 
+		Value19=KE 
+		Value20=NO 
+		Value21=PA 
+		Value22=CO 
+		Value23=LU 
+		Value24=TH 
+		Value25=BG 
+		Value26=LT 
+		Value27=UZ 
+		Value28=SA 
+		Value29=TK 
+		Value30=NI 
+		Value31=CZ 
+		Value32=GB 
+		Value33=CA 
+		Value34=IS 
+		Value35=MS 
+		Value36=MU 
+		Value37=SD 
+		Value38=DZ 
+		Value39=CN 
+		Value40=MT 
+		Value41=PY 
+		Value42=IQ 
+		Value43=EE 
+		Value44=MG 
+		Value45=AZ 
+		Value46=FR 
+		Value47=RW 
+		Value48=DE 
+		Value49=MK 
+		Value50=MC 
+		Value51=RU 
+		Value52=DK 
+		Value53=AN 
+		Value54=IN 
+		Value55=BO 
+		Value56=ML 
+		Value57=NA 
+		Value58=AF 
+		Value59=MY 
+		Value60=CH 
+		Value61=MR 
+		Value62=GI 
+		Value63=AD 
+		Value64=KR 
+		Value65=TO 
+		Value66=SO 
+		Value67=FI 
+		Value68=GN 
+		Value69=BS 
+		Value70=AE 
+		Value71=YU 
+		Value72=KY 
+		Value73=AL 
+		Value74=MA 
+		Value75=AM 
+		Value76=IM 
+		Value77=GE 
+		Value78=KW 
+		Value79=RO 
+		Value80=SL 
+		Value81=HK 
+		Value82=PG 
+		Value83=IR 
+		Value84=SN 
+		Value85=EG 
+		Value86=LV 
+		Value87=KG 
+		Value88=BR 
+		Value89=PL 
+		Value90=AU 
+		Value91=AR 
+		Value92=SE 
+		Value93=TT 
+		Value94=HU 
+		Value95=SK 
+		Value96=NZ 
+		Value97=TW 
+		Value98=BZ 
+		Value99=GR 
+		Value100=IL 
+		Value101=SI 
+		Value102=UA 
+		Value103=SG 
+		Value104=LK 
+		Value105=ZA 
+		Value106=PT 
+		Value107=TR 
+		Value108=VI 
+		Value109=ID 
+		Value110=PH 
+		Value111=TN 
+		Value112=SZ 
+		Value113=UY 
+		Value114=ET 
+		Value115="PK" 
+		Value116=WS 
+		Value117=ES 
+		Value118=BE 
+		Value119=HR 
+		Value120=KM 
+	
+	Currency : mml:string 
+		@cdm:CDM (xml=General.Currencies) 
+		Value0=CHF 
+		Value1=EUR 
+		Value2=USD 
+		Value3=JPY 
+		Value4=GBP 
+	
+	ClientProfileFinancialAssetTypes : mml:string 
+		@cdm:CDM (xml=ClientProfile.FinancialEnvironment.AssetTypes) 
+		AssetsHeldWithOtherInstitutions=assetsheldwithotherinstitutions 
+			@cdm:CDM (key="Assets held with other institutions") 
+		Other=other 
+			@cdm:CDM (key=Other) 
+		RealEstate=realestate 
+			@cdm:CDM (key="Real Estate") 
+	
+	AssetUsageType : mml:string 
+		@cdm:CDM (xml=ClientProfile.FinancialEnvironment.AssetsUsage) 
+		NonFinancialInvestments=NFI 
+			@cdm:CDM (key="Non Financial Investments") 
+		Retirement=R 
+			@cdm:CDM (key=Retirement) 
+		Other=O 
+			@cdm:CDM (key=Other) 
+		Savings=S 
+			@cdm:CDM (key=Savings) 
+	
+	ClientProfileFinancialLongPeriodRange : mml:string 
+		@cdm:CDM (xml=ClientProfile.FinancialEnvironment.LongPeriodRange) 
+		OneYear=1Y 
+			@cdm:CDM (key="1 year") 
+		SixYears=6Y 
+			@cdm:CDM (key="6 years") 
+		TwoYears=2Y 
+			@cdm:CDM (key="2 years") 
+		EightYears=8Y 
+			@cdm:CDM (key="8 years") 
+		TenYears=10Y 
+			@cdm:CDM (key="10 years") 
+		FourYears=4Y 
+			@cdm:CDM (key="4 years") 
+	
+	ClientProfileFinancialShortPeriodRange : mml:string 
+		@cdm:CDM (xml=ClientProfile.FinancialEnvironment.ShortPeriodRange) 
+		OneMonth=1M 
+			@cdm:CDM (key="1 month") 
+		ThreeMonths=6M 
+			@cdm:CDM (key="3 months") 
+		TwoMonths=3M 
+			@cdm:CDM (key="2 months") 
+	
+	Gender : mml:char 
+		@cdm:CDM (xml=Party.Person.Gender) 
+		Male=M 
+			@cdm:CDM (key=Male) 
+		Undefined=U 
+			@cdm:CDM (key=Undefined) 
+		Female=F 
+			@cdm:CDM (key=Female) 
+	
+	Language : mml:string 
+		@cdm:CDM (xml=General.Language) 
+		Value0=TR 
+		Value1=NO 
+		Value2=NL 
+		Value3=ZH 
+		Value4=JA 
+		Value5=SH 
+		Value6=IS 
+		Value7=SK 
+		Value8=PL 
+		Value9=ES 
+		Value10=TH 
+		Value11=IW 
+		Value12=DA 
+		Value13=HU 
+		Value14=SR 
+		Value15=EN 
+		Value16=AR 
+		Value17=CS 
+		Value18=RO 
+		Value19=IT 
+		Value20=SV 
+		Value21=ET 
+		Value22=SQ 
+		Value23=BE 
+		Value24=BG 
+		Value25=AF 
+		Value26=PT 
+		Value27=CA 
+		Value28=SL 
+		Value29=LT 
+		Value30=HR 
+		Value31=RU 
+		Value32=MK 
+		Value33=EL 
+		Value34=LV 
+		Value35=FI 
+		Value36=KO 
+		Value37=UK 
+		Value38=HI 
+		Value39=DE 
+		Value40=FR 
+	
+	MaritalStatus : mml:char 
+		@cdm:CDM (xml=Party.Person.MaritalStatus) 
+		Single=S 
+			@cdm:CDM (key=Single) 
+		Married=M 
+			@cdm:CDM (key=Married) 
+		Separated=X 
+			@cdm:CDM (key=Separated) 
+		Divorced=D 
+			@cdm:CDM (key=Divorced) 
+		Widow=W 
+			@cdm:CDM (key=Widow/er) 
+	
+	ParticipantRightType : mml:integer 
+		@cdm:CDM (xml=Participant.SignatureRightTypes) 
+		Jointly=0 
+			@cdm:CDM (key=Jointly) 
+		Undefined=3 
+			@cdm:CDM (key=Undefined) 
+		None=2 
+			@cdm:CDM (key=None) 
+		Individual=1 
+			@cdm:CDM (key=Individual) 
+	
+	PowerOfAttorneyType : mml:char 
+		@cdm:CDM (xml=Participant.PoaRights) 
+		Limited=L 
+			@cdm:CDM (key=Limited) 
+		Full=F 
+			@cdm:CDM (key=Full) 
+		Undefined=U 
+			@cdm:CDM (key=Undefined) 
+	
+	Title : mml:string 
+		@cdm:CDM (xml=Party.Person.Titles) 
+		Miss=Miss 
+		Mr=Mr 
+		Mrs=Mrs 
+	
+	Trilean : mml:integer 
+		@cdm:CDM (xml=General.Trilean) 
+		False=0 
+		True=1 
+		None=-1 
+	
+	FutureAssetsAcquisitionLevel : mml:string 
+		@cdm:CDM (xml=ClientProfile.Marketing.FuturePotentialLevel) 
+		Medium=M 
+			@cdm:CDM (key=Medium) 
+		High=H 
+			@cdm:CDM (key=High) 
+		Low=L 
+			@cdm:CDM (key=Low) 
+	
+	ClientContactingBankFrequency : mml:string 
+		@cdm:CDM (xml=ClientProfile.Marketing.ProbablyContactBank) 
+		Seldomly=S 
+			@cdm:CDM (key=Seldomly) 
+		Occasionally=M 
+			@cdm:CDM (key=Occasionally) 
+		Often=O 
+			@cdm:CDM (key=Often) 
+		Never=N 
+			@cdm:CDM (key="No, never") 
+	
+	ClientProfileMarketingPermitsContact : mml:string 
+		@cdm:CDM (xml=ClientProfile.Marketing.PermitsContact) 
+		NotAtAll=NA 
+			@cdm:CDM (key="Not at All") 
+		Yes=Y 
+			@cdm:CDM (key=Yes) 
+		CaseOfEmergency=E 
+			@cdm:CDM (key="In case of emergency") 
+	
+	ClientProfileMarketingAdministrationalLoad : mml:string 
+		@cdm:CDM (xml=ClientProfile.Marketing.AdministrationalLoad) 
+		Low=L 
+			@cdm:CDM (key=Low) 
+		Medium=M 
+			@cdm:CDM (key=Medium) 
+		High=H 
+			@cdm:CDM (key=High) 
+	
+	ClientProfileRiskRiskReadyness : mml:string 
+		@cdm:CDM (xml=ClientProfile.Risk.RiskReadyness) 
+		Low=L 
+			@cdm:CDM (key=Low) 
+		Medium=M 
+			@cdm:CDM (key=Medium) 
+		High=H 
+			@cdm:CDM (key=High) 
+	
+	ClientProfileRiskInvestmentExperience : mml:string 
+		@cdm:CDM (xml=ClientProfile.Risk.InvestmentExperience) 
+		High=H 
+			@cdm:CDM (key=High) 
+		Low=L 
+			@cdm:CDM (key=Low) 
+		Medium=M 
+			@cdm:CDM (key=Medium) 
+	
+	ClientProfileRiskInvestmentActivity : mml:string 
+		@cdm:CDM (xml=ClientProfile.Risk.InvestmentActivity) 
+		VeryLow=VL 
+			@cdm:CDM (key="Very Low") 
+		High=H 
+			@cdm:CDM (key=High) 
+		Medium=M 
+			@cdm:CDM (key=Medium) 
+		Low=L 
+			@cdm:CDM (key=Low) 
+	
+	ClientProfileRiskInstrumentAlreadyWorkedWith : mml:string 
+		@cdm:CDM (xml=ClientProfile.Risk.AlreadyWorkedWith) 
+		Derivatives=D 
+			@cdm:CDM (key=Derivatives) 
+		Shares=S 
+			@cdm:CDM (key=Shares) 
+		InvestmentFunds=I 
+			@cdm:CDM (key="Investment funds") 
+		Bonds=B 
+			@cdm:CDM (key=Bonds) 
+		PreciousMetals=P 
+			@cdm:CDM (key="Precious metals") 
+		MoneyMarket=M 
+			@cdm:CDM (key="Money market") 
+		TermDeposits=T 
+			@cdm:CDM (key="Term deposits") 
+	
+	ClientProfileRiskFinancialKnowledge : mml:string 
+		@cdm:CDM (xml=ClientProfile.Risk.FinancialKnowledge) 
+		High=H 
+			@cdm:CDM (key=High) 
+		Expert=E 
+			@cdm:CDM (key=Expert) 
+		Medium=M 
+			@cdm:CDM (key=Medium) 
+		Low=L 
+			@cdm:CDM (key=Low) 
+	
+	ClientProfileRiskManagementIntensity : mml:string 
+		@cdm:CDM (xml=ClientProfile.Risk.ManagementIntensity) 
+		High=H 
+			@cdm:CDM (key=High) 
+		Medium=M 
+			@cdm:CDM (key=Medium) 
+		VeryLow=VL 
+			@cdm:CDM (key="Very Low") 
+		Low=L 
+			@cdm:CDM (key=Low) 
+	
+	ClientProfileRiskRiskProfileBank : mml:string 
+		@cdm:CDM (xml=ClientProfile.Risk.RiskProfileBank) 
+		Balanced=B 
+			@cdm:CDM (key=Balanced) 
+		Aggressive=A 
+			@cdm:CDM (key=Aggressive) 
+		Conservative=C 
+			@cdm:CDM (key=Conservative) 
+		Growth=G 
+			@cdm:CDM (key=Growth) 
+	
+	ClientProfileRiskRiskProfileClient : mml:string 
+		@cdm:CDM (xml=ClientProfile.Risk.RiskProfileClient) 
+		Balanced=B 
+			@cdm:CDM (key=Balanced) 
+		Growth=G 
+			@cdm:CDM (key=Growth) 
+		Aggressive=A 
+			@cdm:CDM (key=Aggressive) 
+		Conservative=C 
+			@cdm:CDM (key=Conservative) 
+	
+	ClientProfileMarketingTypeOfInvestor : mml:string 
+		@cdm:CDM (xml=ClientProfile.Marketing.TypeOfInvestor) 
+		Active=A 
+			@cdm:CDM (key=Active) 
+		Passive=P 
+			@cdm:CDM (key=Passive) 
+	
+	ClientProfileMarketingProbablyContactBank : mml:string 
+		NoNever=N 
+		Seldomly=S 
+		Occasionally=M 
+		Often=O 
+	
+	ZzParticipantProfileOpeningTransfersSizeEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.TransfersSize) 
+		Value0=2 
+			@cdm:CDM (key="10\'000-50\'000") 
+		Value1=3 
+			@cdm:CDM (key="50\'000+") 
+		Value2=1 
+			@cdm:CDM (key="0-10\'000") 
+	
+	ZzPartyStatusEnum : mml:string 
+		@cdm:CDM (xml=Party.Status) 
+		Value0=U 
+			@cdm:CDM (key=Undesirable) 
+		Value1=D 
+			@cdm:CDM (key=Doubtfull) 
+	
+	ParticipantRoles : mml:integer 
+		@cdm:CDM (xml=Participant.Roles) 
+		AccountHolder=1 
+			@cdm:CDM (key="Account Holder") 
+		Signatory=4 
+			@cdm:CDM (key=Signatory) 
+		ThirdPartyManager=5 
+			@cdm:CDM (key="Third party manager") 
+		PowerOfAttorney=2 
+			@cdm:CDM (key="Power of attorney") 
+		BeneficialOwner=3 
+			@cdm:CDM (key="Beneficial Owner") 
+	
+	ZzCustomFieldsObjectTypeFieldsEnum : mml:string 
+		@cdm:CDM (xml=CustomFields.ObjectType.Fields) 
+		Value0=RD 
+			@cdm:CDM (key=Red) 
+		Value1=YE 
+			@cdm:CDM (key=Yellow) 
+	
+	ZzGclPasswordPasswordHistoryEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.PasswordHistory) 
+		Value0=6 
+		Value1=9 
+		Value2=8 
+		Value3=15 
+		Value4=7 
+		Value5=10 
+		Value6=12 
+		Value7=13 
+		Value8=2 
+		Value9=11 
+		Value10=3 
+		Value11=1 
+		Value12=14 
+		Value13=5 
+		Value14=4 
+	
+	ZzGclWuiProfilesEnum : mml:string 
+		@cdm:CDM (xml=Gcl.WuiProfiles) 
+		Value0=Olympic 
+			@cdm:CDM (key=Olympic) 
+		Value1=FinancialAnalyst 
+			@cdm:CDM (key=FinancialAnalyst) 
+		Value2=RelationshipManager 
+			@cdm:CDM (key=RelationshipManager) 
+		Value3=MarketingOfficer 
+			@cdm:CDM (key=MarketingOfficer) 
+		Value4=Default 
+			@cdm:CDM (key=Default) 
+		Value5=Audit 
+			@cdm:CDM (key=Audit) 
+		Value6=Developer 
+			@cdm:CDM (key=Developer) 
+	
+	ZzGclUserRolesEnum : mml:string 
+		@cdm:CDM (xml=Gcl.User.Roles) 
+		Value0="gcl:role/GroupRelationshipAdministrator" 
+			@cdm:CDM (key="Group Relationship Administrator") 
+		Value1="gcl:role/NmAdmin" 
+			@cdm:CDM (key=NmAdmin) 
+		Value2="gcl:role/Assistant" 
+			@cdm:CDM (key=Assistant) 
+		Value3="gcl:role/HeadManager" 
+			@cdm:CDM (key=HeadManager) 
+		Value4="gcl:role/HistoricViewer" 
+			@cdm:CDM (key="Historic Access") 
+	
+	ZzGclGroupCommercialRolesEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Group.CommercialRoles) 
+		Value0="gcl:role/LegalAndCompliance" 
+			@cdm:CDM (key=LegalAndCompliance) 
+		Value1="gcl:role/ManagingServiceDesk" 
+			@cdm:CDM (key=ManagingServiceDesk) 
+		Value2="gcl:role/DataManagement" 
+			@cdm:CDM (key=DataManagement) 
+	
+	ZzParticipantProfileMarketingTypeOfClientEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Marketing.TypeOfClient) 
+		Value0=EP 
+			@cdm:CDM (key="Elderly Person") 
+		Value1=BO 
+			@cdm:CDM (key="Business Owner") 
+		Value2=I 
+			@cdm:CDM (key=Inheritor) 
+		Value3=HIEI 
+			@cdm:CDM (key="High Income Earning") 
+	
+	ZzParticipantProfileRiskRiskProfileClientEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Risk.RiskProfileClient) 
+		Value0=B 
+			@cdm:CDM (key=Balanced) 
+		Value1=G 
+			@cdm:CDM (key=Growth) 
+		Value2=C 
+			@cdm:CDM (key=Conservative) 
+		Value3=A 
+			@cdm:CDM (key=Aggressive) 
+	
+	ZzBusinessConfigNmContactPointUsageEntityWhoseValueIsKeptEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.Nm.ContactPointUsage.EntityWhoseValueIsKept) 
+		Value0=PreferredContactPoint 
+	
+	ZzParticipantProfileOpeningMoneyLaundringRatingEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.MoneyLaundringRating) 
+		Value0=NR 
+			@cdm:CDM (key="No Risk") 
+		Value1=SVD 
+			@cdm:CDM (key="Some verifications to be done") 
+		Value2=DC 
+			@cdm:CDM (key="Doubtfull Client") 
+		Value3=NOP 
+			@cdm:CDM (key="No Opening Possible") 
+	
+	ZzGclGroupRolesEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Group.Roles) 
+		Value0="gcl:role/LegalAndCompliance" 
+			@cdm:CDM (key=LegalAndCompliance) 
+		Value1="gcl:role/FrontOffice" 
+			@cdm:CDM (key=FrontOffice) 
+		Value2="gcl:role/Branch" 
+			@cdm:CDM (key=Branch) 
+		Value3="gcl:role/Desk" 
+			@cdm:CDM (key=Desk) 
+		Value4="gcl:role/CentralFile" 
+			@cdm:CDM (key=CentralFile) 
+	
+	ZzParticipantProfileOpeningTransferReasonEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.TransferReason) 
+		Value0=I 
+			@cdm:CDM (key=Investment) 
+		Value1=EDM 
+			@cdm:CDM (key="External Manager Decision") 
+		Value2=CDW 
+			@cdm:CDM (key="Concentration Diversification Wealth") 
+		Value3=ID 
+			@cdm:CDM (key="Inheritance Donation") 
+		Value4=R 
+			@cdm:CDM (key=Rapatriement) 
+		Value5=DC 
+			@cdm:CDM (key="Domicile Change") 
+		Value6=T 
+			@cdm:CDM (key=Tax) 
+	
+	ZzGclPasswordLengthMaxEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.Length.Max) 
+		Value0=13 
+		Value1=16 
+		Value2=14 
+		Value3=20 
+		Value4=10 
+		Value5=15 
+		Value6=12 
+		Value7=17 
+		Value8=11 
+		Value9=18 
+		Value10=19 
+	
+	ClientProfileMarketingTypeOfClient : mml:string 
+		@cdm:CDM (xml=ClientProfile.Marketing.TypeOfClient) 
+		BusinessOwner=BO 
+			@cdm:CDM (key="Business Owner") 
+		Inheritor=I 
+			@cdm:CDM (key=Inheritor) 
+		HighIncomeEarningIndividual=HIEI 
+			@cdm:CDM (key="High Income Earning") 
+		ElderlyPerson=EP 
+			@cdm:CDM (key="Elderly Person") 
+	
+	ZzParticipantProfileRiskRiskProfileBankEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Risk.RiskProfileBank) 
+		Value0=A 
+			@cdm:CDM (key=Aggressive) 
+		Value1=C 
+			@cdm:CDM (key=Conservative) 
+		Value2=B 
+			@cdm:CDM (key=Balanced) 
+		Value3=G 
+			@cdm:CDM (key=Growth) 
+	
+	ZzParticipantProfileMarketingPermitsContactEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Marketing.PermitsContact) 
+		Value0=NA 
+			@cdm:CDM (key="Not at All") 
+		Value1=Y 
+			@cdm:CDM (key=Yes) 
+		Value2=E 
+			@cdm:CDM (key="In case of emergency") 
+	
+	ZzBusinessConfigPartyPartyFinancialEnvironmentProfileOtherBanksEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.Party.PartyFinancialEnvironmentProfile.OtherBanks) 
+		Value0=4 
+	
+	PartyPersonIdentificationType : mml:string 
+		@cdm:CDM (xml=Party.Person.IdentificationType) 
+		DrivingLicense=4 
+			@cdm:CDM (key="Driving license") 
+		ResidencePermit=5 
+			@cdm:CDM (key="Residence permit") 
+		Passport=3 
+			@cdm:CDM (key=Passport) 
+		IDCard=2 
+			@cdm:CDM (key="ID Card") 
+	
+	ZzRiskManagementIndustryTypesHighEnum : mml:string 
+		@cdm:CDM (xml=RiskManagement.IndustryTypes.High) 
+		Value0=J 
+		Value1=A 
+		Value2=K 
+		Value3=C 
+		Value4=B 
+	
+	ZzClientRelationPreferredFrequencyEnum : mml:string 
+		@cdm:CDM (xml=ClientRelation.Preferred.Frequency) 
+		Value0=W 
+			@cdm:CDM (key=Weekly) 
+		Value1=SM 
+			@cdm:CDM (key=SixMonthly) 
+		Value2=D 
+			@cdm:CDM (key=Daily) 
+		Value3=Q 
+			@cdm:CDM (key=Quartely) 
+		Value4=M 
+			@cdm:CDM (key=Monthly) 
+	
+	ClientProfileOpeningOriginFundsTransfer : mml:string 
+		@cdm:CDM (xml=ClientProfile.Opening.OriginFundsTransfer) 
+		SavingCurrentActivity=4 
+			@cdm:CDM (key="Saving Current Activity") 
+		Business=1 
+			@cdm:CDM (key=Business) 
+		Donation=3 
+			@cdm:CDM (key=Donation) 
+		Inheritance=2 
+			@cdm:CDM (key=Inheritance) 
+	
+	ZzGclPasswordLifeTimeEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.LifeTime) 
+		Value0=4 
+		Value1=9 
+		Value2=5 
+		Value3=8 
+		Value4=12 
+		Value5=11 
+		Value6=1 
+		Value7=0 
+		Value8=2 
+		Value9=14 
+		Value10=15 
+		Value11=6 
+		Value12=10 
+		Value13=13 
+		Value14=3 
+		Value15=7 
+	
+	ZzBusinessConfigPartyPartyFinancialEnvironmentProfileEntitiesInGroupEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.Party.PartyFinancialEnvironmentProfile.EntitiesInGroup) 
+		Value0=3 
+	
+	ZzGclPasswordAlphaCharMinEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.AlphaChar.Min) 
+		Value0=6 
+		Value1=9 
+		Value2=7 
+		Value3=8 
+		Value4=0 
+		Value5=1 
+		Value6=3 
+		Value7=2 
+		Value8=4 
+		Value9=5 
+	
+	ZzSearchPartyTypeEnum : mml:string 
+		@cdm:CDM (xml=Search.PartyType) 
+		Value0=corporation 
+		Value1=person 
+	
+	ZzParticipantProfileRiskInvestmentExperienceEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Risk.InvestmentExperience) 
+		Value0=L 
+			@cdm:CDM (key=Low) 
+		Value1=M 
+			@cdm:CDM (key=Medium) 
+		Value2=H 
+			@cdm:CDM (key=High) 
+	
+	ClientProfileOpeningFutureIncomingHorizon : mml:string 
+		@cdm:CDM (xml=ClientProfile.Opening.FutureIncomingHorizon) 
+		Periodic=P 
+			@cdm:CDM (key=Periodic) 
+		ShortTerm=ST 
+			@cdm:CDM (key="Short Term") 
+		MidTerm=MT 
+			@cdm:CDM (key="Mid Term") 
+		LongTerm=LT 
+			@cdm:CDM (key="Long Term") 
+	
+	ZzGclUserGroupRolesEnum : mml:string 
+		@cdm:CDM (xml=Gcl.User.GroupRoles) 
+		Value0="gcl:role/ChClReOf" 
+			@cdm:CDM (key="Chief Client Relation Officer") 
+		Value1="gcl:role/HeODep" 
+			@cdm:CDM (key="Head of departement") 
+	
+	ZzParticipantProfileMarketingFuturePotentialLevelEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Marketing.FuturePotentialLevel) 
+		Value0=M 
+			@cdm:CDM (key=Medium) 
+		Value1=L 
+			@cdm:CDM (key=Low) 
+		Value2=H 
+			@cdm:CDM (key=High) 
+	
+	ZzPartyPersonProfessionTypeEnum : mml:string 
+		@cdm:CDM (xml=Party.Person.ProfessionType) 
+		Value0=R 
+			@cdm:CDM (key=Retired) 
+		Value1=I 
+			@cdm:CDM (key=Independent) 
+		Value2=S 
+			@cdm:CDM (key=Employed) 
+	
+	ZzParticipantProfileRiskFinancialKnowledgeEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Risk.FinancialKnowledge) 
+		Value0=H 
+			@cdm:CDM (key=High) 
+		Value1=L 
+			@cdm:CDM (key=Low) 
+		Value2=M 
+			@cdm:CDM (key=Medium) 
+		Value3=E 
+			@cdm:CDM (key=Expert) 
+	
+	ZzParticipantProfileFinancialEnvironmentOriginOfWealthEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.FinancialEnvironment.OriginOfWealth) 
+		Value0=IN 
+			@cdm:CDM (key=Inheritance) 
+		Value1=BU 
+			@cdm:CDM (key=Business) 
+		Value2=SFPA 
+			@cdm:CDM (key=SavingFromPastActivity) 
+		Value3=SFCA 
+			@cdm:CDM (key=SavingFromCurrentActivity) 
+	
+	ClientProfileOpeningFrequencyTransfers : mml:string 
+		@cdm:CDM (xml=ClientProfile.Opening.FrequencyTransfers) 
+		ElevenToFifty=2 
+			@cdm:CDM (key=11-50) 
+		FiftyAndMore=3 
+			@cdm:CDM (key="50+") 
+		ZeroToTen=1 
+			@cdm:CDM (key=0-10) 
+	
+	ZzParticipantProfileOpeningInitialTransferTypeEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.InitialTransfer.Type) 
+		Value0=-1 
+			@cdm:CDM (key=Undefined) 
+		Value1=1 
+			@cdm:CDM (key=External) 
+		Value2=0 
+			@cdm:CDM (key=Internal) 
+	
+	ClientProfileFinancialOriginOfWealth : mml:string 
+		@cdm:CDM (xml=ClientProfile.FinancialEnvironment.OriginOfWealth) 
+		Business=BU 
+			@cdm:CDM (key=Business) 
+		Inheritance=IN 
+			@cdm:CDM (key=Inheritance) 
+		SavingFromCurrentActivity=SFCA 
+			@cdm:CDM (key=SavingFromCurrentActivity) 
+		SavingFromPastActivity=SFPA 
+			@cdm:CDM (key=SavingFromPastActivity) 
+	
+	ZzParticipantProfileOpeningAcquisitionFactorEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.AcquisitionFactor) 
+		Value0=ECR 
+			@cdm:CDM (key="Existing Client Referral") 
+		Value1=I 
+			@cdm:CDM (key=Internet) 
+		Value2=E 
+			@cdm:CDM (key=Event) 
+		Value3=CFM 
+			@cdm:CDM (key="Client Follows Manager") 
+		Value4=A 
+			@cdm:CDM (key=Advertisement) 
+		Value5=EA 
+			@cdm:CDM (key="External Agent") 
+		Value6=BE 
+			@cdm:CDM (key="Bank Employee") 
+	
+	ZzBusinessConfigClientRelationCodeWordsEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.ClientRelation.CodeWords) 
+		Value0=4 
+	
+	ZzGclWuiRolesEnum : mml:string 
+		@cdm:CDM (xml=Gcl.WuiRoles) 
+		Value0="gcl:role/HeadManager" 
+			@cdm:CDM (key="Head Manager") 
+		Value1="gcl:role/Assistant" 
+			@cdm:CDM (key=Assistant) 
+	
+	ZzBusinessConfigClientRelationFinancialEnvironmentProfileWealthCompositionEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.ClientRelation.FinancialEnvironmentProfile.WealthComposition) 
+		Value0=4 
+	
+	ZzBusinessConfigPartyPartyFinancialEnvironmentProfileWealthCompositionEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.Party.PartyFinancialEnvironmentProfile.WealthComposition) 
+		Value0=4 
+	
+	ZzPartyContactFormattedEnum : mml:string 
+		@cdm:CDM (xml=Party.Contact.Formatted) 
+		Value0=0 
+			@cdm:CDM (key=No) 
+		Value1=1 
+			@cdm:CDM (key=Yes) 
+	
+	ZzGclPasswordInactivityTimeEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.InactivityTime) 
+		Value0=11 
+		Value1=3 
+		Value2=14 
+		Value3=5 
+		Value4=2 
+		Value5=13 
+		Value6=8 
+		Value7=6 
+		Value8=9 
+		Value9=4 
+		Value10=10 
+		Value11=1 
+		Value12=15 
+		Value13=7 
+		Value14=12 
+		Value15=0 
+	
+	ZzGclPasswordLengthMinEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.Length.Min) 
+		Value0=6 
+		Value1=7 
+		Value2=5 
+		Value3=8 
+		Value4=9 
+	
+	ZzGclUserCommercialRolesEnum : mml:string 
+		@cdm:CDM (xml=Gcl.User.CommercialRoles) 
+		Value0="gcl:role/AdministrativeManager" 
+			@cdm:CDM (key=AdministrativeManager) 
+		Value1="gcl:role/CommercialManager" 
+			@cdm:CDM (key=CommercialManager) 
+	
+	ZzSearchOperatorEnum : mml:string 
+		@cdm:CDM (xml=Search.Operator) 
+		Value0=and 
+		Value1=or 
+	
+	ZzParticipantProfileFinancialEnvironmentShortPeriodRangeEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.FinancialEnvironment.ShortPeriodRange) 
+		Value0=3M 
+			@cdm:CDM (key="2 months") 
+		Value1=1M 
+			@cdm:CDM (key="1 month") 
+		Value2=6M 
+			@cdm:CDM (key="3 months") 
+	
+	ZzGclPasswordNumericCharMaxEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.NumericChar.Max) 
+		Value0=4 
+		Value1=2 
+		Value2=3 
+		Value3=5 
+		Value4=1 
+	
+	ZzParticipantProfileFinancialEnvironmentAssetsUsageEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.FinancialEnvironment.AssetsUsage) 
+		Value0=R 
+			@cdm:CDM (key=Retirement) 
+		Value1=S 
+			@cdm:CDM (key=Savings) 
+		Value2=NFI 
+			@cdm:CDM (key="Non Financial Investments") 
+		Value3=O 
+			@cdm:CDM (key=Other) 
+	
+	ZzBusinessConfigFourEyesValidationGeneralEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.FourEyesValidation.General) 
+		Value0=0 
+	
+	ClientProfileOpeningInitialTransferType : mml:string 
+		@cdm:CDM (xml=ClientProfile.Opening.InitialTransfer.Type) 
+		Internal=0 
+			@cdm:CDM (key=Internal) 
+		Undefined=-1 
+			@cdm:CDM (key=Undefined) 
+		External=1 
+			@cdm:CDM (key=External) 
+	
+	ZzBusinessConfigPartyAttachmentsEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.Party.Attachments) 
+		Value0=1 
+	
+	ClientProfileOpeningInitialTransferNature : mml:string 
+		@cdm:CDM (xml=ClientProfile.Opening.Nature) 
+		CashTransfer=CT 
+			@cdm:CDM (key="Cash Transfer") 
+		PhysicalCash=PCA 
+			@cdm:CDM (key="Physical Cash") 
+		PhysicalSecurities=PS 
+			@cdm:CDM (key="Physical Securities") 
+		PhysicalCheck=PCH 
+			@cdm:CDM (key="Physical Checks") 
+		PhysicalOther=PO 
+			@cdm:CDM (key="Physical Other") 
+		SecuritiesTransfer=ST 
+			@cdm:CDM (key="Securities Transfer") 
+	
+	ClientProfileOpeningRelationshipAim : mml:string 
+		@cdm:CDM (xml=ClientProfile.Opening.ClientRelationshipAim) 
+		ComptePassage=CP 
+			@cdm:CDM (key="Compte Passage") 
+		Other=O 
+			@cdm:CDM (key=Other) 
+		Commercial=C 
+			@cdm:CDM (key=Commercial) 
+		PrivateWealthManagement=PWM 
+			@cdm:CDM (key="Private Wealth Management") 
+	
+	ZzBusinessConfigNmMenuEntryPointsReviewServicesAndProductsEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.Nm.MenuEntryPoints.ReviewServicesAndProducts) 
+		Value0=0 
+	
+	ZzGclUserDefaultCommercialRolesEnum : mml:string 
+		@cdm:CDM (xml=Gcl.User.DefaultCommercialRoles) 
+		Value0="gcl:role/AdministrativeManager" 
+			@cdm:CDM (key=AdministrativeManager) 
+	
+	ZzGclPasswordSpecialCharMaxEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.SpecialChar.Max) 
+		Value0=5 
+		Value1=4 
+		Value2=3 
+		Value3=0 
+		Value4=2 
+		Value5=1 
+		Value6=10 
+		Value7=7 
+		Value8=6 
+		Value9=9 
+		Value10=8 
+	
+	ZzBusinessConfigClientRelationFinancialEnvironmentProfileEntitiesInGroupEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.ClientRelation.FinancialEnvironmentProfile.EntitiesInGroup) 
+		Value0=3 
+	
+	ZzBusinessConfigPartyPartyFinancialEnvironmentProfileUsageOfAssetsEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.Party.PartyFinancialEnvironmentProfile.UsageOfAssets) 
+		Value0=4 
+	
+	ZzGclPasswordNumericCharMinEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.NumericChar.Min) 
+		Value0=4 
+		Value1=5 
+		Value2=0 
+		Value3=2 
+		Value4=1 
+		Value5=3 
+	
+	ZzSearchModeEnum : mml:string 
+		@cdm:CDM (xml=Search.Mode) 
+		Value0=EQUALS 
+		Value1=START_WITH 
+		Value2=CONTAINS 
+	
+	ZzRiskManagementCountriesMediumEnum : mml:string 
+		@cdm:CDM (xml=RiskManagement.Countries.Medium) 
+		Value0=SI 
+		Value1=PL 
+		Value2=EG 
+		Value3=YU 
+	
+	ZzParticipantProfileOpeningExternatAgentTypeEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.ExternatAgentType) 
+		Value0=N 
+			@cdm:CDM (key=Network) 
+		Value1=TPM 
+			@cdm:CDM (key="Third Party Manager") 
+		Value2=CI 
+			@cdm:CDM (key="Client Introducer") 
+	
+	ZzParticipantProfileOpeningClientRelationshipAimEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.ClientRelationshipAim) 
+		Value0=CP 
+			@cdm:CDM (key="Compte Passage") 
+		Value1=O 
+			@cdm:CDM (key=Other) 
+		Value2=PWM 
+			@cdm:CDM (key="Private Wealth Management") 
+		Value3=C 
+			@cdm:CDM (key=Commercial) 
+	
+	ZzBusinessConfigPartyPartyRiskProfileInstrumentsWorkedEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.Party.PartyRiskProfile.InstrumentsWorked) 
+		Value0=5 
+	
+	ZzParticipantProfileMarketingTypeOfInvestorEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Marketing.TypeOfInvestor) 
+		Value0=P 
+			@cdm:CDM (key=Passive) 
+		Value1=A 
+			@cdm:CDM (key=Active) 
+	
+	ZzGclPasswordSpecialCharMinEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.SpecialChar.Min) 
+		Value0=3 
+		Value1=0 
+		Value2=1 
+		Value3=2 
+		Value4=4 
+	
+	ZzParticipantProfileMarketingProbablyContactBankEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Marketing.ProbablyContactBank) 
+		Value0=M 
+			@cdm:CDM (key=Occasionally) 
+		Value1=O 
+			@cdm:CDM (key=Often) 
+		Value2=N 
+			@cdm:CDM (key="No, never") 
+		Value3=S 
+			@cdm:CDM (key=Seldomly) 
+	
+	ClientProfileOpeningTransfersSize : mml:string 
+		@cdm:CDM (xml=ClientProfile.Opening.TransfersSize) 
+		OverFiftyThousand=3 
+			@cdm:CDM (key="50\'000+") 
+		ZeroToTenThousand=1 
+			@cdm:CDM (key="0-10\'000") 
+		TenThousandToFiftyThousand=2 
+			@cdm:CDM (key="10\'000-50\'000") 
+	
+	ZzParticipantProfileOpeningFrequencyTransfersEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.FrequencyTransfers) 
+		Value0=1 
+			@cdm:CDM (key=0-10) 
+		Value1=3 
+			@cdm:CDM (key="50+") 
+		Value2=2 
+			@cdm:CDM (key=11-50) 
+	
+	ZzBusinessConfigClientRelationFinancialEnvironmentProfileOtherBanksEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.ClientRelation.FinancialEnvironmentProfile.OtherBanks) 
+		Value0=4 
+	
+	ZzGclUserProfilesEnum : mml:string 
+		@cdm:CDM (xml=Gcl.User.Profiles) 
+		Value0=FinancialAnalyst 
+			@cdm:CDM (key=FinancialAnalyst) 
+		Value1=Developer 
+			@cdm:CDM (key=Developer) 
+		Value2=Audit 
+			@cdm:CDM (key=Audit) 
+		Value3=RelationshipManager 
+			@cdm:CDM (key=RelationshipManager) 
+		Value4=PmAdmin 
+			@cdm:CDM (key=PmAdmin) 
+		Value5=Retail 
+			@cdm:CDM (key=Retail) 
+		Value6=Default 
+			@cdm:CDM (key=Default) 
+		Value7=MarketingOfficer 
+			@cdm:CDM (key=MarketingOfficer) 
+		Value8=Olympic 
+			@cdm:CDM (key=Olympic) 
+	
+	ZzGclPasswordAlphaCharMaxEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.AlphaChar.Max) 
+		Value0=15 
+		Value1=12 
+		Value2=9 
+		Value3=11 
+		Value4=8 
+		Value5=13 
+		Value6=5 
+		Value7=6 
+		Value8=7 
+		Value9=14 
+		Value10=10 
+	
+	ZzParticipantProfileMarketingAdministrationalLoadEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Marketing.AdministrationalLoad) 
+		Value0=M 
+			@cdm:CDM (key=Medium) 
+		Value1=H 
+			@cdm:CDM (key=High) 
+		Value2=L 
+			@cdm:CDM (key=Low) 
+	
+	ZzParticipantProfileMarketingSegmentationCriteriaEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Marketing.SegmentationCriteria) 
+		Value0=segmentationcriteria2 
+			@cdm:CDM (key="Segmentation Criteria 2") 
+		Value1=segmentationcriteria3 
+			@cdm:CDM (key="Segmentation Criteria 3") 
+		Value2=segmentationcriteria4 
+			@cdm:CDM (key="Segmentation Criteria 4") 
+		Value3=segmentationcriteria1 
+			@cdm:CDM (key="Segmentation Criteria 1") 
+	
+	ContactPointUsageType : mml:integer 
+		@cdm:CDM (xml=Party.Contact.ContactUsageType) 
+		Private=0 
+			@cdm:CDM (key=Private) 
+		Professional=1 
+			@cdm:CDM (key=Professional) 
+	
+	ZzParticipantProfileRiskRiskReadynessEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Risk.RiskReadyness) 
+		Value0=M 
+			@cdm:CDM (key=Medium) 
+		Value1=L 
+			@cdm:CDM (key=Low) 
+		Value2=H 
+			@cdm:CDM (key=High) 
+	
+	ZzGclUserUnlockRoleEnum : mml:string 
+		@cdm:CDM (xml=Gcl.User.UnlockRole) 
+		Value0="gcl:role/HeadManager" 
+			@cdm:CDM (key=UnLock) 
+	
+	ZzBusinessConfigClientRelationRiskProfileInstrumentsWorkedEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.ClientRelation.RiskProfile.InstrumentsWorked) 
+		Value0=5 
+	
+	ZzRiskManagementCountriesHighEnum : mml:string 
+		@cdm:CDM (xml=RiskManagement.Countries.High) 
+		Value0=IR 
+		Value1=SY 
+		Value2=IQ 
+		Value3=SA 
+		Value4=AM 
+		Value5=AL 
+		Value6=AF 
+		Value7=LY 
+	
+	ZzRiskManagementIndustryTypesMediumEnum : mml:string 
+		@cdm:CDM (xml=RiskManagement.IndustryTypes.Medium) 
+		Value0=G 
+		Value1=CB 
+		Value2=DC 
+		Value3=DB 
+		Value4=U 
+		Value5=D 
+		Value6=DA 
+		Value7=CA 
+		Value8=DD 
+		Value9=DG 
+		Value10=I 
+		Value11=DF 
+		Value12=H 
+		Value13=DE 
+		Value14=P 
+		Value15=F 
+	
+	ZzParticipantProfileOpeningNatureEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.Nature) 
+		Value0=PS 
+			@cdm:CDM (key="Physical Securities") 
+		Value1=PO 
+			@cdm:CDM (key="Physical Other") 
+		Value2=PCH 
+			@cdm:CDM (key="Physical Checks") 
+		Value3=ST 
+			@cdm:CDM (key="Securities Transfer") 
+		Value4=PCA 
+			@cdm:CDM (key="Physical Cash") 
+		Value5=CT 
+			@cdm:CDM (key="Cash Transfer") 
+	
+	ClientProfileOpeningMoneyLaundringRating : mml:string 
+		@cdm:CDM (xml=ClientProfile.Opening.MoneyLaundringRating) 
+		Low=L 
+		Medium=M 
+		High=H 
+	
+	ZzParticipantProfileRiskManagementIntensityEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Risk.ManagementIntensity) 
+		Value0=H 
+			@cdm:CDM (key=High) 
+		Value1=M 
+			@cdm:CDM (key=Medium) 
+		Value2=VL 
+			@cdm:CDM (key="Very Low") 
+		Value3=L 
+			@cdm:CDM (key=Low) 
+	
+	ZzParticipantProfileRiskAlreadyWorkedWithEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Risk.AlreadyWorkedWith) 
+		Value0=I 
+			@cdm:CDM (key="Investment funds") 
+		Value1=T 
+			@cdm:CDM (key="Term deposits") 
+		Value2=S 
+			@cdm:CDM (key=Shares) 
+		Value3=P 
+			@cdm:CDM (key="Precious metals") 
+		Value4=D 
+			@cdm:CDM (key=Derivatives) 
+		Value5=M 
+			@cdm:CDM (key="Money market") 
+		Value6=B 
+			@cdm:CDM (key=Bonds) 
+	
+	ZzGclInternalExternalEnum : mml:string 
+		@cdm:CDM (xml=Gcl.InternalExternal) 
+		Value0=E 
+		Value1=I 
+	
+	ZzParticipantProfileOpeningOpeniningPlaceEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.OpeniningPlace) 
+		Value0=O 
+			@cdm:CDM (key=Out) 
+		Value1=I 
+			@cdm:CDM (key=In) 
+	
+	ZzPartyContactPrefferdTypeEnum : mml:string 
+		@cdm:CDM (xml=Party.Contact.PrefferdType) 
+		Value0=C 
+			@cdm:CDM (key=CorrespondenceDestination) 
+		Value1=G 
+			@cdm:CDM (key=GeneralCommunication) 
+		Value2=P 
+			@cdm:CDM (key=Provisions) 
+		Value3=U 
+			@cdm:CDM (key=Undefined) 
+	
+	ZzPartyCorporateIndustryTypesEnum : mml:string 
+		@cdm:CDM (xml=Party.Corporate.IndustryTypes) 
+		Value0=E 
+		Value1=K 
+		Value2=DC 
+		Value3=DD 
+		Value4=DH 
+		Value5=P 
+		Value6=F 
+		Value7=DF 
+		Value8=DA 
+		Value9=DJ 
+		Value10=A 
+		Value11=DG 
+		Value12=G 
+		Value13=L 
+		Value14=C 
+		Value15=J 
+		Value16=I 
+		Value17=DB 
+		Value18=DM 
+		Value19=B 
+		Value20=DN 
+		Value21=Q 
+		Value22=H 
+		Value23=DK 
+		Value24=M 
+		Value25=CB 
+		Value26=N 
+		Value27=CA 
+		Value28=O 
+		Value29=DI 
+		Value30=D 
+		Value31=DE 
+		Value32=DL 
+	
+	ZzParticipantProfileRiskInvestmentActivityEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Risk.InvestmentActivity) 
+		Value0=M 
+			@cdm:CDM (key=Medium) 
+		Value1=VL 
+			@cdm:CDM (key="Very Low") 
+		Value2=H 
+			@cdm:CDM (key=High) 
+		Value3=L 
+			@cdm:CDM (key=Low) 
+	
+	ZzGclPasswordFailEnum : mml:string 
+		@cdm:CDM (xml=Gcl.Password.Fail) 
+		Value0=10 
+		Value1=14 
+		Value2=1 
+		Value3=7 
+		Value4=13 
+		Value5=9 
+		Value6=2 
+		Value7=12 
+		Value8=5 
+		Value9=11 
+		Value10=8 
+		Value11=6 
+		Value12=4 
+		Value13=3 
+		Value14=15 
+	
+	ZzParticipantProfileOpeningFutureIncomingHorizonEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.FutureIncomingHorizon) 
+		Value0=LT 
+			@cdm:CDM (key="Long Term") 
+		Value1=ST 
+			@cdm:CDM (key="Short Term") 
+		Value2=P 
+			@cdm:CDM (key=Periodic) 
+		Value3=MT 
+			@cdm:CDM (key="Mid Term") 
+	
+	ZzParticipantProfileOpeningOriginFundsTransferEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.Opening.OriginFundsTransfer) 
+		Value0=2 
+			@cdm:CDM (key=Inheritance) 
+		Value1=3 
+			@cdm:CDM (key=Donation) 
+		Value2=1 
+			@cdm:CDM (key=Business) 
+		Value3=4 
+			@cdm:CDM (key="Saving Current Activity") 
+	
+	ZzBusinessConfigClientRelationFinancialEnvironmentProfileUsageOfAssetsEnum : mml:string 
+		@cdm:CDM (xml=BusinessConfig.ClientRelation.FinancialEnvironmentProfile.UsageOfAssets) 
+		Value0=4 
+	
+	ZzRequestOpeningActivityTimeoutEnum : mml:string 
+		@cdm:CDM (xml=RequestOpening.ActivityTimeout) 
+		Value0=60 
+		Value1=14 
+		Value2=21 
+		Value3=0 
+		Value4=30 
+		Value5=7 
+	
+	ZzParticipantProfileFinancialEnvironmentLongPeriodRangeEnum : mml:string 
+		@cdm:CDM (xml=ParticipantProfile.FinancialEnvironment.LongPeriodRange) 
+		Value0=8Y 
+			@cdm:CDM (key="8 yars") 
+		Value1=2Y 
+			@cdm:CDM (key="2 years") 
+		Value2=1Y 
+			@cdm:CDM (key="1 year") 
+		Value3=4Y 
+			@cdm:CDM (key="4 years") 
+		Value4=10Y 
+			@cdm:CDM (key="10 years") 
+		Value5=6Y 
+			@cdm:CDM (key="6 years") 
+	
+	ClientProfileOpeningOpeniningPlace : mml:string 
+		WithinTheBank=I 
+		OutsideOfTheBank=O 
+	
+	ClientProfileOpeningAcquisitionFactor : mml:string 
+		Event=E 
+		Advertisement=A 
+		Internet=I 
+		ExternalAgent=EA 
+	
+	ClientProfileOpeningTransferReason : mml:string 
+		ExternalManagerDecision=EDM 
+		Rapatriement=R 
+		Tax=T 
+		Investment=I 
+		InheritanceDonation=ID 
+		ConcentrationDiversificationWealth=CDW 
+		DomicileChange=DC 
+	
+	ClientProfileOpeningClientRelationshipAim : mml:string 
+		PrivateWealthManagement=PWM 
+		Commercial=C 
+		ComptePassage=CP 
+		Other=O 
+	
+	ClientProfileOpeningExternatAgentType : mml:string 
+		ThirdPartyManager=TPM 
+		ClientIntroducer=CI 
+		Network=N 
+	
+	ContactPointType : mml:integer 
+		Telephone=0 
+		Telefax=1 
+		MobilePhone=3 
+		PostalAddress=5 
+		DomicileAddress=8 
+		EmailAddress=6 
+		Pager=4 
+	
+	AccountHoldersAreBeneficialOwners : mml:boolean 
+		@cdm:CDM (xml=ParticipantProfile.Risk.InvestmentActivity) 
+		Yes=true 
+		No=false 
+	
+} 

@@ -1,0 +1,40 @@
+grammar com.odcgroup.menu.model.Menu with com.odcgroup.workbench.dsl.Common hidden(WS, ML_COMMENT, SL_COMMENT) 
+
+// import "platform:/resource/com.odcgroup.tap.menu.model/src/com/odcgroup/menu/model/Menu.ecore"
+import "http://www.odcgroup.com/menu/model/Menu"
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
+MenuRoot returns MenuRoot:
+	'metamodelVersion' '=' metamodelVersion=String_Value 
+	rootItem = MenuItem
+;
+
+MenuItem returns MenuItem:
+	name=String_Value  
+	('pageflow' '=' pageflow=String_Value)? 
+	('enabled' '=' enabled=Enabled)? 
+	('displayTabs' '=' displayTabs?='true')? 
+	('securityRole' '='securityRole=String_Value)?
+	('labels' labels+=Translation ( "," labels+=Translation)*)?
+	('{' 
+		(submenus+=MenuItem (submenus+=MenuItem)*)?
+    '}')?
+    ('shortcut' '='shortcut=String_Value)?
+;
+	
+Translation:
+	language=ID '=' message=String_Value
+;
+
+enum Enabled:
+	true | false | conditional
+;
+
+String_Value :
+	STRING | ID | VALUE | URI;
+	
+terminal ML_COMMENT	: '/*' -> '*/';
+terminal SL_COMMENT 	: '#' !('\n'|'\r')* ('\r'? '\n')?;
+
+terminal WS			: (' '|'\t'|'\r'|'\n')+;

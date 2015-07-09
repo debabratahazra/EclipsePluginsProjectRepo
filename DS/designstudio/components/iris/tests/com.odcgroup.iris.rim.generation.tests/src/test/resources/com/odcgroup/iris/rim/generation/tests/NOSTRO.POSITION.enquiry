@@ -1,0 +1,822 @@
+Enquiry "NOSTRO.POSITION" for "name:/ACM_AccountOpening:ACCOUNT#" {
+	metamodelVersion: "1.30.6"
+	description {
+		en = "Nostro Position"
+	}
+
+	zero-records-display: true
+	no-selection: true
+	show-all-books: false
+	start-line: 4
+	end-line: 20 fixed-selection "NOSTRO.CCY" {
+		Equals "ALL"
+	}
+
+	fixed-sort: "CURRENCY" Null
+	custom-selection {
+
+		field "CURRENCY" {
+			mandatory: true
+			label {
+				en = "Ccy"
+			}
+
+		}
+
+		AND
+
+		field "LONG.POS.SIGN" {
+			label {
+				en = "Long Position Sign"
+			}
+
+			operands: Equals
+		}
+
+		None
+	}
+
+	field "HEADER.1" {
+		display-type: "CLASS-ENQ.H.TITLE"
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 1
+			line: 0
+		}
+
+		operation: constant "\"Nostro\""
+	}
+
+	field "HEADER.0" {
+		display-type: "CLASS-ENQ.H.TITLE"
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 7
+			line: 0
+		}
+
+		operation: constant "\"Balance \""
+	}
+
+	field "HEADER.1.1" {
+		display-type: "CLASS-ENQ.H.TITLE"
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 30
+			line: 0
+		}
+
+		operation: constant "\" Position \""
+	}
+
+	field "HEADER.2" {
+		display-type: "CLASS-ENQ.H.DATA.LABEL"
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 1
+			line: 1
+		}
+
+		operation: constant "\"Currency : \""
+	}
+
+	field "DCCY.DES" {
+		label {
+			en = "Currency :"
+		}
+
+		display-type: "CLASS-ENQ.H.DATA"
+		format: User break-condition {
+			break: Page
+		}
+
+		length: 3
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 15
+			line: 1
+		}
+
+		operation: field-extract "CRNCY"
+	}
+
+	field "HDR.1.1" {
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 45
+			line: 1
+		}
+
+		operation: constant "\" \""
+	}
+
+	field "HDR.1.2" {
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 65
+			line: 1
+		}
+
+		operation: constant "\" \""
+	}
+
+	field "HEADER.3" {
+		display-type: "CLASS-ENQ.H.DATA.LABEL"
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 120
+			line: 1
+		}
+
+		operation: constant "\"Amount in \""
+	}
+
+	field "HEADER.4" {
+		label {
+			en = "Amount in"
+		}
+
+		display-type: "CLASS-ENQ.H.DATA"
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 130
+			line: 1
+		}
+
+		operation: constant "\" 000\'s\""
+	}
+
+	field "DCCY" {
+		format: User break-condition {
+			break: NewPage
+		}
+
+		length: 30
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		operation: field-extract "CRNCY"
+		conversion: getFrom "CURRENCY" "CCY.NAME" false
+	}
+
+	field "MIN.LPS.DISP" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Right
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 3
+			line: 1
+		}
+
+		operation: if "LPS2" Equals "PLUS" process "MIN.LPS.NARR" "NULL"
+	}
+
+	field "ZERONORECORDS" {
+		display-type: "CLASS-ENQ.NORECS" break-condition {
+			break: None
+		}
+
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 1
+		}
+
+		operation: constant "\"No Nostro Position Available\""
+	}
+
+	field "DISP.NAME" {
+		label {
+			en = "Bank Name"
+		}
+
+		length: 50
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 3
+		}
+
+		operation: if "CUST.NO" NotEquals "NULL" process "CUST.NO" "ACCT.NAME"
+	}
+
+	field "TOT.DES" {
+		break-condition {
+			field: "B.CH.CCY"
+		}
+
+		length: 20
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 3
+			line: + 2
+		}
+
+		operation: constant "\"Total\""
+	}
+
+	field "DT1" {
+		break-condition {
+			break: Page
+		}
+
+		length: 20
+		alignment: Right
+		comma-separator: false
+		position {
+			column: 13
+			line: + 1
+		}
+
+		operation: field-extract "VDBAL"
+		conversion: extract from 1 to 1 delimited by " *"
+		conversion: julian
+		conversion: oconv "D2"
+	}
+
+	field "BALANCE1" {
+		label {
+			en = "Balance"
+		}
+
+		display-type: "CLASS-AMNUM"
+		length: 20
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 13
+		}
+
+		operation: field-extract "BAL1"
+	}
+
+	field "TBAL1" {
+		display-type: "CLASS-AMNUM" break-condition {
+			field: "B.CH.CCY"
+		}
+
+		length: 13
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 13
+			line: + 2
+		}
+
+		operation: total "BAL1"
+	}
+
+	field "UL1" {
+		break-condition {
+			field: "B.CH.CCY"
+		}
+
+		length: 12
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 13
+			line: + 1
+		}
+
+		operation: field-extract "DASH"
+	}
+
+	field "DT2" {
+		break-condition {
+			break: Page
+		}
+
+		length: 20
+		alignment: Right
+		comma-separator: false
+		position {
+			column: 28
+			line: + 1
+		}
+
+		operation: field-extract "VDBAL"
+		conversion: extract from 2 to 1 delimited by " "
+		conversion: julian
+		conversion: oconv "D2"
+	}
+
+	field "BALANCE2" {
+		label {
+			en = "Balance"
+		}
+
+		display-type: "CLASS-AMNUM"
+		length: 20
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 28
+		}
+
+		operation: field-extract "BAL2"
+	}
+
+	field "TBAL2" {
+		display-type: "CLASS-AMNUM" break-condition {
+			field: "B.CH.CCY"
+		}
+
+		length: 13
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 28
+			line: + 2
+		}
+
+		operation: total "BAL2"
+	}
+
+	field "UL2" {
+		break-condition {
+			field: "B.CH.CCY"
+		}
+
+		length: 12
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 28
+			line: + 1
+		}
+
+		operation: field-extract "DASH"
+	}
+
+	field "DT3" {
+		break-condition {
+			break: Page
+		}
+
+		length: 20
+		alignment: Right
+		comma-separator: false
+		position {
+			column: 41
+			line: + 1
+		}
+
+		operation: field-extract "VDBAL"
+		conversion: extract from 3 to 1 delimited by " "
+		conversion: julian
+		conversion: oconv "D2"
+	}
+
+	field "BALANCE3" {
+		label {
+			en = "Balance"
+		}
+
+		display-type: "CLASS-AMNUM"
+		length: 20
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 41
+		}
+
+		operation: field-extract "BAL3"
+	}
+
+	field "TBAL3" {
+		display-type: "CLASS-AMNUM" break-condition {
+			field: "B.CH.CCY"
+		}
+
+		length: 13
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 41
+			line: + 2
+		}
+
+		operation: total "BAL3"
+	}
+
+	field "UL3" {
+		break-condition {
+			field: "B.CH.CCY"
+		}
+
+		length: 12
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 41
+			line: + 1
+		}
+
+		operation: field-extract "DASH"
+	}
+
+	field "DT4" {
+		break-condition {
+			break: Page
+		}
+
+		length: 20
+		alignment: Right
+		comma-separator: false
+		position {
+			column: 55
+			line: + 1
+		}
+
+		operation: field-extract "VDBAL"
+		conversion: extract from 4 to 1 delimited by " "
+		conversion: julian
+		conversion: oconv "D2"
+	}
+
+	field "BALANCE4" {
+		label {
+			en = "Balance"
+		}
+
+		display-type: "CLASS-AMNUM"
+		length: 20
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 55
+		}
+
+		operation: field-extract "BAL4"
+	}
+
+	field "TBAL4" {
+		display-type: "CLASS-AMNUM" break-condition {
+			field: "B.CH.CCY"
+		}
+
+		length: 13
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 55
+			line: + 2
+		}
+
+		operation: total "BAL4"
+	}
+
+	field "UL4" {
+		break-condition {
+			field: "B.CH.CCY"
+		}
+
+		length: 12
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 55
+			line: + 1
+		}
+
+		operation: field-extract "DASH"
+	}
+
+	field "DT5" {
+		break-condition {
+			break: Page
+		}
+
+		length: 20
+		alignment: Right
+		comma-separator: false
+		position {
+			column: 68
+			line: + 1
+		}
+
+		operation: field-extract "VDBAL"
+		conversion: extract from 5 to 1 delimited by " "
+		conversion: julian
+		conversion: oconv "D2"
+	}
+
+	field "BALANCE5" {
+		label {
+			en = "Balance"
+		}
+
+		display-type: "CLASS-AMNUM"
+		length: 20
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 68
+		}
+
+		operation: field-extract "BAL5"
+	}
+
+	field "TBAL5" {
+		display-type: "CLASS-AMNUM" break-condition {
+			field: "B.CH.CCY"
+		}
+
+		length: 13
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 68
+			line: + 2
+		}
+
+		operation: total "BAL5"
+	}
+
+	field "UL5" {
+		break-condition {
+			field: "B.CH.CCY"
+		}
+
+		length: 12
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 68
+			line: + 1
+		}
+
+		operation: field-extract "DASH"
+	}
+
+	field "VDBAL" {
+		length: 19
+		alignment: Right
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "@ID"
+		conversion: call
+		jBC: "@ E.BUILD.NOS.BAL"
+	}
+
+	field "CRNCY" {
+		alignment: Left
+		comma-separator: false
+		operation: application-field-name "CURRENCY"
+		conversion: call
+		jBC: "@ E.CONV.COMMON.CCY"
+	}
+
+	field "B.CH.CCY" {
+		alignment: Left
+		comma-separator: false
+		position {
+			page-throw: true
+		}
+
+		operation: break-change "CRNCY"
+	}
+
+	field "ACCT" {
+		length: 19
+		alignment: Right
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "@ID"
+	}
+
+	field "CUST.NO" {
+		length: 25
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "CUSTOMER"
+		conversion: getFrom "CUSTOMER" "SHORT.NAME" false
+	}
+
+	field "ACCT.NAME" {
+		format: User
+		length: 10
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "ACCOUNT.TITLE.1"
+	}
+
+	field "ACCT.CCY" {
+		length: 3
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "CURRENCY"
+	}
+
+	field "AC.DISP.CCY" {
+		label {
+			en = "Display Ccy"
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: if "ACCT.CCY" NotEquals "CRNCY" process "ACCT.CCY" "NULL"
+	}
+
+	field "BAL1" {
+		label {
+			en = "Balance"
+		}
+
+		format: User
+		length: 13
+		alignment: Right
+		comma-separator: true
+		operation: field-extract "VDBAL"
+		conversion: extract from 6 to 1 delimited by " "
+		conversion: oconv "MD0"
+	}
+
+	field "BAL2" {
+		label {
+			en = "Balance"
+		}
+
+		length: 13
+		alignment: Right
+		comma-separator: true
+		operation: field-extract "VDBAL"
+		conversion: extract from 7 to 1 delimited by " "
+		conversion: oconv "MD0"
+	}
+
+	field "BAL3" {
+		label {
+			en = "Balance"
+		}
+
+		length: 13
+		alignment: Right
+		comma-separator: true
+		operation: field-extract "VDBAL"
+		conversion: extract from 8 to 1 delimited by " "
+		conversion: oconv "MD0"
+	}
+
+	field "BAL4" {
+		label {
+			en = "Balance"
+		}
+
+		length: 13
+		alignment: Right
+		comma-separator: true
+		operation: field-extract "VDBAL"
+		conversion: extract from 9 to 1 delimited by " "
+		conversion: oconv "MD0"
+	}
+
+	field "BAL5" {
+		label {
+			en = "Balance"
+		}
+
+		length: 13
+		alignment: Right
+		comma-separator: true
+		operation: field-extract "VDBAL"
+		conversion: extract from 10 to 1 delimited by " "
+		conversion: oconv "MD0"
+	}
+
+	field "DASH" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"------------\""
+	}
+
+	field "NULL" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"\""
+	}
+
+	field "LPS" {
+		alignment: Left
+		comma-separator: false
+		operation: selection "LONG.POS.SIGN"
+	}
+
+	field "LPS2" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: selection "LONG.POS.SIGN"
+	}
+
+	field "PLUS" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"PLUS\""
+	}
+
+	field "MIN.LPS.NARR" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"\'-\' Indicates a SHORT position\""
+	}
+
+	field "LAST.DATE" {
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: field-extract "VDBAL"
+		conversion: extract from 5 to 1 delimited by " "
+	}
+
+	drilldown "1" {
+		description {
+			en = "Nostro Forward Balance"
+		}
+
+		label-field: "DISP.NAME"
+		image: "view.gif"
+		criteria: "VALUE.DATE" LessOrEquals "LAST.DATE"
+		criteria: "ACCOUNT.ID" Equals "ACCT"
+		criteria: "LONG.POS.SIGN" Equals "LPS"
+		enquiry: "NOSTRO.FWD.BAL"
+	}
+
+	drilldown "2" {
+		description {
+			en = "Transfer in"
+		}
+
+		image: "transferout.gif"
+		criteria: "CURRENT.DEBIT" > "ACCT"
+		criteria: "CURRENT.CURRENCY" > "CRNCY" parameters {
+			function:  Input
+			auto-F3: true
+		}
+
+		screen: "FUNDS.TRANSFER,INTERBANK"
+	}
+
+	drilldown "3" {
+		description {
+			en = "Transfer out"
+		}
+
+		image: "notify.gif"
+		criteria: "CURRENT.DEBIT" > "ACCT"
+		criteria: "CURRENT.CURRENCY" > "CRNCY" parameters {
+			function:  Input
+			auto-F3: true
+		}
+
+		screen: "FUNDS.TRANSFER,INTERBANK.OUT"
+	}
+
+}

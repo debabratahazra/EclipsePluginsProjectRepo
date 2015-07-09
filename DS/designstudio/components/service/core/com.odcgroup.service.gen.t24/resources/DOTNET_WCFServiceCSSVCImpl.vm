@@ -1,0 +1,383 @@
+## DOTNET_WCFServiceCSSVCImpl.vm
+// Standard Imports
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.ServiceModel;
+using System.ServiceModel.Web;
+using System.Text;
+using System.IO;
+using System.Configuration;
+
+
+// Temenos Imports
+using temenos.soa.common;
+using com.jbase.jremote;
+
+namespace temenos {${formatter.indent()}${formatter.indent()}
+	namespace soa {${formatter.indent()}${formatter.indent()}
+		namespace ${service.getNamespace()} {${formatter.indent()}${formatter.indent()}
+			[${service.getComponentName()}Behavior]
+			public class ${service.getServiceName()}WS : I${service.getServiceName()}WS, IDisposable
+			{
+				// Private members of the class
+				private JConnectionManager connMgr = null;
+				private Managed${service.getServiceName()}API ${service.getServiceNameInLowerInitialChar()}API = null;
+				private ManagedContextCallback contextCallback = null;
+				private String _connectivity;
+				private static readonly String SERVER_LOAD_USER_SMS = "JF.VALIDATE.SIGN.ON";
+				
+				// Default constructor, which will set the env and initialise the Service API
+				public ${service.getServiceName()}WS()
+				{
+					// Initialise the environment, set the dummy context and initialise DOTNET API
+					try {
+    					initEnvironment();
+    				} 
+					catch (Exception e) 
+					{
+						throw e;
+					}
+				}
+			
+#set( $operationList = $service.getGenOperations())
+#foreach($operation in $operationList)
+		        public void ${operation.getDotNetWCFOperationWithParameters()}
+				{
+					// Initialise all Out parameters first
+#set( $paramList = ${operation.getParameters()})
+#foreach($param in $paramList)
+#if (${param.getDirection()} == "OUT")
+	                ${param.getParaDotNetName()} = ${param.getDefaultValue("CS")};
+#end
+#end
+					managedResponseDetail = new ManagedSOAResponseDetail();
+					
+					switch (_connectivity)
+					{
+						// Go through native route
+						case "NATIVE":${formatter.indent()}${formatter.indent()}${formatter.indent()}${formatter.indent()}${formatter.indent()}${formatter.indent()}
+## The code is generated in Java Operation class						
+${operation.defineDotNetWCFServiceImpl()}${formatter.outdent()}${formatter.outdent()}${formatter.outdent()}${formatter.outdent()}${formatter.outdent()}${formatter.outdent()}
+							break;
+						
+						// Go through remote route
+						case "REMOTE":
+#set( $mandatoryFields = 0)
+#foreach($param in $paramList)
+#if (${param.isMandatory()} == "true")
+#set( $mandatoryFields = 1)
+#if (${param.getCardinality()} == "MULTIPLE")
+		                    if ( ( ${param.getParaDotNetName()} == null ) || ( ${param.getParaDotNetName()}.Count == 0 ) ) {
+#else
+                            if ( ( ${param.getParaDotNetName()} == null ) || ( ${param.getParaDotNetName()}.Equals("") ) ) {
+#end
+                                String responseDetailsResponseText = "'${param.getParaDotNetName()}' is a mandatory field";
+								managedResponseDetail.SOAResponseCode = ManagedResponseCode.FAILURE;
+								managedResponseDetail.ResponseMessages = new List<ManagedSOAResponseMessage>()
+									{new ManagedSOAResponseMessage(114259, ManagedMessageType.FATAL_ERROR, responseDetailsResponseText, "EB-FIELD.MISSING")};
+							}
+        
+#end
+#end
+#if ($mandatoryFields == 1)
+		                    // Return if any mandatory field checks have failed
+                            if (managedResponseDetail.SOAResponseCode.Equals(ManagedResponseCode.FAILURE))
+		                    {
+								return;
+							}
+#end
+							JConnection conn = null;
+							bool reqConv = false;
+							try 
+							{
+								JSubroutineParameters jsParams = new JSubroutineParameters();
+            					JDynUtils jdUtils = new JDynUtils();
+								
+#foreach($param in $paramList)
+#if (${param.getDirection()} == "IN" || ${param.getDirection()} == "INOUT")
+#if (${param.getComplexity()} == "PRIMITIVE")
+#if (${param.getCardinality()} == "SINGLE")
+		                        jsParams.add(new JDynArray(${param.getParaDotNetName()}.ToString()));  // Input parameter - ${param.getParaDotNetName()}
+#else
+		                        JDynArray ${param.getParaDotNetName()}jDyn = new JDynArray();
+								jdUtils.setValue(${param.getParaDotNetName()}jDyn, ${param.getParaDotNetName()});
+                                jsParams.add(${param.getParaDotNetName()}jDyn);  // Input List parameter - ${param.getParaDotNetName()}
+#end
+#else
+		                        ${param.getDotNetBaseType()}Converter ${param.getParaDotNetName()}ConverterObj = new ${param.getDotNetBaseType()}Converter();
+		                        jsParams.add(${param.getParaDotNetName()}ConverterObj.toJDyn(${param.getParaDotNetName()}));  // Complex Input parameter - ${param.getParaDotNetName()}
+#end
+#else
+                                jsParams.add(new JDynArray());                         // Output parameter - ${param.getParaDotNetName()}
+#end
+#end	
+		                        jsParams.add(new JDynArray());					     // Output parameter - managedResponseDetail
+								
+								// Request converted successfully
+								reqConv = true;
+								
+								// At this point we are ready to execute the request, so get the connection from Connection Pool
+								conn = connMgr.GetJConnection();
+								
+								// Set/Switch the user context for this connection
+								loadUserSMS(conn, managedUserContext, managedResponseDetail);
+								if ( managedResponseDetail.SOAResponseCode.Equals(ManagedResponseCode.FAILURE) ) {
+									return;
+								}
+			
+								// Call the JBC operation
+								jsParams = conn.call("T24${service.getServiceName()}Impl.${operation.getName()}", jsParams);	// Process the request
+
+								JDynArray res; 
+#set( $paramIndex = 0 )
+#foreach($param in $paramList)
+#if(${param.getDirection()} == "OUT" || ${param.getDirection()} == "INOUT")
+		                        res = (JDynArray) jsParams.get($paramIndex);	// Output parameter - ${param.getParaDotNetName()}
+#if (${param.getComplexity()} == "PRIMITIVE")
+## Get Base type information as JDynUtils have different method names
+#set($baseType = "")
+#if(${param.getDotNetBaseType()} == "int")
+#set($baseType = "Integer")
+#elseif(${param.getDotNetBaseType()} == "bool")
+#set($baseType = "Boolean")                    
+#else
+#set($baseType = "String")     
+#end
+#if ($param.getCardinality() == "SINGLE")
+                                ${param.getParaDotNetName()} = jdUtils.get${baseType}(res);
+#else
+		                        jdUtils.get${baseType}List(res, ${param.getParaDotNetName()});
+#end
+#else ## Complex objects
+#if($param.getDirection() == "OUT")
+## Instantiate Converter class object at this point for OUT param only, INOUT will already have created one above
+		                        ${param.getDotNetBaseType()}Converter ${param.getParaDotNetName()}ConverterObj = new ${param.getDotNetBaseType()}Converter();
+#end
+		                        ${param.getParaDotNetName()}ConverterObj.fromJDyn(res, ${param.getParaDotNetName()});
+#end
+#end
+#set ($paramIndex = $paramIndex + 1)
+#end		
+		                        JDynArray resDetails = (JDynArray) jsParams.get($paramIndex);	// Output parameter - managedResponseDetail
+		                        ManagedSOAResponseDetailConverter managedResponseDetailConverter = new ManagedSOAResponseDetailConverter();
+								managedResponseDetailConverter.fromJDyn(resDetails, managedResponseDetail);
+							}
+							catch (JSubroutineNotFoundException jsnfe) 
+							{
+								String responseDetailsResponseText = "Request operation for the service is not available - JSubroutineNotFoundException : " + jsnfe.Message;
+								managedResponseDetail.SOAResponseCode = ManagedResponseCode.FAILURE;
+								managedResponseDetail.ResponseMessages = new List<ManagedSOAResponseMessage>()
+									{new ManagedSOAResponseMessage(111181, ManagedMessageType.FATAL_ERROR, responseDetailsResponseText, "EB-APPICATION.OPERATION.MISS")};
+							} 
+							catch (JRemoteException jre)
+							{
+								String responseDetailsResponseText = "Failed to connect to remote T24 instance - JRemoteException : " + jre.Message;
+								managedResponseDetail.SOAResponseCode = ManagedResponseCode.FAILURE;
+								managedResponseDetail.ResponseMessages = new List<ManagedSOAResponseMessage>()
+									{new ManagedSOAResponseMessage(0, ManagedMessageType.FATAL_ERROR, responseDetailsResponseText, "EB-CONNECTION.ERROR")};
+							}
+							catch (InvalidNestLevelException inle) 
+							{
+								String responseDetailsResponseText, errorAt;
+								if (reqConv) {
+									responseDetailsResponseText = "Failed to convert Output parameters returned from T24 - InvalidNestLevelException : " + inle.Message;
+									errorAt = "RESPONSE";
+								} else {
+									responseDetailsResponseText = "Failed to convert Input parameters for T24 - InvalidNestLevelException : " + inle.Message;
+									errorAt = "REQUEST";
+								}
+								managedResponseDetail.SOAResponseCode = ManagedResponseCode.FAILURE;
+								managedResponseDetail.ResponseMessages = new List<ManagedSOAResponseMessage>()
+									{new ManagedSOAResponseMessage(0, ManagedMessageType.FATAL_ERROR, responseDetailsResponseText, "EB-INVALID." + errorAt)};
+							}
+							catch (Exception ex)
+							{
+								String responseDetailsResponseText = "Failed to process request - Exception : " + ex.Message;
+								managedResponseDetail.SOAResponseCode = ManagedResponseCode.FAILURE;
+								managedResponseDetail.ResponseMessages = new List<ManagedSOAResponseMessage>()
+									{new ManagedSOAResponseMessage(0, ManagedMessageType.FATAL_ERROR, responseDetailsResponseText, "")};
+							}
+							finally
+							{
+								if (conn != null)
+									connMgr.CloseJConnection(conn);
+							}
+							break;
+	                }
+	            }
+				
+#end
+	       
+                /**
+                 * Following method will setup the environment to load TAFC and related libraries
+				 */
+				private void initEnvironment()
+				{
+					// Gather information from web.config [app.{remote/native}.config]
+					NameValueCollection appSettings = System.Configuration.ConfigurationManager.AppSettings;
+					_connectivity = appSettings["CONNECTIVITY"];
+					switch (_connectivity)
+					{
+						case "NATIVE":
+                            string[] keys = appSettings.AllKeys;
+							List<string> excludeList = new List<string> { "CONNECTIVITY", "contextMode", "concurrencyMode", "COMPONENT_FRAMEWORK" };
+    						for (int i = 0; i < appSettings.Count; i++)
+    						{
+    							switch (keys[i])
+    							{
+    								// Set TAFC_HOME specific configurations 
+    								case "TAFC_HOME":
+    									string tafc_home = appSettings[i];
+    									EnvironmentHandle.SetEnv("TAFC_HOME", tafc_home);
+    									EnvironmentHandle.SetEnv("JBCGLOBALDIR", tafc_home);
+    									EnvironmentHandle.UpdateEnv("PATH", new List<String>() { tafc_home + "\\bin" });
+    									break;
+    									
+    								// Set T24 specific configurations		
+    								case "T24_HOME":
+    									string t24_home = appSettings[i];
+    									EnvironmentHandle.SetEnv("HOME", t24_home);
+    									EnvironmentHandle.SetEnv("JBCOBJECTLIST", String.Concat(t24_home, "\\lib", ";", t24_home, "\\t24lib"));
+    									String newPath = String.Concat(t24_home, "\\bin");
+    									newPath = String.Concat(newPath, ";", t24_home, "\\t24bin");
+    									newPath = String.Concat(newPath, ";", t24_home, "\\t24lib\\T24E_Components");
+    									EnvironmentHandle.UpdateEnv("PATH", new List<String>() { newPath });
+    									Directory.SetCurrentDirectory(t24_home);
+    									break;
+    								
+									// Update JBCOBJECTLIST with additional jBC Objects
+									case "JBCOBJECTLIST":
+										string additinalObjectList = appSettings[i];
+										if (!additinalObjectList.Equals(""))
+										{
+											// We do not want to overwrite the default one so update JBCOBJECTLIST
+											EnvironmentHandle.UpdateEnv("JBCOBJECTLIST", new List<String>() { additinalObjectList });
+										}
+										break;
+        
+                                    // Update PATH for additional libs		
+                                    case "PATH":
+                                        string additionalPath = appSettings[i];
+                                        if (!additionalPath.Equals(""))
+                                        {
+                                            EnvironmentHandle.UpdateEnv("PATH", new List<String>() { additionalPath });
+                                        }
+                                        break;
+            
+                                    // Update COMPONENT_LIB_DIR_NAME for component specific libs		
+                                    case "COMPONENT_LIB_DIR_NAME":
+                                        string comp_lib_dir_name = appSettings[i];
+                                        if (!comp_lib_dir_name.Equals(""))
+                                        {
+                                            string comp_lib_dir_full_path = String.Concat(appSettings.Get("T24_HOME"), "\\t24lib\\", comp_lib_dir_name);
+                                            EnvironmentHandle.UpdateEnv("JBCOBJECTLIST", new List<String>() { comp_lib_dir_full_path });
+                                            EnvironmentHandle.UpdateEnv("PATH", new List<String>() { comp_lib_dir_full_path });
+                                        }
+                                        break;	
+							
+    								// All other setting should just go as it is
+    								default:
+										if (! excludeList.Exists(delegate(string s) { return keys[i].StartsWith(s); }))
+										{
+											EnvironmentHandle.SetEnv(keys[i], appSettings[i]);
+										}
+    									break;
+    							}		
+    						}
+							contextCallback = new ManagedContextCallbackImpl(new ManagedUserContext("", "", ""));
+            				try
+            				{
+            					${service.getServiceNameInLowerInitialChar()}API = new Managed${service.getServiceName()}Impl(contextCallback);
+            				}
+            				catch (Exception ex)
+            				{
+            					Exception innerException = new Exception ("Failed to initialise T24 '${service.getServiceName()}'. Please make sure you have set your environment correctly");
+            					Exception mainException  = new Exception ("Initialisation error, refer to Inner Exception for more details - Original Exception : " + ex.Message, innerException);
+            					throw mainException;
+            				}
+							break;
+							
+						// Remote connectivity initialisation
+						case "REMOTE":
+							// Now instantiate the connection manager
+                            try
+                            {
+                                connMgr = new JConnectionManager()
+                                {
+                                    HostIP = appSettings["HostIP"],
+                                    LoadBalancing = Convert.ToBoolean(appSettings["LoadBalancing"]),
+									OfsSourceId = appSettings["OFSSourceId"],
+                                    MaxPoolSize = Convert.ToInt32(appSettings["MaxPool"]),
+                                    MinPoolSize = Convert.ToInt32(appSettings["MinPool"]),
+                                    IdleTimeout = Convert.ToInt32(appSettings["IdleTimeout"]),
+                                    IncrementFactor = Convert.ToInt32(appSettings["IncrementFactor"]),
+                                    ActionTimeout = Convert.ToInt32(appSettings["ActionTimeout"]),
+                                    SSL = Convert.ToBoolean(appSettings["SSL"]),
+                                    DN = appSettings["DN"],
+                                    Compression = Convert.ToBoolean(appSettings["Compression"]),
+                                    CompressionThreshold = Convert.ToInt32(appSettings["CompressionThreshold"]),
+                                    Charset = appSettings["Charset"],
+                                    AllowInput = Convert.ToBoolean(appSettings["AllowInput"]),
+                                    EnvironmentVariables = appSettings["EnvironmentVariables"],
+                                    AgentUser = appSettings["AgentUser"],
+                                    AgentPassword = appSettings["AgentPassword"]
+                                };
+                            }
+                            catch (OverflowException ofe)
+                            {
+                                throw new Exception("Failed to initialise connection pool. Configuration provided for remote connectivity are invalid", ofe.InnerException);
+                            }
+                            catch (FormatException fe)
+                            {
+                                throw new Exception("Failed to initialise connection pool. Configuration provided for remote connectivity are invalid", fe.InnerException);
+                            }
+							break;
+							
+						// Invalid option provided
+						default:
+							throw new Exception (String.Concat("Connectivity option: ", _connectivity, ", not supported"));
+					} 
+				}
+				
+				private void loadUserSMS(JConnection conn, ManagedUserContext userContext, ManagedSOAResponseDetail managedResponseDetail)
+				{
+					String context,password,response; 
+					context = userContext.UserName;
+					password = userContext.Password;
+					
+					// Now prepare and call the routine to load User SMS
+					JSubroutineParameters jsParams = new JSubroutineParameters();
+					jsParams.add(new JDynArray(context));
+					jsParams.add(new JDynArray(password));
+					jsParams.add(new JDynArray());
+		
+					jsParams = conn.call(SERVER_LOAD_USER_SMS, jsParams);
+		
+					JDynArray responsejDyn = (JDynArray) jsParams.get(2);
+					response = responsejDyn.get(1);
+					if (! response.Equals("")) {
+						managedResponseDetail.SOAResponseCode = ManagedResponseCode.FAILURE;
+						managedResponseDetail.ResponseMessages = new List<ManagedSOAResponseMessage>()
+							{new ManagedSOAResponseMessage(137930, ManagedMessageType.NON_FATAL_ERROR, response, "EB-SECURITY.VIOLATION")};
+					}
+				}
+				
+				// @Override of IDisposable class and will be called by IIS 
+				// to cleanup
+				public void Dispose() 
+				{
+					switch (_connectivity)
+					{
+						// Clean up for remote connectivity only
+						case "REMOTE":
+							connMgr.DisposeConnectionPool();
+							break;
+					}
+				}
+			}
+		}${formatter.outdent()}
+	}${formatter.outdent()}
+}${formatter.outdent()}

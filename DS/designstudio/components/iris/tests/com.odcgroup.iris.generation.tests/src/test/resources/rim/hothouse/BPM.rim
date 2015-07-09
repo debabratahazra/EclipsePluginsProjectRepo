@@ -1,0 +1,136 @@
+domain hothouse {
+	use common.HTTPEvents.*
+	use common.ODataCommands.*
+
+	use hothouse.Hothouse.*
+	
+	rim BPM {
+		
+		command GETProcessDefinitions
+		command GETTaskList
+		command AcquireTask
+		command ReleaseTask
+		command StartProcess
+		command GetTaskDetails
+		
+		resource ProcessDefinitions {
+			type: collection
+			entity: ProcessDefinition
+			view: GETProcessDefinitions
+			path: "/ProcessDefinitions()"
+			GET *-> ProcessInstance_new
+			 {
+				title: "Start New Process Instance"
+				parameters [ ProcessDefinitionId="{Id}" ]
+//				condition: OK(MyTask) && OK(Other) && NOT_FOUND(ABCResource)
+			}
+		}
+		
+		resource ProcessInstances {
+			type: collection
+			entity: ProcessInstance
+			view: GETEntities
+			path: "/ProcessInstances()"
+		}
+		
+		resource ProcessInstance_new {
+			type: item
+			entity: ProcessInstance
+			view: StartProcess
+		    relations [ "http://www.temenos.com/rels/new" ]
+			path: "/ProcessInstance/{ProcessDefinitionId}/new"
+			GET --> Tasks
+			//GET -> Tasks ProcessId=ProcessInstanceId // Auto transition with --> and filters don't work
+		}
+		
+		
+		resource Tasks {
+			type: collection
+			entity: Task
+			view: GETTaskList
+			//path: "/Tasks?ProcessId={ProcessId}" 
+			 //These filters needs to be coded in the command
+			path: "/Tasks()"
+			
+			GET *-> FT.FundsTransfers.fundstransfer_edge_new {
+				title: "FT task"
+//				condition: OK (ExpressionEvaluator { parameters [ expression="FUNDS.TRANSFER eq {T24.TARGET}" ]}) 
+				parameters [ processId="{processId}", taskId="{taskId}"]
+			} 
+			GET *-> ST.Customers.customer_input_new {
+				title: "New Customer Task"
+//				condition: OK (MyTask)
+				parameters [ processId="{processId}", taskId="{taskId}"]
+			} 
+			GET *-> AC.Accounts.account_hotopen_new {
+				title: "New Account Task"
+//				condition: OK (MyTask)
+				parameters [ processId="{processId}", taskId="{taskId}"]
+			} 
+			
+			//GET title="Execute Task" *-> "/Tasks/{Id}/{T24Target}"
+			POST *-> MyTask {
+				title: "Acquire Task" 
+				condition: NOT_FOUND (MyTask)
+				parameters [ id="{Id}" ]
+			}
+			POST *-> Task_release {
+				title: "Release Task"
+				parameters [ id="{Id}" ]
+			}
+		}
+		
+		resource Task_mytasks {
+			type: collection
+			entity: Task
+			view: GETTaskList {
+				properties [ MyTasks="Mine" ]
+			}
+			path: "/MyTasks()"
+		}
+		
+		resource MyTask {
+			type: item
+			entity: Task
+			view: GetTaskDetails {
+				properties [ MyTask="Mine" ]
+			}
+			path: "/MyTasks/{Id}"
+			GET --> Task_acquire
+		}
+		
+		resource Task_acquire {
+			type: item
+			entity: Task
+			actions [ AcquireTask ]
+		    relations [ "http://www.temenos.com/rels/post" ]
+			path: "/Task/{id}/acquire"
+			//Once acquired, execute Task
+			//GET --> /Task/{id}/{T24Target}
+		}
+		
+		resource Task_release {
+			type: item
+			entity: Task
+			actions [ ReleaseTask ]
+		    relations [ "http://www.temenos.com/rels/post" ]
+			path: "/Task/{id}/release"
+			//Once released, display the user tasklist
+			//GET --> Tasks
+		}
+		
+		//This require further inputs like the name of user / group to reassign
+		/*
+		resource Task_reassign
+			type: item
+			entity: Task
+			actions { ReassignTask	}
+		    relations { "http://www.temenos.com/rels/post" }
+			path: "/Task/{id}"
+			//Once released, display tasklist
+			//SEE --> Tasks
+		}
+		 */
+				
+	}
+}

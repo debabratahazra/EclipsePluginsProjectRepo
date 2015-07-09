@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.odcgroup.ocs.support.ui.preferences.OCSRuntimePreferenceInitializer">
+      </initializer>
+   	</extension>
+
+    <extension point="org.eclipse.ui.preferencePages">
+         <page
+               category="com.odcgroup.ocs.servers"
+               class="com.odcgroup.ocs.support.ui.preferences.pages.ExternalServerPreferencePage"
+               id="com.odcgroup.eds.prefs.servers.external"
+               name="External">
+         </page>
+         <page
+               category="com.odcgroup.ocs.servers"
+               class="com.odcgroup.ocs.support.ui.preferences.pages.EmbeddedServerPreferencePage"
+               id="com.odcgroup.eds.prefs.servers.embedded"
+               name="Embedded">
+         </page>
+    </extension>
+
+	<!-- ANT -->
+
+	<!-- CLASSPATHS and LIBRARIES -->
+	<!--
+    <extension
+          id="eds_libraries"
+          name="%eds.libraries.name"
+          point="org.eclipse.jdt.core.classpathContainerInitializer">
+
+      <classpathContainerInitializer
+            class="com.odcgroup.ocs.support.ui.internal.classpath.ClasspathContainerInitializer"
+            id="EAR_CLASSPATH">
+      </classpathContainerInitializer>
+      <classpathContainerInitializer
+            class="com.odcgroup.ocs.support.ui.internal.classpath.ClasspathContainerInitializer"
+            id="WUI_CLASSPATH">
+      </classpathContainerInitializer>
+    </extension>
+
+   <extension
+          id="EdsClasspathContainerPage"
+          name="%eds.classpath-container.page.name"
+         point="org.eclipse.jdt.ui.classpathContainerPage">
+
+      <classpathContainerPage
+          id="EAR_CLASSPATH"
+          name="%eds.ear.classpath-container.page.dependencies.name"
+            class="com.odcgroup.ocs.support.ui.internal.classpath.EarClasspathContainerPage">
+      </classpathContainerPage>
+      <classpathContainerPage
+          id="WUI_CLASSPATH"
+          name="%eds.wui.classpath-container.page.dependencies.name"
+            class="com.odcgroup.ocs.support.ui.internal.classpath.WUIClasspathContainerPage">
+      </classpathContainerPage>
+   </extension>
+   -->
+
+	<extension id="xpatchbuilder" name="Configuration Patcher"
+		point="org.eclipse.core.resources.builders">
+		<builder hasNature="false" isConfigurable="false">
+			<run class="com.odcgroup.ocs.support.ui.builder.PatchBuilder">
+			</run>
+		</builder>
+	</extension>
+
+	<!-- popupmenus -->
+
+	<extension point="org.eclipse.ui.popupMenus">
+		<objectContribution adaptable="true"
+			objectClass="org.eclipse.core.resources.IProject" nameFilter="*"
+			id="com.odcgroup.ocs.projectContributions">
+			<action
+				class="com.odcgroup.ocs.support.ui.actions.AddPatcherAction"
+				enablesFor="+" id="com.odcgroup.ocs.xpatch.AddPatcherAction"
+				label="Add Configuration Patcher"
+				menubarPath="com.odcgroup.ocs/additions"
+				tooltip="Will add the configuration file patcher to the selected projects" />
+		</objectContribution>
+		<objectContribution adaptable="true"
+			id="com.odcgroup.ocs.fileContributions"
+			objectClass="org.eclipse.core.resources.IFile">
+			<action
+				class="com.odcgroup.ocs.support.ui.actions.UnsetReadOnlyAction"
+				enablesFor="+" id="com.odcgroup.ocs.UnsetReadOnlyAction"
+				label="Unset ReadOnly"
+				menubarPath="com.odcgroup.ocs/additions"
+				tooltip="Unset the read-only flag of selected files" />
+			<action class="com.odcgroup.ocs.support.ui.actions.TouchFileAction"
+				enablesFor="+" id="com.odcgroup.ocs.TouchFileAction"
+				label="Touch" menubarPath="com.odcgroup.ocs/additions"
+				tooltip="'Touch' the selected files" />
+		</objectContribution>
+	</extension>
+
+
+	<extension
+		point="org.eclipse.wst.common.uriresolver.resolverExtensions">
+		<resolverExtension stage="postnormalization" priority="high"
+			class="com.odcgroup.ocs.support.ui.internal.compiler.OCSSchemaResolver">
+		</resolverExtension>
+	</extension>
+ <extension
+       point="org.eclipse.ui.startup">
+    <startup
+          class="com.odcgroup.ocs.support.ui.EarlyStartup"></startup>
+ </extension>
+ <extension
+       point="com.odcgroup.workbench.core.template.provider">
+    <provider
+          type="com.odcgroup.ocs.support.ui.template.provider.OcsTemplateProvider">
+    </provider>
+ </extension>
+	<extension
+       point="org.eclipse.ui.ide.markerResolution">
+    <markerResolutionGenerator
+          class="com.odcgroup.ocs.support.ui.m2eclipse.migration.OldM2EclipseProblemResolutionGenerator"
+          markerType="com.odcgroup.ocs.support.ui.mavenProblem">
+    </markerResolutionGenerator>
+ </extension>
+   <extension
+         point="com.odcgroup.workbench.core.natureExtension">
+      <natureExtension
+            enabledByDefault="false"
+            id="com.odcgroup.ocs.support.ui.m2eclipse.migration.natureExtension"
+            label="enable old M2Eclipse nature"
+            markerId="com.odcgroup.ocs.support.ui.mavenProblem"
+            natureId="org.maven.ide.eclipse.maven2Nature"
+            priority="3">
+      </natureExtension>
+   </extension> 
+</plugin>

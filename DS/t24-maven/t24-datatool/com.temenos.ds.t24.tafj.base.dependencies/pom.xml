@@ -1,0 +1,321 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+	    <groupId>com.temenos.maven</groupId>
+	    <artifactId>t24-core</artifactId>
+		<version>2015.8.0-SNAPSHOT</version>
+		<relativePath>../t24-core/pom.xml</relativePath>
+	</parent>
+
+	<groupId>com.temenos.ds.t24.tafj</groupId>
+	<artifactId>base.dependencies</artifactId>
+
+	<properties>
+		<tafj.groupId>com.temenos.tafj</tafj.groupId>
+		<tafj.version>${tafjVersion}</tafj.version> <!-- tafjVersion is defined in DS t24-core -->
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<!-- NB: This is copy/pasted from & in com.temenos.mvorburger.duplicates:parent (perhaps LATER it could re-unified) -->
+				<groupId>org.basepom.maven</groupId>
+				<artifactId>duplicate-finder-maven-plugin</artifactId>
+				<version>1.1.1</version>
+				<executions>
+					<execution>
+						<id>default</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<ignoredResources>
+						<!-- These are present in all TAFj JAR at the root.. :( -->
+						<ignoredResource>version.xml</ignoredResource>
+					</ignoredResources>
+	<!--
+			Not sure why this doesn't work as it should?
+
+					<ignoreResourcePatterns>
+						<ignoredResourcePattern>version\.xml$</ignoredResourcePattern>
+					</ignoreResourcePatterns>
+	 -->
+					<failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
+					<!-- This will fail the build even in case of duplicate but identical classes/resources (as per their SHA256). If you don't want that, then use these two for more fine-grained control:
+							<failBuildInCaseOfDifferentContentConflict>true</failBuildInCaseOfDifferentContentConflict>
+							<failBuildInCaseOfEqualContentConflict>false</failBuildInCaseOfEqualContentConflict>
+					 -->
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+
+<!-- TODO Discuss with TAFJ dev team:
+		I've copy/pasted the following list from com.temenos.tafj:TAFJ, but shouldn't have to, agreed?
+			a) I cannot / don't want to have to have that artifact as my <parent>
+			b) even if I did I would have to repeat this here, just without the <version>, because you just offer a <dependencyManagement>, not real </dependencies>.
+		What I think we should is you should offer something like a com.temenos.tafj:base.dependencies pom.xml, of <packaging>pom</packaging>, which I can use as dependency, or via that import scope thing I need to learn more about. -->
+	<dependencies>
+
+		<!-- INTERNAL DEPENDENCIES -->
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJCommon</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJCompiler</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJTelnetD</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>T24CollectorClient</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJLocking</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJCore</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJClient</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJCoverage</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJVersion</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJDBImport</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJPackager</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>SeatInjector</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>JMSInjector</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJBASIC</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>SoaFramework</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJSubroutineSplitter</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+
+		<!-- EXTERNAL DEPENDENCIES -->
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>6.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.jms</groupId>
+			<artifactId>jms</artifactId>
+			<version>1.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.transaction</groupId>
+			<artifactId>transaction-api</artifactId>
+			<version>1.1</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>antlr</groupId>
+			<artifactId>antlr</artifactId>
+			<version>2.7.7</version>
+		</dependency>
+		<!-- icu4j-light is a patched jar which just contains charset detection classes -->
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j-light</artifactId>
+			<version>52.1</version>
+		</dependency>
+
+		<!-- TODO TAFj Chaps, are you SURE you need this? And not just as a <scope>test</scope> ? -->
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant-nodeps</artifactId>
+			<version>1.8.1</version>
+		</dependency>
+		<!-- TODO TAFj Friends, are you SURE that you meant to have both an Ant 1.7.1 as well as an 1.8.1 in your <dependencyManagement> ?
+		<dependency>
+			<groupId>ant</groupId>
+			<artifactId>ant</artifactId>
+			<version>1.7.1</version>
+		</dependency> -->
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.14</version>
+		</dependency>
+		<!-- TODO TAFj team, OMG what on earth is this, and who/what needs it? Its a funny JAR with just ONE class in it.. -->
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant-apache-log4j</artifactId>
+			<version>1.7.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.ant</groupId>
+					<artifactId>ant</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- TODO TAFj Chaps, I'm surprised to see that you need this? And not just as a <scope>test</scope> ? -->
+		<dependency>
+			<groupId>com.jbase</groupId>
+			<artifactId>jremote</artifactId>
+			<version>201311</version>
+		</dependency>
+
+
+<!-- TODO TAFj Chaps, the following are probably not "base", and should go into a/several separate pom.xml/s,
+      as for e.g. integration test, or standalone CLI tools, use cases you don't need this, do you:
+
+		<dependency>
+			<groupId>org.fusesource.jansi</groupId>
+			<artifactId>jansi</artifactId>
+			< ! - - Specific TAFJ patched version on 1.12.0-SNAPSHOT basis see MANIFEST-MF - - >
+			<classifier>TEMN</classifier>
+			<version>1.11</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJ-JRebel-Plugin</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJJEE_WAR_TAFJ</artifactId>
+			<version>${tafj.version}</version>
+			<type>war</type>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJJEE_EAR</artifactId>
+			<version>${tafj.version}</version>
+			<type>ear</type>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJServices</artifactId>
+			<version>${tafj.version}</version>
+			<type>war</type>
+		</dependency>
+
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJJavaMelodyExtension</artifactId>
+			<version>${tafj.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJSessionMonitor</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJJEE_EJB</artifactId>
+			<version>${tafj.version}</version>
+			<type>ejb</type>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJJEE_EJBClient</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${tafj.groupId}</groupId>
+			<artifactId>TAFJJEE_MDB</artifactId>
+			<version>${tafj.version}</version>
+			<type>ejb</type>
+		</dependency>
+-->
+
+<!-- TODO TAFj Chaps, the following are Eclipse plug-ins I think, and I would not handle them like this, should be handled via p2 only, not Maven dependencies:
+		<dependency>
+			<groupId>com.temenos.tafj.ds</groupId>
+			<artifactId>com.temenos.tafj.builder</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.temenos.tafj.ds</groupId>
+			<artifactId>com.temenos.tafj.launcher</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.temenos.tafj.ds</groupId>
+			<artifactId>com.temenos.tafj.database</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.temenos.tafj.ds</groupId>
+			<artifactId>com.temenos.tafj.rtc</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		< ! - - This was already commented out in the com.temenos.tafj:TAFJ where I originally took this from, not sure what you meant this to be for:
+		<dependency>
+			<groupId>com.temenos.tafj.ds</groupId>
+			<artifactId>com.temenos.tafj.dependencies</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+		 - - >
+		<dependency>
+			<groupId>com.temenos.tafj.ds</groupId>
+			<artifactId>com.temenos.tafj.axis.client</artifactId>
+			<version>${tafj.version}</version>
+		</dependency>
+-->
+	</dependencies>
+</project>

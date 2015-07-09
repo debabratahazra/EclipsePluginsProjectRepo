@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN"
+"http://docs.oasis-open.org/dita/v1.1/OS/dtd/topic.dtd">
+<topic id="SdlcFdsTdsVersion_4_4_tech067">
+	<title>Visual Rules Null Pointer Exception</title>
+	<body>
+		<section>
+			<title>Description</title>
+			<p>
+				This document specifies how the TECH067 requirement regarding “Visual Rule Management of NULL values, should not give Null Pointer Exception” is addressed.
+			</p>
+			<p>				 
+				The business requirement was never further detailed in a written PRD by product management, but has been understood as the wish to avoid having explicit NULL tests in Visual Rules. As the Triple’A Core Script Language does this (implicitly), business users expect the same behaviour within Visual Rules.
+			</p>
+			<p>
+				A good example illustrating this need is e.g. the many NULL checks in the DomainContext DataSet completion rule in the wui-pms-admin-models project, as illustrated in the partial screenshots below from the current packaging.
+			</p>
+		</section>
+		<section>
+			<title>FDS Link</title>
+			<p>
+				<xref
+					href="https://lausvn/svn/devel/projects/doc/active/triplea_plus/R11/03.%20Construction%20(Design)/TECHNOLOGY/DS/FDS_DSR11_TECH067_VisualRulesNullPointerException.doc"
+					scope="external">FDS_DSR11_TECH067_VisualRulesNullPointerException.doc</xref>
+			</p>
+		</section>
+		<section>
+			<title>JIRA Issue(s)</title>
+			<p>
+				<xref href="http://rd.oams.com/browse/DS-4145" scope="external">DS-4145</xref>
+			</p>
+		</section>
+		<section>
+			<title>TDS</title>
+			<p>
+				<i> Note: FDS references are in parenthesis	</i>
+			</p>
+				<b>1. Navigating NULL relations (FDS 1.2)</b>
+			<p>
+				It can be assumed that all objects we deal with implement the IDynaBean interface (plus possibly other 
+				statically typed interfaces). A util class should offer a method to wrap such instances, such that their
+				behavior is altered. The wrapper object must still implement all interfaces of the wrapped object.
+			</p>
+			<p>
+				Technically this can be solved through Proxy classes. All method requests are piped through an InvocationHandler.
+				The wrapper classes should come with its own InvocationHandler that extends the InvocationHandler that is used
+				by IDynaBeans. This way it can reuse the behavior of IDynaBeans while taking specific actions in some situations.
+			</p>
+			<p>
+				<i>Implementation details of the InvocationHandler</i>
+			</p>
+			<p>
+				On "getProperty" method calls, the handler should first delegate the call to the original IDynaBean implementation
+				and check the return value for null. If the value is null and the property is not of a primitive type, the handler
+				should return a INullDynaBean - which is a IDynaBean of the type of the property. All properties of this bean are null
+				and the bean should be automatically wrapped in order to be null-safe as well. If a property is a IDynaBeanEntityRef,
+				an according INullDynaBeanEntityRef should be returned instead. Properties with "many" cardinality should simply
+				return an empty collection (should be default behavior anyhow).
+			</p>
+			<p>
+				<b>2. Navigating NULL relations when setting attributes (FDS 1.3)</b>			
+			</p>
+			<p>
+				As all INullDynaBeans that are created and returned by the implementation in (1) internally behave just like other
+				IDynaBeans, this requirement should be automatically fulfilled. The INullDynaBeans support all setter methods and
+				subsequent getter calls will correctly return the set values.
+			</p>
+			<p>
+				One exceptional case needs to be treated though: If a chain is navigated multiple times in between the setter and getter
+				calls (e.g. a.b.setC("X"); a.b.getC();), we will have different INullDynaBean instances for b if b is null and hence
+				the getter method will just return another NullObject instead of "X".
+				To prevent this from happening, we have to store the INullDynaBean in the instance where we have processed the 
+				getProperty method, i.e. we internally set this property if it was null. This ensures that on the next call, the
+				value is not null and hence we do not create another INullDynaBean. To make sure that this has no side effects,
+				we need to do a deepClone of the original IDynaBean when storing it in the wrapper object.
+			</p>
+			<p>
+				<b>Further technical specification</b>
+			</p>
+			<p>
+				Details of how this functionality is expected to work have been formulated in form of JUnit tests, which can be found at
+				<xref href="https://lausvn/svn/devel/products/OCS/branches/5.0/DesignStudio/POC__DS-4145_r11TECH067_MDF.NPE/mdf-dyna-tests-TEMP/src/test/java/com/odcgroup/mdf/dyn/npe/NullPointerWrapperTest.java"
+					scope="external">NullPointerWrapperTest.java</xref>				
+			</p>
+		</section>
+	</body>
+</topic>

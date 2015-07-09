@@ -1,0 +1,64 @@
+grammar com.odcgroup.workbench.el.DSEL with ch.vorburger.el.EL hidden(WS, ML_COMMENT, SL_COMMENT, COMMENT)
+
+import "http://www.vorburger.ch/el/EL"
+import "http://www.eclipse.org/xtext/xbase/Xbase"
+import "http://www.eclipse.org/xtext/common/JavaVMTypes" as types
+
+//generate dsEL "http://www.odcgroup.com/workbench/el/DSEL"
+
+XExpression returns XExpression :
+	XOrExpression;
+
+XLiteral returns XExpression:
+  XBooleanLiteral |
+  XNullLiteral |
+  XStringLiteral |
+  DecimalLiteral |
+  DateLiteral |
+  DateTimeLiteral;
+
+// we want to allow multiple unary operators (e.g. "- - 1"), so we overwrite this definition
+XUnaryOperation returns XExpression:
+	{XUnaryOperation} feature=[types::JvmIdentifiableElement|OpUnary] operand=XUnaryOperation
+	| XCastedExpression;
+
+// overwriting the XBlockExpression expression to disallow multiple alternatives for '{'
+XBlockExpression returns XExpression: 
+	{XBlockExpression}
+	'/*'
+		(expressions+=XExpressionOrVarDeclaration ';'?)*
+	'*/';
+
+// overwriting the XSwitchExpression expression to disallow multiple alternatives for '{'
+XSwitchExpression returns XExpression:
+	{XSwitchExpression};
+
+// overwriting the XCastedExpression expression to disallow the "as" keyword
+//XCastedExpression returns XExpression:
+//	XMemberFeatureCall
+//;
+
+OpSingleAssign:
+	':='
+;
+
+OpEquality:
+	'==' | '=' | '!=' | '<>';
+
+OpCompare:
+	'>=' | '<=' | '>' | '<' | '!<' | '!>';
+
+OpUnary:
+	"!" | "-" | "+" | 'NOT';
+	
+OpOr:
+	'||' | 'OR';
+	
+OpAnd:
+	'&&' | 'AND';
+
+terminal COMMENT: 
+	'{' ( COMMENT | !'}' )* '}'; 
+	// This is "hidden" through the xText hidden keyword at the very beginning of the grammar.
+	// Note that XText's new "Until Token" ('{' -> '}') which first comes to mind here is not suitable, as that does not support nested comments!
+	// xText & ANTLR rock... @see e.g. http://sds.sourceforge.net/src/antlr/doc/lexer.html and other doc.

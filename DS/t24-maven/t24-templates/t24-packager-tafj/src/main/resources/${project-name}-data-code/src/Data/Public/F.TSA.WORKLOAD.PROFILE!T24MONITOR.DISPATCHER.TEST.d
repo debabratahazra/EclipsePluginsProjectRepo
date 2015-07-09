@@ -1,0 +1,20 @@
+Send TEC events to T24Monitor
+
+1
+
+
+
+
+
+
+
+
+
+
+
+6
+9528_INPUTTER
+1111051126
+9528_INPUTTER
+US0010001
+1

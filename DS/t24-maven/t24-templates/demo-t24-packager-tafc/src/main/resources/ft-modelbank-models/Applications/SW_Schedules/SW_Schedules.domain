@@ -1,0 +1,316 @@
+# UTF-8
+# UTF-8
+/* Schedule Processing for Swaps */
+Domain SW_Schedules
+	@t24:i (module=SW)
+	@java:Package (value=com.temenos.t24.datamodel.sw.sw_schedules)
+namespace "http://www.temenos.com/t24/SW_Schedules"
+metamodelVersion 1.30.6
+Classes {
+	/* This file defines all the schedules which are permitted on a Swap contract.
+All schedules are defined on the contract for both legs, Asset (AS.TYPE) and Liability (LB.TYPE).
+The first two characters of the Id of the record determine the type of schedules and are fixed as follows :
+o  AC  Interest accrual current month   o  AM  Interest accrual previous month   o  AY  Interest accrual previous year   o  CI  Contract initiation (contingent movements)   o  CM  Contract maturity   o  PX  Principal exchange   o  RX  Principal re-exchange   o  PI  Principal increase   o  PD  Principal decrease   o  IP  Interest payment   o  RR  Rate reset   o  PM  Payment (premium, interest purchased etc.)   o  RV  Receipt (premium, interest received etc.)   o  IS  Issue price   o  AP  Annuity payment
+Different schedules can be defined but the first two characters must be one of the above.  Eg.  "PMPR" = Payment of Premium.
+The following schedule types are system generated schedules and cannot be defined on the contract by the user :
+o  AC  Accrual current month   o  AM  Accrual previous month   o  AY  Accrual previous year   o  CI  Contract initiation   o  CM  Contract maturity
+For each schedule defined, the following associated information is also held :
+o  Transaction code (Mandatory except CI,CM,RR; must be unique if IS)   o  Profit & Loss Category code (Mandatory if PM,RV,IS)   o  Charge code   o  Fee code   o  Enrichment description. */
+	SWAP_SCHEDULE_TYPE
+		@t24:i (t24Name=SWAP.SCHEDULE.TYPE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Defines the type of swap schedule.
+The first twp characters of the Id determine the type of the schedule.  Different schedules can be defined, but the first two characters must be one of the fixed definitions. Eg. "PMPR" = Payment of premium.
+The first two characters are fixed as follows :
+AC  Interest accrual current month   AM  Interest accrual previous month   AY  Interest accrual previous year   CI  Contract initiation (contingent movements)   CM  Contract Maturity   PX  Principal Exchange   RX  Principal Re-exchange   PI  Principal Increase   PD  Principal Decrease   IP  Interest Payment   RR  Rate Reset   PM  Payment (premium, interest purchased etc.)   RV  Receipt (premium, interest received etc.)   CC  Charge or Commission   DY  Diary Note
+The following schedule types are system generated schedules and cannot be defined on the contract by the user :
+o  AC   o  AM   o  AY   o  CI   o  CM
+Validation Rules
+2 to 6 Alphanumeric characters. (Mandatory input).
+The first two characters must be one of the fixed swap type definitions.  The remainder characters are of free format. */
+		SWAP_SCHED_TYPE -> SW_Schedules:SWAP_SCHEDULE_TYPE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, businessType=A, t24Name=SWAP.SCHED.TYPE)
+		DESCRIPTION -> byValue SW_Schedules:SWAP_SCHEDULE_TYPE__DESCRIPTION *
+		/* Defines the Transaction code to be used on the entries for the Swap schedule type.
+Must be a valid definition on the TRANSACTION file.
+For each application a range of transaction codes has been assigned to facilitate their recognition and identification with T24.
+The current range of transaction codes for the Swaps module is 700 to 799.
+Validation Rules
+1-3 Numeric characters. (Mandatory input).
+Must be a valid definition on the TRANSACTION table. */
+		TRANSACTION_CODE -> ST_Config:TRANSACTION
+			@i18n:Label (en="Transaction Code")
+			@i18n:Tooltip (en="Indicates the Transaction Type")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=TRANSACTION.CODE)
+		/* Defines the Category code to be used on entries for the associated Swap schedule type.
+This P&L Category code is for :
+o  P&L debit entries for PM schedules only or,   o  P&L credit entries for RV schedules only.
+Category codes are used within the T24 system to classify financial transactions according to the type of business operation or product.
+Validation Rules
+1-5 Numeric characters. (Optional input.    Mandatory if PM, RV or IS).
+Must be a valid definition on the CATEGORY file.
+Should be defined for only PM, RV and IS schedules. */
+		CATEGORY_CODE -> ST_Config:CATEGORY
+			@i18n:Label (en="Category Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=CATEGORY.CODE)
+		CHARGE_CODE -> byValue SW_Schedules:SWAP_SCHEDULE_TYPE__CHARGE_CODE *
+		FEE_CODE -> byValue SW_Schedules:SWAP_SCHEDULE_TYPE__FEE_CODE *
+		/* Reserved for future use. */
+		RESERVED_12 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=7.0, core=true, t24Name=RESERVED.12)
+		/* Reserved for future use. */
+		RESERVED_11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=8.0, core=true, t24Name=RESERVED.11)
+		/* Reserved for future use. */
+		RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=9.0, core=true, t24Name=RESERVED.10)
+		/* Reserved for future use. */
+		RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=10.0, core=true, t24Name=RESERVED.9)
+		/* Reserved for future use. */
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=11.0, core=true, t24Name=RESERVED.8)
+		/* Reserved for future use. */
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=12.0, core=true, t24Name=RESERVED.7)
+		/* Reserved for future use. */
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=13.0, core=true, t24Name=RESERVED.6)
+		/* Reserved for future use. */
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=14.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use. */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=15.0, core=true, t24Name=RESERVED.4)
+		/* Reserved for future use. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=16.0, core=true, t24Name=RESERVED.3)
+		/* Reserved for future use. */
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, core=true, t24Name=RESERVED.2)
+		/* Reserved for future use. */
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=18.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SW_Schedules:SWAP_SCHEDULE_TYPE__INPUTTER *
+		DATE_TIME -> byValue SW_Schedules:SWAP_SCHEDULE_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=24.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=26.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=27.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SWAP_SCHEDULE_TYPE__DESCRIPTION
+	{
+		/* Multi-valued field used to contain the Swap schedule type description.
+The first line of the description is also used for enrichment purposes throughout the Swaps system.
+Eg. On the swap contract (XX.TYPE).
+Validation Rules
+1 - 25 Alphanumeric characters. (Mandatory input.  Multi-valued). */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	SWAP_SCHEDULE_TYPE__CHARGE_CODE
+	{
+		/* Identifies the Charge or Commission code for the associated schedule type.
+Indicates the Charge or Commission receivable to be levied when the schedule is processed (FT.COMMISSION.TYPE or FT.CHARGE.TYPE).
+Validation Rules
+1-11 Alphanumeric characters. (Optional input).
+Must be a valid definition of either the FT.COMMISSION.TYPE file or the FT.CHARGE.TYPE file. */
+		CHARGE_CODE : T24BusinessTypes:CHG
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=CHARGE.CODE, typeModifiers="CHGCOMDTAX")
+	}
+	SWAP_SCHEDULE_TYPE__FEE_CODE
+	{
+		/* Identifies the Charge or Commission code for the associated schedule type.
+Indicates the Charge or Commission payable to be levied when the schedule is processed (FT.COMMISSION.TYPE or FT.CHARGE.TYPE).
+Validation Rules
+1-11 Alphanumeric characters. (Optional input).
+Must be a valid definition of either the FT.COMMISSION.TYPE file or the FT.CHARGE.TYPE file. */
+		FEE_CODE : T24BusinessTypes:CHG
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, t24Name=FEE.CODE, typeModifiers="CHGCOMDTAX")
+	}
+	SWAP_SCHEDULE_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, core=true, t24Name=INPUTTER)
+	}
+	SWAP_SCHEDULE_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=22.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* To Store the Unprocessed Schedules of a Swap contract */
+	SWAP_SCHEDULES
+		@t24:i (t24Name=SWAP.SCHEDULES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* A unique key by which unprocessed schedule of SWAP is identified.
+It is generated by the system for a SWAP contract and for a date, which corresponds to the Schedule date of a SWAP contract for particular Schedule type.
+The Schedule date will undergo a change in case the Day.Convention is 'Following' or 'Modified' and where the Process.Date is greater than the Orig.Sched.Date.
+The ID format is <SWAP contract ID>. <Schedule Date>
+
+Field Properties
+
+Standard T24 alphanumeric field
+Contains 21 characters with a decimal point after 12 characters.
+First 12 characters specifies ID of SWAP contract
+Last 8 characters specifies Schedule date */
+		CONTRACT_NO -> SW_Schedules:SWAP_SCHEDULES PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=21, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO, mask="R#####################")
+		TYPE -> byValue SW_Schedules:SWAP_SCHEDULES__TYPE *
+	}
+	SWAP_SCHEDULES__TYPE
+	{
+		/* Indicates SCHEDULE.TYPE of a SWAP contract for which processing will be done.
+
+Field Properties
+
+Standard T24 alphanumeric field
+Maximum of 6 characters.
+Must be a valid definition of SWAP.SCHEDULE.TYPE file. */
+		TYPE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=6, sysNumber=1.0, core=true, t24Name=TYPE)
+		/* Holds the Value date for the schedule, which is calculated based on the AS/LB.DATE.ADJUSTMENT.
+
+For Example,
+If DATE.ADJUSTMENT is
+NULL   the entry date is the same as the schedule date.
+
+VALUE/PERIOD the entry date will be the process date determined by DAY.CONVENTION.
+
+Field Properties
+
+Standard T24 date field
+Maximum of 8 characters. */
+		ENTRY_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=2.0, core=true, t24Name=ENTRY.DATE)
+		/* This field determines the date when the schedules will be processed based on the DAY.CONVENTION and the BUSINESS.CENTRES
+
+For Example,
+
+If DAY.CONVENTION is
+NULL   the process date is the same as the schedule date.
+
+"FOLLOWING" the process date will be the first following day that is a business day.
+
+"PRECEDING" the process date will be the first preceding day that is a business day.
+
+"MODIFIED"  the process date will be the first following day that is a business
+day unless the day falls in the next calendar month, in which case the process date will be
+the first preceding day that is a business day.
+
+Field Properties
+
+Standard T24 date field
+Maximum of 8 characters. */
+		PROCESS_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=3.0, core=true, t24Name=PROCESS.DATE)
+		/* Holds the Period end date for an IP schedule. This will be the end date of current interest period. This is calculated based on the AS/LB.DATE.ADJUSTMENT.
+
+For Example,
+
+If DATE.ADJUSTMENT is
+NULL/VALUE the effective date is the same as the schedule date.
+
+PERIOD  the effective date will be the process date determined by
+DAY.CONVENTION.
+
+Field Properties
+
+Standard T24 date field
+Maximum of 8 characters. */
+		EFFECTIVE_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=4.0, core=true, t24Name=EFFECTIVE.DATE)
+		/* Holds the amount (or Rate) of a particular Schedule type.
+Process value for different type of Schedules is as follows
+
+SCHEDULE.TYPE  PROCESS VALUE
+PX/CI   Principal amount
+IP   Interest Amount
+PI/PD   Increase / Decrease Principal amount
+RR   RR Rate(If NULL, holds the CURRENT.RATE)
+RX/CM  Final Principal amount (With PI/PD)
+
+Field Properties
+
+Standard T24 amount field
+Maximum of 19 characters. */
+		PROCESS_VALUE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=5.0, core=true, t24Name=PROCESS.VALUE)
+		/* Indicates narrative description of a particular Schedule type. Holds the contents of AS/LB.NARR field of a SWAP contract.
+
+Field Properties
+
+Standard T24 alphanumeric field
+Maximum of 35 characters. */
+		NARRATIVE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=NARRATIVE)
+		/* Holds the Leg Type of a particular Schedule type.
+
+Allowed Values   A  = Asset Side
+L  = Liability Side */
+		LEG_TYPE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=LEG.TYPE)
+		/* Indicates the type of Activity to be triggered for a specific Schedule type in order to generate messages.
+
+Presence of value in this field indicates that the details in this Multi-value are related to Message generation only.
+
+The actual message that is generated for this activity code is specified in the SWAP.ADVICES file.
+
+
+Field Properties
+
+Standard T24 alphanumeric field
+Maximum of 5 characters. */
+		ACTIVITY_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=5, sysNumber=8.0, core=true, t24Name=ACTIVITY.CODE)
+		/* Indicates the date on which the message will be generated.
+
+This field will be present only if ACTIVITY.CODE field is present.
+
+
+
+Field Properties
+
+Standard T24 date field
+Maximum of 8 characters. */
+		ACTIVITY_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=9.0, core=true, t24Name=ACTIVITY.DATE)
+		/* Presence of this field is required to handle the processing of various Swap Schedules as per the
+Day.Convention and Date.Adjustment. It holds the Original date of the schedule.
+System compares the Orig.Sched.Date with the Process.Date and does the following.
+
+a) If the Process.Date is greater than Orig.Sched.Date, then system creates a new Swap.Schedule
+with ID same as the Process.date, during the COB of the Orig.Sched.Date.
+Thus the Swap.Schedule is retained for processing at a future date.
+
+b)If the Process.Date is less than the Orig.Sched.Date, then system processes the respective
+Swap.Schedule during the COB of the Process.Date itself.
+
+Field Properties
+
+Standard T24 date field
+Maximum of 8 characters. */
+		ORIG_SCHED_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=10.0, core=true, t24Name=ORIG.SCHED.DATE)
+	}
+}

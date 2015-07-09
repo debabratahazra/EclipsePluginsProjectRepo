@@ -1,0 +1,778 @@
+# UTF-8
+# UTF-8
+/* Constraints for Securities */
+Domain SCT_Constraints
+	@t24:i (module=SC)
+	@java:Package (value=com.temenos.t24.datamodel.sc.sct_constraints)
+namespace "http://www.temenos.com/t24/SCT_Constraints"
+metamodelVersion 1.30.6
+Classes {
+	/* The PORTFOLIO.CONSTRAINT application enables the control of exposure to a particular issuer by portfolio.
+Contraints may be set-up for individual portfolios but you should also set-up a basic default record for "SYSTEM". For the "SYSTEM" record you can only set-up checking to be performed so that transaction proceeds are added to other existing holdings for the same issuer. The result is then tested as a percentage of the total portfolio value.
+For portfolios, you can request the System to perform the checks using either specific currency/cash amounts OR percentages of the total portfolio value by individual issuer. The former checks that the total existing holding for the issuer plus the new transaction does not exceed the limit amount. The latter checks that the total holding for the issuer plus the new transaction does not exceed the limit percentage of the total portfolio value.
+When you have successfully defined a portfolio limit, you can add further special siuation limits for the same portfolios if necessary. */
+	PORTFOLIO_CONSTRAINT
+		@t24:i (t24Name=PORTFOLIO.CONSTRAINT, level=I, type=H, additionalInfo=NOH, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Specifies a unique ID for each PORTFOLIO.CONSTRAINT record. It comprises a portfolio number and an optional serial number.
+The serial number is used to differentiate multiple PORTFOLIO.CONSTRAINT records of the same customer's portfolio. For example:     65435-1.01    (bond trading)     65435-1.02    (new issues)
+A special ID - "SYSTEM" is also allowed to facilitate user specifying a system wide portfolio constraint.
+Validation Rules
+"SYSTEM" or
+(a) 1 - 18 digit SEC.ACC.MASTER id (b) '.' (c)  2 digit serial number.
+Serial number must be between 01 and 99. */
+		PORT_CONST_REF -> SCT_Constraints:PORTFOLIO_CONSTRAINT PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=22, sysNumber=0.0, core=true, businessType=S, t24Name=PORT.CONST.REF)
+		ISSUER -> byValue SCT_Constraints:PORTFOLIO_CONSTRAINT__ISSUER *
+		FIELD_NAME -> byValue SCT_Constraints:PORTFOLIO_CONSTRAINT__FIELD_NAME *
+		RESERVED_11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=11.0, core=true, t24Name=RESERVED.11)
+		RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=12.0, core=true, t24Name=RESERVED.10)
+		RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=13.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=14.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=15.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=16.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=18.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=19.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=20.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=21.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=23.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_Constraints:PORTFOLIO_CONSTRAINT__INPUTTER *
+		DATE_TIME -> byValue SCT_Constraints:PORTFOLIO_CONSTRAINT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=26.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=27.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=28.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=29.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=30.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PORTFOLIO_CONSTRAINT__ISSUER
+	{
+		/* This field specifies the Issuer to whom the limit per issuer is to apply.
+The last value of this multi-valued field must be "REST" which denotes the rest of issuers not specified in this record.
+Validation Rules
+"REST" or
+1 to 10 digit CUSTOMER id */
+		ISSUER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, t24Name=ISSUER)
+		/* This field specifies the maximum percentage of a particular Issuer which can be held in a customer's portfolio.
+Value 0 means the Issuer is blocked from the customer's portfolio, whereas, value 100 means no check is to be performed for this Issuer within this portfolio.
+Validation Rules
+1 - 3 numeric characters in the range of 0 to 100
+NOINPUT field if ISSUER.EXPOSURE is defined. */
+		ISSUER_PERCENT : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=ISSUER.PERCENT)
+		/* This field defines the currency of the Issuer Exposure.
+Validation Rules
+3 characters CURRENCY code.
+Mandatory input if ISSUER.EXPOSURE is defined. Otherwise, NOINPUT field. */
+		ISSUER_EXP_CCY : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=ISSUER.EXP.CCY)
+		/* This field defines the maximum value of a particular Issuer which can be held in a customer's portfolio.
+Value 0 means the Issuer is blocked from this portfolio.
+Validation Rules
+1 - 19 numeric characters, standard AMOUNT format.
+NOINPUT field if ISSUER.PERCENT is defined.
+Not allowed for the "SYSTEM" record. */
+		ISSUER_EXPOSURE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=ISSUER.EXPOSURE, typeModifiers="3.X")
+	}
+	PORTFOLIO_CONSTRAINT__FIELD_NAME
+	{
+		/* This field contains the field name for a field on the SECURITY.MASTER file. This will be used to define the condition that triggers the OVERRIDE/ERROR message.
+Validation Rules
+0-18 alphanumeric characters
+This is the controlling field for the multi-value set including:-        OPERATOR       FIELD.CONTENT       NARRATIVE       MESSAGE.TYPE       LOCAL.REF */
+		FIELD_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=5.0, core=true, t24Name=FIELD.NAME)
+		/* This field contains the operator used to determine whether or not to trigger the OVERRIDE/ERROR message.
+Validation Rules
+2 character field  Acceptable values are :-        EQ - equal to       NE - not equal to       LT - less than       LE - less than or equal to       GT - greater than       GE - greater than or equal to */
+		OPERATOR : SCT_Constraints:PORTFOLIO_CONSTRAINT__FIELD_NAME__OPERATOR
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=6.0, core=true, t24Name=OPERATOR)
+		/* This field contains the content of the field defined in FIELD.NAME . The fields FIELD.NAME, OPERATOR and FIELD.CONTENT are all used in conjunction to determine whether or not the SECURITY.MASTER record meets these criteria.
+Validation Rules
+0-35 alphanumeric characters */
+		FIELD_CONTENT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=FIELD.CONTENT)
+		/* This field is used to define the OVERRIDE/ERROR to display when the conditions defined in the previous 3 fields are met.
+Validation Rules
+0-65 alphanumeric characters */
+		NARRATIVE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=8.0, core=true, t24Name=NARRATIVE)
+		/* This field is used to define the type of message the NARRATIVE field contains.
+Validation Rules
+0-8 characters  Only ERROR and OVERRIDE are acceptable values */
+		MESSAGE_TYPE : SCT_Constraints:PORTFOLIO_CONSTRAINT__FIELD_NAME__MESSAGE_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=9.0, core=true, t24Name=MESSAGE.TYPE)
+	}
+	PORTFOLIO_CONSTRAINT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=INPUTTER)
+	}
+	PORTFOLIO_CONSTRAINT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=25.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_RESTRICTION_LOG
+		@t24:i (t24Name=SC.RESTRICTION.LOG, level=F, type=W, allowedFunctions="C I L P Q S V", localRefAllowed=false)
+	{
+		/* A 13 character long alphanumeric log code. */
+		LOG_CODE -> SCT_Constraints:SC_RESTRICTION_LOG PK required
+			@i18n:Label (en="Log Code")
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=0.0, core=true, businessType=A, t24Name=LOG.CODE)
+		/* This determines when a restriction will be valid.
+Validation can either be ONLINE (T24 Online) or BATCH (T24 COB) */
+		VALIDATION_TYPE : SCT_Constraints:SC_RESTRICTION_LOG__VALIDATION_TYPE
+			@i18n:Label (en="Validation Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=1.0, core=true, t24Name=VALIDATION.TYPE)
+		/* Restriction description. */
+		RESTRICTION : T24BusinessTypes:A
+			@i18n:Label (en=Restriction)
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=RESTRICTION)
+		/* The security constraint associated with teh restriction. */
+		SEC_CONSTRAINT : T24BusinessTypes:A
+			@i18n:Label (en="Security Constraint")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, t24Name=SEC.CONSTRAINT)
+		/* Restriction ID. */
+		RESTRICT_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=4.0, core=true, t24Name=RESTRICT.KEY)
+		/* A 35 character long alphanumeric field to store the error message displayed. */
+		ERR_MESSAGE : T24BusinessTypes:A
+			@i18n:Label (en="Restriction Override")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=ERR.MESSAGE)
+		/* Date when the restriction was raised. */
+		DATE_STAMP : T24BusinessTypes:D
+			@i18n:Label (en=Date)
+			@t24:i (align=R, inputBehaviour=I, maxLength=9, sysNumber=6.0, core=true, t24Name=DATE.STAMP)
+		/* Time when the restriction was raised. */
+		TIME_STAMP : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=7.0, core=true, t24Name=TIME.STAMP)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED8)
+		/* Portfolio number is a valid T24 entry in the SEC.ACC.MASTER application. */
+		PORTFOLIO -> SCO_PortfolioMaintenance:SEC_ACC_MASTER
+			@i18n:Label (en=Portfolio)
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=10.0, core=true, businessType=A, t24Name=PORTFOLIO)
+		/* Customer number is a valid T24 entry in the CUSTOMER application. */
+		CUSTOMER -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=11.0, core=true, businessType=A, t24Name=CUSTOMER)
+		/* Account number is a valid T24 entry in the ACCOUNT application. */
+		ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Identifies the customer account")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=12.0, core=true, businessType=A, t24Name=ACCOUNT)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED6)
+		/* The holding percent. */
+		HOLDING_PERCENT : mml:Integer
+			@i18n:Label (en="Holding %")
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=15.0, core=true, t24Name=HOLDING.PERCENT)
+		/* Validation filter used when the restriciton was raised. */
+		VALUATION_FILTER : mml:Integer
+			@i18n:Label (en=Filter)
+			@t24:i (align=R, inputBehaviour=I, maxLength=37, sysNumber=16.0, core=true, t24Name=VALUATION.FILTER)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=23.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_Constraints:SC_RESTRICTION_LOG__INPUTTER *
+		DATE_TIME -> byValue SCT_Constraints:SC_RESTRICTION_LOG__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=26.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=27.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=28.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=29.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=30.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		ACCOUNT_OFFICER : mml:Integer
+			@i18n:Label (en="Account Officer")
+			@i18n:Tooltip (en="Indicates Account Officer responsible")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, core=false, t24Name=ACCOUNT.OFFICER, genOperation="PORTFOLIO>SEC.ACC.MASTER>ACCOUNT.OFFICER")
+	}
+	SC_RESTRICTION_LOG__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=INPUTTER)
+	}
+	SC_RESTRICTION_LOG__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=25.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_SECURITY_CONSTRAINT
+		@t24:i (t24Name=SC.SECURITY.CONSTRAINT, level=F, type=H, allowedFunctions="E I L P Q S", localRefAllowed=true)
+	{
+		/* This application allows the user to set up Security Trading Restrictions that will result in an error message being displayed when they fail.
+Validation Rules
+
+
+
+
+
+
+a valid Security ID stored in the SECURITY.MASTER         application. */
+		SECURITY_CODE -> SCT_Constraints:SC_SECURITY_CONSTRAINT PK required
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates a valid Security")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=SECURITY.CODE)
+		DESCRIPTION -> byValue SCT_Constraints:SC_SECURITY_CONSTRAINT__DESCRIPTION *
+		/* This is the type of separator that will be used to determine multiple values in one field.
+The fields that allow the use of the separator are :
+Validation Rules
+
+* (Asterisk)
+, (Comma)
+. (Full Stop)
+/ (Forward Slash)
+NULL */
+		SEPARATOR : SCT_Constraints:SC_SECURITY_CONSTRAINT__SEPARATOR
+			@i18n:Label (en=Separator)
+			@i18n:Tooltip (en=Separator)
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=12.0, core=true, t24Name=SEPARATOR)
+		RESTRICTION_KEY -> byValue SCT_Constraints:SC_SECURITY_CONSTRAINT__RESTRICTION_KEY *
+		/* Can be either Permission or Restriction. If set to Permission then the system can automatically allow the transaction if setup to do so. */
+		CONSTRAINT_TYPE : SCT_Constraints:SC_SECURITY_CONSTRAINT__CONSTRAINT_TYPE
+			@i18n:Label (en="Constraint Type")
+			@i18n:Tooltip (en="Constraint Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=48.0, core=true, t24Name=CONSTRAINT.TYPE)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=49.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=50.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=51.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=52.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=54.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=55.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_Constraints:SC_SECURITY_CONSTRAINT__INPUTTER *
+		DATE_TIME -> byValue SCT_Constraints:SC_SECURITY_CONSTRAINT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=58.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=59.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=60.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=61.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=62.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SC_SECURITY_CONSTRAINT__DESCRIPTION
+	{
+		/* This is a free format description used to describe the SC.SECURITY.CONSTRAINT selection section.
+Validation Rules
+
+Any text can be entered
+Maximum 65 characters */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+		/* A nationality can be entered into this field. This will be checked against the NATIONALITY field in the CUSTOMER record. If a match is found additional validation will be performed, however, if the match fails processing of this Multi-value will terminate.
+Validation Rules
+
+A valid 2 digit country code
+"ALL" will apply to all customers */
+		NATIONALITY : T24BusinessTypes:SSS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=NATIONALITY)
+		/* Multi-valued field associated with all the fields between NATIONALITY and RESTRICTION.
+This field will contain the residencies upon which restrictions exist.
+Any input into this field must exist on the COUNTRY application.
+Validation Rules
+
+2 Alphabetic (country code) characters
+Must exist in the COUNTRY table. */
+		RESIDENCE -> ST_Config:COUNTRY
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, businessType=SSS, t24Name=RESIDENCE)
+		APP_APPLI -> byValue SCT_Constraints:SC_SECURITY_CONSTRAINT__DESCRIPTION__APP_APPLI *
+		/* Multi-valued field associated with all the fields from NATIONALITY to RESTRICTION.
+Specifies the Validity Date of the constraint.
+If the restriction on being the beneficial owner only lasts until a particular date then the final date upon which the restriction applies should be entered in the VALIDITY.DATE field associated with the Nationality or Residence to which this limited restriction applies.
+If the VALIDITY.DATE field associated with a Nationality is unlimited then the VALIDITY.DATE field should be left blank.
+It is possible to input a VALIDITY.DATE in the past.
+Validation Rules
+
+Up to 9 type D date characters, (Standard Date format in         range 1950-2049). */
+		VALIDITY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=VALIDITY.DATE)
+		/* Multi-valued field associated with all the fields from NATIONALITY to RESTRICTION. If the restriction only applies in one direction then that direction should be indicated here.
+Only input of 'CREDIT' or 'DEBIT' allowed.
+Optional field.
+If this field is left blank then the restrictions apply when stock is credited or debited. If this field contains 'CREDIT' then these restrictions only apply for crediting stock to the position.If this field contains 'DEBIT' then these restrictions only apply for debiting stock from the position.
+Validation Rules
+
+5-6 alphanumeric characters
+The following values are permitted: DEBIT, CREDIT */
+		DIRECTION : SCT_Constraints:SC_SECURITY_CONSTRAINT__DESCRIPTION__DIRECTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=9.0, core=true, t24Name=DIRECTION)
+		APPLICATION -> byValue SCT_Constraints:SC_SECURITY_CONSTRAINT__DESCRIPTION__APPLICATION *
+		RESTRICTION -> byValue SCT_Constraints:SC_SECURITY_CONSTRAINT__DESCRIPTION__RESTRICTION *
+	}
+	SC_SECURITY_CONSTRAINT__DESCRIPTION__APP_APPLI
+	{
+		/* Sub-valued field associated with the fields APP.FIELD, APP.OPERAND and APP.VALUE at a sub-value level and TRANSFER.DEPOT and TRANS.DELIVERY at a multi-valued level.
+This field contains an application name (allowed value : CUSTOMER, SECURITY.MASTER, SEC.ACC.MASTER)
+This field together with the fields APP.FIELD, APP.OPERAND and APP.VALUE are used to refine the selection of customers / securities / sec.acc.master to which routing instructions apply. Optional field.
+If any input is made into the APP.APPLICATION, the associated fields APP.FIELD, APP.OPERAND and APP.VALUE must be populated.
+Validation Rules
+
+Values allowed : CUSTOMER, SECURITY.MASTER, SEC.ACC.MASTER */
+		APP_APPLI : SCT_Constraints:SC_SECURITY_CONSTRAINT__DESCRIPTION__APP_APPLI__APP_APPLI
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=4.0, core=true, t24Name=APP.APPLI)
+		/* Field associated with the fields APP.APPLI, APP.OPERAND and APP.VALUE at a sub-value level and NATIONALITY and RESIDENCE on a multi-valued level.
+This field contains the field name for a field in the CUSTOMER file.
+This field together with the fields APP.APPLI, APP.OPERAND and APP.VALUE are used to refine the selection of customers / securities / sec.acc.master to which restrictions apply.
+Optional field
+If any input is made into the APP.APPLI the associated fields APP.FIELD, APP.OPERAND and APP.VALUE must be populated.
+Validation Rules
+
+0-18 alphanumeric characters
+This is the controlling field for the sub-value set         including:- APP.APPLI, APP.OPERAND,  APP.VALUE */
+		APP_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=5.0, core=true, t24Name=APP.FIELD)
+		/* Field associated with the fields APP.APPLI, APP.FIELD and APP.VALUE at a sub-value level and NATIONALITY and RESTRICTION on a multi-valued level.
+Optional field containing 'EQ', 'NE', 'LE', 'LT', 'GE' or 'GT' or 'RG'.
+If any input is made into the associated APP.APPLI then this field must be populated.
+This field together with the fields APP.APPLI, APP.FIELD and APP.VALUE are used to refine the selection of customers / securities / sec.acc.master to which restrictions apply.
+If the specified field on the associated application contains multiple values then each value will be tested; where the APP.OPERAND is 'NE' these checks are assumed to be linked with 'AND', i.e. none of them must give a 'true' result. For all other APP.OPERAND values, multiple checks are assumed to be linked with 'OR', so a 'true' result for any of the checks will satisfy the criteria.
+Validation Rules
+
+2 character field
+Acceptable values are :- EQ - equal to, NE - not equal         to, LT - less than, LE - less than or equal to, GT -         greater than, GE - greater than or equal to, GT -         greater than, RG - range of values */
+		APP_OPERAND : SCT_Constraints:SC_SECURITY_CONSTRAINT__DESCRIPTION__APP_APPLI__APP_OPERAND
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=6.0, core=true, t24Name=APP.OPERAND)
+		/* Sub-valued field associated with the fields APP.APPLI, APP.FIELD and APP.OPERAND at a sub-value level and NATIONALITY and RESTRICTION on a multi-valued level.
+This field together with the fields APP.APPLI, APP.FIELD and APP.OPERAND are used to refine the selection of customers / securities / sec.acc.master to which restrictions apply.
+Optional field.
+The user can use the separator character defined in SEPARATOR to specify several values for the associated APP.FIELD. This can be done only if the associated APP.OPERAND = 'EQ' or 'NE'.
+
+Validation Rules
+
+0-35 alphanumeric characters */
+		APP_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=APP.VALUE)
+	}
+	SC_SECURITY_CONSTRAINT__DESCRIPTION__APPLICATION
+	{
+		/* Multi-valued field associated with all the fields from NATIONALITY to RESTRICTION.
+If the restriction only applies to a particular application then that application should be indicated here.
+Abbreviations may be used.
+Only input of applications defined on the PGM.FILE with a TYPE OF H, U  or W allowed.
+Program Type Meaning
+
+
+
+Optional field.
+If this field is left blank then the restrictions apply to all applications.
+
+Validation Rules
+
+1 to 30 type A (alphanumeric) characters (Optional input)
+Must be the name, or authorised abbreviation, of an         existing on-line application
+The following values will be accepted: . H = History,         Unauthorised + Live file . U = Unauthorised + Live file ,         W = Workfile */
+		APPLICATION -> EB_SystemTables:PGM_FILE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, businessType=PG, t24Name=APPLICATION, typeModifiers=HUWM)
+	}
+	SC_SECURITY_CONSTRAINT__DESCRIPTION__RESTRICTION
+	{
+		/* This field can be sub-valued and contains a list of all the Restrictions that apply to this selection criteria.
+If the previous tests have completed successfully then the Restrictions listed in this field will be processed.
+Validation Rules
+
+Must be a valid entry in the RESTRICTION.KEY field. */
+		RESTRICTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=11.0, core=true, t24Name=RESTRICTION)
+	}
+	SC_SECURITY_CONSTRAINT__RESTRICTION_KEY
+	{
+		/* This is a unique key to a restriction. A restriction can test the transaction or holding details and display a message accordingly
+Validation Rules
+
+A Unique user defined reference
+Maximum 32 characters */
+		RESTRICTION_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=13.0, core=true, t24Name=RESTRICTION.KEY)
+		/* This is a free format description used to describe the RESTRICTION section.
+Validation Rules
+
+Any text can be entered
+Maximum 65 characters */
+		RESTRICT_DESC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=14.0, core=true, t24Name=RESTRICT.DESC)
+		/* This determines if the restriction checking is based on TRANSACTION value or HOLDING value.
+
+
+Validation Rules
+
+TRANSACTION
+HOLDING (Only available if ASSET.MANAGEMENT module is installed)
+Mandatory input */
+		RESTRICT_TYPE : SCT_Constraints:SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__RESTRICT_TYPE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=RESTRICT.TYPE)
+		/* This field is only available if the ASSET.MANAGEMENT module is installed.
+This specifies an amount of holdings which must comply. The following values are available:
+
+
+
+Validation Rules
+
+
+The value entered is in the format of <nnn, >nnn or         nnn-nnn */
+		RANGE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=16.0, core=true, t24Name=RANGE)
+		/* This specifies an amount of the transaction or holdings (if ASSET.MANAGEMENT module installed) which must comply. The following values are available:
+
+
+
+Validation Rules
+
+The value entered is in the format of <nnn, >nnn or         nnn-nnn */
+		AMOUNT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=17.0, core=true, t24Name=AMOUNT)
+		/* This determines which currency the AMOUNT field represents.
+Validation Rules
+
+Must be a valid 3 digit Currency Code.
+Mandatory if AMOUNT field is populated. */
+		AMOUNT_CCY : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=18.0, core=true, t24Name=AMOUNT.CCY)
+		/* Specifies the key of the AM.ENTITY record.  This field identifies the attributes on which generic holding checks would be performed. */
+		REST_GROUP : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=19.0, core=true, t24Name=REST.GROUP)
+		/* Specifies the key of the AM.ENTITY record.  This field identifies the attributes on which generic holding checks would be performed. */
+		HOLD_GROUP : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=20.0, core=true, t24Name=HOLD.GROUP)
+		/* Currently unused by T24. */
+		TEMP_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=21.0, core=true, t24Name=TEMP.FIELD)
+		REST_APPLI -> byValue SCT_Constraints:SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__REST_APPLI *
+		HOLD_FIELD -> byValue SCT_Constraints:SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__HOLD_FIELD *
+		/* This field is used to store a subroutine that will get called if all the "restriction" and "holdings" test have passed.
+The format of the subroutine is as follows:
+
+
+SECURITY.NUMBER - Outgoing - The SECURITY.MASTER ID being traded. Example: 000001-000
+PORTFOLIO.NO - Outgoing - The customers portfolio number. Example: 100113-1
+TRANSACTION.DATE - Outgoing - The transaction date of the trade. Example: 20020214
+TRANSACTION.CODE - Outgoing - The transaction code of the trade. Example: BUY
+ACCOUNT.NO - Outgoing - The customers account number (maybe null). Example: 18901
+AMOUNT - Outgoing - The value of the transaction being traded. Example: 10000
+CCY -  Outgoing - The currency of the AMOUNT being traded. Example: GBP
+RESTRICTION - Returned - 1: Subroutine test successful, anything else: Subroutine failure
+Validation Rules
+
+Subroutine must exist in the PGM.FILE. */
+		SUBROUTINE -> EB_SystemTables:PGM_FILE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=43.0, core=true, businessType=A, t24Name=SUBROUTINE)
+		/* Specifies if holdings are to be valuated at Actual Basis or All Cash Basis. */
+		VALUATION_BASIS : SCT_Constraints:SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__VALUATION_BASIS
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=44.0, core=true, t24Name=VALUATION.BASIS)
+		/* This field determines which type of error to display.
+
+
+Validation Rules
+
+Mandatory Input
+Either */
+		OVERRIDE_ERROR : SCT_Constraints:SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__OVERRIDE_ERROR
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=45.0, core=true, t24Name=OVERRIDE.ERROR)
+		/* This field determines which data will be displayed on the screen depending on how the OVERRIDE.ERROR field is populated. The following applies:
+
+
+Validation Rules
+
+Mandatory Input
+For
+For */
+		OVERRIDE_MSG : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=46.0, core=true, t24Name=OVERRIDE.MSG)
+		/* If the OVERRIDE.ERROR field is set to "OVERRIDE" then this field will display the actual text of the Override record that will be displayed on the screen.
+Validation Rules
+
+NOINPUT Field. */
+		OVERRIDE_TXT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=65, sysNumber=47.0, core=true, t24Name=OVERRIDE.TXT)
+	}
+	SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__REST_APPLI
+	{
+		/* This field stores the application that will be used in the following checks:
+
+The applications allowed in this field are SECURITY.MASTER, SEC.OPEN.ORDER, SEC.ACC.MASTER, CUSTOMER, SEC.TRADE or SECURITY.TRANSFER.
+
+The only application allowed in this field is AM.ENTITY.
+Validation Rules
+
+Valid T24 application from the lists above.
+Optional Input. */
+		REST_APPLI : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, t24Name=REST.APPLI)
+		/* This field stores the field of the REST.APPLI file that will be used in the following checks:
+
+
+Validation Rules
+
+Valid field within the T24 application stored in the         REST.APPLI field.
+Mandatory if the REST.APPLI field is populated. */
+		REST_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=23.0, core=true, t24Name=REST.FIELD)
+		/* This field stores the operand that will be used to compare the data of the REST.APPLI & REST.FIELD fields with the REST.VALUE field:
+
+
+Validation Rules
+
+EQ, NE, LT, LE, GT, GE or RG.
+Mandatory if the REST.APPLI field is populated. */
+		REST_OPERAND : SCT_Constraints:SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__REST_APPLI__REST_OPERAND
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=24.0, core=true, t24Name=REST.OPERAND)
+		/* Specifies file from which to retrieve RSTVAL.FIELD, if not current application
+
+Optional Field */
+		RSTVAL_FILE : T24BusinessTypes:PG
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=25.0, core=true, t24Name=RSTVAL.FILE, typeModifiers=H)
+		/* Specifies key for record in REST.APPLI or RSTVAL.FILE (if specified) from which to retrieve RSTVAL.FIELD
+If RESTRICT.TYPE is set to 'TRANSACTION', RSTVAL.KEY additionally be set to '@ID' if the same key is to be used as in the base application.
+
+Mandatory if RSTVAL.FILE specified. */
+		RSTVAL_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=26.0, core=true, t24Name=RSTVAL.KEY)
+		/* Specifies field which which contains the value that will be used in the comparison of the data in the REST.APPLI and REST.FIELD fields
+For TRANSACTION restrictions the data stored here will be used to determine if a transaction meets the criteria.  If the criteria is true then the restriction is passed otherwise an error message will be displayed.
+For HOLDING Restrictions (Only available if ASSET.MANAGEMENT module is installed), the data stored here will be used to determine if a portfolio matches certain holdings criteria.  If the criteria is true then the restriction is passed otherwise an error message will be displayed.
+
+This must be a valid field of REST.APPLI (or RSTVAL.FILE if specified)
+
+Mandatory if RSTVAL.FILE or RSTVAL.KEY is specified. */
+		RSTVAL_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=27.0, core=true, t24Name=RSTVAL.FIELD)
+		/* This field stores the value that will be used in the comparison of the data in the REST.APPLI and REST.FIELD fields:
+
+
+
+This field can also be used to specify an API/local routine to pre-process the contents of RSTVAL.FIELD before comparison.
+Validation Rules
+
+Any type of data.
+Mandatory if the REST.APPLI field is populated and the RSTVAL.FIELD field is not populated.  If the RSTVAL.FIELD is populated, this field must contain an API/local routine pre-fixed with '@' symbol or be left blank.
+When using the NE or EQ operands multiple data can be         entered by separating the data with the character from         the SEPARATOR field. */
+		REST_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=28.0, core=true, t24Name=REST.VALUE)
+		/* The operator to be applied where multiple restriction considerarions are applied, either AND or OR. */
+		REST_LOGIC : SCT_Constraints:SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__REST_APPLI__REST_LOGIC
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=29.0, core=true, t24Name=REST.LOGIC)
+		RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=30.0, core=true, t24Name=RESERVED.10)
+		RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=31.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=32.0, core=true, t24Name=RESERVED.8)
+	}
+	SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__HOLD_FIELD
+	{
+		/* This field stores the field from the AM.ENTITY file that will be used to generate a valuation for the Portfolio being tested.
+
+Validation Rules
+
+A valid entry in the AM.ENTITY application.
+Mandatory if the RESTRICT.TYPE is set to "HOLDINGS" */
+		HOLD_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=33.0, core=true, t24Name=HOLD.FIELD)
+		/* This field stores the operand that will be used to compare the data of the HOLD.FIELD field with the HOLD.VALUE field:
+
+Validation Rules
+
+EQ, NE, LT, LE, GT, GE or RG.
+Mandatory if the HOLD.APPLI field is populated. */
+		HOLD_OPERAND : SCT_Constraints:SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__HOLD_FIELD__HOLD_OPERAND
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=34.0, core=true, t24Name=HOLD.OPERAND)
+		/* Specifies file from which to retrieve HLDVAL.FIELD, if not current application
+
+Optional Field */
+		HLDVAL_FILE : T24BusinessTypes:PG
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=35.0, core=true, t24Name=HLDVAL.FILE, typeModifiers=H)
+		/* Specifies key for record in AM.ENTITY or HLDVAL.FILE (if specified) from which to retrieve HLDVAL.FIELD
+
+Mandatory if HLDVAL.FILE specified. */
+		HLDVAL_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=36.0, core=true, t24Name=HLDVAL.KEY)
+		/* Specifies field which which contains the value that will be used in the comparison of the data in the HOLD.FIELD field
+For HOLDING Restrictions (Only available if ASSET.MANAGEMENT module is installed), the data stored here will be used to determine if a portfolio matches certain holdings criteria.  If the criteria is true then the restriction is passed otherwise an error message will be displayed.
+
+This must be a valid field of HLDVAL.FILE or REST.APPLI.
+
+Mandatory if RSTVAL.FILE or RSTVAL.KEY is specified. */
+		HLDVAL_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=37.0, core=true, t24Name=HLDVAL.FIELD)
+		/* This field stores the value that will be used in the comparison of the data in the HOLD.FIELD field:
+
+
+This field can also be used to specify an API/local routine to pre-process the contents of HLDVAL.FIELD before comparison.
+
+Validation Rules
+
+Any type of data.
+Mandatory if the REST.APPLI field is populated and the HLDVAL.FIELD field is not populated.  If the HLDVAL.FIELD is populated, this field must contain an API/local routine pre-fixed with '@' symbol or be left blank.
+When using the NE or EQ operands multiple data can be         entered by separating the data with the character from         the SEPARATOR field. */
+		HOLD_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=38.0, core=true, t24Name=HOLD.VALUE)
+		/* The operator to be applied where multiple holding considerarions are applied, either AND or OR. */
+		HOLD_LOGIC : SCT_Constraints:SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__HOLD_FIELD__HOLD_LOGIC
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=39.0, core=true, t24Name=HOLD.LOGIC)
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=40.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=41.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=42.0, core=true, t24Name=RESERVED.5)
+	}
+	SC_SECURITY_CONSTRAINT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=56.0, core=true, t24Name=INPUTTER)
+	}
+	SC_SECURITY_CONSTRAINT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=57.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	PORTFOLIO_CONSTRAINT__FIELD_NAME__OPERATOR : mml:string
+		EQ=EQ
+		NE=NE
+		LT=LT
+		LE=LE
+		GT=GT
+		GE=GE
+	PORTFOLIO_CONSTRAINT__FIELD_NAME__MESSAGE_TYPE : mml:string
+		OVERRIDE=OVERRIDE
+		ERROR=ERROR
+	SC_RESTRICTION_LOG__VALIDATION_TYPE : mml:string
+		BATCH=BATCH
+		ONLINE=ONLINE
+	SC_SECURITY_CONSTRAINT__DESCRIPTION__APP_APPLI__APP_APPLI : mml:string
+		CUSTOMER=CUSTOMER
+		SECURITY_MASTER=SECURITY.MASTER
+		SEC_ACC_MASTER=SEC.ACC.MASTER
+	SC_SECURITY_CONSTRAINT__DESCRIPTION__APP_APPLI__APP_OPERAND : mml:string
+		EQ=EQ
+		NE=NE
+		LE=LE
+		LT=LT
+		GE=GE
+		GT=GT
+	SC_SECURITY_CONSTRAINT__DESCRIPTION__DIRECTION : mml:string
+		DEBIT=DEBIT
+		CREDIT=CREDIT
+	SC_SECURITY_CONSTRAINT__SEPARATOR : mml:string
+		COMMA=","
+		_=.
+		STAR="*"
+	SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__RESTRICT_TYPE : mml:string
+		HOLDING=HOLDING
+		TRANSACTION=TRANSACTION
+	SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__REST_APPLI__REST_OPERAND : mml:string
+		EQ=EQ
+		NE=NE
+		LE=LE
+		LT=LT
+		GE=GE
+		GT=GT
+		RG=RG
+	SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__REST_APPLI__REST_LOGIC : mml:string
+		AND=AND
+		OR=OR
+		NULL=NULL
+	SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__HOLD_FIELD__HOLD_OPERAND : mml:string
+		EQ=EQ
+		NE=NE
+		LE=LE
+		LT=LT
+		GE=GE
+		GT=GT
+		RG=RG
+	SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__HOLD_FIELD__HOLD_LOGIC : mml:string
+		AND=AND
+		OR=OR
+		NULL=NULL
+	SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__VALUATION_BASIS : mml:string
+		ACTUAL=ACTUAL
+		ALLCASH=ALLCASH
+	SC_SECURITY_CONSTRAINT__RESTRICTION_KEY__OVERRIDE_ERROR : mml:string
+		ERROR=ERROR
+		OVERRIDE=OVERRIDE
+		NULL=NULL
+	SC_SECURITY_CONSTRAINT__CONSTRAINT_TYPE : mml:string
+		Permission=Permission
+		Restriction=Restriction
+}

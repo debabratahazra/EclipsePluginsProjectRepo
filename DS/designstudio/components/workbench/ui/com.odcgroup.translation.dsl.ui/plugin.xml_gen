@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<plugin>
+
+    <extension
+            point="org.eclipse.ui.editors">
+        <editor
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.XtextEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            default="true"
+            extensions="translation"
+            id="com.odcgroup.translation.TranslationDsl"
+            name="TranslationDsl Editor">
+        </editor>
+    </extension>
+    <extension
+        point="org.eclipse.ui.handlers">
+        <handler
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.hyperlinking.OpenDeclarationHandler"
+            commandId="org.eclipse.xtext.ui.editor.hyperlinking.OpenDeclaration">
+            <activeWhen>
+                <reference
+                    definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened">
+                </reference>
+            </activeWhen>
+        </handler>
+        <handler
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.handler.ValidateActionHandler"
+            commandId="com.odcgroup.translation.TranslationDsl.validate">
+         <activeWhen>
+            <reference
+                    definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened">
+            </reference>
+         </activeWhen>
+	</handler>
+	<!-- copy qualified name -->
+        <handler
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedNameHandler"
+            commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName">
+            <activeWhen>
+				<reference definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened" />
+            </activeWhen>
+        </handler>
+        <handler
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedNameHandler"
+            commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedName">
+            <activeWhen>
+		<and>
+			<reference definitionId="com.odcgroup.translation.TranslationDsl.XtextEditor.opened" />
+	                <iterate>
+						<adapt type="org.eclipse.xtext.ui.editor.outline.IOutlineNode" />
+					</iterate>
+				</and>
+            </activeWhen>
+        </handler>
+    </extension>
+    <extension point="org.eclipse.core.expressions.definitions">
+        <definition id="com.odcgroup.translation.TranslationDsl.Editor.opened">
+            <and>
+                <reference definitionId="isActiveEditorAnInstanceOfXtextEditor"/>
+                <with variable="activeEditor">
+                    <test property="org.eclipse.xtext.ui.editor.XtextEditor.languageName"
+                        value="com.odcgroup.translation.TranslationDsl"
+                        forcePluginActivation="true"/>
+                </with>
+            </and>
+        </definition>
+        <definition id="com.odcgroup.translation.TranslationDsl.XtextEditor.opened">
+            <and>
+                <reference definitionId="isXtextEditorActive"/>
+                <with variable="activeEditor">
+                    <test property="org.eclipse.xtext.ui.editor.XtextEditor.languageName"
+                        value="com.odcgroup.translation.TranslationDsl"
+                        forcePluginActivation="true"/>
+                </with>
+            </and>
+        </definition>
+    </extension>
+    <extension
+            point="org.eclipse.ui.preferencePages">
+        <page
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.preferences.LanguageRootPreferencePage"
+            id="com.odcgroup.translation.TranslationDsl"
+            name="TranslationDsl">
+            <keywordReference id="com.odcgroup.translation.ui.keyword_TranslationDsl"/>
+        </page>
+        <page
+            category="com.odcgroup.translation.TranslationDsl"
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.syntaxcoloring.SyntaxColoringPreferencePage"
+            id="com.odcgroup.translation.TranslationDsl.coloring"
+            name="Syntax Coloring">
+            <keywordReference id="com.odcgroup.translation.ui.keyword_TranslationDsl"/>
+        </page>
+        <page
+            category="com.odcgroup.translation.TranslationDsl"
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.templates.XtextTemplatePreferencePage"
+            id="com.odcgroup.translation.TranslationDsl.templates"
+            name="Templates">
+            <keywordReference id="com.odcgroup.translation.ui.keyword_TranslationDsl"/>
+        </page>
+    </extension>
+    <extension
+            point="org.eclipse.ui.propertyPages">
+        <page
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.preferences.LanguageRootPreferencePage"
+            id="com.odcgroup.translation.TranslationDsl"
+            name="TranslationDsl">
+            <keywordReference id="com.odcgroup.translation.ui.keyword_TranslationDsl"/>
+            <enabledWhen>
+	            <adapt type="org.eclipse.core.resources.IProject"/>
+			</enabledWhen>
+	        <filter name="projectNature" value="org.eclipse.xtext.ui.shared.xtextNature"/>
+        </page>
+    </extension>
+    <extension
+        point="org.eclipse.ui.keywords">
+        <keyword
+            id="com.odcgroup.translation.ui.keyword_TranslationDsl"
+            label="TranslationDsl"/>
+    </extension>
+    <extension
+         point="org.eclipse.ui.commands">
+      <command
+            description="Trigger expensive validation"
+            id="com.odcgroup.translation.TranslationDsl.validate"
+            name="Validate">
+      </command>
+      <!-- copy qualified name -->
+      <command
+            id="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName"
+            categoryId="org.eclipse.ui.category.edit"
+            description="Copy the qualified name for the selected element"
+            name="Copy Qualified Name">
+      </command>
+      <command
+            id="org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedName"
+            categoryId="org.eclipse.ui.category.edit"
+            description="Copy the qualified name for the selected element"
+            name="Copy Qualified Name">
+      </command>
+    </extension>
+    <extension point="org.eclipse.ui.menus">
+        <menuContribution
+            locationURI="popup:#TextEditorContext?after=group.edit">
+             <command
+                 commandId="com.odcgroup.translation.TranslationDsl.validate"
+                 style="push"
+                 tooltip="Trigger expensive validation">
+            <visibleWhen checkEnabled="false">
+                <reference
+                    definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened">
+                </reference>
+            </visibleWhen>
+         </command>
+         </menuContribution>
+         <!-- copy qualified name -->
+         <menuContribution locationURI="popup:#TextEditorContext?after=copy">
+		<command commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName"
+			style="push" tooltip="Copy Qualified Name">
+		<visibleWhen checkEnabled="false">
+			<reference definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened" />
+		</visibleWhen>
+		</command>
+         </menuContribution>
+         <menuContribution locationURI="menu:edit?after=copy">
+		<command commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.EditorCopyQualifiedName"
+		style="push" tooltip="Copy Qualified Name">
+		<visibleWhen checkEnabled="false">
+			<reference definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened" />
+		</visibleWhen>
+		</command>
+         </menuContribution>
+         <menuContribution locationURI="popup:org.eclipse.xtext.ui.outline?after=additions">
+			<command commandId="org.eclipse.xtext.ui.editor.copyqualifiedname.OutlineCopyQualifiedName"
+				style="push" tooltip="Copy Qualified Name">
+			<visibleWhen checkEnabled="false">
+			<and>
+				<reference definitionId="com.odcgroup.translation.TranslationDsl.XtextEditor.opened" />
+						<iterate>
+							<adapt type="org.eclipse.xtext.ui.editor.outline.IOutlineNode" />
+						</iterate>
+					</and>
+				</visibleWhen>
+			</command>
+         </menuContribution>
+    </extension>
+    <extension point="org.eclipse.ui.menus">
+		<menuContribution locationURI="popup:#TextEditorContext?endof=group.find">
+			<command commandId="org.eclipse.xtext.ui.editor.FindReferences">
+				<visibleWhen checkEnabled="false">
+			<reference definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened">
+			</reference>
+		</visibleWhen>
+			</command>
+		</menuContribution>
+	</extension>
+	<extension point="org.eclipse.ui.handlers">
+	    <handler
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.findrefs.FindReferencesHandler"
+            commandId="org.eclipse.xtext.ui.editor.FindReferences">
+            <activeWhen>
+                <reference
+                    definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened">
+                </reference>
+            </activeWhen>
+        </handler>
+    </extension>
+
+<!-- adding resource factories -->
+
+	<extension
+		point="org.eclipse.emf.ecore.extension_parser">
+		<parser
+			class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.resource.IResourceFactory"
+			type="translation">
+		</parser>
+	</extension>
+	<extension point="org.eclipse.xtext.extension_resourceServiceProvider">
+        <resourceServiceProvider
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.resource.IResourceUIServiceProvider"
+            uriExtension="translation">
+        </resourceServiceProvider>
+    </extension>
+
+
+    <!-- marker definitions for com.odcgroup.translation.TranslationDsl -->
+    <extension
+            id="translationdsl.check.fast"
+            name="TranslationDsl Problem"
+            point="org.eclipse.core.resources.markers">
+        <super type="org.eclipse.xtext.ui.check.fast"/>
+        <persistent value="true"/>
+    </extension>
+    <extension
+            id="translationdsl.check.normal"
+            name="TranslationDsl Problem"
+            point="org.eclipse.core.resources.markers">
+        <super type="org.eclipse.xtext.ui.check.normal"/>
+        <persistent value="true"/>
+    </extension>
+    <extension
+            id="translationdsl.check.expensive"
+            name="TranslationDsl Problem"
+            point="org.eclipse.core.resources.markers">
+        <super type="org.eclipse.xtext.ui.check.expensive"/>
+        <persistent value="true"/>
+    </extension>
+
+   <extension
+         point="org.eclipse.xtext.builder.participant">
+      <participant
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.builder.IXtextBuilderParticipant"
+            fileExtensions="translation"
+            >
+      </participant>
+   </extension>
+   <extension
+            point="org.eclipse.ui.preferencePages">
+        <page
+            category="com.odcgroup.translation.TranslationDsl"
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.builder.preferences.BuilderPreferencePage"
+            id="com.odcgroup.translation.TranslationDsl.compiler.preferencePage"
+            name="Compiler">
+            <keywordReference id="com.odcgroup.translation.ui.keyword_TranslationDsl"/>
+        </page>
+    </extension>
+    <extension
+            point="org.eclipse.ui.propertyPages">
+        <page
+            category="com.odcgroup.translation.TranslationDsl"
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.builder.preferences.BuilderPreferencePage"
+            id="com.odcgroup.translation.TranslationDsl.compiler.propertyPage"
+            name="Compiler">
+            <keywordReference id="com.odcgroup.translation.ui.keyword_TranslationDsl"/>
+            <enabledWhen>
+	            <adapt type="org.eclipse.core.resources.IProject"/>
+			</enabledWhen>
+	        <filter name="projectNature" value="org.eclipse.xtext.ui.shared.xtextNature"/>
+        </page>
+    </extension>
+
+	<!-- Quick Outline -->
+	<extension
+		point="org.eclipse.ui.handlers">
+		<handler
+			class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.outline.quickoutline.ShowQuickOutlineActionHandler"
+			commandId="org.eclipse.xtext.ui.editor.outline.QuickOutline">
+			<activeWhen>
+				<reference
+					definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened">
+				</reference>
+			</activeWhen>
+		</handler>
+	</extension>
+	<extension
+		point="org.eclipse.ui.commands">
+		<command
+			description="Open the quick outline."
+			id="org.eclipse.xtext.ui.editor.outline.QuickOutline"
+			name="Quick Outline">
+		</command>
+	</extension>
+	<extension point="org.eclipse.ui.menus">
+		<menuContribution
+			locationURI="popup:#TextEditorContext?after=group.open">
+			<command commandId="org.eclipse.xtext.ui.editor.outline.QuickOutline"
+				style="push"
+				tooltip="Open Quick Outline">
+				<visibleWhen checkEnabled="false">
+					<reference definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened"/>
+				</visibleWhen>
+			</command>
+		</menuContribution>
+	</extension>
+    <!-- quickfix marker resolution generator for com.odcgroup.translation.TranslationDsl -->
+    <extension
+            point="org.eclipse.ui.ide.markerResolution">
+        <markerResolutionGenerator
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
+            markerType="com.odcgroup.translation.ui.translationdsl.check.fast">
+            <attribute
+                name="FIXABLE_KEY"
+                value="true">
+            </attribute>
+        </markerResolutionGenerator>
+        <markerResolutionGenerator
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
+            markerType="com.odcgroup.translation.ui.translationdsl.check.normal">
+            <attribute
+                name="FIXABLE_KEY"
+                value="true">
+            </attribute>
+        </markerResolutionGenerator>
+        <markerResolutionGenerator
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.quickfix.MarkerResolutionGenerator"
+            markerType="com.odcgroup.translation.ui.translationdsl.check.expensive">
+            <attribute
+                name="FIXABLE_KEY"
+                value="true">
+            </attribute>
+        </markerResolutionGenerator>
+    </extension>
+	<!-- Rename Refactoring -->
+	<extension point="org.eclipse.ui.handlers">
+		<handler
+			class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.ui.DefaultRenameElementHandler"
+			commandId="org.eclipse.xtext.ui.refactoring.RenameElement">
+			<activeWhen>
+				<reference
+					definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened">
+				</reference>
+			</activeWhen>
+		</handler>
+	</extension>
+    <extension point="org.eclipse.ui.menus">
+         <menuContribution
+            locationURI="popup:#TextEditorContext?after=group.edit">
+         <command commandId="org.eclipse.xtext.ui.refactoring.RenameElement"
+               style="push">
+            <visibleWhen checkEnabled="false">
+               <reference
+                     definitionId="com.odcgroup.translation.TranslationDsl.Editor.opened">
+               </reference>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension point="org.eclipse.ui.preferencePages">
+	    <page
+	        category="com.odcgroup.translation.TranslationDsl"
+	        class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.refactoring.ui.RefactoringPreferencePage"
+	        id="com.odcgroup.translation.TranslationDsl.refactoring"
+	        name="Refactoring">
+	        <keywordReference id="com.odcgroup.translation.ui.keyword_TranslationDsl"/>
+	    </page>
+	</extension>
+
+  <extension point="org.eclipse.compare.contentViewers">
+    <viewer id="com.odcgroup.translation.TranslationDsl.compare.contentViewers"
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
+            extensions="translation">
+    </viewer>
+  </extension>
+  <extension point="org.eclipse.compare.contentMergeViewers">
+    <viewer id="com.odcgroup.translation.TranslationDsl.compare.contentMergeViewers"
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
+            extensions="translation" label="TranslationDsl Compare">
+     </viewer>
+  </extension>
+  <extension point="org.eclipse.ui.editors.documentProviders">
+    <provider id="com.odcgroup.translation.TranslationDsl.editors.documentProviders"
+            class="com.odcgroup.translation.ui.TranslationDslExecutableExtensionFactory:org.eclipse.xtext.ui.editor.model.XtextDocumentProvider"
+            extensions="translation">
+    </provider>
+  </extension>
+
+</plugin>

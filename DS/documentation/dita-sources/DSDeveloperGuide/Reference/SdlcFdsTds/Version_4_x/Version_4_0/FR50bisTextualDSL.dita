@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN"
+"http://docs.oasis-open.org/dita/v1.1/OS/dtd/topic.dtd">
+<topic id="SdlcFdsTdsVersion_4_0_fr50bis">
+  <title>FR 50bis: Textual DSL for better model SCM mergeability</title>
+	<body>
+		<section>
+			<title>Description</title>
+			<p>
+				Requirement: "Textual DSL for better model SCM mergeability"
+			</p>
+		</section>
+<!-- 		<section>
+			<title>FDS Link</title>
+			<p>
+				<xref href="https://lausvn/svn/devel/projects/doc/active/Design_Studio/5.0/03.%20Construction%20(Design)/FDS_DS5.0-PageDesignerMatrix.doc" scope="external">FDS_DS5.0-PageDesignerMatrix.doc</xref>
+			</p>
+		</section>
+-->		<section>
+			<title>JIRA Issue(s)</title>
+			<p>
+				<xref href="http://rd.oams.com/browse/DS-3301" scope="external">DS-3301</xref> and its sub-tasks
+			</p>
+		</section>
+		<section>
+			<title>TDS</title>
+			<p>
+			<ol>
+					<li><b>Technical background</b>
+						<p>Currently all models are serialized as XML (with exception of domains even as XMI). This format does not allow textual compare &amp; merge operations as it is not easily human-readable and its structure can be easily broken by merge operations.</p>
+						<p>In the Eclipse universe, Xtext has become widespread as a mean to define ones on grammar for EMF models. It is very flexibel regarding the possible syntax and also brings text-editor support (syntax highlighting, content assist, validation).</p>
+						<p>The goal of this change is to replace our XML serialization with an easily mergeable text format. As a side effect, the file size of the models should be significantly reduced as well.</p>
+					</li>
+					
+					<li><b>Metamodel handling</b>
+						<p>So far, we check the metamodel version of a model using an XML SAX parser and reading the models root element. This approach will not work anymore for non-XML files and thus a new strategy must be implemented. For DSL files, we expect the metamodel version to be defined by a string like "metamodelversion=x.y.z". A simple text search operation can do this.</p> 
+					</li>
+								
+					<li><b>Migrations</b>
+						<ul>
+							<li>The current "ModelMigrations" are treated as pure "syntax" migrations, i.e. they work on the serialized form of the models and do not require the model to be parsed by the (Xtext) parser.</li>
+							<li>Additionally, we will introduce new "ContentMigrations", which will work on the loaded EMF models. They can add or remove things, change values, etc. A prerequisite for this kind of migration is that the model can be successfully parsed before and after the change by the latest version of the (Xtext) parser (which is specific to the ecore model).</li>
+							<li>The migration framework will then first execute all syntax migrations, then load the model with the current parser and then execute all content migrations.</li>
+							<li>There will be one syntax migration logic added which transforms current XMI files into DSL files.</li>
+						</ul>
+						Some additional remarks:
+						<ul>
+							<li>So far we do not have ANY migration logic for domain models as our goal was to keep backward compatibility. As the model is quite stable, it is unlikely that this situation will change in future (note that adding new things to the model does not break the backward compatibility).</li>
+							<li>As long as backward compatibility of the mdf.ecore model is not broken, we will still be able to read "old" mml files that exist in many places in the outside world.</li>
+							<li>All migration logics that I have seen for the page model are actually changing content and not the syntax/structure. So in most of the future cases it is likely that we will implement ContentMigrations. This will even become easier as one can now directly operate on the loaded EMF model and does not have to deal with the XML DOM.</li>
+							<li>A syntax migration, which for example removes or renames model attributes might break older content migrations - but we will notice this at compile time and will have the possibility to adapt the old content migration. Such a syntax migration would anyhow involve backward compatibility breaking changes of the ecore model.</li>
+							<li>Once we introduce a backward compatibility breaking change to the page ecore model, we won't be able anymore to migrate old XMI models. But as there are no page models yet out in the wild, this should be no issues; we will internally migrate all existing models to DSL and thus will circumvent this situation. There will still always be the possibility to use an older DS version for migrating XMI models to DSL.</li>
+						</ul>
+					</li>
+					
+					<li><b>Validation</b>
+						<p>So far, we only have the “business” constraints ("property id must be set") validated on the models. For XMI there is no real syntax validation available (either it is valid XML or not…), so that was all there was so far. But with Xtext we can also have a syntax validation, e.g. saying there is a keyword which is not expected at that place. If there is a syntax validation error it usually means that the model cannot be parsed. But the error will help to easily identify the location of the problem.</p>
+						<p>This feature is especially important in the context of automatic SVN merges (and also manual text-based merges) of models. It is always possible that such a merge operation results in a file which is not completely following the DSL grammar – the new kind of validation markers will help in this situation.</p>
+					</li>
+				</ol>
+			</p>
+		</section>
+	</body>
+</topic>

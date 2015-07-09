@@ -1,0 +1,2458 @@
+# UTF-8
+ /* Creation and Maintenance of Accounts */ 
+ Domain ACM_AccountOpening 
+ @t24:i (module=AC) 
+ @java:Package (value=com.temenos.t24.datamodel.ac.acm_accountopening) 
+ namespace "http://www.temenos.com/t24/ACM_AccountOpening" 
+ metamodelVersion 4.3.0.20110527 
+ Classes { 
+ TRANSID_REFER 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* Validation RulesA maximum of 16 characters may be entered. */ 
+ TRANSACTION_ID : mml:string PK required 
+ @i18n:Label (en="Transaction ID") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=0.0, t24Name=TRANSACTION.ID) 
+ 
+ /* Standard T24 numeric field. Validation RulesMandatory input.A maximum of 22 characters may be entered. */ 
+ DATE_TIME : mml:string required 
+ @i18n:Label (en="Date time") 
+ @i18n:Tooltip (en="Date and time when record was input or authorised") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=22, sysNumber=1.0, t24Name=DATE.TIME) 
+ } 
+ /* This table is used to establish conditions under which details of an Account or entries over an Account should be referred to the Account Officer. An end of day report is produced, containing details of transactions and balances to be referred. Fields 3-8 are used exclusively for establishing conditions for referring entries Fields 9-11 for referring Account balances. */ 
+ REFERAL 
+ @t24:i (level=I, type=H, localRefAllowed=false) 
+ { 
+ /* This is the code by which the referral condition details can be identified. Validation Rules1-6 numeric characters (Mandatory input) */ 
+ REFERAL_CODE : mml:string PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=0.0, t24Name=REFERAL.CODE) 
+ 
+ DESCRIPTION -> byValue ACM_AccountOpening:REFERAL__DESCRIPTION * 
+ 
+ /* Identifies the Currency of the amounts that are held in Fields 7, 8 and 11. This field must be an existing code on the CURRENCY table (Ref: General Tables).  If this is different from the Currency of the Account, then the amount of the entries passed will be converted to the Referral Currency before checking whether they should be referred. Validation Rules3 type SSS (uppercase alpha) character or 1-3 numeric character Currency Code. (Mandatory input) */ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY required 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, t24Name=CURRENCY) 
+ 
+ TRANS_CODE -> byValue ACM_AccountOpening:REFERAL__TRANS_CODE * 
+ 
+ TRANS_CODE_FROM -> byValue ACM_AccountOpening:REFERAL__TRANS_CODE_FROM * 
+ 
+ /* Indicates whether debit, credit, or all entries are to be referred. This field indicates whether debit entries only, credit entries only, reversal entries only, or all entries are to be referred. Any entry with this Referral condition which meets the conditions defined in Fields 6-8 will be referred.  (If no Transaction Codes are specified). If Movement amounts and Transaction Codes, are specified then the entry must meet both conditions for it to be referred. Validation Rules1-8 type SSS (uppercase alpha) characters: D(ebit) or C(redit) or R(eversal) or A(ll) (Input mandatory if no Transaction Codes (Field 3) have been defined otherwise optional). */ 
+ MOVEMENT_TYPE : ACM_AccountOpening:REFERAL__MOVEMENT_TYPE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=6.0, t24Name=MOVEMENT.TYPE) 
+ 
+ /* Specifies the minimum amount for entries that are to be referred. If the Minimum Movement is not entered, then any amount less than or equal to the Maximum Movement will be referred. Validation RulesUp to 14 type AMT (standard amount format) characters plus a decimal point. (Input only allowed when MOVEMENT TYPE (Field 6) has been entered, then it is Mandatory if MAXIMUM MOVEMENT (Field 8) has not been defined, otherwise optional). It must be less than MAXIMUM MOVEMENT (Field 8). */ 
+ MINIMUM_MOVEMENT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=7.0, t24Name=MINIMUM.MOVEMENT) 
+ 
+ /* Specifies the maximum amount for entries that are to be referred. If the Maximum Movement is not entered, then any amount greater than or equal to the Minimum Movement will be referred. Validation RulesUp to 14 type AMT (standard amount format) characters plus a decimal point. (Optional input only allowed when MOVEMENT TYPE (Field 6) has been entered). It must be greater than the MINIMUM MOVEMENT (Field 7). */ 
+ MAXIMUM_MOVEMENT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=8.0, t24Name=MAXIMUM.MOVEMENT) 
+ 
+ /* Indicates whether debit or credit account balances are to be referred. This field indicates whether to check for debit or credit actual account balances.  This check will only take place at the end of the day and only on Accounts which have had movement(s) that day. Validation Rules1-6 type SSS (uppercase alpha) characters: D(ebit) or C(redit) (Optional input) */ 
+ BALANCE_SIGN : ACM_AccountOpening:REFERAL__BALANCE_SIGN 
+ @t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=9.0, t24Name=BALANCE.SIGN) 
+ 
+ /* Identifies how the Balance will be checked when deciding whether to refer. GE = Balances greater than or equal to the amount in                 Field 11 are to be referred.            GT = Balances greater than the amount in Field 11 are                 to be referred.            LE = Balances less than or equal to the Field 11 are to                 be referred.            LT = Balances less than the amount in Field 11 are to be                 referred. Validation Rules2 type SSS (uppercase alpha) characters: GE, GT, LE or LT (Mandatory input.  Only allowed if BALANCE SIGN (Field 9) has been entered.) */ 
+ BALANCE_COMPARISON : ACM_AccountOpening:REFERAL__BALANCE_COMPARISON 
+ @t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=10.0, t24Name=BALANCE.COMPARISON) 
+ 
+ /* Specifies the Balance limit above, below, or equal to which Referral will occur. This field specifies the amount which will be checked against when deciding whether to refer the actual balance of the Account. Validation RulesUp to 14 type AMT (standard amount format) characters plus a decimal point. (Mandatory input only allowed if BALANCE SIGN (Field 9) has been entered). */ 
+ BALANCE : mml:string 
+ @i18n:Label (en=Balance) 
+ @i18n:Tooltip (en="Indicates the current Balance of the Product") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=11.0, t24Name=BALANCE) 
+ 
+ REMARKS -> byValue ACM_AccountOpening:REFERAL__REMARKS * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=13.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:REFERAL__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:REFERAL__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=18.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=20.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=21.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ REFERAL__DESCRIPTION 
+ { 
+ /* Describes the referral conditions. Included in the referral report. This field is a description of the referral conditions which is used for reporting or enrichments. Validation Rules3-35 type A (alphanumeric) characters. Multilanguage field. (Mandatory input) */ 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, t24Name=DESCRIPTION) 
+ } 
+ REFERAL__TRANS_CODE 
+ { 
+ /* Identifies the individual Transaction Code(s) that are to be referred. Any entry with this Referral condition and Transaction Code when passed to an Account will be referred (if no Movement Amounts are specified).  If Movement Amounts and Transaction Codes are specified then the entry must meet both conditions for it to be referred. 
+        Example:   Field 3.1     1            Field 6       DEBIT            Field 7       100.00            Field 8       200.00 Entries: (i)Transaction Code 1, Amount DR 150.00 (will be referred)         (ii)Transaction Code 1, Amount DR 50 (will not be referred). Validation Rules1-3 numeric character Transaction Code. Multivalue field (Optional input)It must be an existing code on the TRANSACTION table (Ref: General Tables).Duplicate Transaction Codes are not allowed within the same Referal record. */ 
+ TRANS_CODE -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=3.0, t24Name=TRANS.CODE) 
+ } 
+ REFERAL__TRANS_CODE_FROM 
+ { 
+ /* Identifies the first Transaction Code in a range that is to be referred. The last Transaction Code in the range to be referred is specified in the corresponding field 5 Validation Rules1-3 numeric character Transaction Code. Multivalue field associated with field 5. (Optional input)Input must be on existing code on the TRANSACTION table.Input must be less than the corresponding TRANSACTION CODE TO (Field 5). */ 
+ TRANS_CODE_FROM -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=4.0, t24Name=TRANS.CODE.FROM) 
+ 
+ /* Identifies the last Transaction Code in the range that is to be referred. The first Transaction Code in the range to be referred is specified in the corresponding Field 4. Validation Rules1-3 numeric character Transaction Code. Multivalue field associated with field 4. (Input mandatory if corresponding TRANSACTION CODE FROM (field 4) is entered, otherwise not allowed.)Input must be an existing code on the TRANSACTION Table.Input is not allowed if TRANSACTION CODE FROM is not entered.Input must exceed TRANSACTION CODE FROM. */ 
+ TRANS_CODE_TO -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=5.0, t24Name=TRANS.CODE.TO) 
+ } 
+ REFERAL__REMARKS 
+ { 
+ /* Free format text which may be used as required. Validation RulesUp to 35 type A (alphanumeric) characters Multivalue field (Optional input. No default value.) */ 
+ REMARKS : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, t24Name=REMARKS) 
+ } 
+ REFERAL__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=15.0, t24Name=INPUTTER) 
+ } 
+ REFERAL__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=16.0, t24Name=DATE.TIME) 
+ } 
+ OVERDRAFT_FEE 
+ @t24:i (level=F, type=H, localRefAllowed=false) 
+ { 
+ CURRENCY_CODE : mml:string PK required 
+ @i18n:Label (en="Ccy Code") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=0.0, t24Name=CURRENCY.CODE) 
+ 
+ CHG_AMT_MARKER : ACM_AccountOpening:OVERDRAFT_FEE__CHG_AMT_MARKER 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, t24Name=CHG.AMT.MARKER) 
+ 
+ UPTO_OD_AMT -> byValue ACM_AccountOpening:OVERDRAFT_FEE__UPTO_OD_AMT * 
+ 
+ RESERVED_9 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=5.0, t24Name=RESERVED.9) 
+ 
+ RESERVED_8 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=6.0, t24Name=RESERVED.8) 
+ 
+ RESERVED_7 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=7.0, t24Name=RESERVED.7) 
+ 
+ RESERVED_6 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=8.0, t24Name=RESERVED.6) 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=9.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=10.0, t24Name=RESERVED.4) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=11.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=12.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=13.0, t24Name=RESERVED.1) 
+ 
+ OVERRIDE -> byValue ACM_AccountOpening:OVERDRAFT_FEE__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:OVERDRAFT_FEE__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:OVERDRAFT_FEE__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ OVERDRAFT_FEE__UPTO_OD_AMT 
+ { 
+ UPTO_OD_AMT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=2.0, t24Name=UPTO.OD.AMT) 
+ 
+ UPTO_DAYS -> byValue ACM_AccountOpening:OVERDRAFT_FEE__UPTO_OD_AMT__UPTO_DAYS * 
+ } 
+ OVERDRAFT_FEE__UPTO_OD_AMT__UPTO_DAYS 
+ { 
+ UPTO_DAYS : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=3.0, t24Name=UPTO.DAYS) 
+ 
+ FLAT_CHARGE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=4.0, t24Name=FLAT.CHARGE) 
+ } 
+ OVERDRAFT_FEE__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, t24Name=OVERRIDE) 
+ } 
+ OVERDRAFT_FEE__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, t24Name=INPUTTER) 
+ } 
+ OVERDRAFT_FEE__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, t24Name=DATE.TIME) 
+ } 
+ NOSTRO_NUM_MNE 
+ @t24:i (level=I, type=T, localRefAllowed=false) 
+ { 
+ /* Standard T24 alphanumeric field. Validation RulesA maximum of 13 characters may be entered. */ 
+ ACCOUNT_ID : mml:string PK required 
+ @i18n:Label (en="Account No") 
+ @i18n:Tooltip (en="Indicates the Account Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=13, sysNumber=0.0, t24Name=ACCOUNT.ID) 
+ 
+ /* Standard T24 acount field. Validation RulesA maximum of 16 characters may be entered.Must be the key to a valid entry on the ACCOUNT file. */ 
+ ACCOUNT_NUMBER -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, t24Name=ACCOUNT.NUMBER) 
+ } 
+ NOSTRO_ACCOUNT 
+ @t24:i (level=I, type=H, localRefAllowed=false) 
+ { 
+ CURRENCY : mml:string PK required 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=0.0, t24Name=CURRENCY) 
+ 
+ APPLICATION -> byValue ACM_AccountOpening:NOSTRO_ACCOUNT__APPLICATION * 
+ 
+ OVERRIDE -> byValue ACM_AccountOpening:NOSTRO_ACCOUNT__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=6.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=7.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:NOSTRO_ACCOUNT__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:NOSTRO_ACCOUNT__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=11.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=12.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=13.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=14.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ NOSTRO_ACCOUNT__APPLICATION 
+ { 
+ APPLICATION -> EB_SystemTables:EB_PRODUCT required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, t24Name=APPLICATION) 
+ 
+ TXN_TYPE -> byValue ACM_AccountOpening:NOSTRO_ACCOUNT__APPLICATION__TXN_TYPE * 
+ } 
+ NOSTRO_ACCOUNT__APPLICATION__TXN_TYPE 
+ { 
+ TXN_TYPE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=2.0, t24Name=TXN.TYPE) 
+ 
+ ACCOUNT -> ACM_AccountOpening:ACCOUNT required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=3.0, t24Name=ACCOUNT) 
+ 
+ REGION_CODE -> ST_Config:REGION 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=4.0, t24Name=REGION.CODE) 
+ } 
+ NOSTRO_ACCOUNT__OVERRIDE 
+ { 
+ TXN_TYPE -> byValue ACM_AccountOpening:NOSTRO_ACCOUNT__OVERRIDE__TXN_TYPE * 
+ } 
+ NOSTRO_ACCOUNT__OVERRIDE__TXN_TYPE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=5.0, t24Name=OVERRIDE) 
+ } 
+ NOSTRO_ACCOUNT__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, t24Name=INPUTTER) 
+ } 
+ NOSTRO_ACCOUNT__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=9.0, t24Name=DATE.TIME) 
+ } 
+ NEW_COND_REFER 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* Validation RulesA maximum of 16 characters may be entered. */ 
+ ACCOUNT_NUMBER : mml:string PK required 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=0.0, t24Name=ACCOUNT.NUMBER) 
+ 
+ /* Standard T24 numeric field. Validation RulesA maximum of 2 characters may be entered. */ 
+ OLD_GROUP_NUMBER : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=1.0, t24Name=OLD.GROUP.NUMBER) 
+ 
+ /* Standard T24 numeric field. Validation RulesA maximum of 2 characters may be entered. */ 
+ NEW_GROUP_NUMBER : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=2.0, t24Name=NEW.GROUP.NUMBER) 
+ 
+ /* Standard T24 currency field. Validation RulesA maximum of 3 characters may be entered. */ 
+ CURRENCY_CODE : mml:string 
+ @i18n:Label (en="Ccy Code") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, t24Name=CURRENCY.CODE) 
+ } 
+ /* This is an internal file providing an alternative alphanumeric key by which Account records may be accessed. Only the S(ee), P(rint) and L(ist) functions may be used in this application. */ 
+ MNEMONIC_ACCOUNT 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* Specifies the Mnemonic (alphanumeric) code which may be used as an alternative key to access the Account record defined in Field 1. Validation Rules3-10 alphanumeric (type MNE) characters Account Mnemonic. (Internal field, no input.) */ 
+ MNEMONIC : mml:string PK required 
+ @i18n:Label (en=Mnemonic) 
+ @i18n:Tooltip (en="The alternate short way of calling the record") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=MNEMONIC) 
+ 
+ /* Specifies the Account record which may be accessed using the Mnemonic Code defined in Field 0. Validation RulesStandard Account Number format. (Internal field, no input.) */ 
+ ACCOUNT -> ACM_AccountOpening:ACCOUNT required 
+ @i18n:Label (en=Account) 
+ @i18n:Tooltip (en="Identifies the customer account") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=1.0, t24Name=ACCOUNT) 
+ } 
+ /* This is an internal file providing a reference between each Customer and all Current Accounts belonging to him in each Currency.  It is used by other modules within T24 for automatic selection of default Accounts for receipt of funds etc. Category codes in the range 01000 - 02999 have been predefined as 'Customer Current Accounts', only Accounts with Category codes in this range are included in this file. Only the S(ee), P(rint) and L(ist) functions may be used in this application. */ 
+ CUSTOMER_CCY_ACCT 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* Specifies the Customer and Currency of the Accounts specified in the other fields. Validation Rulesa.   1-10 numeric character Customer Code                or      3-10 alphanumeric characters Customer Mnemonic.  b.   3 alphanumeric characters Currency Code             or      1-3 numeric characters Numeric Currency Code.Internal field.  This is a NOINPUT field. */ 
+ CUSTOMER_CCY : mml:string PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=17, sysNumber=0.0, t24Name=CUSTOMER.CCY) 
+ 
+ /* Specifies an Account of the Customer and Currency specified in Field 0. The numbers of all Current Accounts belonging to the Customer specified in Field 0 and in the Currency specified in Field 0 are held in Fields 1 onwards, one Account Number per field. Category codes in the range 01000 - 02999 have been predefined as 'Customer Current Accounts', only Accounts with Category codes in this range are included in this file. Validation RulesStandard Account Number format.Internal field.  This is a NOINPUT field. */ 
+ ACCOUNT_NUMBER -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, t24Name=ACCOUNT.NUMBER) 
+ } 
+ /* This is an internal file providing a reference between each Customer and all Accounts belonging to him. Only the S(ee), P(rint) and L(ist) functions may be used in this application. */ 
+ CUSTOMER_ACCOUNT 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* Specifies the Customer who owns the Accounts which are  specified in the other fields. Validation Rules1-10 numeric character Customer Code          or 3-10 alphanumeric characters Customer Mnemonic.Internal field.  This is a NOINPUT field. */ 
+ CUSTOMER_CODE : mml:string PK required 
+ @i18n:Label (en=Customer) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=CUSTOMER.CODE) 
+ 
+ /* Specifies an Account belonging to the Customer specified in field 0. The numbers of all Accounts belonging to the Customer specified in Field 0 are held in fields 1 onwards, one Account Number per field. Validation RulesStandard Account Number format.Internal field.  This is a NOINPUT field. */ 
+ ACCOUNT_NUMBER -> ACM_AccountOpening:ACCOUNT required 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, t24Name=ACCOUNT.NUMBER) 
+ } 
+ /* This file will maintain a link between the customer and currency and the account to which payments and entries are to be diverted. */ 
+ CUST_ACCT_CCY_REC 
+ @t24:i (level=C, type=L, localRefAllowed=false) 
+ { 
+ /* Standard T24 customer field. Validation RulesA maximum of 10 characters may be entered.Must be the key to a valid entry on the CUSTOMER file. */ 
+ KEY : mml:string PK required 
+ @i18n:Label (en=Key) 
+ @i18n:Tooltip (en="Indicates th transaction key") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=KEY) 
+ 
+ RECEIVE_CCY -> byValue ACM_AccountOpening:CUST_ACCT_CCY_REC__RECEIVE_CCY * 
+ } 
+ CUST_ACCT_CCY_REC__RECEIVE_CCY 
+ { 
+ /* This field is updated automatically by the system whenever the account number associated with it in the field below RECEIVE.ACCOUNT was updated with this currency in the AUTO.REC.CCY field on the ACCOUNT record. Validation RulesThis is a NOINPUT field.Maintained automatically by the system. */ 
+ RECEIVE_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, t24Name=RECEIVE.CCY) 
+ 
+ /* This field is updated automatically by the system whenever the AUTO.REC.CCY field on the ACCOUNT record for this account was updated with the currency in the RECEIVE.CCY field. Validation RulesThis is a NOINPUT field.Automatically updated by the system. */ 
+ RECEIVE_ACCOUNT -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=2.0, t24Name=RECEIVE.ACCOUNT) 
+ } 
+ CHECK_DIGIT 
+ @t24:i (level=F, type=W, localRefAllowed=false) 
+ { 
+ ENTER_ACCOUNT_NO : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name="ENTER ACCOUNT NO") 
+ 
+ ACCOUNT_NO : mml:string required 
+ @i18n:Label (en=Account) 
+ @i18n:Tooltip (en="Indicates Customer Account Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=1.0, t24Name=ACCOUNT.NO) 
+ 
+ FULL_ACCOUNT_NO : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=2.0, t24Name=FULL.ACCOUNT.NO) 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=3.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=4.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:CHECK_DIGIT__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:CHECK_DIGIT__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=7.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=8.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=10.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=11.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ CHECK_DIGIT__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=5.0, t24Name=INPUTTER) 
+ } 
+ CHECK_DIGIT__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=6.0, t24Name=DATE.TIME) 
+ } 
+ CCY_NOSTRO_ACCT 
+ @t24:i (level=I, type=T, localRefAllowed=false) 
+ { 
+ /* Standard T24 alphanumeric field. Validation RulesA maximum of 5 characters may be entered.Must be the key to a valid entry on the CURRENCY file. */ 
+ CURRENCY : mml:string PK required 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=0.0, t24Name=CURRENCY) 
+ 
+ /* Standard T24 acount field. Validation RulesA maximum of 16 characters may be entered.Must be the key to a valid entry on the ACCOUNT file. */ 
+ ACCOUNT_NUMBER -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, t24Name=ACCOUNT.NUMBER) 
+ } 
+ CATEG_INT_ACCT 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ CATEGORY : mml:string PK required 
+ @i18n:Label (en=Category) 
+ @i18n:Tooltip (en="Specifies the Category") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=0.0, t24Name=CATEGORY) 
+ 
+ ACCOUNT_NUMBER -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=1.0, t24Name=ACCOUNT.NUMBER) 
+ } 
+ AUDIT_REPORT 
+ @t24:i (level=F, type=W, localRefAllowed=false) 
+ { 
+ /* Validation RulesMandatory input.A maximum of 10 characters may be entered. */ 
+ AUDIT_REP_ID : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=AUDIT.REP.ID) 
+ 
+ /* Standard T24 customer field. Validation RulesMandatory input.A maximum of 10 characters may be entered.Must be the key to a valid entry on the CUSTOMER file. */ 
+ CUSTOMER -> ST_Customer:CUSTOMER required 
+ @i18n:Label (en=Customer) 
+ @i18n:Tooltip (en="Customer Liability") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=1.0, t24Name=CUSTOMER) 
+ 
+ /* Standard T24 date field. Validation RulesMandatory input.A maximum of 11 characters may be entered. */ 
+ VALUATION_DATE : mml:string required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, t24Name=VALUATION.DATE) 
+ 
+ /* Standard T24 alphanumeric field. Validation RulesMandatory input.A maximum of 8 characters may be entered. */ 
+ ADDRESSEE : mml:string required 
+ @i18n:Label (en="Message To") 
+ @i18n:Tooltip (en="Address to which user wants to divert the msg") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=3.0, t24Name=ADDRESSEE) 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=4.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=5.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:AUDIT_REPORT__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:AUDIT_REPORT__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=9.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=11.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=12.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ AUDIT_REPORT__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=6.0, t24Name=INPUTTER) 
+ } 
+ AUDIT_REPORT__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=7.0, t24Name=DATE.TIME) 
+ } 
+ ALTERNATE_ACCOUNT 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* Standard T24 alphanumeric field. Validation RulesA maximum of 35 characters may be entered. */ 
+ ALTERNATIVE_NUMBER : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=36, sysNumber=0.0, t24Name=ALTERNATIVE.NUMBER) 
+ 
+ GLOBUS_ACCT_NUMBER -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=R, inputBehaviour=I, maxLength=14, sysNumber=1.0, t24Name=GLOBUS.ACCT.NUMBER) 
+ } 
+ ALT_ACCT_PARAMETER 
+ @t24:i (level=I, type=H, localRefAllowed=false) 
+ { 
+ ALT_ACCT_NAME : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=0.0, t24Name=ALT.ACCT.NAME) 
+ 
+ DESCRIPTION -> byValue ACM_AccountOpening:ALT_ACCT_PARAMETER__DESCRIPTION * 
+ 
+ SHORT_DESC : mml:string 
+ @i18n:Label (en="Short Description") 
+ @i18n:Tooltip (en="Short Description of the record") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=2.0, t24Name=SHORT.DESC) 
+ 
+ MAX_LENGTH : mml:string required 
+ @i18n:Label (en="Max Length") 
+ @i18n:Tooltip (en="Maximum Length") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=36, sysNumber=3.0, t24Name=MAX.LENGTH) 
+ 
+ MIN_LENGTH : mml:string 
+ @i18n:Label (en="Min Length") 
+ @i18n:Tooltip (en="Minimum Length") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=4.0, t24Name=MIN.LENGTH) 
+ 
+ ACCT_NO_TYPE : ACM_AccountOpening:ALT_ACCT_PARAMETER__ACCT_NO_TYPE 
+ @i18n:Label (en="Acct No Type") 
+ @i18n:Tooltip (en="Account No Type") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=5.0, t24Name=ACCT.NO.TYPE) 
+ 
+ CHECKDIGIT_TYPE : mml:string 
+ @i18n:Label (en="Checkdigit Type") 
+ @i18n:Tooltip (en="Check Digit Type") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, t24Name=CHECKDIGIT.TYPE) 
+ 
+ DISPLAY_MASK : mml:string 
+ @i18n:Label (en="Display Mask") 
+ @i18n:Tooltip (en="Display Mask") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=7.0, t24Name=DISPLAY.MASK) 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=8.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=9.0, t24Name=RESERVED.4) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=10.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=11.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=12.0, t24Name=RESERVED.1) 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=13.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:ALT_ACCT_PARAMETER__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:ALT_ACCT_PARAMETER__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=18.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=20.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=21.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ ALT_ACCT_PARAMETER__DESCRIPTION 
+ { 
+ DESCRIPTION : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, t24Name=DESCRIPTION) 
+ } 
+ ALT_ACCT_PARAMETER__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=15.0, t24Name=INPUTTER) 
+ } 
+ ALT_ACCT_PARAMETER__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=16.0, t24Name=DATE.TIME) 
+ } 
+ ACCT_INACTIVE_RESET 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ ACCOUNT_NUMBER : mml:string PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=0.0, t24Name="ACCOUNT NUMBER") 
+ 
+ RESET_DATE : mml:string 
+ @i18n:Label (en="Reset Date") 
+ @i18n:Tooltip (en="Reset Date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, t24Name=RESET.DATE) 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=2.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=3.0, t24Name=RESERVED.4) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=4.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=5.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=6.0, t24Name=RESERVED.1) 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=8.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:ACCT_INACTIVE_RESET__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:ACCT_INACTIVE_RESET__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=13.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=15.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=16.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ ACCT_INACTIVE_RESET__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, t24Name=INPUTTER) 
+ } 
+ ACCT_INACTIVE_RESET__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=11.0, t24Name=DATE.TIME) 
+ } 
+ /* This is an internal file containing details of transactions and account balances for printing in the referral report. Referral conditions are defined in the REFERRAL file. These may depend on transaction details such as transaction code, amount and sign, or the balance of the ACCOUNT. The REFERRAL code in each ACCOUNT record specifies which referral conditions, if any, are applicable to that ACCOUNT. Balances are only tested for referral conditions on days on which there have been entries over the ACCOUNT. The T24 Report Generator is used to print a report containing information from this file. */ 
+ ACCOUNTING_REFER 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* This is the date and time when the entry was processed or the balance was checked. Validation Rulesa.   Date displayed as DD MMM YYYY b.   '-1' (provided for possible future use, meaningless at      present.) c.   Time since midnight in seconds and hundredths of seconds. */ 
+ DATE_TIME : ACM_AccountOpening:ACCOUNTING_REFER__DATE_TIME PK required 
+ @i18n:Label (en="Date time") 
+ @i18n:Tooltip (en="Date and time when record was input or authorised") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=22, sysNumber=0.0, t24Name=DATE.TIME) 
+ 
+ /* The number of the ACCOUNT on which a transaction or balance is to be referred. The REFERAL.CODE in each ACCOUNT record specifies which, if any, referral conditions are applicable. Validation RulesStandard account format. */ 
+ ACCOUNT_NUMBER -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, t24Name=ACCOUNT.NUMBER) 
+ 
+ /* The Account Officer responsible for the ACCOUNT. This is the ACCOUNT.OFFICER from the ACCOUNT record, if present, otherwise it is the ACCOUNT.OFFICER from the CUSTOMER to whom the ACCOUNT belongs, as specified in the CUSTOMER field of the ACCOUNT record. Validation Rules1-4 numeric characters. */ 
+ ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Account Officer") 
+ @i18n:Tooltip (en="Indicates Account Officer responsible") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=2.0, t24Name=ACCOUNT.OFFICER) 
+ 
+ /* The CUSTOMER to whom the ACCOUNT belongs as specified in CUSTOMER field of the ACCOUNT record. Validation Rules1-10 numeric characters. */ 
+ CUSTOMER -> ST_Customer:CUSTOMER required 
+ @i18n:Label (en=Customer) 
+ @i18n:Tooltip (en="Customer Liability") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=3.0, t24Name=CUSTOMER) 
+ 
+ /* The type of ACCOUNT as specified in the CATEGORY field of the ACCOUNT record. Validation Rules4-5 numeric characters. */ 
+ PRODUCT_CATEG -> ST_Config:CATEGORY 
+ @t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=4.0, t24Name=PRODUCT.CATEG) 
+ 
+ /* The currency of the ACCOUNT as specified in the CURRENCY field of the ACCOUNT record. Validation Rules3 alphabetic characters Currency code. */ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=5.0, t24Name=CURRENCY) 
+ 
+ /* The Actual Balance on the ACCOUNT after all end of day processing. This balance includes all entries over the ACCOUNT, including uncleared items with forward exposure dates. This field is only present if a REFERRAL condition which checks the BALANCE has been specified in the ACCOUNT, and there have been entries over the ACCOUNT today, and the BALANCE meets the specified conditions for referral. Validation Rules'YES' or 'NO'. */ 
+ ACTUAL_BALANCE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=6.0, t24Name=ACTUAL.BALANCE) 
+ 
+ /* The amount, in the currency of the ACCOUNT, of an entry to be referred. This field is only present if a REFERRAL condition which checks entries has been specified in the ACCOUNT and there has been an entry over the ACCOUNT today which meets the specified conditions for referral. Validation Rules'YES' or 'NO'. */ 
+ AMOUNT : mml:string 
+ @i18n:Label (en=Amount) 
+ @i18n:Tooltip (en="Indicates the Amount") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=7.0, t24Name=AMOUNT) 
+ 
+ /* The TRANSACTION CODE of an entry to be referred, identifying the type of transaction. This field is only present if a REFERRAL condition which checks entries has been specified in the ACCOUNT and there has been an entry over the ACCOUNT today which meets the specified conditions for referral. Validation Rules1 to 3 numeric characters. */ 
+ TRANSACT_CODE -> ST_Config:TRANSACTION required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=8.0, t24Name=TRANSACT.CODE) 
+ 
+ /* OUR REFERENCE from an entry to be referred. This is the reference given to the transaction/deal by the Bank. This field is only present if a REFERRAL condition which checks entries has been specified in the ACCOUNT and there has been an entry over the ACCOUNT today which meets the specified conditions for referral. Validation RulesStandard amount format. */ 
+ USER_REFERENCE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=9.0, t24Name=USER.REFERENCE) 
+ 
+ /* Identifies the REFERRAL record specifying the conditions under which the entry or balance is to be referred. Validation Rules1-6 numeric characterS. */ 
+ REFERAL_CODE -> ACM_AccountOpening:REFERAL 
+ @t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=10.0, t24Name=REFERAL.CODE) 
+ } 
+ ACCOUNT 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ ACCOUNT_NUMBER : mml:string PK required 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=0.0, t24Name=ACCOUNT.NUMBER) 
+ 
+ CUSTOMER -> ST_Customer:CUSTOMER 
+ @i18n:Label (en=Customer) 
+ @i18n:Tooltip (en="Customer Liability") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=1.0, t24Name=CUSTOMER) 
+ 
+ CATEGORY -> ST_Config:CATEGORY required 
+ @i18n:Label (en=Category) 
+ @i18n:Tooltip (en="Specifies the Category") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=2.0, t24Name=CATEGORY) 
+ 
+ ACCOUNT_TITLE_1 : mml:string 
+ @i18n:Label (en=Name) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, t24Name=ACCOUNT.TITLE.1) 
+ 
+ ACCOUNT_TITLE_2 : mml:string 
+ @i18n:Label (en="Account Name 2") 
+ @i18n:Tooltip (en="Indicates part, or the whole, of A/c title.") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, t24Name=ACCOUNT.TITLE.2) 
+ 
+ SHORT_TITLE : mml:string 
+ @i18n:Label (en="Account Name") 
+ @i18n:Tooltip (en="Indicates the abbreviated title of the account") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, t24Name=SHORT.TITLE) 
+ 
+ MNEMONIC : mml:string 
+ @i18n:Label (en=Mnemonic) 
+ @i18n:Tooltip (en="The alternate short way of calling the record") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=6.0, t24Name=MNEMONIC) 
+ 
+ POSITION_TYPE -> ST_Config:FX_POS_TYPE 
+ @i18n:Label (en="Position Type") 
+ @i18n:Tooltip (en="Position Type") 
+ @t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=7.0, t24Name=POSITION.TYPE) 
+ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY required 
+ @i18n:Label (en=Ccy) 
+ @t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=8.0, t24Name=CURRENCY) 
+ 
+ CURRENCY_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET required 
+ @i18n:Label (en=Market) 
+ @t24:i (align=R, inputBehaviour=F, maxLength=1, sysNumber=9.0, t24Name=CURRENCY.MARKET) 
+ 
+ LIMIT_REF : mml:string 
+ @i18n:Label (en="Limit Ref") 
+ @i18n:Tooltip (en="Limit Reference") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=10.0, t24Name=LIMIT.REF) 
+ 
+ ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Account Officer") 
+ @i18n:Tooltip (en="Indicates Account Officer responsible") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=11.0, t24Name=ACCOUNT.OFFICER) 
+ 
+ OTHER_OFFICER -> byValue ACM_AccountOpening:ACCOUNT__OTHER_OFFICER * 
+ 
+ POSTING_RESTRICT -> AC_Config:POSTING_RESTRICT 
+ @i18n:Label (en="Posting Restriction") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=13.0, t24Name=POSTING.RESTRICT) 
+ 
+ RECONCILE_ACCT : ACM_AccountOpening:ACCOUNT__RECONCILE_ACCT 
+ @i18n:Label (en="Reconcile Account") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=14.0, t24Name=RECONCILE.ACCT) 
+ 
+ INTEREST_LIQU_ACCT : mml:string 
+ @i18n:Label (en="Interest Account") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=15.0, t24Name=INTEREST.LIQU.ACCT) 
+ 
+ INTEREST_COMP_ACCT : mml:string 
+ @i18n:Label (en="Interest Compounding Acct") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=16.0, t24Name=INTEREST.COMP.ACCT) 
+ 
+ INT_NO_BOOKING : ACM_AccountOpening:ACCOUNT__INT_NO_BOOKING 
+ @i18n:Label (en="Interest No Booking") 
+ @i18n:Tooltip (en="Interest No booking") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=17.0, t24Name=INT.NO.BOOKING) 
+ 
+ REFERAL_CODE -> byValue ACM_AccountOpening:ACCOUNT__REFERAL_CODE * 
+ 
+ WAIVE_LEDGER_FEE : ACM_AccountOpening:ACCOUNT__WAIVE_LEDGER_FEE 
+ @i18n:Label (en="Waive Ledger Fee") 
+ @i18n:Tooltip (en="Waive Ledger Fee") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=19.0, t24Name=WAIVE.LEDGER.FEE) 
+ 
+ CONDITION_GROUP -> ST_ChargeConfig:ACCT_GEN_CONDITION 
+ @i18n:Label (en=Group) 
+ @i18n:Tooltip (en=Group) 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, t24Name=CONDITION.GROUP) 
+ 
+ INACTIV_MARKER : mml:string 
+ @t24:i (align=L, inputBehaviour=E, maxLength=1, sysNumber=22.0, t24Name=INACTIV.MARKER) 
+ 
+ OPEN_ACTUAL_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=23.0, t24Name=OPEN.ACTUAL.BAL) 
+ 
+ OPEN_CLEARED_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=24.0, t24Name=OPEN.CLEARED.BAL) 
+ 
+ ONLINE_ACTUAL_BAL : mml:string 
+ @i18n:Label (en="Online Actual Bal") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=25.0, t24Name=ONLINE.ACTUAL.BAL) 
+ 
+ ONLINE_CLEARED_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=26.0, t24Name=ONLINE.CLEARED.BAL) 
+ 
+ WORKING_BALANCE : mml:string 
+ @i18n:Label (en="Working Balance") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=27.0, t24Name=WORKING.BALANCE) 
+ 
+ DATE_LAST_CR_CUST : mml:string 
+ @i18n:Label (en="Date Last Cr Cust") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=28.0, t24Name=DATE.LAST.CR.CUST) 
+ 
+ AMNT_LAST_CR_CUST : mml:string 
+ @i18n:Label (en="Amnt Last Cr Cust") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=29.0, t24Name=AMNT.LAST.CR.CUST) 
+ 
+ TRAN_LAST_CR_CUST -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=30.0, t24Name=TRAN.LAST.CR.CUST) 
+ 
+ DATE_LAST_CR_AUTO : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=31.0, t24Name=DATE.LAST.CR.AUTO) 
+ 
+ AMNT_LAST_CR_AUTO : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=32.0, t24Name=AMNT.LAST.CR.AUTO) 
+ 
+ TRAN_LAST_CR_AUTO -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=33.0, t24Name=TRAN.LAST.CR.AUTO) 
+ 
+ DATE_LAST_CR_BANK : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=34.0, t24Name=DATE.LAST.CR.BANK) 
+ 
+ AMNT_LAST_CR_BANK : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=35.0, t24Name=AMNT.LAST.CR.BANK) 
+ 
+ TRAN_LAST_CR_BANK -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=36.0, t24Name=TRAN.LAST.CR.BANK) 
+ 
+ DATE_LAST_DR_CUST : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=37.0, t24Name=DATE.LAST.DR.CUST) 
+ 
+ AMNT_LAST_DR_CUST : mml:string 
+ @i18n:Label (en="Amnt Last Dr Cust") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=38.0, t24Name=AMNT.LAST.DR.CUST) 
+ 
+ TRAN_LAST_DR_CUST -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=39.0, t24Name=TRAN.LAST.DR.CUST) 
+ 
+ DATE_LAST_DR_AUTO : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=40.0, t24Name=DATE.LAST.DR.AUTO) 
+ 
+ AMNT_LAST_DR_AUTO : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=41.0, t24Name=AMNT.LAST.DR.AUTO) 
+ 
+ TRAN_LAST_DR_AUTO -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=42.0, t24Name=TRAN.LAST.DR.AUTO) 
+ 
+ DATE_LAST_DR_BANK : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=43.0, t24Name=DATE.LAST.DR.BANK) 
+ 
+ AMNT_LAST_DR_BANK : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=44.0, t24Name=AMNT.LAST.DR.BANK) 
+ 
+ TRAN_LAST_DR_BANK -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=45.0, t24Name=TRAN.LAST.DR.BANK) 
+ 
+ CAP_DATE_CHARGE -> byValue ACM_AccountOpening:ACCOUNT__CAP_DATE_CHARGE * 
+ 
+ CAP_DATE_CR_INT -> byValue ACM_AccountOpening:ACCOUNT__CAP_DATE_CR_INT * 
+ 
+ CAP_DATE_C2_INT -> byValue ACM_AccountOpening:ACCOUNT__CAP_DATE_C2_INT * 
+ 
+ CAP_DATE_DR_INT -> byValue ACM_AccountOpening:ACCOUNT__CAP_DATE_DR_INT * 
+ 
+ CAP_DATE_D2_INT -> byValue ACM_AccountOpening:ACCOUNT__CAP_DATE_D2_INT * 
+ 
+ CAP_BACK_VALUE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=51.0, t24Name=CAP.BACK.VALUE) 
+ 
+ ACCR_CHG_CATEG -> byValue ACM_AccountOpening:ACCOUNT__ACCR_CHG_CATEG * 
+ 
+ ACCR_CR_CATEG -> byValue ACM_AccountOpening:ACCOUNT__ACCR_CR_CATEG * 
+ 
+ ACCR_CR2_CATEG -> byValue ACM_AccountOpening:ACCOUNT__ACCR_CR2_CATEG * 
+ 
+ ACCR_DR_CATEG -> byValue ACM_AccountOpening:ACCOUNT__ACCR_DR_CATEG * 
+ 
+ ACCR_DR2_CATEG -> byValue ACM_AccountOpening:ACCOUNT__ACCR_DR2_CATEG * 
+ 
+ CONSOL_KEY : mml:string 
+ @i18n:Label (en="Consol Key") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=65, sysNumber=72.0, t24Name=CONSOL.KEY) 
+ 
+ INT_LIQU_TYPE -> byValue ACM_AccountOpening:ACCOUNT__INT_LIQU_TYPE * 
+ 
+ PASSBOOK : ACM_AccountOpening:ACCOUNT__PASSBOOK 
+ @i18n:Label (en="Passbook - Y/N ?") 
+ @i18n:Tooltip (en="Passbook - Y/N ?") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=76.0, t24Name=PASSBOOK) 
+ 
+ START_YEAR_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=77.0, t24Name=START.YEAR.BAL) 
+ 
+ OPENING_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=78.0, t24Name=OPENING.DATE) 
+ 
+ VALUE_DATE -> byValue ACM_AccountOpening:ACCOUNT__VALUE_DATE * 
+ 
+ CONTINGENT_BAL_CR : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=83.0, t24Name=CONTINGENT.BAL.CR) 
+ 
+ CONTINGENT_BAL_DR : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=84.0, t24Name=CONTINGENT.BAL.DR) 
+ 
+ OPEN_CATEGORY -> ST_Config:CATEGORY 
+ @t24:i (align=R, inputBehaviour=N, maxLength=6, sysNumber=85.0, t24Name=OPEN.CATEGORY) 
+ 
+ OPEN_VAL_DATED_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=86.0, t24Name=OPEN.VAL.DATED.BAL) 
+ 
+ ACCT_CREDIT_INT -> byValue ACM_AccountOpening:ACCOUNT__ACCT_CREDIT_INT * 
+ 
+ ACCT_DEBIT_INT -> byValue ACM_AccountOpening:ACCOUNT__ACCT_DEBIT_INT * 
+ 
+ LINK_TO_LIMIT : ACM_AccountOpening:ACCOUNT__LINK_TO_LIMIT 
+ @i18n:Label (en="Link To Limit - Y/N") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=89.0, t24Name=LINK.TO.LIMIT) 
+ 
+ CLOSURE_DATE : mml:string 
+ @i18n:Label (en="Closure Date") 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=90.0, t24Name=CLOSURE.DATE) 
+ 
+ LOCKED_WITH_LIMIT : ACM_AccountOpening:ACCOUNT__LOCKED_WITH_LIMIT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=91.0, t24Name=LOCKED.WITH.LIMIT) 
+ 
+ CHARGE_ACCOUNT : mml:string 
+ @i18n:Label (en="Charge Debit Account") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=92.0, t24Name=CHARGE.ACCOUNT) 
+ 
+ CHARGE_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @i18n:Label (en="Charge Ccy") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=93.0, t24Name=CHARGE.CCY) 
+ 
+ CHARGE_MKT -> FIN_CurrencyConfig:CURRENCY_MARKET 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=94.0, t24Name=CHARGE.MKT) 
+ 
+ INTEREST_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=95.0, t24Name=INTEREST.CCY) 
+ 
+ INTEREST_MKT -> FIN_CurrencyConfig:CURRENCY_MARKET 
+ @t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=96.0, t24Name=INTEREST.MKT) 
+ 
+ CON_CHARGE_ACCR : mml:string 
+ @t24:i (align=L, inputBehaviour=E, maxLength=65, sysNumber=97.0, t24Name=CON.CHARGE.ACCR) 
+ 
+ CON_INTEREST_ACCR : mml:string 
+ @t24:i (align=L, inputBehaviour=E, maxLength=65, sysNumber=98.0, t24Name=CON.INTEREST.ACCR) 
+ 
+ ALT_ACCT_TYPE -> byValue ACM_AccountOpening:ACCOUNT__ALT_ACCT_TYPE * 
+ 
+ PREMIUM_TYPE -> byValue ACM_AccountOpening:ACCOUNT__PREMIUM_TYPE * 
+ 
+ APR : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=104.0, t24Name=APR) 
+ 
+ JOINT_HOLDER -> byValue ACM_AccountOpening:ACCOUNT__JOINT_HOLDER * 
+ 
+ ALLOW_NETTING : ACM_AccountOpening:ACCOUNT__ALLOW_NETTING 
+ @i18n:Label (en="Allow Netting") 
+ @i18n:Tooltip (en="Valid options are Yes or No") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=108.0, t24Name=ALLOW.NETTING) 
+ 
+ LEDG_RECO_WITH -> byValue ACM_AccountOpening:ACCOUNT__LEDG_RECO_WITH * 
+ 
+ STMT_RECO_WITH -> byValue ACM_AccountOpening:ACCOUNT__STMT_RECO_WITH * 
+ 
+ OUR_EXT_ACCT_NO : mml:string 
+ @i18n:Label (en="External Acct No") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=111.0, t24Name=OUR.EXT.ACCT.NO) 
+ 
+ RECO_TOLERANCE : mml:string 
+ @i18n:Label (en="Recon Tolerance") 
+ @i18n:Tooltip (en="Recon Tolerance") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=112.0, t24Name=RECO.TOLERANCE) 
+ 
+ PENDING_ID -> byValue ACM_AccountOpening:ACCOUNT__PENDING_ID * 
+ 
+ STOCK_CONTROL_TYPE : ACM_AccountOpening:ACCOUNT__STOCK_CONTROL_TYPE 
+ @i18n:Label (en="Stock Type") 
+ @i18n:Tooltip (en="Stock Type") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=115.0, t24Name=STOCK.CONTROL.TYPE) 
+ 
+ SERIAL_NO_FORMAT : mml:string 
+ @i18n:Label (en="Serial No Format") 
+ @i18n:Tooltip (en="Serial No Format") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=116.0, t24Name=SERIAL.NO.FORMAT) 
+ 
+ AUTO_PAY_ACCT -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=117.0, t24Name=AUTO.PAY.ACCT) 
+ 
+ ORIG_CCY_PAYMENT : ACM_AccountOpening:ACCOUNT__ORIG_CCY_PAYMENT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=118.0, t24Name=ORIG.CCY.PAYMENT) 
+ 
+ AUTO_REC_CCY -> byValue ACM_AccountOpening:ACCOUNT__AUTO_REC_CCY * 
+ 
+ ORIGINAL_ACCT -> byValue ACM_AccountOpening:ACCOUNT__ORIGINAL_ACCT * 
+ 
+ FROM_DATE -> byValue ACM_AccountOpening:ACCOUNT__FROM_DATE * 
+ 
+ DISPO_OFFICER -> EB_OverrideProcessing:DISPO_OFFICER 
+ @i18n:Label (en="Dispo Officer") 
+ @i18n:Tooltip (en="Indicates the Dispo Officer ") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=123.0, t24Name=DISPO.OFFICER) 
+ 
+ DISPO_EXEMPT : ACM_AccountOpening:ACCOUNT__DISPO_EXEMPT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=124.0, t24Name=DISPO.EXEMPT) 
+ 
+ TAX_SUSPEND : ACM_AccountOpening:ACCOUNT__TAX_SUSPEND 
+ @t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=125.0, t24Name=TAX.SUSPEND) 
+ 
+ TAX_AT_SETTLE : ACM_AccountOpening:ACCOUNT__TAX_AT_SETTLE 
+ @t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=126.0, t24Name=TAX.AT.SETTLE) 
+ 
+ ICA_MAIN_ACCOUNT -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=127.0, t24Name=ICA.MAIN.ACCOUNT) 
+ 
+ ICA_DISTRIB_RATIO : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=128.0, t24Name=ICA.DISTRIB.RATIO) 
+ 
+ ICA_MAIN_ACCT_IND : ACM_AccountOpening:ACCOUNT__ICA_MAIN_ACCT_IND 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=129.0, t24Name=ICA.MAIN.ACCT.IND) 
+ 
+ ICA_DISTRIB_TYPE : ACM_AccountOpening:ACCOUNT__ICA_DISTRIB_TYPE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=130.0, t24Name=ICA.DISTRIB.TYPE) 
+ 
+ ICA_POST_INTEREST : ACM_AccountOpening:ACCOUNT__ICA_POST_INTEREST 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=131.0, t24Name=ICA.POST.INTEREST) 
+ 
+ ICA_MAIN_RATIO : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=132.0, t24Name=ICA.MAIN.RATIO) 
+ 
+ ICA_NEW_MAIN_ACC -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=133.0, t24Name=ICA.NEW.MAIN.ACC) 
+ 
+ ICA_START_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=134.0, t24Name=ICA.START.DATE) 
+ 
+ ICA_ADD_REMOVE : ACM_AccountOpening:ACCOUNT__ICA_ADD_REMOVE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=135.0, t24Name=ICA.ADD.REMOVE) 
+ 
+ ICA_BACK_VALUE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=136.0, t24Name=ICA.BACK.VALUE) 
+ 
+ ICA_MAIN_ACCT -> byValue ACM_AccountOpening:ACCOUNT__ICA_MAIN_ACCT * 
+ 
+ LIQUIDATION_MODE : ACM_AccountOpening:ACCOUNT__LIQUIDATION_MODE 
+ @i18n:Label (en="Liquidation Mode") 
+ @i18n:Tooltip (en="Indicates how overdue payments are handled.") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=139.0, t24Name=LIQUIDATION.MODE) 
+ 
+ OVERDUE_STATUS : mml:string 
+ @i18n:Label (en="Overdue Status") 
+ @i18n:Tooltip (en="Overdue or aging status of the contract") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=3, sysNumber=140.0, t24Name=OVERDUE.STATUS) 
+ 
+ HVT_FLAG : ACM_AccountOpening:ACCOUNT__HVT_FLAG 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=141.0, t24Name=HVT.FLAG) 
+ 
+ SINGLE_LIMIT : ACM_AccountOpening:ACCOUNT__SINGLE_LIMIT 
+ @i18n:Label (en="Single Limit") 
+ @i18n:Tooltip (en="Input can be either Yes or No") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=142.0, t24Name=SINGLE.LIMIT) 
+ 
+ CONTINGENT_INT : ACM_AccountOpening:ACCOUNT__CONTINGENT_INT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=143.0, t24Name=CONTINGENT.INT) 
+ 
+ ALL_IN_ONE_PRODUCT : mml:string 
+ @i18n:Label (en=Product) 
+ @i18n:Tooltip (en="Indicates the product") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=144.0, t24Name=ALL.IN.ONE.PRODUCT) 
+ 
+ ER_VALUE_DATE -> byValue ACM_AccountOpening:ACCOUNT__ER_VALUE_DATE * 
+ 
+ SB_GROUP_ID : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=148.0, t24Name=SB.GROUP.ID) 
+ 
+ OPEN_AVAILABLE_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=149.0, t24Name=OPEN.AVAILABLE.BAL) 
+ 
+ AVAILABLE_DATE -> byValue ACM_AccountOpening:ACCOUNT__AVAILABLE_DATE * 
+ 
+ CREDIT_CHECK : ACM_AccountOpening:ACCOUNT__CREDIT_CHECK 
+ @t24:i (align=L, inputBehaviour=I, maxLength=9, sysNumber=157.0, t24Name=CREDIT.CHECK) 
+ 
+ AVAILABLE_BAL_UPD : ACM_AccountOpening:ACCOUNT__AVAILABLE_BAL_UPD 
+ @t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=158.0, t24Name=AVAILABLE.BAL.UPD) 
+ 
+ CONSOLIDATE_ENT : mml:string 
+ @i18n:Label (en="Consolidate Ent") 
+ @i18n:Tooltip (en="Holds the id describing rules for consolidation") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=159.0, t24Name=CONSOLIDATE.ENT) 
+ 
+ MAX_SUB_ACCOUNT : mml:string 
+ @i18n:Label (en="Maximum Sub Account") 
+ @i18n:Tooltip (en="Maximum Sub Account") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=160.0, t24Name=MAX.SUB.ACCOUNT) 
+ 
+ MASTER_ACCOUNT -> ACM_AccountOpening:ACCOUNT 
+ @i18n:Label (en="Master Account") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=161.0, t24Name=MASTER.ACCOUNT) 
+ 
+ LOCK_INC_THIS_MVMT : ACM_AccountOpening:ACCOUNT__LOCK_INC_THIS_MVMT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=162.0, t24Name=LOCK.INC.THIS.MVMT) 
+ 
+ CLOSED_ONLINE : ACM_AccountOpening:ACCOUNT__CLOSED_ONLINE 
+ @t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=163.0, t24Name=CLOSED.ONLINE) 
+ 
+ NEXT_AF_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=12, sysNumber=164.0, t24Name=NEXT.AF.DATE) 
+ 
+ NEXT_ACCT_CAP : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=165.0, t24Name=NEXT.ACCT.CAP) 
+ 
+ NEXT_EXP_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=166.0, t24Name=NEXT.EXP.DATE) 
+ 
+ DATE_LAST_UPDATE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=167.0, t24Name=DATE.LAST.UPDATE) 
+ 
+ NEXT_STMT_DATE -> byValue ACM_AccountOpening:ACCOUNT__NEXT_STMT_DATE * 
+ 
+ EXPOSURE_DATES -> byValue ACM_AccountOpening:ACCOUNT__EXPOSURE_DATES * 
+ 
+ PORTFOLIO_NO -> byValue ACM_AccountOpening:ACCOUNT__PORTFOLIO_NO * 
+ 
+ SHADOW_ACCOUNT : ACM_AccountOpening:ACCOUNT__SHADOW_ACCOUNT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=171.0, t24Name=SHADOW.ACCOUNT) 
+ 
+ FWD_ENTRY_HOLD -> byValue ACM_AccountOpening:ACCOUNT__FWD_ENTRY_HOLD * 
+ 
+ FIRST_AF_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=12, sysNumber=173.0, t24Name=FIRST.AF.DATE) 
+ 
+ CASH_POOL_GROUP -> byValue ACM_AccountOpening:ACCOUNT__CASH_POOL_GROUP * 
+ 
+ OPEN_ASSET_TYPE : mml:string 
+ @t24:i (align=L, inputBehaviour=E, maxLength=10, sysNumber=175.0, t24Name=OPEN.ASSET.TYPE) 
+ 
+ LAST_COM_CHG_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=176.0, t24Name=LAST.COM.CHG.DATE) 
+ 
+ IC_CHARGE_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=E, maxLength=21, sysNumber=177.0, t24Name=IC.CHARGE.ID) 
+ 
+ IC_NEXT_CAP_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=178.0, t24Name=IC.NEXT.CAP.DATE) 
+ 
+ IC_PRODUCT -> byValue ACM_AccountOpening:ACCOUNT__IC_PRODUCT * 
+ 
+ ARRANGEMENT_ID : mml:string 
+ @i18n:Label (en="Arrangement Id") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=181.0, t24Name=ARRANGEMENT.ID) 
+ 
+ ACC_DEB_LIMIT -> byValue ACM_AccountOpening:ACCOUNT__ACC_DEB_LIMIT * 
+ 
+ MANDATE_APPL -> byValue ACM_AccountOpening:ACCOUNT__MANDATE_APPL * 
+ 
+ DR_ADJ_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=186.0, t24Name=DR.ADJ.AMOUNT) 
+ 
+ DR2_ADJ_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=187.0, t24Name=DR2.ADJ.AMOUNT) 
+ 
+ CR_ADJ_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=188.0, t24Name=CR.ADJ.AMOUNT) 
+ 
+ CR2_ADJ_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=189.0, t24Name=CR2.ADJ.AMOUNT) 
+ 
+ EVENT -> byValue ACM_AccountOpening:ACCOUNT__EVENT * 
+ 
+ OVERRIDE -> byValue ACM_AccountOpening:ACCOUNT__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=202.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=203.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:ACCOUNT__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:ACCOUNT__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=206.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=207.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=208.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=209.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=210.0, t24Name=AUDIT.DATE.TIME) 
+ 
+ ALT_ID_ACCT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=20.1, t24Name=ALT.ID.ACCT) 
+ 
+ CHK_REC_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=20.2, t24Name=CHK.REC.RTN.FLD) 
+ 
+ INP_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=20.3, t24Name=INP.RTN.FLD) 
+ 
+ AUTH_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=20.4, t24Name=AUTH.RTN.FLD) 
+ 
+ BEF_AUT_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=20.5, t24Name=BEF.AUT.RTN.FLD) 
+ 
+ VAL_RTN_FLD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=20.6, t24Name=VAL.RTN.FLD) 
+ 
+ ACCT_TEST -> byValue ACM_AccountOpening:ACCOUNT__ACCT_TEST * 
+ 
+ TEST_DROPDOWN -> ST_Customer:CUSTOMER 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=20.8, t24Name=TEST.DROPDOWN) 
+ 
+ TEST_DROPDOWN2 -> byValue ACM_AccountOpening:ACCOUNT__TEST_DROPDOWN2 * 
+ } 
+ ACCOUNT__OTHER_OFFICER 
+ { 
+ OTHER_OFFICER -> ST_Config:DEPT_ACCT_OFFICER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=12.0, t24Name=OTHER.OFFICER) 
+ } 
+ ACCOUNT__REFERAL_CODE 
+ { 
+ REFERAL_CODE -> ACM_AccountOpening:REFERAL 
+ @t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=18.0, t24Name=REFERAL.CODE) 
+ } 
+ ACCOUNT__CAP_DATE_CHARGE 
+ { 
+ CAP_DATE_CHARGE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=46.0, t24Name=CAP.DATE.CHARGE) 
+ } 
+ ACCOUNT__CAP_DATE_CR_INT 
+ { 
+ CAP_DATE_CR_INT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=47.0, t24Name=CAP.DATE.CR.INT) 
+ } 
+ ACCOUNT__CAP_DATE_C2_INT 
+ { 
+ CAP_DATE_C2_INT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=48.0, t24Name=CAP.DATE.C2.INT) 
+ } 
+ ACCOUNT__CAP_DATE_DR_INT 
+ { 
+ CAP_DATE_DR_INT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=49.0, t24Name=CAP.DATE.DR.INT) 
+ } 
+ ACCOUNT__CAP_DATE_D2_INT 
+ { 
+ CAP_DATE_D2_INT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=50.0, t24Name=CAP.DATE.D2.INT) 
+ } 
+ ACCOUNT__ACCR_CHG_CATEG 
+ { 
+ ACCR_CHG_CATEG -> ST_Config:CATEGORY 
+ @t24:i (align=R, inputBehaviour=E, maxLength=6, sysNumber=52.0, t24Name=ACCR.CHG.CATEG) 
+ 
+ ACCR_CHG_TRANS -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=53.0, t24Name=ACCR.CHG.TRANS) 
+ 
+ ACCR_CHG_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=54.0, t24Name=ACCR.CHG.AMOUNT) 
+ 
+ ACCR_CHG_SUSP : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=55.0, t24Name=ACCR.CHG.SUSP) 
+ } 
+ ACCOUNT__ACCR_CR_CATEG 
+ { 
+ ACCR_CR_CATEG -> ST_Config:CATEGORY 
+ @t24:i (align=R, inputBehaviour=E, maxLength=6, sysNumber=56.0, t24Name=ACCR.CR.CATEG) 
+ 
+ ACCR_CR_TRANS -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=57.0, t24Name=ACCR.CR.TRANS) 
+ 
+ ACCR_CR_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=58.0, t24Name=ACCR.CR.AMOUNT) 
+ 
+ ACCR_CR_SUSP : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=59.0, t24Name=ACCR.CR.SUSP) 
+ } 
+ ACCOUNT__ACCR_CR2_CATEG 
+ { 
+ ACCR_CR2_CATEG -> ST_Config:CATEGORY 
+ @t24:i (align=R, inputBehaviour=E, maxLength=6, sysNumber=60.0, t24Name=ACCR.CR2.CATEG) 
+ 
+ ACCR_CR2_TRANS -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=61.0, t24Name=ACCR.CR2.TRANS) 
+ 
+ ACCR_CR2_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=62.0, t24Name=ACCR.CR2.AMOUNT) 
+ 
+ ACCR_CR2_SUSP : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=63.0, t24Name=ACCR.CR2.SUSP) 
+ } 
+ ACCOUNT__ACCR_DR_CATEG 
+ { 
+ ACCR_DR_CATEG -> ST_Config:CATEGORY 
+ @t24:i (align=R, inputBehaviour=E, maxLength=6, sysNumber=64.0, t24Name=ACCR.DR.CATEG) 
+ 
+ ACCR_DR_TRANS -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=65.0, t24Name=ACCR.DR.TRANS) 
+ 
+ ACCR_DR_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=66.0, t24Name=ACCR.DR.AMOUNT) 
+ 
+ ACCR_DR_SUSP : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=67.0, t24Name=ACCR.DR.SUSP) 
+ } 
+ ACCOUNT__ACCR_DR2_CATEG 
+ { 
+ ACCR_DR2_CATEG -> ST_Config:CATEGORY 
+ @t24:i (align=R, inputBehaviour=E, maxLength=6, sysNumber=68.0, t24Name=ACCR.DR2.CATEG) 
+ 
+ ACCR_DR2_TRANS -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=E, maxLength=3, sysNumber=69.0, t24Name=ACCR.DR2.TRANS) 
+ 
+ ACCR_DR2_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=70.0, t24Name=ACCR.DR2.AMOUNT) 
+ 
+ ACCR_DR2_SUSP : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=71.0, t24Name=ACCR.DR2.SUSP) 
+ } 
+ ACCOUNT__INT_LIQU_TYPE 
+ { 
+ INT_LIQU_TYPE : ACM_AccountOpening:ACCOUNT__INT_LIQU_TYPE__INT_LIQU_TYPE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=73.0, t24Name=INT.LIQU.TYPE) 
+ 
+ INT_LIQU_ACCT -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=74.0, t24Name=INT.LIQU.ACCT) 
+ 
+ INT_LIQ_CCY : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=75.0, t24Name=INT.LIQ.CCY) 
+ } 
+ ACCOUNT__VALUE_DATE 
+ { 
+ VALUE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=12, sysNumber=79.0, t24Name=VALUE.DATE) 
+ 
+ CREDIT_MOVEMENT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=80.0, t24Name=CREDIT.MOVEMENT) 
+ 
+ DEBIT_MOVEMENT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=81.0, t24Name=DEBIT.MOVEMENT) 
+ 
+ VALUE_DATED_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=82.0, t24Name=VALUE.DATED.BAL) 
+ } 
+ ACCOUNT__ACCT_CREDIT_INT 
+ { 
+ ACCT_CREDIT_INT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=87.0, t24Name=ACCT.CREDIT.INT) 
+ } 
+ ACCOUNT__ACCT_DEBIT_INT 
+ { 
+ ACCT_DEBIT_INT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=88.0, t24Name=ACCT.DEBIT.INT) 
+ } 
+ ACCOUNT__ALT_ACCT_TYPE 
+ { 
+ ALT_ACCT_TYPE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=9, sysNumber=99.0, t24Name=ALT.ACCT.TYPE) 
+ 
+ ALT_ACCT_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=36, sysNumber=100.0, t24Name=ALT.ACCT.ID) 
+ } 
+ ACCOUNT__PREMIUM_TYPE 
+ { 
+ PREMIUM_TYPE -> IC_OtherInterest:SAVINGS_PREMIUM 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=101.0, t24Name=PREMIUM.TYPE) 
+ 
+ CAP_DATE_PRM -> byValue ACM_AccountOpening:ACCOUNT__PREMIUM_TYPE__CAP_DATE_PRM * 
+ } 
+ ACCOUNT__PREMIUM_TYPE__CAP_DATE_PRM 
+ { 
+ CAP_DATE_PRM : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=102.0, t24Name=CAP.DATE.PRM) 
+ 
+ PREMIUM_FREQ : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=103.0, t24Name=PREMIUM.FREQ) 
+ } 
+ ACCOUNT__JOINT_HOLDER 
+ { 
+ JOINT_HOLDER -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=105.0, t24Name=JOINT.HOLDER) 
+ 
+ RELATION_CODE -> ST_Customer:RELATION 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=106.0, t24Name=RELATION.CODE) 
+ 
+ JOINT_NOTES : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=107.0, t24Name=JOINT.NOTES) 
+ } 
+ ACCOUNT__LEDG_RECO_WITH 
+ { 
+ LEDG_RECO_WITH -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=109.0, t24Name=LEDG.RECO.WITH) 
+ } 
+ ACCOUNT__STMT_RECO_WITH 
+ { 
+ STMT_RECO_WITH -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=R, inputBehaviour=E, maxLength=16, sysNumber=110.0, t24Name=STMT.RECO.WITH) 
+ } 
+ ACCOUNT__PENDING_ID 
+ { 
+ PENDING_ID : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=12, sysNumber=113.0, t24Name=PENDING.ID) 
+ 
+ TOTAL_PENDING : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=114.0, t24Name=TOTAL.PENDING) 
+ } 
+ ACCOUNT__AUTO_REC_CCY 
+ { 
+ AUTO_REC_CCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=119.0, t24Name=AUTO.REC.CCY) 
+ } 
+ ACCOUNT__ORIGINAL_ACCT 
+ { 
+ ORIGINAL_ACCT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=36, sysNumber=120.0, t24Name=ORIGINAL.ACCT) 
+ } 
+ ACCOUNT__FROM_DATE 
+ { 
+ FROM_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=121.0, t24Name=FROM.DATE) 
+ 
+ LOCKED_AMOUNT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=122.0, t24Name=LOCKED.AMOUNT) 
+ } 
+ ACCOUNT__ICA_MAIN_ACCT 
+ { 
+ ICA_MAIN_ACCT : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=137.0, t24Name=ICA.MAIN.ACCT) 
+ 
+ ICA_MAIN_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=138.0, t24Name=ICA.MAIN.DATE) 
+ } 
+ ACCOUNT__ER_VALUE_DATE 
+ { 
+ ER_VALUE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=145.0, t24Name=ER.VALUE.DATE) 
+ 
+ ER_BALANCE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=146.0, t24Name=ER.BALANCE) 
+ 
+ EP_BALANCE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=147.0, t24Name=EP.BALANCE) 
+ } 
+ ACCOUNT__AVAILABLE_DATE 
+ { 
+ AVAILABLE_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=12, sysNumber=150.0, t24Name=AVAILABLE.DATE) 
+ 
+ AV_AUTH_DB_MVMT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=151.0, t24Name=AV.AUTH.DB.MVMT) 
+ 
+ AV_NAU_DB_MVMT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=152.0, t24Name=AV.NAU.DB.MVMT) 
+ 
+ AV_AUTH_CR_MVMT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=153.0, t24Name=AV.AUTH.CR.MVMT) 
+ 
+ AV_NAU_CR_MVMT : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=154.0, t24Name=AV.NAU.CR.MVMT) 
+ 
+ AVAILABLE_BAL : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=155.0, t24Name=AVAILABLE.BAL) 
+ 
+ FORWARD_MVMTS : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=19, sysNumber=156.0, t24Name=FORWARD.MVMTS) 
+ } 
+ ACCOUNT__NEXT_STMT_DATE 
+ { 
+ NEXT_STMT_DATE : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=168.0, t24Name=NEXT.STMT.DATE) 
+ } 
+ ACCOUNT__EXPOSURE_DATES 
+ { 
+ EXPOSURE_DATES : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=169.0, t24Name=EXPOSURE.DATES) 
+ } 
+ ACCOUNT__PORTFOLIO_NO 
+ { 
+ PORTFOLIO_NO : mml:string 
+ @t24:i (align=L, inputBehaviour=E, maxLength=18, sysNumber=170.0, t24Name=PORTFOLIO.NO) 
+ } 
+ ACCOUNT__FWD_ENTRY_HOLD 
+ { 
+ FWD_ENTRY_HOLD : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=25, sysNumber=172.0, t24Name=FWD.ENTRY.HOLD) 
+ } 
+ ACCOUNT__CASH_POOL_GROUP 
+ { 
+ CASH_POOL_GROUP : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=174.0, t24Name=CASH.POOL.GROUP) 
+ } 
+ ACCOUNT__IC_PRODUCT 
+ { 
+ IC_PRODUCT : mml:string 
+ @t24:i (align=L, inputBehaviour=E, maxLength=32, sysNumber=179.0, t24Name=IC.PRODUCT) 
+ 
+ IC_LST_PROD_CAP : mml:string 
+ @t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=180.0, t24Name=IC.LST.PROD.CAP) 
+ } 
+ ACCOUNT__ACC_DEB_LIMIT 
+ { 
+ ACC_DEB_LIMIT : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=182.0, t24Name=ACC.DEB.LIMIT) 
+ } 
+ ACCOUNT__MANDATE_APPL 
+ { 
+ MANDATE_APPL -> EB_Mandate:EB_MANDATE_PARAMETER 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=183.0, t24Name=MANDATE.APPL) 
+ 
+ MANDATE_REG -> EB_RulesEngine:EB_RULE_GATEWAY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=184.0, t24Name=MANDATE.REG) 
+ 
+ MANDATE_RECORD -> EB_Mandate:EB_MANDATE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=185.0, t24Name=MANDATE.RECORD) 
+ } 
+ ACCOUNT__EVENT 
+ { 
+ EVENT -> EB_Logging:TEC_ITEMS 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=190.0, t24Name=EVENT) 
+ 
+ FIELD -> byValue ACM_AccountOpening:ACCOUNT__EVENT__FIELD * 
+ } 
+ ACCOUNT__EVENT__FIELD 
+ { 
+ FIELD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=191.0, t24Name=FIELD) 
+ 
+ OPERAND : ACM_AccountOpening:ACCOUNT__EVENT__FIELD__OPERAND 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=192.0, t24Name=OPERAND) 
+ 
+ VALUE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=193.0, t24Name=VALUE) 
+ 
+ MV_ALERT_RES6 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=194.0, t24Name=MV.ALERT.RES6) 
+ 
+ MV_ALERT_RES5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=195.0, t24Name=MV.ALERT.RES5) 
+ 
+ MV_ALERT_RES4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=196.0, t24Name=MV.ALERT.RES4) 
+ 
+ MV_ALERT_RES3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=197.0, t24Name=MV.ALERT.RES3) 
+ 
+ MV_ALERT_RES2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=198.0, t24Name=MV.ALERT.RES2) 
+ 
+ MV_ALERT_RES1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=199.0, t24Name=MV.ALERT.RES1) 
+ 
+ REQUEST_ID : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=200.0, t24Name=REQUEST.ID) 
+ } 
+ ACCOUNT__OVERRIDE 
+ { 
+ FIELD -> byValue ACM_AccountOpening:ACCOUNT__OVERRIDE__FIELD * 
+ } 
+ ACCOUNT__OVERRIDE__FIELD 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=201.0, t24Name=OVERRIDE) 
+ } 
+ ACCOUNT__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=204.0, t24Name=INPUTTER) 
+ } 
+ ACCOUNT__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=205.0, t24Name=DATE.TIME) 
+ } 
+ ACCOUNT__ACCT_TEST 
+ { 
+ ACCT_TEST -> SC_Config:STOCK_EXCHANGE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=20.7, t24Name=ACCT.TEST) 
+ } 
+ ACCOUNT__TEST_DROPDOWN2 
+ { 
+ TEST_DROPDOWN2 -> ST_Customer:CUSTOMER 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=20.9, t24Name=TEST.DROPDOWN2) 
+ } 
+ ACCOUNT_REFER 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* Standard T24 acount field. Validation RulesMandatory input.A maximum of 16 characters may be entered.Must be the key to a valid entry on the ACCOUNT file. */ 
+ ACCOUNT_NUMBER : mml:string PK required 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=0.0, t24Name=ACCOUNT.NUMBER) 
+ 
+ /* Standard T24 numeric field. Validation RulesMandatory input.A maximum of 22 characters may be entered. */ 
+ DATE_TIME : mml:string required 
+ @i18n:Label (en="Date time") 
+ @i18n:Tooltip (en="Date and time when record was input or authorised") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=22, sysNumber=1.0, t24Name=DATE.TIME) 
+ } 
+ /* This is an internal file containing details of Accounts which are used for booking (liquidating) the interest and charges calculated on other Accounts.  It provides a cross reference of all Accounts whose interest and charges are booked to each Liquidation Account. If the interest and charges calculated on an Account are to be booked to another Account, the Account to which the amounts should be booked is entered in the INTEREST.LIQU.ACCT field in the Account record of the originating Account. The Liquidating Account must be in the same Currency as the originating Account. */ 
+ ACCOUNT_LIQUIDATION 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* Specifies the Account to which all interest and charges calculated on Accounts listed in the rest of the record will be booked. The Account Number in this field specifies the Liquidation Account for interest and charges calculated on all Accounts detailed in the other fields of this record.  All Accounts must have the same Currency as the Liquidation Account. Validation RulesStandard Account Number format. Internal field. This is a NOINPUT field. */ 
+ ACCOUNT_NUMBER : mml:string PK required 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, t24Name=ACCOUNT.NUMBER) 
+ 
+ /* Specifies an Account whose interest and charges will be booked to the Liquidation Account specified in ACCOUNT.NUMBER. Any number of Accounts in the same Currency may have their interest and charges booked to the same Liquidation Account.  The Liquidation Account number is entered in the INTEREST.LIQU.ACCT field in each of the originating ACCOUNTS.  The Accounts are defined in ACCOUNT, one Account per field. Validation RulesStandard Account Number format. Internal field. This is a NOINPUT field. */ 
+ ACCOUNT -> ACM_AccountOpening:ACCOUNT required 
+ @i18n:Label (en=Account) 
+ @i18n:Tooltip (en="Identifies the customer account") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, t24Name=ACCOUNT) 
+ } 
+ ACCOUNT_CLASS 
+ @t24:i (level=I, type=H, localRefAllowed=true) 
+ { 
+ AC_CLASSIFICATION : mml:string PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=0.0, t24Name=AC.CLASSIFICATION) 
+ 
+ DESCRIPTION -> byValue ACM_AccountOpening:ACCOUNT_CLASS__DESCRIPTION * 
+ 
+ RECORD_TYPE : ACM_AccountOpening:ACCOUNT_CLASS__RECORD_TYPE required 
+ @i18n:Label (en="Record Type") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=2.0, t24Name=RECORD.TYPE) 
+ 
+ CATEGORY -> byValue ACM_AccountOpening:ACCOUNT_CLASS__CATEGORY * 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=5.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, t24Name=RESERVED.4) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, t24Name=RESERVED.1) 
+ 
+ OVERRIDE -> byValue ACM_AccountOpening:ACCOUNT_CLASS__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=12.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:ACCOUNT_CLASS__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:ACCOUNT_CLASS__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=17.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=19.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=20.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ ACCOUNT_CLASS__DESCRIPTION 
+ { 
+ DESCRIPTION : mml:string required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, t24Name=DESCRIPTION) 
+ } 
+ ACCOUNT_CLASS__CATEGORY 
+ { 
+ CATEGORY -> ST_Config:CATEGORY 
+ @t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=3.0, t24Name=CATEGORY) 
+ 
+ SECTOR -> ST_Config:SECTOR 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=4.0, t24Name=SECTOR) 
+ } 
+ ACCOUNT_CLASS__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, t24Name=OVERRIDE) 
+ } 
+ ACCOUNT_CLASS__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, t24Name=INPUTTER) 
+ } 
+ ACCOUNT_CLASS__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=15.0, t24Name=DATE.TIME) 
+ } 
+ ACCOUNT_AUDIT 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ /* Standard T24 alphanumeric field. Validation RulesA maximum of 15 characters may be entered. */ 
+ CUSTOMER_DATE : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, t24Name=CUSTOMER.DATE) 
+ 
+ ACCOUNT_NO -> byValue ACM_AccountOpening:ACCOUNT_AUDIT__ACCOUNT_NO * 
+ } 
+ ACCOUNT_AUDIT__ACCOUNT_NO 
+ { 
+ /* Fields ACCOUNT.NO to DEBIT.INT form a related multi value set. Validation RulesA maximum of 16 characters may be entered.Must be the key to a valid entry on the ACCOUNT file. */ 
+ ACCOUNT_NO -> ACM_AccountOpening:ACCOUNT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=1.0, t24Name=ACCOUNT.NO) 
+ 
+ /* Fields ACCOUNT.NO to DEBIT.INT form a related multi value set. Standard T24 numeric field. Validation RulesA maximum of 6 characters may be entered.Must be the key to a valid entry on the CATEGORY file. */ 
+ CATEGORY -> ST_Config:CATEGORY 
+ @t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=2.0, t24Name=CATEGORY) 
+ 
+ /* Fields ACCOUNT.NO to DEBIT.INT form a related multi value set. Validation RulesA maximum of 3 characters may be entered.Must be the key to a valid entry on the CURRENCY file. */ 
+ CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, t24Name=CURRENCY) 
+ 
+ /* Fields ACCOUNT.NO to DEBIT.INT form a related multi value set. Validation RulesA maximum of 19 characters may be entered. */ 
+ BALANCE : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, t24Name=BALANCE) 
+ 
+ /* Fields ACCOUNT.NO to DEBIT.INT form a related multi value set. Standard T24 amount field. Validation RulesA maximum of 19 characters may be entered. */ 
+ CREDIT_INT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, t24Name=CREDIT.INT) 
+ 
+ /* Fields ACCOUNT.NO to DEBIT.INT form a related multi value set. Standard T24 amount field. Validation RulesA maximum of 19 characters may be entered. */ 
+ DEBIT_INT : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, t24Name=DEBIT.INT) 
+ } 
+ AC_LOCKED_EVENTS 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ TRANSACTION_REF : mml:string PK required 
+ @i18n:Label (en="Transaction Ref") 
+ @i18n:Tooltip (en="Transaction Reference") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, t24Name=TRANSACTION.REF) 
+ 
+ ACCOUNT_NUMBER -> ACM_AccountOpening:ACCOUNT required 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=1.0, t24Name=ACCOUNT.NUMBER) 
+ 
+ DESCRIPTION : mml:string 
+ @i18n:Label (en=Description) 
+ @i18n:Tooltip (en=Description) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, t24Name=DESCRIPTION) 
+ 
+ FROM_DATE : mml:string 
+ @i18n:Label (en="Start Date") 
+ @i18n:Tooltip (en="Date from which it is effective") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, t24Name=FROM.DATE) 
+ 
+ TO_DATE : mml:string 
+ @i18n:Label (en="To Date") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, t24Name=TO.DATE) 
+ 
+ LOCKED_AMOUNT : mml:string required 
+ @i18n:Label (en="Locked Amount") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, t24Name=LOCKED.AMOUNT) 
+ 
+ RESERVED_10 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=7.0, t24Name=RESERVED.10) 
+ 
+ RESERVED_9 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=8.0, t24Name=RESERVED.9) 
+ 
+ RESERVED_8 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=9.0, t24Name=RESERVED.8) 
+ 
+ RESERVED_7 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=10.0, t24Name=RESERVED.7) 
+ 
+ RESERVED_6 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=11.0, t24Name=RESERVED.6) 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=12.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=13.0, t24Name=RESERVED.4) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=14.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=15.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=16.0, t24Name=RESERVED.1) 
+ 
+ OVERRIDE -> byValue ACM_AccountOpening:AC_LOCKED_EVENTS__OVERRIDE * 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=18.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:AC_LOCKED_EVENTS__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:AC_LOCKED_EVENTS__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=23.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=24.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=25.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=26.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ AC_LOCKED_EVENTS__OVERRIDE 
+ { 
+ OVERRIDE : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, t24Name=OVERRIDE) 
+ } 
+ AC_LOCKED_EVENTS__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, t24Name=INPUTTER) 
+ } 
+ AC_LOCKED_EVENTS__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=21.0, t24Name=DATE.TIME) 
+ } 
+ AC_ENRICHMENT 
+ @t24:i (level=I, type=U, localRefAllowed=false) 
+ { 
+ ID_ENRI : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=0.0, t24Name=ID.ENRI) 
+ 
+ ENRICHMENT -> byValue ACM_AccountOpening:AC_ENRICHMENT__ENRICHMENT * 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=2.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=3.0, t24Name=RESERVED.4) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=4.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=5.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=6.0, t24Name=RESERVED.1) 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=7.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=8.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:AC_ENRICHMENT__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:AC_ENRICHMENT__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=12.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=14.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=15.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ AC_ENRICHMENT__ENRICHMENT 
+ { 
+ ENRICHMENT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, multiLanguage=true, sysNumber=1.0, t24Name=ENRICHMENT) 
+ } 
+ AC_ENRICHMENT__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=9.0, t24Name=INPUTTER) 
+ } 
+ AC_ENRICHMENT__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=10.0, t24Name=DATE.TIME) 
+ } 
+ /* This file will be updated to keep a list of transaction ids where the account is used for settlement from a contract but the entries are to be posted to the auto payment account instead. For each account a list of transaction ids where the account is used will be updated and this will also be checked when attempting to close an account. */ 
+ AC_AUTO_PAY_TRANS 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* Standard T24 alphanumeric field. Validation RulesA maximum of 61 characters may be entered. */ 
+ ACCOUNT_TRANS_ID : mml:string PK required 
+ @t24:i (align=L, inputBehaviour=I, maxLength=61, sysNumber=0.0, t24Name=ACCOUNT.TRANS.ID) 
+ 
+ /* Standard T24 alphanumeric field. Validation RulesA maximum of 25 characters may be entered. */ 
+ STMT_ID : mml:string 
+ @i18n:Label (en="Statement Id") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=1.0, t24Name=STMT.ID) 
+ } 
+ /* This file will be updated when the AUTO.PAY.ACCT field is modified on an ACCOUNT record. The file will also be used to trigger the re-generation of the forward accounting entries. */ 
+ AC_AUTO_PAY_TODAY 
+ @t24:i (level=F, type=T, localRefAllowed=false) 
+ { 
+ /* This is the account number on which the AUTO.PAY.ACCT field was amended. Validation RulesThis is a NOINPUT field.Automatically updated by the system. */ 
+ ACCOUNT_NUMBER : mml:string PK required 
+ @i18n:Label (en="Account Number") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=0.0, t24Name=ACCOUNT.NUMBER) 
+ } 
+ /* The AC.AUTO.ACCOUNT table allows the definition of the parameters for the automatic creation of Sub-Accounts.If the DEFAULT record is present then sub accounts will be automatically created for the following types of accounts without having to make changes at the account level or to set up records in AC.AUTO.ACCOUNT at category code level.   1 - Internal accounts with a suffix of 0001. The sub division code is the 4 characters after the category code, the SSSS position in the following structure CCYCATEGSSSSCCCC (CCCC indicates the sub division code of the company that owns the account in a multi book set up.   2 - Position accounts where the first 6 characters are a currency pair e.g. USDGBP for postion accounts the first 2 characters of the subdivision code indicate the dealer desk, so the maximum number of sub accounts is restricted to 99.  3 - Nostro customer accounts The default method of incrementing the sub account key will be by adding 1 to the suffix unless the account is an intercompany account where the category code in the key will be incremented.The maximum number of sub accounts created will be based on the highest agent value in TSA.PARAMETER. If sub accounts are required for internal accounts with a suffix of other than 0001, for example where the suffix contains a DEPT.ACCT.OFFICER key then then the set up must be manual, by setting up the category record in this application and setting the MAX.SUB.ACCOUNT value on the individual accounts. This is because there may be limited range between master accounts in either the category code or suffix numbersSub accounts can be set up at category code level where there are special conditions required. In this case the sub account setup must take place at master account level by defining the MAX.SUB.ACCOUNTS.Sub accounts can be set up for customer accounts, but this is not recomMended as balance checking is blocked because it is meaningless at sub account level. Sub-Account processing is the automatic distribution of transactions over a group of accounts to avoid record locking.Sub-Accounts may be created automatically by the Accounting sub-systems until the maximum number of sub-accounts that the Master account may hold or based on a dynamic value where the "DEFAULT" record is present. */ 
+ AC_AUTO_ACCOUNT 
+ @t24:i (level=F, type=H, localRefAllowed=true) 
+ { 
+ /* AC.AUTO.ACCOUNTKEYThis is the ID to the AC.AUTO.ACCOUNT; it defines the parameters that will be used for the automatic creation of Sub-Accounts.It can either be the "DEFAULT" record or set at the Account category level.Validation Rules"DEFAULT" or valid category code */ 
+ CATEGORY : mml:string PK required 
+ @i18n:Label (en=Category) 
+ @i18n:Tooltip (en="Specifies the Category") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=0.0, t24Name=CATEGORY) 
+ 
+ /* AC.AUTO.ACCOUNTDESCRIPTIONThe Description fields describe the category for which parameters for automatic creation of sub-accounts are being set.Validation Rules */ 
+ DESCRIPTION : mml:string 
+ @i18n:Label (en=Description) 
+ @i18n:Tooltip (en=Description) 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, t24Name=DESCRIPTION) 
+ 
+ /* AC.AUTO.ACCOUNTNEW.NUMBERThe NEW.NUMBER.RULE field indicates how the system should allocate the new account number for the sub-account. It can either contain the value NEXT, in which case the system will allocate the next id using the check digit rule defined in the COMPANY record, or the name of a routine that will return a new account number.Validation RulesIf not set to NEXT, the name of the subroutine to generate the next account number can be defined, the master account number will be set in the common variable COMI which will set the new account number on returnfrom the routine */ 
+ NEW_NUMBER_RULE : ACM_AccountOpening:AC_AUTO_ACCOUNT__NEW_NUMBER_RULE 
+ @i18n:Label (en="New Number Rule") 
+ @i18n:Tooltip (en="New Number Rule") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, t24Name=NEW.NUMBER.RULE) 
+ 
+ INHERITED_FIELD -> byValue ACM_AccountOpening:AC_AUTO_ACCOUNT__INHERITED_FIELD * 
+ 
+ FIELD_NAME -> byValue ACM_AccountOpening:AC_AUTO_ACCOUNT__FIELD_NAME * 
+ 
+ /* AC.AUTO.ACCOUNTCREATION.RTNThe CREATION.RTN field defines a routine to be called to perform any other operation associated with the creation of the sub accountValidation Rulesmust exist on PGM.FILE as type S (subroutine) program */ 
+ CREATION_RTN -> EB_SystemTables:PGM_FILE 
+ @i18n:Label (en="Creation Rtn") 
+ @i18n:Tooltip (en="Creation Routine") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, t24Name=CREATION.RTN) 
+ 
+ EXCLUDE_SYS_ID -> byValue ACM_AccountOpening:AC_AUTO_ACCOUNT__EXCLUDE_SYS_ID * 
+ 
+ EXCLUDE_TXN -> byValue ACM_AccountOpening:AC_AUTO_ACCOUNT__EXCLUDE_TXN * 
+ 
+ /* Determines the type of sub account key that is created for internal accounts.There are 2 options:-SUFFIX indicates that the suffix part of the key will be incremented by 1 for each sub account created. The SUFFIX can be defined as the 4 characters in positions 9 to 12 of the account key. If an account already exists for the key to be created then this number will be skipped. If the incremented number exceeds 9999 then it will be reset to 2.CATEG indicates that the CATEGORY part of the key will be incremented by 1 for each new sub account to be created. The CATEGORY can be defined as the 5 characters taking up positions 4 to 8. Again if an account already exists for the category to be created it number will be incremented.BUFFER option will be for future use.The reason for entering the CATEG option is that for some types of account the SUFFIX part of the key is significant, for example those accounts used in inter-company accounting, where the suffix in postions 9-12 indicates the company that is being posted to and therefore should not be changed. Sub accounts  for the category defined in ACCOUNT.CLASS "INTERCO" must be set to use the CATEG option. The sub accounts created will retain the original category code of the master account in the account record.When intercompany accounting takes place sub account processing will take place if the master intercompany account being processed is set for sub account processing and it is locked by another user. */ 
+ INT_ACC_TYPE : ACM_AccountOpening:AC_AUTO_ACCOUNT__INT_ACC_TYPE 
+ @i18n:Label (en="Int Acc Type") 
+ @i18n:Tooltip (en="Internal Account Type") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=10.0, t24Name=INT.ACC.TYPE) 
+ 
+ /* AC.AUTO.ACCOUNTIndicates whether the transaction count fields are updated on ACCT.ACTIVITY for internal accounts. Normally these fields are only used for charge calculations which do not affect internal accountsValidation rulesYES indicates that transaction count fields are to be updatedNO indicates that the transaction count fields are not updated */ 
+ AA_INT_TXN_CNT : ACM_AccountOpening:AC_AUTO_ACCOUNT__AA_INT_TXN_CNT 
+ @i18n:Label (en="Aa Int Txn Cnt") 
+ @i18n:Tooltip (en="AA Int Txn Cnt") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=11.0, t24Name=AA.INT.TXN.CNT) 
+ 
+ /* AC.AUTO.ACCOUNTIndicates whether the balance fields are updated on ACCT.ACTIVITY for internal accounts. Normally these fields are only used for interest calculations which do not affect internal accountsValidation rulesYES indicates that balance fields are to be updatedNO indicates that the balance fields are not updated */ 
+ AA_INT_BAL_UPD : ACM_AccountOpening:AC_AUTO_ACCOUNT__AA_INT_BAL_UPD 
+ @i18n:Label (en="Aa Int Bal Upd") 
+ @i18n:Tooltip (en="AA Int Bal Upd") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=12.0, t24Name=AA.INT.BAL.UPD) 
+ 
+ USE_MAX_SUB_ACCT : ACM_AccountOpening:AC_AUTO_ACCOUNT__USE_MAX_SUB_ACCT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=13.0, t24Name=USE.MAX.SUB.ACCT) 
+ 
+ RESERVED_6 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=14.0, t24Name=RESERVED.6) 
+ 
+ RESERVED_5 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=15.0, t24Name=RESERVED.5) 
+ 
+ RESERVED_4 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=16.0, t24Name=RESERVED.4) 
+ 
+ RESERVED_3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=17.0, t24Name=RESERVED.3) 
+ 
+ RESERVED_2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=18.0, t24Name=RESERVED.2) 
+ 
+ RESERVED_1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=19.0, t24Name=RESERVED.1) 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=20.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue ACM_AccountOpening:AC_AUTO_ACCOUNT__INPUTTER * 
+ 
+ DATE_TIME -> byValue ACM_AccountOpening:AC_AUTO_ACCOUNT__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=25.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=27.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=28.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ AC_AUTO_ACCOUNT__INHERITED_FIELD 
+ { 
+ /* AC.AUTO.ACCOUNTINHERITED FIELDSThe INHERITED.FIELD is a multi-valued field that allows the user to define the values from the master account that are to be inherited by the sub-account.Validation Rules */ 
+ INHERITED_FIELD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, t24Name=INHERITED.FIELD) 
+ } 
+ AC_AUTO_ACCOUNT__FIELD_NAME 
+ { 
+ /* AC.AUTO.ACCOUNTFIELD.NAMEThe FIELD.NAME and FIELD.VALUE are associated multi-valued fields that define the fixed value that some specific fields may hold.Any sub-account created for a master account belonging to that category will all hold the same fixed value for the specific field defined in the FIELD.NAME.Any field defined here will be given priority if the field is also defined under INHERITED.FIELD.Validation Rules */ 
+ FIELD_NAME : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, t24Name=FIELD.NAME) 
+ 
+ /* AC.AUTO.ACCOUNTFIELD.VALUEThe FIELD.VALUE defines the specific value that the associated field under FIELD.NAME may contain.Validation Rules */ 
+ FIELD_VALUE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, t24Name=FIELD.VALUE) 
+ } 
+ AC_AUTO_ACCOUNT__EXCLUDE_SYS_ID 
+ { 
+ /* AC.AUTO.ACCOUNTEXCLUDE.SYS.IDThe EXCLUDE.SYS.ID field defines the application for which SUB.ACCOUNT processing is excluded.Validation Rules */ 
+ EXCLUDE_SYS_ID -> EB_SystemTables:EB_SYSTEM_ID 
+ @t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=7.0, t24Name=EXCLUDE.SYS.ID) 
+ } 
+ AC_AUTO_ACCOUNT__EXCLUDE_TXN 
+ { 
+ /* AC.AUTO.ACCOUNTEXCLUDE.TXNThe EXCLUDE.TXN field is a multi-valued field that describes the transaction code that will not be distributed to sub accounts.Validation Rules */ 
+ EXCLUDE_TXN -> ST_Config:TRANSACTION 
+ @t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=8.0, t24Name=EXCLUDE.TXN) 
+ } 
+ AC_AUTO_ACCOUNT__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, t24Name=INPUTTER) 
+ } 
+ AC_AUTO_ACCOUNT__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=23.0, t24Name=DATE.TIME) 
+ } 
+ } 
+ Enumerations { 
+ REFERAL__MOVEMENT_TYPE : mml:string 
+ ALL=ALL 
+ CREDIT=CREDIT 
+ DEBIT=DEBIT 
+ REVERSAL=REVERSAL 
+ 
+ REFERAL__BALANCE_SIGN : mml:string 
+ CREDIT=CREDIT 
+ DEBIT=DEBIT 
+ 
+ REFERAL__BALANCE_COMPARISON : mml:string 
+ GE=GE 
+ GT=GT 
+ LE=LE 
+ LT=LT 
+ 
+ OVERDRAFT_FEE__CHG_AMT_MARKER : mml:string 
+ MIN=MIN 
+ MAX=MAX 
+ AVG=AVG 
+ 
+ ALT_ACCT_PARAMETER__ACCT_NO_TYPE : mml:string 
+ A=A 
+ 
+ ACCOUNTING_REFER__DATE_TIME : mml:string 
+ ND=ND 
+ 
+ ACCOUNT__RECONCILE_ACCT : mml:string 
+ Y=Y 
+ 
+ ACCOUNT__INT_NO_BOOKING : mml:string 
+ Y=Y 
+ SUSPENSE=SUSPENSE 
+ 
+ ACCOUNT__WAIVE_LEDGER_FEE : mml:string 
+ Y=Y 
+ 
+ ACCOUNT__INT_LIQU_TYPE__INT_LIQU_TYPE : mml:string 
+ DR=DR 
+ DR1=DR1 
+ DR2=DR2 
+ CR=CR 
+ CR1=CR1 
+ CR2=CR2 
+ 
+ ACCOUNT__PASSBOOK : mml:string 
+ Y=Y 
+ NO=NO 
+ 
+ ACCOUNT__LINK_TO_LIMIT : mml:string 
+ NO=NO 
+ YES=YES 
+ 
+ ACCOUNT__LOCKED_WITH_LIMIT : mml:string 
+ YES=YES 
+ NO=NO 
+ NULL=NULL 
+ 
+ ACCOUNT__ALLOW_NETTING : mml:string 
+ NO=NO 
+ YES=YES 
+ 
+ ACCOUNT__STOCK_CONTROL_TYPE : mml:string 
+ DENOM=DENOM 
+ SERIAL=SERIAL 
+ 
+ ACCOUNT__ORIG_CCY_PAYMENT : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ ACCOUNT__DISPO_EXEMPT : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ ACCOUNT__TAX_SUSPEND : mml:string 
+ Y=Y 
+ N=N 
+ 
+ ACCOUNT__TAX_AT_SETTLE : mml:string 
+ Y=Y 
+ N=N 
+ 
+ ACCOUNT__ICA_MAIN_ACCT_IND : mml:string 
+ YES=YES 
+ NO=NO 
+ NULL=NULL 
+ 
+ ACCOUNT__ICA_DISTRIB_TYPE : mml:string 
+ INTEREST=INTEREST 
+ RATIO=RATIO 
+ 
+ ACCOUNT__ICA_POST_INTEREST : mml:string 
+ OFF=OFF 
+ INFO=INFO 
+ YES=YES 
+ NULL=NULL 
+ 
+ ACCOUNT__ICA_ADD_REMOVE : mml:string 
+ ADD=ADD 
+ REMOVE=REMOVE 
+ 
+ ACCOUNT__LIQUIDATION_MODE : mml:string 
+ AUTOMATIC=AUTOMATIC 
+ SEMI__AUTOMATIC=SEMI-AUTOMATIC 
+ MANUAL=MANUAL 
+ 
+ ACCOUNT__HVT_FLAG : mml:string 
+ YES=YES 
+ NO=NO 
+ 
+ ACCOUNT__SINGLE_LIMIT : mml:string 
+ Y=Y 
+ N=N 
+ 
+ ACCOUNT__CONTINGENT_INT : mml:string 
+ B=B 
+ C=C 
+ O=O 
+ I=I 
+ 
+ ACCOUNT__CREDIT_CHECK : mml:string 
+ WORKING=WORKING 
+ FORWARD=FORWARD 
+ AVAILABLE=AVAILABLE 
+ AVAILWORK=AVAILWORK 
+ AVAILFWD=AVAILFWD 
+ NULL=NULL 
+ 
+ ACCOUNT__AVAILABLE_BAL_UPD : mml:string 
+ BOTH=BOTH 
+ NONE=NONE 
+ DEBITS=DEBITS 
+ CREDITS=CREDITS 
+ 
+ ACCOUNT__LOCK_INC_THIS_MVMT : mml:string 
+ BOTH=BOTH 
+ NONE=NONE 
+ DEBITS=DEBITS 
+ CREDITS=CREDITS 
+ 
+ ACCOUNT__CLOSED_ONLINE : mml:string 
+ Y=Y 
+ N=N 
+ 
+ ACCOUNT__SHADOW_ACCOUNT : mml:string 
+ YES=YES 
+ NULL=NULL 
+ 
+ ACCOUNT__EVENT__FIELD__OPERAND : mml:string 
+ equals=equals 
+ matches=matches 
+ not_equal_to="not equal to" 
+ greater_than="greater than" 
+ greater_than_or_equals="greater than or equals" 
+ less_than="less than" 
+ less_than_or_equals="less than or equals" 
+ between=between 
+ not_between="not between" 
+ contains=contains 
+ not_containing="not containing" 
+ begins_with="begins with" 
+ ends_with="ends with" 
+ does_not_begin_with="does not begin with" 
+ does_not_end_with="does not end with" 
+ changed=changed 
+ changed_to="changed to" 
+ changed_from="changed from" 
+ goes_below="goes below" 
+ goes_above="goes above" 
+ 
+ ACCOUNT_CLASS__RECORD_TYPE : mml:string 
+ ACCOUNT=ACCOUNT 
+ CLASS=CLASS 
+ P_AND_L=P&L 
+ 
+ AC_AUTO_ACCOUNT__NEW_NUMBER_RULE : mml:string 
+ NEXT=NEXT 
+ NULL=NULL 
+ 
+ AC_AUTO_ACCOUNT__INT_ACC_TYPE : mml:string 
+ CATEG=CATEG 
+ SUFFIX=SUFFIX 
+ BUFFER=BUFFER 
+ 
+ AC_AUTO_ACCOUNT__AA_INT_TXN_CNT : mml:string 
+ YES=YES 
+ NO=NO 
+ NULL=NULL 
+ 
+ AC_AUTO_ACCOUNT__AA_INT_BAL_UPD : mml:string 
+ YES=YES 
+ NO=NO 
+ NULL=NULL 
+ 
+ AC_AUTO_ACCOUNT__USE_MAX_SUB_ACCT : mml:string 
+ YES=YES 
+ NO=NO 
+ NULL=NULL 
+ 
+ } 

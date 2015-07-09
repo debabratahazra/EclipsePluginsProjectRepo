@@ -1,0 +1,73 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = "Run Alert Query"
+	containment = container
+	domainEntity = "AlertDef:AlertDefAll"
+	bean-define = DSBean.AlertDef.AlertDefAll
+	bean-name = AlertDefAll
+	id = AlertQueryResultView_nz_55
+	tid = 99890095937053
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- Box ---
+		{
+			--- LabelDomain ---
+				domainAttribute = entity !
+				horizontalAlignment = "${corporatehalign}"
+				required = true
+			--- Include ---
+				domainAssociation = entity
+				includeSrc = "" !
+				resource:///default/defaultFragments/DictEntityIdentifierView.fragment
+				bean-property-prefix = entity.
+			--- Glue ---
+		}
+		--- Include ---
+			includeSrc = "" !
+			resource:///Default/module/aaa/administration/alerts/view/AlertDefView.module
+		--- Conditional ---
+			indexOfSelectedChild = 0
+		{
+			--- ConditionalBody ---
+				javaCode = "\"portfolio\".equals(<bean:get-property bean=\"AlertDefAll\" property=\"entityDict.sqlnameC\"/>)"
+				technicalName = Portfolio
+				boxType = vertical
+				isWidgetSelected = true
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/administration/alerts/view/AlertPortfolioQueryView.module
+			}
+			--- ConditionalBody ---
+				javaCode = "\"third_party\".equals(<bean:get-property bean=\"AlertDefAll\" property=\"entityDict.sqlnameC\"/>)"
+				technicalName = ThirdParty
+				boxType = vertical
+				isWidgetVisible = false
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/administration/alerts/view/AlertClientQueryView.module
+			}
+		}
+		--- Button ---
+			labels en = Back
+			id = btn_kL1_g
+			tid = 808452336817308
+		{
+			Event OnClick (submit) S
+			{
+				method = post
+				call-URI = "<pageflow:continuation/>"
+				target = self
+				flow-action = back ud
+				only-changed = false
+				prevalidate = false
+				modal = false
+			}
+		}
+	}
+}

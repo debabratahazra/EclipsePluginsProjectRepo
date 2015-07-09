@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "http://docs.oasis-open.org/dita/dtd/concept.dtd">
+<concept id="devguide_programmersguide_pagedesigner_extensionpoints">
+	<title>Extension Points</title>
+	<prolog>
+		<author type="creator">Alain Tripod</author>
+
+		<metadata>
+			<keywords>
+				<indexterm>page</indexterm>
+			</keywords>
+		</metadata>
+	</prolog>
+	<conbody>
+
+		<section>
+			<title>Symbols Resolution Support</title>
+			<p>
+			<simpletable>
+				<sthead>
+					<stentry>Extension Point</stentry>
+					<stentry>Description</stentry>
+				</sthead>
+				<strow>
+					<stentry><b>com.odcgroup.page.model.symbols.expander</b></stentry>
+					<stentry>						
+					    Extension point for providing a variable resolver, defined in the plugin project 
+					    <b>page-model</b>. 
+						
+						<p>
+						The following example is from <b>page-ui</b> plugin project. It defines the syntax
+						of valid variable as ${...} and one symbol , <i>corporate-table-page-size</i>.
+						</p>
+						<codeblock>
+&lt;extension point="com.odcgroup.page.model.symbols.expander"&gt;
+    &lt;expander name="Page Designer Symbol Expander"
+        description="bla bla"
+        symbol-pattern="[a-z]([\-]?[a-z0-9])*"
+        symbol-prefix="\$\{"
+        symbol-suffix="\}"
+        class="com.odcgroup.page.model.symbols.impl.DefaultSymbolExpander"&gt;
+        &lt;symbol name="corporate-table-page-size"
+                   description="this symbol will be replace by the corporate table page size"
+                   class="com.odcgroup.page.model.symbols.impl.CorporateTablePageSizeSymbolResolver"/&gt;
+    &lt;/expander&gt;           
+&lt;/extension&gt;
+   						</codeblock>
+					</stentry>
+				</strow>
+			</simpletable>
+			</p>
+
+		</section>
+		
+		<section>
+			<title>Translations Support</title>
+			
+			<p>In order to provide a complete support for translation the following extension
+			points must be defined.</p>
+			
+			<simpletable>
+				<sthead>
+					<stentry>Extension Point</stentry>
+					<stentry>Description</stentry>
+					<stentry>Plugin</stentry>
+				</sthead>
+				<strow>
+					<stentry>
+						<b>com.odcgroup.translation.provider</b>
+					</stentry>
+					<stentry>
+						Declare translation providers for Widget and Event. 
+						These providers are used only in the context of regular project</stentry>
+					<stentry>com.odcgroup.page.model</stentry>
+				</strow>							
+				<strow>
+					<stentry><b>com.odcgroup.translation.provider</b></stentry>
+					<stentry>
+						Declare custom translation providers for Widget and Event. 
+						These providers are used only in the context of custom project</stentry>
+					<stentry>com.odcgroup.page.custo.model</stentry>
+				</strow>			
+				<strow>
+					<stentry>
+						<b>org.eclipse.ui.views.properties.tabbed.propertyTabs</b>
+						<b>org.eclipse.ui.views.properties.tabbed.propertySections</b>
+					</stentry>
+					<stentry>
+						Declare a translations tab and a translation view in which 
+						the translations of the current selected element can be updated.
+					</stentry>
+					<stentry>com.odcgroup.page.ui</stentry>
+				</strow>			
+				<strow>
+					<stentry>
+						<b>com.odcgroup.translation.generation.keyprovider</b>
+					</stentry>
+					<stentry>Declare the translation key providers for Widget and Event. 
+					These providers are used by the different translation generators</stentry>
+					<stentry>com.odcgroup.page.generation</stentry>
+				</strow>
+				<strow>
+					<stentry>
+						<b>com.odcgroup.translation.visitor</b>
+					</stentry>
+					<stentry>
+						Declare a translation visitor to collect translations defined 
+						in fragments, modules and pages
+					</stentry>
+					<stentry>com.odcgroup.page.model</stentry>
+				</strow>							
+				<strow>
+					<stentry>
+						<b>com.odcgroup.translation.collector</b>
+					</stentry>
+					<stentry>
+						Declare the translation collectors used by the Translation Editor. 
+						These collectors provide images and display name and they delegates the collecting task 
+						to the translation visitor previously declared (see above)
+					</stentry>
+					<stentry>com.odcgroup.page.ui</stentry>
+				</strow>			
+				<strow>
+					<stentry>
+						<b>com.odcgroup.translation.migration.migrator</b>
+					</stentry>
+					<stentry>
+						Declare a translation migrator. 
+						It moves the old translations declared in the old global translation files 
+						to each corresponding fragments, modules and pages. 
+						The migration is based on a message keys recognition algorithm. 
+					</stentry>
+					<stentry>com.odcgroup.page.migration</stentry>
+				</strow>
+			</simpletable>
+			
+			For further details on these extension points, read the translations documentation.
+		
+		</section>
+		
+		
+	</conbody>
+
+</concept>

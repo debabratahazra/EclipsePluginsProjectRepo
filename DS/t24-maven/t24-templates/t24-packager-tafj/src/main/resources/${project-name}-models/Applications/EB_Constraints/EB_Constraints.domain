@@ -1,0 +1,1005 @@
+# UTF-8
+# UTF-8
+/* Generic Constraint Processing */
+Domain EB_Constraints
+	@t24:i (module=EB)
+	@java:Package (value=com.temenos.t24.datamodel.eb.eb_constraints)
+namespace "http://www.temenos.com/t24/EB_Constraints"
+metamodelVersion 1.30.6
+Classes {
+	/* Global Constraints Application definitions
+
+Defines behaviour of Global Constraints at application level.  Maps constraint key fields to application fields.
+
+Key to record is the T24 APPLICATION which is being defined.
+Will not allow a record to be created for an application which is specified in the EXCLUDE.APPS field of EB.GC.PARAMETER record for either the current company or the SYSTEM record. */
+	EB_GC_ACTIVE
+		@t24:i (t24Name=EB.GC.ACTIVE, level=F, type=H, allowedFunctions="A C D E I L Q S", localRefAllowed=true)
+	{
+		ID -> EB_Constraints:EB_GC_ACTIVE PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=0.0, core=true, businessType=A, t24Name="@ID")
+		/* Controls Global Constraints processing at application level.  If set to 'YES' and also enabled at company or system level, record validation for this application will include Global Constraints processing.  If set to 'NO', constraints processing will not occur.
+
+Mandatory input. */
+		APP_PROCESSING : EB_Constraints:EB_GC_ACTIVE__APP_PROCESSING required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=APP.PROCESSING)
+		/* Controls diagnostics recording at application level.  If set to 'ON' and diagnostics recording is also enabled at company or system level and a constraint is breached, a record is created in EB.GC.DIAGNOSTIC giving details of constraint breach.  If set to 'OFF', no diagnostics recording will occur.
+
+Mandatory field */
+		APP_DIAG : EB_Constraints:EB_GC_ACTIVE__APP_DIAG required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=APP.DIAG)
+		/* Sets diagnostic life at application level.  EB.GC.DIAGNOSTIC record produced when constraint breached will then be removed from system after this number of days has elapsed.
+
+Overrides setting of DIAG.LIFE at System or Company level.
+
+Optional Field. */
+		APP_DIAG_LIFE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=APP.DIAG.LIFE)
+		/* Specifies whether only the most specific valid constraint (EB.GC.CONSTRAINT) found is processed or if all constraints are processed.
+
+Constraints processing attempts to read constraints in a specific order as determined by the PRECEDENCE of the key fields, if COM.METHOD is 'SINGLE', the constraints processing ends when a valid constraint is found;  if COM.METHOD is 'CUMULATIVE', the constraints processing ends when all existing constraints have been processed.
+
+If set to SINGLE, the constraints processing picks up the most specific constraint with respect to the record and application being processed, and if it is valid (in terms of FIRST.VALID.DATE and LAST.VALID.DATE), tests the record against the rules specified in the constraint, and does not process any further constraints.
+
+If set to CUMULATIVE, all constraints which are valid are processed in turn, in each case testing the record against the rules specified in the constraint.
+
+Overrides setting of METHOD at System or Company level.
+
+Optional Field. */
+		APP_METHOD : EB_Constraints:EB_GC_ACTIVE__APP_METHOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=4.0, core=true, t24Name=APP.METHOD)
+		/* System generated field showing the number of constraints which exist against this application for information purposes only. */
+		CONSTRAINT_COUNT : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=5.0, core=true, t24Name=CONSTRAINT.COUNT)
+		/* Valid API or local subroutine.
+
+Routine overrides the default method of selection of constraint keys, therefore settings of METHOD, field associations, and PRECEDENCE fields (in EB.GC.PARAMETER) may not have the desired result when a selection routine is used, as they will not have any effect on processing of constraints when a SELECTION.ROUTINE is specified here beyond those explicitly coded within the SELECTION.ROUTINE itself.
+
+Optional Field. */
+		SELECTION_ROUTINE : T24BusinessTypes:API
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=6.0, core=true, t24Name=SELECTION.ROUTINE)
+		CUSTOMER_FILE -> byValue EB_Constraints:EB_GC_ACTIVE__CUSTOMER_FILE *
+		CUSTOMER_KEY -> byValue EB_Constraints:EB_GC_ACTIVE__CUSTOMER_KEY *
+		CUSTOMER_FLD -> byValue EB_Constraints:EB_GC_ACTIVE__CUSTOMER_FLD *
+		PORTFOLIO_FILE -> byValue EB_Constraints:EB_GC_ACTIVE__PORTFOLIO_FILE *
+		PORTFOLIO_KEY -> byValue EB_Constraints:EB_GC_ACTIVE__PORTFOLIO_KEY *
+		PORTFOLIO_FLD -> byValue EB_Constraints:EB_GC_ACTIVE__PORTFOLIO_FLD *
+		/* Where there is more than one CUSTOMER.FLD specified and the PORTFOLIO.FLD is linked to the CUSTOMER.FLD within the same multivalue set on the source application, this field should be set to 'CUSTOMER'.
+
+Optional Field. */
+		PORT_FLD_ASSOC : EB_Constraints:EB_GC_ACTIVE__PORT_FLD_ASSOC
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=13.0, core=true, t24Name=PORT.FLD.ASSOC)
+		ACCOUNT_FILE -> byValue EB_Constraints:EB_GC_ACTIVE__ACCOUNT_FILE *
+		ACCOUNT_KEY -> byValue EB_Constraints:EB_GC_ACTIVE__ACCOUNT_KEY *
+		ACCOUNT_FLD -> byValue EB_Constraints:EB_GC_ACTIVE__ACCOUNT_FLD *
+		/* Where there is more than one CUSTOMER.FLD specified and the ACCOUNT.FLD is linked to the CUSTOMER.FLD within the same multivalue set on the source application, this field should be set to 'CUSTOMER'.
+
+If set to 'CUSTOMER', PORT.FLD.ASSOC must also be set to 'CUSTOMER'
+
+Optional Field. */
+		ACCT_FLD_ASSOC : EB_Constraints:EB_GC_ACTIVE__ACCT_FLD_ASSOC
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=17.0, core=true, t24Name=ACCT.FLD.ASSOC)
+		CURRENCY_FILE -> byValue EB_Constraints:EB_GC_ACTIVE__CURRENCY_FILE *
+		CURRENCY_KEY -> byValue EB_Constraints:EB_GC_ACTIVE__CURRENCY_KEY *
+		CURRENCY_FLD -> byValue EB_Constraints:EB_GC_ACTIVE__CURRENCY_FLD *
+		/* Where there is more than one CUSTOMER.FLD specified and the CURRENCY.FLD is linked to the CUSTOMER.FLD within the same multivalue set on the source application, this field should be set to 'CUSTOMER'.
+
+If set to 'CUSTOMER', both ACCT.FLD.ASSOC and PORT.FLD.ASSOC must also be set to 'CUSTOMER'.
+
+Optional Field. */
+		CURR_FLD_ASSOC : EB_Constraints:EB_GC_ACTIVE__CURR_FLD_ASSOC
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=21.0, core=true, t24Name=CURR.FLD.ASSOC)
+		/* Maps location of transaction date field in application.  Used by constraints processing to determine date of transaction and therefore whether a particular constraint applies or not based upon validity dates of the constraint.
+
+Optional Field. */
+		TRANS_DATE_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=22.0, core=true, t24Name=TRANS.DATE.FLD)
+		GROUP -> byValue EB_Constraints:EB_GC_ACTIVE__GROUP *
+		VSET_LOOKUP_ID -> byValue EB_Constraints:EB_GC_ACTIVE__VSET_LOOKUP_ID *
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=27.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue EB_Constraints:EB_GC_ACTIVE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=30.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=31.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Constraints:EB_GC_ACTIVE__INPUTTER *
+		DATE_TIME -> byValue EB_Constraints:EB_GC_ACTIVE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=34.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=35.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=36.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=37.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=38.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_GC_ACTIVE__CUSTOMER_FILE
+	{
+		/* File which contains details of the account number related to this application.  See CUSTOMER.FLD.
+
+Must be a valid T24 application.
+
+Optional Field. */
+		CUSTOMER_FILE -> EB_SystemTables:STANDARD_SELECTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=7.0, core=true, businessType=A, t24Name=CUSTOMER.FILE)
+	}
+	EB_GC_ACTIVE__CUSTOMER_KEY
+	{
+		/* Key (or field in the application which contains the key) to the record which contains details of the account number related to this application.  See CUSTOMER.FLD.
+
+Must be a field in the application being defined here or a valid key on the application specified in ACCOUNT.FLD.
+
+Optional Field. */
+		CUSTOMER_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=8.0, core=true, t24Name=CUSTOMER.KEY)
+	}
+	EB_GC_ACTIVE__CUSTOMER_FLD
+	{
+		/* Maps location of Customer field in application.  Can specify more than one customer where there are two sides of a transaction involving two separate customers, both of which may have constraints which apply to them.  Usually should only specify one.
+
+This field used to identify the customer for which this transaction is taking place (and therefore the customer for which the constraint processing should be performed).
+
+Optional Field.  Mandatory if CUSTOMER.KEY specified. */
+		CUSTOMER_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=9.0, core=true, t24Name=CUSTOMER.FLD)
+	}
+	EB_GC_ACTIVE__PORTFOLIO_FILE
+	{
+		/* File which contains details of the account number related to this application.  See PORTFOLIO.FLD.
+
+Must be a valid T24 application.
+
+Optional Field. */
+		PORTFOLIO_FILE -> EB_SystemTables:STANDARD_SELECTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=10.0, core=true, businessType=A, t24Name=PORTFOLIO.FILE)
+	}
+	EB_GC_ACTIVE__PORTFOLIO_KEY
+	{
+		/* Key (or field in the application which contains the key) to the record which contains details of the account number related to this application.  See PORTFOLIO.FLD.
+
+Must be a field in the application being defined here or a valid key on the application specified in ACCOUNT.FLD.
+
+Optional Field. */
+		PORTFOLIO_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=11.0, core=true, t24Name=PORTFOLIO.KEY)
+	}
+	EB_GC_ACTIVE__PORTFOLIO_FLD
+	{
+		/* Maps location of Portfolio field in application.  Can specify more than one Portfolio where necessary.
+
+This field used to identify the Portfolio in which this transaction is taking place (and therefore the Portfolio for which the constraint processing should be performed).
+
+Optional Field.  Mandatory if PORTFOLIO.KEY specified. */
+		PORTFOLIO_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=12.0, core=true, t24Name=PORTFOLIO.FLD)
+	}
+	EB_GC_ACTIVE__ACCOUNT_FILE
+	{
+		/* File which contains details of the account number related to this application.  See ACCOUNT.FLD.
+
+Must be a valid T24 application.
+
+Optional Field. */
+		ACCOUNT_FILE -> EB_SystemTables:STANDARD_SELECTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=14.0, core=true, businessType=A, t24Name=ACCOUNT.FILE)
+	}
+	EB_GC_ACTIVE__ACCOUNT_KEY
+	{
+		/* Key (or field in the application which contains the key) to the record which contains details of the account number related to this application.  See ACCOUNT.FLD.
+
+Must be a field in the application being defined here or a valid key on the application specified in ACCOUNT.FLD.
+
+Optional Field. */
+		ACCOUNT_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=15.0, core=true, t24Name=ACCOUNT.KEY)
+	}
+	EB_GC_ACTIVE__ACCOUNT_FLD
+	{
+		/* Maps location of Account field in application.  Can specify more than one Account where necessary.
+
+This field used to identify the Account for which this transaction is taking place (and therefore the Account for which the constraint processing should be performed).
+
+Optional Field.  Mandatory if ACCOUNT.KEY specified. */
+		ACCOUNT_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=16.0, core=true, t24Name=ACCOUNT.FLD)
+	}
+	EB_GC_ACTIVE__CURRENCY_FILE
+	{
+		/* File which contains details of the account number related to this application.  See CURRENCY.FLD.
+
+Must be a valid T24 application.
+
+Optional Field. */
+		CURRENCY_FILE -> EB_SystemTables:STANDARD_SELECTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=18.0, core=true, businessType=A, t24Name=CURRENCY.FILE)
+	}
+	EB_GC_ACTIVE__CURRENCY_KEY
+	{
+		/* Key (or field in the application which contains the key) to the record which contains details of the account number related to this application.  See CURRENCY.FLD.
+
+Must be a field in the application being defined here or a valid key on the application specified in ACCOUNT.FLD.
+
+Optional Field. */
+		CURRENCY_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=19.0, core=true, t24Name=CURRENCY.KEY)
+	}
+	EB_GC_ACTIVE__CURRENCY_FLD
+	{
+		/* Maps location of Currency field in application.  Can specify more than one currency where necessary.
+
+This field used to identify the currency in which this transaction is taking place (and therefore the currency for which the constraint processing should be performed).
+
+Optional Field.  Mandatory if CURRENCY.KEY specified. */
+		CURRENCY_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=20.0, core=true, t24Name=CURRENCY.FLD)
+	}
+	EB_GC_ACTIVE__GROUP
+	{
+		/* Multi valued field that specifies the groups in EB.GC.GROUP of which this application is a member.
+
+System generated fields, maintained by EB.GC.GROUP. */
+		GROUP : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=23.0, core=true, t24Name=GROUP)
+	}
+	EB_GC_ACTIVE__VSET_LOOKUP_ID
+	{
+		/* Used to define lookup against a value pair.
+
+This is the name of the index as recorded against a particular multivalue in the field 'Vset Data Field'.  This can then be referenced in the relevant EB.GC.CONSTRAINTS record by prefixing with 'V*'.
+
+If the application contains two related fields, "CURRENCY" and "CCY.OVRAMT", and CURRENCY contains a list of currency codes and CCY.OVRAMT contains a list of amounts against each of those currencies and we want to get the value for USD, we would set VSET.LOOKUP.ID to "USD".  Using the argument V*CURRENCY within constraints setup (e.g. within EB.GC.GLOBAL and EB.GC.CONSTRAINTS) will return the instance of CCY.OVRAMT which corresponds to USD. */
+		VSET_LOOKUP_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=24.0, core=true, t24Name=VSET.LOOKUP.ID)
+		/* Used to define lookup against a value pair.
+
+This defines the field on the application defined in EB.GC.ACTIVE which holds the lookup index for the value pair.
+
+If the application contains two related fields, "CURRENCY" and "CCY.OVRAMT", and CURRENCY contains a list of currency codes and CCY.OVRAMT contains a list of amounts against each of those currencies and we want to get the value for USD, we would set VSET.LOOKUP.FIELD to "CURRENCY".  Using the argument V*CURRENCY within constraints setup (e.g. within EB.GC.GLOBAL and EB.GC.CONSTRAINTS) will return the instance of CCY.OVRAMT which corresponds to USD. */
+		VSET_LOOKUP_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=25.0, core=true, t24Name=VSET.LOOKUP.FIELD)
+		/* Used to define lookup against a value pair.
+
+This defines the field on the application defined in EB.GC.ACTIVE which holds the lookup data for the value pair.
+
+If the application contains two related fields, "CURRENCY" and "CCY.OVRAMT", and CURRENCY contains a list of currency codes and CCY.OVRAMT contains a list of amounts against each of those currencies and we want to get the value for USD, we would set VSET.DATA.FIELD to "CCY.OVRAMT".  Using the argument V*CURRENCY within constraints setup (e.g. within EB.GC.GLOBAL and EB.GC.CONSTRAINTS) will return the instance of CCY.OVRAMT which corresponds to USD. */
+		VSET_DATA_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=26.0, core=true, t24Name=VSET.DATA.FIELD)
+	}
+	EB_GC_ACTIVE__OVERRIDE
+	{
+		/* Holds details of any override messages previously generated against this record. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=OVERRIDE)
+	}
+	EB_GC_ACTIVE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=32.0, core=true, t24Name=INPUTTER)
+	}
+	EB_GC_ACTIVE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=33.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Global Constraints rules definition.
+
+Defines set of rules which taken together constitute the constraint for transactions which fall under this constraints record.  A breach of any single rule is a breach of the whole constraints record.
+
+Record key is APPLICATION, GROUPNAME or 'GLOBAL'/ optional key fields
+
+Optional key fields are CUSTOMER / PORTFOLIO / ACCOUNT / CURRENCY / USER. */
+	EB_GC_CONSTRAINTS
+		@t24:i (t24Name=EB.GC.CONSTRAINTS, level=F, type=H, allowedFunctions="A C D E I L Q S", localRefAllowed=true)
+	{
+		/* Record key is APPLICATION, GROUPNAME or 'GLOBAL'/ optional key fields
+
+Optional key fields are CUSTOMER / PORTFOLIO / ACCOUNT / CURRENCY / USER etc
+
+e.g. FUNDS.TRANSFER//50030-1//USD/INPUTTER */
+		CONSTRAINT_KEY -> EB_Constraints:EB_GC_CONSTRAINTS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=CONSTRAINT.KEY)
+		TEST_FILE -> byValue EB_Constraints:EB_GC_CONSTRAINTS__TEST_FILE *
+		/* Specifies date on which constraint becomes active.  Where the transaction date as mapped within EB.GC.ACTIVE falls before this date, the whole constraint is deemed invalid and processing passes to the next valid constraint.
+
+Must be on or after System Date.
+
+Mandatory */
+		FIRST_VALID_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, core=true, t24Name=FIRST.VALID.DATE)
+		/* Specifies date after which constraint expires.  Where the transaction date as mapped within EB.GC.ACTIVE falls after this date, the whole constraint is deemed invalid and processing passes to the next valid constraint.
+
+Must be on or after FIRST.VALID.DATE */
+		LAST_VALID_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, core=true, t24Name=LAST.VALID.DATE)
+		RESERVED05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=25.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=26.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=27.0, core=true, t24Name=RESERVED01)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=29.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=30.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Constraints:EB_GC_CONSTRAINTS__INPUTTER *
+		DATE_TIME -> byValue EB_Constraints:EB_GC_CONSTRAINTS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=33.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=34.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=35.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=36.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=37.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		CUSTOMER -> byValue EB_Constraints:EB_GC_CONSTRAINTS__CUSTOMER *
+		APPLICATION -> byValue EB_Constraints:EB_GC_CONSTRAINTS__APPLICATION *
+	}
+	EB_GC_CONSTRAINTS__TEST_FILE
+	{
+		/* File from which to retrieve data to test, if not base application. */
+		TEST_FILE -> EB_SystemTables:STANDARD_SELECTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=1.0, core=true, businessType=A, t24Name=TEST.FILE)
+		/* Key for TEST.FILE or base application.
+
+If key for TEST.FILE is to be the same as for the current record, specify as '@ID'
+
+If key for TEST.FILE is found within a field in base application, specify field name.  Field names may be supplied as actual field names or Value Set lookup fields (prefixed by 'V*') as specified within the relevant EB.GC.ACTIVE record's VSET.?? fields.
+
+Mandatory if TEST.FILE specified. */
+		TEST_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=2.0, core=true, t24Name=TEST.KEY)
+		TEST_FIELD -> byValue EB_Constraints:EB_GC_CONSTRAINTS__TEST_FILE__TEST_FIELD *
+		/* Determines association of TEST.FIELD.
+
+The field can be associated with the CUSTOMER that is associated with a customer/counterparty deal such as DX.TRADE.
+
+If 'CUSTOMER' is chosen, as each subfield against the CUSTOMER field in the EB.GC.ACTIVE record for the current application is read in turn, the constraints processing will iterate through the subfields in TEST.FIELD.
+
+If left blank, all fields/values defined on the EVAL.?? side against this constraint rule will be tested against each instance of data derived from the TEST.?? fields. */
+		TEST_ASSOC : EB_Constraints:EB_GC_CONSTRAINTS__TEST_FILE__TEST_ASSOC
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=4.0, core=true, t24Name=TEST.ASSOC)
+		/* Optional API or local subroutine for pre-processing of test data.  Must be prefixed by '@'. */
+		TEST_ROUTINE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=5.0, core=true, t24Name=TEST.ROUTINE)
+		RESERVED10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED10)
+		RESERVED09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED09)
+		/* Operand for comparison of data derived from TEST.?? fields with data derived from EVAL.?? fields.
+
+If comparison equates to a logical value of false (and any other constraint rules joined to this one by 'AND' have not been breached), normal processing continues, otherwise constraint rule is breached, and an error or override is raised.
+
+Mandatory */
+		OPERAND : EB_Constraints:EB_GC_CONSTRAINTS__TEST_FILE__OPERAND required
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=8.0, core=true, t24Name=OPERAND)
+		/* File from which to retrieve data to evaluate against, if not base application. */
+		EVAL_FILE -> EB_SystemTables:STANDARD_SELECTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=9.0, core=true, businessType=A, t24Name=EVAL.FILE)
+		/* Key for EVAL.FILE or base application.
+
+If key for EVAL.FILE is to be the same as for the current record, specify as '@ID'
+
+If key for EVAL.FILE is found within a field in base application, specify field name.  Field names may be supplied as actual field names or Value Set lookup fields (prefixed by 'V*') as specified within the relevant EB.GC.ACTIVE record's VSET.?? fields.
+
+Mandatory if EVAL.FILE specified. */
+		EVAL_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=10.0, core=true, t24Name=EVAL.KEY)
+		EVAL_FIELD -> byValue EB_Constraints:EB_GC_CONSTRAINTS__TEST_FILE__EVAL_FIELD *
+		/* Determines association of EVAL.FIELD / EVAL.VALUE.  The field can either be associated with the TEST side of the constraint (TEST.FIELD) or with the CUSTOMER that is associated with a customer/counterparty deal such as DX.TRADE.
+
+If 'TEST' is chosen, as each subfield in TEST.FIELD for this constraint is read in turn, the constraints processing will iterate through the subfields in EVAL.FIELD (or EVAL.VALUE).
+
+If 'CUSTOMER' is chosen, as each subfield against the CUSTOMER field in the EB.GC.ACTIVE record for the current application is read in turn, the constraints processing will iterate through the subfields in EVAL.FIELD (or EVAL.VALUE).
+
+If left blank, all fields/values defined on the EVAL.?? side against this constraint rule will be tested against each instance of data derived from the TEST.?? fields. */
+		EVAL_ASSOC : EB_Constraints:EB_GC_CONSTRAINTS__TEST_FILE__EVAL_ASSOC
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=12.0, core=true, t24Name=EVAL.ASSOC)
+		/* Value or set of values to compare test data against, alternatively can used to specify an API or local routine (prefixed by '@' symbol) for pre-processing of data from EVAL.FIELD.
+
+The constants !USER, !TODAY, !LANGUAGE, !COMPANY, !LOCAL.CCY, !LAST.WORKING.DAY and !NEXT.WORKING.DAY if entered within this field, derived from EVAL.FIELD or output by API or local routine are translated to the operator, system date, language, company, local currency, last working day and next working day respectively.  If prefixed with as second '!' symbol, they are not translated, e.g. !!USER becomes the literal string '!USER'.
+
+Field must be blank or specify an API or local routine if EVAL.FIELD is specified. */
+		EVAL_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=13.0, core=true, t24Name=EVAL.VALUE)
+		RESERVED08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED08)
+		RESERVED07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED07)
+		/* Delimiter used to separate values specified in EVAL.VALUE.
+
+Mandatory */
+		SEPARATOR : EB_Constraints:EB_GC_CONSTRAINTS__TEST_FILE__SEPARATOR
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=16.0, core=true, t24Name=SEPARATOR)
+		RESERVED06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED06)
+		/* Specifies whether an ERROR or an OVERRIDE should be raised.
+
+Mandatory when LOGIC is not 'AND' otherwise must be NULL. */
+		ERROR_OVERRIDE : EB_Constraints:EB_GC_CONSTRAINTS__TEST_FILE__ERROR_OVERRIDE
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=18.0, core=true, t24Name=ERROR.OVERRIDE)
+		/* Specifies text to be used for error id or override message.
+
+Mandatory when LOGIC is not 'AND' otherwise must be NULL. */
+		NARRATIVE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=19.0, core=true, t24Name=NARRATIVE)
+		/* Specifies the logical operator to apply between this and the next and the next constraint.
+
+Valid options are 'AND', 'OR' and NULL. 'OR' and NULL are treated in exactly the same way and a constraint with either LOGIC value will be triggered independently of the next constraint.
+
+The last LOGIC value in the multi valued set must be null as there is no next constraint to apply LOGIC to. */
+		LOGIC : EB_Constraints:EB_GC_CONSTRAINTS__TEST_FILE__LOGIC
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=20.0, core=true, t24Name=LOGIC)
+	}
+	EB_GC_CONSTRAINTS__TEST_FILE__TEST_FIELD
+	{
+		/* If TEST.KEY is set then this specifies fields from the application specified in TEST.FILE from which to retrieve data to test.
+
+If TEST.KEY is not set and the first part of the constraint key is an application then this specifies fields from within base application from which to retrieve data to test.
+
+If TEST.KEY is set and the first part of the constraint key is a group name or 'GLOBAL' then this specifies EB.GC.GLOBAL record ids from which to obtain field names from the current application from which to retrieve data to test.
+
+Field names may be supplied as actual field names or Value Set lookup fields (prefixed by 'V*') as specified within the relevant EB.GC.ACTIVE record's VSET.?? fields.
+
+The constants !USER, !TODAY, !LANGUAGE, !COMPANY, !LOCAL.CCY, !LAST.WORKING.DAY and !NEXT.WORKING.DAY if entered within this field, derived from the actual field or output by API or local routine are translated to the operator, system date, language, company, local currency, last working day and next working day respectively. If prefixed with as second '!' symbol, they are not translated, e.g. !!USER becomes the literal string '!USER'.
+
+Mandatory */
+		TEST_FIELD : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=3.0, core=true, t24Name=TEST.FIELD)
+	}
+	EB_GC_CONSTRAINTS__TEST_FILE__EVAL_FIELD
+	{
+		/* If EVAL.KEY is set then this specifies fields from the application specified in EVAL.FILE from which to retrieve data to compare to test data.
+
+If EVAL.KEY is not set and the first part of the constraint key is an application then this specifies fields from within base application from which to retrieve data to compare to test data.
+
+If TEST.KEY is set and the first part of the constraint key is a group name or 'GLOBAL' then this specifies EB.GC.GLOBAL record ids from which to obtain field names from the current application from which to retrieve data to compare to test data.
+
+Field names may be supplied as actual field names or Value Set lookup fields (prefixed by 'V*') as specified within the relevant EB.GC.ACTIVE record's VSET.?? fields.
+
+Mandatory if EVAL.KEY is specified. */
+		EVAL_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=11.0, core=true, t24Name=EVAL.FIELD)
+	}
+	EB_GC_CONSTRAINTS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=31.0, core=true, t24Name=INPUTTER)
+	}
+	EB_GC_CONSTRAINTS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=32.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_GC_CONSTRAINTS__CUSTOMER
+	{
+		CUSTOMER : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, core=false, t24Name=CUSTOMER, genOperation="FIELD(@ID,\"/\",2)")
+	}
+	EB_GC_CONSTRAINTS__APPLICATION
+	{
+		APPLICATION : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, core=false, t24Name=APPLICATION, genOperation="FIELD(@ID,\"/\",1)")
+	}
+	/* Global Constraints Diagnostic records.
+
+Created when DIAG is set to 'ON' in EB.GC.PARAMETER and EB.GC.ACTIVE, and constraints are breached.
+
+Record key consists of APPLICATION * RECORD_KEY * SYSTEM_DATE * USER_ID */
+	EB_GC_DIAGNOSTIC
+		@t24:i (t24Name=EB.GC.DIAGNOSTIC, level=F, type=L, allowedFunctions="L S", localRefAllowed=false)
+	{
+		/* Identifies uniquely each EB.GC.DIAGNOSTIC file.
+Updated in the format APPLICATION * RECORD_KEY * SYSTEM_DATE * USER_ID */
+		KEY -> EB_Constraints:EB_GC_DIAGNOSTIC PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=60, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		GC_KEY -> byValue EB_Constraints:EB_GC_DIAGNOSTIC__GC_KEY *
+		/* Date transaction entered. */
+		DATE : T24BusinessTypes:D
+			@i18n:Label (en=Date)
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=34.0, core=true, t24Name=DATE)
+		/* Operator who entered the transaction which has breached constraint rule. */
+		USER : T24BusinessTypes:A
+			@i18n:Label (en=User)
+			@i18n:Tooltip (en="Indicates teller id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=35.0, core=true, t24Name=USER)
+		/* Date on which this diagnostic record will be automatically deleted. */
+		DEATH_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=36.0, core=true, t24Name=DEATH.DATE)
+		RESERVED04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=50, sysNumber=37.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=50, sysNumber=38.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=50, sysNumber=39.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=50, sysNumber=40.0, core=true, t24Name=RESERVED01)
+	}
+	EB_GC_DIAGNOSTIC__GC_KEY
+	{
+		/* Key to EB.GC.CONSTRAINTS record from which this rule breach occurred. */
+		GC_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=1.0, core=true, t24Name=GC.KEY)
+		/* If specified, gives file from which TEST.DATA was retrieved. */
+		TEST_FILE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=2.0, core=true, t24Name=TEST.FILE)
+		/* If specified, gives key for TEST.FILE.
+
+May point to another field or specify same key as record which breached constraint. */
+		TEST_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=3.0, core=true, t24Name=TEST.KEY)
+		/* If specified, gives derived key for TEST.FILE. */
+		TEST_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=4.0, core=true, t24Name=TEST.ID)
+		TEST_FIELD -> byValue EB_Constraints:EB_GC_DIAGNOSTIC__GC_KEY__TEST_FIELD *
+		/* Field to which TEST.FIELD was associated. */
+		TEST_ASSOC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=18, sysNumber=6.0, core=true, t24Name=TEST.ASSOC)
+		/* API or external routine used to process TEST.DATA before processing. */
+		TEST_ROUTINE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=7.0, core=true, t24Name=TEST.ROUTINE)
+		/* TEST.DATA as derived from TEST.FIELD. */
+		PRE_TEST_DATA : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=8.0, core=true, t24Name=PRE.TEST.DATA)
+		/* TEST.DATA after processing by TEST.ROUTINE. */
+		POST_TEST_DATA : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=9.0, core=true, t24Name=POST.TEST.DATA)
+		/* Subvalue instance of POST.TEST.DATA. */
+		SUB_TEST_DATA : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=10.0, core=true, t24Name=SUB.TEST.DATA)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=50, sysNumber=11.0, core=true, t24Name=RESERVED10)
+		RESERVED09 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=50, sysNumber=12.0, core=true, t24Name=RESERVED09)
+		/* Operand used to compare SUB.TEST.DATA and SUB.EVAL.DATA. */
+		OPERAND : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=13.0, core=true, t24Name=OPERAND)
+		/* If specified, gives file from which EVAL.DATA was retrieved. */
+		EVAL_FILE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=14.0, core=true, t24Name=EVAL.FILE)
+		/* If specified, gives key for EVAL.FILE.
+
+May point to another field or specify same key as record which breached constraint. */
+		EVAL_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=15.0, core=true, t24Name=EVAL.KEY)
+		/* If specified, gives derived key for EVAL.FILE. */
+		EVAL_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=16.0, core=true, t24Name=EVAL.ID)
+		EVAL_FIELD -> byValue EB_Constraints:EB_GC_DIAGNOSTIC__GC_KEY__EVAL_FIELD *
+		/* Field to which EVAL.FIELD was associated. */
+		EVAL_ASSOC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=18, sysNumber=18.0, core=true, t24Name=EVAL.ASSOC)
+		/* If specified, gives value(s) input against which EVAL.DATA was tested or alternatively specifies API or external routine used to process EVAL.DATA before processing. */
+		EVAL_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=19.0, core=true, t24Name=EVAL.VALUE)
+		/* EVAL.DATA as derived from EVAL.FIELD. */
+		PRE_EVAL_DATA : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=20.0, core=true, t24Name=PRE.EVAL.DATA)
+		/* EVAL.DATA after processing by routine specified in EVAL.VALUE. */
+		POST_EVAL_DATA : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=21.0, core=true, t24Name=POST.EVAL.DATA)
+		/* Subvalue instance of POST.EVAL.DATA. */
+		SUB_EVAL_DATA : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=22.0, core=true, t24Name=SUB.EVAL.DATA)
+		RESERVED08 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=50, sysNumber=23.0, core=true, t24Name=RESERVED08)
+		RESERVED07 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=50, sysNumber=24.0, core=true, t24Name=RESERVED07)
+		/* Data delimiter which separates EVAL.VALUE data subfields. */
+		SEPARATOR : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=25.0, core=true, t24Name=SEPARATOR)
+		/* Specifies whether an ERROR or an OVERRIDE condition was raised. */
+		ERR_OVER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, sysNumber=26.0, core=true, t24Name=ERR.OVER)
+		/* Narrative message text in override or error generated by this constraint rule breach */
+		NARRATIVE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=27.0, core=true, t24Name=NARRATIVE)
+		/* Error code generated by Global Constraints processing:
+
+1 - error raised due to constraint rule breach
+2 - override raised due to constraint rule breach
+99 - error raised due to invalid data returned from data processing API or external routine */
+		ERROR_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=28.0, core=true, t24Name=ERROR.CODE)
+		/* Date constraint came into force. */
+		FIRST_VALID : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=29.0, core=true, t24Name=FIRST.VALID)
+		/* Last date constraint is valid. */
+		LAST_VALID : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=30.0, core=true, t24Name=LAST.VALID)
+		/* Error/Override information during this constraint rule breach */
+		MSG_TEXT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=65, sysNumber=31.0, core=true, t24Name=MSG.TEXT)
+		RESERVED05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=50, sysNumber=32.0, core=true, t24Name=RESERVED05)
+		/* Time of transaction entry. */
+		TIME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, sysNumber=33.0, core=true, t24Name=TIME)
+	}
+	EB_GC_DIAGNOSTIC__GC_KEY__TEST_FIELD
+	{
+		/* Field from which TEST.DATA was retrieved. */
+		TEST_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=18, sysNumber=5.0, core=true, t24Name=TEST.FIELD)
+	}
+	EB_GC_DIAGNOSTIC__GC_KEY__EVAL_FIELD
+	{
+		/* Field from which EVAL.DATA was retrieved. */
+		EVAL_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=18, sysNumber=17.0, core=true, t24Name=EVAL.FIELD)
+	}
+	/* Global Constraints Global Field definitions
+Defines a Global Field which map to actual fields in applications.
+Key to record is the Global field name. */
+	EB_GC_GLOBAL
+		@t24:i (t24Name=EB.GC.GLOBAL, level=F, type=H, allowedFunctions="A C D E I L Q S", localRefAllowed=false)
+	{
+		/* Key to record is the Global field name. */
+		GLOBAL_KEY -> EB_Constraints:EB_GC_GLOBAL PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=0.0, core=true, businessType=A, t24Name=GLOBAL.KEY)
+		APPLICATION -> byValue EB_Constraints:EB_GC_GLOBAL__APPLICATION *
+		RESERVED03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=5.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=6.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=7.0, core=true, t24Name=RESERVED01)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Constraints:EB_GC_GLOBAL__INPUTTER *
+		DATE_TIME -> byValue EB_Constraints:EB_GC_GLOBAL__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=13.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=15.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=16.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_GC_GLOBAL__APPLICATION
+	{
+		/* Multi valued field which specifies the list of applications which can resolve this global field.
+Must be a valid T24 application and must have an EB.GC.ACTIVE record. */
+		APPLICATION -> EB_Constraints:EB_GC_ACTIVE
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=1.0, core=true, businessType=A, t24Name=APPLICATION)
+		TARGET_FIELD -> byValue EB_Constraints:EB_GC_GLOBAL__APPLICATION__TARGET_FIELD *
+		RESERVED05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=3.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=4.0, core=true, t24Name=RESERVED04)
+	}
+	EB_GC_GLOBAL__APPLICATION__TARGET_FIELD
+	{
+		/* Sub valued field which specifies the field(s) in the corresponding application which will be returned when this Global field is used.
+Fields must exist in the STANDARD.SELECTION record for the corresponding application, or if prefixed 'V*' must be defined as value set lookup fields (taking the format V*[VSET.LOOKUP.ID]) in the relevant EB.GC.ACTIVE record.
+Can have no more sub-values than customer key fields in the EB.GC.ACTIVE record for the corresponding application.
+Mandatory. */
+		TARGET_FIELD : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=2.0, core=true, t24Name=TARGET.FIELD)
+	}
+	EB_GC_GLOBAL__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=INPUTTER)
+	}
+	EB_GC_GLOBAL__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=11.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Global Constraints Group definitions
+Defines a Group of applications to apply constraints to.
+Key to record is the Group name which cannot be an Application name or 'GLOBAL'. */
+	EB_GC_GROUP
+		@t24:i (t24Name=EB.GC.GROUP, level=F, type=H, allowedFunctions="A C D E I L Q S", localRefAllowed=false)
+	{
+		/* Key to record is the Group name which cannot be an Application name or 'GLOBAL'. */
+		GROUP_KEY -> EB_Constraints:EB_GC_GROUP PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=0.0, core=true, businessType=A, t24Name=GROUP.KEY)
+		APPLICATION -> byValue EB_Constraints:EB_GC_GROUP__APPLICATION *
+		RESERVED05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=2.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=3.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=4.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=5.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=6.0, core=true, t24Name=RESERVED01)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=7.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Constraints:EB_GC_GROUP__INPUTTER *
+		DATE_TIME -> byValue EB_Constraints:EB_GC_GROUP__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=12.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=14.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=15.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_GC_GROUP__APPLICATION
+	{
+		/* Multi valued field which specifies the list of applications which are members of this Group.
+Each entry in the list must have an EB.GC.ACTIVE record.
+When an EB.GC.GROUP record is modifed, this application maintains the GROUP field in the EB.GC.ACTIVE table. */
+		APPLICATION -> EB_Constraints:EB_GC_ACTIVE
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=1.0, core=true, businessType=A, t24Name=APPLICATION)
+	}
+	EB_GC_GROUP__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=9.0, core=true, t24Name=INPUTTER)
+	}
+	EB_GC_GROUP__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=10.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Global Constraints Parameters.
+
+These control the behaviour of Global Constraints processing across a whole company or when read at SYSTEM level, for all of T24.  Some settings within EB.GC.ACTIVE override these settings at application level.
+
+Mandatory field */
+	EB_GC_PARAMETER
+		@t24:i (t24Name=EB.GC.PARAMETER, level=I, type=H, allowedFunctions="A C D E I L Q S", localRefAllowed=false)
+	{
+		ID -> EB_Constraints:EB_GC_PARAMETER PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=0.0, core=true, businessType=A, t24Name="@ID")
+		/* Controls Global Constraints processing at company or system level.  If set to 'YES', whenever Global Constraints processing is also enabled at application level, validation of records will include Global Constraints processing.  If set to 'NO', no Global Constraints processing will occur.
+
+Mandatory field */
+		COM_PROCESSING : EB_Constraints:EB_GC_PARAMETER__COM_PROCESSING required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=COM.PROCESSING)
+		/* Controls diagnostic recording at company or system level.  If set to 'YES', wherever diagnostics recording is also enabled at application level and a constraint is breached, a record is created in EB.GC.DIAGNOSTIC giving details of constraint breach.  If set to 'NO', no diagnostics recording will occur.
+
+Mandatory field */
+		COM_DIAG : EB_Constraints:EB_GC_PARAMETER__COM_DIAG required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=COM.DIAG)
+		/* Sets diagnostic life at company or system level.  EB.GC.DIAGNOSTIC record produced when constraint breached will then be removed from system after this number of days has elapsed.
+
+DIAG.LIFE can be overridden at application level.
+
+Mandatory field */
+		COM_DIAG_LIFE : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=COM.DIAG.LIFE)
+		/* Specifies whether only the most specific valid constraint (EB.GC.CONSTRAINT) found is processed or if all constraints are processed.
+
+Constraints processing attempts to read constraints in a specific order as determined by the PRECEDENCE of the key fields, if COM.METHOD is 'SINGLE', the constraints processing ends when a valid constraint is found;  if COM.METHOD is 'CUMULATIVE', the constraints processing ends when all existing constraints have been processed.
+
+If set to SINGLE, the constraints processing picks up the most specific constraint with respect to the record and application being processed, and if it is valid (in terms of FIRST.VALID.DATE and LAST.VALID.DATE), tests the record against the rules specified in the constraint, and does not process any further constraints.
+
+If set to CUMULATIVE, all constraints which are valid are processed in turn, in each case testing the record against the rules specified in the constraint.
+
+METHOD can be overridden at application level.
+
+Mandatory field */
+		COM_METHOD : EB_Constraints:EB_GC_PARAMETER__COM_METHOD required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=4.0, core=true, t24Name=COM.METHOD)
+		/* Precedence order for the current user. If precedence set to 1, user type constraint records will take precedence over all those which are not user-specific.  Takes precedence over other 'key fields' with lower precedence.
+
+Mandatory field */
+		PRECEDENCE_USER : EB_Constraints:EB_GC_PARAMETER__PRECEDENCE_USER required
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=5.0, core=true, t24Name=PRECEDENCE.USER)
+		/* Precedence order for currency restrictions. If precedence set to 1, currency type constraint records will take precedence over all those which are not currency-specific.  Takes precedence over other 'key fields' with lower precedence.
+
+Mandatory field */
+		PRECEDENCE_CURR : EB_Constraints:EB_GC_PARAMETER__PRECEDENCE_CURR required
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=6.0, core=true, t24Name=PRECEDENCE.CURR)
+		/* Precedence order for account restrictions. If precedence set to 1, account type constraint records will take precedence over all those which are not account-specific.  Takes precedence over other 'key fields' with lower precedence.
+
+Mandatory field */
+		PRECEDENCE_ACCT : EB_Constraints:EB_GC_PARAMETER__PRECEDENCE_ACCT required
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=7.0, core=true, t24Name=PRECEDENCE.ACCT)
+		/* Precedence order for portfolio restrictions. If precedence set to 1, portfolio type constraint records will take precedence over all those which are not portfolio-specific.  Takes precedence over other 'key fields' with lower precedence.
+
+Mandatory field */
+		PRECEDENCE_PORT : EB_Constraints:EB_GC_PARAMETER__PRECEDENCE_PORT required
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=8.0, core=true, t24Name=PRECEDENCE.PORT)
+		/* Precedence order for customer restrictions. If precedence set to 1, customer type constraint records will take precedence over all those which are not customer-specific.  Takes precedence over other 'key fields' with lower precedence.
+
+Mandatory field */
+		PRECEDENCE_CUST : EB_Constraints:EB_GC_PARAMETER__PRECEDENCE_CUST required
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=9.0, core=true, t24Name=PRECEDENCE.CUST)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED1)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED2)
+		EXCLUDE_APPS -> byValue EB_Constraints:EB_GC_PARAMETER__EXCLUDE_APPS *
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED3)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED4)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Constraints:EB_GC_PARAMETER__INPUTTER *
+		DATE_TIME -> byValue EB_Constraints:EB_GC_PARAMETER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_GC_PARAMETER__EXCLUDE_APPS
+	{
+		/* A Multi-Valued list of Applications to be excluded from constraints processing.
+Does not allow an EB.GC.ACTIVE record to be created for the specified application.
+If entered in the SYSTEM parameter record it applies to all companies.
+If entered into a Company specific parameter record it applies only to that company.
+Will not allow an application to be added if an EB.GC.ACTIVE record already exists for this application in a affected company. */
+		EXCLUDE_APPS -> EB_SystemTables:PGM_FILE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, businessType=PG, t24Name=EXCLUDE.APPS, typeModifiers=WHUL)
+	}
+	EB_GC_PARAMETER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=INPUTTER)
+	}
+	EB_GC_PARAMETER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	EB_GC_ACTIVE__APP_PROCESSING : mml:string
+		YES=YES
+		NO=NO
+	EB_GC_ACTIVE__APP_DIAG : mml:string
+		ON=ON
+		OFF=OFF
+	EB_GC_ACTIVE__APP_METHOD : mml:string
+		SINGLE=SINGLE
+		CUMULATIVE=CUMULATIVE
+	EB_GC_ACTIVE__PORT_FLD_ASSOC : mml:string
+		CUSTOMER=CUSTOMER
+	EB_GC_ACTIVE__ACCT_FLD_ASSOC : mml:string
+		CUSTOMER=CUSTOMER
+	EB_GC_ACTIVE__CURR_FLD_ASSOC : mml:string
+		CUSTOMER=CUSTOMER
+	EB_GC_CONSTRAINTS__TEST_FILE__TEST_ASSOC : mml:string
+		CUSTOMER=CUSTOMER
+	EB_GC_CONSTRAINTS__TEST_FILE__OPERAND : mml:string
+		EQ=EQ
+		NE=NE
+		LE=LE
+		LT=LT
+		GE=GE
+		GT=GT
+		RG=RG
+		NR=NR
+	EB_GC_CONSTRAINTS__TEST_FILE__EVAL_ASSOC : mml:string
+		CUSTOMER=CUSTOMER
+		TEST=TEST
+	EB_GC_CONSTRAINTS__TEST_FILE__SEPARATOR : mml:string
+		COMMA=","
+		_=.
+		STAR="*"
+	EB_GC_CONSTRAINTS__TEST_FILE__ERROR_OVERRIDE : mml:string
+		ERROR=ERROR
+		OVERRIDE=OVERRIDE
+	EB_GC_CONSTRAINTS__TEST_FILE__LOGIC : mml:string
+		AND=AND
+		OR=OR
+	EB_GC_PARAMETER__COM_PROCESSING : mml:string
+		YES=YES
+		NO=NO
+	EB_GC_PARAMETER__COM_DIAG : mml:string
+		ON=ON
+		OFF=OFF
+	EB_GC_PARAMETER__COM_METHOD : mml:string
+		SINGLE=SINGLE
+		CUMULATIVE=CUMULATIVE
+	EB_GC_PARAMETER__PRECEDENCE_USER : mml:string
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+		n5=5
+	EB_GC_PARAMETER__PRECEDENCE_CURR : mml:string
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+		n5=5
+	EB_GC_PARAMETER__PRECEDENCE_ACCT : mml:string
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+		n5=5
+	EB_GC_PARAMETER__PRECEDENCE_PORT : mml:string
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+		n5=5
+	EB_GC_PARAMETER__PRECEDENCE_CUST : mml:string
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+		n5=5
+}

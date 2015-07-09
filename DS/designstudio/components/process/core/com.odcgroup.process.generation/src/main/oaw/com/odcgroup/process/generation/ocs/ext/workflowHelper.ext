@@ -1,0 +1,32 @@
+import process;
+
+extension com::odcgroup::process::generation::ext::helper reexport;
+
+String packageName() : GLOBALVAR packageName;
+
+String getWorkflowConfigFileName(Process process) :
+	workflowFileName()+".xml";
+	
+String escape(java::lang::String text) :
+	JAVA com.odcgroup.workbench.core.helper.StringHelper.toXMLString(java.lang.String);
+	
+String parseUserTaskURI(UserTask task, java::lang::String uri, List props, Boolean inverted) :
+	(uri.startsWith("resource:/") && uri.endsWith(".pageflow")) ?  escape(fetchURI(task, uri, props, inverted)): escape(uri);
+	
+String fetchURI(UserTask task, java::lang::String text, List properties, Boolean inverted) :
+	JAVA com.odcgroup.process.generation.internal.ocs.GenerationHelper.resolveDesignStudioPageflowURIforGeneration(com.odcgroup.process.model.UserTask, java.lang.String, java.util.List, java.lang.Boolean);
+	
+String truncateEscapeString(java::lang::String text) :
+	(text.length>255)? escape(text).subString(0, 251)+" .." : escape(text);
+
+Boolean isPageflowCallingWorkflow(UserTask task) :
+	((Process)task.eContainer.eContainer).inverted;	
+
+String currentDate() :
+	JAVA com.odcgroup.process.generation.internal.ocs.GenerationHelper.getCurrentDate();
+	
+String systemUser() :
+	JAVA com.odcgroup.process.generation.internal.ocs.GenerationHelper.getSystemUser();
+	
+String getBuildID() :
+	JAVA com.odcgroup.process.generation.internal.ocs.GenerationHelper.getDSBuildID();

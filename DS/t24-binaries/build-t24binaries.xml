@@ -1,0 +1,218 @@
+<!-- Originally from https://lausvn.oams.com/svn/devel/products/TTR/trunk/tapt24/build.xml (http://rd.oams.com/browse/DS-7472) -->
+<!-- Includes ideas originally from https://lausvn.oams.com/svn/devel/products/DS/trunk/dependencies/t24/pom.xml -->
+<!-- @author Michael Vorburger, Ivan Rossier, Yann Andenmatten & your PRs, dear src reader? ;) -->
+<project name="t24-binaries-project" default="all">
+
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
+	<import file="../master-build/macrodefs.xml"/>
+	<property file="../version.properties" />
+
+	<property name="t24.binaries.dir" location="target/t24-binaries" />
+	<property name="delivery.dir" value="${basedir}/target/delivery" />
+	<property name="t24.distrib.dir" value="//p2/p2/dist/latest"/>
+
+	<echo message="Is it a feature branch build (ds.build.feature-branch) ? ${ds.build.feature-branch}"/>
+	<property name="ds.delivery.root" location="../master-build/delivery"/>
+	<if>
+		<isfalse value="${ds.build.feature-branch}"/>
+		<then>
+			<find.branch property="ds.branch" delivery-location="${ds.delivery.root}"/>
+		</then>
+		<else>
+			<property name="ds.branch" value=""/>
+		</else>
+	</if>
+	<property name="ds.delivery" location="${ds.delivery.root}/${ds.branch}"/>
+	<echo message="ds.delivery of this build is: ${ds.delivery}"/>
+
+	<!-- NOTE: Don't use ':' in tstamp format, as that's invalid on Win! -->
+	<tstamp><format property="tstamp" pattern="yyyy-MM-dd_HH-mm-z" /></tstamp>
+
+	<property environment="env"/>
+	<condition property="git.commit" value="${env.GIT_COMMIT}" else="LOCALBUILD">
+		<isset property="env.GIT_COMMIT"/>
+	</condition>
+
+	<target name="all">
+		<run.mvn dir="." argLine="-version"/>
+		
+		<antcall target="prepare-t24-binaires" />
+		<antcall target="build-templates" />
+		<antcall target="clean.t24-binaries.directory" />
+		<antcall target="create-t24-binaries.zip" />
+
+		<echo message="Creating t24-binaries offline Maven repository is now fully complete." />
+	</target>
+	
+	<target name="prepare-t24-binaires">
+		<!-- DS-7959: It's SUPER important that we wipe the entire target/ (and not only e.g. ${t24.binaries.dir})
+		     because if script runs e.g. on a Jenkins for a pull request builder accross branches, 
+		     then there will models files from other versions left over under target/templates -->
+
+		<delete dir="target" />
+
+		<echo message="Installing the T24 generator..."/>
+		<property name="last.successful.generator.build" location="${ds.delivery}/product/generators"/>
+		<property name="ds.t24.generator.zip" value="${last.successful.generator.build}/DesignStudioT24-GeneratorEdition-${ds.release}.${ds.patch}.zip"/>
+		<!-- Important as the mvn install-file return a BUILD SUCCESS even if the file to install is not available -->
+		<fail message="No generator found in ${ds.t24.generator.zip}">
+			<condition>
+				<not>
+					<available file="${ds.t24.generator.zip}"/>
+				</not>
+			</condition>
+		</fail>
+		<run.mvn dir="." argLine="install:install-file -Dfile=${ds.t24.generator.zip} -DgeneratePom=true -DgroupId=com.temenos.ds -DartifactId=DesignStudioT24-Generator -Dversion=${ds.release}.${ds.patch}-SNAPSHOT -Dpackaging=zip  -Dmaven.repo.local=${t24.binaries.dir}"/>
+
+		<echo message="Installing t24-maven in the t24-binaries..."/>
+		<run.mvn dir="." argLine="-f ${basedir}/../t24-maven/t24-extensions/pom.xml install -Dmaven.repo.local=${t24.binaries.dir}"/>
+		<!-- No need to use -U as we are starting from an empty directory. Do not add -U otherwise recently installed artifact in the t24-binaries 
+			 might be overridden by older one in Nexus. -->
+		<run.mvn dir="." argLine="-f ${basedir}/../t24-maven/t24-all/pom.xml -U install -Dmaven.repo.local=${t24.binaries.dir} -P!template-module -DskipTest=true"/>
+		<!-- doing this offline, because we don't want to download templates from nexus, they have to be part of t24-maven -->
+		<run.mvn dir="." argLine="-f ${basedir}/../t24-maven/t24-all/pom.xml -o install -Dmaven.repo.local=${t24.binaries.dir} -P!all-but-temlpate-module -DskipTest=true"/>
+		
+		<echo message="Downloading additionnal artifact in the t24-binaries..."/>
+		<download-additionnal-artifact-in-t24-binaries groupId="com.temenos.tafj" artifactId="tafj-maven-plugin" version="${tafjPluginVersion}"/>
+		<download-additionnal-artifact-in-t24-binaries groupId="org.sonatype.sisu.inject" artifactId="guice-bean-containers" version="2.3.0"/>
+		<download-additionnal-artifact-in-t24-binaries groupId="org.sonatype.sisu.inject" artifactId="guice-plexus-shim" version="2.3.0"/>
+	</target>
+
+	<target name="build-templates">
+		<!-- this trick download all the dependencies of the maven-dependency-plugin that is required to execute it offline in instanciate.template -->
+		<run.mvn dir="." argLine="dependency:get -DgroupId=junit -DartifactId=junit -Dversion=4.9 -DrepoUrl=${t24.binaries.dir} -Dmaven.repo.local=${t24.binaries.dir}"/>
+
+		<instantiate.template templateArtifactId="demo-t24-packager-tafc" parentProject="ft-modelbank-packager/module" />
+		<build.template templateArtifactId="demo-t24-packager-tafc" parentProject="ft-modelbank-packager/module" additionalArguments="" />
+		<instantiate.template templateArtifactId="t24-packager-tafc" parentProject="your-packager/module" />
+		<build.template templateArtifactId="t24-packager-tafc" parentProject="your-packager/module" additionalArguments=""/>
+		
+		<instantiate.template templateArtifactId="t24-packager-tafj" parentProject="ft-modelbank-packager/module" />
+		<!-- Here -DinsertDir uses the minimum insert files from T24 to make our template compile -->
+		<property name="insertDir" location="t24-insert-dir"/>
+		<build.template templateArtifactId="t24-packager-tafj" parentProject="ft-modelbank-packager/module" additionalArguments="-Dds.no.tafj.available=true -DinsertDir=${insertDir}" />
+
+		<instantiate.template templateArtifactId="iris-data-service-project" parentProject="Test-iris-parent" />
+		<build.template templateArtifactId="iris-data-service-project" parentProject="Test-iris-parent" additionalArguments="install"/>
+		<build.template templateArtifactId="iris-data-service-project" parentProject="Test-iris-parent" additionalArguments="-DframeworkPackaging=tafc -Dds.gen.fake=true" />
+		<build.template templateArtifactId="iris-data-service-project" parentProject="Test-iris-parent" additionalArguments="-DframeworkPackaging=tafj -Dds.gen.fake=true" />
+		<build.template templateArtifactId="iris-data-service-project" parentProject="Test-iris-parent" additionalArguments="-DframeworkPackaging=tafj-jboss5 -Dds.gen.fake=true" />
+		
+		<!-- TAFC/TAFJ Embedded Server -->
+		<instantiate.template templateArtifactId="iris-embedded-server-tafc" parentProject="iris-embedded-server-tafc" />
+		<build.template templateArtifactId="iris-embedded-server-tafc" parentProject="iris-embedded-server-tafc" additionalArguments=""/>
+		
+		<instantiate.template templateArtifactId="iris-embedded-server-tafj" parentProject="iris-embedded-server-tafj" />
+		<build.template templateArtifactId="iris-embedded-server-tafj" parentProject="iris-embedded-server-tafj" additionalArguments="" />
+
+		<!-- New (empty) models project -->
+		<instantiate.template templateArtifactId="new-models-project" parentProject="test-parent" />		
+		<build.template templateArtifactId="new-models-project" parentProject="test-parent" additionalArguments=""/> 
+		
+<!--
+		<instantiate.template templateArtifactId="hothouse-embedded-server" parentProject="your" />
+		<build.template templateArtifactId="hothouse-embedded-server" parentProject="your" additionalArguments="" />
+		<instantiate.template templateArtifactId="iris-hothouse-embedded-server" parentProject="your" />
+		<build.template templateArtifactId="iris-hothouse-embedded-server" parentProject="your" additionalArguments="" /> 
+-->
+	</target>
+
+	<macrodef name="instantiate.template">
+		<attribute name="templateArtifactId" />
+		<attribute name="parentProject" />
+		<sequential>
+			<echo message="Checking if the template is available in the local repo."/>
+			<echo message="(If it fails, it means the template is not available in the DS code base (i.e. not in t24-maven or not referenced from template-all.)"/>
+			<run.mvn dir="." argLine="dependency:get -o -DgroupId=com.temenos.ds.t24-template -DartifactId=@{templateArtifactId} -Dversion=${ds.target.platform.version} -DrepoUrl=${t24.binaries.dir} -Dmaven.repo.local=${t24.binaries.dir}"/>
+				
+			<echo message="Instantiating template via maven-template-plugin:generate for @{templateArtifactId}"/>
+			<!-- No need to use -U as we are starting from an empty directory. Do not add -U otherwise recently installed artifact in the t24-binaries 
+				 might be overridden by older one in Nexus. -->
+			<run.mvn dir="." argLine="com.odcgroup.maven.plugin:maven-template-plugin:generate -DtemplateGroupId=com.temenos.ds.t24-template -DtemplateArtifactId=@{templateArtifactId} -DtemplateVersion=${ds.target.platform.version} -DinteractiveMode=false -Dtarget=target/templates/@{templateArtifactId} -Dmaven.repo.local=${t24.binaries.dir}"/>
+		</sequential>
+	</macrodef>
+		
+	<macrodef name="build.template">
+		<attribute name="templateArtifactId" />
+		<attribute name="parentProject" />
+		<attribute name="additionalArguments" />
+		<sequential>
+			<!-- NOTE: It's SUPER IMPORANT to use only 'package' and not 'install' here...
+				 You do NOT want the artifacts being built here to end-up in the t24-binaries.zip repo,
+				 only what's needed to build them (because the projects are already in the template artifact).
+			 --> 
+			<local name="parentProject.dir" />
+			<property name="parentProject.dir" value="target/templates/@{templateArtifactId}/@{parentProject}" />
+			<echo message="Building instantiated template in ${parentProject.dir}"/>
+			<!-- No need to use -U as we are starting from an empty directory. Do not add -U otherwise recently installed artifact in the t24-binaries 
+				 might be overridden by older one in Nexus. -->
+			<run.mvn dir="${parentProject.dir}" argLine=" clean package -Pds.no.jdk -Dmaven.repo.local=${t24.binaries.dir} @{additionalArguments}"/>
+		</sequential>
+	</macrodef>
+
+	<target name="clean.t24-binaries.directory">
+		<echo message="Removing all _*.repositories (incl. old _maven.repositories and new _remote.repositories)" />
+		<delete>
+			<fileset dir="${t24.binaries.dir}" includes="**/_*.repositories" />
+		</delete>
+		<echo message="Removing all resolver-status.properties" />
+		<delete>
+			<fileset dir="${t24.binaries.dir}" includes="**/resolver-status.properties" />
+		</delete>
+		<echo message="Removing all maven-metadata-*.xml* (incl. e.g. maven-metadata-Dummy.xml.sha1)" />
+		<delete>
+			<fileset dir="${t24.binaries.dir}" includes="**/maven-metadata-*.xml*" />
+		</delete>
+		<echo message="Removing non-SNAPSHOTS timestamped version of *-SNAPSHOT artifacts (not touched non-SNAPSHOT)" />
+		<delete verbose="true">
+			<fileset dir="${t24.binaries.dir}" includes="**/*-????????.??????-*.*" />
+		</delete>
+		<echo message="Removing unzipped DS T24 generator" />
+		<delete verbose="true" dir="${t24.binaries.dir}/com/temenos/ds/DesignStudioT24-Generator/${ds.release}.${ds.patch}-SNAPSHOT/ds"/>
+	</target>
+
+	<target name="create-t24-binaries.zip">
+		<echo message="Cleaning old t24-binaries zip..." />
+		<delete>
+			<!-- two possible locations -->
+		    <fileset dir="${ds.delivery.root}" includes="*t24-binaries*.zip"/>
+		    <fileset dir="${ds.delivery}" includes="*t24-binaries*.zip"/>
+		</delete> 
+
+		<echo message="Building t24-binaries zip..." />
+		<zip destfile="${ds.delivery}/t24-binaries_${tstamp}_${git.commit}.zip" basedir="./target/t24-binaries"/>
+		
+		<delete dir="./target/t24-binaries"/>
+	</target>
+
+	<!-- Macro to execute maven -->
+	<macrodef name="run.mvn">
+		<attribute name="dir" />
+		<attribute name="argLine" />
+		<sequential>
+			<condition property="exec.executable" value="mvn.bat" else="mvn">
+				<os family="windows" />
+			</condition>
+	
+			<echo message="Command: ${env.M2_HOME}/bin/${exec.executable} @{argLine}"/>
+			<exec executable="${env.M2_HOME}/bin/${exec.executable}" dir="@{dir}" failonerror="true">
+				<env key="M2_HOME" value="${env.M2_HOME}" />
+				<env key="ds.t24.packager.simulate.compilation" value="true" />
+				<env key="ds.t24.packager.simulate.os" value="WIN" />
+				<arg line="@{argLine}"/>
+			</exec>
+		</sequential>
+	</macrodef>
+		
+	<macrodef name="download-additionnal-artifact-in-t24-binaries">
+		<attribute name="groupId"/>
+		<attribute name="artifactId"/>
+		<attribute name="version"/>
+		<attribute name="type" default="jar"/>
+		<sequential>
+			<run.mvn dir="." argLine="package -fadditionnal-artifact-template.xml -Daddition.groupId=@{groupId} -Daddition.artifactId=@{artifactId} -Daddition.version=@{version} -Daddition.type=@{type} -Dmaven.repo.local=${t24.binaries.dir}"/>
+		</sequential>
+	</macrodef>
+
+</project>

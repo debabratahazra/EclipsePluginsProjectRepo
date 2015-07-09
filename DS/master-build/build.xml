@@ -1,0 +1,961 @@
+<project name="DsBuildAll" default="help">
+
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
+	<property file="local-build.properties"/>
+	<property file="../version.properties"/>
+	
+	<property name="remote.user" value="cmsbm"/>
+	<property name="remote.password" value="00cmsbm"/>
+	<property name="remote.infocenter.host" value="infocenter.oams.com"/>
+	<property name="remote.infocenter.dir" value="/oams/infocenter/incoming"/>
+	<property name="ds.infocenter" value="//infocenter.oams.com/infocenter"/>
+	
+	<property name="ds.skip.72-Big-Tests--Hothouse-Fully-Loaded-Test" value="true"/>
+	<property name="ds.localbuild.skip.mac" value="true"/>
+	
+	<!-- set to -X to have tycho running in debug -->
+	<property name="debug.tycho" value=""/>
+	
+	<!-- can be overridded to allow the deploy artifacts -->
+	<property name="ds.build.feature-branch" value="true"/>
+	
+	<property name="ds.test.full.hothouse.build" value="false"/>
+	
+	<echo message="ds.p2cache.location.relative:${ds.p2cache.location.relative}"/>
+	<property name="ds.jre.location" location="${ds.p2cache.location.relative}/jre"/>
+
+	<pathconvert targetos="unix" property="basedir.unix">
+		<path location="${basedir}"/>
+	</pathconvert>
+	<pathconvert targetos="unix" property="ds.p2cache.location">
+		<path id="p2repo.as.path">
+			<pathelement location="${ds.p2cache.location.relative}"/>
+		</path>
+	</pathconvert>
+	
+	<echo message="Location of the p2cache (ds.p2cache.location): ${ds.p2cache.location}"/>
+	
+	<condition property="mvn.exec" value="mvn.bat" else="mvn">
+		<os family="windows"/>
+	</condition>
+
+	<property environment="env"/>
+	
+	<!-- if not defined outside the script, the maketing version default to useful information -->
+	<if>
+		<not>
+			<isset property="env.ghprbPullTitle" />
+		</not>
+		<then>
+			<property name="ds.t24.marketingversion" value="${ds.mkt.version} (${ds.release}.${ds.patch})\n(revision: ${env.GIT_COMMIT})" />
+		</then>
+		<else>
+			<property name="ds.t24.marketingversion" value="${ds.mkt.version} (${ds.release}.${ds.patch})\n${env.ghprbPullTitle}\n${env.ghprbPullLink}\n(revision: ${env.ghprbActualCommit})" />
+		</else>
+	</if>
+	
+	<property name="ds.tap.marketingversion" value="${env.ghprbPullTitle} ${env.ghprbPullLink}"/>
+
+	<target name="help">
+		<echo message="build            - builds the plugin, executes unit tests and create the products in OFFLINE mode"/>
+		<echo message="build-all-online - builds the plugin, executes unit tests and create the products in ONLINE mode"/>
+		<echo message="help.skip        - shows option to disable a specific build part"/>
+	</target>
+	
+	<target name="help.skip">
+		<echo message="To disable a build part, use the following system property"/>
+		<echo message="-Dds.skip.09-T24-Maven=true"/>
+		<echo message="-Dds.skip.15-b2-Templates=true"/>
+		<echo message="-Dds.skip.30-Documentation=true"/>
+		<echo message="-Dds.skip.40-Plugins-Build=true"/>
+		<echo message="-Dds.skip.50-Small-Tests--Unit-Tests=true"/>
+		<echo message="-Dds.skip.60-Products-Only-Build=true"/>
+		<echo message="-Dds.skip.61-Runtime-Build"/>
+		<echo message="-Dds.skip.63-Medium-Tests--T24-Models-Generation-and-Packaging=true"/>
+		<echo message="-Dds.skip.65-Big-Tests--BM-Maven-Generation=true"/>
+		<echo message="-Dds.skip.68-Big-Tests--T24-External-Tests=true"/>
+		<echo message="-Dds.skip.69-Big-Tests--TAP-External-Tests=true"/>
+		<echo message="-Dds.skip.71-Big-Tests--Hothouse-Test=true"/>
+		<echo message="-Dds.skip.72-Big-Tests--Hothouse-Fully-Loaded-Test=true"/>
+		<echo message="-Dds.skip.73-Big-tests--Component-Framework-Integration-Test=true"/>
+		<echo message="-Dds.skip.99-Final-Cleanup=true"/>
+	</target>
+
+	<target name="build-all" depends="documentation-only-hook">
+		<property name="maven.offline" value="--offline"/>
+		
+		<antcall target="skipping-summary"/>
+		
+		<strip-origin property="branch.name" branch="${env.GIT_BRANCH}"/>
+		<condition 
+				property="master.delivery.dir" 
+				value="${basedir}/delivery/${branch.name}"
+				else="${basedir}/delivery/">
+			<isfalse value="${ds.build.feature-branch}"/>
+		</condition>
+		<echo message="The delivery dir is ${master.delivery.dir} (beacause ds.build.feature-branch is ${ds.build.feature-branch} and env.GIT_BRANCH is ${env.GIT_BRANCH}. The branch found is ${branch.name})"/>
+
+		<!-- clean up local repo of old plugins builds -->
+		<delete dir="local-repo/com/odcgroup/ds" failonerror="false"/>
+		
+		<!-- delete the previous delivery -->
+		<delete dir="master-build\delivery" failonerror="false"/>
+
+		<stopwatch name="timer.all.build.plans"/>
+			<stopwatch name="timer.scan"/>
+				<antcall target="ScanforMergeMarkers"/>
+			<stopwatch name="timer.scan" action="total"/>
+			<stopwatch name="timer.prep"/>
+				<stopwatch name="timer.09.T24.Maven.build"/>
+					<antcall target="09-T24-Maven"/>
+				<stopwatch name="timer.09.T24.Maven.build" action="total"/>
+				<stopwatch name="timer.15.b2.Templates.build"/>
+					<antcall target="15-b2-Templates"/>
+				<stopwatch name="timer.15.b2.Templates.build" action="total"/>
+			<stopwatch name="timer.prep" action="total"/>
+			<stopwatch name="timer.total.product"/>
+				<stopwatch name="timer.30.Documentation"/>
+					<antcall target="30-Documentation"/>
+				<stopwatch name="timer.30.Documentation" action="total"/>
+				<stopwatch name="timer.40.Plugins.Build"/>
+					<antcall target="40-Plugins-Build"/>
+				<stopwatch name="timer.40.Plugins.Build" action="total"/>
+				<stopwatch name="timer.60.Products.Only.Build"/>
+					<antcall target="60-Products-Only-Build"/>
+				<stopwatch name="timer.60.Products.Only.Build" action="total"/>
+				<stopwatch name="timer.61.T24.runtime"/>
+					<antcall target="61-Runtime-Build"/>
+				<stopwatch name="timer.61.T24.runtime" action="total"/>
+			<stopwatch name="timer.total.product" action="total"/>
+			<stopwatch name="timer.all.tests"/>
+				<stopwatch name="timer.50.Small.Tests.Unit.Tests"/>
+					<antcall target="50-Small-Tests--Unit-Tests"/>
+				<stopwatch name="timer.50.Small.Tests.Unit.Tests" action="total"/>
+				<stopwatch name="timer.63.Medium.Tests.T24.Models.Generation.and.Packaging"/>
+					<antcall target="63-Medium-Tests--T24-Models-Generation-and-Packaging"/>
+				<stopwatch name="timer.63.Medium.Tests.T24.Models.Generation.and.Packaging" action="total"/>
+				<stopwatch name="timer.65.Big.Tests.BM.Maven.Generation"/>
+					<antcall target="65-Big-Tests--BM-Maven-Generation"/>
+				<stopwatch name="timer.65.Big.Tests.BM.Maven.Generation" action="total"/>
+				<stopwatch name="timer.68.Big.Tests.T24.External.Tests"/>
+					<antcall target="68-Big-Tests--T24-External-Tests"/>
+				<stopwatch name="timer.68.Big.Tests.T24.External.Tests" action="total"/>
+				<stopwatch name="timer.69.Big.Tests.TAP.External.Tests"/>
+					<antcall target="69-Big-Tests--TAP-External-Tests"/>
+				<stopwatch name="timer.69.Big.Tests.TAP.External.Tests" action="total"/>
+				<stopwatch name="timer.71.Big.Tests.Hothouse.Test"/>
+					<antcall target="71-Big-Tests--Hothouse-Test"/>
+				<stopwatch name="timer.71.Big.Tests.Hothouse.Test" action="total"/>
+				<stopwatch name="timer.72.Big.Tests.Hothouse.Fully.Loaded.Test"/>
+					<antcall target="72-Big-Tests--Hothouse-Fully-Loaded-Test"/>
+				<stopwatch name="timer.72.Big.Tests.Hothouse.Fully.Loaded.Test" action="total"/>
+				<stopwatch name="timer.73.Big.tests.Component.Framework.Integration.Test"/>
+					<antcall target="73-Big-tests--Component-Framework-Integration-Test"/>
+				<stopwatch name="timer.73.Big.tests.Component.Framework.Integration.Test" action="total"/>
+			<stopwatch name="timer.all.tests" action="total"/>
+			<stopwatch name="timer.99.Final.Cleanup"/>
+				<antcall target="99-Final-Cleanup"/>
+			<stopwatch name="timer.99.Final.Cleanup" action="total"/>
+		<stopwatch name="timer.all.build.plans" action="total"/>
+		
+		<antcall target="Statistics"/>
+	</target>
+	
+	<scriptdef name="strip-origin" language="javascript">
+		<attribute name="property"/>
+		<attribute name="branch"/>
+		<![CDATA[
+			var branch = attributes.get("branch");
+			if (branch.indexOf("origin/") === 0) {
+				branch = branch.replace("origin/", "");
+			}
+			project.setProperty(attributes.get("property"), branch);
+		]]>
+	</scriptdef>
+
+	
+
+	<target name="documentation-only-hook">
+		<if>
+			<contains string="${env.ghprbPullTitle}" substring="(documentation only)" casesensitive="false"/>
+			<then>
+				<echo message="This PR is documentation only !"/>
+				<property name="skip.09-T24-Maven" value="true"/>
+				<property name="skip.15-b2-Templates" value="true"/>
+				<property name="skip.30-Documentation" value="false"/>
+				<property name="skip.40-Plugins-Build" value="true"/>
+				<property name="skip.50-Small-Tests--Unit-Tests" value="true"/>
+				<property name="skip.60-Products-Only-Build" value="true"/>
+				<property name="skip.61-Runtime-Build" value="true"/>
+				<property name="skip.63-Medium-Tests--T24-Models-Generation-and-Packaging" value="true"/>
+				<property name="skip.65-Big-Tests--BM-Maven-Generation" value="true"/>
+				<property name="skip.68-Big-Tests--T24-External-Tests" value="true"/>
+				<property name="skip.69-Big-Tests--TAP-External-Tests" value="true"/>
+				<property name="skip.71-Big-Tests--Hothouse-Test" value="true"/>
+				<property name="skip.72-Big-Tests--Hothouse-Fully-Loaded-Test" value="true"/>
+				<property name="skip.73-Big-tests--Component-Framework-Integration-Test" value="true"/>
+				<property name="skip.99-Final-Cleanup" value="true"/>
+			</then>
+			<else>
+				<echo message="This PR is NOT documentation only"/>
+				<property name="skip.09-T24-Maven" value="${ds.skip.09-T24-Maven}"/>
+				<property name="skip.15-b2-Templates" value="${ds.skip.15-b2-Templates}"/>
+				<property name="skip.30-Documentation" value="${ds.skip.30-Documentation}"/>
+				<property name="skip.40-Plugins-Build" value="${ds.skip.40-Plugins-Build}"/>
+				<property name="skip.50-Small-Tests--Unit-Tests" value="${ds.skip.50-Small-Tests--Unit-Tests}"/>
+				<property name="skip.60-Products-Only-Build" value="${ds.skip.60-Products-Only-Build}"/>
+				<property name="skip.61-Runtime-Build" value="${ds.skip.61-Runtime-Build}"/>
+				<property name="skip.63-Medium-Tests--T24-Models-Generation-and-Packaging" value="${ds.skip.63-Medium-Tests--T24-Models-Generation-and-Packaging}"/>
+				<property name="skip.65-Big-Tests--BM-Maven-Generation" value="${ds.skip.65-Big-Tests--BM-Maven-Generation}"/>
+				<property name="skip.68-Big-Tests--T24-External-Tests" value="${ds.skip.68-Big-Tests--T24-External-Tests}"/>
+				<property name="skip.69-Big-Tests--TAP-External-Tests" value="${ds.skip.69-Big-Tests--TAP-External-Tests}"/>
+				<property name="skip.71-Big-Tests--Hothouse-Test" value="${ds.skip.71-Big-Tests--Hothouse-Test}"/>
+				<property name="skip.72-Big-Tests--Hothouse-Fully-Loaded-Test" value="${ds.skip.72-Big-Tests--Hothouse-Fully-Loaded-Test}"/>
+				<property name="skip.73-Big-tests--Component-Framework-Integration-Test" value="${ds.skip.73-Big-tests--Component-Framework-Integration-Test}"/>
+				<property name="skip.99-Final-Cleanup" value="${ds.skip.99-Final-Cleanup}"/>
+			</else>
+		</if>
+		<echoproperties prefix="skip"/>
+	</target>
+
+	<target name="build-all-online">
+		<echo message="============="/>
+		<echo message="Maven version"/>
+		<echo message="============="/>
+ 		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" dir=".">
+			<arg value="--version"/>
+		</exec>
+
+		<echo message="======================="/>
+		<echo message="Maven effecive settings"/>
+		<echo message="======================="/>
+ 		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" dir=".">
+			<arg value="help:effective-settings"/>
+			<arg value="-Dmaven.repo.local=${basedir.unix}/local-repo"/>
+		</exec>
+
+		<property name="maven.offline" value=""/> <!-- empty means online -->
+		<antcall target="build-all"/>
+	</target>
+	
+	<target name="env-properties">
+		<echoproperties prefix="env"/>
+	</target>
+
+	<target name="skipping-summary" depends="env-properties">
+		<echo message="Skipping summary"/>
+		<echo message="================"/>
+		<echoproperties prefix="skip"/>
+	</target>
+
+	<target name="ScanforMergeMarkers">
+		<echo message="Testing for any merge markers presence ..."/>
+		<property name="merge.comment.marker.start" value="&lt;&lt;&lt;&lt;&lt;"/>
+		<property name="merge.comment.marker.end" value="&gt;&gt;&gt;&gt;&gt;"/>
+		<fileset id="scanfileset" dir="${basedir}/..">
+			<patternset id="files">
+				<exclude name=".git/**"/>
+				<exclude name="master-build/local-repo/**"/>
+				<exclude name="**/target/**"/>
+				<exclude name="**/.b2/**"/>
+				<exclude name="**/*.class"/>
+				<exclude name="**/*.exe"/>
+				<exclude name="**/*.jar"/>
+				<exclude name="**/*.jpg"/>
+				<exclude name="**/*.ico"/>
+				<exclude name="**/*.doc"/>
+				<exclude name="**/*.pdf"/>
+				<exclude name="**/*.xls"/>
+				<exclude name="**/*.png"/>
+				<exclude name="**/*.bmp"/>
+				<exclude name="**/*.gz"/>
+				<exclude name="**/*.zip"/>
+				<exclude name="**/*.dll"/>
+				<exclude name="**/*.gif"/>
+				<exclude name="**/*.lib"/>
+				<exclude name="**/*.ppt"/>
+				<exclude name="**/*.ear"/>
+				<exclude name="**/*.war"/>
+				<exclude name="**/*.xtextbin"/>
+				<exclude name="**/*.cfs"/>
+				<exclude name="**/*.dsf"/>
+				<exclude name="**/*.ds-models"/>
+				<exclude name="**/*.ttf"/>
+				<exclude name="**/jre/**"/>
+				<exclude name="**/installshield/T24/**"/>
+				<exclude name="tests/big-ds-t24-junit/big/**"/>
+				<exclude name="tests/big-ds-tap-junit/big/**"/>
+				<exclude name="tests/ds-junit/small/**"/>
+			</patternset>
+		</fileset>
+		<fileset id="match" dir="${basedir}/..">
+			<patternset refid="files"/>
+				<or>
+					<contains text="${merge.comment.marker.start}" />
+					<contains text="${merge.comment.marker.end}"/>
+				</or>
+		</fileset>
+		<fail message="Unmerge conflict marker '${merge.comment.marker.start}' or '${merge.comment.marker.end}' found in the source code:${toString:match}">
+			<condition>
+				<resourcecount when="greater" count="0" refid="match"/>
+			</condition>
+		</fail>
+	</target>
+
+	<target name="00-Prerequisits">
+		<echo message="Testing for absolute path greater than 200 characters..."/>
+		<echo message="TODO Execute: git log --all --pretty=format: --name-only > git-all-files.txt"/>
+		<loadfile property="files.greather.than.200.char" srcFile="git-all-files.txt">
+			<filetokenizer/>
+			<scriptfilter language="javascript"><![CDATA[
+            // Get the whole input file to one string.
+            inputContent = self.getToken( );
+            fileEnd = inputContent.length( );
+
+            // Build the new file up line-by-line in this var.
+            outputContent = "";
+
+            lineStart = 0;
+            lineEnd = inputContent.indexOf( "\n" );
+            while ( lineEnd < fileEnd ) {
+				line = inputContent.substring(lineStart, lineEnd);
+				if (line.length() > 200)
+                    outputContent += inputContent.substring( lineStart, lineEnd ) + "\n";
+                lineStart = lineEnd + 1;
+                fc = inputContent.substring(lineStart);
+                lineEnd = fc.indexOf( "\n" );
+                if ( lineEnd == -1 )
+                    break;  
+                lineEnd += lineStart;
+            }
+
+            self.setToken( outputContent );
+           ]]></scriptfilter>
+		</loadfile>
+		<echo message="TODO: fail if files.greather.than.200.char not empty..."/>
+	</target>
+	
+	<!--
+	09 - T24 Maven
+	https://lausvn/svn/devel/products/DS/trunk/t24-maven
+	mvn -U -f t24-all/pom.xml clean deploy
+	-->
+	<target name="09-T24-Maven" unless="${skip.09-T24-Maven}">
+		<echo message="---------------------------------"/>
+		<echo message="09 - T24 Maven build"/>
+		<echo message="---------------------------------"/>
+
+		<!-- The extension need to the installed before they are used -->
+		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" failonerror="true" dir="${basedir}/../t24-maven">
+			<arg value="-U"/>
+			<arg value="-Dmaven.repo.local=${basedir.unix}/local-repo"/>
+			<arg value="-ft24-extensions/pom.xml"/>
+			<arg value="clean"/>
+			<arg value="install"/>
+			<arg line="${maven.offline}"/>
+		</exec>
+		
+		<condition property="t24.maven.phase" value="install">
+			<istrue value="${ds.build.feature-branch}"/>
+		</condition>
+		<property name="t24.maven.phase" value="deploy"/>
+		
+		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" failonerror="true" dir="${basedir}/../t24-maven">
+			<arg value="-U"/>
+			<arg value="-Dmaven.repo.local=${basedir.unix}/local-repo"/>
+			<arg value="-ft24-all/pom.xml"/>
+			<arg value="clean"/>
+			<arg value="${t24.maven.phase}"/>
+			<arg value="-Dmaven.test.failure.ignore=true"/>
+			<arg line="${maven.offline}"/>
+		</exec>
+	</target>
+
+	<!--
+	15 - b2 Templates
+	https://lausvn/svn/devel/products/DS/trunk/b2-templates
+	mvn -X clean deploy
+	-->
+	<target name="15-b2-Templates" unless="${skip.15-b2-Templates}">
+		<echo message="---------------------------------"/>
+		<echo message="15 - b2 Templates build"/>
+		<echo message="---------------------------------"/>
+		
+		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" failonerror="true" dir="${basedir}/../b2-templates" >
+			<arg value="-X"/>
+			<arg value="clean"/>
+			<arg value="install"/>
+			<arg line="-Dmaven.repo.local=${basedir.unix}/local-repo ${maven.offline}"/>
+		</exec>
+	</target>
+
+	<!--
+	30 - Documentation
+	https://lausvn/svn/devel/products/DS/trunk/documentation
+	ant do-all -lib build-scripts/lib/jsch-0.1.44.jar
+	MAVEN_OPTS="-Xmx768m"
+	-->
+	<target name="30-Documentation" unless="${skip.30-Documentation}">
+		<echo message="---------------------------------"/>
+		<echo message="30 - Documentation"/>
+		<echo message="---------------------------------"/>
+		
+		<delete dir="infocenter" failonerror="false"/>
+		
+		<ant dir="../documentation/build-scripts" target="do-all-local">
+			<property name="ds-infocenter" location="${basedir}/infocenter"/>
+			<property name="delivery.output" location="${master.delivery.dir}"/>
+			<property name="delivery.dir" location="${master.delivery.dir}"/>
+			<property name="ds.maven.phase" value="install"/>
+			<property name="ds.maven.extra.args" value="-Dmaven.repo.local=${basedir.unix}/local-repo ${maven.offline}"/>
+			<property name="ds.p2cache.location" value="${ds.p2cache.location}"/>
+		</ant>
+		
+		<if>
+			<or>
+				<isfalse value="${ds.build.feature-branch}"/>
+			</or>
+			<then>
+				<echo message="Deploying dita documentation to ${ds.infocenter}..."/>
+				<scp password="${remote.password}" todir="${remote.user}@${remote.infocenter.host}:${remote.infocenter.dir}" trust="true" preserveLastModified="true" >
+		    		<fileset dir="${basedir}/infocenter">
+		    			<include name="com.odcgroup.infocenter.*.jar"/>
+		    		</fileset>
+				</scp>
+				<echo message="Triggering dita reload..."/>
+				<ant dir="../documentation/build-scripts" antfile="build-reload-infocenter.xml"/>
+			</then>
+			<else>
+				<echo message="Skipping documentation deployment..."/>
+			</else>
+		</if>
+		
+	</target>
+
+	<!--
+	40 - Plugins Build
+	https://lausvn/svn/devel/products/DS/trunk/designstudio
+	ant build -Dds.marketingversion='r14' -Dds.target.platform.version=7.1.0 -Ddocs.plan.dir=DST-DOCS -Declipse.buildType=I -Dp2.postfix=integration
+	-->
+	<target name="40-Plugins-Build" unless="${skip.40-Plugins-Build}">
+		<echo message="---------------------------------"/>
+		<echo message="40 - Plugins Build"/>
+		<echo message="---------------------------------"/>
+		
+    	<!-- clean done to support MR -->
+		<delete dir="../designstudio/products/.b2" failonerror="false"/>
+
+		<echo message="Creating backup files... (if required)"/>
+		<copy todir="backup/40-plugin-build" failonerror="false">
+			<fileset dir="../designstudio/products/com.odcgroup.workbench.products">
+				<include name="*.product"/>
+				<include name="about.mappings"/>
+				<include name="META-INF/p2.inf"/>
+			</fileset>
+		</copy>
+		<echo message="Restoring backup files..."/>
+		<copy todir="../designstudio/products/com.odcgroup.workbench.products" failonerror="false">
+			<fileset dir="backup/40-plugin-build">
+				<include name="*.product"/>
+				<include name="about.mappings"/>
+				<include name="META-INF/p2.inf"/>
+			</fileset>
+		</copy>
+		<ant dir="../designstudio" target="build">
+			<property name="ds.marketingversion" value="${localbuild.ds.marketingversion}"/>
+			<property name="ds.target.platform.version" value="${localbuild.ds.target.platform.version}"/>
+			<property name="docs.plan.dir" value="documentation"/>
+			<property name="eclipse.buildType" value="D"/>
+			<property name="p2.postfix" value="dev"/>
+			<property name="ds.maven.extra.args" value="-Dmaven.repo.local=${basedir.unix}/local-repo ${debug.tycho} ${maven.offline}"/>
+			<property name="ds.p2cache.location" value="${ds.p2cache.location}"/>
+		</ant>
+	</target>
+
+	<!--
+	50 - (Small Tests) Unit Tests
+	https://lausvn/svn/devel/products/DS/trunk/tests/ds-junit
+	ant test-small-tests full.plan.dir=DST-FULL
+	-->
+	<target name="50-Small-Tests--Unit-Tests" unless="${skip.50-Small-Tests--Unit-Tests}">
+		<echo message="---------------------------------"/>
+		<echo message="50 - (Small Tests) Unit Tests"/>
+		<echo message="---------------------------------"/>
+		
+		<ant dir="../tests/ds-junit" target="test-small-tests">
+			<property name="full.plan.dir" value="../designstudio"/>
+			<property name="ds.p2cache.location" value="${ds.p2cache.location}"/>
+			<property name="ds.maven.extra.args" value="-Dmaven.repo.local=${basedir.unix}/local-repo ${debug.tycho} ${maven.offline}"/>
+			<property name="ds.unit.test.install.test.feature.timeout" value="216000000"/>
+		</ant>
+		
+		<createFailureReportIfNoUnitTestReportFound 
+			report-filename="testreport-50-subbuild.xml" 
+			sub-build-plan-name="50-Small-Tests--Unit-Tests"
+			xml-unit-test-path="../tests/ds-junit/small/test-results"/>
+	</target>
+
+	<!--
+	60 - Products Only Build
+	https://lausvn/svn/devel/products/DS/trunk/products-build
+	ant all-products -Dds.t24.marketingversion='r14' -Dds.tap.marketingversion='r13.1' -Dds.target.platform.version=7.0.0 -Ddocs.plan.dir=DST-DOCS -Declipse.buildType=I -Dp2.postfix=integration
+	-->
+	<target name="60-Products-Only-Build" unless="${skip.60-Products-Only-Build}">
+		<echo message="---------------------------------"/>
+		<echo message="60 - Products Only Build"/>
+		<echo message="---------------------------------"/>
+		
+    	<!-- clean done to support MR -->
+		<delete dir="../products-build/ds-t24/products/.b2" failonerror="false"/>
+		<delete dir="../products-build/ds-tap/products/.b2" failonerror="false"/>
+		<delete dir="../products-build/generator/products/.b2" failonerror="false"/>
+		<delete dir="../products-build/ds-t24/delivery" failonerror="false"/>
+		<delete dir="../products-build/ds-tap/delivery" failonerror="false"/>
+		<delete dir="../products-build/generator/delivery" failonerror="false"/>
+
+		<echo message="Creating backup files for ds-t24... (if required)"/>
+		<copy todir="backup/60-product-build/ds-t24" failonerror="false">
+			<fileset dir="../products-build/ds-t24/products/com.odcgroup.workbench.t24.products">
+				<include name="*.product"/>
+				<include name="about.mappings"/>
+				<include name="META-INF/p2.inf"/>
+			</fileset>
+		</copy>
+		<echo message="Creating backup files for ds-tap... (if required)"/>
+		<copy todir="backup/60-product-build/ds-tap" failonerror="false">
+			<fileset dir="../products-build/ds-tap/products/com.odcgroup.workbench.tap.products">
+				<include name="*.product"/>
+				<include name="about.mappings"/>
+				<include name="META-INF/p2.inf"/>
+			</fileset>
+		</copy>
+		<echo message="Creating backup files for generator... (if required)"/>
+		<copy todir="backup/60-product-build/generator" failonerror="false">
+			<fileset dir="../products-build/generator/products/com.odcgroup.workbench.products.generator">
+				<include name="*.product"/>
+				<include name="about.mappings"/>
+				<include name="META-INF/p2.inf"/>
+			</fileset>
+		</copy>
+		<echo message="Restoring backup files for ds-t24..."/>
+		<copy todir="../products-build/ds-t24/products/com.odcgroup.workbench.t24.products/" failonerror="false">
+			<fileset dir="backup/60-product-build/ds-t24">
+				<include name="*.product"/>
+				<include name="about.mappings"/>
+				<include name="META-INF/p2.inf"/>
+			</fileset>
+		</copy>
+		<echo message="Restoring backup files for ds-tap..."/>
+		<copy todir="../products-build/ds-tap/products/com.odcgroup.workbench.tap.products/" failonerror="false">
+			<fileset dir="backup/60-product-build/ds-tap">
+				<include name="*.product"/>
+				<include name="about.mappings"/>
+				<include name="META-INF/p2.inf"/>
+			</fileset>
+		</copy>
+		<echo message="Restoring backup files for generator..."/>
+		<copy todir="../products-build/generator/products/com.odcgroup.workbench.products.generator" failonerror="false">
+			<fileset dir="backup/60-product-build/generator">
+				<include name="*.product"/>
+				<include name="about.mappings"/>
+				<include name="META-INF/p2.inf"/>
+			</fileset>
+		</copy>
+
+		<!-- force win/linux/mac in case of remote build -->
+		<condition property="ds.localbuild.skip.win" value="false">
+			<istrue value="${ds.remote.build}"/>
+		</condition>
+		<condition property="ds.localbuild.skip.linux" value="false">
+			<istrue value="${ds.remote.build}"/>
+		</condition>
+		<condition property="ds.localbuild.skip.mac" value="false">
+			<istrue value="${ds.remote.build}"/>
+		</condition>
+
+		<!-- skip win/linux/mac (dep. on the running os) in case of local build -->
+		<condition property="ds.localbuild.skip.win" value="true">
+			<os family="unix"/>
+		</condition>
+		<condition property="ds.localbuild.skip.linux" value="true">
+			<os family="windows"/>
+		</condition>
+		<property name="ds.localbuild.skip.mac" value="true"/>
+
+		<!-- skip win/linux/mac build for tycho -->
+		<condition property="ds.b2.profile" value="buildProducts">
+			<isset property="ds.remote.build"/>
+		</condition>
+		<condition property="ds.b2.profile" value="buildProducts,winOnly">
+			<os family="windows"/>
+		</condition>
+		<condition property="ds.b2.profile" value="buildProducts,linuxOnly">
+			<os family="unix"/>
+		</condition>
+		<property name="ds.b2.profile" value="buildProducts"/>
+		
+		<echo message="Skipping attributes values"/>
+		<echo message="ds.localbuild.skip.win: ${ds.localbuild.skip.win}"/>
+		<echo message="ds.localbuild.skip.linux: ${ds.localbuild.skip.linux}"/>
+		<echo message="ds.localbuild.skip.mac: ${ds.localbuild.skip.mac}"/>
+		<echo message="ds.b2.profile: ${ds.b2.profile}"/>
+
+		<ant dir="../products-build" target="all-products">
+		<!-- used by the product ant build script to avoid building windows zip or linux tar if not required 
+			<property name="ds.localbuild.skip.win" value="${ds.localbuild.skip.win}"/> 
+			<property name="ds.localbuild.skip.linux" value="${ds.localbuild.skip.linux}"/> 
+			<property name="ds.localbuild.skip.mac" value="${ds.localbuild.skip.mac}"/> 
+			-->
+		<!-- used by the product tycho build script to avoid building windows zip or linux tar if not required 
+			<property name="ds.b2.profile" value="${ds.b2.profile}"/> 
+			-->
+		<!--
+			<property name="ds.t24.marketingversion" value="${localbuild.ds.t24.marketingversion}"/>
+			<property name="ds.tap.marketingversion" value="${localbuild.ds.tap.marketingversion}"/>
+			<property name="ds.target.platform.version" value="${localbuild.ds.target.platform.version}"/>
+			-->
+			<property name="docs.plan.dir" value="documentation"/>
+			<property name="local.delivery.dir" value="${master.delivery.dir}"/>
+			<property name="eclipse.buildType" value="D"/>
+			<property name="p2.postfix" value="dev"/>
+<!--
+			<property name="remote.dir" location="${master.delivery.dir}"/> < ! - - redirect the extraction of the TAP generator in the delivery folder of the build-all folder - - >
+			<property name="p2.dist.remote.dir" location="${master.delivery.dir}"/> < ! - - redirect the extraction of the T24 generator in the delivery folder of the build-all folder 
+-->
+			<property name="ds.maven.extra.args" value="-Dmaven.repo.local=${basedir.unix}/local-repo ${debug.tycho} ${maven.offline}"/>
+			<property name="target" value="build-local"/>
+			<property name="ds.p2cache.location" value="${ds.p2cache.location}"/>
+			<property name="ds.jre.location" value="${ds.jre.location}"/>
+
+			<property name="designstudio.dir" value="../designstudio"/>
+		</ant>
+
+		<!-- only deploy beta build for main build, i.e. not feature branches -->
+		<if>
+			<isfalse value="${ds.build.feature-branch}"/>
+			<then>
+				<ant dir="../delivery/" antfile="build-deploy.xml" target="publish-beta-products"/>
+			</then>
+		</if>
+
+		<echo message="Installing T24 generator..."/>
+		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" failonerror="true">
+			<arg value="install:install-file"/>
+			<arg value="-Dfile=../products-build/generator/delivery/DesignStudioT24-GeneratorEdition-${ds.release}.${ds.patch}.zip"/>
+			<arg value="-DgroupId=com.temenos.ds"/>
+			<arg value="-DartifactId=DesignStudioT24-Generator"/>
+			<arg value="-Dversion=${ds.release}.${ds.patch}-SNAPSHOT"/>
+			<arg value="-Dpackaging=zip"/>
+			<arg line="-Dmaven.repo.local=${basedir.unix}/local-repo"/>
+		</exec>
+
+		<echo message="Installing TAP generator..."/>
+		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" failonerror="true">
+			<arg value="install:install-file"/>
+			<arg value="-Dfile=../products-build/generator/delivery/DesignStudioTAP-GeneratorEdition-${ds.release}.${ds.patch}.zip"/>
+			<arg value="-DgroupId=com.odcgroup.ds"/>
+			<arg value="-DartifactId=DesignStudioTAP-Generator"/>
+			<arg value="-Dversion=${ds.release}.${ds.patch}-SNAPSHOT"/>
+			<arg value="-Dpackaging=zip"/>
+			<arg line="-Dmaven.repo.local=${basedir.unix}/local-repo"/>
+		</exec>
+	</target>
+	
+	<target name="61-Runtime-Build" unless="${skip.61-Runtime-Build}">
+		<echo message="---------------------------------"/>
+		<echo message="61 - T24 Binaries Build"/>
+		<echo message="---------------------------------"/>
+	
+		<ant dir="../t24-binaries/" antfile="build-t24binaries.xml" target="all"/>
+		
+		<!-- only deploy beta build for main build, i.e. not feature branches -->
+		<if>
+			<isfalse value="${ds.build.feature-branch}"/>
+			<then>
+				<ant dir="../delivery/" antfile="build-deploy.xml" target="publish-beta-t24binaries"/>
+			</then>
+		</if>
+	</target>
+	
+	<!--
+	63 - (Medium Tests) T24 Models Generation and Packaging
+	https://lausvn/svn/devel/products/DS/trunk/tests/t24-packager
+	mvn -U -X -f t24-demo-packager/module/pom.xml clean install -Dds.ignoreValidationErrors=true "-Ddesign.studio.home=//p2/p2/dist/latest/9.0/before-automated-tests/t24-generator"
+	-->
+	<target name="63-Medium-Tests--T24-Models-Generation-and-Packaging" unless="${skip.63-Medium-Tests--T24-Models-Generation-and-Packaging}">
+		<echo message="---------------------------------"/>
+		<echo message="63 - (Medium Tests) T24 Models Generation and Packaging"/>
+		<echo message="---------------------------------"/>
+		
+		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" failonerror="false" dir="${basedir}/../tests/t24-packager" outputproperty="logs.subbuild.63">
+			<redirector alwayslog="true"/> 
+			<arg line="${maven.offline}"/>
+			<arg value="-U"/>
+			<arg value="-X"/>
+			<arg value="-ft24-demo-packager/module/pom.xml"/>
+			<arg value="-Dmaven.repo.local=${basedir.unix}/local-repo"/>
+			<arg value="clean"/>
+			<arg value="install"/>
+			<arg value="-Dds.ignoreValidationErrors=true"/>
+			<arg value="-Ddesign.studio.home=${master.delivery.dir}/product/generators/t24-generator"/>
+		</exec>
+		<createXmlUnitTestReport report-filename="testreport-63-subbuild.xml" sub-build-plan-name="63-Medium-Tests--T24-Models-Generation-and-Packaging" 
+			logs="${logs.subbuild.63}"/>
+	</target>
+
+	<!--
+	65 - (Big Tests) BM Maven Generation
+	https://lausvn/svn/devel/products/OCS/tags/7.0.stable/business-models
+	-U -B -f business-models-all/pom.xml clean install "-Ddesign.studio.home=//oams.com/Software/Incoming Packages/tmp/SDK-DS/integration/ds-generator" -Dds.ignoreValidationErrors=false -Dmaven.repo.local=E:/REPO_DST_NEXT_DS
+	-->
+	<target name="65-Big-Tests--BM-Maven-Generation" unless="${skip.65-Big-Tests--BM-Maven-Generation}">
+		<echo message="---------------------------------"/>
+		<echo message="65 - (Big Tests) BM Maven Generation"/>
+		<echo message="---------------------------------"/>
+
+		<property name="svn-business-models-url" value="https://lausvn.oams.com/svn/devel/products/OCS/tags/7.0.stable/business-models"/>
+
+		<delete dir="business-models" failonerror="true" />
+		
+		<echo message="Downloading the latest TAP successfully built models from ${svn-business-models-url}"/>
+		<exec executable="svn" failonerror="true" >
+			<arg line="co -q --trust-server-cert --non-interactive ${svn-business-models-url}"/>
+		</exec>
+
+		<echo message="Compile business-models ..."/>
+		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" dir="${basedir}/business-models" outputproperty="logs.subbuild.65">
+			<!-- <arg line="${maven.offline}"/> this build must stay online -->
+			<arg value="-U"/>
+			<arg value="-B"/>
+			<arg value="-fbusiness-models-all/pom.xml"/>
+			<arg value="clean"/>
+			<arg value="install"/>
+			<arg value='"-Ddesign.studio.home=${master.delivery.dir}/product/generators/ds-generator"'/>
+			<arg value="-Dds.ignoreValidationErrors=false"/>
+			<arg value="-Dmaven.repo.local=${basedir.unix}/local-repo"/>
+		</exec>
+		
+		<createXmlUnitTestReport report-filename="testreport-65-subbuild.xml" sub-build-plan-name="65-Big-Tests--BM-Maven-Generation" 
+			logs="${logs.subbuild.65}"/>
+	</target>
+
+	<!--
+	68 - (Big Tests) T24 External Tests
+	https://lausvn/svn/devel/products/DS/trunk/tests/big-ds-t24-junit
+	ant test-big-tests -Dfull.plan.dir=DST-PROD/ds-t24
+	-->
+	<target name="68-Big-Tests--T24-External-Tests" unless="${skip.68-Big-Tests--T24-External-Tests}">
+		<echo message="---------------------------------"/>
+		<echo message="68 - (Big Tests) T24 External Tests"/>
+		<echo message="---------------------------------"/>
+
+		<ant dir="../tests/big-ds-t24-junit" target="test-big-tests">
+			<property name="full.plan.dir" value="../designstudio"/>
+			<property name="ds.p2cache.location" value="${ds.p2cache.location}"/>
+			<property name="ds.maven.extra.args" value="-Dmaven.repo.local=${basedir.unix}/local-repo ${debug.tycho} ${maven.offline}"/>
+		</ant>
+		
+		<createFailureReportIfNoUnitTestReportFound 
+			report-filename="testreport-68-subbuild.xml" 
+			sub-build-plan-name="68-Small-Tests--Unit-Tests"
+			xml-unit-test-path="../tests/big-ds-t24-junit/big/test-results"/>
+	</target>
+
+	<!--
+	69 - (Big Tests) TAP External Tests
+	https://lausvn/svn/devel/products/DS/trunk/tests/big-ds-tap-junit
+	ant test-big-tests -Dfull.plan.dir=DST-PROD/ds-tap
+	MAVEN_OPTS="-Xmx768m"
+	-->
+	<target name="69-Big-Tests--TAP-External-Tests" unless="${skip.69-Big-Tests--TAP-External-Tests}">
+		<echo message="---------------------------------"/>
+		<echo message="69 - (Big Tests) TAP External Tests"/>
+		<echo message="---------------------------------"/>
+
+		<ant dir="../tests/big-ds-tap-junit" target="test-big-tests">
+			<property name="full.plan.dir" value="../designstudio"/>
+			<property name="ds.p2cache.location" value="${ds.p2cache.location}"/>
+			<property name="MAVEN_OPTS" value="-Xmx768m"/>
+			<property name="ds.maven.extra.args" value="-Dmaven.repo.local=${basedir.unix}/local-repo ${debug.tycho} ${maven.offline}"/>
+		</ant>
+		
+		<createFailureReportIfNoUnitTestReportFound 
+			report-filename="testreport-69-subbuild.xml" 
+			sub-build-plan-name="69-Small-Tests--Unit-Tests"
+			xml-unit-test-path="../tests/big-ds-tap-junit/big/test-results"/>
+	</target>
+	
+	<target name="71-Big-Tests--Hothouse-Test" unless="${skip.71-Big-Tests--Hothouse-Test}">
+		<echo message="------------------------------------"/>
+		<echo message="71 - (Big Tests) Hothouse build Test"/>
+		<echo message="------------------------------------"/>
+		
+		<ant dir="../tests/t24-hothouse" target="build" output="subbuild.71.log">
+			<property name="MAVEN_OPTS" value="-Xmx768m"/>
+			<property name="ds.test.full.hothouse.build" value="${ds.test.full.hothouse.build}"/>
+			<property name="ds.maven.extra.args" value="-Dmaven.repo.local=${basedir.unix}/local-repo ${maven.offline}"/>
+			<property name="git.revision.to.checkout" value="83733b88a06f657aad1d7fc9cf6536920f7b97f1"/> <!-- 83733b8 -->
+		</ant>
+		<loadfile srcFile="../tests/t24-hothouse/hothouse-build.log" property="log.subbuild.71"/>
+		<echo message="${log.subbuild.71}"/>
+		<createXmlUnitTestReport report-filename="testreport-71-subbuild.xml" sub-build-plan-name="71-Big-Tests--Hothouse-Test" logs="${log.subbuild.71}"/>
+	</target>
+	
+	<target name="72-Big-Tests--Hothouse-Fully-Loaded-Test" unless="${skip.72-Big-Tests--Hothouse-Fully-Loaded-Test}">
+		<echo message="-------------------------------------------------"/>
+		<echo message="72 - (Big Tests) Hothouse fully loaded build Test"/>
+		<echo message="-------------------------------------------------"/>
+
+		<ant dir="../tests/t24-hothouse" target="build" output="subbuild.72.log">
+			<property name="MAVEN_OPTS" value="-Xmx768m"/>
+			<property name="ds.test.full.hothouse.build" value="${ds.test.full.hothouse.build}"/>
+			<property name="ds.maven.extra.args" value="-Dmaven.repo.local=${basedir.unix}/local-repo ${maven.offline}"/>
+			<property name="git.branch.to.clone" value="FullyLoaded"/>
+			<property name="checkout.dir" value="HotHouse-FullyLoaded"/>
+		</ant>
+		<loadfile srcFile="../tests/t24-hothouse/hothouse-build.log" property="log.subbuild.72"/>
+		<echo message="${log.subbuild.72}"/>
+		<createXmlUnitTestReport report-filename="testreport-72-subbuild.xml" sub-build-plan-name="72-Big-Tests--Hothouse-Fully-Loaded-Test" logs="${log.subbuild.72}"/>
+	</target>
+	
+	<target name="73-Big-tests--Component-Framework-Integration-Test" unless="${skip.73-Big-tests--Component-Framework-Integration-Test}">
+		<echo message="-----------------------------------------------------"/>
+		<echo message="73 - (Big tests) Component Framework Integration Test"/>
+		<echo message="-----------------------------------------------------"/>
+		
+		<first id="t24.generator.for.73.build.first">
+		    <dirset dir="${basedir}" includes="delivery/**/product/generators/t24-generator" />
+		</first>
+		<property name="t24.generator.for.73.build" location="${toString:t24.generator.for.73.build.first}"/>
+		<echo message="T24 generator used: ${t24.generator.for.73.build}"/>
+		
+		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" dir="${basedir}/../tests/t24-component" outputproperty="logs.subbuild.73">
+			<redirector alwayslog="true"/> 
+			<arg value="-Dmaven.repo.local=${basedir.unix}/local-repo/"/>
+			<arg value="-Ddesign.studio.home=${t24.generator.for.73.build}"/>
+			<arg value="clean"/>
+			<arg value="install"/>
+			<arg line="${maven.offline}"/>
+		</exec>
+		<createXmlUnitTestReport report-filename="testreport-73-subbuild.xml" sub-build-plan-name="73-Big-tests--Component-Framework-Integration-Test" 
+			logs="${logs.subbuild.73}"/>
+	</target>
+
+	<macrodef name="createXmlUnitTestReport">
+		<attribute name="report-filename"/>
+		<attribute name="sub-build-plan-name"/>
+		<attribute name="logs"/>
+		<attribute name="success-string" default="BUILD SUCCESS"/>
+		<attribute name="failure-string" default="BUILD FAILED"/>
+		<sequential>
+			<local name="report-filename-fullpath"/>
+			<property name="report-filename-fullpath" location="@{report-filename}"/>
+			<if>
+				<and>
+					<contains string="@{logs}" substring="@{success-string}"/>
+					<not><contains string="@{logs}" substring="@{failure-string}"/></not>
+				</and>
+				<then>
+					<echo message="No error detected, generating sucessful build report in ${report-filename-fullpath}..."/>
+					<echoxml file="${report-filename-fullpath}">
+						<testsuite errors="0" failures="0" name="@{sub-build-plan-name}" tests="1" time="0" timestamp="0">
+							<testcase classname="@{sub-build-plan-name}.@{sub-build-plan-name}" name="@{sub-build-plan-name}" time="0"/>
+						</testsuite>
+					</echoxml>
+				</then>
+				<else>
+					<echo message="Error detected, generating failure build report in ${report-filename-fullpath}..."/>
+					<echoxml file="${report-filename-fullpath}">
+						<testsuite errors="1" failures="0" name="@{sub-build-plan-name}" tests="1" time="0" timestamp="0">
+							<testcase classname="@{sub-build-plan-name}.@{sub-build-plan-name}" name="@{sub-build-plan-name}" time="0">
+								<error type="maven.execution.issue">@{logs}</error>
+							</testcase>
+						</testsuite>
+					</echoxml>
+				</else>
+			</if>
+		</sequential>
+	</macrodef>
+	
+	<macrodef name="createFailureReportIfNoUnitTestReportFound">
+		<attribute name="report-filename"/>
+		<attribute name="sub-build-plan-name"/>
+		<attribute name="xml-unit-test-path"/>
+		<sequential>
+			<if>
+				<resourcecount when="equal" count="0">
+					<fileset dir="@{xml-unit-test-path}">
+						<include name="*.xml"/>
+					</fileset>
+				</resourcecount>
+				<then>
+					<local name="report-filename-fullpath"/>
+					<property name="report-filename-fullpath" location="@{report-filename}"/>
+					<echo message="No xml junit report found in @{xml-unit-test-path}"/>
+					<echo message="Generating failure build report in ${report-filename-fullpath}..."/>
+					<echoxml file="${report-filename-fullpath}">
+						<testsuite errors="1" failures="0" name="@{sub-build-plan-name}" tests="1" time="0" timestamp="0">
+							<testcase classname="@{sub-build-plan-name}.@{sub-build-plan-name}" name="@{sub-build-plan-name}" time="0">
+								<error type="maven.execution.issue">Thhe test plan @{sub-build-plan-name} didn't produce any xml unit test report in @{xml-unit-test-path}</error>
+							</testcase>
+						</testsuite>
+					</echoxml>
+				</then>
+			</if>
+		</sequential>
+	</macrodef>
+	
+	<!-- Remove the local repository in case of successful build -->
+	<target name="99-Final-Cleanup" unless="${skip.99-Final-Cleanup}">
+		<echo message="---------------------------------"/>
+		<echo message="99 Final Clean up"/>
+		<echo message="---------------------------------"/>
+		
+		<echo message="Cleaning product-build (as the products are copied to the master-build/delivery) ..."/>
+		<delete dir="${basedir}/../products-build"/>
+		<echo message="Cleaning local repository..."/>
+		<delete dir="${basedir.unix}/local-repo"/>
+	</target>
+	
+	<target name="Statistics">
+		<statistics message="------------------------------------------------------------------"/>
+		<statistics message="Statistics                                                [mmm:ss]"/>
+		<statistics message="------------------------------------------------------------------"/>
+		<statistics message="08 - Source code scan for merge markers................... " time="${timer.scan}"/>
+		<statistics message="09 - T24 Maven build ..................................... " time="${timer.09.T24.Maven.build}"/>
+		<statistics message="15 - b2 Templates build .................................. " time="${timer.15.b2.Templates.build}"/>
+		<statistics message="30 - Documentation ....................................... " time="${timer.30.Documentation}"/>
+		<statistics message="40 - Plugins Build ....................................... " time="${timer.40.Plugins.Build}"/>
+		<statistics message="50 - (Small Tests) Unit Tests ............................ " time="${timer.50.Small.Tests.Unit.Tests}"/>
+		<statistics message="60 - Products Only Build ................................. " time="${timer.60.Products.Only.Build}"/>
+		<statistics message="61 - T24 Binaries Build .................................. " time="${timer.61.T24.runtime}"/>
+		<statistics message="63 - (Medium Tests) T24 Models Generation and Packaging .. " time="${timer.63.Medium.Tests.T24.Models.Generation.and.Packaging}"/>
+		<statistics message="65 - (Big Tests) BM Maven Generation ..................... " time="${timer.65.Big.Tests.BM.Maven.Generation}"/>
+		<statistics message="68 - (Big Tests) T24 External Tests ...................... " time="${timer.68.Big.Tests.T24.External.Tests}"/>
+		<statistics message="69 - (Big Tests) TAP External Tests ...................... " time="${timer.69.Big.Tests.TAP.External.Tests}"/>
+		<statistics message="71 - (Big Tests) Hothouse build Test ..................... " time="${timer.71.Big.Tests.Hothouse.Test}"/>
+		<statistics message="72 - (Big Tests) Hothouse fully loaded build Test ........ " time="${timer.72.Big.Tests.Hothouse.Fully.Loaded.Test}"/>
+		<statistics message="73 - (Big tests) Component Framework Integration Test .... " time="${timer.73.Big.tests.Component.Framework.Integration.Test}"/>
+		<statistics message="99 - Final Clean up ...................................... " time="${timer.99.Final.Cleanup}"/>
+		<statistics message="------------------------------------------------------------------"/>
+		<statistics message="Preparation (09, 10, 15) ................................. " time="${timer.prep}"/>
+		<statistics message="Product creation (30, 40, 50, 60, 61) .................... " time="${timer.total.product}"/>
+		<statistics message="Tests (63, 65, 68, 69, 71, 72, 73) ....................... " time="${timer.all.tests}"/>
+		<statistics message="Clean up ................................................. " time="${timer.99.Final.Cleanup}"/>
+		<statistics message="------------------------------------------------------------------"/>
+		<statistics message="Total time (without sources checkout) : .................. " time="${timer.all.build.plans}"/>
+		<statistics message="------------------------------------------------------------------"/>
+	</target>
+	
+	<scriptdef name="statistics" language="javascript">
+		<attribute name="message"/>
+		<attribute name="time"/>
+		<![CDATA[
+			var time = attributes.get("time");
+			time = (time === null)?"":time.substr(0, time.indexOf("."));
+			self.log(attributes.get("message") + ("      " + time).slice(-6));
+		]]>
+	</scriptdef>
+	
+</project>

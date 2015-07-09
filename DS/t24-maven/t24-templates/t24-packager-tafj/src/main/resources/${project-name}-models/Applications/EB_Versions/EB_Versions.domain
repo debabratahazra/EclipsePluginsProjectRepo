@@ -1,0 +1,2753 @@
+# UTF-8
+# UTF-8
+/* Version Static and Run Time */
+Domain EB_Versions
+	@t24:i (module=EB)
+	@java:Package (value=com.temenos.t24.datamodel.eb.eb_versions)
+namespace "http://www.temenos.com/t24/EB_Versions"
+metamodelVersion 1.30.6
+Classes {
+	/* All T24 screens have been designed within a set structure and most Data Sections of the screen are very similar (one field per line with enrichment of 35 characters per field).
+The VERSION file has been developed to enable Users to redesign the Data Section (line 5 to line 20) of any T24. screen to suit their own preferences/requirements. An infinite number of versions of each screen can be created, and are then called up by appending ',X' (where X = Version identity) to the Application name.
+Basically, the VERSION file is organised in three sections:
+1.         The first section defines general information such as :
+. Print or Screen identification.            . Number of records per page.            . Number of fields per line.            . Languages.            . Headers.
+2.         The second section enables the layout of fields to be            arranged on the screen, field descriptions to be            defined in any language and length of enrichments to            be specified.
+3.         The third section enables the User to define operating            conditions specific to the Version being created by            means of parameters such as :
+. Number of authorisation(s)            . Definition of 'No-input' fields            . Definition of 'No-change' fields            . Fields to be rekeyed for authorisation            . Automatic default values */
+	VERSION
+		@t24:i (t24Name=VERSION, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Enables the specific Version of an application to be uniquely identified.
+
+The name, or an Abbreviation, for the Application of which a Version is required must be entered followed by a comma. In cases where more than one Version exists, each Version must be specified by appending further unique identity.
+
+Symbols and Special Characters for eg: ( !@#$% ) can used to form the id for version, but the same cannot be used in the VERSION field in USER and USER.SMS.GROUP applications. Hence versions with symbols and special characters will not be accepted in USER and USER.SMS.GROUP applications.
+
+Example:
+The following is a list of possible ID's for the creation of various Versions for the CUSTOMER file:
+. Customer,1 . Customer,99 . Customer,abc
+. Customer,3a . Customer,Smith etc... . Cust,Special (where CUST is an abbreviation of CUSTOMER)
+
+Validation Rules
+2-30 type SS (uppercase alpha     or numeric, first character alpha) character Application name or     Abbreviation, appended by ',X' (where 'X' = Version identity). (Mandatory     input)
+It must be prefixed by a valid     Application name or abbreviation of a valid application name.
+The Version identity must not     be greater than 22 characters.
+The Version identity cannot be     'O' as this identifies the standard Version when defining S.M.S.     restrictions.
+The length of the complete ID cannot exceed 25 characters, including the full Application name if an Abbreviation is used. */
+		PGM_NAME_VERSION -> EB_Versions:VERSION PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=0.0, core=true, businessType=PV, t24Name=PGM.NAME.VERSION, typeModifiers=DHULW)
+		/* Indicates if the Version being created is to be used for a printed report or for an on-line screen.
+As a display screen only contains a maximum of 80 character width, the output of wider formats may only be achieved on a printer (to a maximum of 132 chars) and thus the value of this field should be set to 'Y' in such circumstances.
+Validation Rules
+Y    This Version is created for the purpose of defining a printed report. blankThis Version is created for the purpose of defining an on-line screen. (Optional input.  Default value = blank i.e. this Version is created to define a screen.) */
+		PRINT_ONLY : EB_Versions:VERSION__PRINT_ONLY
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=1.0, core=true, t24Name=PRINT.ONLY)
+		/* Indicates whether more than one record may be shown on the same page or screen in the Version that the User is creating.
+In most cases, the User will only create one record per page or screen.  However, a typical example where more than one record per screen could be applicable, would be the creation of a Version to allow the input of the exchange rates of various currencies on one single screen.
+Validation Rules
+1    Only one record per page or screen MULTI    Various records per page or screen (any abbreviation of MULTI is also allowed). (Mandatory input) */
+		RECORDS_PER_PAGE : EB_Versions:VERSION__RECORDS_PER_PAGE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=2.0, core=true, t24Name=RECORDS.PER.PAGE)
+		/* Indicates whether the User wishes to define more than one field per line in the specific Version.
+Validation Rules
+1    This will mean that only one field per line can be defined in this Version. MULTI    This will allow the User to define various fields per line in this Version.  (Any abbreviation of MULTI will also be allowed). (Mandatory input) Input in this field must be MULTI when the RECORDS PER PAGE (Field 2) contains the value of MULTI. */
+		FIELDS_PER_LINE : EB_Versions:VERSION__FIELDS_PER_LINE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=FIELDS.PER.LINE)
+		LANGUAGE_CODE -> byValue EB_Versions:VERSION__LANGUAGE_CODE *
+		HDR_1_001__039 -> byValue EB_Versions:VERSION__HDR_1_001__039 *
+		FIELD_NO -> byValue EB_Versions:VERSION__FIELD_NO *
+		RIGHT_ADJ_FIELD -> byValue EB_Versions:VERSION__RIGHT_ADJ_FIELD *
+		/* Indicates in which line the User wants to display the reference number (ID) of the record.  It will be displayed in line 3 unless data is specified in this field.
+Validation Rules
+Y    The reference number will be displayed in the first line of the screen on page (header line). or    blankThe system will display the reference number in line 3 of the screen or page (header line). Input in this field is only allowed when RECORDS PER PAGE (Field 2) contains the value of 1. */
+		REF_NO_IN_1ST_LINE : EB_Versions:VERSION__REF_NO_IN_1ST_LINE
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=44.0, core=true, t24Name=REF.NO.IN.1ST.LINE)
+		ID_AUTOM_SEQU -> byValue EB_Versions:VERSION__ID_AUTOM_SEQU *
+		/* Enables the User to specify the number of authorisers required when using this Version.
+This field allows the User to define his own operating conditions according to the type of product.  The number of authoriser(s) to be involved can therefore be defined at the Application level which will allow the User, for example, to create a Version of the Customer file with one authoriser and a Version for the Money Market Application with two authorisers.
+Validation Rules
+0 -  No authoriser which means that this Version will validate and authorise in one activity. or     1 -  One authoriser will be required. or     2 -  Two authorisers will be required. or     blank (Optional input. Default value = number of authorisers defined in the COMPANY table). Input in this field will not be allowed when the field Print.Only contains the value of Y. */
+		NO_OF_AUTH : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=46.0, core=true, t24Name=NO.OF.AUTH)
+		NOINPUT_FIELD -> byValue EB_Versions:VERSION__NOINPUT_FIELD *
+		NOCHANGE_FIELD -> byValue EB_Versions:VERSION__NOCHANGE_FIELD *
+		REKEY_FIELD_NO -> byValue EB_Versions:VERSION__REKEY_FIELD_NO *
+		AUTOM_FIELD_NO -> byValue EB_Versions:VERSION__AUTOM_FIELD_NO *
+		MANDATORY_FIELD -> byValue EB_Versions:VERSION__MANDATORY_FIELD *
+		/* Indicates whether multivalues are permitted or not.
+Validation Rules
+System generated field. */
+		MULTI_POSSIBLE : EB_Versions:VERSION__MULTI_POSSIBLE
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=54.0, core=true, t24Name=MULTI.POSSIBLE)
+		VAL_ASSOC -> byValue EB_Versions:VERSION__VAL_ASSOC *
+		SUB_ASSOC -> byValue EB_Versions:VERSION__SUB_ASSOC *
+		/* The field on the application used for local reference
+Note:      Please note that versions input prior to the use of a            local reference field may not have this field updated.            Any local reference which is made mandatory will not            be checked until the version has been re-validated.
+Validation Rules
+System generated field. */
+		LOCAL_REF_FIELD : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=40, sysNumber=57.0, core=true, t24Name=LOCAL.REF.FIELD)
+		VALIDATION_FLD -> byValue EB_Versions:VERSION__VALIDATION_FLD *
+		D_SLIP_FORMAT -> byValue EB_Versions:VERSION__D_SLIP_FORMAT *
+		/* Specifies whether a Deal Slip is produced using a 'Hot Key' or at specified points in a contracts Life Cycle. Control of how and when the Deal Slip(s) are produced is handled by the combination of the function and the trigger type. The two trigger types are:
+Trigger type#Action##
+OL#Generate a deal slip automatically at points defined by D.SLIP.FUNCTION##
+RQ#Generate manually using a HOT.KEY at points defined by D.SLIP.FUNCTION##
+Hot Key
+In Desktop(GUI) the 'hot key' id the Deal Slip icon on the main toolbar. For text based (Terminal) connections the 'hot key' is defined in the TERMINAL record in field
+PRT.HOTKEY
+Validation Rules:
+Must be either OL or RQ Must have input in fields D.SLIP.FORMAT and D.SLIP.FUNSTION fields to be effective. */
+		D_SLIP_TRIGGER : EB_Versions:VERSION__D_SLIP_TRIGGER
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=62.0, core=true, t24Name=D.SLIP.TRIGGER)
+		INPUT_ROUTINE -> byValue EB_Versions:VERSION__INPUT_ROUTINE *
+		AUTH_ROUTINE -> byValue EB_Versions:VERSION__AUTH_ROUTINE *
+		/* Defines whether locking situations are reported to the user when waiting for a lock.
+If this field is not set to NO, the user will receive a warning that a particular record in a specified  file is locked. The user holding the lock and user number will also be displayed if known.
+If this field is set to NO, there will be no warning messages displayed.
+In applications where there are frequent locking situations, the length of time locks are held may be minimized by setting this field to NO. When set to NO, no logging of locking situations will take place.
+Validation Rules
+YES or NO */
+		REPORT_LOCKS : EB_Versions:VERSION__REPORT_LOCKS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=65.0, core=true, t24Name=REPORT.LOCKS)
+		/* Controls how GTS and OFS will handle error conditions for activities using this version record. The following values are allowed :
+Null (Reject errors / Approve overrides)
+
+
+
+GTS
+Validation errors will result in the                 record being rejected, the GTS data record in the                 output directory will be appended with an error                 code (90) Overrides will be accepted by default,                 the GTS data record in the output directory will                 be appended with the acceptance code (00).
+OFS
+Validation errors will result in the record                 being rejected, the OFS data record will be                 returned with details of the error message.                 Overrides will be accepted by default, the                 overrides will be returned in the populated OFS                 data record.
+1 (Errors on HLD / Approve Overrides)
+
+
+GTS
+Validation errors will place the                 record on hold, the GTS data record in the output                 directory will be appended with an error code                 (80). Overrides will be accepted by default the                 GTS data record in the output directory will be                 appended with the acceptance code (00).
+OFS
+Validation errors will place the record on                 hold, the OFS data record will be returned with                 the error messages. Overrides will be accepted by                 default, the values approved will be returned in                 the populated OFS record.
+2 (Errors Rejected / Overrides in HLD)
+
+
+GTS
+Validation errors will result in the                 record being rejected, the GTS data record in the                 output directory will be appended with an error                 code (90). Overrides will result in the record                 being placed on hold, the GTS data record in the                 output directory will be appended with an error                 code (81).
+OFS
+Validation errors will result in the record                 being rejected, the OFS data record will be                 returned with the error messages. Overrides will                 result in the record being placed on hold.
+3 (Errors in HLD / Overrides HLD)
+
+
+GTS
+Validation errors will place the                 record on hold, the GTS data record in the output                 directory will be appended with an error code                 (80). Overrides will result in the record being                 placed on hold, the GTS data record in the output                 directory will be appended with an error code                 (81).
+OFS
+Validation errors will place the record on                 hold, the OFS data record will be returned with                 the error messages. Overrides will result in the                 record being placed on hold, the OFS data record                 returned will store the override message.
+4 (Hold Only)
+
+
+GTS
+This option is not available using                 GTS. Messages can be written straight to HLD                 using the GTS.MODE field in                 GT.SYSTEM.PARAMETER.
+OFS
+If field validation (FIELD.VAL in OFS.SOURCE)                 is not set then this setting will place all                 records in HLD status immediately, and no further                 validation or processing will take place. If                 field validation is set (FIELD.VAL=YES) then any                 field validation errors will cause the record                 put into HLD also OFS data record will be                 returned with the error messages.
+Validation Rules
+1 character numeric must be either null (no value), 1 ,2, 3 or 4. */
+		GTS_CONTROL : EB_Versions:VERSION__GTS_CONTROL
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=66.0, core=true, t24Name=GTS.CONTROL)
+		DESCRIPTION -> byValue EB_Versions:VERSION__DESCRIPTION *
+		ASSOC_VERSION -> byValue EB_Versions:VERSION__ASSOC_VERSION *
+		/* Enables the user to specify T24 application/version to be launched as soon as the current transaction is successfully authorised.
+Next version should be specified in the following format,
+<Next application or Version>  <Function>  <Key>
+where,
+the first part should be a standard T24 application/Version.
+Function and key are optional inputs.
+Key can take any literal value or field name or F3(new key).Field name should be valid field in application.
+Example:-
+When designing a Customer Version,user can design Account version to be launched after the Customer data has been entered.Next version in that case can be defined as,
+ACCOUNT,UPDATE S @ID
+Validation Rules
+1.Non mandatory field.
+2.A maximum of 35 characters may be entered in the above format specified. */
+		NEXT_VERSION -> EB_Versions:VERSION
+			@t24:i (align=L, inputBehaviour=I, maxLength=71, sysNumber=69.0, core=true, businessType=ANY, t24Name=NEXT.VERSION)
+		/* Indicates the Field Name which the User wants to be first active in the Version. When the Version is launched the Initial Cursor Position would be at this field.
+Input, Internal and External fields can be specified as the initial cursor position. Local Reference Fields are not valid.
+Field names can be entered in the following format:
+a) Field name (e.g. MNEMONIC for field 1 in the customer file followed by,
+b) '-' when the User wants to define a multivalue field, followed by,
+c) Value Number (e.g. RELATION-1 for RELATION in the customer file) when the User wants to define multivalue fields, followed by,
+d) '.' when the User wants to define a subvalue field, followed by,
+e) Sub-Number when the User wants to define a subvalue field.
+Alternatively, field names can be entered as field numbers as follows:
+a) Field name (e.g. 1 for mnemonic in the customer file followed by,
+b) '.' when the User wants to define a multivalue field, followed by,
+c) Value Number (e.g. 7.1 for RELATION in the customer file) when the User wants to define multivalue fields, followed by,
+d) '.' when the User wants to define a subvalue field, followed by,
+e) Sub-Number when the User wants to define a subvalue field.
+Field numbers will be translated to field names when entered.
+The Field Name which is set must be defined in the Version Record.
+Validation Rules
+Up to 40 type A (alphanumeric) characters in the format.
+The definition of the Field 0 (ID) in this field is not         allowed.
+For multivalue and subvalue fields, input of the value         numbers -1 and sub numbers -1.1 is mandatory. */
+		INITIAL_CURSOR_POS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=70.0, core=true, t24Name=INITIAL.CURSOR.POS)
+		RESERVED_4 -> byValue EB_Versions:VERSION__RESERVED_4 *
+		CAPTION -> byValue EB_Versions:VERSION__CAPTION *
+		/* Flag to indicate whether the routines defined in VERSION.CONTROL should be executed for this version or not.It also decides whether the features FLD.CHECK.VALUE, NOINPUT.VALUE, NO.CHG.VALUE, REKEY.VALUE, AUTOM.VALUE, MAND.VALUE,D.SLIP.VALUE and GTS.VALUE should be enabled for this version or not. The VERSION.CONTROL record is indicated by the application and VERSION.TYPE of this VERSION record.
+Validation Rules
+YES or NO */
+		EXC_INC_RTN : EB_Versions:VERSION__EXC_INC_RTN
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=73.0, core=true, t24Name=EXC.INC.RTN)
+		ID_RTN -> byValue EB_Versions:VERSION__ID_RTN *
+		CHECK_REC_RTN -> byValue EB_Versions:VERSION__CHECK_REC_RTN *
+		AFTER_UNAU_RTN -> byValue EB_Versions:VERSION__AFTER_UNAU_RTN *
+		BEFORE_AUTH_RTN -> byValue EB_Versions:VERSION__BEFORE_AUTH_RTN *
+		/* Used to group related versions like group all loan versions and execute a set of common routines.
+The id of Version.control record is like Application name.XXX , where XXX is the version.type.
+For e.g. if two or more loan versions requires a same set of common routines, the VERSION.TYPE fields of the loan version records can be marked as XXX and the set of common routines can be specified in Version.Control record with key LOAN.XXX. The routines specified in the Version.Control record are appended to the appropriate fields in Version record only if they are blank.
+Validation Rules
+Up to 3 A type alphanumeric characters. */
+		VERSION_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=78.0, core=true, t24Name=VERSION.TYPE)
+		/* Converts the I Descriptor information layout to a Grid format on display.
+Only effective in Desktop .
+Validation Rules
+Rule 1  Drop down YES/NO/NULL options
+Rule 2 Only effective in Desktop */
+		ENABLE_GRID : EB_Versions:VERSION__ENABLE_GRID
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=79.0, core=true, t24Name=ENABLE.GRID)
+		/* Determines the number of lines to display when using I descriptors in Desktop 2.
+Note, that the functionality of showing I Descriptors in VERSION is only available with Desktop .
+Validation Rules
+Rule 1 Numeric Values only of a two character length.
+Rule 2 Only effective in Desktop */
+		MAX_DISPLAY_LINES : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=80.0, core=true, t24Name=MAX.DISPLAY.LINES)
+		/* If the VERSION is being used as part of an OFS transaction & this field is set to "YES", then each Override that is encountered will be checked to see if it can be considered for automatic validation.
+Validation Rules
+"YES" or "NO" */
+		AUTO_OVERRIDES : EB_Versions:VERSION__AUTO_OVERRIDES
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=81.0, core=true, t24Name=AUTO.OVERRIDES)
+		/* NAU.PROCESSING
+This field facilitates to specify optional functionality for the processing of transactions via OFS where $NAU records exist.
+This field helps to handle situations where data is passed through OFS to T24 and records with the same ID exist on the $NAU files.
+This field has the following options:
+0. Reject messages where an NAU record exists.
+1. Overwrite NAU record with OFS data, i.e. fields from the OFS record will be written to the NAU record. If the VERSION has 0 authorisers and the user associated with the OFS message, is the only user on the NAU record then process as normal. If the USERs are not the same, write the OFS field data onto the NAU record and write the record to the unauthorised file.
+2. Accept Reversal as Deletion (or deletion of NAU record + reversal of live record if live record exists) if an NAU record exists.
+3. Apply both option 1 and option 2 to this version. i.e. If OFS transaction is an Input then process as per option 1. If OFS transaction is Reversal process as per option 2.
+If the field is left empty the existing functionality will apply.
+
+NAU processing for Input
+Does NAU record Exist?#Function#No. of Authorisers#IS there only one user on the NAU record and is it the same as the OFS user ?#Processing#Corresponding NAU.PROCESSING Flag##
+Yes#I#1 or more#No#Overwrites fields from OFS record onto NAU record and writes record to NAU file.#1##
+Yes#I#0#No#Overwrites fields from OFS record onto NAU record and writes record to NAU file#1##
+Yes#I#0#Yes#Overwrite fields from OFS record onto NAU record and writes record to the authorized file.#1##
+
+NAU Processing for Reversal
+
+
+Does NAU record Exist?#Function#Live Rec#No. of Authorisers#IS there only one user on the NAU record and is it the same as the OFS user ?#Processing#Corresponding NAU.PROCESSING Flag##
+Yes#R#Yes#1 or more#N/A#Sets live rec to RNAU status.Deletes NAU record.#2##
+Yes#R#No#1 or more#N/A#Deletes NAU record#2##
+Yes#R#No#0#No#Deletes NAU record#2##
+Yes#R#Yes#0#No#Sets live record to RNAU status.Deletes NAU record#2##
+Yes#R#No#0#Yes#Deletes the NAU record.#2##
+Yes#R#Yes#0#Yes#Deletes NAU record and does Reversal on Live file.Reversal with 0 authoriser will move the record in live to history#2##
+
+Validation Rules
+1 character numeric must be either null (no value), 0, 1, 2 or 3 */
+		NAU_PROCESSING : EB_Versions:VERSION__NAU_PROCESSING
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=82.0, core=true, t24Name=NAU.PROCESSING)
+		/* This field is used to define whether a VERSION can be restricted to being run only in a users initial sign on company, and can only be input when the multi branch product is installed.
+Multi branch indicates that the MB product is installed, the term Multi Book can also be used.
+This product basically allows financial level data to be stored in the same database table for all companies, as opposed to Multi Company where the data is stored in a separate table for each company.
+Validation Rules
+Optional input only when the MB product is installed
+Can be set to OWN to indicate that the version can only be run in the users initial sign on company, i.e. the users own branch */
+		COMPANY_ACCESS : EB_Versions:VERSION__COMPANY_ACCESS
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=83.0, core=true, t24Name=COMPANY.ACCESS)
+		/* This field indicates on what type of business day the VERSION can be run.
+This is based on the value of the CURRENT.DAY field on the DATES record.
+NORMAL  the branch is open on an official working day
+RESTRICTED  the branch is open on an official holiday, e.g. a weekend or public holiday
+CLOSED  the branch is closed i.e. the holiday table for the branch indicates a non working day, or the day corresponds to a value on the BRNACH.CLOSED field for the company
+For example some business activities can only take place on an official working day such as certain clearing transactions, whereas others e.g. closing a customer account can take place if the branch is open.
+If this field is left blank then there will be no check as to whether the version can be run.
+Validation Rules
+Optional input
+NORMAL indicates the      version can only be run on a normal business day, e.g. only on an official      working day for the local country
+RESTRICTED indicates that      the version can be run on a normal or restricted working day e.g. the branch      is open
+CLOSED indicates that the      version can be run at any time */
+		BUSINESS_DAY : EB_Versions:VERSION__BUSINESS_DAY
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=84.0, core=true, t24Name=BUSINESS.DAY)
+		/* This field is used to define in a multi branch system whether the user can directly access a record in another company, without having to manually exit the application, sign in to the other company and invoke the application.
+Multi branch indicates that the MB product is installed, the term Multi Book can also be used.
+This product basically allows financial level data to be stored in the same database table for all companies, as opposed to Multi Company where the data is stored in a separate table for each company.
+If this field is set to YES then the user can enter access a record in another company to perform a transaction. The user must have access to the other company via the OTH.BOOK.ACCESS or OTH.BOOK.BLOCK fields of their USER record.
+The user does not need to have the ability to sing in to the other company.
+An SMS check will be applied for the current application and function before the new company is loaded automatically.
+An example would be when a customer wishes to close an account in a branch other than their own, in this case the teller would enter the account number, the system would then switch companies and the account can be closed.
+If this field is left blank then in a multi branch environment the user will not be allowed to directly access records in other branches, but must be signed in to that company.
+Validation Rules
+Optional input of YES only when the MB product is installed. */
+		AUTO_COMP_CHANGE : EB_Versions:VERSION__AUTO_COMP_CHANGE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=85.0, core=true, t24Name=AUTO.COMP.CHANGE)
+		/* This field in VERSION along with a similar field in SYSTEM.OVERRIDE table set to 'YES' will suppress the system override message.
+Any messages that have not been flagged in the System Override Message Table will not be suppressed, even when a VERSION or VERSION.CONTROL (including 'SYSTEM') record is set for suppression.The default for SYS.MSG.SUPPRESS field in both the System Override Message Table and the VERSION/VERSION.CONTROL will be no suppression.
+Display or suppression of a system override message will depend on the following flag settings
+VERSIONMsg Suppress#VERSION.CONTROL&gt;applicationMsg Suppress#VERSION.CONTROL&gt;SYSTEMMsg Suppress#System Override Msg TableMsg Suppress#Suppress MessageYes/No##
+Null#Null#Null#Yes#No##
+Yes#Null#Null#Yes#Yes##
+Yes#Null#Null#No#No##
+No#Null#Null#No#No##
+No#Yes#Null#Yes#No##
+No#Yes#Null#No#No##
+Null#Yes#Null#Yes#Yes##
+Null#Yes#Null#No#No##
+Null#No#Null#Yes#No##
+Null#No#Null#No#No##
+Null#No#Yes#No#No##
+Null#Null#Yes#Yes#Yes##
+Null#Null#Yes#No#No##
+Null#Null#No#Yes#No##
+Null#Null#No#No#No##
+Null#Null#Null#No#No##
+
+Validation Rules
+YES or NO or NULL (Blank) */
+		SYS_MSG_SUPPRESS : EB_Versions:VERSION__SYS_MSG_SUPPRESS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=86.0, core=true, t24Name=SYS.MSG.SUPPRESS)
+		ATTRIBUTES -> byValue EB_Versions:VERSION__ATTRIBUTES *
+		/* Contains the name of an XSLT stylesheet to be used when displaying a Deal Slip in T24 Browser.
+This field is only used for the T24 Browser product. */
+		D_SLIP_STYLE_SHEET : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=88.0, core=true, t24Name=D.SLIP.STYLE.SHEET)
+		/* Contains the name of a Java EB.API record routine that will be called on the T24 Web Server to validate the fields marked as Web Validate.
+This field is only used for the T24 Browser product. */
+		WEB_VAL_RTN : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=89.0, core=true, t24Name=WEB.VAL.RTN)
+		/* The name of a Version for this application that will be used by Context Flow if there is a COMMIT.ACTION of 'CONFIRM'.
+This version will be displayed in 'See' mode. */
+		CONFIRM_VERSION -> EB_Versions:VERSION
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=90.0, core=true, businessType=ANY, t24Name=CONFIRM.VERSION)
+		/* Preview version will be used to display the transaction when it is successfully completed. */
+		PREVIEW_VERSION -> EB_Versions:VERSION
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=91.0, core=true, businessType=ANY, t24Name=PREVIEW.VERSION)
+		/* Value in this field should be a valid record ID from BROWSER.TOOLBAR application. The toolbar will be displayed when the version is used */
+		BROWSER_TOOLBAR -> EB_Browser:BROWSER_TOOLBAR
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=92.0, core=true, businessType=A, t24Name=BROWSER.TOOLBAR)
+		/* Field that specifies whether the VERSION should be exposed or not
+
+Validation Rules
+
+1. Length of 3 characters
+2. Options are 'YES', 'NO', ''
+3. No-input if 'PW' is not installed in the COMPANY */
+		EXPOSE : EB_Versions:VERSION__EXPOSE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=93.0, core=true, t24Name=EXPOSE)
+		SERVICE -> byValue EB_Versions:VERSION__SERVICE *
+		/* Field that contains the ID of a PW.ACTIVITY record. It may be an existing record. If the record is not present, then upon authorising the VERSION, a new record is created.
+The ID of the new PW.ACTIVITY record created through the VERSION will have the prefix 'WS.'
+Validation Rules
+
+1. Length of 35 alphanumeric characters
+2. If EXPOSE is set to 'YES', then this field is mandatory
+3. No-input if EXPOSE is not set to 'YES'
+
+The following validations/processing is done based on the fields SERVICE and ACTIVITY.
+If both SERVICE and ACTIVITY do not exist, then a new activity is created in PW.ACTIVITY, 
+                                    with the TARGET field mapped to the Version/Function and a new record is created in EB.SERVICE with the activity added to it.
+If the SERVICE is existing EB.SERVICE and ACTIVITY does not exist in PW.ACTIVITY,a new activity is created in PW.ACTIVITY and the same is appended to the EB.SERVICE record.
+If SERVICE does not exist and ACTIVITY exists, a check is done to ensure that the activity relates to this Version/Function, i.e. the TARGET field in PW.ACTIVITY is mapped correctly, otherwise an error message is thrown. Then, a new EB.SERVICE record is created with the activity added to it.
+If both SERVICE and ACTIVITY exists and the activity relates to the Version/Function, a check is done to ensure that the EB.SERVICE does not contain the ACTIVITY.ID already.Otherwise an error message is thrown. Finally,EB.SERVICE is updated with the activity appended to it. */
+		ACTIVITY : T24BusinessTypes:A
+			@i18n:Label (en=Activity)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=95.0, core=true, t24Name=ACTIVITY)
+		/* Function that will be mapped onto the TARGET field in PW.ACTIVITY record.
+                                   Any valid T24 function can be given.
+Validation Rules
+
+1. Length of 1 alpha character
+2. If EXPOSE is set to 'YES', then this field is mandatory
+3. No-input if EXPOSE is not set to 'YES'
+4. A valid T24 Function */
+		FUNCT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=96.0, core=true, t24Name=FUNCT)
+		/* Description of the exposed VERSION.This would be updated in the DESCRIPTION fields of both PW.ACTIVITY and EB.SERVICE,when they are newly created from the VERSION
+Validation Rules
+
+1. Length of 35 alphanumeric characters
+2. If EXPOSE is set to 'YES', then this field is mandatory
+3. No-input if EXPOSE is not set to 'YES' */
+		EXPOSE_DESC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=97.0, core=true, t24Name=EXPOSE.DESC)
+		/* The value should be a valid ID for the application EB.CHALLENGE.RESPONSE and will act as the link between the version and EB.CHALLENGE.RESPONSE */
+		CHALL_RESP -> EB_ARC:EB_CHALLENGE_RESPONSE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=98.0, core=true, businessType=A, t24Name=CHALL.RESP)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=99.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=100.0, core=true, t24Name=RESERVED.2)
+		OVERRIDE -> byValue EB_Versions:VERSION__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=102.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=103.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Versions:VERSION__INPUTTER *
+		DATE_TIME -> byValue EB_Versions:VERSION__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=106.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=107.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=108.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=109.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=110.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		APPLICATION : mml:Integer
+			@i18n:Label (en=Application)
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, core=false, t24Name=APPLICATION, genOperation="@ID[\",\",1,1]")
+	}
+	VERSION__LANGUAGE_CODE
+	{
+		/* Defines the languages in which the various texts of the screen and/or the printed report (such as the headers, the names of the fields, the remarks lines etc...) may be specified.  The Version screen presented to the User will then contain text in the appropriate language according to the Language code defined in the User's Profile.
+It will not be possible to define the headers, the names of the fields and the remark lines in different languages unless these languages have been defined in this field.
+The first language defined in this field (i.e. the first occurrence within the multivalue set) will be used as the default language for all Users whose language (as specified in their User's Profile) has not been defined in this Version.
+Validation Rules
+Up to 2 numeric characters (01 to 12). Multivalue field (Optional input. Default value = blank.)
+Any input in this field will be checked against the LANGUAGE table. Only valid languages will be accepted.
+The same Language code cannot be repeated i.e. duplication of the same language will be refused. */
+		LANGUAGE_CODE -> EB_SystemTables:LANGUAGE
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=4.0, core=true, t24Name=LANGUAGE.CODE)
+	}
+	VERSION__HDR_1_001__039
+	{
+		/* Enables the first line of headings for columns 01 to 39 of the screen or printed report to be specified.
+This first heading line will appear on line number 2 in the header lines.  Spaces will not be ignored.
+The Language codes define the languages of the headings in the corresponding group of Fields 5 to 12 (e.g. if Field 4.2 specifies French, the System assumes that headings in Fields 5.2 to 12.2 are in French and will display them for Users whose Profiles specify French).
+If the standard Version of the Application displays information on header line 2, the heading defined in this field will be overwritten.
+
+Note:      When this field is expanded to define the headers in            various languages, the user should enter these in the            same language sequence as the one defined in            LANGUAGE CODE (Field 4).
+Validation Rules
+Up to 39 (type A) alphanumeric characters including required spaces. Multivalue field associated with Fields 5 to 12. (Optional input. No default value.) Input in this field is not allowed when the corresponding Language code is missing (i.e. the Field 4.1 must have been defined to allow input in Field 5.1, the Field 4.2 must have been defined to allow input in Field 5.2 etc.). */
+		HDR_1_001__039 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=39, sysNumber=5.0, core=true, t24Name=HDR.1.001..039)
+		/* Enables the first line of headings for columns 40 to 78 of the screen or printed report to be specified.
+This first heading line will appear on line number 2 in the header lines.  Spaces will not be ignored.
+The Language codes define the languages of the headings in the corresponding group of Fields 5 to 12 (e.g. if Field 4.2 specifies French, the System assumes that headings in Fields 5.2 to 12.2 are in French and will display them for Users whose Profiles specify French).
+If the standard Version of the Application displays information on header line 2, the heading defined in this field will be overwritten.
+
+Note:      When this field is expanded to define the headers in            various languages, the user should enter these in the            same language sequence as the one defined in            LANGUAGE CODE (Field 4).
+Validation Rules
+Up to 39 type A (alphanumeric) characters including required spaces. Multivalue field associated with Fields 5 to 12. (Optional input. No default value.) Input in this field is not allowed when the corresponding Language code is missing (i.e. the Field 4.1 must have been defined to allow input in Field 6.1, the Field 4.2 must have been defined to allow input in Field 6.2 etc.). */
+		HDR_1_040__078 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=39, sysNumber=6.0, core=true, t24Name=HDR.1.040..078)
+		/* Enables the first line of headings for columns 79 to 117 of a printed report to be specified.
+This first heading line will appear on line number 2 in the header lines.  Spaces will not be ignored.
+The Language codes define the languages of the headings in the corresponding group of Fields 5 to 12 (e.g. if Field 4.2 specifies French, the System assumes that headings in Fields 5.2 to 12.2 are in French and will display them for Users whose Profiles specify French).
+
+Note:      When this field is expanded to define the headers in            various languages, the user should enter these in the            same language sequence as the one defined in            LANGUAGE CODE (Field 4).
+Validation Rules
+Up to 39 type A (alphanumeric) characters including required spaces. Multivalue field associated with Fields 5 to 12. (Optional input. No default value.)
+Input in this field is not allowed when the corresponding Language code is missing (i.e. the Field 4.1 must have been defined to allow input in Field 7.1, the Field 4.2 must have been defined to allow input in Field 7.2 etc.).
+Input in this field is only allowed when the field PRINT ONLY contains the value Y. */
+		HDR_1_079__117 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=39, sysNumber=7.0, core=true, t24Name=HDR.1.079..117)
+		/* Enables the first line of headings for columns 118 to 132 of a printed report to be specified.
+This first heading line will appear on line number 2 in the header lines.  Spaces will not be ignored.
+The Language codes in Field 4 define the languages of the headings in the corresponding group of Fields 5 to 12 (e.g. if Field 4.2 specifies French, the System assumes that headings in Fields 5.2 to 12.2 are in French and will display them for Users whose Profiles specify French).
+
+Note:      When this field is expanded to define the headers in            various languages, the user should enter these in the            same language sequence as the one defined in            LANGUAGE CODE (Field 4).
+Validation Rules
+Up to 15 type A (alphanumeric) characters including required spaces. Multivalue field associated with Fields 5 to 12. (Optional input. No default value.)
+Input in this field is not allowed when the corresponding Language code is missing (i.e. the Field 4.1 must have been defined to allow input in Field 8.1, the Field 4.2 must have been defined to allow input in Field 8.2 etc.).
+Input in this field is only allowed when the field PRINT ONLY contains the value Y. */
+		HDR_1_118__132 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=8.0, core=true, t24Name=HDR.1.118..132)
+		/* Enables the second line of headings for columns 01 to 39, of the screen or printed report, to be specified.
+This second heading line will appear on line number 3 in the header lines.  Spaces will not be ignored.  When the ID is displayed on line 3 (see value of REFERENCE NO IN 1ST LINE, Field 25), this header will only be displayed starting from page 2.
+The Language codes define the languages of the headings in the corresponding group of Fields 5 to 12 (e.g. if Field 4.2 specifies French, the System assumes that headings in Fields 5.2 to 12.2 are in French and will display them for Users whose Profiles specify French).
+If the standard Version of the Application displays information on header line 3, the heading defined in this Field will be overwritten.
+
+Note:      When this field is expanded to define the headers in            various languages, the user should enter these in the            same language sequence as the one defined in            LANGUAGE CODE (Field 4).
+Validation Rules
+Up to 39 type A (alphanumeric) characters including required spaces. Multivalue field associated with Fields 5 to 12. (Optional input. No default value.) Input in this field is not allowed when the corresponding Language code is missing (i.e. the Field 4.1 must have been defined to allow input in Field 9.1, the Field 4.2 must have been defined to allow input in Field 9.2 etc). */
+		HDR_2_001__039 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=39, sysNumber=9.0, core=true, t24Name=HDR.2.001..039)
+		/* Enables the line of second headings for columns 40 to 78 of the screen or printed report to be specified.
+This second heading line will appear on line number 3 in the header lines.  Spaces will not be ignored.  When the ID is displayed on line 3 (see value of REFERENCE NO IN 1ST LINE, Field 25), this header will only be displayed starting from page 2.
+The Language codes in Field 4 define the languages of the headings in the corresponding group of Fields 5 to 12 (e.g. if Field 4.2 specifies French, the System assumes that headings in Fields 5.2 to 12.2 are in French and will display them for Users whose Profiles specify French).
+If the standard Version of the Application displays information on header line 3, the heading defined in this field will be overwritten.
+
+Note:      When this field is expanded to define the headers in            various languages, the user should enter these in the            same language sequence as the one defined in            LANGUAGE CODE (Field 4).
+Validation Rules
+Up to 39 type A (alphanumeric) characters including required spaces. Multivalue field associated with Fields 5 to 12. (Optional input. No default value.) Input in this field is not allowed when the corresponding Language code is missing (i.e. the Field 4.1 must have been defined to allow input in Field 10.1, the Field 4.2 must have been defined to allow input in Field 10.2 etc). */
+		HDR_2_040__078 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=39, sysNumber=10.0, core=true, t24Name=HDR.2.040..078)
+		/* Enables the second line of headings for columns 79 to 117 of a printed report to be specified.
+This second heading line will appear on line number 3 in the header lines.  Spaces will not be ignored.
+The Language codes in Field 4 define the languages of the headings in the corresponding group of Fields 5 to 12 (e.g. if Field 4.2 specifies French, the System assumes that headings in Fields 5.2 to 12.2 are in French and will display them for Users whose Profiles specify French).
+
+Note:      When this field is expanded to define the headers in            various languages, the user should enter these in the            same language sequence as the one defined in            LANGUAGE CODE (Field 4).
+Validation Rules
+Up to 39 type A (alphanumeric) characters including required spaces. Multivalue field associated with Fields 5 to 12. (Optional input. No default value.)
+Input in this field is not allowed when the corresponding Language code is missing (i.e. the Field 4.1 must have been defined to allow input in Field 11.1, the Field 4.2 must have been defined to allow input in Field 11.2 etc.).
+Input in this field is only allowed when PRINT ONLY (Field 1) contains the value Y. */
+		HDR_2_079__117 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=39, sysNumber=11.0, core=true, t24Name=HDR.2.079..117)
+		/* Enables the second line of headings for columns 118 to 132 of a printed report to be specified.
+This second heading line will appear on line number 3 in the header lines.  Spaces will not be ignored.
+The Language codes in Field 4 define the languages of the headings in the corresponding group of Fields 5 to 12 (e.g. if Field 4.2 specifies French, the System assumes that headings in Fields 5.2 to 12.2 are in French and will display them for Users whose Profiles specify French).
+
+Note:      When this field is expanded to define the headers in            various languages, the user should enter these in the            same language sequence as the one defined in            LANGUAGE CODE (Field 4).
+Validation Rules
+Up to 15 type A (alphanumeric) characters including required spaces. Multivalue field associated with Fields 5 to 12. (Optional input. No default value.)
+Input in this field is not allowed when the corresponding Language code is missing i.e. the Field 4.1 must have been defined to allow input in Field 12.1, the Field 4.2 must have been defined to allow input in Field 12.2 etc...
+Input in this field is only allowed when PRINT ONLY (Field 1) contains the value Y. */
+		HDR_2_118__132 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=12.0, core=true, t24Name=HDR.2.118..132)
+	}
+	VERSION__FIELD_NO
+	{
+		/* Insert text here
+Validation Rules */
+		FIELD_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=13.0, core=true, t24Name=FIELD.NO)
+		/* Indicates in which column the field defined by the User is to start.
+When this field is left blank the System will automatically calculate the column number according to what was calculated or specified for the previous field(s).
+It is important to note that the space between two fields requires two columns.
+Validation Rules
+Up to 3 numeric characters with values from 1 to 130. or    Blank when the system will assign the column number automatically. Multivalue field associated with Fields 13 to 23. (Optional input. Default value = blank)
+No input is allowed in this field when FIELDS PER LINE (Field 3) contains the value of 1.
+No input is allowed in this field when a field number has not been input in FIELD NO (Field 13).
+If '*' was input in Field 13 (to create a remark line), input in this field can only be 1.  If input is omitted, the value of 1 is  generated automatically.
+The column number input in this field + the Text character maximum (defined in Field 16) + the number of data characters (i.e. maximum number of input characters) + the enrichment characters (defined in Field 21) + the space required between elements cannot exceed either 78 or 131 characters depending on the value entered in PRINT ONLY (Field 1). */
+		COLUMN : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=14.0, core=true, t24Name=COLUMN)
+		/* Indicates whether the Field Number previously defined can be expanded when using this Version in an on-line session.
+This field should only be used when FIELDS PER LINE (Field 3) is equal to MULTI and the User does not want to allow expansion for multivalue and sub-value fields.  If this field is left blank, the multivalue or sub-value field can then be expanded on-line when using this Version [by means of the '>' or ')' sign] and all existing values will be displayed.  This field can only be used for multivalue and sub-value fields.  Only the value(s) defined in the various occurrences of FIELD NO. will be displayed, even if the application record contains more values.
+Example:            Let us suppose that Field 12 (OTHER OFFICER) from            the CUSTOMER file has been defined as follows :
+12.1 with column 1, 12.2 with column 40 and the field            Expansion has been left blank.  In this case, column 1            will be used for Fields 12.1, 12.3, 12.5 etc... while            column 40 will be used for Fields 12.2, 12.4, 12.6            etc...
+Validation Rules
+NO   The User will not be able to expand the multivalue or sub-value field. blankIt can be expanded by the User during the on-line session when using this Version. Multivalue field associated with Fields 13 to 23. (Optional input. Default value = blank.)
+Input in this field is only allowed when FIELDS PER LINE (Field 3) contains Multi.
+Input of NO in this field is mandatory when the field defined in FIELD NO. (Field 13) is a Local Reference data element and FIELDS PER LINE contains Multi.
+The system will not accept a mix of Expansion and No Expansion of fields with the same field number or fields in the same group of associated fields.  For example, Field 12 (OTHER OFFICER) from the CUSTOMER file cannot be defined as 12.1 with expansion and 12.2 without expansion. In the same way, the associated RELATION fields of the CUSTOMER file cannot be defined as 7.1 with expansion, 8.1 also with expansion and 9.1 without expansion. */
+		EXPANSION : EB_Versions:VERSION__FIELD_NO__EXPANSION
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=15.0, core=true, t24Name=EXPANSION)
+		/* Indicates the length for the Text (such as the field number, the field name etc...) relating to the field defined earlier in FIELD NO (Field 13). The length defined here determines the total number of characters (including spaces) included in the text Field.
+When FIELDS PER LINE (Field 3) equals 1, the field numbers and field names are displayed as in the standard Version of the Application.
+When this field is left blank (default value), the System will automatically calculate the content by counting the length of the input in the next field.
+Validation Rules
+Up to 2 numeric characters in range 1 - 39 Multivalue field associated with Fields 13 to 23. (Optional input. Default value : length of text input in next field.)
+Input in this field is not allowed when FIELDS PER LINE (Field 3) = 1 except if FIELD NO (Field 13.1) is equal to '*'.
+Input in this field is not allowed when FIELD NO. (Field 13) is missing. */
+		TEXT_CHAR_MAX : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=16.0, core=true, t24Name=TEXT.CHAR.MAX)
+		TEXT -> byValue EB_Versions:VERSION__FIELD_NO__TEXT *
+		/* Indicates how many characters the User wishes to reserve for the display of the enrichment of an input field such as Customer Number, Account Number, Table Code etc...
+Although the normal size of the enrichment is 35 characters long, this field will allow the User to define a shorter space for the enrichment or simply eliminate it completely from a screen or report.
+Up to 71 characters could be defined to allow the display of two enrichments of 35 characters each separated by a space.  This could be necessary when one field is made up of two different data elements (e.g. composite ID).
+Validation Rules
+2 numeric characters in range 1 - 71 or    blankNo enrichment will be displayed for the field defined in FIELD NO. Multivalue field associated with Field 13 to Field 23. (Optional input. Default value = blank)
+Input in this field is not allowed when FIELDS PER LINE (Field 3) contains the value of 1.
+Input in this field is not allowed when the FIELD NO. (Field 13) is blank.
+Input in this field is not allowed when FIELD NO contains the value of '*'. */
+		ENRICHM_CHAR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=21.0, core=true, t24Name=ENRICHM.CHAR)
+		/* Indicates to the User the length and start-position of the field being defined.  This field is generated automatically by the System.
+This information, generated automatically by the System, allows the User to check on-line the position on the screen of the different fields being creating in the Version. The User must also consider that the additional two spaces, required to separate the two different fields, has also been calculated by the System.
+The format of the field thus defines:
+1.         In which column the Text previously defined will start            and,
+2.         the total length generated by the field (including            Text, input itself and the enrichment defined in the            previous fields and necessary spaces between fields on            the same line).
+Example:
+If this field displays the information : 1|18
+where:
+1    indicates that the field starts in column 1 and
+18   indicates that the field uses 18 columns on the                 screen or report.
+In the above example (1|18), the System is telling the User that this field will start in column 1 and uses in total 18 columns.  If he wants to define a second field on the same line, the second field can only be defined starting from at least column 19 i.e. 1 + 18.  If the User enters a column number smaller than 19, the System would then automatically place this field on the next line.
+Validation Rules
+A|B where A    is a number indicating in which column the field starts and B    is a number indicating the total number of columns that this field will occupy on the screen. (Internal field) */
+		TABLE_COLUMN : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=22.0, core=true, t24Name=TABLE.COLUMN)
+		/* Indicates to the User in which line of the data section of the screen or report the field that he just defined will appear.  This field is generated automatically by the System.
+It is important to note that the line indicated in this field refers to the data section part of the screen i.e. does not take into account the lines already used by the headers (Line 0 means the fifth line on the screen or report).
+As the line number is calculated by the system the only way to advance a number of lines is to create dummy blank lines using an '*' in FIELD NO. (Field 13) and dummy 'null' input.
+Validation Rules
+The content of this field is presented in the form of a number representing the line of the data section where the field will be displayed. (Internal Field) */
+		TABLE_LINE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=23.0, core=true, t24Name=TABLE.LINE)
+		/* Specifies the Position of the Enrichment for the field, when the "Allow Prompt Movement" option in the Desktop has been set.
+This is done using the following option  : Tools -> User Preferences  ->  Advanced  ->  Screen Designer.
+This is mainly used for  Designing  versions through Screen Designer,  in the  Arabic format  where the  Enrichments are displayed  the  left. */
+		ENRI_COL : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=24.0, core=true, t24Name=ENRI.COL)
+		/* Specifies the Position of the Prompt for the field, when the "Allow Prompt Movements" option in the Desktop has been set.
+When value for this field is set, then the existing value of the field COLUMN denotes the  position of the Editable / Display value.
+Validation Rules
+The value in this field is considered only when 'Allow Prompt       Movements' option in       Desktop is set in  User preferences.
+Tools  ->  User Preferences ->  Advanced  ->  Screen Designer.
+
+If the above option is not set, then the existing functionality of       Version is used. i.e the field  COLUMN denotes the position of the Prompt.
+This option is used mainly for designing Screens in the Arabic format       where the Enrichment and Fields are from the left.
+The value in this field is automatically updated when version is       designed through Screen Designer. */
+		PROMPT_COL : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=25.0, core=true, t24Name=PROMPT.COL)
+		RESERVED05 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=26.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=27.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=28.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=29.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=30.0, core=true, t24Name=RESERVED01)
+		PROMPT_TEXT -> byValue EB_Versions:VERSION__FIELD_NO__PROMPT_TEXT *
+		/* The ENQUIRY to be used to generate the drop down list for the field. Associated with this field is the field ENQ.SELECTION which is used to define the selection fields on the enquiry.
+Validation Rules
+Must reference a valid record on the ENQUIRY file. */
+		DROP_DOWN -> EB_Reports:ENQUIRY
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=33.0, core=true, businessType=A, t24Name=DROP.DOWN)
+		/* The selection which is to be applied to the associated ENQUIRY for the drop-down list.
+Validation Rules
+Must be valid as SELECTION.FLD on the related ENQUIRY record.
+For enquiries that are to be auto launched at F5; a valid SELECTION FLD followed by a valid OPERATOR followed by a valid field name, or data in quotes. */
+		ENQ_SELECTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=34.0, core=true, t24Name=ENQ.SELECTION)
+		/* This field allows a popup control (calendar, calculator or rate control ) to be associated with a field in VERSION. */
+		POPUP_CONTROL : EB_Versions:VERSION__FIELD_NO__POPUP_CONTROL
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=35.0, core=true, t24Name=POPUP.CONTROL)
+		/* This field is used to define the case conversion for the field data.
+A field may have the following case conversions:
+Blank (default)
+No case conversion is done.
+Lowercase
+All text is converted to lower case as the text is entered
+Uppercase
+All text is converted to upper case as the text is entered
+Proper case
+Text is converted to proper case, i.e. each word begins with a capital letter, other text is lower case. */
+		CASE_CONV : EB_Versions:VERSION__FIELD_NO__CASE_CONV
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=36.0, core=true, t24Name=CASE.CONV)
+		/* Putting a hyperlink here will allow the user to access the link by clicking on the field name in the version record. A custom button (Browser Tool record) can also be specified and will appear just after the input field.
+Validation Rules:
+
+Link must start with "http","https","www" or "file://". This is not case sensitive. */
+		HYPERLINK : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=37.0, core=true, t24Name=HYPERLINK)
+		I_LINK -> byValue EB_Versions:VERSION__FIELD_NO__I_LINK *
+		/* In order for the IDECRIPTOR to appear in a multi-valued grid, the IDESCRIPTOR must form part of the association. This field will specify which multi-valued association the IDESCRIPTOR is to be associated with.
+
+Validation Rules
+
+40 Alphabetic characters.
+
+Must be beginning of a multi value.
+
+Is only an input field if the FIELD.NO is an IDESCRIPTOR.
+
+Field must form part of the VERSION.
+
+Can only be used for DESKTOP. */
+		ASSOCIATION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=39.0, core=true, t24Name=ASSOCIATION)
+		/* DISPLAY.TYPE
+Drop down list options of TOGGLE, COMBOBOX, VERTICAL.OPTIONS or NULL
+Populating DISPLAY.TYPE with NULL will have no change on the version field.
+TOGGLE will change the field in a button labelled with the field name; the TOGGLE button can display two states only by appearing in white or grey.
+The COMBOBOX option displays checkbox fields (only) as comboboxes
+The VERTICAL.OPTIONS option displays radio button vertically as opposed to the normal way which is horisontaly.
+Validation Rules
+Only fields with only two states are advised to use this functionality e.g. YES/NO, TRUE FALSE. */
+		DISPLAY_TYPE : EB_Versions:VERSION__FIELD_NO__DISPLAY_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=40.0, core=true, t24Name=DISPLAY.TYPE)
+		/* Field used to allow IDESCRIPTORS to be displayed on input screens.IDESCRIPTORS should be associated to a multi-valued group.IDESCRIPTOR fields will only be displayed on Desktop screens. Classic screens will ignore any IDESCRIPTOR fields.Fields FIELD.NO to ATTRIBS form a related multi value set.
+Validation Rules
+A maximum of 5 characters may be entered.
+The following values are permitted:       YES */
+		I_DESC : EB_Versions:VERSION__FIELD_NO__I_DESC
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=41.0, core=true, t24Name=I.DESC)
+		ATTRIBS -> byValue EB_Versions:VERSION__FIELD_NO__ATTRIBS *
+	}
+	VERSION__FIELD_NO__TEXT
+	{
+		/* May contain text , a prompt associated with the input field.
+
+Text or Prompt
+Indicates the Text that User wants to define for the field specified in FIELD NO (Field 13). This is a sub-value field which can be expanded by itself to allow the Text to be entered in the various languages defined in Language code field.
+If no Text is entered by the User, the Version screen will be presented without any Text for this specific field. Spaces which are created by the User in this field will not be ignored.
+Optionally the number of the field can also be displayed by the System in front of the Text itself. If required, it should be defined before the Text as follows:
+1. For Single fields enter in this field N, NN or NNN according to the size of the field i.e. N if field number is between 1 and 9, NN if field number is between 10 and 99 and NNN if field number is between 100 and 999. Example : N MNEMONIC
+2. For Multivalue fields enter in this field N, NN, or NNN as appropriate followed by a space and XX. Example : N XX RELATION
+3. For Sub-value fields enter in this field N, NN or NNN (as appropriate) followed by a space, XX, a second space and a second XX.Example : N XX XX FIELD NAME
+The Language codes define the language of the Text in the corresponding group of fields (e.g. if the second LANGUAGE.CODE specifies French, the system assumes that second group of text fields are in French and will display them for users whose profiles specify French).
+
+Validation Rules
+Up to 39 type A (alphanumeric) characters Subvalue field         (in association with Fields 17 to 20) associated with         Fields 13 to 23. (Optional input. No default).
+Input in this field is not allowed when FIELDS PER LINE         (Field 3) = 1 unless FIELD NO (Field 13) equals '*'.
+Input in this field is not allowed when FIELD NO is         missing.
+The maximum length of Text which can be input in this         field (including the field number itself if specified)         cannot exceed 39 characters unless FIELD NO (Field 13)         contains an '*'.
+Input in this field is not allowed when the corresponding         Language code has not been defined. If, for example, this         subvalue field has been expanded by means of the ')' sign         and LANGUAGE CODE (Field 4) has not been expanded, input         in sub-value 2 will then be refused because the language         2 was not previously defined. */
+		TEXT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=39, sysNumber=17.0, core=true, t24Name=TEXT)
+		/* Indicates the Text that the User wants to define across the screen or page (from column 40 to 78) for a remark line specified in FIELD NO (Field 13) by the symbol '*'.
+This field is only used when a remark line ('*' in FIELD NO) across the screen is required.
+Spaces which are created by the User in this field will not be ignored.
+This is a sub-value field which can be expanded by itself to allow the Text to be entered in various languages.  This will be allowed when the corresponding Language codes have been defined in LANGUAGE CODE (Field 4).
+The Language codes define the language of the Text in the corresponding group of Fields 17 to 20 e.g. if Field 4.2 specifies French, the System assumes that Texts in Fields 17.2 to 20.2 are in French and will display them for Users whose Profiles specify French.
+Validation Rules
+Up to 39 type A (alphanumeric) characters Subvalue field (in association with Fields 17 to 20) associated with Fields 13 to 23. (Optional input. No default-Text will be generated by the System).
+Input in this field is only allowed when FIELD NO (Field 13) contains the value '*'.
+Input in this field is not allowed when FIELD NO is missing.
+Input in this field is not allowed when the corresponding LANGUAGE CODE (Field 4) is missing.  If, for example, this sub-value field has been expanded by means of the ')' sign and the LANGUAGE CODE field has not been expanded, input in sub-value 2 will then be refused because the language 2 was not previously defined. */
+		TXT_040__078 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=39, sysNumber=18.0, core=true, t24Name=TXT.040..078)
+		/* Indicates the Text that the User wants to define across a printed report (from column 79 to 117) for a remark line specified in Field 13 by the symbol '*'.
+his field is only used when a remark line ('*' in FIELD NO) across the screen is required.
+Spaces which are created by the User in this field will not be ignored.
+This is a sub-value field which can be expanded by itself to allow the Text to be entered in the various languages defined in the Language code field.
+The Language codes in Field 4 define the languages of the Text in the corresponding group of Fields 17 to 20 e.g. if Field 4.2 specifies French, the System assumes that Texts in Fields 17.2 to 20.2 are in French and will display them for Users whose Profiles specify French.
+Validation Rules
+Up to 39 type A (alphanumeric) characters Subvalue field (in association with Fields 17 to 20) associated with Fields 13 to 23. (Optional input. No default-Text will be generated by the System).
+Input in this field is only allowed when FIELD NO (Field 13) contains the value of '*'.
+Input in this field is not allowed when FIELD NO. is missing.
+Input in this field is not allowed when the corresponding LANGUAGE CODE (Field 4) is missing.  If, for example, this subvalue field has been expanded by means of the ')' sign and the LANGUAGE CODE field has not been expanded, input in sub-value .2 will then be refused because the language .2 was not previously defined.
+Input in this field is only allowed when PRINT ONLY (Field 1) contains the value of Y. */
+		TXT_079__117 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=39, sysNumber=19.0, core=true, t24Name=TXT.079..117)
+		/* Indicates the Text that the User wants to define across a printed report (from column 118 to 132) for a remark line specified in Field 13 by the symbol '*'.
+This field will only be used when a remark line ('*' in Field 13) has to be created across the screen.
+Space which are created by the User in this line will not be ignored.
+This is a subvalue field which can be expanded by itself to allow the Text to be entered in the various languages defined in the Language code field.
+The Language codes define the language of the Text in the corresponding group of Fields 17 to 20 (e.g. if Field 4.2 specifies French, the System assumes that Texts in Fields 17.2 to 20.2 are in French and will display  them for Users whose Profiles specify French).
+Validation Rules
+Up to 15 type A (alphanumeric) characters Subvalue field (in association with Fields 17 to 20) associated with Fields 13 to 23. (Optional input. No default-Text will be generated by the System).
+Input in this field is not allowed when FIELD NO. (Field 13) is missing.
+Input in this field is not allowed when the corresponding LANGUAGE CODE (Field 4) is missing.  If, for example, this subvalue field has been expanded by means of the ')' sign and the LANGUAGE CODE field has not been expanded, input in sub-value .2 will then be refused because the language .2 was not previously defined.
+Input in this field is only allowed when FIELD NO. contains the value of '*'.
+Input in this field is only allowed when PRINT ONLY (Field 1) contains the value of Y */
+		TXT_118__132 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=20.0, core=true, t24Name=TXT.118..132)
+	}
+	VERSION__FIELD_NO__PROMPT_TEXT
+	{
+		/* Text entered here appears as a prompt to the user, replacing the T24 field name.
+PROMPT.TEXT and TOOL.TIP form a sub-value set corresponding to the occurrences of the LANGUAGE.CODE field.
+Multiple sub-values allow for different languages corresponding to the codes in the LANGUAGE.CODE field. */
+		PROMPT_TEXT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=31.0, core=true, t24Name=PROMPT.TEXT)
+		/* Text entered here is displayed near the mouse pointer when it is at rest pointing to the associated field.
+PROMPT.TEXT and TOOL.TIP form a sub-value set corresponding to the occurrences of the LANGUAGE.CODE field.
+Multiple sub-values allow for different languages corresponding to the codes in the LANGUAGE.CODE field. */
+		TOOL_TIP : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=32.0, core=true, t24Name=TOOL.TIP)
+	}
+	VERSION__FIELD_NO__I_LINK
+	{
+		/* IDESCRIPTORS are dependant on the content of data fields, if the data field changes the IDESCTRIPTOR must be re-evaluated. This field will indicate which IDESCRIPTOR field&#8217;s should be triggered if the data field changes.
+Validation Rules:
+Can only contain an IDESCRIPTOR, but does not include LOCAL.REF fields.
+40 Alphabetic characters.
+Can only be used for DESKTOP. */
+		I_LINK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=38.0, core=true, t24Name=I.LINK)
+	}
+	VERSION__FIELD_NO__ATTRIBS
+	{
+		/* This field defines a number of Attributes for the Version.
+This includes whether the field is a Hot Field or not.  This causes the contract to be validated when the       user exits the field thus displaying all errors for the current       contract.  Marking a field as a Hot Field will also ensure that the       application is called when the field is exited.  Therefore, this       mechanism can be used to default other field values once the current field       value has been entered.
+Validation Rules
+HOT.FIELD - This indicates that the field is a Hot Field in the Browser.
+ENRICHMENT.ONLY - If a field is NOINPUT then display the enrichment in place of the field. If inputtable then display Enrichment only via a control.
+POPUP.DROPDOWN - If this field has a dropdown then set behaviour to popup in new window with paging tools. */
+		ATTRIBS : EB_Versions:VERSION__FIELD_NO__ATTRIBS__ATTRIBS
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=42.0, core=true, t24Name=ATTRIBS)
+	}
+	VERSION__RIGHT_ADJ_FIELD
+	{
+		/* Indicates that the field must be right justified in the Version.  This refers only to the input area of the field.
+The system will not allow the User to enter value and sub-value numbers in this field.
+When a multivalue or subvalue field is input in this field, the right adjustment will be applicable to every value of the field.
+This field will allow the User to identify the fields for which he wants a right justify display. As a default (i.e. if this field is left blank), the System will always show the input next to the Text defined.  For example, the field MNEMONIC on the CUSTOMER file, will result in the following presentation according to what the User may specify :
+1. With Right Adjustment  2. Without right adjustment    ---------------------     ------------------------    MNEMONIC'     CHASE'         MNEMONIC' CHASE     '
+Validation Rules
+Up to 40 type A characters (corresponding to the actual field name or field number).  If field number is entered, it is translated to the field name. Multivalue field (Optional input. No default value).
+Only field names defined in the corresponding Application are allowed.  Both Input, Internal and External fields are allowed.
+No duplication of field names is allowed. */
+		RIGHT_ADJ_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=43.0, core=true, t24Name=RIGHT.ADJ.FIELD)
+	}
+	VERSION__ID_AUTOM_SEQU
+	{
+		/* Contains a sequence of specific identities, in respect of application records, which require to be automatically accessed whenever this version is invoked.  This alleviates the User from the requirement to remember the individual record keys.
+Validation Rules
+Up to 35 type A (alphanumeric) characters Multivalue field (Optional input. No default value)
+Only ID's which are valid for the corresponding Application are allowed.
+Input in this field is not allowed when PRINT ONLY (Field 1) contains the value of Y.
+Duplication of the same ID is not allowed. */
+		ID_AUTOM_SEQU : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=45.0, core=true, t24Name=ID.AUTOM.SEQU)
+	}
+	VERSION__NOINPUT_FIELD
+	{
+		/* Provides the User with the facility to define some fields as fully protected so that, when using this Version, it will be impossible to input to, or amend the content of, these fields.
+It is important to note that the field name input automatically includes all possible value and sub-value fields of that field. (Local Reference fields can also be input.)
+A typical example of use of this facility could be illustrated by a Money Market contract or Foreign Exchange transaction which has been initiated in the dealing room (1st level input) and which will be completed by the back-office department.  Very often, the input from the dealer has to be protected and could only be changed by himself. It is then possible to define a Version for the back-office department which, by the use of this field, can restrict the back-office staff from amending the data input in the dealing room.
+Validation Rules
+Up to 40 type "A" characters corresponding to the field name or field number identification.  If a field number is entered, it is translated to the field name. Multivalue field. (Optional input. No default value).
+Only field names or field numbers defined in the corresponding Application are allowed.
+Input of field names relating to Internal or External fields (i.e. fields generated automatically by the System) is not allowed because, by definition, these fields are already non-input fields.
+Input in this field is not allowed when PRINT ONLY =  Y.
+Duplication of field names is not allowed. */
+		NOINPUT_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=47.0, core=true, t24Name=NOINPUT.FIELD)
+	}
+	VERSION__NOCHANGE_FIELD
+	{
+		/* Provides the User with the facility to define a field as fully protected once the transaction has been authorised.  When using, this Version, it will be impossible to access and/or amend the content of these fields in a transaction already authorised.
+Some applications allow the amendment of certain fields following authorisation: this facility restricts this action from within the version.  It is important to note that the field name input automatically includes all possible value and sub-value fields of that field.  (Local Reference fields can also be input.)
+Validation Rules
+Up to 40 type "A" characters corresponding to the field name or field number identification.  If a field number is entered, it is translated to the field name. Multivalue field. (Optional input. No default value).
+Only field names defined in the corresponding Application are allowed.
+Input of field names relating to Internal or External fields (automatically generated by the System) is not allowed because, by definition, these fields cannot be changed by the User.
+Input of a field name which has already been declared as a no-input field is not allowed.
+Input in this field is not allowed when PRINT ONLY (Field 1) contains the value of Y.
+Duplication of field names is not allowed. */
+		NOCHANGE_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=48.0, core=true, t24Name=NOCHANGE.FIELD)
+	}
+	VERSION__REKEY_FIELD_NO
+	{
+		/* Enables the User to specify any fields which must be rekeyed during Authorisation.
+It is important to note that the input of a field name will automatically include all possible value and sub-value fields of that field name.
+All the fields which require re-key in a multi-tabbed GUI VERSION must be specified on the main VERSION. The re-key fields do not have to be displayed on the main VERSION. This field will be ignored if the VERSION is used as an associated VERSION in GUI.
+The number of rekey attempts allowed can be set in the field NO.OF.RETRIES in SPF. If the field is left empty the user is allowed to rekey infinite times.
+Validation Rules
+Up to 40 type 'A' characters corresponding to the field name or field number identification. Multivalue field. (Optional input. No default value).
+Only fields names which have been previously defined in the Version itself can be defined in this field.
+Only field names defined in the corresponding Application are allowed.
+Input of field names relating to Internal or External fields (automatically generated by the System) is not allowed because, by definition, these fields are non-input fields.
+Input of a field name which has already been declared as a no-input field is not allowed.
+Input in this field is not allowed when PRINT ONLY (Field 1) contains the value of Y.
+Input in this field is not allowed when the number of authorisers has been defined as 0.
+Duplication of field names is not allowed. */
+		REKEY_FIELD_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=49.0, core=true, t24Name=REKEY.FIELD.NO)
+	}
+	VERSION__AUTOM_FIELD_NO
+	{
+		/* Enables the User to define the field name which is to be subject to an automatic default value. It must be used in conjunction with the fields Automatic Old/New Content.
+The definition of the value or sub-value numbers must always be included in this field.
+Field names can be entered in the format:
+a) Field name (e.g. MNEMONIC for field 1 in the customer file followed by,
+b) '-' when the User wants to define a multivalue field, followed by,
+c) Value Number (e.g. RELATION-1 for RELATION in the customer file) when the User wants to define multivalue fields, followed by,
+d) '.' when the User wants to define a subvalue field, followed by,
+e) Sub-Number when the User wants to define a subvalue field.
+Alternatively, field names can be entered as field numbers, as follows:
+a) Field number (e.g. 1 for MNEMONIC in the CUSTOMER file), followed by,
+b) '.' when the User wants to define a multivalue field, followed by,
+c) 'Value number' (e.g. 7.1 for RELATION in the CUSTOMER file) when the User wants to define multivalue fields, followed by,
+d) '.' when the User wants to define a subvalue field, followed by,
+e) 'Sub number' when the User wants to define a subvalue field.
+Field numbers will be translated to field names when entered.
+For local reference field use the format LOCAL.REF-nn.
+Validation Rules
+Up to 40 type A (alphanumeric) characters in the format XXXXXXXXXX.NNN.NN or NNN.NNN.NN Multivalue field         associated with Fields 43 to 45. (Optional input. No default value).
+Only field names defined in the corresponding Application are allowed.
+Input of field names relating to Internal or External fields (automatically generated by the System) is not         allowed.
+Input in this field is not allowed when PRINT ONLY (Field 1) contains the value of Y.
+Duplication of fields names is not allowed. */
+		AUTOM_FIELD_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=50.0, core=true, t24Name=AUTOM.FIELD.NO)
+		/* Enables the User to define the previous field content which is to be changed automatically with the new default value as held in the next field. Must be used in conjunction with AUTOMATIC NEW CONTENT (Field 45) and AUTOMATIC FIELD NUMBER (Field 43).
+This field can either be a constant e.g 100, YES, 21050 etc or a pattern match specification e.g 3N0X, 5A5N etc. To match any input use 0X. It is recommended that constants are enclosed in quotes.
+This field is only used when records containing a certain existing value should automatically be changed to contain the new value specified in the AUTOMATIC NEW CONTENT field.
+Validation Rules
+Up to 35 type A (alphanumeric) characters. Multivalue field associated with Fields 43 to 45. (Optional input.         No default value).
+Input in this field is not allowed when PRINT ONLY (Field 1) contains the value of Y.
+Input in this field is not allowed when AUTOMATIC FIELD NUMBER (Field 43) has been left blank.
+Input of the Old and the New Automatic Content must be different. */
+		AUT_OLD_CONTENT : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=51.0, core=true, t24Name=AUT.OLD.CONTENT)
+		/* Enables the User to define the new automatic default value. Must be used in conjunction with AUTOMATIC OLD CONTENT (Field 44) and AUTOMATIC FIELD NUMBER (Field 43).
+A routine (preceded by "@") may be specified instead of actual values. The routine will only be executed if the EXC.INC.RTN field is set to Y.
+Input in this field must be in accordance with the field definition of the selected Application. Quotes should only be used where the new data actually requires quotes e.g if a new value is required to be YES it should not be input as "YES".
+It is important to clearly understand the relation between this field and AUTOMATIC OLD CONTENT. The following examples will clarify their use.
+1. When the User wants to create an automatic default at the creation of new record ID's, he should then make the following input in these three fields :
+AUTOMATIC FIELD NUMBER - Indicates the field number for which you want to create an automatic default. AUTOMATIC OLD CONTENT - Must remain blank. AUTOMATIC NEW CONTENT - Enter the value which you want to default automatically.
+2. When you want to replace automatically an old content by a new content, you should then make the following input in these three fields :
+AUTOMATIC FIELD NUMBER - Indicate the field number for which you want to change automatically the old content.
+AUTOMATIC OLD CONTENT - Enter the old content AUTOMATIC NEW CONTENT - Enter the new content which you want to replace automatically.
+3. When you want to run a subroutine which will default a value in a particular field, you should make the following input in these three fields :
+AUTOMATIC FIELD NUMBER - Indicates the field number for which you want to create a automatic default AUTOMATIC OLD CONTENT - Must remain blank AUTOMATIC NEW CONTENT - Enter the subroutine name
+which needs to be executed for the the field in AUTOMATIC.FIELD.NUMBER.
+Note: If the field AUTOMATIC OLD CONTENT is specified, only records containing the specified value will be changed when using this Version.
+If the field AUTOMATIC OLD CONTENT is not specified, the content specified in the field AUTOMATIC NEW CONTENT (Field 44) will be generated when creating a new record with this Version.
+The value of the AUT.NEW.CONTENT field can be set using a system (e.g. TODAY, COMPANY, etc.) or user-defined (e.g. CURRENT.CUSTOMER, CURRENT.ACCOUNT, etc.) variable.  In order to use the value of a variable an "!" character must be used preceding the variable name.  For example, a field can be defaulted to today's date by using "!TODAY" or the value of a user defined variable containing a customer number by using "!CURRENT.CUSTOMER".
+Validation Rules
+Up to 35 type A (alphanumeric) characters.
+Multivalue field associated with fields AUTOMATIC FIELD NUMBER and AUTOMATIC OLD CONTENT. (Optional input. No default value).
+Input in this field is not allowed when PRINT ONLY (Field 1) contains the value of Y.
+Duplication of field numbers is not allowed. Input in this field is not allowed when AUTOMATIC FIELD NUMBER has been left blank.
+Input of the Old and the New must be different.
+a) When a subroutine needs to be executed then the subroutine name should preceed with an @ symbol
+b) The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+c) The VERSION ID should exist in field APPR.FOR.SUBR in the PGM.FILE record for the subroutine.
+d) The PGM.TYPE for the VERSION record should be one of the following :- 'U', 'H', 'W', 'M', 'S', 'B' */
+		AUT_NEW_CONTENT : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=52.0, core=true, t24Name=AUT.NEW.CONTENT)
+	}
+	VERSION__MANDATORY_FIELD
+	{
+		/* Identifies any field, within the Application for which the version is created, where you want to impose a positive input from the operator.
+This facility will allow the User to force an input from the User in a field declared as optional by the Application to which this field pertains.
+Validation Rules
+Up to 40 type "A" characters. Multi-value field. Optional Input; No Default Value.
+Only field names defined in the corresponding Application are allowed.
+Duplication of field names is not allowed.
+Input in this field is not allowed when the field PRINT ONLY contains the value of 'Y'. */
+		MANDATORY_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=53.0, core=true, t24Name=MANDATORY.FIELD)
+	}
+	VERSION__VAL_ASSOC
+	{
+		VAL_ASSOC -> byValue EB_Versions:VERSION__VAL_ASSOC__VAL_ASSOC *
+	}
+	VERSION__VAL_ASSOC__VAL_ASSOC
+	{
+		/* Table of Value fields which are associated in the version's application.
+It is a set denoting the range of associated multi value field.
+Validation Rules.
+Standard T24 alphanumeric field with a maximum of 40 characters.
+This is a NOINPUT field. */
+		VAL_ASSOC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=55.0, core=true, t24Name=VAL.ASSOC)
+	}
+	VERSION__SUB_ASSOC
+	{
+		SUB_ASSOC -> byValue EB_Versions:VERSION__SUB_ASSOC__SUB_ASSOC *
+	}
+	VERSION__SUB_ASSOC__SUB_ASSOC
+	{
+		/* Table of SUB fields which are associated in the version's application.
+
+It is a set, denoting the range of associated sub value field.
+Validation Rules
+Standard   T24 alphanumeric field with a maximum of 40 characters.
+This   is a NOINPUT field. */
+		SUB_ASSOC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=56.0, core=true, t24Name=SUB.ASSOC)
+	}
+	VERSION__VALIDATION_FLD
+	{
+		/* The name or number of a field to be validated by a user routine - see VALIDATION.RTN
+For a local reference field use LOCAL.REF-nn.
+Validation Rules
+Up to seven numeric charcters. Multivalued field associated with field 40.1
+Must be a valid field for the file. */
+		VALIDATION_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=58.0, core=true, t24Name=VALIDATION.FLD)
+		/* The inputs to this field can be a routine name, enquiry name or a script. The name of user defined subroutine will be used to validate the input into associated field VALIDATION.FLD.
+The EXC.INC.RTN field must be set to Y on this VERSION record or the main VERSION in the case of tabbed versions for the routine to be executed.
+Validation Rules
+The subroutine entered should exist in EB.API record.
+Enquiry - Must start with ENQ, followed by a space and then the enquiry name.
+The enquiry must be a valid enquiry on the enquiry file.
+Script - Start with SPT. */
+		VALIDATION_RTN : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=59.0, core=true, t24Name=VALIDATION.RTN)
+	}
+	VERSION__D_SLIP_FORMAT
+	{
+		/* The value(s) defined here are used to produce Deal Slips according to the function and whether the user wants to have them produced automatically or when a 'hot key' is used. Deal Slips can be printed to a connected local printer or directed to a Network device. Refer to the REPORT CONTROL section of the Systems Administration User Guide for details of setting up printers.
+Deal slips can be linked to a function such as Input, Reversal or Authorisation and specific Deal Slips can be made to relate to those functions.
+Either an ENQUIRY record or a DEAL.SLIP.FORMAT record can be entered. If a valid DEAL.SLIP.FORMAT then the system will provide an enrichment from the record so the user will know thay have the correct record.
+Alternatively, an ENQUIRY record can be used to provide a Deal Slip, in this case the enrrichment will inform the user that an ENQUIRY record has been selected.
+The user can drilldown to the related table DEAL.SLIP.FORMAT to view or select the record to use.
+The combination of the associated fields is used to define when the Deal Slip can be produced.
+To trigger them automatically you need to define:
+Field#Content Required##
+D.SLIP.FORMAT#TELLER.SLIP.INPUT##
+D.SLIP.FUNCTION#I##
+D.SLIP.TRIGGER#OL##
+
+This will only print the Deal Slip TELLER.SLIP.INPUT when the deal is validated at I(nput) time.
+To trigger them via a "hot key" or the Desktop Deal Slip icon you need
+Field#Content Required##
+D.SLIP.FORMAT#TELLER.SLIP.INPUT##
+D.SLIP.FUNCTION#I##
+D.SLIP.TRIGGER#RQ##
+This will only print the Deal Slip TELLER.SLIP.INPUT at I(nput) time when the 'hot key' is used.
+Note:
+ENQUIRY linked Deal Slips are valid for Desktop (GUI) use only. Since the ENQUIRY will be based on either the live or unauthorised file then only data that is available on those files can be accessed, whereas DEAL.SLIP.FORMAT can utilise the new data being entered on a deal. ENQUIRY deal slips therefore need to be based on the live or unauthorised record depending on when the deal slip is being produced. For example a new deal would probably be based on the unauthorised record whereas a reversal would be based on the live record.
+Validation Rules
+Input to this field must be a valid record in either ENQUIRY or DEAL.SLIP.FORMAT files.
+Must have values in fields
+D.SLIP.FUNCTION and
+D.SLIP.TRIGGER to produce Deal Slips */
+		D_SLIP_FORMAT -> EB_Dealslip:DEAL_SLIP_FORMAT
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=60.0, core=true, businessType=ANY, t24Name=D.SLIP.FORMAT)
+		/* The Deal Slips can be produced at various times according to the function (or codeword FINISH) and whether they are produced automatically or in conjunction with a 'hot key'
+FUNCTIONS
+Valid functions are:
+Data#Description##
+I#Input##
+A#Authorise##
+C#Copy##
+R#Reverse##
+D#Delete##
+H#History Restore##
+FINISH
+Where FINISH is specified, this processing is dependent on the application and may not be triggered for all applications. Refer to the User Guide for the application for further details.
+Currently, only the TELLER application makes use of this facility.
+Validation Rules
+Valid input is I, A, C, R, D, H or FINISH.
+Must have input in fields
+D.SLIP.FORMAT and D.SLIP.TRIGGER fields to be effective. */
+		D_SLIP_FUNCTION : EB_Versions:VERSION__D_SLIP_FORMAT__D_SLIP_FUNCTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=61.0, core=true, t24Name=D.SLIP.FUNCTION)
+	}
+	VERSION__INPUT_ROUTINE
+	{
+		/* The name of the UniVerse subroutine to be invoked just prior to the final update of files at the unauthorised stage of a transaction.
+Validation Rules
+
+The name of the routine should be an existing UniVerse program executeable.
+The routine entered should exist in EB.API record. */
+		INPUT_ROUTINE : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=63.0, core=true, t24Name=INPUT.ROUTINE)
+	}
+	VERSION__AUTH_ROUTINE
+	{
+		/* The name of the UniVerse subroutine to be invoked just prior to the final update of files at the authorised stage of a transaction.
+Validation Rules
+The name of the routine should be an existing UniVerse program executable.
+The routine entered should exist in EB.API record. */
+		AUTH_ROUTINE : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=64.0, core=true, t24Name=AUTH.ROUTINE)
+	}
+	VERSION__DESCRIPTION
+	{
+		/* A description of the version record is held in this field.
+Validation Rules
+Optional Input, of up to 35 characters.
+Standard T24 language field. */
+		DESCRIPTION : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, multiLanguage=true, sysNumber=67.0, core=true, t24Name=DESCRIPTION)
+	}
+	VERSION__ASSOC_VERSION
+	{
+		/* A list of VERSIONs which are associated with the current VERSION are held in this field. These associated VERSIONs are used as alternative views of the contract input in the T24 Desktop. The associated VERSIONs appear "behind" the main version and can be accessed by "tabs".
+Validation Rules
+Must be a valid version, and must relate to the same application as the version being input.
+Optional input. */
+		ASSOC_VERSION -> EB_Versions:VERSION
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=68.0, core=true, businessType=ANY, t24Name=ASSOC.VERSION)
+	}
+	VERSION__RESERVED_4
+	{
+		/* The field BUS.CRIT.FIELD changed as a Reserved Field as it is no longer used.
+Validation Rules
+no-input field */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=71.0, core=true, t24Name=RESERVED.4)
+	}
+	VERSION__CAPTION
+	{
+		/* The text that appears to the left of the field when displayed or ready for input, indicating the purpose of the field.
+Validation Rules
+Standard T24 alphanumeric field.
+A maximum of 50 characters may be entered. */
+		CAPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=72.0, core=true, t24Name=CAPTION)
+	}
+	VERSION__ID_RTN
+	{
+		/* This field accepts a user-defined subroutine. It acts as a user exit to validate ids.
+Validation Rules
+Up to 35 type A (alphanumeric) characters.
+The subroutine entered should exist in EB.API record. */
+		ID_RTN : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=74.0, core=true, t24Name=ID.RTN)
+	}
+	VERSION__CHECK_REC_RTN
+	{
+		/* This field accepts a user-defined subroutine. This routine acts as a user exit to control field attributes.
+Validation Rules
+Up to 35 type A (alphanumeric) characters.
+The subroutine entered should exist in EB.API record. */
+		CHECK_REC_RTN : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=75.0, core=true, t24Name=CHECK.REC.RTN)
+	}
+	VERSION__AFTER_UNAU_RTN
+	{
+		/* This field accepts a user-defined subroutine. It acts as a user exit and is called after unauthorised-record-write.
+Validation Rules
+Up to 35 type A (alphanumeric) characters.
+The subroutine entered should exist in EB.API record. */
+		AFTER_UNAU_RTN : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=76.0, core=true, t24Name=AFTER.UNAU.RTN)
+	}
+	VERSION__BEFORE_AUTH_RTN
+	{
+		/* This field accepts a user-defined subroutine. It acts as a user exit and is called before authorised-record-write.
+Validation Rules
+Up to 35 type A (alphanumeric) characters.
+The subroutine entered should exist in EB.API record. */
+		BEFORE_AUTH_RTN : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=77.0, core=true, t24Name=BEFORE.AUTH.RTN)
+	}
+	VERSION__ATTRIBUTES
+	{
+		/* Determines the display of the VERSION in T24 Browser.
+This field is only used for the T24 Browser product.
+Validation Rules
+Valid settings are :
+NO.HEADER.TAB      - Do not display a header tab on T24 Browser screens.  Each associated version is displayed on a separate tab.
+SHOW.NULL.FIELDS   - Whether to display empty fields or not on T24 Browser screens.
+SHOW.TXN.ID   - Display the transaction ID after commit in cases where it has been suppressed (used in ARC IB). */
+		ATTRIBUTES : EB_Versions:VERSION__ATTRIBUTES__ATTRIBUTES
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=87.0, core=true, t24Name=ATTRIBUTES)
+	}
+	VERSION__SERVICE
+	{
+		/* Field that contains the ID of an EB.SERVICE record. It may be an existing record. If the record is not present, then upon authorising the VERSION, a new record is created.
+Validation Rules
+
+1. Length of 35 alphanumeric characters
+2. If EXPOSE is set to 'YES', then this field is mandatory
+3. No-input if EXPOSE is not set to 'YES'
+
+The following validations/processing is done based on the fields SERVICE and ACTIVITY.
+If both SERVICE and ACTIVITY do not exist, then a new activity is created in PW.ACTIVITY, 
+                                    with the TARGET field mapped to the Version/Function and a new record is created in EB.SERVICE with the activity added to it.
+If the SERVICE is existing EB.SERVICE and ACTIVITY does not exist in PW.ACTIVITY,a new activity is created in PW.ACTIVITY and the same is appended to the EB.SERVICE record.
+If SERVICE does not exist and ACTIVITY exists, a check is done to ensure that the activity relates to this Version/Function, i.e. the TARGET field in PW.ACTIVITY is mapped correctly, otherwise an error message is thrown. Then, a new EB.SERVICE record is created with the activity added to it.
+If both SERVICE and ACTIVITY exists and the activity relates to the Version/Function, a check is done to ensure that the EB.SERVICE does not contain the ACTIVITY.ID already.Otherwise an error message is thrown. Finally,EB.SERVICE is updated with the activity appended to it. */
+		SERVICE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=94.0, core=true, t24Name=SERVICE)
+	}
+	VERSION__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=101.0, core=true, t24Name=OVERRIDE)
+	}
+	VERSION__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=104.0, core=true, t24Name=INPUTTER)
+	}
+	VERSION__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=105.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	VERSION_CONTROL
+		@t24:i (t24Name=VERSION.CONTROL, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* This is the Id for this application. This should be a valid application name */
+		PGM_NAME_VER_TYPE -> EB_Versions:VERSION_CONTROL PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=0.0, core=true, businessType=A, t24Name=PGM.NAME.VER.TYPE)
+		AUTO_FIELD_NAME -> byValue EB_Versions:VERSION_CONTROL__AUTO_FIELD_NAME *
+		FIELD_NAME -> byValue EB_Versions:VERSION_CONTROL__FIELD_NAME *
+		INPUT_RTN -> byValue EB_Versions:VERSION_CONTROL__INPUT_RTN *
+		AUTH_RTN -> byValue EB_Versions:VERSION_CONTROL__AUTH_RTN *
+		ID_RTN -> byValue EB_Versions:VERSION_CONTROL__ID_RTN *
+		CHECK_REC_RTN -> byValue EB_Versions:VERSION_CONTROL__CHECK_REC_RTN *
+		AFTER_UNAU_RTN -> byValue EB_Versions:VERSION_CONTROL__AFTER_UNAU_RTN *
+		BEFORE_AUTH_RTN -> byValue EB_Versions:VERSION_CONTROL__BEFORE_AUTH_RTN *
+		/* To make the routines execute for bare application or not.  YES  to execute the routines for bare application NO  to execute the routines only for versions and not for bare application.
+Validation Rules
+
+A maximum of 1 characters may be entered.
+The following values are permitted:     Y     N */
+		NON_VERSION_RUN : EB_Versions:VERSION_CONTROL__NON_VERSION_RUN
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=12.0, core=true, t24Name=NON.VERSION.RUN)
+		FLD_CHECK_VALUE -> byValue EB_Versions:VERSION_CONTROL__FLD_CHECK_VALUE *
+		NOINPUT_VALUE -> byValue EB_Versions:VERSION_CONTROL__NOINPUT_VALUE *
+		NO_CHG_VALUE -> byValue EB_Versions:VERSION_CONTROL__NO_CHG_VALUE *
+		REKEY_VALUE -> byValue EB_Versions:VERSION_CONTROL__REKEY_VALUE *
+		AUTOM_VALUE -> byValue EB_Versions:VERSION_CONTROL__AUTOM_VALUE *
+		MAND_VALUE -> byValue EB_Versions:VERSION_CONTROL__MAND_VALUE *
+		D_SLIP_VALUE -> byValue EB_Versions:VERSION_CONTROL__D_SLIP_VALUE *
+		GTS_VALUE -> byValue EB_Versions:VERSION_CONTROL__GTS_VALUE *
+		/* This field is used to define whether a VERSION can be restricted to being run only in a users initial sign on company, and can only be input when the multi branch product is installed.
+Multi branch indicates that the MB product is installed, the term Multi Book can also be used.
+This product basically allows financial level data to be stored in the same database table for all companies, as opposed to Multi Company where the data is stored in a separate table for each company.
+Validation Rules
+Optional input only when the MB product is installed
+Can be set to OWN to indicate that the version can only be run in the users initial sign on company, i.e. the users own branch */
+		COMPANY_ACCESS : EB_Versions:VERSION_CONTROL__COMPANY_ACCESS
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=48.0, core=true, t24Name=COMPANY.ACCESS)
+		/* This field indicates on what type of business day the VERSION can be run.
+This is based on the value of the CURRENT.DAY field on the DATES record.
+NORMAL the branch is open on an official working day
+RESTRICTED the branch is open on an official holiday, e.g. a weekend or public holiday
+CLOSED the branch is closed i.e. the holiday table for the branch indicates a non working day, or the day corresponds to a value on the BRNACH.CLOSED field for the company
+For example some business activities can only take place on an official working day such as certain clearing transactions, whereas others e.g. closing a customer account can take place if the branch is open.
+If this field is left blank then there will be no check as to whether the version can be run.
+Validation Rules
+Optional input
+NORMAL indicates the version can only be run on a normal business day, e.g. only on an official working day for the local country
+RESTRICTED indicates that the version can be run on a normal or restricted working day e.g. the branch is open
+CLOSED indicates that the version can be run at any time */
+		BUSINESS_DAY : EB_Versions:VERSION_CONTROL__BUSINESS_DAY
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=49.0, core=true, t24Name=BUSINESS.DAY)
+		/* This field is used to define in a multi branch system whether the user can directly access a record in another company, without having to manually exit the application, sign in to the other company and invoke the application.
+Multi branch indicates that the MB product is installed, the term Multi Book can also be used.
+This product basically allows financial level data to be stored in the same database table for all companies, as opposed to Multi Company where the data is stored in a separate table for each company.
+If this field is set to YES then the user can enter access a record in another company to perform a transaction. The user must have access to the other company via the OTH.BOOK.ACCESS or OTH.BOOK.BLOCK fields of their USER record.
+The user does not need to have the ability to sing in to the other company.
+An SMS check will be applied for the current application and function before the new company is loaded automatically.
+An example would be when a customer wishes to close an account in a branch other than their own, in this case the teller would enter the account number, the system would then switch companies and the account can be closed.
+If this field is left blank then in a multi branch environment the user will not be allowed to directly access records in other branches, but must be signed in to that company.
+Validation Rules
+Optional input of YES only when the MB product is installed. */
+		AUTO_COMP_CHANGE : EB_Versions:VERSION_CONTROL__AUTO_COMP_CHANGE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=50.0, core=true, t24Name=AUTO.COMP.CHANGE)
+		/* This field in VERSION.CONTROL record or VERSION.CONTROL  SYSTEM record along with a similar field in SYSTEM.OVERRIDE table set to YES will suppress the system override message.
+Any messages that have not been flagged in the System Override Message Table will not be suppressed, even when a VERSION or VERSION.CONTROL (including 'SYSTEM') record is set for suppression.
+The default for SYS.MSG.SUPPRESS field in both the System Override Message Table and the VERSION/VERSION.CONTROL will be no suppression. A record 'SYSTEM' in VERSION.CONTROL can be used to define criteria (including message suppression) at global system level as opposed to just application level, so will define version defaults for all versions of all applications.
+The following routines can be defaulted for all versions of all applications (apart from message suppression) using the VERSION.CONTROL  SYSTEM record.
+
+1. INPUT.RTN
+2. AUTH.RTN
+3. ID.RTN
+4. CHECK.REC.RTN
+5. AFTER.UNAU.RTN
+6. BEFORE.AUTH.RTN
+
+Display or suppression of a system override message will depend on the following flag settings
+
+
+VERSIONMsg Suppress#VERSION.CONTROL>applicationMsg Suppress#VERSION.CONTROL>SYSTEMMsg Suppress#System Override Msg TableMsg Suppress#Suppress MessageYes/No##
+Null#Null#Null#Yes#No##
+Yes#Null#Null#Yes#Yes##
+Yes#Null#Null#No#No##
+No#Null#Null#No#No##
+No#Yes#Null#Yes#No##
+No#Yes#Null#No#No##
+Null#Yes#Null#Yes#Yes##
+Null#Yes#Null#No#No##
+Null#No#Null#Yes#No##
+Null#No#Null#No#No##
+Null#No#Yes#No#No##
+Null#Null#Yes#Yes#Yes##
+Null#Null#Yes#No#No##
+Null#Null#No#Yes#No##
+Null#Null#No#No#No##
+Null#Null#Null#No#No##
+
+
+
+Validation Rules
+
+YES or NO or NULL (Blank) */
+		SYS_MSG_SUPPRESS : EB_Versions:VERSION_CONTROL__SYS_MSG_SUPPRESS
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=51.0, core=true, t24Name=SYS.MSG.SUPPRESS)
+		/* Contains the name of an XSLT stylesheet to be used when displaying a Deal Slip in T24 Browser.
+This field is only used for the T24 Browser product. */
+		D_SLIP_STYLE_SHEET : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=52.0, core=true, t24Name=D.SLIP.STYLE.SHEET)
+		ATT_FLD_NAME -> byValue EB_Versions:VERSION_CONTROL__ATT_FLD_NAME *
+		/* Contains the name of a Java EB.API record routine that will be called on the T24 Web Server to validate the fields marked as Web Validate.
+This field is only used for the T24 Browser product. */
+		WEB_VAL_RTN : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=56.0, core=true, t24Name=WEB.VAL.RTN)
+		LANGUAGE_CODE -> byValue EB_Versions:VERSION_CONTROL__LANGUAGE_CODE *
+		AUTO_OVERRIDES : EB_Versions:VERSION_CONTROL__AUTO_OVERRIDES
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=58.0, core=true, t24Name=AUTO.OVERRIDES)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=59.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=60.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=61.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=62.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=63.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=64.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=65.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Versions:VERSION_CONTROL__INPUTTER *
+		DATE_TIME -> byValue EB_Versions:VERSION_CONTROL__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=68.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=69.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=70.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=71.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=72.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	VERSION_CONTROL__AUTO_FIELD_NAME
+	{
+		/* If the value in this field is not present in the corresponding field in VERSION record, the value in this field and the associated fields are appended to the VERSION record. Enables you to define the field name, which is to be subject to an automatic default value. It must be used in conjunction with the fields AUTO.OLD.CONT and AUTO.FIELD.RTN. The definition of the value or sub-value numbers must always be included in this field.
+Field names can be entered in the format:
+a) Field name (e.g. MNEMONIC for field 1 in the customer file followed by,
+b) '-' When you want to define a multivalue field, followed by,
+c) Value Number (e.g. RELATION-1 for RELATION in the customer file) when you want to define multivalue fields, followed by,
+d) '.' When the User wants to define a subvalue field, followed by,
+e) Sub-Number when you want to define a subvalue field.
+Alternatively, field names can be entered as field numbers, as follows:
+a) Field number (e.g. 1 for MNEMONIC in the CUSTOMER file), followed by,
+b) '.' When you want to define a multivalue field, followed by,
+c) 'Value number' (e.g. 7.1 for RELATION in the CUSTOMER file) when you want to define multivalue fields, followed by,
+d) '.' When you want to define a subvalue field, followed by,
+e) 'Sub number' when you want to define a subvalue field.
+Field numbers will be translated to field names when entered.
+For local reference fields, use the format LOCAL.REF-n.
+Validation Rules
+
+Up to 40 type A (alphanumeric) characters in the format         XXXXXXXXXX.NNN.NN or NNN.NNN.NN Multivalue field         associated with Fields 1 to 3. (Optional input. No         default value).
+Only field names defined in the corresponding Application         are allowed.
+Duplication of field names is not allowed. */
+		AUTO_FIELD_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=1.0, core=true, t24Name=AUTO.FIELD.NAME)
+		/* If the value in the associated field AUTO.FIELD.NAME is not present in the corresponding field in VERSION record, the value in this field and the associated fields are appended to the VERSION record.
+Enables the User to define the previous field content, which is to be changed automatically with the new default value as held in the next field. Must be used in conjunction with AUTO.FIELD.RTN and AUTO. FIELD.NAME.
+Validation Rules
+
+Up to 35 type A (alphanumeric) characters. Multivalue         field associated with Fields 1 to 3. (Optional input. No         default value). */
+		AUTO_OLD_CONT : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=AUTO.OLD.CONT)
+		/* If the value in the associated field AUTO.FIELD.NAME is not present in the corresponding field in VERSION record, the value in this field and the associated fields are appended to the VERSION record.
+Must be used in conjunction with AUTO.OLD.CONT and AUTO.FIELD.NAME. When the user wants to run a subroutine, to default a value in a particular field, he should make the following input in these three fields:
+AUTO.FIELD.NAME - Indicates the field number for which you want to create a automatic default
+AUTO.OLD.CONT - Must remain blank
+AUTO.FIELD.RTN - Enter the subroutine name which needs to be executed for the field in AUTO.FIELD.NAME.
+Validation Rules
+
+Up to 35 type A (alphanumeric) characters. Multivalue         field associated with Fields 1 to 2. (Optional input. No         default value).
+The subroutine name should proceed with an @ symbol
+The subroutine entered should exist in PGM.FILE with PGM.TYPE         = 'S'
+The VERSION ID should exist in field APPL.FOR.SUBR in the         PGM.FILE record for the subroutine. */
+		AUTO_FIELD_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=3.0, core=true, t24Name=AUTO.FIELD.RTN)
+	}
+	VERSION_CONTROL__FIELD_NAME
+	{
+		/* If the value in this field is not present in the corresponding field VALIDATION.FLD, in VERSION record, the value in this field and the associated fields are appended to the VERSION record. This field contains a field name of the file for which you are creating a version of the input screen.
+Validation Rules
+
+Up to 40 type A (alphanumeric) characters. Multivalue         field associated with field VALIDATION.RTN.
+Must be a valid field for the file. */
+		FIELD_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=4.0, core=true, t24Name=FIELD.NAME)
+		/* If the value in the associated field FIELD.NAME is not present in the corresponding field VALIDATION.FLD in VERSION record, the value in this field and the associated fields are appended to the VERSION record. This field accepts a user-defined subroutine. The name of routine will be used to validate the input into the associated field FIELD.NAME.
+Validation Rules
+
+Routine name must start with @, the text after the @ must be a valid record on the PGM.FILE.
+The PGM.FILE>TYPE must be 'S'.
+Field APPL.FOR.SUBR on the PGM record must equal the application defined in the key to the Version.Control record. */
+		VALIDATION_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=VALIDATION.RTN)
+	}
+	VERSION_CONTROL__INPUT_RTN
+	{
+		/* The value in this field is appended to the corresponding field INPUT.RTN, in VERSION record, if this value is not present in that field. The name of the UniVerse subroutine to be invoked just prior to the final update of files at the unauthorised stage of a transaction.
+Validation Rules
+
+The name of the routine should be an existing UniVerse program executable. */
+		INPUT_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=INPUT.RTN)
+	}
+	VERSION_CONTROL__AUTH_RTN
+	{
+		/* The value in this field is appended to the corresponding field AUTH.RTN, in VERSION record, if this value is not present in that field.
+The name of the UniVerse subroutine to be invoked just prior to the final update of files at the authorised stage of a transaction.
+Validation Rules
+
+The name of the routine should be an existing UniVerse program executable. */
+		AUTH_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=AUTH.RTN)
+	}
+	VERSION_CONTROL__ID_RTN
+	{
+		/* This field accepts a user-defined subroutine. It acts as a user exit to validate ids. The routine name specified in this field is appended to the field ID.RTN in Version record if it is blank.
+Validation Rules
+
+Up to 35 type A (alphanumeric) characters.
+The subroutine name should proceed with an @ symbol
+The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+The VERSION ID should exist in field APPL.FOR.SUBR in the PGM.FILE record for the subroutine. */
+		ID_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=ID.RTN)
+	}
+	VERSION_CONTROL__CHECK_REC_RTN
+	{
+		/* This field accepts a user-defined subroutine. This routine acts as a user exit to control field attributes. The routine name specified in this field is appended to the field CHECK.REC.RTN in Version record if it is blank.
+Validation Rules
+
+Up to 35 type A (alphanumeric) characters.
+The subroutine name should proceed with an @ symbol
+The subroutine entered should exist in PGM.FILE with PGM.TYPE         = 'S'
+The VERSION ID should exist in field APPL.FOR.SUBR in the         PGM.FILE record for the subroutine */
+		CHECK_REC_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=CHECK.REC.RTN)
+	}
+	VERSION_CONTROL__AFTER_UNAU_RTN
+	{
+		/* This field accepts a user-defined subroutine. It acts as a user exit and is called after unauthorised-record-write. The routine name specified in this field is appended to the field AFTER.UNAU.RTN in Version record if it is blank.
+Validation Rules
+
+Up to 35 type A (alphanumeric) characters.
+The subroutine name should proceed with an @ symbol
+The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+The VERSION ID should exist in field APPL.FOR.SUBR in the PGM.FILE record for the subroutine. */
+		AFTER_UNAU_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, t24Name=AFTER.UNAU.RTN)
+	}
+	VERSION_CONTROL__BEFORE_AUTH_RTN
+	{
+		/* This field accepts a user-defined subroutine. It acts as a user exit and is called before authorised-record-write. The routine name specified in this field is appended to the field BEFORE.AUTH.RTN in Version record if it is blank.
+Validation Rules
+
+Up to 35 type A (alphanumeric) characters.
+The subroutine name should proceed with an @ symbol
+The subroutine entered should exist in PGM.FILE with PGM.TYPE         = 'S'
+The VERSION ID should exist in field APPL.FOR.SUBR in the         PGM.FILE record for the subroutine */
+		BEFORE_AUTH_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=BEFORE.AUTH.RTN)
+	}
+	VERSION_CONTROL__FLD_CHECK_VALUE
+	{
+		/* This field contains a value to check against the environment variable specified in FLD.CHECK.TYPE.
+The outcome of this check determines whether the field or fields named in FLD.NAME are included in the VERSION being used.
+E.g.
+If FLD.CHECK.TYPE has USER>COMPANY.CODE then the value in FLD.CHECK.VALUE should be the COMPANY code in which the field is to be processed.
+Validation Rules
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+Multivalue field associated with fields FLD.CHECK.VALUE to FLD.INC.EXC.
+
+
+
+Optional input. No default value. */
+		FLD_CHECK_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=13.0, core=true, t24Name=FLD.CHECK.VALUE)
+		/* Allows you to specify the environment variable to be tested. The system will use this variable to check against the value specified in FLD.CHECK.VALUE. If it matches then the field or fields in FLD.NAME will be included in the version, provided FLD.INC.EXC is set to &#8220;INCLUDE&#8221;.
+
+
+The format can be Application>fieldname (e.g USER>COMPANY.CODE) where the application can be USER, COMPANY or COMPANY.CONSOLID only.
+
+
+
+It can also be a routine. If it is routine the following conditions apply,
+
+a) When a subroutine needs to be executed then the subroutine name should be preceded by an @ symbol
+
+b) The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+
+c) The APPLICATION in the record key should exist in field APPL.FOR.SUBR in the PGM.FILE record for the subroutine.
+
+d) This subroutine gets executed only once when the Version is first launched and the attributes set will thereafter remain unaltered.
+
+Validation Rules
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+Multi-value field associated with fields FLD.CHECK.VALUE to FLD.INC.EXC.
+
+
+
+Optional input. No default value. */
+		FLD_CHECK_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=14.0, core=true, t24Name=FLD.CHECK.TYPE)
+		FLD_NAME -> byValue EB_Versions:VERSION_CONTROL__FLD_CHECK_VALUE__FLD_NAME *
+	}
+	VERSION_CONTROL__FLD_CHECK_VALUE__FLD_NAME
+	{
+		/* Contains the name of a field to be processed in a VERSION (at run-time). The field is either hidden or displayed depending
+
+
+
+on the value of the associated fields (from field FLD.CHECK.VALUE to FLD.INC.EXC).
+
+
+
+
+The field name must be specified in the same format present in the version record for the feature to take effect.
+
+
+For example, if the field name in the version record has a value field with it (OTHER.OFFICER-1) then the FIELD.NAME in the version. control record should also be OTHER.OFFICER-1.
+
+
+If the field name in the version record is OTHER.OFFICER, then the FIELD.NAME in the version.control record should also be OTHER.OFFICER.
+
+
+
+
+
+If the Fields per line in the version record is set to 1, the blank space that appears due to hidden fields are removed. If fields per line is &#8216;MULTI&#8217; the blanks are not removed.
+
+
+
+
+Validation Rules
+
+
+
+
+
+Up to 35 type A (Alphanumeric) characters corresponding to the field name or field number identification. If a field number is entered, it is translated to the field name.
+
+
+
+
+
+Local Reference fields can also be input.
+
+
+
+
+
+Optional input. No default value.
+
+
+
+
+
+Only field names or field numbers defined in the Application (as in the record key) are allowed.
+
+
+
+
+
+Duplication of field names is not allowed.
+
+
+
+
+
+Sub-value field associated with fields FLD.CHECK.VALUE to FLD.INC.EXC. */
+		FLD_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=15.0, core=true, t24Name=FLD.NAME)
+		/* Given that the condition in FLD.CHECK.VALUE and FLD.CHECK.TYPE is satisfied.
+
+
+If this field is set to INCLUDE then the field specified in FLD.NAME will appear in the Version.
+
+
+If this field is set to EXCLUDE then the field specified in FLD.NAME will be hidden in the Version.
+
+
+Validation Rules
+
+INCLUDE or EXCLUDE
+Subvalue field associated with fields FLD.CHECK.VALUE to FLD.INC.EXC. */
+		FLD_INC_EXC : EB_Versions:VERSION_CONTROL__FLD_CHECK_VALUE__FLD_NAME__FLD_INC_EXC
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=16.0, core=true, t24Name=FLD.INC.EXC)
+	}
+	VERSION_CONTROL__NOINPUT_VALUE
+	{
+		/* This field contains a value to check against the environment variable specified in NOINPUT.TYPE.
+The outcome of this check determines whether the field or fields named in NOINPUT.NAME have the &#8220;no-input&#8221; property in the VERSION being used.
+Validation Rules
+
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+Multivalue field associated with fields 17 to 20.( NOINPUT.VALUE to NOINP.INC.EX)
+
+Optional input. No default value. */
+		NOINPUT_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=17.0, core=true, t24Name=NOINPUT.VALUE)
+		/* Allows the user to specify the environment variables. The system will use these variables to check against the value specified in NOINPUT.VALUE. If it matches then the field will be included in the version, provided NOINP.INC.EX is set to INCLUDE.
+It can be Application>fieldname (e.g USER>COMPANY.CODE) where the application can be USER or COMPANY only. It can also be a routine. If it is routine the following conditions apply,
+a) When a subroutine needs to be executed then the subroutine name should preceed with an @ symbol
+
+
+b) The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+
+
+c) The APPLICATION should exist in field APPR.FOR.SUBR in the PGM.FILE record for the subroutine.
+
+
+d) This subroutine gets executed only once when the Version is first launched and the attributes set will thereafter remain unaltered.
+
+Validation Rules
+
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+
+Multivalue field associated with fields 17 to 20.( NOINPUT.VALUE to NOINP.INC.EX)
+
+Optional input. No default value. */
+		NOINPUT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=18.0, core=true, t24Name=NOINPUT.TYPE)
+		NOINPUT_FLD -> byValue EB_Versions:VERSION_CONTROL__NOINPUT_VALUE__NOINPUT_FLD *
+	}
+	VERSION_CONTROL__NOINPUT_VALUE__NOINPUT_FLD
+	{
+		/* If the value in this field is not present in the corresponding field in the VERSION record, the value in this field is appended to the VERSION record.
+Provides the User with the facility to define some fields as fully protected so that, when using this Version, it will be impossible to input or amend the content of these fields. It is important to note that the field name input automatically includes all possible value and sub-value fields of that field. (Local Reference fields can also be input.)
+Validation Rules
+
+
+
+Up to 35 type A(Alphanumeric) characters corresponding to the field name or field number identification. If a field number is entered, it is translated to the field name.
+
+
+
+
+Optional input. No default value.
+
+
+
+
+Only field names or field numbers defined in the corresponding application are allowed.
+
+
+
+
+Input of field names relating to Internal or External fields (i.e. fields generated automatically by the System) is not allowed because, by definition, these fields are already non-input fields.
+
+
+
+
+Duplication of field names is not allowed.
+
+Subvalue field associated with fields 17 to 20.( NOINPUT.VALUE to NOINP.INC.EX) */
+		NOINPUT_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=NOINPUT.FLD)
+		/* Given that the condition in NOINPUT.VALUE and NOINPUT.TYPE is satisfied.  If this field is set to INCLUDE then the field specified in NOINPUT.FLD will be set as no input field in the Version. If this field is set to EXCLUDE then the field specified in NOINPUT.FLD will not be set as no input field in the Version.
+Validation Rules
+
+
+INCLUDE or EXCLUDE
+
+
+Subvalue field associated with fields 17 to 20(NOINPUT.VALUE to NOINP.INC.EX). */
+		NOINP_INC_EX : EB_Versions:VERSION_CONTROL__NOINPUT_VALUE__NOINPUT_FLD__NOINP_INC_EX
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=20.0, core=true, t24Name=NOINP.INC.EX)
+	}
+	VERSION_CONTROL__NO_CHG_VALUE
+	{
+		/* This field contains a value to check against the environment variable specified in NO.CHG.TYPE.
+The outcome of this check determines whether the fieldor fields named in NO.CHG.NAME have the &#8220;no-change&#8221; property in the VERSION being used.
+
+E.g.
+
+If NO.CHG.TYPE has USER>COMPANY.CODE then the value in NO.CHG.VALUE should contain a valid COMPANY code (US0010001).
+
+Validation Rules
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+Multivalue field associated with fields NO.CHG.VALUE through NO.CHG.IN.EX.
+
+
+
+Optional input. No default value */
+		NO_CHG_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=21.0, core=true, t24Name=NO.CHG.VALUE)
+		/* Allows you to specify the environment variables. The system will use the variable to check against the value specified in NO.CHG.VALUE. If it matches then the field will be included in the version,
+provided NO.CHG.IN.EX is set to &#8220;INCLUDE&#8221;
+It can be of the form Application>fieldname (e.g USER>COMPANY.CODE) where the application can be USER or COMPANY only.
+
+
+It can also be a routine. If it is routine the following conditions apply,
+
+a) When a subroutine needs to be executed then the subroutine name should preceed with an @ symbol
+
+b) The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+
+c) The APPLICATION should exist in field APPR.FOR.SUBR in the PGM.FILE record for the subroutine.
+
+d) This subroutine gets executed only once when the Version is first launched and the attributes set will thereafter remain unaltered.
+
+Validation Rules
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+
+Multivalue field associated with fields NO.CHG.VALUE to NO.CHG.IN.EX
+
+
+Optional input. No default value. */
+		NO_CHG_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=22.0, core=true, t24Name=NO.CHG.TYPE)
+		NO_CHG_FLD -> byValue EB_Versions:VERSION_CONTROL__NO_CHG_VALUE__NO_CHG_FLD *
+	}
+	VERSION_CONTROL__NO_CHG_VALUE__NO_CHG_FLD
+	{
+		/* If the field named here is not present in the in the VERSION record, this field is appended to the VERSION record.
+Provides the User with the facility to define some fields as fully protected once the transaction has been authorized, so that when using this Version, it will be impossible to access and/or amend the content of these fields in a transaction already authorised. Some applications allow the amendment of certain fields following authorisation: this facility restricts this action from within the version. It is important to note that the field name input automatically includes all possible value and sub-value fields of that field. (Local Reference fields can also be input.)
+Validation Rules
+
+Up to 35 type A (alphanumeric) characters corresponding to the field name or field number identification. If a field number is entered, it is translated to the field name.
+
+
+Optional input. No default value.
+
+
+
+Only field names defined in the corresponding application are allowed.
+
+
+
+
+Input of field names relating to Internal or External fields (automatically generated by the System) is not allowed because, by definition, these fields cannot be changed by the User.
+
+
+Duplication of field names is not allowed.
+
+
+
+Subvalue field field associated with fields 21 to 24(NO.CHG.VALUE to NO.CHG.IN.EX). */
+		NO_CHG_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=NO.CHG.FLD)
+		/* Given that the condition in NO.CHG.VALUE and NO.CHG.TYPE is satisfied.  If this field is set to INCLUDE then the field specified in NO.CHG.FLD will set as no change field in the Version. If this field is set to EXCLUDE then the field specified in NO.CHG.FLD will not be set as no change field in the Version.
+Validation Rules
+
+
+INCLUDE or EXCLUDE
+
+
+Subvalue field associated with fields 21 to 24 (NO.CHG.VALUE to NO.CHG.IN.EX). */
+		NO_CHG_IN_EX : EB_Versions:VERSION_CONTROL__NO_CHG_VALUE__NO_CHG_FLD__NO_CHG_IN_EX
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=24.0, core=true, t24Name=NO.CHG.IN.EX)
+	}
+	VERSION_CONTROL__REKEY_VALUE
+	{
+		/* This field contains a value to check against the environment variable specified in REKEY.TYPE.
+The outcome of this check determines whether the field or fields named in FLD.NAME have the &#8220;rekey&#8221; property in the VERSION being used.
+E.g.
+If REKEY.TYPE has USER>COMPANY.CODE then the value in REKEY.VALUE should contain a valid COMPANY code ( like US0010001).
+Validation Rules
+
+Up to 50 type A (alphanumeric) characters.
+
+Multivalue field associated with fields REKEY.VALUE to REKEY.INC.EX
+
+Optional input. No default value. */
+		REKEY_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=25.0, core=true, t24Name=REKEY.VALUE)
+		/* Allows you to specify an environment variable. The system will use this variable to check against the value specified in REKEY.VALUE. If it matches then the field will be set for &#8220;rekey&#8221; in the version provided REKEY.INC.EX is set to &#8220;INCLUDE&#8221;.
+
+
+The format can be Application>fieldname (e.g USER>COMPANY.CODE) where the application can be USER or COMPANY only.
+
+
+
+It can also be a routine. If it is routine the following conditions apply,
+
+
+a) When a subroutine needs to be executed then the subroutine name should be preceded with an @ symbol
+
+b) The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+
+c) The APPLICATION should exist in field APPR.FOR.SUBR in the PGM.FILE record for the subroutine.
+
+d) This subroutine gets executed only once when the Version is first launched and the attributes set will thereafter remain unaltered.
+
+Validation Rules
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+Multivalue field associated with fields REKEY.VALUE to REKEY.INC.EX
+
+
+
+Optional input. No default value. */
+		REKEY_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=26.0, core=true, t24Name=REKEY.TYPE)
+		REKEY_FLD -> byValue EB_Versions:VERSION_CONTROL__REKEY_VALUE__REKEY_FLD *
+	}
+	VERSION_CONTROL__REKEY_VALUE__REKEY_FLD
+	{
+		/* If the value in this field is not present in the corresponding field in VERSION record, the value in this field is appended to the VERSION record.
+Enables the User to specify any fields which must be rekeyed during authorisation. All the fields which require re-key in a multi-tabbed GUI VERSION must be specified on the main VERSION. The re-key fields do not have to be displayed on the main VERSION. This field will be ignored if the VERSION is used as an associated VERSION in GUI. It is important to note that the input of a field name will automatically include all possible value and sub-value fields of that field name . (Local Reference fields can also be input.)
+Validation Rules
+
+
+
+Up to 35 type A (alphanumeric) characters corresponding to the field name or field number identification. Subvalue field. Optional     input. No default value.
+
+
+
+Only field names defined in the corresponding Application are allowed.
+
+
+
+Input of field names relating to Internal or External fields (automatically generated by the System) is not allowed because, by     definition, these fields are non-input fields.
+
+
+
+Input of a field name which has already been declared as a no-input field is not allowed.
+
+
+
+Duplication of field names is not allowed.
+
+
+Subvalue field associated with fields 25 to 28.( REKEY.VALUE to REKEY.INC.EX). */
+		REKEY_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=27.0, core=true, t24Name=REKEY.FLD)
+		/* Given that the condition in REKEY.VALUE and REKEY.TYPE is satisfied.
+
+
+If this field is set to INCLUDE then the field specified in REKEY.FLD will be set as rekey field in the Version.
+
+
+If this field is set to EXCLUDE then the field specified in REKEY.FLD will not be set as rekey field in the Version.
+
+
+Validation Rules
+
+
+
+
+INCLUDE or EXCLUDE
+
+
+
+
+
+Subvalue field associated with fields REKEY.VALUE to REKEY.INC.EX. */
+		REKEY_INC_EX : EB_Versions:VERSION_CONTROL__REKEY_VALUE__REKEY_FLD__REKEY_INC_EX
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=28.0, core=true, t24Name=REKEY.INC.EX)
+	}
+	VERSION_CONTROL__AUTOM_VALUE
+	{
+		/* The field contains a value for testing the contents of the environment variable specified in AUTOM.TYPE. The outcome of this test will determine whether the field specified in AUT.FLD.NO will be processed or excluded from processing.
+Validation Rules
+
+
+Up to      50 type A (alphanumeric) characters.
+
+
+Multivalue      field associated with fields AUTOM.VALUE to AUTOM.INC.EX.
+
+
+Optional      input. No default value. */
+		AUTOM_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=29.0, core=true, t24Name=AUTOM.VALUE)
+		/* Allows the user to specify the environment variables. The system will use these variables to check against the value specified in AUTOM.VALUE. If it matches then the field will be included in the version,
+provided AUTOM.INC.EX is set to INCLUDE. It can be Application>fieldname (e.g USER>COMPANY.CODE) where the application can be USER or COMPANY only. It can also be a routine. If it is routine the following conditions apply,
+
+a) When a subroutine needs to be executed then the subroutine name should preceed with an @ symbol
+
+
+b) The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+
+
+c) The APPLICATION should exist in field APPR.FOR.SUBR in the PGM.FILE record for the subroutine.
+
+Validation Rules
+
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+Multivalue field associated with Fields 29 to 34. (AUTOM.VALUE     to AUTOM.INC.EX)
+
+
+
+Optional input. No default value. */
+		AUTOM_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=AUTOM.TYPE)
+		AUT_FLD_NO -> byValue EB_Versions:VERSION_CONTROL__AUTOM_VALUE__AUT_FLD_NO *
+	}
+	VERSION_CONTROL__AUTOM_VALUE__AUT_FLD_NO
+	{
+		/* If the value in this field is not present in the corresponding field in VERSION record, the value in this field and the associated fields are appended to the VERSION record. Enables the user to define the field name, which is to be subject to an automatic default value. It must be used in conjunction with the fields AUT.OLD.CONT and AUTO.NEW.CONT.
+It is important to note that the field name input automatically includes all possible value and sub-value fields of that field. (Local Reference fields can also be input.)
+Validation Rules
+
+Up to 35 type A (alphanumeric) characters
+
+Subvalue field associated with fields 31 to 34(AUTOM.VALUE to     AUTOM.INC.EX)
+
+Optional input. No default value.
+
+Duplication of field names are not allowed. */
+		AUT_FLD_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=31.0, core=true, t24Name=AUT.FLD.NO)
+		/* If the value in the associated field AUT.FLD.NO is not present in the corresponding field in VERSION record, the value in this field and the associated fields are appended to the VERSION record.
+Enables the User to define the previous field content, which is to be changed automatically with the new default value as held in the next field. Must be used in conjunction with AUT.NEW.CONT and AUT. FLD.NO This field is only used when records containing a certain existing value should automatically be changed to contain the new value specified in the AUT. NEW. CONT field
+Validation Rules
+
+Up to 35 type A (alphanumeric) characters.
+
+Optional input. No default value.
+
+Subvalue field associated with fields 31 to 34 (AUTOM.VALUE     to AUTOM.INC.EX) */
+		AUT_OLD_CONT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=32.0, core=true, t24Name=AUT.OLD.CONT)
+		/* Enables the User to define the new automatic default value. Must be used in conjunction with AUT.OLD.CONT (Field 32) and AUT.FLD.NO (Field 31).
+A routine (preceded by "@") may be specified instead of actual values. Input in this field must be in accordance with the field definition of the selected Application. Quotes should only be used where the new data actually requires quotes e.g if a new value is required to be YES it should not be input as "YES". It is important to clearly understand the relation between this field and AUT.OLD. CONT. The following examples will clarify their use.
+
+1. When the User wants to create an automatic default at the creation of new record ID's, he should then make the following input in these three fields :
+
+
+AUT.FLD.NO - Indicates the field number for which you want to create an automatic default. AUT.OLD.CONT - Must remain blank. AUT.NEW.CONT - Enter the value which you want to default automatically.
+
+
+2. When you want to replace automatically an old content by a new content, you should then make the following input in these three fields :
+
+
+AUT.FLD. NO - Indicate the field number for which you want to change automatically the old content.
+
+
+AUT.OLD .CONT - Enter the old content AUT.NEW.CONT - Enter the new content which you want to replace automatically.
+
+
+3. When you want to run a subroutine which will default a value in a particular field, you should make the following input in these three fields :
+
+
+AUT.FLD.NO - Indicates the field number for which you want to create a automatic default AUT.OLD.CONT - Must remain blank. AUT.NEW.CONT - Enter the subroutine name which needs to be executed for the the field in AUT.FLD.NO.
+
+
+Note: If the field AUT.OLD.CONT is specified, only records containing the specified value will be changed when using this Version.
+
+
+If the field AUT.OLD.CONT is not specified, the content specified in the field AUT.NEW.CONT will be generated when creating a new record with this Version.
+
+
+a) When a subroutine needs to be executed then the subroutine name should preceed with an @ symbol
+
+
+b) The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+
+
+c) The VERSION ID should exist in field APPR.FOR.SUBR in the PGM.FILE record for the subroutine.
+
+d) The PGM.TYPE for the VERSION record should be one of the following :- 'U', 'H', 'W', 'M', 'S', 'B'
+Validation Rules
+
+
+
+Up to 35 type A (alphanumeric) characters. (Optional input. No default value).
+
+
+
+Subvalue field associated with fields 31 to 34 (AUTOM.VALUE to AUTOM.INC.EX)
+
+
+
+Input of the old and the new content must be different. */
+		AUT_NEW_CONT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=33.0, core=true, t24Name=AUT.NEW.CONT)
+		/* Given that the condition in AUTOM.VALUE and AUTOM.TYPE is satisfied.  If this field is set to INCLUDE then the field specified in AUT.FLD.NO will be set as auto field in the Version. If this field is set to EXCLUDE then the field specified in AUT.FLD.NO will not be set as auto field in the Version.
+Validation Rules
+
+
+
+INCLUDE or EXCLUDE
+
+
+
+Subvalue field associated with     fields 29 to 34.( AUTOM.VALUE to AUTOM.INC.EX). */
+		AUTOM_INC_EX : EB_Versions:VERSION_CONTROL__AUTOM_VALUE__AUT_FLD_NO__AUTOM_INC_EX
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=34.0, core=true, t24Name=AUTOM.INC.EX)
+	}
+	VERSION_CONTROL__MAND_VALUE
+	{
+		/* This field should be used to check against the environment variable specified in MAND.TYPE.
+If MAND.TYPE contains a field in the application (USER>DEPARTMENT.CODE), then MAND.VALUE can contain the value which will make the condition true. If MAND.TYPE is a routine, the user should provide value returned by the routine. If ALL is specified in MAND.VALUE then the conditions are considered as satisified, i.e. the condition is always true.. The system will check the value in MAND.VALUE against the environment variable specified in MAND.TYPE. If it matches, then the MAND.FLD will be defaulted into the VERSION, provided the MAND.INC.EXC is set to INCLUDE
+
+E.g.
+
+If MAND.TYPE has USER>COMPANY.CODE then the value in MAND.VALUE should contain a valid COMPANY code (US0010001).
+Validation Rules
+
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+Multivalue field associated with fields 35 to 38 (MAND.VALUE     to MAND.INC.EXC)
+
+
+
+Optional input. No default value. */
+		MAND_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=35.0, core=true, t24Name=MAND.VALUE)
+		/* Allows the user to specify the environment variables. The system will use these variables to check against the value specified in MAND.VALUE. If it matches then the field will be included in the version,
+provided MAND.INC.EXC is set to INCLUDE. It can be Application>fieldname (e.g USER>COMPANY.CODE) where the application can be USER or COMPANY only. It can also be a routine. If it is routine the following conditions apply,
+
+a) When a subroutine needs to be executed then the subroutine name should preceed with an @ symbol
+
+
+
+b) The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+
+c) The APPLICATION should exist in field APPR.FOR.SUBR in the PGM.FILE record for the subroutine.
+
+d) This subroutine gets executed only once when the Version is first launched and the attributes set will thereafter remain unaltered.
+
+Validation Rules
+
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+Multivalue field associated with Fields 35 to 38.( MAND.VALUE     to MAND.INC.EXC)
+
+
+
+Optional input. No default value. */
+		MAND_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=36.0, core=true, t24Name=MAND.TYPE)
+		MAND_FLD -> byValue EB_Versions:VERSION_CONTROL__MAND_VALUE__MAND_FLD *
+	}
+	VERSION_CONTROL__MAND_VALUE__MAND_FLD
+	{
+		/* If the value in this field is not present in the corresponding field in VERSION record, the value in this field is appended to the VERSION record. Identifies any field, within the Application for which the version is created, where the user wants to impose a positive input from the operator.
+This facility will allow the user to force an input from the operator in a field declared as optional by the Application to which this field pertains.
+Validation Rules
+
+
+Up to 35     type A (alphanumeric) characters. Subvalue field. Optional Input; No Default     Value.
+
+
+Only field names defined in the     corresponding Application are allowed.
+
+
+
+Duplication of field names is not     allowed.
+
+
+
+Subvalue field associated with     fields 35 to 38.( MAND.VALUE to MAND.INC.EXC). */
+		MAND_FLD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=37.0, core=true, t24Name=MAND.FLD)
+		/* Given that the condition in MAND.VALUE and MAND.TYPE is satisfied.  If this field is set to INCLUDE then the field specified in MAND.FLD will be set as mandatory field in the Version. If this field is set to EXCLUDE then the field specified in MAND.FLD will not be set as mandatory field in the Version.
+Validation Rules
+
+
+
+INCLUDE or EXCLUDE
+
+
+
+Subvalue field associated with fields 35 to 38.( MAND.VALUE to MAND.INC.EXC). */
+		MAND_INC_EXC : EB_Versions:VERSION_CONTROL__MAND_VALUE__MAND_FLD__MAND_INC_EXC
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=38.0, core=true, t24Name=MAND.INC.EXC)
+	}
+	VERSION_CONTROL__D_SLIP_VALUE
+	{
+		/* This field should be used to check against the environment variable specified in D.SLIP.TYPE.
+If D.SLIP.TYPE contains a field in the application (USER>DEPARTMENT.CODE), then D.SLIP.VALUE can contain the value which will make the condition true. If D.SLIP.TYPE is a routine, the user should provide value returned by the routine. If ALL is specified in D.SLIP.VALUE then the conditions are considered as satisified, i.e. the condition is always true. The system will check the value in D.SLIP.VALUE against the environment variable specified in D.SLIP.TYPE. If it matches, then the D.SLIP.FMT and D.SLIP.FUNC will be defaulted into the VERSION, provided the D.SLIP.IN.EX is set to INCLUDE
+
+E.g.
+
+
+If D.SLIP.TYPE has USER>COMPANY.CODE then the value in D.SLIP.VALUE should contain a valid COMPANY code (US0010001).
+
+Validation Rules
+
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+Multivalue field associated with Fields 39 to 43 (D.SLIP.VALUE     to D.SLIP.IN.EX)
+
+
+
+Optional input. No default value. */
+		D_SLIP_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=39.0, core=true, t24Name=D.SLIP.VALUE)
+		/* Allows the user to specify the environment variables. The system will use these variables to check against the value specified in D.SLIP.VALUE. If it matches then the field will be included in the version,
+provided D.SLIP.IN.EX is set to INCLUDE.It can be Application>fieldname (e.g USER>COMPANY.CODE) where the application can be USER or COMPANY only. It can also be a routine. If it is routine the following conditions apply,
+
+
+a) When a subroutine needs to be executed then the subroutine name should preceed with an @ symbol
+
+
+b) The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+
+
+c) The APPLICATION should exist in field APPR.FOR.SUBR in the PGM.FILE record for the subroutine.
+
+
+d) This subroutine gets executed only once when the Version is first launched and the attributes set will thereafter remain unaltered.
+
+Validation Rules
+
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+Multivalue field associated with Fields 39 to 43.(     D.SLIP.VALUE to D.SLIP.IN.EX)
+
+
+
+Optional input. No default value. */
+		D_SLIP_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=40.0, core=true, t24Name=D.SLIP.TYPE)
+		D_SLIP_FMT -> byValue EB_Versions:VERSION_CONTROL__D_SLIP_VALUE__D_SLIP_FMT *
+	}
+	VERSION_CONTROL__D_SLIP_VALUE__D_SLIP_FMT
+	{
+		/* If the value in this field is not present in the corresponding field in VERSION record, the value in this field and in D.SLIP.FUNC are appended to the VERSION record.If there is no value
+D.SLIP.TRIGGER of the VERSION record, it is defaulted to RQ. The value(s) defined here are used to produce Deal Slips according to the function and whether the user wants to have them produced automatically or when a 'hot key' is used. Deal Slips can be printed to a connected local printer or directed to a Network device. Refer to the REPORT CONTROL section of the Systems Administration User Guide for details of setting up printers.
+Deal slips can be linked to a function such as Input, Reversal or Authorisation and specific Deal Slips can be made to relate to those functions. Either an ENQUIRY record or a D.SLIP.FMT record can be entered. If a valid D.SLIP.FMT then the system will provide an enrichment from the record so the user will know thay have the correct record. Alternatively, an ENQUIRY record can be used to provide a Deal Slip, in this case the enrrichment will inform the user that an ENQUIRY record has been selected. The user can drilldown to the related table D.SLIP.FMT to view or select the record to use. The combination of the associated fields is used to define when the Deal Slip can be produced.
+To trigger them automatically you need to define:
+
+Field#Content Required##
+D.SLIP.FMT#TELLER.SLIP.INPUT##
+D.SLIP.FUNC#I##
+This will only print the Deal Slip 'TELLER.SLIP.INPUT' when the deal is validated at I(nput) time.
+
+To trigger them via a 'hot key' or the Desktop Deal Slip icon you need
+
+Field#Content Required##
+D.SLIP.FMT#TELLER.SLIP.INPUT##
+D.SLIP.FUNC#I##
+
+This will only print the Deal Slip 'TELLER.SLIPPUT' at I(nput) time when the 'hot key' is used
+Note: ENQUIRY linked Deal Slips are valid for Desktop (GUI) use only. Since the ENQUIRY will be based on either the live or unauthorised file then only data that is available on those files can be accessed, whereas D.SLIP.FMT can utilise the new data being entered on a deal. ENQUIRY deal slips therefore need to be based on the live or unauthorised record depending on when the deal slip is being produced. For example a new deal would probably be based on the unauthorised record whereas a reversal would be based on the live record.
+
+Validation Rules
+
+Input to this field must be a valid record in either ENQUIRY or D.SLIP.FMT files.
+
+Must have values in fields D.SLIP.FUNC.
+
+If the version record has no value for DEAL.SLIP.TRIGGER, then it is defaulted to RQ.
+
+Subvalue field associated with fields 39 to 43.( D.SLIP.VALUE to D.SLIP.IN.EX). */
+		D_SLIP_FMT -> EB_Dealslip:DEAL_SLIP_FORMAT
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=41.0, core=true, businessType=ANY, t24Name=D.SLIP.FMT)
+		/* This field is used in conjunction with D.SLIP.FMT.
+
+
+The Deal Slips can be produced at various times according to the function (or codeword FINISH) and whether they are produced automatically or in conjunction with a 'hot key'
+
+
+FUNCTIONS
+
+
+
+Valid functions are:
+
+Data#Description##
+I#Input##
+A#Authorise##
+C#Copy##
+R#Reverse##
+D#Delete##
+H#History |Restore##
+
+FINISH
+
+Where FINISH is specified, this processing is dependent on the application and may not be triggered for all applications. Refer to the User Guide for the application for further details.
+
+Currently, only the TELLER application makes use of this facility.
+
+Validation Rules
+
+Valid input is I, A, C, R, D, H or FINISH.
+
+Must have input in fields D.SLIP.FMT.
+
+Subvalue field associated with fields 39 to 43.( D.SLIP.VALUE to D.SLIP.IN.EX). */
+		D_SLIP_FUNC : EB_Versions:VERSION_CONTROL__D_SLIP_VALUE__D_SLIP_FMT__D_SLIP_FUNC
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=42.0, core=true, t24Name=D.SLIP.FUNC)
+		/* Given that the condition in D.SLIP.VALUE and D.SLIP.TYPE is satisfied.  If this field is set to INCLUDE then the field specified in D.SLIP.FMT will be set as deal slip format in the Version. If this field is set to EXCLUDE then the field specified in D.SLIP.FMT will not be set as deal slip format in the Version.
+
+Validation Rules
+
+
+
+INCLUDE or EXCLUDE
+
+
+
+
+Subvalue field associated with fields 39 to 43.( D.SLIP.VALUE to D.SLIP.IN.EX). */
+		D_SLIP_IN_EX : EB_Versions:VERSION_CONTROL__D_SLIP_VALUE__D_SLIP_FMT__D_SLIP_IN_EX
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=43.0, core=true, t24Name=D.SLIP.IN.EX)
+	}
+	VERSION_CONTROL__GTS_VALUE
+	{
+		/* The field contents will be used to check against the environment variable specified in GTS.TYPE to determine if the GTS.CONTROL value will be included in the VERSION.
+
+E.g. If GTS.TYPE has USER>COMPANY.CODE then the value in GTS.VALUE should contain a valid COMPANY code such as US0010001.
+
+Validation Rules
+
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+
+Multivalue field associated with fields GTS.VALUE to GTS.INC.EXC
+
+
+
+
+
+Optional input. No default value. */
+		GTS_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=44.0, core=true, t24Name=GTS.VALUE)
+		/* Allows the user to specify the environment variables. The system will use these variables to check against the value specified in GTS.VALUE. If it matches then the field will be included in the version,
+provided GTS.INC.EXC is set to INCLUDE.
+
+It can be Application>fieldname (e.g USER>COMPANY.CODE) where the application can be USER or COMPANY only.
+
+
+It can also be a routine. If it is routine the following conditions apply,
+
+
+a) When a subroutine needs to be executed then the subroutine name should preceed with an @ symbol
+
+
+b) The subroutine entered should exist in PGM.FILE with PGM.TYPE = 'S'
+
+
+c) The APPLICATION should exist in field APPR.FOR.SUBR in the PGM.FILE record for the subroutine.
+
+
+d) This subroutine gets executed only once when the Version is first launched and the attributes set will thereafter remain unaltered.
+
+
+Validation Rules
+
+
+
+Up to 50 type A (alphanumeric) characters.
+
+
+
+Multivalue field associated with Fields 44 to 47.( GTS.VALUE to GTS.INC.EXC)
+
+
+
+Optional input. No default value. */
+		GTS_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=45.0, core=true, t24Name=GTS.TYPE)
+		/* If the value in this field is not present in the corresponding field in VERSION record, the value in this field is appended to the VERSION record.
+
+
+Controls how GTS and OFS will handle error conditions for activities using this version record. The following values are allowed :
+
+
+Null (Reject errors / Approve overrides)
+
+
+GTS
+
+
+Validation errors will result in the record being rejected, the GTS data record in the output directory will be appended with an error code (90) Overrides will be accepted by default, the GTS data record in the output directory will be appended with the acceptance code (00).
+
+
+OFS
+
+
+Validation errors will result in the record being rejected, the OFS data record will be returned with details of the error message. Overrides will be accepted by default, the overrides will be returned in the populated OFS data record.
+
+
+
+
+
+1 (Errors on HLD / Approve Overrides)
+
+
+GTS
+
+
+Validation errors will place the record on hold, the GTS data record in the output directory will be appended with an error code (80). Overrides will be accepted by default the GTS data record in the output directory will be appended with the acceptance code (00).
+
+
+OFS
+
+
+Validation errors will place the record on hold, the OFS data record will be returned with the error messages. Overrides will be accepted by default, the values approved will be returned in the populated OFS record.
+
+
+2 (Errors Rejected / Overrides in HLD)
+
+
+GTS
+
+
+Validation errors will result in the record being rejected, the GTS data record in the output directory will be appended with an error code (90). Overrides will result in the record being placed on hold, the GTS data record in the output directory will be appended with an error code (81).
+
+
+OFS
+
+
+Validation errors will result in the record being rejected, the OFS data record will be returned with the error messages. Overrides will result in the record being placed on hold.
+
+
+3 (Errors in HLD / Overrides HLD)
+
+
+GTS
+
+
+Validation errors will place the record on hold, the GTS data record in the output directory will be appended with an error code (80). Overrides will result in the record being placed on hold, the GTS data record in the output directory will be appended with an error code (81).
+
+
+OFS
+
+
+Validation errors will place the record on hold, the OFS data record will be returned with the error messages. Overrides will result in the record being placed on hold, the OFS data record returned will store the override message.
+
+
+4 (Hold Only)
+
+
+GTS
+
+
+This option is not available using GTS. Messages can be written straight to HLD using the GTS.MODE field in GT.SYSTEM.PARAMETER.
+
+
+OFS
+
+
+This setting will place all records in HLD status immediately, no further validation or processing will take place.
+
+
+Validation Rules
+
+
+
+1 character numeric must be either null (no value), 1 ,2, 3     or 4. */
+		GTS_CONTROL : EB_Versions:VERSION_CONTROL__GTS_VALUE__GTS_CONTROL
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=46.0, core=true, t24Name=GTS.CONTROL)
+		/* Given that the condition in GTS.VALUE and GTS.TYPE is satisfied.  If this field is set to INCLUDE then the field specified in GTS.CONTROL will be set as GTS control in the Version. If this field is set to EXCLUDE then the field specified in GTS.CONTROL will not be set as GTS control in the Version.
+Validation Rules
+
+
+INCLUDE or EXCLUDE
+
+
+Subvalue field associated with fields 44 to 47.(     GTS.VALUE to GTS.INC.EXC). */
+		GTS_INC_EXC : EB_Versions:VERSION_CONTROL__GTS_VALUE__GTS_INC_EXC
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=47.0, core=true, t24Name=GTS.INC.EXC)
+	}
+	VERSION_CONTROL__ATT_FLD_NAME
+	{
+		/* Name of the field in the application, to which attributes (Example: HOTFIELD) are to be attached to */
+		ATT_FLD_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=53.0, core=true, t24Name=ATT.FLD.NAME)
+		/* Drop down list options of TOGGLE, COMBOBOX, VERTICAL.OPTIONS or NULL
+Populating DISPLAY.TYPE with NULL will have no change on the version field.
+TOGGLE will change the field in a button labelled with the field name; the TOGGLE button can display two states only by appearing in white or grey.
+The COMBOBOX option displays checkbox fields (only) as comboboxes
+The VERTICAL.OPTIONS option displays radio button vertically as opposed to the normal way which is horisontaly.
+Validation Rules
+Only fields with only two states are advised to use this functionality e.g. YES/NO, TRUE FALSE. */
+		DISPLAY_TYPE : EB_Versions:VERSION_CONTROL__ATT_FLD_NAME__DISPLAY_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=54.0, core=true, t24Name=DISPLAY.TYPE)
+		/* This field defines a number of Attributes for each version of this application
+This includes whether the field is a Hot Field or not. This causes the contract to be validated when the user exits the field thus displaying all errors for the current contract. Marking a field as a Hot Field will also ensure that the application is called when the field is exited. Therefore, this mechanism can be used to default other field values once the current field value has been entered.
+Validation Rules
+HOT.FIELD - This indicates that the field is a Hot Field in the Browser.
+ENRICHMENT.ONLY - If a field is NOINPUT then display the enrichment in place of the field. If inputtable then display Enrichment only via a control.
+POPUP.DROPDOWN - If this field has a dropdown then set behaviour to popup in new window with paging tools. */
+		ATTRIBS : EB_Versions:VERSION_CONTROL__ATT_FLD_NAME__ATTRIBS
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=55.0, core=true, t24Name=ATTRIBS)
+	}
+	VERSION_CONTROL__LANGUAGE_CODE
+	{
+		LANGUAGE_CODE -> EB_SystemTables:LANGUAGE
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=57.0, core=true, t24Name=LANGUAGE.CODE)
+	}
+	VERSION_CONTROL__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=66.0, core=true, t24Name=INPUTTER)
+	}
+	VERSION_CONTROL__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=67.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	VERSION_LINK_DEFAULTS
+		@t24:i (t24Name=VERSION.LINK.DEFAULTS, level=I, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Validation Rules
+A maximum of 50 characters may be entered. */
+		PGM_VERSION_USER -> EB_Versions:VERSION_LINK_DEFAULTS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=ANY, t24Name=PGM.VERSION.USER)
+		/* Validation Rules
+A maximum of 35 characters may be entered. */
+		DATA_KEY : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DATA.KEY)
+	}
+	VERSION_TYPE
+		@t24:i (t24Name=VERSION.TYPE, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* The Id of this application. This can be a 3 character Alphanumeric string */
+		TYPE_KEY -> EB_Versions:VERSION_TYPE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, businessType=A, t24Name=TYPE.KEY)
+		DESCRIPTION -> byValue EB_Versions:VERSION_TYPE__DESCRIPTION *
+		RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=2.0, core=true, t24Name=RESERVED.10)
+		RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=3.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=4.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=5.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=6.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=7.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=8.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=9.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=10.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=11.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Versions:VERSION_TYPE__INPUTTER *
+		DATE_TIME -> byValue EB_Versions:VERSION_TYPE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=17.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=19.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=20.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	VERSION_TYPE__DESCRIPTION
+	{
+		/* Validation Rules
+
+Standard T24 alphanumeric field.
+A maximum of 30 characters may be entered. */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	VERSION_TYPE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=INPUTTER)
+	}
+	VERSION_TYPE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=15.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	VERSION__PRINT_ONLY : mml:string
+		Y=Y
+		NULL=NULL
+	VERSION__RECORDS_PER_PAGE : mml:string
+		n1=1
+		MULTI=MULTI
+	VERSION__FIELDS_PER_LINE : mml:string
+		n1=1
+		MULTI=MULTI
+	VERSION__FIELD_NO__EXPANSION : mml:string
+		NO=NO
+		NULL=NULL
+	VERSION__FIELD_NO__POPUP_CONTROL : mml:string
+		CALENDAR=CALENDAR
+		CALCULATOR=CALCULATOR
+		RATE_CONTROL="RATE CONTROL"
+		RECURRENCE=RECURRENCE
+	VERSION__FIELD_NO__CASE_CONV : mml:string
+		LOWERCASE=LOWERCASE
+		UPPERCASE=UPPERCASE
+		PROPER_CASE="PROPER CASE"
+		NONE=NONE
+	VERSION__FIELD_NO__DISPLAY_TYPE : mml:string
+		NODISPLAY=NODISPLAY
+		COMBOBOX=COMBOBOX
+		VERTICAL_OPTIONS=VERTICAL.OPTIONS
+		TOGGLE=TOGGLE
+		DROPDOWN_NOINPUT=DROPDOWN.NOINPUT
+	VERSION__FIELD_NO__I_DESC : mml:string
+		YES=YES
+	VERSION__FIELD_NO__ATTRIBS__ATTRIBS : mml:string
+		HOT_FIELD=HOT.FIELD
+		HOT_VALIDATE=HOT.VALIDATE
+		WEB_VALIDATE=WEB.VALIDATE
+		ENRICHMENT_ONLY=ENRICHMENT.ONLY
+		POPUP_DROPDOWN=POPUP.DROPDOWN
+		NO_BROWSER_TEXT=NO.BROWSER.TEXT
+		CLASS__AMNUM=CLASS-AMNUM
+		CLASS__ARC__BACKBUTTON=CLASS-ARC-BACKBUTTON
+		CLASS__ARC__BUTTON=CLASS-ARC-BUTTON
+		CLASS__BOLD=CLASS-BOLD
+		CLASS__BOLD_ITALIC=CLASS-BOLD.ITALIC
+		CLASS__BOLD_RED=CLASS-BOLD.RED
+		CLASS__COS_HEADING=CLASS-COS.HEADING
+		CLASS__COS_HEADING_DATA_LABEL=CLASS-COS.HEADING.DATA.LABEL
+		CLASS__COS_HEADING_DATA_VALUE=CLASS-COS.HEADING.DATA.VALUE
+		CLASS__COS_SUBHEADING=CLASS-COS.SUBHEADING
+		CLASS__DATES__ITALIC=CLASS-DATES-ITALIC
+		CLASS__DEALBOX__LONG=CLASS-DEALBOX-LONG
+		CLASS__DEMO=CLASS-DEMO
+		CLASS__DESCR=CLASS-DESCR
+		CLASS__DFE_STATUS=CLASS-DFE.STATUS
+		CLASS__ENQ_AA_BAL_TYPE=CLASS-ENQ.AA.BAL.TYPE
+		CLASS__ENQ_COLUMN_LABEL=CLASS-ENQ.COLUMN.LABEL
+		CLASS__ENQ_DATA_ID=CLASS-ENQ.DATA.ID
+		CLASS__ENQ_DATA_LABEL=CLASS-ENQ.DATA.LABEL
+		CLASS__ENQ_DATA_VALUE=CLASS-ENQ.DATA.VALUE
+		CLASS__ENQ_H_DATA=CLASS-ENQ.H.DATA
+		CLASS__ENQ_H_DATA_LABEL=CLASS-ENQ.H.DATA.LABEL
+		CLASS__ENQ_H_ID=CLASS-ENQ.H.ID
+		CLASS__ENQ_H_TITLE=CLASS-ENQ.H.TITLE
+		CLASS__ENQ_ID_LABEL=CLASS-ENQ.ID.LABEL
+		CLASS__ENQ_NORECS=CLASS-ENQ.NORECS
+		CLASS__FDCT=CLASS-FDCT
+		CLASS__FDLB=CLASS-FDLB
+		CLASS__HEADER=CLASS-HEADER
+		CLASS__ITALIC=CLASS-ITALIC
+		CLASS__MODELSTATUS=CLASS-MODELSTATUS
+		CLASS__POSNEG=CLASS-POSNEG
+		CLASS__RATING=CLASS-RATING
+		CLASS__TAMNUM=CLASS-TAMNUM
+		CLASS__TITLE=CLASS-TITLE
+	VERSION__REF_NO_IN_1ST_LINE : mml:string
+		Y=Y
+		NULL=NULL
+	VERSION__MULTI_POSSIBLE : mml:string
+		Y=Y
+		NULL=NULL
+	VERSION__D_SLIP_FORMAT__D_SLIP_FUNCTION : mml:string
+		I=I
+		A=A
+		C=C
+		R=R
+		D=D
+		H=H
+		FINISH=FINISH
+	VERSION__D_SLIP_TRIGGER : mml:string
+		OL=OL
+		RQ=RQ
+	VERSION__REPORT_LOCKS : mml:string
+		YES=YES
+		NO=NO
+	VERSION__GTS_CONTROL : mml:string
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+	VERSION__EXC_INC_RTN : mml:string
+		YES=YES
+		NO=NO
+	VERSION__ENABLE_GRID : mml:string
+		YES=YES
+		NO=NO
+	VERSION__AUTO_OVERRIDES : mml:string
+		YES=YES
+		NO=NO
+	VERSION__NAU_PROCESSING : mml:string
+		n0=0
+		n1=1
+		n2=2
+		n3=3
+	VERSION__COMPANY_ACCESS : mml:string
+		OWN=OWN
+		NULL=NULL
+	VERSION__BUSINESS_DAY : mml:string
+		NORMAL=NORMAL
+		RESTRICTED=RESTRICTED
+		CLOSED=CLOSED
+		NULL=NULL
+	VERSION__AUTO_COMP_CHANGE : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	VERSION__SYS_MSG_SUPPRESS : mml:string
+		YES=YES
+		NO=NO
+	VERSION__ATTRIBUTES__ATTRIBUTES : mml:string
+		CUSTOM_VERSION_ALIGN=CUSTOM.VERSION.ALIGN
+		ENABLE_ALL_FIELDS=ENABLE.ALL.FIELDS
+		FIXED_LENGTH_FILE=FIXED.LENGTH.FILE
+		NO_COMBO_BOX=NO.COMBO.BOX
+		NO_HEADER_TAB=NO.HEADER.TAB
+		SHOW_NULL_FIELDS=SHOW.NULL.FIELDS
+		SHOW_NULL_REKEYS=SHOW.NULL.REKEYS
+		SHOW_TXN_ID=SHOW.TXN.ID
+	VERSION__EXPOSE : mml:string
+		NO=NO
+		YES=YES
+		NULL=NULL
+	VERSION_CONTROL__NON_VERSION_RUN : mml:string
+		Y=Y
+		N=N
+	VERSION_CONTROL__FLD_CHECK_VALUE__FLD_NAME__FLD_INC_EXC : mml:string
+		INCLUDE=INCLUDE
+		EXCLUDE=EXCLUDE
+	VERSION_CONTROL__NOINPUT_VALUE__NOINPUT_FLD__NOINP_INC_EX : mml:string
+		INCLUDE=INCLUDE
+		EXCLUDE=EXCLUDE
+	VERSION_CONTROL__NO_CHG_VALUE__NO_CHG_FLD__NO_CHG_IN_EX : mml:string
+		INCLUDE=INCLUDE
+		EXCLUDE=EXCLUDE
+	VERSION_CONTROL__REKEY_VALUE__REKEY_FLD__REKEY_INC_EX : mml:string
+		INCLUDE=INCLUDE
+		EXCLUDE=EXCLUDE
+	VERSION_CONTROL__AUTOM_VALUE__AUT_FLD_NO__AUTOM_INC_EX : mml:string
+		INCLUDE=INCLUDE
+		EXCLUDE=EXCLUDE
+	VERSION_CONTROL__MAND_VALUE__MAND_FLD__MAND_INC_EXC : mml:string
+		INCLUDE=INCLUDE
+		EXCLUDE=EXCLUDE
+	VERSION_CONTROL__D_SLIP_VALUE__D_SLIP_FMT__D_SLIP_FUNC : mml:string
+		A=A
+		C=C
+		D=D
+		FINISH=FINISH
+		H=H
+		I=I
+		R=R
+	VERSION_CONTROL__D_SLIP_VALUE__D_SLIP_FMT__D_SLIP_IN_EX : mml:string
+		INCLUDE=INCLUDE
+		EXCLUDE=EXCLUDE
+	VERSION_CONTROL__GTS_VALUE__GTS_CONTROL : mml:string
+		n1=1
+		n2=2
+		n3=3
+		n4=4
+	VERSION_CONTROL__GTS_VALUE__GTS_INC_EXC : mml:string
+		INCLUDE=INCLUDE
+		EXCLUDE=EXCLUDE
+	VERSION_CONTROL__COMPANY_ACCESS : mml:string
+		OWN=OWN
+		NULL=NULL
+	VERSION_CONTROL__BUSINESS_DAY : mml:string
+		NORMAL=NORMAL
+		RESTRICTED=RESTRICTED
+		CLOSED=CLOSED
+		NULL=NULL
+	VERSION_CONTROL__AUTO_COMP_CHANGE : mml:string
+		NO=NO
+		YES=YES
+		NULL=NULL
+	VERSION_CONTROL__SYS_MSG_SUPPRESS : mml:string
+		YES=YES
+		NO=NO
+	VERSION_CONTROL__ATT_FLD_NAME__DISPLAY_TYPE : mml:string
+		NODISPLAY=NODISPLAY
+		COMBOBOX=COMBOBOX
+		VERTICAL_OPTIONS=VERTICAL.OPTIONS
+		TOGGLE=TOGGLE
+	VERSION_CONTROL__ATT_FLD_NAME__ATTRIBS : mml:string
+		HOT_FIELD=HOT.FIELD
+		HOT_VALIDATE=HOT.VALIDATE
+		WEB_VALIDATE=WEB.VALIDATE
+		POPUP_DROPDOWN=POPUP.DROPDOWN
+		ENRICHMENT_ONLY=ENRICHMENT.ONLY
+		CLASS__AMNUM=CLASS-AMNUM
+		CLASS__ARC__BACKBUTTON=CLASS-ARC-BACKBUTTON
+		CLASS__ARC__BUTTON=CLASS-ARC-BUTTON
+		CLASS__BOLD=CLASS-BOLD
+		CLASS__BOLD_ITALIC=CLASS-BOLD.ITALIC
+		CLASS__BOLD_RED=CLASS-BOLD.RED
+		CLASS__COS_HEADING=CLASS-COS.HEADING
+		CLASS__COS_HEADING_DATA_LABEL=CLASS-COS.HEADING.DATA.LABEL
+		CLASS__COS_HEADING_DATA_VALUE=CLASS-COS.HEADING.DATA.VALUE
+		CLASS__COS_SUBHEADING=CLASS-COS.SUBHEADING
+		CLASS__DATES__ITALIC=CLASS-DATES-ITALIC
+		CLASS__DEALBOX__LONG=CLASS-DEALBOX-LONG
+		CLASS__DEMO=CLASS-DEMO
+		CLASS__DESCR=CLASS-DESCR
+		CLASS__DFE_STATUS=CLASS-DFE.STATUS
+		CLASS__ENQ_AA_BAL_TYPE=CLASS-ENQ.AA.BAL.TYPE
+		CLASS__ENQ_COLUMN_LABEL=CLASS-ENQ.COLUMN.LABEL
+		CLASS__ENQ_DATA_ID=CLASS-ENQ.DATA.ID
+		CLASS__ENQ_DATA_LABEL=CLASS-ENQ.DATA.LABEL
+		CLASS__ENQ_DATA_VALUE=CLASS-ENQ.DATA.VALUE
+		CLASS__ENQ_H_DATA=CLASS-ENQ.H.DATA
+		CLASS__ENQ_H_DATA_LABEL=CLASS-ENQ.H.DATA.LABEL
+		CLASS__ENQ_H_ID=CLASS-ENQ.H.ID
+		CLASS__ENQ_H_TITLE=CLASS-ENQ.H.TITLE
+		CLASS__ENQ_ID_LABEL=CLASS-ENQ.ID.LABEL
+		CLASS__ENQ_NORECS=CLASS-ENQ.NORECS
+		CLASS__FDCT=CLASS-FDCT
+		CLASS__FDLB=CLASS-FDLB
+		CLASS__HEADER=CLASS-HEADER
+		CLASS__ITALIC=CLASS-ITALIC
+		CLASS__MODELSTATUS=CLASS-MODELSTATUS
+		CLASS__POSNEG=CLASS-POSNEG
+		CLASS__RATING=CLASS-RATING
+		CLASS__TAMNUM=CLASS-TAMNUM
+		CLASS__TITLE=CLASS-TITLE
+	VERSION_CONTROL__AUTO_OVERRIDES : mml:string
+		YES=YES
+		NO=NO
+}

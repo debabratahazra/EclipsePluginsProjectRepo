@@ -1,0 +1,96 @@
+# UTF-8
+Domain AAADSMarketSegment 
+	@java:Package (value=com.odcgroup.aaa.administration) 
+namespace "http://www.odcgroup.com/aaa-ds-marketsegment" 
+metamodelVersion 4.3.0.20110527 
+Datasets { 
+	MarketSegmentList basedOn AAAEntities:MarketSegment 
+	{ 
+		abcissaListCode -> abcissaList.code 
+			@i18n:Label (en="Absissa List", fr="Liste Absice", de=Abzissen-Liste) 
+		/* It is the denomination of the Market Segment. Only the default denomination is taken into account, translated denominations are not evaluated. */ 
+		denom -> denom 
+		/* It is the denomination of the Market Segment. Denomination is displayed in user's language, but if it is not available then the default translation is used instead.
+It is calculated via pre-computed data based on the slave format PCK_PREC_MKTSEG_SQL using SQL language. */
+		extDenomination -> extDenomination 
+			@svc:Services (MMLSpecific=true) 
+		gridCode -> grid.code 
+			@i18n:Label (en=Grid, fr=Grille, de=Raster) 
+		id -> id 
+		/* It is the denomination of the parent Market Segment. Denomination is displayed in user's language, but if it is not available then the default translation is used instead.
+It is calculated via pre-computed data based on the slave format PCK_PREC_MKTSEG_SQL using SQL language. */ 
+		mktStructParentMktSgtExtDenomination -> marketStructure.parentMarketSegment.extDenomination 
+			@i18n:Label (en="Parent Mkt Sgt", fr="Mkt sgt parent", de="Übergeordnetes Marktsegment") 
+			@svc:Services (MMLSpecific=true) 
+		/* It is the name of the Market Segment */ 
+		name -> name 
+		ordinateListCode -> ordinateList.code 
+			@i18n:Label (en="Ordinate List", fr="Liste Ordonnée", de=Ordinaten-Liste) 
+	} 
+	MarketSegmentSearchCriteria basedOn AAAEntities:MarketSegment 
+	{ 
+		/* It is the denomination of the Market Segment. Only the default denomination is taken into account, translated denominations are not evaluated. */ 
+		denom -> denom 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=3) 
+		/* It is the denomination of the Market Segment. Translated denomination is taken into account first, but if it is not available then the default denomination is taken into account.
+It is calculated via pre-computed data based on the slave format PCK_PREC_MKTSEG_SQL using SQL language. */
+		extDenomination -> extDenomination 
+			@i18n:Label 
+			@svc:Services (MMLSpecific=true) 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=4) 
+		gridCode -> grid.code 
+		/* It is the code of the Market Segment's grid.
+It is an auto-complete field, based on the searchCode attribute of the Grid.
+
+It is calculated via pre-computed data based on the slave format PCK_PREC_GRID_SQL using SQL language.
+The document FDS_WEB_TRANS_QueryAndPreDefinedQuery.doc gives more details about pre-computed data. */ 
+		gridSearchCode -> grid.code 
+			@i18n:Label (en=Grid, fr=Grille, de=Raster) 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=5, cDATA Lookup="Query.autoCompleteURI=/wui/ajax-xml/autocompleteoutput/Grid\r\nQuery.autoCompletePostValue=code\r\nQuery.autoCompleteTextValue=code\r\nQuery.maxRowCount=10\r\nQuery.maxRowCountForLookup=500\r\nQuery.DSOutput=AAADSGrid:GridList\r\nQuery.DSOutput.orderBy.o1.attribute=code\r\nQuery.fs.TargetDS=AAADSGrid:GridSearchCriteria\r\nQuery.fs.level=1\r\nQuery.fs.f1.attribute=searchCode\r\nQuery.fs.f1.Op=BEGINS_WITH\r\nQuery.fs.f1.value1=valueOf(@value)\r\nQuery.attributeInclude=extDenomination,searchCode,name,typeCode,code,natureE") 
+		id -> id 
+		/* It is the denomination of the parent Market Segment. Translated denomination is taken into account first, but if it is not available then the default denomination is taken into account.
+It is calculated via pre-computed data based on the slave format PCK_PREC_MKTSEG_SQL using SQL language. */ 
+		mktStructParentMktSgtExtDenomination -> marketStructure.parentMarketSegment.extDenomination 
+			@svc:Services (MMLSpecific=true) 
+		/* It is the name of the Market Segment */ 
+		name -> name 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (DisplayRank=2) 
+		/* It is a logical structure grouping several attributes allowing to identify a business object (Instrument, Portfolio, &hellip;) used as framework of search when a user enter a value into a search field.
+According to the attributes in that structure, the records with one of those attributes with a value starting by the value set by the user are loaded.
+For Market Segment, the structure includes:
+- Name
+- Denomination */
+		searchCode : mml:string 
+			@i18n:Label (en="Search Pattern", fr="Modèle de recherche", de=Suchmuster) 
+			@"http://www.odcgroup.com/mdf/querybuilder":querybuilder (cDATA OpenQuery="exists (select 1 from vs_market_segment v where v.id = t0.id and v.pattern @operator @valueToUpper and (v.language_code = @language or v.language_code=\'\'))", DisplayRank=1) 
+	} 
+	MarketSegmentAll basedOn AAAEntities:MarketSegment synchronized 
+	{ 
+		abcissaList -> abcissaList [AAAIdentifierDatasets:ListAAAIdentifier] 
+		cashMarketSegmentE -> cashMarketSegmentE 
+		currency -> currency [AAAIdentifierDatasets:CurrencyIdentifier] 
+			@svc:Services (LoadPermittedValues=true) 
+		denom -> denom 
+		extDenomination -> extDenomination 
+			@svc:Services (MMLSpecific=true) 
+		extDenominationDe -> extDenominationDe 
+			@svc:Services (MMLSpecific=true) 
+		extDenominationEn -> extDenominationEn 
+			@svc:Services (MMLSpecific=true) 
+		extDenominationFr -> extDenominationFr 
+			@svc:Services (MMLSpecific=true) 
+		extSqlCalcD -> extSqlCalcD 
+			@svc:Services (MMLSpecific=true) 
+		grid -> grid [AAAIdentifierDatasets:GridIdentifier] 
+			@svc:Services (LoadPermittedValues=true) 
+		id -> id 
+		marketStructure -> marketStructure [AAAIdentifierDatasets:MarketStructureIdentifier] 
+			@svc:Services (LoadPermittedValues=true) 
+		name -> name 
+		ordinateList -> ordinateList [AAAIdentifierDatasets:ListAAAIdentifier] 
+		parentMarketSegment -> parentMarketSegment [AAAIdentifierDatasets:MarketSegmentIdentifier] 
+			@svc:Services (LoadPermittedValues=true) 
+		virtualCashMktSegt -> virtualCashMktSegt [AAAIdentifierDatasets:MarketSegmentIdentifier] 
+			@svc:Services (LoadPermittedValues=true) 
+	} 
+} 

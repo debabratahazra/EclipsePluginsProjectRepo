@@ -1,0 +1,370 @@
+# UTF-8
+ /* Template Servicing of Limit */ 
+ Domain LI_Contract 
+ @t24:i (module=LI) 
+ @java:Package (value=com.temenos.t24.datamodel.li.li_contract) 
+ namespace "http://www.temenos.com/t24/LI_Contract" 
+ metamodelVersion 4.3.0.20110527 
+ Classes { 
+ /* This Application is used when the user wishes to change the Liability number of a Customer, the currency of a limit record and/or the percentage attached to a limit reference. During the on-line session, the user may call this facility to specify any of the following: i)         Customers and their new liability numbers ii)        Limit records and their new currency codes iii)       Limit records and their CHECK.LIMIT values. iv)        Limit references with their old and new percentages            where percentage is to be changed. During the End of Day process of the LIMIT Application, the program LIMIT.REP.LIAB.MOVE will then execute: i)         The transfer of the various corresponding LIMIT            records between the previous and new liability            numbers. ii)        The 'revaluation' of limits and outstanding amounts on            the LIMIT and LIMIT.DAILY.OS files. iii)       Change the value of CHECK.LIMIT on the limit records            in a given limit structure. iv)        Update the limit reference file with the new percentage            and updated outstanding amounts on the LIMIT,            LIMIT.DAILY.OS and LIMIT.TXNS files for those            records associated with a percentage charge. It is important to note that this program will ignore liability number change for Customers who have pending sub allocations on their limit record(s). */ 
+ LIMIT_CHANGE 
+ @t24:i (level=C, type=U, localRefAllowed=false) 
+ { 
+ /* Identifies the unique key of this file (i.e. SYSTEM). Validation RulesThe only valid input in this field is 'SYSTEM'. */ 
+ KEY : LI_Contract:LIMIT_CHANGE__KEY PK required 
+ @i18n:Label (en=Key) 
+ @i18n:Tooltip (en="Indicates th transaction key") 
+ @t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=0.0, t24Name=KEY) 
+ 
+ CUSTOMER_NO -> byValue LI_Contract:LIMIT_CHANGE__CUSTOMER_NO * 
+ 
+ CREDIT_LINE_NO -> byValue LI_Contract:LIMIT_CHANGE__CREDIT_LINE_NO * 
+ 
+ LIMIT_REFERENCE -> byValue LI_Contract:LIMIT_CHANGE__LIMIT_REFERENCE * 
+ 
+ /* Used to change the status of the NET.OUTSTANDING flag on the SYSTEM record of LIMIT.PARAMETER. The actual change will take place at the beginning of the next limits batch processing. This field will be reset to null during the Limits end of day processing. Validation RulesOptional input.  Values can be "Y", "N" or blank.  The value entered depends on the contents of the field NET.OUTSTANDING on the LIMIT.PARAMETER record called SYSTEM.  A value of "Y" is acceptable if the LIMIT.PARAMETER is set to "N".  A value of "N" is acceptable if the LIMIT.PARAMETER is set to "Y". */ 
+ NET_OUTSTANDING : LI_Contract:LIMIT_CHANGE__NET_OUTSTANDING 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=15.0, t24Name=NET.OUTSTANDING) 
+ 
+ /* "MANUAL" or "NONE".Allows or disallows manually setting allocation priorities in Collateral Right records. The corresponding field will be set to this value in each of the COLLATERAL.PARAMETER records. Validation Rules
+        "MANUAL" or "NONE". */ 
+ ORDER_PRIORITY : LI_Contract:LIMIT_CHANGE__ORDER_PRIORITY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=16.0, t24Name=ORDER.PRIORITY) 
+ 
+ /* Reserved for future use. Validation RulesSystem field, no input. */ 
+ RESERVED2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, t24Name=RESERVED2) 
+ 
+ /* Reserved for future use. Validation RulesSystem field, no input. */ 
+ RESERVED1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=18.0, t24Name=RESERVED1) 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=19.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue LI_Contract:LIMIT_CHANGE__INPUTTER * 
+ 
+ DATE_TIME -> byValue LI_Contract:LIMIT_CHANGE__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=24.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=25.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=26.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=27.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ LIMIT_CHANGE__CUSTOMER_NO 
+ { 
+ /* Identifies the CUSTOMER NO for whom the user wants to specify a Liability number change. Validation Rules1 to 6 numeric characters CUSTOMER CODE or 3 to 10 Mnemonic character. Multivalue field associated with field 2.1. Optional input;  Default Value = Nil.Input must correspond to a valid ID on the CUSTOMER file.Duplicates will not be allowed.Input of a Customer number already used as a liability number for other Customers will not be allowed.  For this reason, to reverse the relation 2 (CUSTOMER) to 1 (LIABILITY) requires 2 steps.  The first day the user must set the Liability no of Customer 2 of 2 and the second day, he must set the Liability number of Customer 1 to 2.Input of a Customer number which has pending suballocation(s) or commitment(s) in its LIMIT record is not allowed.  If suballocation(s) or commitment(s) are entered later during the on-line session for this customer, the End of Day program LIMIT.REP.LIAB.MOVE will not process the change and instead will write an error message. */ 
+ CUSTOMER_NO -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=1.0, t24Name=CUSTOMER.NO) 
+ 
+ /* Identifies the new Liability number for the Customer specified in the previous field. Validation Rules1 to 6 numeric characters CUSTOMER code or 3 to 10 Mnemonic characters. Multivalue field associated with Field 1.1. Optional input when Customer number entered; otherwise not allowed.Input must correspond to a valid ID on the CUSTOMER file.Input only allowed when CUSTOMER NO (Field 1.1) has been entered.This field must be left blank when the user wants to define that the Liability number is no more requested for the Customer defined in the previous field.Input must be different from existing CUSTOMER LIABILITY field on the CUSTOMER record existing for the Customer defined in the previous field.Duplicates are allowed but all the Customer numbers entered in the previous field must be different.  The CUSTOMER NO and LIABILITY NO may be the same when the user wants to specify that a Customer no longer belongs to another Liability number.The number input in this field cannot belong to another Liability. */ 
+ LIABILITY_NO -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=2.0, t24Name=LIABILITY.NO) 
+ } 
+ LIMIT_CHANGE__CREDIT_LINE_NO 
+ { 
+ /* Identifies the limit record for which the currency and/or value of CHECK.LIMIT is to be changed. The limit records for which the limit currency is to be changed are to be entered individually. The old currency is shown as part of the field enrichment. The top level limit for which the CHECK.LIMIT value is to be changed should be entered. All limits under this will be changed to the new value. Validation RulesInput as follows: a) 1-6 numeric characters Liability Number or 3-10 Customer Mnemonic code b) 3-7 numeric character Limit Reference code c) 2 numeric character Limit Serial number d) 1-6 numeric character Customer Number or 3-10 Customer Mnemonic code If data is to be input in this field: a), b), c) and d) must be separated by '.';a) and b) are Mandatory; c) defaults to '01'; d) is Optional, only used to specify Customer sub-limit. Multivalue field associated with field 4.1. Optional InputInput must correspond to a valid ID on the limit file.Duplications will not be allowed. */ 
+ CREDIT_LINE_NO : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=3.0, t24Name=CREDIT.LINE.NO) 
+ 
+ /* Identifies the new currency in which all amount fields specified as part of the limit will be denominated. Validation Rules1-3 numeric character Currency code or     3 character SWIFT Currency code Multivalue field associated with field 3.1 Optional input when CREDIT.LINE.NO (field 3.1) input, otherwise not allowed.Input must correspond to a valid ID in the Currency file.Input only allowed when CREDIT.LINE.NO (field 3.1) has been entered.No input allowed if CREDIT.LINE.NO (field 3.1) has not been entered.Input must be different to the current Currency on the limit record. */ 
+ NEW_CURRENCY : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, t24Name=NEW.CURRENCY) 
+ 
+ /* New value of the field CHECK.LIMIT for the specified limit structure. This field will be used to change the  current value of the CHECK.LIMIT field on each LIMIT record in the LIMIT structure which the CREDIT.LINE.NO is the top of. Validation RulesY or N Multi value field associated with 3.1 and 4.1. Optional input when  CREDIT.LINE.NO (field 3.1) input, otherwise not allowed.The associated CREDIT.LINE.NO must be the top of the LIMIT structure, ie must be a key to the LIMIT.LINES file.The value entered must not be the same as that on the LIMIT record of the CREDIT.LINE.NO.Input only allowed when CREDIT.LINE.NO has been entered. */ 
+ NEW_CHECK_LIMIT : LI_Contract:LIMIT_CHANGE__CREDIT_LINE_NO__NEW_CHECK_LIMIT 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=5.0, t24Name=NEW.CHECK.LIMIT) 
+ } 
+ LIMIT_CHANGE__LIMIT_REFERENCE 
+ { 
+ /* Identifies the product or sub-product limit reference record whose percentage field is to be changed. Validation Rules3-4 numeric characters. Multivalue field associated with fields 6.1 and 7.1. Optional input.Input must correspond to a valid ID on the limit reference file.Duplications will not be allowed.The limit reference record must be either a sub-product record or a product record without any associated sub-products.Input cannot be the limit reference for fiduciaries and/or deposits. Ie. Reference numbers 9700, 9800 and 9900 are not allowed. */ 
+ LIMIT_REFERENCE -> LI_Config:LIMIT_REFERENCE 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=6.0, t24Name=LIMIT.REFERENCE) 
+ 
+ /* Identifies the new percentage to be applied to transaction amounts to calculate the amount to be checked against the limit amounts. Validation Rules1-3 numeric characters in the range 1-100. Multivalue field associated with fields 6.1 and 7.1 Mandatory input if field 6.1 is input otherwise not allowed.Input only allowed when LIMIT.REFERENCE (field 6.1) has been entered.No input allowed if LIMIT.REFERENCE (field 6.1) has not been entered.Input can not be equal to that in OLD.PERCENTAGE (field 7.1). */ 
+ NEW_PERCENTAGE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, t24Name=NEW.PERCENTAGE) 
+ 
+ /* Specifies the new value used to determine the percentage amount. This field can contain one of two values. The word BAND in this field indicates that the percentages from more than one band (See MATURITY.PERIOD and PERCENTAGE) will be elected and summed to determine the working percentage. The word LEVEL in this field indicates that a single band will be elected as the working percentage. In both cases the bands used will be resolved on the time left before contract maturity. Validation RulesThe following values will be accepted: BAND or LEVEL.Default: LEVEL.Input in this field will only be retained when the fields MATURITY.PERIOD and PERCENTAGE have been given. */ 
+ LIM_BAND_LEVEL : LI_Contract:LIMIT_CHANGE__LIMIT_REFERENCE__LIM_BAND_LEVEL 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=8.0, t24Name=LIM.BAND.LEVEL) 
+ 
+ MATUR_PERIOD -> byValue LI_Contract:LIMIT_CHANGE__LIMIT_REFERENCE__MATUR_PERIOD * 
+ } 
+ LIMIT_CHANGE__LIMIT_REFERENCE__MATUR_PERIOD 
+ { 
+ /* Indicates the new period to which a percetage will be applied. Associated with MAT.PERIOD.PERC. Validation RulesnnA where nnn - Number of A where: A = Y for years     M for months     W for weeks or  D for days e.g. a 12 month period could ne input as 12M or 1Y.The numbers of days, weeks, months or years must be entered in a logical order i.e. in ascending sequence.When more than one period is defined an consistent unit must be used. */ 
+ MATUR_PERIOD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=9.0, t24Name=MATUR.PERIOD) 
+ 
+ /* Supply the new percentage to be used in deriving a final limit percentage. The resulting percentage amount of each transaction movement will be monitored against the limit amount. See LIMIT.BAND.LEVEL. Associated with MATURITY.PERIOD. Validation Rules1-11 Numeric characters (1-6 decimals) percentage must be less than or equal to 100%.Input is not allowed in this field for Fiduciary and Deposit Limit Reference records. */ 
+ NEW_PERC : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, t24Name=NEW.PERC) 
+ 
+ /* Identifies the new subroutine which will be called to return the limit amount. Validation Rules1 to 27 Alphanumeric characters.Subroutine must be identified as a record in the application PGM.FILE with the type equal to 'S' for subroutine.The routine must be compiled and cataloged with an entry in the T24 account VOC file. */ 
+ LIMIT_SUBR -> EB_SystemTables:PGM_FILE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=27, sysNumber=11.0, t24Name=LIMIT.SUBR) 
+ 
+ /* Identifies the new agreed maximum percentage when deriving the limit percentage. Validation Rules1-11 Numeric characters (1-6 decimals) percentage must be less than or equal to 100%.Capped percentage must be greater than the floor percentage. */ 
+ PERCENTAGE_CAP : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, t24Name=PERCENTAGE.CAP) 
+ 
+ /* Identifies the new agreed minimum percentage when deriving the limit percentage. Validation Rules1-11 Numeric characters (1-6 decimals) percentage must be less than or equal to 100%.Capped percentage must be greater than the floor percentage. */ 
+ PERCENTAGE_FLR : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, t24Name=PERCENTAGE.FLR) 
+ 
+ /* Determines how the percentage amount will be derived from the MATURITY.PERIOD and MAT.PERIOD.PERC fields. This field can contain one of three values. The keyword PRORATA in this field indicates that the calculation will be pro rata according to the time remaining to maturity or the length of a MATURITY.PERIOD.BAND. For pro rata the calculation will be;                % x days to maturity                    ----------------                          365 with the annual period always in days. The keyword PERIOD indicates that the calculation will be prorata according to the time remaining to maturity or the length of a MATURITY.PERIOD.BAND. The pro rata calculation for the PERIOD setting will be:                % x period to maturity                    ------------------                          period where period is set according to the MATURITY.BAND.DEFINITION i.e in Days  (D)        Weeks (W)        Months(M)        Years (Y) Where a period is a fraction of a band this will be rounded up. When the word FIXED is indicated the calculation will not be pro rata and is calculated as a simple percentage. When PRORATA or PERIOD is used with LEVEL structure, the relevant percentage derived for the remaining contract period will be applied. When PRORATA or PERIOD is used with a BANDED structure, each percentage band falling within the remaining contract period will be applied for the period of the that band. A PRORATA/PERIOD method can result in a total percentage taken which is in excess of 100% of the transaction value. This can be limited by use of the PERCENTAGE.CAP field. Example: The following percentage structure may be defined: Transactions maturing in up to  6 months are recorded  at  5% Transactions maturing in up to 12 months are recorded  at  6% Transactions maturing in up to 24 months are recorded  at  7% Transactions maturing more than 24 months are recorded at 10% This is entered as: MATURITY.PERIOD   6M     12M     24M     R MAT.PERIOD.PERC   5%      6%      7%    10% The risk on a 1 million USD loan with a 36 month initial period would be calculcaled as: At input: LIMIT.BAND.LEVEL = LEVEL PERC.CALC.BASIS  = FIXED 10% of the value (36 months remaining falls in the rest period) Amount = 10% * 1,000,000 = 100,000 USD LIMIT.BAND.LEVEL = LEVEL PERC.CALC.BASIS  = PRORATA 10% of the value (36 months remaining falls in the rest period) Amount = 10% * 1,000,000 * (3 * 365 / 365) = 300,000 USD LIMIT.BAND.LEVEL = BAND PERC.CALC.BASIS  = FIXED 5% of the value (the loan falls in the 0 - 6 month band) Amount = 5% * 1,000,000 = 50,000 USD 6% of the value (the loan falls in the 6 - 12 month band) Amount = 6% * 1,000,000 = 60,000 USD 7% of the value (the loan falls in the 12 -24 month band) Amount = 7% * 1,000,000 = 70,000 USD 10% of the value (the loan falls in the Rest band) Amount = 10% * 1,000,000 = 100,000 USD Total 28%   = 280,000 USD LIMIT.BAND.LEVEL = BAND PERC.CALC.BASIS  = PRORATA Note the number of days in the bands may vary according to the exact dates invloved. 5% of the value for 6 months (the loan falls in the 0 - 6 month band) Amount = 5% * 1,000,000 * (182 / 365) = 24,931.51 USD 6% of the value for 6 months (the loan falls in the 6 - 12 month band) 
+        Amount = 6% * 1,000,000 * (183 / 365) = 30,082.19 USD 7% of the value for 12 months (the loan falls in the 12 -24 month band) 
+        Amount = 7% * 1,000,000 * (365/365) = 70,000 USD 10% of the value for 12 months (the loan falls in the Rest band) Amount = 10% * 1,000,000 * (365/365) = 100,000 USD Total = 225,013.70 USD With  18 months remaining to maturity: LIMIT.BAND.LEVEL = LEVEL PERC.CALC.BASIS  = FIXED 7% of the value (18 months remaining falls in the 12 - 24 month period) 
+        Amount = 7% * 1,000,000 = 70,000 USD LIMIT.BAND.LEVEL = LEVEL PERC.CALC.BASIS  = PRORATA 7% of the value (18 months remaining falls in the 12 - 24 month period) Amount = 7% * 1,000,000 * (547 / 365) = 104,904.11 USD LIMIT.BAND.LEVEL = BAND PERC.CALC.BASIS  = FIXED 5% of the value (the loan falls in the 0 - 6 month band) Amount = 5% * 1,000,000 = 50,000 USD 6% of the value (the loan falls in the 6 - 12 month band) Amount = 6% * 1,000,000 = 60,000 USD 7% of the value (the loan falls in the 12 -24 month band) Amount = 7% * 1,000,000 = 70,000 USD Total 18%   = 180,000 USD LIMIT.BAND.LEVEL = BAND PERC.CALC.BASIS  = PRORATA Note the number of days in the bands may vary according to the exact dates invloved. 5% of the value for 6 months (the loan falls in the 0 - 6 month band) Amount = 5% * 1,000,000 * (182 / 365) = 24,931.51 USD 6% of the value for 6 months (the loan falls in the 6 - 12 month band) 
+        Amount = 6% * 1,000,000 * (183 / 365) = 30,082.19 USD 7% of the value for 6 months (the loan falls in the 12 -24 month band) Amount = 7% * 1,000,000 * (182/365) = 34,904.11 USD Total = 89,917.81 USD Validation RulesThe following values will be accepted: FIXED, PRORATA, PERIOD. (No change)Default: FIXED.Input in this field will only be retained when the fields MATURITY.PERIOD and PERCENTAGE have been given. */ 
+ PERC_CALC_BASIS : LI_Contract:LIMIT_CHANGE__LIMIT_REFERENCE__MATUR_PERIOD__PERC_CALC_BASIS 
+ @t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=14.0, t24Name=PERC.CALC.BASIS) 
+ } 
+ LIMIT_CHANGE__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, t24Name=INPUTTER) 
+ } 
+ LIMIT_CHANGE__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=22.0, t24Name=DATE.TIME) 
+ } 
+ LIMIT_CHANGE_HIST 
+ @t24:i (level=C, type=H, localRefAllowed=false) 
+ { 
+ KEY : mml:string PK required 
+ @i18n:Label (en=Key) 
+ @i18n:Tooltip (en="Indicates th transaction key") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, t24Name=KEY) 
+ 
+ CUSTOMER_NO -> byValue LI_Contract:LIMIT_CHANGE_HIST__CUSTOMER_NO * 
+ 
+ CREDIT_LINE_NO -> byValue LI_Contract:LIMIT_CHANGE_HIST__CREDIT_LINE_NO * 
+ 
+ LIMIT_REFERENCE -> byValue LI_Contract:LIMIT_CHANGE_HIST__LIMIT_REFERENCE * 
+ 
+ NET_OUTSTANDING : LI_Contract:LIMIT_CHANGE_HIST__NET_OUTSTANDING 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=15.0, t24Name=NET.OUTSTANDING) 
+ 
+ RESERVED3 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=16.0, t24Name=RESERVED3) 
+ 
+ RESERVED2 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, t24Name=RESERVED2) 
+ 
+ RESERVED1 : mml:string 
+ @t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=18.0, t24Name=RESERVED1) 
+ 
+ RECORD_STATUS : mml:string 
+ @i18n:Label (en="Record Status") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=19.0, t24Name=RECORD.STATUS) 
+ 
+ CURR_NO : mml:string 
+ @i18n:Label (en="Curr No") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, t24Name=CURR.NO) 
+ 
+ INPUTTER -> byValue LI_Contract:LIMIT_CHANGE_HIST__INPUTTER * 
+ 
+ DATE_TIME -> byValue LI_Contract:LIMIT_CHANGE_HIST__DATE_TIME * 
+ 
+ AUTHORISER : mml:string 
+ @i18n:Label (en=Authoriser) 
+ @i18n:Tooltip (en="Indicates the User who Authorises the record") 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, t24Name=AUTHORISER) 
+ 
+ CO_CODE -> ST_CompanyCreation:COMPANY 
+ @i18n:Label (en=Company) 
+ @t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=24.0, t24Name=CO.CODE) 
+ 
+ DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER 
+ @i18n:Label (en="Dept Code") 
+ @t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=25.0, t24Name=DEPT.CODE) 
+ 
+ AUDITOR_CODE : mml:string 
+ @i18n:Label (en="Auditor Code") 
+ @i18n:Tooltip (en="Auditor Code") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=26.0, t24Name=AUDITOR.CODE) 
+ 
+ AUDIT_DATE_TIME : mml:string 
+ @i18n:Label (en="Audit Date Time") 
+ @i18n:Tooltip (en="Date and time when record was audited") 
+ @t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=27.0, t24Name=AUDIT.DATE.TIME) 
+ } 
+ LIMIT_CHANGE_HIST__CUSTOMER_NO 
+ { 
+ /* Identifies the CUSTOMER NO for whom the Liability number has been changed. Validation RulesNoinput field */ 
+ CUSTOMER_NO -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=1.0, t24Name=CUSTOMER.NO) 
+ 
+ /* Identifies the Liability number for the Customer specified in the previous field. Validation Rules
+        
+        Noinput field */ 
+ LIABILITY_NO -> ST_Customer:CUSTOMER 
+ @t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=2.0, t24Name=LIABILITY.NO) 
+ } 
+ LIMIT_CHANGE_HIST__CREDIT_LINE_NO 
+ { 
+ /* Indicates the limit record for which the currency and/or value of CHECK.LIMIT was changed. The limit records for which the limit currency was changed. The previous currency is shown as part of the field enrichment. This field displays thetop level limit for which the CHECK.LIMIT value was changed. All limits under this was changed to the new value. Validation Rules
+        
+        Noinput.  Populated from LIMIT.CHANGE */ 
+ CREDIT_LINE_NO : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=3.0, t24Name=CREDIT.LINE.NO) 
+ 
+ /* Identifies the currency for which all amount fields specified as part of the limit were denominated. Validation Rules
+        
+        Noinput field.  Populated from LIMIT.CHANGE application. */ 
+ NEW_CURRENCY -> FIN_CurrencyConfig:CURRENCY 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, t24Name=NEW.CURRENCY) 
+ 
+ /* Value of the field CHECK.LIMIT for the specified limit structure after eod processing. This field was used to change the value of the CHECK.LIMIT field on each LIMIT record in the LIMIT structure which the CREDIT.LINE.NO was the top of. Validation Rules
+        
+        Noinput field.  Populated from LIMIT.CHANGE application. */ 
+ NEW_CHECK_LIMIT : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=5.0, t24Name=NEW.CHECK.LIMIT) 
+ } 
+ LIMIT_CHANGE_HIST__LIMIT_REFERENCE 
+ { 
+ /* The product or sub-product limit reference record whose percentage field was changed. Validation Rules
+        
+        Rule 1Rule 2 */ 
+ LIMIT_REFERENCE -> LI_Config:LIMIT_REFERENCE 
+ @t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=6.0, t24Name=LIMIT.REFERENCE) 
+ 
+ /* The percentage applied to transaction amounts calculating the amount checked against the limit amounts.. Validation Rules
+        
+        Rule 1Rule 2 */ 
+ NEW_PERCENTAGE : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=7.0, t24Name=NEW.PERCENTAGE) 
+ 
+ LIM_BAND_LEVEL : LI_Contract:LIMIT_CHANGE_HIST__LIMIT_REFERENCE__LIM_BAND_LEVEL 
+ @t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=8.0, t24Name=LIM.BAND.LEVEL) 
+ 
+ MATUR_PERIOD -> byValue LI_Contract:LIMIT_CHANGE_HIST__LIMIT_REFERENCE__MATUR_PERIOD * 
+ } 
+ LIMIT_CHANGE_HIST__LIMIT_REFERENCE__MATUR_PERIOD 
+ { 
+ MATUR_PERIOD : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=9.0, t24Name=MATUR.PERIOD) 
+ 
+ NEW_PERC : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, t24Name=NEW.PERC) 
+ 
+ LIMIT_SUBR -> EB_SystemTables:PGM_FILE 
+ @t24:i (align=L, inputBehaviour=I, maxLength=27, sysNumber=11.0, t24Name=LIMIT.SUBR) 
+ 
+ PERCENTAGE_CAP : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, t24Name=PERCENTAGE.CAP) 
+ 
+ PERCENTAGE_FLR : mml:string 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, t24Name=PERCENTAGE.FLR) 
+ 
+ PERC_CALC_BASIS : LI_Contract:LIMIT_CHANGE_HIST__LIMIT_REFERENCE__MATUR_PERIOD__PERC_CALC_BASIS 
+ @t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=14.0, t24Name=PERC.CALC.BASIS) 
+ } 
+ LIMIT_CHANGE_HIST__INPUTTER 
+ { 
+ INPUTTER : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, t24Name=INPUTTER) 
+ } 
+ LIMIT_CHANGE_HIST__DATE_TIME 
+ { 
+ DATE_TIME : mml:string 
+ @t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=22.0, t24Name=DATE.TIME) 
+ } 
+ INCREASE_LIMIT_REP 
+ @t24:i (level=C, type=L, localRefAllowed=false) 
+ { 
+ INCREASE_DATE : mml:string PK required 
+ @t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=0.0, t24Name=INCREASE.DATE) 
+ 
+ DESCRIPTION -> byValue LI_Contract:INCREASE_LIMIT_REP__DESCRIPTION * 
+ } 
+ INCREASE_LIMIT_REP__DESCRIPTION 
+ { 
+ DESCRIPTION : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=60, sysNumber=1.0, t24Name=DESCRIPTION) 
+ } 
+ EB_LIMIT_TXN_DATA 
+ @t24:i (level=F, type=L, localRefAllowed=false) 
+ { 
+ CONTRACT_ID : mml:string PK required 
+ @i18n:Label (en="Contract Id") 
+ @t24:i (align=L, inputBehaviour=I, maxLength=55, sysNumber=0.0, t24Name=CONTRACT.ID) 
+ 
+ NAU_DATA : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=55, sysNumber=1.0, t24Name=NAU.DATA) 
+ 
+ AUT_DATA : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=55, sysNumber=2.0, t24Name=AUT.DATA) 
+ 
+ NAU_LIMIT_ACTION : mml:string 
+ @t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=3.0, t24Name=NAU.LIMIT.ACTION) 
+ } 
+ } 
+ Enumerations { 
+ LIMIT_CHANGE__KEY : mml:string 
+ SYSTEM=SYSTEM 
+ NULL=NULL 
+ 
+ LIMIT_CHANGE__CREDIT_LINE_NO__NEW_CHECK_LIMIT : mml:string 
+ Y=Y 
+ N=N 
+ 
+ LIMIT_CHANGE__LIMIT_REFERENCE__LIM_BAND_LEVEL : mml:string 
+ BAND=BAND 
+ LEVEL=LEVEL 
+ 
+ LIMIT_CHANGE__LIMIT_REFERENCE__MATUR_PERIOD__PERC_CALC_BASIS : mml:string 
+ FIXED=FIXED 
+ PRORATA=PRORATA 
+ PERIOD=PERIOD 
+ 
+ LIMIT_CHANGE__NET_OUTSTANDING : mml:string 
+ Y=Y 
+ N=N 
+ NULL=NULL 
+ 
+ LIMIT_CHANGE__ORDER_PRIORITY : mml:string 
+ NONE=NONE 
+ MANUAL=MANUAL 
+ 
+ LIMIT_CHANGE_HIST__LIMIT_REFERENCE__LIM_BAND_LEVEL : mml:string 
+ BAND=BAND 
+ LEVEL=LEVEL 
+ 
+ LIMIT_CHANGE_HIST__LIMIT_REFERENCE__MATUR_PERIOD__PERC_CALC_BASIS : mml:string 
+ FIXED=FIXED 
+ PRORATA=PRORATA 
+ PERIOD=PERIOD 
+ 
+ LIMIT_CHANGE_HIST__NET_OUTSTANDING : mml:string 
+ Y=Y 
+ N=N 
+ NULL=NULL 
+ 
+ } 

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN"
+"http://docs.oasis-open.org/dita/v1.1/OS/dtd/topic.dtd">
+<topic id="SdlcFdsTdsVersion_4_2_b2f001">
+  <title>B2F001 : Search with Auto-Complete</title>
+	<body>
+		<section>
+			<title>Description</title>
+			<p>
+				Enhance the Search Field widget by providing the ability to find and select an item, in less time and less action, without opening the search screen.
+			</p>
+		</section>
+		<section>
+			<title>FDS Link</title>
+			<p>
+				<xref href="https://lausvn/svn/devel/projects/doc/active/triplea_plus/R11/03.%20Construction%20(Design)/TECHNOLOGY/DS/FDS_DSR11_B2F001_AutoComplete.doc" scope="external">FDS_DSR11_B2F001_AutoComplete.doc</xref>
+			</p>
+		</section>
+		<section>
+			<title>JIRA Issue(s)</title>
+			<p>
+				<xref href="http://rd.oams.com/browse/DS-4138" scope="external">DS-4138</xref>
+			</p>
+		</section>
+		<section>
+			<title>TDS</title>			
+		</section>
+		<section>
+			<b>Auto-complete in Search field widget (FDS 3.0)</b>
+			<ol>
+				<li><u>Meta-model Changes (plugin page-metamodel)</u>
+					<p>
+					<b>data-types.metamodel:</b>
+					Add a new type "SearchType" with data values 
+					{value='autoCompleteAndSearch', displayName="Auto-complete &amp; Search", ordinal=0},
+					{value='autoCompleteOnly', displayName="Auto-complete only", ordinal=1},
+					{value='searchOnly', displayName="Search only", ordinal=2}
+					These new values specify the type of search on a Search field widget
+					</p>
+					<p>
+					<b>xgui-widget-library.metamodel:</b>
+					Add a new property type "searchType" with data type as "SearchType", category as "General", 
+					default value as "autoCompleteWithSearch".  A source adapter for this property is required to enable/disable
+					the properties related to auto-complete.  The implementation for this source adapter is in 
+					"com.odcgroup.page.ui.properties.SearchTypePropertySourceAdapter". </p>
+					<p>
+					The "searchType" property-type is added to the "SearchField" widget.  Property-types "Access Key" and "Tab Index" are deprecated
+					and need to be excluded from the widget. A migration logic is required to remove these property types from the existing models.
+					</p>
+					<p>
+					New property-types "Output Design" which lets to select the module resource containing the auto-complete design, "Delay", "Number of chars",
+					"Submit default params" needs to be created and added to the "SearchField" widget.  These properties belong to a new category "Auto-complete",
+					which appear on a new tab in the properties view of the editor.  A custom source adapter and a cell editor is required by the "Output Design"
+					property type.
+					</p><p>
+					<b>page-designer.transformmodel:</b>
+					A new Generic widget transformer entry for the Search Field widget with an implementation class "com.odcgroup.page.transformmodel.SearchFieldWidgetTransformer"
+					is made.
+					</p>
+				</li>
+				<li><u>Code changes - UI (plugin page-ui)</u>
+					<p>
+					A custom source adapter "com.odcgroup.page.ui.properties.SearchTypePropertySourceAdapter" is required for the property type
+					"Search Type".  The implementation will take care of setting the mandatory properties related to auto-complete.
+					</p>
+					<p>
+					A custom source adapter and a cell editor is required by the "Output Design" property type and the implementations are done in
+					"com.odcgroup.page.ui.properties.OutputDesignPropertySourceAdapter" and "com.odcgroup.page.ui.properties.OutputDesignCellEditor".
+					The implementation includes selection of module of type auto-complete.
+					</p>
+				</li>
+				<li><u>Code changes - Generation (plugin page-ui)</u>
+					<p>
+					A custom transformer is now required for the SearchField transformer which was earlier handled by the DefaultWidgetTransformer, 
+					as the transformation is getting complex by the inclusion of the "SearchType" property. 
+					The implementation is done in "com.odcgroup.page.transformmodel.SearchFieldWidgetTransformer".  The implementation takes care
+					of including or excluding different parameters based on the SearchType specified.
+					</p>
+					<p>
+					This custom transformer has to be specified in the page-designer transform model, by including a new Generic widget transformer entry for
+					the Search Field widget.
+					</p>
+				</li>
+				<li><u>Code changes - Validation (plugin page-validation)</u>
+					<p>
+					3 new validation constraints are added to "com.odcgroup.page.validation.internal.constraint.PageWidgetValidator". The constraints include,
+					checkSearchEventOnWidget() - which checks the event search can only apply to SearchField widget, checkSearchEventExists() - which checks
+					if a search event is specified on a SearchField ( of search type 'autoCompleteWithSearch' and 'searchOnly'), checkAutoCompleteProperties() -
+					which checks for all the mandatory properties are set on SearchField (of search type 'autoCompleteWithSearch' and 'autoCompleteOnly').
+					</p>
+				</li>
+				<li><u>Code changes - Migration (plugin page-migration)</u>
+					<p>
+					A new migration logic "SearchFieldPropertyMigration" will be implemented under "com.odcgroup.page.model.migration", which removes the
+					properties "Access Key" and "Tab Index" from the existing models.  An entry in the plugin.xml is made for this as well.
+					</p>
+				</li>
+			</ol>
+		</section>
+		<section>
+			<b>Event enhancements (FDS 4.0)</b>
+			<ol>
+				<li><u>Meta-model Changes (plugin page-metamodel)</u>
+					<p>
+					A new event type "Search" is added to the event model of the page-designer.metamodel, which has all the properties similar to that of on-click event type.
+					This event type is then included with the widget "SearchField" in the event model.					
+					</p>
+					<p>
+					A new property type "Max row count" is added to the xgui-widget-library.metamodel and then included with the snippet "Query".
+					This property defaults to value "1500".
+					</p>
+				</li>
+				<li><u>UI code changes (FDS 4.1)</u>
+					<p>
+					"com.odcgroup.page.ui.snippet.controls.QueryControl" is adapted to included the new property type "Max row count".					
+					</p>
+				</li>
+				<li><u>Generation code changes (FDS 4.2)</u>
+					<p>
+					"com.odcgroup.page.transformmodel.snippet.QuerySnippetTransformer" is adapted to handle the transformation changes for the new property type "Max row count".					
+					</p>
+				</li>
+				<li><u>Code changes - Migration (plugin page-migration)</u>
+					<p>
+					A new migration logic "MaxRowCountMigration" will be implemented under "com.odcgroup.page.model.migration", which moves the
+					property "Max row count" into the search event property from the additional parameters.  An entry in the plugin.xml is made for this as well.
+					</p>
+				</li>
+			</ol>
+		</section>
+		<section>
+			<b>Auto-complete Design widget (FDS 5.0)</b>
+			<ol>
+				<li><u>Meta-model Changes (plugin page-metamodel)</u>
+					<p>
+					A new widget type "Auto-complete Design" has to be added to the xgui-widget-library.metamodel, which is used for designing item content
+					in an auto-complete drop down list.  This widget requires two properties "Title Attribute" and "Sorting Attribute" which are of data type 
+					"DomainAttribute".
+					</p>
+					<p>
+					This widget will contain a new snippet type "SearchLine" (0-3) , which will be defined in the page-designer.metamodel.  This snippet type will inturn comprise
+					another snippet (0-3) "LineAttribute".  The "LineAttribute" snippet will have "Attribute", "Translation", "CSS class" property types.  The "Attribute" property
+					is of data type "DomainAttribute", the "Translation" property type is of "Boolean" data type and "CSS class" is a String datatype.
+					</p>
+					<p>
+					The snippet-snippet mapping and widget-snippet mapping entries are made in the page-designer.metamodel under the snippet model.
+					</p>
+					<p>
+					A palette group item entry is made in the page-designer.uimodel with its specific properties as specified.  This palette group item is now
+					included under the items "Special" palette group.
+					</p>
+					<p>
+					Render information specific to the "Auto-complete Design" widget is specified under the Renderers node of the page-designer.uimodel.  This information
+					includes the editpart representing the widget, the figure (draw2d) implementation of the widget etc.
+					</p>
+				</li>
+				<li><u>UI code changes</u>
+					<p>
+					"com.odcgroup.page.ui.figure.AutoCompleteDesignFigure" has to be implemented extending the TechnicalBoxFigure.					
+					</p>
+					<p>
+					A new property section implementation is required extending the  AbstractPagePropertySection.  The implementation
+					"com.odcgroup.page.ui.properties.sections.AutoCompleteLinePropertySection" will have controls that extend ListControl, used to specify the line attributes
+					for SearchLine snippet of the "Auto-control Design" widget.		This also requires implementation of "com.odcgroup.page.ui.properties.snippet.controls.LineAttributeDialog"		
+					which is used to specify the properties of the "LineAttribute" snippet.	The plugin.xml is adapted to include this property section.
+					</p>
+				</li>
+				<li><u>Generation code changes</u>
+					<p>
+					A custom transformer "com.odcgroup.page.transformmodel.AutoCompleteDesignTransformer" has to be implemented that takes care of generation specific to
+					this widget.					
+					</p>
+				</li>
+				<li><u>Validation Code changes</u>
+					<p>
+					A validation constraint checkAttributesForAutoCompleteDesign() will be implemented in "com.odcgroup.page.validation.internal.constraint.PageWidgetValidator"
+					that checks if the widget is "Auto-complete Design" widget and checks atleast the title attribute or atleast one Search Line is defined for it.
+					</p>
+				</li>
+			</ol>
+		</section>
+		<section>
+			<b>Move module properties into wizard (FDS 6.0)</b>
+			<ol>
+				<li><u>Meta-model Changes (plugin page-metamodel)</u>
+					<p>
+						Update the type "SearchModule" by adding a new value 
+						{value='autoComplete', displayName="Auto-complete", ordinal=4} in the data-types.metamodel.
+					</p>
+					<p>
+						The PageUIModel.ecore has to be adapted.  The changes include a new element "PaletteGroupByModule" to the uimodel.
+						This element will have attributes like the widgetType, excludedPaletteGroupItems, reference to PaletteGroup.  The items association
+						in the Palette element now refers to this new element, "PaletteGroupByModule".  After generating the code to the model, the page-designer.uimodel
+						needs to be changed accordingly.  New entries for the element "PaletteGroupByModule" has to be made.
+					</p>
+				</li>
+				<li><u>UI code changes</u>
+					<p>The "com.odcgroup.page.ui.wizard.NewModuleWizardPage" will be adapted to include radio buttons to select a search type for the module</p>
+					<p>
+					"com.odcgroup.page.ui.palette.PaletteRootFactory" has to be adapted to include the newly made ui model changes					
+					</p>
+				</li>
+				<li><u>Validation Code changes</u>
+					<p>
+					A cleanup is required to remove the rules on the existing rules for dropping widget in modules.
+					</p>
+				</li>
+			</ol>
+		</section>
+	</body>
+</topic>

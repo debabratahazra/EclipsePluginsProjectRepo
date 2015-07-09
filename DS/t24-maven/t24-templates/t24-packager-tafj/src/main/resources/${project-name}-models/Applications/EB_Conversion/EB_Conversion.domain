@@ -1,0 +1,649 @@
+# UTF-8
+# UTF-8
+/* Conversion Framework and the Service */
+Domain EB_Conversion
+	@t24:i (module=EB)
+	@java:Package (value=com.temenos.t24.datamodel.eb.eb_conversion)
+namespace "http://www.temenos.com/t24/EB_Conversion"
+metamodelVersion 1.30.6
+Classes {
+	/* This application is used by Temenos to hold the details of any conversions which are need to modify existing records and update them to the latest file layout.
+On a customer site, updates are not permitted to this file and the only available functions are See, List and Verify.
+Verifying a record on this file will cause the specified conversion to be run online. If the conversion has already been run for the current company, an override will be required to re run the conversion.
+
+This will also facilitate specifying the file name/record id which has to be reversed during an upgrade. This will be specified as a CONVERSION.DETAILS record and this conversion record will not contain other attributes such as adding field/routines etc.
+
+i.e. Standard T24 conversion and now Reversal are two different facilities offered by Conversion Details. Both of them should be specified together in same Conversion Details record. */
+	CONVERSION_DETAILS
+		@t24:i (t24Name=CONVERSION.DETAILS, level=I, type=H, allowedFunctions="A C D E H I L P Q R S V", localRefAllowed=false)
+	{
+		/* This is the unique key to the records on the file and detials the name of the conversion routine.
+The standard convention for the naming of the conversion routines is
+CONV.(file.name).(Release.Number)
+e.g. CONV.CATEGORY.G7
+Validation Rules
+Up to 50 alphanumeric characters.  Mandatory input. */
+		CONVERSION_NAME -> EB_Conversion:CONVERSION_DETAILS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=55, sysNumber=0.0, core=true, businessType=A, t24Name=CONVERSION.NAME)
+		DESCRIPTION -> byValue EB_Conversion:CONVERSION_DETAILS__DESCRIPTION *
+		SHORT_DESC -> byValue EB_Conversion:CONVERSION_DETAILS__SHORT_DESC *
+		/* The name of the file to be converted should be entered into this field, which must be a valid record on the FILE.CONTROL file. All of the related files are automatically converted - e.g. for type H file where live, unauthorised and history files are maintained each of these files will be updated by the conversion.
+If only one file is to be updated then a routine should be specified in the field FILE.ROUTINE which may then alter the file.
+Validation Rules
+Up to 30 alphanumeric characters.  Mandatory input. */
+		FILE_NAME -> EB_SystemTables:FILE_CONTROL required
+			@i18n:Label (en="File Name")
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=3.0, core=true, businessType=A, t24Name=FILE.NAME)
+		/* This field is used to define the expected position of the company code on the records before they are converted. By checking the value in this field for each incoming record it is determined whether the conversion should be run on this record.
+If the record is not in the expected format, the record if not converted. The number of records which were not converted for this reason is detailed in the RUN.INFO field as NOT CONVERTED.
+N.B. This is a numeric only field, as using field names may cause problems      when multiple upgrades are run at the same time.
+Validation Rules
+Up to three numeric characters.  Mandatory input for file types H, U and W. */
+		OLD_CO_CODE_POS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=OLD.CO.CODE.POS)
+		/* This field is used to define the expected position of the company code on the records after they have been converted. By checking the value in this field for each incoming record it is determined whether the conversion should be run on this record.
+If the record has a company code in the field specified, the record has already been converted and the record is not processed.
+The number of records which were not converted for this reason is detailed in the RUN.INFO field as ALREADY CONVERTED.
+N.B. This is a numeric only field, as using field names may cause problems      when multiple upgrades are run at the same time and the same field is      converted more than once.
+Validation Rules
+Up to three numeric characters.  Mandatory input for file types H, U and W. */
+		NEW_CO_CODE_POS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=NEW.CO.CODE.POS)
+		/* This field is used to define whether the routine may be rerun or not. Each conversion should be able to be rerun and hence the default value for this field is YES when there is a value present in the NEW.CO.CODE.POS field, as records in the new format will be checked against the expected position to see if the record has already been converted.
+When there is no value present in the NEW.CO.CODE.POS field (ie the file is not of type H, U or W) then the default value of this field is NO. However, it is possible to set this value to YES to indicate that the routine is able to be re run (for instance a FILE.ROUTINE is specified which sets the value of a given field to null).
+Validation Rules
+Input must be either YES or NO. Defaults to YES when data is present in the NEW.CO.CODE.POS field, otherwise defaults to NO. */
+		RE_RUN_FLAG : EB_Conversion:CONVERSION_DETAILS__RE_RUN_FLAG
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, t24Name=RE.RUN.FLAG)
+		ADD_FIELD_START -> byValue EB_Conversion:CONVERSION_DETAILS__ADD_FIELD_START *
+		DEL_FIELD_START -> byValue EB_Conversion:CONVERSION_DETAILS__DEL_FIELD_START *
+		/* This field is used to define a routine which will be called prior to the processing which adds and/or removes fields.
+For example, such a routine may be used to populate a parameter record, or load a COMMON area for later use in a RECORD.ROUTINE.
+11 PRE.ROUTINE....... @PRE.ROUTINE.NAME
+This routine is called with no arguments and should be specified as
+SUBROUTINE PRE.ROUTINE.NAME
+Validation Rules
+
+Must be a valid catalogued subroutine, preceded by the '@' character. */
+		PRE_ROUTINE : T24BusinessTypes:A
+			@i18n:Label (en="Pre Routine")
+			@i18n:Tooltip (en="The Pre Routine trigger for action")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=PRE.ROUTINE)
+		/* This field is used to define a routine which will be called after EACH record has gone through the processing which adds and/or removes fields but BEFORE the record is written.
+For example, such a routine may be used to null a given field or other tasks which would best be performed at record level.
+If file pointers or parameter records are required as part of this routine they should be opened / read into a COMMON area (the loading of the COMMON area should be done in a routine specified in the PRE.ROUTINE field) to avoid repetive and slow processing.
+12 RECORD.ROUTINE.... @RECORD.ROUTINE.NAME
+This routine is called with three arguments, being the record id, dynamic record array and the file name which is currently being processed, and should be specified as
+SUBROUTINE RECORD.ROUTINE.NAME(YID, R.RECORD, FN.FILE)
+Validation Rules
+
+Must be a valid catalogued subroutine, preceded by the '@' character. */
+		RECORD_ROUTINE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, t24Name=RECORD.ROUTINE)
+		/* This field is used to define a routine which will be called after the processing which adds and/or removes fields.
+For example, such a routine may be used to populate given fields with values from a parameter record or perhaps convert only the history file.
+13 FILE.ROUTINE..... @POST.ROUTINE.NAME
+This routine is called with no arguments and should be specified as
+SUBROUTINE POST.ROUTINE.NAME
+Validation Rules
+
+Must be a valid catalogued subroutine, preceded by the '@' character. */
+		FILE_ROUTINE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=FILE.ROUTINE)
+		CO_SELECTED -> byValue EB_Conversion:CONVERSION_DETAILS__CO_SELECTED *
+		/* Validation Rules
+
+
+2 characters of type A.
+
+
+Must be a valid T24 application */
+		PRODUCT : T24BusinessTypes:A required
+			@i18n:Label (en=Product)
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=20.0, core=true, t24Name=PRODUCT)
+		RMV_FILE_NAME -> byValue EB_Conversion:CONVERSION_DETAILS__RMV_FILE_NAME *
+		RELEASE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=25.0, core=true, t24Name=RELEASE)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=26.0, core=true, t24Name=RESERVED.6)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=27.0, core=true, t24Name=RESERVED.5)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=28.0, core=true, t24Name=RESERVED.4)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=29.0, core=true, t24Name=RESERVED.3)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=30.0, core=true, t24Name=RESERVED.2)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=31.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue EB_Conversion:CONVERSION_DETAILS__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=33.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=34.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Conversion:CONVERSION_DETAILS__INPUTTER *
+		DATE_TIME -> byValue EB_Conversion:CONVERSION_DETAILS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=37.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=38.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=39.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=40.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=41.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CONVERSION_DETAILS__DESCRIPTION
+	{
+		/* This field should contain a description of the conversion program and is displayed on the screen whenever the conversion is run.
+Validation Rules
+
+Up to 30 alphanumeric charcters per line. Multi valued to         allow longer descriptions. Mandatory Input. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	CONVERSION_DETAILS__SHORT_DESC
+	{
+		/* A short description of the conversion. This field is used as an enrichment in the CONVERSION.PGMS for field PROGRAM.NAME, if a record does not exist on PGM.FILE for the conversion.
+Validation Rules
+
+Up to 20 alphanumneric characters.  Mandatory input. */
+		SHORT_DESC : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.DESC)
+	}
+	CONVERSION_DETAILS__ADD_FIELD_START
+	{
+		/* This field is used to define the position from which fields will be added to each of the records on the file, whilst the related field ADD.FIELD.NO defines how many fields will be added in this position.
+e.g. If the value in this field is four then the first field to be added will be a new field at position four. If one field was being added, the old field four would now be in field five.
+If more than one group of fields are to be added then these should be defined in multi values two and onwards.
+N.B. That if more than one set of numbers is used then. Fields should be      added starting from the bottom of the record, and thus the highest      numbered positions should be input first.
+Field names should never be used during conversions as this may cause errors when a customer receives several releases at once and the file is being converted more than once.
+This field and the field ADD.FIELD.NO form a related multi value set.
+Validation Rules
+Up to three numeric characters. Optional Input.
+Each multivalue must be less than the previous. */
+		ADD_FIELD_START : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, t24Name=ADD.FIELD.START)
+		/* This field is used to define the number of fields to add to each of the records on the file, whilst the related field ADD.FIELD.START defines at which position in the record these fields will be added.
+If more than one group of fields are to be added then these should be defined in multi values two and onwards.
+This field and the field ADD.FIELD.START form a related multi value set.
+Validation Rules
+Up to three numeric characters. Optional Input. */
+		ADD_FIELD_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, t24Name=ADD.FIELD.NO)
+	}
+	CONVERSION_DETAILS__DEL_FIELD_START
+	{
+		/* This field is used to define the position from which fields will be removed from each of the records on the file, whilst the related field DEL.FIELD.NO defines how many fields will be removed from this position.
+e.g. If the value in this field is four then the first field to be removed will be the field at position four. If one field was being removed, the old field five would now be in field four.
+If more than one group of fields are to be added then these should be defined in multi values two and onwards.
+N.B. That if more than one set of numbers is used then. Fields should be      removed starting from the bottom of the record, and thus the highest      numbered positions should be input first.
+Field names should never be used during conversions as this may cause errors when a customer receives several releases at once and the file is being converted more than once.
+This field and the field DEL.FIELD.NO form a related multi value set.
+Validation Rules
+Up to three numeric characters. Optional Input.
+Each multi value must be less than the previous. */
+		DEL_FIELD_START : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=DEL.FIELD.START)
+		/* This field is used to define the number of fields to remove from each of the records on the file, whilst the related field DEL.FIELD.START defines at which position in the record these fields will be removd from.
+If more than one group of fields are to be removed then these should be defined in multi values two and onwards.
+This field and the field ADD.FIELD.START form a related multi value set.
+Validation Rules
+Up to three numeric characters. Optional Input. */
+		DEL_FIELD_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=10.0, core=true, t24Name=DEL.FIELD.NO)
+	}
+	CONVERSION_DETAILS__CO_SELECTED
+	{
+		/* This field holds the company codes of the companies in which the conversion routine has been run.
+Fields CO.SELECTED to RUN.AT.REL form a related multi value set which contains the run history for the conversion routine for each company which the conversion has been run in.
+Validation Rules
+Up to nine alphanumeric characters.  Must be the key to a valid record on the COMPANY file.
+This is a NOINPUT field. */
+		CO_SELECTED : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=14.0, core=true, t24Name=CO.SELECTED)
+		/* For each company for which the conversion has been run for, this field holds a flag which shows the status of the conversion. This field has three possible values;
+0 - The did not need to be run for the company.    1 - The conversion needs to be run for the company, but has not yet        been run.    2 - The conversion has already been run for the company. However, this        flag does not give any indication as to whether the conversion ran        correctly, only that it has actually run.
+Fields CO.SELECTED to RUN.AT.REL form a related multi value set which contains the run history for the conversion routine for each company which the conversion has been run in.
+Validation Rules
+Must be either 0, 1 or 2.
+This is a NOINPUT field. */
+		RUN_PGM : EB_Conversion:CONVERSION_DETAILS__CO_SELECTED__RUN_PGM
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=15.0, core=true, t24Name=RUN.PGM)
+		/* If an error occured when the routine was run for the comapny the error message is held in this field.
+Fields CO.SELECTED to RUN.AT.REL form a related multi value set which contains the run history for the conversion routine for each company which the conversion has been run in.
+Validation Rules
+This is a NOINPUT field. */
+		ERROR_MSG : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=ERROR.MSG)
+		RUN_INFO -> byValue EB_Conversion:CONVERSION_DETAILS__CO_SELECTED__RUN_INFO *
+	}
+	CONVERSION_DETAILS__CO_SELECTED__RUN_INFO
+	{
+		/* This field is used to hold details of the running of the conversion. For each of the files which the conversion ran on (live, unauthorised and history) the following information is recorded ;
+The number of records successfully converted.      The number of records already converted.      The number of records which were not converted due to not being in      the expected format for the conversion to deal with.
+In addition , the user who ran the conversion and the time the conversion was run are detailed in this field.
+Fields RUN.INFO to RUN.AT.REL form a related sub value set, and each subvalue indicates a seperate occassion on which the conversion was run.
+Fields CO.SELECTED to RUN.AT.REL form a related multi value set which contains the run history for the conversion routine for each company which the conversion has been run in.
+Validation Rules
+This is a NOINPUT field. */
+		RUN_INFO : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RUN.INFO)
+		/* This field holds information regarding where the conversion was run from, either manually in which case this field will contain 'ON.LINE' or via RUN.CONVERSION.PGMS in which case it will hold the ID (release number) of the CONVERSION.PGMS record from which it was called from
+Fields RUN.INFO to RUN.AT.REL form a related sub value set, and each subvalue indicates a seperate occassion on which the conversion was run.
+Fields CO.SELECTED to RUN.AT.REL form a related multi value set which contains the run history for the conversion routine for each company which the conversion has been run in.
+Validation Rules
+This is a NOINPUT field. */
+		RUN_FROM : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RUN.FROM)
+		/* This field holds information regarding the release at which the conversion was run and holds the exact release number at which the conversion was run, e.g. G7.0.06. This information is obtained from the SPF record.
+Fields RUN.INFO to RUN.AT.REL form a related sub value set, and each subvalue indicates a seperate occassion on which the conversion was run.
+Fields CO.SELECTED to RUN.AT.REL form a related multi value set which contains the run history for the conversion routine for each company which the conversion has been run in.
+Validation Rules
+This is a NOINPUT field. */
+		RUN_AT_REL : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RUN.AT.REL)
+	}
+	CONVERSION_DETAILS__RMV_FILE_NAME
+	{
+		/* RMV.FILE.NAME
+RMV.REC.ID
+RMV.OTHER.INFO
+RMV.ACTION
+
+These are four associated m/v fields.
+These fields facilitate specifying the file name/record id which has to be reversed during an upgrade.
+
+
+RMV.FILE.NAME will hold the FILE.NAME from which we need to reverse out a record based on the ID specified in the field RMV.REC.ID.
+
+Validations:
+1. 35 characters in length, non-mandatory field.
+2. Should have a valid entry in F.FILE.CONTROL
+3. Will accept only INT level files.
+4. If populated, then the associated m/v fields RMV.REC.ID, RMV.OTHER.INFO, RMV.ACTION cannot be left blank. */
+		RMV_FILE_NAME -> EB_SystemTables:FILE_CONTROL
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=21.0, core=true, businessType=A, t24Name=RMV.FILE.NAME)
+		/* Will hold the ID of the record which needs to be reversed out from the file specified in RMV.FILE.NAME.  Cannot be specified without populating the file name in RMV.FILE.NAME.
+
+Validations:
+
+1. 35 characters in length, non-mandatory field.
+2. The ID's of files like F.BATCH or F.TSA.SERVICE should not be prefixed with Mnemonics. The system automatically takes care of prefixing the company mnemonics. */
+		RMV_REC_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=22.0, core=true, t24Name=RMV.REC.ID)
+		/* This field could be used to provide meaningful description about the reversal.
+
+Validations:
+1. 35 Characters in length, non-mandatory field.
+2. Will accept alphanumeric characters.
+3. Mandatory input if RMV.FILE.NAME is populated. */
+		RMV_OTHER_INFO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=RMV.OTHER.INFO)
+		/* This field is used to specify the action we need to perform on the File Name & ID specified in RMV.FILE.NAME & RMV.REC.ID respectively.
+For now this field accepts a value OBSOLETE only. When the action is specified as OBSOLETE then the Conversion will write the data item out to history and remove from the live file.
+
+Validations:
+
+1. Will accept a value OBSOLETE.
+2. Non-mandatory field, becomes mandatory when the field RMV.FILE.NAME is populated in the corresponding m/v set. */
+		RMV_ACTION : EB_Conversion:CONVERSION_DETAILS__RMV_FILE_NAME__RMV_ACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=24.0, core=true, t24Name=RMV.ACTION)
+	}
+	CONVERSION_DETAILS__OVERRIDE
+	{
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=OVERRIDE)
+	}
+	CONVERSION_DETAILS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=35.0, core=true, t24Name=INPUTTER)
+	}
+	CONVERSION_DETAILS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=36.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* When a customer receives a release of T24, there are usually conversion programs which need to be run, due to changes in file layouts of files used by T24.  If a customer is operating in a multi-company environment, some programs will have to be run in each company, thus resulting in a lot of manual input which can produce errors.
+CONVERSION.PGMS is designed to automate the running of the conversion programs.  One record will be released to CONVERSION.PGMS for each major release.  The record will detail all the conversion programs to be run for the release, along with the level of each program.  When the record is released as part of GLOBUS.RELEASE, the release procedure will determine in which companies each of the programs has to be run, depending on the application and level of the program.  After the record has been checked and authorised by the user, RUN.CONVERSION.PGMS can be run to actually run the conversion programs.  Once the conversion programs have been run successfully, the user should reverse the record on CONVERSION.PGMS. */
+	CONVERSION_PGMS
+		@t24:i (t24Name=CONVERSION.PGMS, level=I, type=H, additionalInfo=GAC, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Identifies the release number.
+If being run at Temenos London, the release number must reference a record on the PIF.RELEASE.NO file or, if only the major release number is entered (e.g. 14.1), it must reference a record on the PIF.RELEASE.NO file when suffixed by .0 (e.g. 14.1.0).
+If being run at other sites, the release number must reference an existing record or must begin with a non-numeric character.
+Validation Rules
+3-20 type A (alphanumeric) characters.  (Mandatory input) */
+		RELEASE_NO -> EB_Conversion:CONVERSION_PGMS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=RELEASE.NO)
+		PROGRAM_NAME -> byValue EB_Conversion:CONVERSION_PGMS__PROGRAM_NAME *
+		OVERRIDES -> byValue EB_Conversion:CONVERSION_PGMS__OVERRIDES *
+		/* Holds the T24 status of the record, e.g. INAU, IHLD etc.,
+Validation Rules
+
+
+Up   to 3 alphanumneric characters.
+
+No   input field.
+
+Automatically   generated by the system. */
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=RECORD.STATUS)
+		/* Displays the number of Transactions generated by theSystem in order to effect the Transfer. I.e., how many authorised version of this record exist.
+Validation Rules
+
+
+Up   to 4 numneric characters.
+
+No   input field.
+
+Automatically   generated by the system. */
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Conversion:CONVERSION_PGMS__INPUTTER *
+		DATE_TIME -> byValue EB_Conversion:CONVERSION_PGMS__DATE_TIME *
+		/* This is an audit dictionary field used to keep track of the person who authorised the record.
+Validation Rules
+
+
+Up       to 20 alphanumneric characters.
+
+No       input field.
+
+Automatically       generated by the system. */
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=AUTHORISER)
+		/* This is an audit dictionary field which holds the company code of the record where created in.
+Validation Rules
+
+
+Up       to 11 alphanumneric characters.
+
+No       input field.
+
+Automatically       generated by the system. */
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=17.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		/* This is an audit dictionary field that shows the department code of the user who created/updated the record.
+Validation Rules
+
+
+Up       to 4 numneric characters.
+
+No       input field.
+
+Automatically       generated by the system. */
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=DEPT.CODE)
+		/* This is an audit dictionary field, which holds the name of the user, who audited the record.
+Validation Rules
+
+
+Up       to 16 alphanumneric characters.
+
+No       input field.
+
+Automatically       generated by the system. */
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=19.0, core=true, t24Name=AUDITOR.CODE)
+		/* This is an audit dictionary field used to keep track of date and time of the record been audited.
+Validation Rules
+
+
+Up       to 15 numneric characters.
+
+No       input field.
+
+Automatically       generated by the system. */
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=20.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CONVERSION_PGMS__PROGRAM_NAME
+	{
+		/* The name of the conversion program to be run.
+Must reference a record on PGM.FILE or CONVERSION.DETAILS.
+Validation Rules
+1-30 type A (any) characters.  PROGRAM.NAME through to RUN.INFO form a multivalue set describing each conversion program to be run.  (Mandatory input) */
+		PROGRAM_NAME : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=60, sysNumber=1.0, core=true, t24Name=PROGRAM.NAME)
+		/* Defines the level at which the conversion program should run.
+When this field is entered, the sub-value set from companies selected to run information is expanded with the company code of all the companies in which the conversion program should be run, depending on the level and application of the conversion program. For example, if a securities conversion program is defined as being of FINancial level, the company file will be accessed to determine all financial non-consolidation, non-reporting companies in which securities is installed.  The sub-valued set will then be expanded to contain these companies, with the run pgm flag set to 1, i.e. the program is to be run.  If there are no companies in which the conversion program is to be run (e.g. securities has not been installed in any company), the sub-value set will be null.
+Validation Rules
+Values are:          INT (Installation)         CUS (Customer)         FIN (Financial)         FTF (Financial table - financial information)         FTD (Financial table - non-financial)         CCY (Currency)         NOS (Nostro)         CST (Customer table)  PROGRAM.NAME through to RUN.INFO form a multivalue set describing each conversion program to be run.
+Optional input.  Default value INT. */
+		PROGRAM_LEVEL : EB_Conversion:CONVERSION_PGMS__PROGRAM_NAME__PROGRAM_LEVEL
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=PROGRAM.LEVEL)
+		/* Specifies whether the run conversion programs utility should halt after running this conversion program.
+Validation Rules
+1 numeric character.        0  -  run conversion programs utility does not halt after             running this program       1  -  run conversion programs utility does halt after             running this program  PROGRAM.NAME through to RUN.INFO form a multivalue set describing each conversion program to be run.
+Optional input.  Default value 0. */
+		HALT_AFTER_PGM : EB_Conversion:CONVERSION_PGMS__PROGRAM_NAME__HALT_AFTER_PGM
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=3.0, core=true, t24Name=HALT.AFTER.PGM)
+		/* The message to be displayed if the run conversion utility is to halt after running this program.  As this field cannot hold much information, it will normally refer to the section in the release documentation for a fuller explanation.
+Validation Rules
+1-50 type A (any) characters.  PROGRAM.NAME through to RUN.INFO form a multivalue set describing each conversion program to be run.  (Optional input) */
+		HALT_MESSAGE : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=4.0, core=true, t24Name=HALT.MESSAGE)
+		CO_SELECTED -> byValue EB_Conversion:CONVERSION_PGMS__PROGRAM_NAME__CO_SELECTED *
+	}
+	CONVERSION_PGMS__PROGRAM_NAME__CO_SELECTED
+	{
+		/* Company codes the conversion program is to be run in.
+This field contains all the companies in which the conversion program is to be run.  It is updated when either the program name or program level is entered.  The conversion program will be run in companies depending on the level and application of the conversion program.  For example, if a securities conversion program is defined as being of FINancial level, the company file will be accessed to determine all financial non-consolidation, non-reporting companies in which securities is installed.
+When a conversion record is released, the companies field will be updated by the release procedures, according to the companies and applications installed.
+Validation Rules
+
+1-90 type A (any) characters. PROGRAM.NAME through to RUN.INFO form a multivalue set describing each conversion program to be run.
+This is a NOINPUT field. */
+		CO_SELECTED : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=9, sysNumber=5.0, core=true, t24Name=CO.SELECTED)
+		/* Specifies whether the conversion program is to be run or has already been run for the company named in companies selected.
+When the conversion program record is released as part of the release procedures, the run program flag for all programs will be set to 1, i.e. the conversion program is to be run in the company specified.  If there are no companies (e.g. a securities conversion program is to be run but securities has not been installed in any company), the conversion program will not be run.  If the user decides that the program is not be run, the run program flag can be set to 0, i.e. the program is not to be run.  It is recommended that if the program flag is set to 1, the notes field is updated with the reason why the conversion program was not run.  If the run program flag is set to 0, it can be reset to 1.  When the conversion program is run by RUN.CONVERSION.PGMS, the run flag is set to 2 (program has been run) when the program completes successfully.  The run program flag can be set to 1 if it is currently 2, but an override message is given. Care should be taken if resetting a program flag of a program that has already been run, as most conversion programs should not be rerun.
+Validation Rules
+
+1 numeric character:        0  -  conversion program is not to be run in this company       1  -  conversion program is to be run in this company       2  -  conversion program has already been run in this company.   PROGRAM.NAME through to RUN.INFO form a multivalue set describing each conversion program to be run.
+Optional input.  Default value 1. */
+		RUN_PGM : EB_Conversion:CONVERSION_PGMS__PROGRAM_NAME__CO_SELECTED__RUN_PGM
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=6.0, core=true, t24Name=RUN.PGM)
+		/* Notes as to why a conversion program was not run.  It is recommended that if it is decided that a conversion program is not to be run (i.e. run program flag is set to 0), the notes field should be updated with the reason why the program was not run.
+Validation Rules
+
+Standard T24 alphanumeric field.
+A maximum of 50 characters may be entered.
+
+
+PROGRAM.NAME through to RUN.INFO form a multivalue set describing each conversion program to be run.
+
+
+Optional input */
+		NOTES : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=7.0, core=true, t24Name=NOTES)
+		/* Specifies whether the program was:
+
+
+1 - run successfully 0 - did not run successfully null - has not been run
+
+
+This field is updated by RUN.CONVERSION.PGMS when the conversion program is run.
+Validation Rules
+
+
+
+
+1 numeric   character.
+
+
+
+PROGRAM.NAME through to RUN.INFO form a multivalue set describing each conversion program to be run.
+
+
+
+This     is a NOINPUT field. */
+		RUN_STATUS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=8.0, core=true, t24Name=RUN.STATUS)
+		/* Contains the reason why the conversion program did not run successfully.
+This field is updated by RUN.CONVERSION.PGMS when the conversion program is run.
+Validation Rules
+
+1-50 type A (any) characters.
+PROGRAM.NAME through to RUN.INFO form a multivalue set describing each conversion program to be run.
+This is a NOINPUT field. */
+		ERROR_MSG : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=9.0, core=true, t24Name=ERROR.MSG)
+		/* Contains the user who ran the conversion and the time the conversion was run are detailed in this field.
+This field is updated by RUN.CONVERSION.PGMS when the conversion program is run.
+Validation Rules
+
+1-50 type A (any) characters.
+PROGRAM.NAME through to RUN.INFO form a multivalue set describing each conversion program to be run.
+This is a NOINPUT field. */
+		RUN_INFO : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=50, sysNumber=10.0, core=true, t24Name=RUN.INFO)
+	}
+	CONVERSION_PGMS__OVERRIDES
+	{
+		/* Contains all the override messages, which the user agreed during input. Stores the full text of the override message for reference purpose.
+Validation Rules
+
+
+Up       to 35 alphanumneric characters.
+
+No       input field.
+
+Automatically       generated by the system. */
+		OVERRIDES : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=11.0, core=true, t24Name=OVERRIDES)
+	}
+	CONVERSION_PGMS__INPUTTER
+	{
+		/* This is an audit dictionary field used to keep track of who inputted the record.
+Validation Rules
+
+
+Up       to 35 alphanumneric characters.
+
+No       input field.
+
+Automatically       generated by the system. */
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=INPUTTER)
+	}
+	CONVERSION_PGMS__DATE_TIME
+	{
+		/* This is an audit dictionary field used to keep track of on what date and time the record was transacted.
+Validation Rules
+
+
+Up       to 15 numneric characters.
+
+No       input field.
+
+Automatically       generated by the system. */
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=15.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_CONVERSION_EXCEPTION
+		@t24:i (t24Name=EB.CONVERSION.EXCEPTION, level=I, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONV_EXCEP_REF -> EB_Conversion:EB_CONVERSION_EXCEPTION PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=CONV.EXCEP.REF)
+		CONV_PGMS_ID : T24BusinessTypes:A
+			@i18n:Label (en="CONV PGMS ID")
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=1.0, core=true, t24Name=CONV.PGMS.ID)
+		CONV_DETAILS_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=2.0, core=true, t24Name=CONV.DETAILS.ID)
+		STAGE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=3.0, core=true, t24Name=STAGE)
+		SOURCE_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=SOURCE.RTN)
+		ERR_MSG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=60, sysNumber=5.0, core=true, t24Name=ERR.MSG)
+		FILE_NAME : T24BusinessTypes:A
+			@i18n:Label (en="File Name")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=FILE.NAME)
+		RECORD_ID : T24BusinessTypes:A
+			@i18n:Label (en="Record Id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RECORD.ID)
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Date time")
+			@i18n:Tooltip (en="Date and time when record was input or authorised")
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=8.0, core=true, t24Name=DATE.TIME)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.1)
+	}
+}
+Enumerations {
+	CONVERSION_DETAILS__RE_RUN_FLAG : mml:string
+		YES=YES
+		NO=NO
+	CONVERSION_DETAILS__CO_SELECTED__RUN_PGM : mml:string
+		n0=0
+		n1=1
+		n2=2
+	CONVERSION_DETAILS__RMV_FILE_NAME__RMV_ACTION : mml:string
+		OBSOLETE=OBSOLETE
+		NULL=NULL
+	CONVERSION_PGMS__PROGRAM_NAME__PROGRAM_LEVEL : mml:string
+		INT=INT
+		CUS=CUS
+		FIN=FIN
+		FTF=FTF
+		CCY=CCY
+		NOS=NOS
+		CST=CST
+		FTD=FTD
+	CONVERSION_PGMS__PROGRAM_NAME__HALT_AFTER_PGM : mml:string
+		n0=0
+		n1=1
+	CONVERSION_PGMS__PROGRAM_NAME__CO_SELECTED__RUN_PGM : mml:string
+		n0=0
+		n1=1
+}

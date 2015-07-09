@@ -1,0 +1,82 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = "View Security Order", de = "Wertpapierauftrag ansehen", fr = "Voir l\'ordre sur titre"
+	containment = container
+	domainEntity = "AAADSExtOperation:ExtOperationAll"
+	cssClass = nodeco
+	bean-define = DSBean.AAADSExtOperation.ExtOperationAll
+	bean-name = ExtOperationAll
+	id = SecurityView_i4_J2
+	tid = 26237920994148
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- TextArea ---
+			domainAttribute = summaryC !
+			columns = 200
+			horizontalAlignment = "${corporatehalign}"
+			rows = 1
+			type = text
+			editable = false
+			bean-property = summaryC
+			id = summaryC
+		--- Include ---
+			includeSrc = "" !
+			resource:///Default/module/aaa/administration/extoperation/order/view/SingleOrderSecurityIdentifierView.module
+		--- Conditional ---
+			technicalName = Future
+			indexOfSelectedChild = 0
+		{
+			--- ConditionalBody ---
+				javaCode = "null != <bean:get-property bean=\"ExtOperationAll\" property=\"orderType\"/> &amp;&amp; \r\n(\"PCK_DS_STOCK\".equals(<bean:get-property bean=\"ExtOperationAll\" property=\"orderType.code\"/>.toString()) ||\r\n\"PCK_DS_OPTION\".equals(<bean:get-property bean=\"ExtOperationAll\" property=\"orderType.code\"/>.toString()) ||\r\n\"PCK_DS_FUTURE\".equals(<bean:get-property bean=\"ExtOperationAll\" property=\"orderType.code\"/>.toString()) ||\r\n\"PCK_DS_PG_ORDER\".equals(<bean:get-property bean=\"ExtOperationAll\" property=\"orderType.code\"/>.toString())\r\n)"
+				technicalName = Stock_Future_Option
+				boxType = vertical
+				isWidgetSelected = true
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/administration/extoperation/order/view/SingleOrderSecurityInstructionStockView.module
+			}
+			--- ConditionalBody ---
+				javaCode = "null != <bean:get-property bean=\"ExtOperationAll\" property=\"orderType\"/> &amp;&amp; \r\n\"PCK_DS_FIXED_INC\".equals(<bean:get-property bean=\"ExtOperationAll\" property=\"orderType.code\"/>.toString())"
+				technicalName = FixedIncome
+				boxType = vertical
+				isWidgetVisible = false
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/administration/extoperation/order/view/SingleOrderSecurityInstructionFixedincomeView.module
+			}
+			--- ConditionalBody ---
+				javaCode = "null != <bean:get-property bean=\"ExtOperationAll\" property=\"orderType\"/> &amp;&amp; \r\n\"PCK_DS_FUND\".equals(<bean:get-property bean=\"ExtOperationAll\" property=\"orderType.code\"/>.toString())"
+				technicalName = Fund
+				boxType = vertical
+				isWidgetVisible = false
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/administration/extoperation/order/view/SingleOrderSecurityInstructionFundView.module
+			}
+		}
+		--- Conditional ---
+			indexOfSelectedChild = 0
+		{
+			--- ConditionalBody ---
+				javaCode = "null != <bean:get-property bean=\"ExtOperationAll\" property=\"orderType\"/> &amp;&amp; \r\n! \"PCK_DS_FUND\".equals(<bean:get-property bean=\"ExtOperationAll\" property=\"orderType.code\"/>.toString())"
+				technicalName = NotFund
+				boxType = vertical
+				isWidgetSelected = true
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/administration/extoperation/order/view/SecurityModeView.module
+			}
+		}
+		--- Include ---
+			includeSrc = "" !
+			resource:///Default/module/aaa/administration/extoperation/order/view/AdditionalDataView.module
+	}
+}

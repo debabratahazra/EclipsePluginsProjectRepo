@@ -1,0 +1,1317 @@
+# UTF-8
+# UTF-8
+/* Generic Archival Process */
+Domain EB_Archiving
+	@t24:i (module=EB)
+	@java:Package (value=com.temenos.t24.datamodel.eb.eb_archiving)
+namespace "http://www.temenos.com/t24/EB_Archiving"
+metamodelVersion 1.30.6
+Classes {
+	/* This application will store the Valid  ARCHIVE ids, which needs to be archived. By verifying this application, the archiving process will be activated.
+
+ID for this application should be "SYSTEM". */
+	ARC_GENERIC_REQUEST
+		@t24:i (t24Name=ARC.GENERIC.REQUEST, level=I, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		REF_NO -> EB_Archiving:ARC_GENERIC_REQUEST PK required
+			@i18n:Label (en="Reference Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, t24Name=REF.NO)
+		ARCHIVE_ID -> byValue EB_Archiving:ARC_GENERIC_REQUEST__ARCHIVE_ID *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=2.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=3.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Archiving:ARC_GENERIC_REQUEST__INPUTTER *
+		DATE_TIME -> byValue EB_Archiving:ARC_GENERIC_REQUEST__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=6.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=7.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=9.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=10.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ARC_GENERIC_REQUEST__ARCHIVE_ID
+	{
+		/* Should be a valid ARCHIVE ids, which needs to be archived. */
+		ARCHIVE_ID -> EB_Archiving:ARCHIVE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, businessType=A, t24Name=ARCHIVE.ID)
+	}
+	ARC_GENERIC_REQUEST__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=4.0, core=true, t24Name=INPUTTER)
+	}
+	ARC_GENERIC_REQUEST__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=5.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* T24 Archiving has been designed to reclaim space by moving historic data that is no longer required. Archiving examines files for records to be archived, writes the selected records (and any associated records) to an archive file (which can reside on a separate disk, or even a separate machine if accessible via a network), then deletes the records. It is also possible, if so required, to simply delete the data without archiving it.
+FILE LAYOUT
+For each of the sets of files for which archiving is to be run, there is a record present on the ARCHIVE file. The fields on the file are:
+ID Name identifying the group of files to be archived.
+DESCRIPTN Multi-language, multi-value field containing a description of the records/files to be archived.
+PURGE.DATE Standard T24 date field. Records older than this date will be archived and/or deleted.
+RETENTION.PERIOD Alternative method of specifying the purge date. In the format nnM or nnY where nn is a number of either Months or Years. Records older than the retention period will then be archived. This field is only used if field two (PURGE.DATE) is null.
+ARCHIVE.DATA Set to either Y or NO and details whether or not the records being purged will be copied to the $ARC file.
+$ARC.PATHNAME Pathname of the directory where the $ARC file will reside. If the directory does not exist, it will be created. If this field is left blank and ARCHIVE.DATA is set to 'Y', the $ARC file will be created in bnk.arc which will be created under bnk if it does not already exist. Field range ARC.FILENAME to MODULUS are related multi-value fields, which describe the archive files which will be created.
+ARC.FILENAME Contains the names of all the $ARC files which will be created when archiving is run. This field is populated when the record is delivered.
+FILE.TYPE When the $ARC file is created, the file type will default to the file type of the live file. Earlier to Jbase, archive file creation in Universe is happened based on the value specified here. But now, archive files will get created based on file type of SPF record. This field currently is not being used.
+MODULUS When the $ARC file is created, the modulus of the file will default to the modulus of the live file. However, if a modulus is entered here, this will be used in preference.
+STOP.INDICATOR Flag to halt the archiving process. It is checked after the number of records specified in field seven CHECK.NO.RECORDS has been processed. If this field is set to Y whilst the archiving process is being run the archiving will come to a controlled halt.
+CHECK.NO.RECS Number of records processed each time before STOP.INDICATOR is checked. If this field is set too low, it will slow down the archiving process as this record will continually be read from the archive file to see if a stop has been requested; if it set too high, the archiving process will take a long time to stop as there will be long intervals between the checking of this flag. This field may be changed whilst archiving is running and will take effect the next time the record is checked.
+ROUTINE Name of the routine that will run archiving for the files. This field is populated when the record is released and should not be changed unless a site specific program has been written. The routine name specified here is prefixed with 'ARC.' when it is run. Field range COMPANY.RUN.IN to TIME.ENDED are related multi-value fields, which are system populated when archiving is run. They maintain a history of each time archiving was run.
+COMPANY.RUN.IN Maintains a history of the company archiving was run in each time it was run.
+TIME.STARTED Maintains a history of the date and time archiving was started.
+USER.ID Maintains a history of the each user id who started archiving for each time archiving was run.
+DATE.SELECTED Maintains a history of the purge date selected for each time archiving was run.
+STOP.REQUESTED Maintains a history of whether archiving was requested to be stopped, or stopped after processing every record, for each time that archiving was run.
+RECS.DELETED Maintains a history of the number of records deleted from the main file(s), each time that archiving was run.
+RECS.PROCESSED Maintains a history of the number of records processed from the main file(s), each time that archiving was run.
+ERROR.MSG Maintains a history of any error which caused archiving to terminate.
+TIME.ENDED Maintains a history of the date and time archiving stopped.
+MAIN.FILE Contains main file to be archived
+FILTER.RTN Name of the routine to determine the contract date for archiving
+RELATED.FILES.RTN  - Name of the routine to determine the related files of main file to be archived
+
+Timing of the Archiving process
+It is recommended that the archiving process be run after the end of day has been completed, but before users are allowed to sign on. However, since archiving removes data which is no longer used, it can be run whilst the system is being used.
+The system on which archiving is to be run should be fully backed up to tape. It is important to note that archiving is a one way process: data cannot be restored afterwards, except by fully restoring the database back to the point pre-archiving.
+Backups
+Back up the area as follows:
+From Unix, change to the directory above that which is being backed up. For example, if the area being backed up is bnk and the directory structure is /usr/globus/bnk/bnk.run then type
+$cd /usr/globus $find bnk -print -depth | cpio -ovcB > /dev/zzz
+where zzz is the name of your tape device.
+From Unix verify the tape as follows:
+$cpio -iBct < /dev/zzz
+where zzz is the name of your tape device.
+Running Archiving
+Archiving is run on one set of files at a time. There is a separate record for each set of files to be archived, the ids of which can be found in section 11.4 FILES.
+Before running archiving, it should be decided whether data should be archived and, if so, where the archived files should reside. Enter this information onto the ARCHIVE record. If data is to be archived, files will be created with a $ARC suffix in the archive directory. For example, if special entry files are to be archived, files will be created as RE.CONSOL.SPEC.ENTRY$ARC and RE.CONSOL.SPEC.ENT.KEY$ARC. The layout of the $ARC files will be the same as the live files, with concat files being recreated as necessary. By default, the $ARC files will be created with the same type and modulus as the corresponding live files. However, if, for example, only half the data is expected to be archived, it may be desirable to create the $ARC file with a smaller modulus than the live file. This information should be entered on the ARCHIVE record.
+NOTE: Although the file will exist in the area specified in $ARC.PATHNAME, the file is temporarily created in the run account, before being moved to the ARC directory. Therefore, there must be enough space in the run account to create the largest of the files (each file is created, moved and deleted before the next file is created).
+The retention period should then be determined. This can be done either by entering a specific purge date (which must be the first of a month) or by using the retention period. If today&#146;s date is 13/06/95 and a retention period of 3 months is specified, three months is calculated from the beginning of the month. Therefore, any records from before 1/03/95 will be archirocessing for each record on ACCT.STMT.PRINT is very complex and therefore slow, since all entries for all statements for an account will be checked, the CHECK.NO.RECS should be set relatively low. A figure of 100 is suggested which can be changed on-line if necessary. NOTE: The archiving process for statements starts with a select of the ACCT.STMT.PRINT file. This file contains the same number of records as the ACCOUNT file and therefore this selection should not take too long. After all frequency 1 statements have been processed, the ACCT.STMT2.PRINT file will be selected.
+The ARCHIVE record for statements is STATEMENT. */
+	ARCHIVE
+		@t24:i (t24Name=ARCHIVE, level=I, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* Name identifying the group of files to be archived.  Currently the following records are supported:
+CATEG.ENTRY          Category entries           DELIVERY             Delivery files           FOREX                Forex files           FUNDS.TRANSFER       Funds Transfer files           MM.MONEY.MARKET      Money Market files           SPECIAL.ENTRY        Special entries           STATEMENT            Statements           TELLER               Teller
+
+CATEG.ENTRY Category entries are processed first, followed by the consol profit file. For category entries, CATEG.MONTH is the driving force; for consol profit, RE.CONSOL.PROFIT is the driving force.
+The categ month file is selected in id order, i.e. by category, by date. If the date in the key is older than the purge date, all the category entries listed on the record will be removed from the category entry file, CATEG.ENTRY and the record removed from CATEG.MONTH.  If there are more than 198 category entries for one category in a month, subsequent categ month records will have been created.  Archiving will process all categ month records for one category for one month before checking the stop flag.  Therefore, if there are three categ month records for one category for one month, all three records will be archived before the stop flag is checked.
+Once the categ month file has been processed, the RE.CONSOL.PROFIT file is processed, providing a stop of archiving has not been requested.  For each record on the consol profit file, the date in the id is checked against the purge date.  If the date is before the purge date, the record is archived.
+The CHECK.NO.RECS and records processed refer to both the CATEG.MONTH file and the RE.CONSOL.PROFIT file.  The records deleted refer to both the CATEG.ENTRY file and the RE.CONSOL.PROFIT file.  Therefore the records processed will be a total of CATEG.MONTH records and RE.CONSOL.PROFIT records and the records deleted will be a total of CATEG.ENTRY records and RE.CONSOL.PROFIT records.  As for each record on CATEG.MONTH there could be up to 200 records to archive from CATEG.ENTRY, the CHECK.NO.RECS should be set fairly low.  A figure 100 is suggested which can be changed on-line if necessary.
+The ARCHIVE record for category entries is CATEG.ENTRY.
+
+DELIVERY Outward delivery messages are processed first, followed by inward messages.  For outward messages, the outward delivery archive file, DE.O.HEADER.ARCH is the driving force; for inward messages, the inward delivery archive file, DE.I.HEADER.ARCH is the driving force.
+For each header record on the header arch file, provided the date in the key of the record is before the purge date and the record is not still in the live file (DE.O.HEADER), the message records for each copy of the message are removed from the history file, DE.O.HISTORY; the key is removed from the concat file, DE.O.HISTORY.QUEUE and the record removed from the header arch file, DE.O.HEADER.ARCH.
+Processing is then repeated for the inward delivery archive file.
+The CHECK.NO.RECS, records processed and records deleted all refer to the DE.O.HEADER.ARCH and DE.I.HEADER.ARCH files.  Processing for each record is fairly simple so the CHECK.NO.RECS should be set fairly high.  A figure of 1,000 is suggested which can be changed on-line if necessary. NOTE: The archiving process for delivery starts with a select of the       DE.O.HEADER.ARCH file.  This file is large and therefore this       selection could take some time.  After all outward messages have       been processed, the inward delivery arch file, DE.I.HEADER.ARCH file       will be selected.
+NOTE: The archiving of delivery only works on completed messages on the       delivery archive files, ie records which have been copied to       delivery archive files and removed from the live delivery files.       This is done in the delivery end of period programs,       DE.MM.O.END.OF.PERIOD and DE.MM.I.END.OF.PERIOD.  Therefore, the       archiving of delivery will only remove records provided the delivery       end of period has been run.
+Records archived from the delivery header archive files will be written to DE.O.HEADER$ARC and DE.I.HEADER$ARC.
+The ARCHIVE record for delivery is DELIVERY.
+
+FOREX The FOREX history file is processed to produce a list of contract ids.  For each contract, if there is no corresponding record on the live FOREX file and the date from the DATE.TIME of the last history record is before the PURGE.DATE/RETENTION.PERIOD from the ARCHIVE record, all history records for the contract are archived.
+The ARCHIVE record for the foreign exchange history file is FOREX.
+
+FUNDS.TRANSFER The FUNDS.TRANSFER history file is processed to produce a list of contract ids. For each contract, if there is no corresponding record on the live FUNDS.TRANSFER file and the date from the DATE.TIME of the last history record is before the PURGE.DATE/ RETENTION.PERIOD from the ARCHIVE record, all history records for the contract are archived.
+The ARCHIVE record for the funds transfer history file is FUNDS.TRANSFER
+
+MM.MONEY.MARKET The MM.MONEY.MARKET history file is processed to produce a list of contract ids.  For each contract, if there is no corresponding record on the live MM.MONEY.MARKET file and the date from the MATURITY.DATE of the last history record is before the PURGE.DATE/RETENTION.PERIOD from the ARCHIVE record, all history records for the contract are archived.
+The following files are either purged or written to the archive files and purged: MM.MONEY.MARKET$HIS, MM.PAYMENT.ENTRY$HIS, MM.RECEIPT.ENTRY$HIS, LMM.ACCOUNT.BALANCES.HIST, LMM.HISTORY.LIST and LMM.SCHEDULES.PAST.HIST.
+The ARCHIVE record for the money market history file is MM.MONEY.MARKET
+
+SPECIAL.ENTRY RE.CONSOL.SPEC.ENTRY is the driving file. When archiving is run on special entry files, records older than the specified date will be removed from RE.CONSOL.SPEC.ENTRY and the reference to the record will be removed from the concat file, RE.CONSOL.SPEC.ENT.KEY.
+The CHECK.NO.RECS, records processed and records deleted all refer to the special entry file, RE.CONSOL.SPEC.ENTRY.  As the processing for each record is fairly quick and simple, the CHECK.NO.RECS can be set higher for this ARCHIVE record than for others.  A figure of 10,000 is suggested which can be changed on-line if necessary. NOTE: The archiving process for special entries starts with a select of       the special entry file.  As this file can be very large, this select       could take some considerable length of time.
+The ARCHIVE record for special entries is SPECIAL.ENTRY.
+
+STATEMENT Frequency 1 statements are processed first, followed by frequency 2 statements.  For frequency 1 statements, the ACCT.STMT.PRINT file is the driving force; for frequency 2 statements, the ACCT.STMT2.PRINT file is the driving force.
+For each account record on the ACCT.STMT.PRINT file, all statement ids are processed except the last one, so that one statement is always left. However, as soon as there is an outstanding entry on a statement, no more statements are processed for that account.
+For each statement id, the corresponding record is read from the STMT.PRINTED file.  Each entry on the statement is checked to ensure that it is not on the ACCT.STMT.ENTRY or ACCT.STMT2.ENTRY record (all entries for this account which still have to be printed). Providing the entry has been printed, the record is then read from the STMT.ENTRY file, to ensure that the booking date is before the purge date and that the value and exposure dates are not in the future.  Finally, AC.STMT.HANDOFF file is checked to ensure the record is not still present on it.  Providing all entries on a statement match these criteria, the entries are deleted from the STMT.ENTRY file; the statement printed record is deleted from STMT.PRINTED file; the statement details are removed from the STMT.PRINTED file; the statement record is removed from the AC.STMT.HANDOFF$HIS file and the statement details are removed from the ACCT.STMT.PRINT file.
+The processing is then repeated for frequency 2 statements.
+The CHECK.NO.RECS and records processed refer to the ACCT.STMT.PRINT and ACCT.STMT2.PRINT files.  The records deleted refer to the statement entry file, STMT.ENTRY.  As the processing for each record on ACCT.STMT.PRINT is very complex and therefore slow, since all entries for all statements for an account will be checked, the CHECK.NO.RECS should be set relatively low.  A figure of 100 is suggested which can be changed on-line if necessary. NOTE: The archiving process for statements starts with a select of the       ACCT.STMT.PRINT file.  This file contains the same number of       records as the ACCOUNT file and therefore this selection should not       take too long.  After all frequency 1 statements have been       processed, the ACCT.STMT2.PRINT file will be selected.
+The ARCHIVE record for statements is STATEMENT.
+
+TELLER The TELLER history file is processed to produce a list of contract ids.  For each contract, if there is no corresponding record on the live TELLER file and the date from the MATURITY.DATE of the last history record is before the PURGE.DATE/RETENTION.PERIOD from the ARCHIVE record, all history records for the contract are archived.
+The ARCHIVE record for the teller history file is TELLER.
+Validation Rules
+1-20 Type "A" (alphanumeric) characters. */
+		ARCHIVE_ID -> EB_Archiving:ARCHIVE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=ARCHIVE.ID)
+		DESCRIPTN -> byValue EB_Archiving:ARCHIVE__DESCRIPTN *
+		/* Standard T24 date field. Records older than this date will be archived and/or deleted.
+Validation Rules
+1 - 8 characters.  If entered, must be the first of a month (e.g. 010695). If entered and the record is "CATEG.ENTRY", must be before the last financial year end.  Optional input. */
+		PURGE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Purge Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=2.0, core=true, t24Name=PURGE.DATE)
+		/* Alternative method of specifying the purge date.  In the format nnM or nnY where nn is a number of either Months or Years.  Records older than the retention period will then be archived.  If today's date is 13/06/95 and a retention period of 3 months is specified (3M), three months is calculated from the beginning of the month.  Therefore, any records from before 1/3/95 will be archived.
+This field will only be used if PURGE.DATE is null.
+Validation Rules
+1-6 type "A" (alphanumeric) characters.  If entered and the record is "CATEG.ENTRY", must be before the last financial year end.  Optional input.  Should be in the format nnM (months) or nnY (years) */
+		RETENTION_PERIOD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=3.0, core=true, t24Name=RETENTION.PERIOD)
+		/* Set to either "Y" or "NO" to detail whether or not the records being purged will be copied to the $ARC files.
+Validation Rules
+"Y", "NO" or blank. */
+		ARCHIVE_DATA : EB_Archiving:ARCHIVE__ARCHIVE_DATA required
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=4.0, core=true, t24Name=ARCHIVE.DATA)
+		/* Pathname of the directory where the $ARC files will reside.  If the directory does not exist, it will be created.  If this field is left blank and ARCHIVE.DATA is set to "Y", the $ARC files will be created in the "arc" directory (typically bnk.arc)  which will be created under the top level directory (typically bnk), if it does not already exist. The archive directory can reside on a separate disk.
+NOTE: Although the file will exist in the area specified in $ARC.PATHNAME,       the file is temporarily created in the run account, before being       moved to the ARC directory.  Therefore, there must be enough space       in the run account to create the largest of the files (each file is       created, moved and deleted before the next file is created).
+Validation Rules
+1-50 characters (any) Optional input. */
+		_DOLLAR_ARC_PATHNAME : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=5.0, core=true, t24Name="$ARC.PATHNAME")
+		ARC_FILENAME -> byValue EB_Archiving:ARCHIVE__ARC_FILENAME *
+		FILE_TYPE -> byValue EB_Archiving:ARCHIVE__FILE_TYPE *
+		/* Flag to halt the archiving process.  This field is checked after the number of records specified in CHECK.NO.OF.RECORDS has been processed.  If this field is set to "Y" whilst the archiving process is being run, the archiving will come to a controlled halt.
+Validation Rules
+Y or NO.  Default NO.  Optional input. */
+		STOP_INDICATOR : EB_Archiving:ARCHIVE__STOP_INDICATOR
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=9.0, core=true, t24Name=STOP.INDICATOR)
+		/* Number of records processed each time before the STOP.INDICATOR is checked.  If this field is set too low, it will slow down the archiving process as this record will continually be read from the archive file to see if a stop has been requested; if it set too high, the archiving process will take a long time to stop as there will be long intervals between the checking of this flag.  This field may be changed whilst archiving is running and will take effect the next time the record is checked (i.e. after the current block of records has been processed).
+CATEG.ENTRY The check number of records field refers to the CATEG.MONTH and RE.CONSOL.PROFIT files.  As for each record on CATEG.MONTH, there could be up to 200 records to archive from CATEG.ENTRY, the check number of records field should be set fairly low.  A figure of 100 is suggested which can be changed on-line if necessary.
+DELIVERY The check number of records field refers to the DE.O.HEADER.ARCH and DE.I.HEADER.ARCH files.  Processing for each record is fairly simple, so the check number of records field should be set fairly high.  A figure of 1,000 is suggested which can be changed on-line if necessary.
+SPECIAL.ENTRY The check number of records field refers to the RE.CONSOL.SPEC.ENTRY file.  As the processing for each record is fairly quick and simple, the check number of records field should be set fairly high  A figure of 10,000 is suggested which can be changed on-line if necessary.
+STATEMENT The check number of records field refers to the ACCT.STMT.PRINT and ACCT.STMT2.PRINT files.  As the processing for each record on ACCT.STMT.PRINT is very complex, the check number of records field should be set fairly low.  A figure of 100 is suggested which can be changed on-line if necessary.
+SEC.TRADE The check number of records field refers to the SEC.TRADE live file and the SEC.TRADE$HIS file. Disregarding the $HIS file, which is likely to have a minimal record count, the Sec Trade processing is fairly straightforward. The figure to be entered here is probably site dependent, but the default of 1,000 may be appropriate.
+Validation Rules
+1-6 numeric characters.  Optional input.  Default 1000. */
+		CHECK_NO_OF_RECS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=10.0, core=true, t24Name=CHECK.NO.OF.RECS)
+		/* The name of the routine that will run archiving for this set of files. This field is populated when the record is released and should not be changed unless a site specific program has been written.  The routine name specified here is prefixed with "ARC." when it is run.
+There is a generic routine for archiving call ARC.GENERIC, this routine is only allowed for FOREX, FUNDS.TRANSFER and TELLER.
+Validation Rules
+1-35 type "A" (alphanumeric) characters.  A VOC entry must exist for ARC.routine name. */
+		ROUTINE : T24BusinessTypes:A
+			@i18n:Label (en=Routine)
+			@i18n:Tooltip (en=Routine)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=11.0, core=true, t24Name=ROUTINE)
+		COMPANY_RUN_IN -> byValue EB_Archiving:ARCHIVE__COMPANY_RUN_IN *
+		/* When the Generic archiving routine (ARC.GENERIC) is used this field specifies the date field contained in the contract which should be checked when the decision to archive a record is made.
+If no field is specified here the standard date and time field is used for comparison.
+For example if archiving Funds Transfer history records you may wish to compare the CREDIT.VALUE.DATE field rather than using the date and time. This would ensure that back valued deals would be archived if the date was outside the RETENTION.PERIOD.
+Validation Rules
+
+
+Optional field
+Only allowed if ROUTINE is ARC.GENERIC
+Must be a valid date field in the STANDARD.SELECTION record of the MAIN.FILE to be archived. */
+		FIELD_TO_CHECK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=21.0, core=true, t24Name=FIELD.TO.CHECK)
+		/* This field will store the number of records to be processed for archiving.
+
+Validation Rules :
+
+1.  Valid Absolute Numerical Value. */
+		SEL_REC_TO_PROCESS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=22.0, core=true, t24Name=SEL.REC.TO.PROCESS)
+		/* Specified whether Generic archiving method need to triggered or not.
+ARC.GENERIC service will be triggerd when it is set to "Y" and when set to "N" ,corresponing application archival services will be triggered. eg. ARC.CATEG.ENTRY
+Validation rules:
+1) Non mandatory field,default to "Y" when ARC.GENERIC is specified in ROUTINE
+2) Can be Y/N */
+		GENERIC_METHOD : EB_Archiving:ARCHIVE__GENERIC_METHOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=23.0, core=true, t24Name=GENERIC.METHOD)
+		MAIN_FILE -> byValue EB_Archiving:ARCHIVE__MAIN_FILE *
+		/* Hook routine to retrieve the Contract date of the file.
+Applications can place own business logic to determine CONTRACT.DATE of the field and also determine whether record can be skipped or not.
+
+Arguments:Record Key,Record Content,Contract date,Skip information
+
+Validation Rules:
+
+1)Must have valid entry in EB.API
+2)Input allowed only when generic method is set */
+		FILTER_RTN : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=25.0, core=true, t24Name=FILTER.RTN)
+		RELATED_FILES_RTN -> byValue EB_Archiving:ARCHIVE__RELATED_FILES_RTN *
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=27.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=28.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=29.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=30.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=31.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=32.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=33.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Archiving:ARCHIVE__INPUTTER *
+		DATE_TIME -> byValue EB_Archiving:ARCHIVE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=36.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=37.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=38.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=39.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=40.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ARCHIVE__DESCRIPTN
+	{
+		DESCRIPTN -> byValue EB_Archiving:ARCHIVE__DESCRIPTN__DESCRIPTN *
+	}
+	ARCHIVE__DESCRIPTN__DESCRIPTN
+	{
+		/* Description of what the archiving process controlled by this record will do.  This field is populated when the record is released.
+Validation Rules
+1-35 type "A" (any) characters. */
+		DESCRIPTN : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTN)
+	}
+	ARCHIVE__ARC_FILENAME
+	{
+		/* Contains the names of all the $ARC files which will be created when archiving is run.  This field is populated when the record is delivered and should not be changed.
+Field range ARC.FILENAME to MODULUS are related multi-value fields, which describe the archive files which will be created.
+Validation Rules
+1-35 characters (any) Optional input. Multivalue field, associated with field range ARC.FILENAME to MODULUS. */
+		ARC_FILENAME : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=44, sysNumber=6.0, core=true, t24Name=ARC.FILENAME)
+	}
+	ARCHIVE__FILE_TYPE
+	{
+		/* When the $ARC file is created, the file type will default to the file type of the live file.
+Earlier to Jbase, archive file creation in Universe is happened based on the value specified here. But now, archive files will get created based on file type of SPF record. This field currently is not being used.
+Field range ARC.FILENAME to MODULUS are related multi-value fields, which describe the archive files which will be created.
+Validation Rules
+1-2 numeric characters.  Optional input.  Multivalue field, associated with field range ARC.FILENAME to MODULUS. */
+		FILE_TYPE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=7.0, core=true, t24Name=FILE.TYPE)
+		/* When the $ARC file is created, the modulus will default to the modulus of the live file.  However, if, for example, only half the data is expected to be archived, it may be desirable to create the $ARC file with a smaller modulus than the live file.  Therefore, if a modulus is entered here, this will be used in preference.
+NOTE: Although the file will exist in the area specified in $ARC.PATHNAME,       the file is temporarily created in the run account, before being       moved to the ARC directory.  Therefore, there must be enough space       in the run account to create the largest of the files (each file is       created, moved and deleted before the next file is created).
+Field range ARC.FILENAME to MODULUS are related multi-value fields, which describe the archive files which will be created.
+Validation Rules
+1-6 numeric characters.  Optional input.  Multivalue field, associated with field range ARC.FILENAME to MODULUS. */
+		MODULUS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=8.0, core=true, t24Name=MODULUS)
+	}
+	ARCHIVE__COMPANY_RUN_IN
+	{
+		/* Maintains a history of the company archiving was run in each time it was run.
+Field range COMPANY.RUN.IN to TIME.ENDED are related multi-value fields, which are system populated when archiving is run.  They maintain a history of each time archiving was run.
+Validation Rules
+Internal field. */
+		COMPANY_RUN_IN -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=12.0, core=true, businessType=A, t24Name=COMPANY.RUN.IN, mask="R##-###-####")
+		/* Maintains a history of the date and time archiving was started.
+Field range COMPANY.RUN.IN to TIME.ENDED are related multi-value fields, which are system populated when archiving is run.  They maintain a history of each time archiving was run.
+Validation Rules
+Internal field. */
+		TIME_STARTED : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=13, sysNumber=13.0, core=true, t24Name=TIME.STARTED, mask="RDD DD  DD ##:##")
+		/* Maintains a history of each user id who started archiving for each time archiving was run.
+Field range COMPANY.RUN.IN to TIME.ENDED are related multi-value fields, which are system populated when archiving is run.  They maintain a history of each time archiving was run.
+Validation Rules
+Internal field. */
+		USER_ID : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=14.0, core=true, t24Name=USER.ID)
+		/* Maintains a history of the purge date selected for each time archiving was run.
+Field range COMPANY.RUN.IN to TIME.ENDED are related multi-value fields, which are system populated when archiving is run.  They maintain a history of each time archiving was run.
+Validation Rules
+Internal field. */
+		DATE_SELECTED : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=15.0, core=true, t24Name=DATE.SELECTED)
+		/* Maintains a history of whether archiving was requested to be stopped, or stopped after processing every record, for each time archiving was run.
+Field range COMPANY.RUN.IN to TIME.ENDED are related multi-value fields, which are system populated when archiving is run.  They maintain a history of each time archiving was run.
+Validation Rules
+Internal field. */
+		STOP_REQUESTED : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=16.0, core=true, t24Name=STOP.REQUESTED)
+		/* Maintains a history of the number of records deleted from the main file(s), for each time archiving was run.
+CATEG.ENTRY The records deleted field refers to the CATEG.ENTRY and RE.CONSOL.PROFIT files.
+DELIVERY The records deleted field refers to the DE.O.HEADER.ARCH and DE.I.HEADER.ARCH files.
+SPECIAL.ENTRY The records deleted field refers to the RE.CONSOL.SPEC.ENTRY file.
+STATEMENT The records deleted field refers to the STMT.ENTRY file.
+SEC.TRADE The records deleted field refers to the SEC.TRADE and SEC.TRADE$HIS files.
+Field range COMPANY.RUN.IN to TIME.ENDED are related multi-value fields, which are system populated when archiving is run.  They maintain a history of each time archiving was run.
+Validation Rules
+Internal field. */
+		RECS_DELETED : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=7, sysNumber=17.0, core=true, t24Name=RECS.DELETED)
+		/* Maintains a history of the number of records processed from the main file(s), for each time archiving was run.
+CATEG.ENTRY The records processed field refers to the CATEG.MONTH and RE.CONSOL.PROFIT files.
+DELIVERY The records processed field refers to the DE.O.HEADER.ARCH and DE.I.HEADER.ARCH files.
+SPECIAL.ENTRY The records procesed field refers to the RE.CONSOL.SPEC.ENTRY file.
+STATEMENT The records processed field refers to the ACCT.STMT.PRINT and ACCT.STMT2.PRINT files.
+SEC.TRADE The records processed field refers to th SEC.TRADE and SEC.TRADE$HIS files.
+Field range COMPANY.RUN.IN to TIME.ENDED are related multi-value fields, which are system populated when archiving is run.  They maintain a history of each time archiving was run.
+Validation Rules
+Internal field. */
+		RECS_PROCESSED : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=7, sysNumber=18.0, core=true, t24Name=RECS.PROCESSED)
+		/* Maintains a history of any error which caused archiving to terminate.
+Field range COMPANY.RUN.IN to TIME.ENDED are related multi-value fields, which are system populated when archiving is run.  They maintain a history of each time archiving was run.
+Validation Rules
+Internal field. */
+		ERROR_MSG : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=50, sysNumber=19.0, core=true, t24Name=ERROR.MSG)
+		/* Maintains a history of the date and time archiving stopped.
+Field range COMPANY.RUN.IN to TIME.ENDED are related multi-value fields, which are system populated when archiving is run.  They maintain a history of each time archiving was run.
+Validation Rules
+Internal field. */
+		TIME_ENDED : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=10, sysNumber=20.0, core=true, t24Name=TIME.ENDED, mask="RDD DD  DD ##:##")
+	}
+	ARCHIVE__MAIN_FILE
+	{
+		/* When Generic archive method is set,this field specifies the files to be archived.Local templates can also be specified.When History files of File need to be archived,then MAIN.FILE should be suffixed with $HIS.Otherwise Live files will be taken in consideration.
+Multiple files can be given for archival when required
+
+Validation rules:
+1)1-35 characters.Mandatory when GENERIC.METHOD is set
+2)Must be valid Application */
+		MAIN_FILE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=44, sysNumber=24.0, core=true, t24Name=MAIN.FILE)
+	}
+	ARCHIVE__RELATED_FILES_RTN
+	{
+		/* Hook routine to determine the related files of Main files.
+Arguments:Record Key,Record Content,Related files
+
+Validation Rules:
+1)Must have valid entry in EB.API
+2)Valid only when ARC.GENERIC is specified in ROUTINE */
+		RELATED_FILES_RTN : T24BusinessTypes:HOOK
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=26.0, core=true, t24Name=RELATED.FILES.RTN)
+	}
+	ARCHIVE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=34.0, core=true, t24Name=INPUTTER)
+	}
+	ARCHIVE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=35.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* The Archives file holds copies of records which have been selected for archiving from transaction and table files. The ID's to the file are built from the keys to the archives parameter file, which caused the records to be archived appended with the ID of the record itself. In the case of history records this construction is followed by a semi colon and the history number of the record, for live records by ";LIVE", and for the three types of related archiving treatments by "RELARC.n", "RELDEL", or "RELCON".
+A record may be deleted by selecting the Reverse 'R' option and entering the filename and ID name separated by an underscore character " ". This will cause the record and all its associated history records and related file treatments to be removed from the Archives file and hence from any further treatment by the Archiving system. */
+	ARCHIVES
+		@t24:i (t24Name=ARCHIVES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The key to the record.
+To reverse a record within the reverse function 'R', enter:
+Filename:',':n:' ':ID
+Validation Rules
+The key is built up as follows:  Filename:',':n:' ':ID:';':LIVE HISTNO RELARC.n RELDEL RELCON */
+		KEY -> EB_Archiving:ARCHIVES PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=0.0, core=true, businessType=ANY, t24Name=KEY)
+		TEXT -> byValue EB_Archiving:ARCHIVES__TEXT *
+	}
+	ARCHIVES__TEXT
+	{
+		/* Text of the archived record.
+This field is the first of a series of fields containing the text of the archived record, along with text of related archives and details of related deletions.
+Validation Rules
+This is a NOINPUT field. */
+		TEXT : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=78, sysNumber=1.0, core=true, t24Name=TEXT)
+	}
+	/* The archives cancel file holds the instructions for which parameters to apply to which files during the cancel stage of archiving.
+Each record on the file defines the language to be used in printed output and a time out for the process.  Large files may take some time to be archived since the conditions which must be satisfied can be complex. The time out exists to stop the process after a defined length of time in minutes. The next time the same cancel is run the process will continue from the point reached in the file last time out.
+Following these fields begins a multivalue set of keys to the parameter file. This is the list of files which will be considered for archiving by this cancel record.
+The "V" verify function actually invokes the cancel or alternatively cancels may be run from within the end of day batch processing. */
+	ARCHIVES_CANCEL
+		@t24:i (t24Name=ARCHIVES.CANCEL, level=F, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* The key to the file.
+There is only one key on this file called "ALL" which invokes a cancellation of all archived data providing of course that it has first been spooled to tape successfully.
+Validation Rules
+1 - 14 alphanumeric characters. */
+		KEY -> EB_Archiving:ARCHIVES_CANCEL PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=S, t24Name=KEY)
+		DESCRIPTION -> byValue EB_Archiving:ARCHIVES_CANCEL__DESCRIPTION *
+		/* Specifies the maximum run time for the cancel process.
+The time out minutes defines the maximum run time allowed for the cancel. When reached the process will terminate with an appropriate message in the batch como or on the screen.
+Next time the cancel is run the process will continue from the last key used in the file being treated when the process timed out.
+Validation Rules
+1 - 2 numeric characters.
+Minimum entry of 30 minutes. Maximum 99. */
+		TIME_OUT_MINUTES : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=2.0, core=true, t24Name=TIME.OUT.MINUTES)
+		/* Specifies whether a report of the record ids cancelled will be spooled during the cancellation process.
+Validation Rules
+2 alphanumeric characters.
+Must be either "Y" to print the report or "NO" to suppress the printing. */
+		PRINT_RECORD_ID : EB_Archiving:ARCHIVES_CANCEL__PRINT_RECORD_ID
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=3.0, core=true, t24Name=PRINT.RECORD.ID)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=4.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=5.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Archiving:ARCHIVES_CANCEL__INPUTTER *
+		DATE_TIME -> byValue EB_Archiving:ARCHIVES_CANCEL__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=9.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=11.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=12.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ARCHIVES_CANCEL__DESCRIPTION
+	{
+		DESCRIPTION -> byValue EB_Archiving:ARCHIVES_CANCEL__DESCRIPTION__DESCRIPTION *
+	}
+	ARCHIVES_CANCEL__DESCRIPTION__DESCRIPTION
+	{
+		/* Description of the record.
+Validation Rules
+1 - 35 alphanumeric characters. (Multivalue field) */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	ARCHIVES_CANCEL__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=6.0, core=true, t24Name=INPUTTER)
+	}
+	ARCHIVES_CANCEL__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=7.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* The archives field file holds the instructions for which parameters to apply to which files during the field removal stage of archiving.
+Each record on the file defines the language to be used in printed output and a time out for the process.
+Large files may take some time to be archived since the conditions which must be satisfied can be complex. The time out exists to stop the process after a defined length of time in minutes. The next time the same field removal is run the process will continue from the point reached in the file last time out.
+Following these fields begins a multivalue set of keys to the parameter file. This is the list of files which will be considered for archiving by this field removal record.
+The "V" verify function actually invokes the field removal or alternatively field removals may be run from within the end of day batch processing. */
+	ARCHIVES_FIELD
+		@t24:i (t24Name=ARCHIVES.FIELD, level=F, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* The key to the file.
+Keys to archives field are descriptively named according to the application they are related to.
+They are further subdivided between transaction based files and static tables for each application.
+Examples: FX.TRANS contains parameter records for the foreign exchange           transaction files.
+LD.TABLES contains parameter records for static tables archiving           within the loans and deposits module.
+Validation Rules
+1 - 14 alphanumeric characters. */
+		KEY -> EB_Archiving:ARCHIVES_FIELD PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=S, t24Name=KEY)
+		DESCRIPTION -> byValue EB_Archiving:ARCHIVES_FIELD__DESCRIPTION *
+		/* Specifies the maximum run time for the field removal process.
+The time out minutes defines the maximum run time allowed for the field removal. When reached the process will terminate with an appropriate message in the batch como or on the screen.
+Next time the field removal is run the process will continue from the last key used in the file being treated when the process timed out.
+Validation Rules
+1 - 2 numeric characters.
+Minimum entry of 30 minutes. Maximum 99. */
+		TIME_OUT_MINUTES : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=2.0, core=true, t24Name=TIME.OUT.MINUTES)
+		/* Specifies the language to be used for saved records.
+Validation Rules
+1 numeric character.
+Numeric language code e.g. 1 ENGLISH must exist on the language table. */
+		LANGUAGE_CODE -> EB_SystemTables:LANGUAGE required
+			@i18n:Label (en="Language Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=LANGUAGE.CODE)
+		FILE_NAME -> byValue EB_Archiving:ARCHIVES_FIELD__FILE_NAME *
+		/* Specifies the last key and file being processed when the field removal timed out on the last run.
+This field will be blank unless the last field removal run timed out in which case it will contain the filename and record key which was in progress at the time. This is used to define the point at which to continue in the next field removal run.
+Validation Rules
+1 - 54 alphanumeric characters.
+This is a NOINPUT field. */
+		LAST_KEY : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=5.0, core=true, t24Name=LAST.KEY)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=6.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=7.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Archiving:ARCHIVES_FIELD__INPUTTER *
+		DATE_TIME -> byValue EB_Archiving:ARCHIVES_FIELD__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=13.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=14.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ARCHIVES_FIELD__DESCRIPTION
+	{
+		DESCRIPTION -> byValue EB_Archiving:ARCHIVES_FIELD__DESCRIPTION__DESCRIPTION *
+	}
+	ARCHIVES_FIELD__DESCRIPTION__DESCRIPTION
+	{
+		/* Description of the record.
+Validation Rules
+1 - 35 alphanumeric characters. (Multivalue field) */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	ARCHIVES_FIELD__FILE_NAME
+	{
+		/* Specifies a list of keys to the parameter file whose conditions will be applied to their files in this field removal run.
+Validation Rules
+2 - 27 alphanumeric characters. (Multivalue field)
+Each file name entered must exist as a key on the ARCHIVES.PARAMETER file and therefore as a defined routine on the PGM.FILE. */
+		FILE_NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=27, sysNumber=4.0, core=true, t24Name=FILE.NAME)
+	}
+	ARCHIVES_FIELD__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, core=true, t24Name=INPUTTER)
+	}
+	ARCHIVES_FIELD__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=9.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This file holds the records which are used by the archiving system to initialise the tape drive prior to a spool to tape of archived file contents.
+Each record defines the tape unit to be assigned to the archives spool process and the logical tape number to be used.
+There is no time out for this process.  Errors which may occur if the device is already assigned to another user are displayed on the screen in on-line mode or reported from within the batch end of day process. The initialise tape process must be run prior to a spool to tape of archived records. */
+	ARCHIVES_INIT_TAPE
+		@t24:i (t24Name=ARCHIVES.INIT.TAPE, level=F, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+	}
+	/* The archives live to hist file holds the instructions for which parameters to apply to which files during the live to hist stage of archiving.
+Each record on the file defines the language to be used in printed output and a time out for the process.  Large files may take some time to be archived since the conditions which must be satisfied can be complex. The time out exists to stop the process after a defined length of time in minutes. The next time the same live to hist is run the process will continue from the point reached in the file last time out.
+Following these fields begins a multivalue set of keys to the parameter file. This is the list of files which will be considered for archiving by this live to hist record.
+The "V" verify function actually invokes the live to hist or alternatively live to hists may be run from within the end of day batch processing. */
+	ARCHIVES_LIVE_TO_HIST
+		@t24:i (t24Name=ARCHIVES.LIVE.TO.HIST, level=F, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* The key to the file.
+Keys to archives live to hist are descriptively named according to the application they are related to.  They are further subdivided between transaction based files and static tables for each application.
+Examples: FX.TRANS contains parameter records for the foreign exchange           transaction files.
+LD.TABLES contains parameter records for static tables archiving           within the loans and deposits module.
+Validation Rules
+1-14 alphanumeric characters. */
+		KEY -> EB_Archiving:ARCHIVES_LIVE_TO_HIST PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=S, t24Name=KEY)
+		DESCRIPTION -> byValue EB_Archiving:ARCHIVES_LIVE_TO_HIST__DESCRIPTION *
+		/* Specifies the maximum run time for the live to hist process.
+The time out minutes defines the maximum run time allowed for the live to hist.  When reached the process will terminate with an appropriate message in the batch como or on the screen.
+Next time the live to hist is run the process will continue from the last key used in the file being treated when the process timed out.
+Validation Rules
+1-2 numeric characters.
+Minimum entry of 30 minutes. Maximum 99. */
+		TIME_OUT_MINUTES : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=2.0, core=true, t24Name=TIME.OUT.MINUTES)
+		/* Specifies the language to be used for saved records.
+Validation Rules
+1 numeric character.
+Numeric language code, e.g. 1 ENGLISH must exist on the language table. */
+		LANGUAGE_CODE -> EB_SystemTables:LANGUAGE required
+			@i18n:Label (en="Language Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=LANGUAGE.CODE)
+		FILE_NAME -> byValue EB_Archiving:ARCHIVES_LIVE_TO_HIST__FILE_NAME *
+		/* Specifies the last key and file being processed when the live to hist timed out on the last run.
+This field will be blank unless the last live to hist run timed out in which case it will contain the filename and record key which was in progress at the time.  This is used to define the point at which to continue in the next live to hist run.
+Validation Rules
+1-54 alphanumeric characters. (non-input) */
+		LAST_KEY : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=5.0, core=true, t24Name=LAST.KEY)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=6.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=7.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Archiving:ARCHIVES_LIVE_TO_HIST__INPUTTER *
+		DATE_TIME -> byValue EB_Archiving:ARCHIVES_LIVE_TO_HIST__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=13.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=14.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ARCHIVES_LIVE_TO_HIST__DESCRIPTION
+	{
+		DESCRIPTION -> byValue EB_Archiving:ARCHIVES_LIVE_TO_HIST__DESCRIPTION__DESCRIPTION *
+	}
+	ARCHIVES_LIVE_TO_HIST__DESCRIPTION__DESCRIPTION
+	{
+		/* Description of the record.
+Validation Rules
+1-35 alphanumeric characters. (Multivalue field) */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	ARCHIVES_LIVE_TO_HIST__FILE_NAME
+	{
+		/* Specifies a list of keys to the parameter file whose conditions will be applied to their files in this live to hist run.
+Validation Rules
+2-27 alphanumeric characters. (Multivalue field)
+Each file name entered must exist as a key on the ARCHIVES.PARAMETER file and therefore as a defined routine on the PGM.FILE. */
+		FILE_NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=27, sysNumber=4.0, core=true, t24Name=FILE.NAME)
+	}
+	ARCHIVES_LIVE_TO_HIST__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, core=true, t24Name=INPUTTER)
+	}
+	ARCHIVES_LIVE_TO_HIST__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=9.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* The archives parameter file holds the conditions which must be satisfied before a record may be archived from a file. An archives parameter record exists for each main file to be treated by the archiving system.
+The processing to be performed on the records satisfying the conditions depends on the history type assigned to the file.
+If conditions are met the record from the main file is processed according to the history type. At the same time any related files are treated according to the processing required by the related file section of the archives parameter record. This may include related deletions, related archiving, or concat file deletions.
+Normally all records from the main file are selected but the facility exists to select only certain records by building a list of keys to the main file from a driving file. */
+	ARCHIVES_PARAMETER
+		@t24:i (t24Name=ARCHIVES.PARAMETER, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* The key to the record.
+Validation Rules
+Key begins with the name of the file to be treated without an "F." prefix and may be appended with ",n" where n is numeric and between 1 and 9. "n" specifies the treatment number if more than one exists for the same file.
+The application name must exist in the PGM.FILE even for live files. Non-input applications must be created for live files. */
+		APPLICATION_FILE -> EB_Archiving:ARCHIVES_PARAMETER PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=27, sysNumber=0.0, core=true, businessType=A, t24Name=APPLICATION.FILE)
+		REMARK -> byValue EB_Archiving:ARCHIVES_PARAMETER__REMARK *
+		/* Specifies the type of archiving treatment to be applied to the file.
+TYPE 1 - HISTORY CONTRACT Files with history. No action is taken on records which still exist in the live file. Records which exist entirely in history will be archived providing all conditions are satisfied.
+TYPE 2 - HISTORY NON-CONTRACT Files with history. Both the live record and its history records are considered and will be archived providing all conditions are satisfied.
+TYPE 3 - LIVE Live files only. Records will be archived from the live file if all conditions are satisfied.
+TYPE 4 - LIVE + HISTORY Files with history. The live record is first moved to history and then the contents of history considered for archiving. The live record is not moved unless all conditions are first satisfied.
+TYPE 5 - SINGLE FIELD Contents of the field are removed as specified providing all conditions are satisfied.
+TYPE 6 - LIVE TO HISTORY Files with history. If all conditions are satisfied the live record is moved to the history file.
+Validation Rules
+1 numeric character between 1 and 6.
+Must be one of the following:  1.  HISTORY CONTRACT 2.  HISTORY NON-CONTRACT 3.  LIVE 4.  LIVE + HISTORY 5.  SINGLE FIELD 6.  LIVE.TO.HISTORY
+History types 1,2,4,6 invalid if application type is not "H" in the PGM.FILE.
+For history type 3 (LIVE) application type must be either "U", "L", or "T".
+History type 5 (SINGLE FIELD) requires application type of "H","U","L", or "T". */
+		HISTORY_TYPE : EB_Archiving:ARCHIVES_PARAMETER__HISTORY_TYPE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=21, sysNumber=2.0, core=true, t24Name=HISTORY.TYPE)
+		/* Specifies the required age of history records before they may be considered for archiving.
+Decision is based on the date/time of authorisation of the record being considered and the record which replaced it. For example a record authorised on 12/03/88 was valid on the system until the next change made and authorised on 17/06/88. In this case specifying a waiting months of 3 would not cause the record from 12/03/88 to be archived until 3 months following the 17/06/88.
+Validation Rules
+1-2 numeric characters.
+Invalid for history types 3,5,6. Mandatory for history types 1 and 2. */
+		WAITING_MONTHS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=WAITING.MONTHS)
+		/* Specifies a number of history records including the live record which must remain on the file.
+If remaining records is set to 3 then regardless of whether all archiving conditions are met the live file record (if present) and the last two changes made will remain on file.
+Validation Rules
+1-3 numeric characters.
+Valid for history types 2,3,4 only.
+May only be used with history types 3 and 4 when the id contains a date. */
+		REMAINING_RECORDS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=4.0, core=true, t24Name=REMAINING.RECORDS)
+		/* Specifies another file from which a list of keys to the main file will be extracted.
+Normally the archiving system selects all records on the main file and considers them each in turn for archiving against the conditions defined in the parameter file record. If a driving file is used this allows only certain records from the main file to be selected and avoids the processing overhead involved in selecting very large files when it is known that only certain records will be suitable for archiving.
+Validation Rules
+1-27 alphanumeric characters.
+The filename entered must exist as an application on the PGM.FILE. */
+		DRIVING_FILE -> EB_SystemTables:PGM_FILE
+			@t24:i (align=L, inputBehaviour=I, maxLength=27, sysNumber=5.0, core=true, businessType=A, t24Name=DRIVING.FILE)
+		/* Specifies the field in the driving file from which the list of keys to the main file will be taken.
+If driving field is blank all fields in all records found on the driving file are used as keys to the main file. If driving field is zero all keys on the driving file are used as keys to the main file. If driving field contains a field number the contents of this field in every record on the driving file is used as a key to the main file.
+Validation Rules
+1-3 numeric characters.
+May not be entered without a driving file specified. */
+		DRIVING_FIELD : T24BusinessTypes:FNO
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, t24Name=DRIVING.FIELD)
+		/* Specifies a called routine to modify each key to the main file extracted from the driving file.
+Whether keys only, field contents, or specific field contents are required as keys to the main file each may be first modified or checked by a routine specified here. If the called routine decides the key should not be used it is returned as null from the routine.
+Validation Rules
+1-35 alphanumeric characters.
+May not be entered without a driving file specified.
+Entry must begin "@" and exist on the PGM.FILE as a defined subroutine. */
+		DRIVING_CALL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=DRIVING.CALL)
+		FIELD_NUMBER -> byValue EB_Archiving:ARCHIVES_PARAMETER__FIELD_NUMBER *
+		RELATED_FILE -> byValue EB_Archiving:ARCHIVES_PARAMETER__RELATED_FILE *
+		/* Specifies whether archived records should include their checkfile enrichments when stored on tape.
+Validation Rules
+2 alphanumeric characters.
+Must be either "Y" or "NO". */
+		CHECKFILE_ENRICHM : EB_Archiving:ARCHIVES_PARAMETER__CHECKFILE_ENRICHM
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=24.0, core=true, t24Name=CHECKFILE.ENRICHM)
+		CO_CODE_UPDATE -> byValue EB_Archiving:ARCHIVES_PARAMETER__CO_CODE_UPDATE *
+		CO_CODE_SPOOL -> byValue EB_Archiving:ARCHIVES_PARAMETER__CO_CODE_SPOOL *
+		CO_CODE_CANCEL -> byValue EB_Archiving:ARCHIVES_PARAMETER__CO_CODE_CANCEL *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=31.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=32.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Archiving:ARCHIVES_PARAMETER__INPUTTER *
+		DATE_TIME -> byValue EB_Archiving:ARCHIVES_PARAMETER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=35.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=36.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=37.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=38.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=39.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ARCHIVES_PARAMETER__REMARK
+	{
+		REMARK -> byValue EB_Archiving:ARCHIVES_PARAMETER__REMARK__REMARK *
+	}
+	ARCHIVES_PARAMETER__REMARK__REMARK
+	{
+		/* Description of the record.
+Validation Rules
+1-35 alphanumeric characters. (Multivalue field) */
+		REMARK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=REMARK)
+	}
+	ARCHIVES_PARAMETER__FIELD_NUMBER
+	{
+		/* Specifies a field from the main file record to be checked.
+The field specified will be extracted from the current main file record and compared against the set of conditions defined in the parameter record. This field begins a multivalue set of fields which are checked. Each value produces a result which is "and" or "or'd" with subsequent values. Only when all checks defined beginning with this field are true will the main file record be archived.
+Validation Rules
+1-3 numeric characters.
+Must exist as a field in the main file. May be zero to specify a check on the main file key.
+Only valid for history types 3,4,5,6.
+May not be zero for history type 5 (SINGLE FIELD).
+At least one input mandatory for history types 3,4,5,6. */
+		FIELD_NUMBER : T24BusinessTypes:FNO
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=FIELD.NUMBER, typeModifiers=L)
+		/* Specifies the name of a routine which may be called to further modify the contents of the field in the main file being checked.
+Validation Rules
+1-35 alphanumeric characters.
+Must begin with "@" and exist on the PGM.FILE as a defined subroutine.
+Not allowed for history types 1 or 2. May not be entered without preceding field number specified. */
+		MODIFY_OR_CALL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=MODIFY.OR.CALL)
+		REPLACE_FILE -> byValue EB_Archiving:ARCHIVES_PARAMETER__FIELD_NUMBER__REPLACE_FILE *
+		/* Specifies the format to be expected when processing a decision based on a date field.
+Specifies the date format from one of the following:
+1.   YYYYDDMM               YYYY = Year 2.   YYMMDD                   MM = Month 3.   YYYYJJJ                 JJJ = Julian system day 4.   YYJJJ                    DD = Day 5.   YYYYMM 6.   YYMM 7.   YYYY 8.   YY
+Validation Rules
+1 numeric character between 1 and 6. */
+		DATE_FORMAT : EB_Archiving:ARCHIVES_PARAMETER__FIELD_NUMBER__DATE_FORMAT
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=13.0, core=true, t24Name=DATE.FORMAT)
+		/* Specifies the logical decision to be used in the comparisons which follow.
+Validation Rules
+2 alphanumeric characters.
+Must be one of the following:  EQ   EQual to GE   Greater than or Equal to GT   Greater Than LE   Less than or Equal to LT   Less Than NE   Not Equal to UL   UnLike (not containing) LK   LiKe (containing)
+A check that the current field contents lie within a defined range of values or dates can be set up in conjunction with the two fields which follow DECISION.FROM and DECISION.TO. */
+		DECISION : EB_Archiving:ARCHIVES_PARAMETER__FIELD_NUMBER__DECISION
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=14.0, core=true, t24Name=DECISION)
+		/* Specifies the comparison string/value/data for the decision check against the contents of the field being used in the main file or the contents of the replaced field if used.
+This is the second element of the comparison check.  The first is the contents of the field number in the main file or the replaced contents from the replace file and field if specified. This field may contain a text string, numeric value, a date or an allowed keyword as follows:
+@DATE       Todays date. Decision may be based on this value minus or plus             a specified number of days, e.g. @DATE-10C = today - 10             calendar days, @DATE+5W = today + 5 working days. Working days             are based on the holiday table.
+@MONTH      Current month. Decision may be based on this value minus or             plus a specified number of months.  Months are taken as             complete so that the day within the month is not relevant and             any comparison is made against the number of complete months             separating the values being compared, e.g. @MONTH-3 = Current             month - 3 months, @MONTH+5 = Current month + 5 months.
+@QUARTER    Current quarter. Decision may be based on this value minus or             plus a specified number of quarters. Quarters are taken as             complete so that the day within the month is not relevant and             any comparison is made against the number of complete quarters             separating the values being compared, e.g. @QUARTER-3 =             Current quarter - 3 quarters, @QUARTER+5 = Current quarter + 5             quarters.
+@YEAR       Current year. Decision may be based on this value minus or             plus a specified number of years.  Years are taken as complete             so that the day within the month is not relevant and any             comparison is made against the number of complete years             separating the values being compared, e.g. @YEAR-3 = Current             year - 3 months, @YEAR+5 = Current year + 5 years.
+Validation Rules
+1-35 alphanumeric characters.
+May not be used for history types 1 or 2 nor when FIELD.NUMBER has not been entered. */
+		DECISION_FROM : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=15.0, core=true, t24Name=DECISION.FROM)
+		/* Specifies the comparison string/value/data for the decision check against the contents of the field being used in the main file or the contents of the replaced field if used.
+This field defines a range for the comparison check.  The contents of the field number in the main file or the replaced contents from the replace file and field if specified are being checked against a range defined in the DECISION.FROM field and DECISION.TO field. This field may contain a text string, numeric value, a date or an allowed keyword as follows;
+@DATE       Todays date. Decision may be based on this value minus or plus             a specified number of days, e.g. @DATE-10C = today - 10             calendar days, @DATE+5W = today + 5 working days. Working days             are based on the holiday table.
+@MONTH      Current month. Decision may be based on this value minus or             plus a specified number of months.  Months are taken as             complete so that the day within the month is not relevant and             any comparison is made against the number of complete months             separating the values being compared, e.g. @MONTH-3 = Current             month - 3 months, @MONTH+5 = Current month + 5 months.
+@QUARTER    Current quarter. Decision may be based on this value minus or             plus a specified number of quarters. Quarters are taken as             complete so that the day within the month is not relevant and             any comparison is made against the number of complete quarters             separating the values being compared, e.g. @QUARTER-3 =             Current quarter - 3 quarters, @QUARTER+5 = Current quarter + 5             quarters.
+@YEAR       Current year. Decision may be based on this value minus or             plus a specified number of years.  Years are taken as complete             so that the day within the month is not relevant and any             comparison is made against the number of complete years             separating the values being compared, e.g. @YEAR-3 = Current             year - 3 months, @YEAR+5 = Current year + 5 years.
+Validation Rules
+1-35 alphanumeric characters.
+May not be used for history types 1 or 2 nor when FIELD.NUMBER has not been entered.
+May not be entered without DECISION.FROM.
+Must be greater than DECISION.FROM if decision from is positive and less than if negative to correctly define a range of dates or numeric values. */
+		DECISION_TO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=16.0, core=true, t24Name=DECISION.TO)
+		/* Specifies the logical relation to the next multivalue condition.
+This field ends the multivalue set begun with FIELD.NUMBER. The condition is now complete and will give in a single true or false result. This field defines the logical condition with the multivalue set which follows (if any) which must be satisfied for the whole parameter record to be true for the record being processed.
+Validation Rules
+1-3 alphanumeric characters -  "AND" or "OR".
+Not valid for history types 1 or 2. Must be input if more than one multivalue condition exists. */
+		REL_NEXT_FIELD : EB_Archiving:ARCHIVES_PARAMETER__FIELD_NUMBER__REL_NEXT_FIELD
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=17.0, core=true, t24Name=REL.NEXT.FIELD)
+	}
+	ARCHIVES_PARAMETER__FIELD_NUMBER__REPLACE_FILE
+	{
+		/* Specifies secondary file to read during the check.
+When the contents of a field from the current main file record are being checked they can be used as the key to a replace file. The purpose is to replace the contents of the main file field with those of one of the fields on the replace file and then continue the subsequent checks on the new data received.
+This field begins a subvalue set such that any number of replacements may be made in succession each using the returned field contents from the last replacement to read the next replace file defined.
+Validation Rules
+1-35 alphanumeric characters.
+May not be entered without FIELD.NUMBER defined and not allowed for history types 1 or 2. */
+		REPLACE_FILE -> EB_SystemTables:PGM_FILE
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=10.0, core=true, businessType=PG, t24Name=REPLACE.FILE, typeModifiers=HULTW)
+		/* Specifies the field number in the replace file to be extracted.
+The field specified here will be extracted from the replace file record. The contents replace the main file field contents being checked. Subsequent conditions in the parameter file record will now be applied to the new data contents.
+Validation Rules
+1-3 numeric characters.
+May not be entered for history types 1 or 2.
+Must exist as valid field number in the replace file specified. */
+		REPLACE_FLD : T24BusinessTypes:FNO
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=REPLACE.FLD, typeModifiers=L)
+		/* Specifies the name of a routine which may be called to modify the contents of the field extracted from the replace file. Or may specify a string or field extraction.
+String extraction, e.g. [2,8]23L - extracts characters 2 to 2+8 from a string length 23 left justified.
+Field extraction, e.g. [.2] - extracts portion of field contents from replace file between the 1st and 2nd occurrence of "."
+Validation Rules
+1-35 alphanumeric characters.
+May not be entered for history types 1 or 2.
+Must be a string extraction in format [x,y]nnA or a field extraction in format [c,n] otherwise must begin "@" and exist in the PGM.FILE as a defined subroutine. */
+		RPL_MOD_CALL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, t24Name=RPL.MOD.CALL)
+	}
+	ARCHIVES_PARAMETER__RELATED_FILE
+	{
+		/* Specifies the name of a related file from which one or more records require archiving when the main file record is archived.
+When a record from the main file is found to satisfy all conditions and is archived this field specifies one or more related files which require treatment as a result. The field begins a multivalue set designed to build up criteria to select related file records and apply the specified treatment to them.
+Validation Rules
+1-27 alphanumeric characters.
+Filename entered must exist as an application on the PGM.FILE.
+Not allowed for history type 5. */
+		RELATED_FILE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=27, sysNumber=18.0, core=true, t24Name=RELATED.FILE)
+		REL_FIELD -> byValue EB_Archiving:ARCHIVES_PARAMETER__RELATED_FILE__REL_FIELD *
+		/* Specifies the selection condition to be used to select the related file keys to be processed.
+The subvalue set beginning RELATED.FIELD and ending REL.MOD.CALL builds a key to the related file. This key is then used in a selection of the related file. If "EQ" is entered only the record equal to the key so built is chosen for processing from the related file. If one of the LIKE operands is used the related file is selected using the key built up and a number of records may be chosen from the related file.  Each record chosen will be processed according to the action specified in the following field RELATED.ACTION.
+Validation Rules
+1-8 alphanumeric characters.
+Not allowed without related file defined.
+Must be one of the following:  LK         LiKe (containing) ...LK      LiKe with exact in rightmost LK...      LiKe with exact in leftmost EQ         EQual */
+		REL_SELECTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=21.0, core=true, t24Name=REL.SELECTION)
+		/* Specifies the action to be performed on records chosen from the related file by the selection criteria built in the previous fields.
+Validation Rules
+1 alphanumeric character.
+Not allowed without related file defined.
+Must be one of the following: A   Archive related record to tape and then delete. D   Delete related record when main file record is archived. C   Remove related file key from a concat record on the related     file. */
+		RELATED_ACTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=22.0, core=true, t24Name=RELATED.ACTION)
+		/* Specifies the name of a routine which may be called to modify the entry to be looked up on the concat file.
+String extraction, e.g. [2,8]23L. - extracts characters 2 to 2+8 from a string length 23 left justified.
+Field extraction, e.g. [.2]. - extracts portion of field contents between the 1st and 2nd occurrence of   "."
+Concat related treatments use the related field and related mod call subvalue set to build the key to the concat file. When this key is located the entry to be removed is normally the key to the main file record being processed. If this is not the case this field exists to allow the key to be modified or an entirely different key to be returned from a called routine.  The modified key will be the entry looked for in the concat record.
+Validation Rules
+1-35 alphanumeric characters.
+May not be entered without related file defined.
+Only allowed if RELATED.ACTION is "C" for concat removal.
+Must be a string extraction in format [x,y]nnA or a field extraction in format [c,n] otherwise must begin "@" and exist in the PGM.FILE as a defined subroutine. */
+		CONC_MOD_CALL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=CONC.MOD.CALL)
+	}
+	ARCHIVES_PARAMETER__RELATED_FILE__REL_FIELD
+	{
+		/* Specifies the field in the main file record whose contents are to be used to build the keys to the related file.
+This field begins a multivalue set designed to build a key to the related file. This key can therefore be constructed using parts of field contents from the main file or bits of text. The key so built is then used to select the related file under a defined condition (see REL.SELECTION).
+If the "ALL" keyword is specified then all fields from the main file record will be used as keys to the related file.
+If "0" is entered the key to the main file record will be used as the key to the related file.
+If a text string is entered it is appended to what existed from previous extractions within the subvalue set.
+A field number if entered causes the contents of that field from the main file record to be used as a key to the related file. This may include specific value numbers or subvalue numbers from the field specified e.g. 23.2.3.
+Validation Rules
+1-3 numeric field number      or text "ALL"                    or 1-35 alphanumeric text in quotes "aaaaaa"
+No input without related file defined.
+If "ALL" keyword is specified it must be first occurrence in the subvalue set.
+Text input must be contained in quotes. */
+		REL_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=REL.FIELD, typeModifiers=L)
+		/* Specifies the name of a routine which may be called to modify the contents of the field from the main file. Or may specify a string or field extraction.
+String extraction, e.g. [2,8]23L - extracts characters 2 to 2+8 from a string length 23 left justified.
+Field extraction, e.g. [.2] - extracts portion of field contents between the 1st and 2nd occurrence of   "."
+Validation Rules
+1-35 alphanumeric characters.
+May not be entered without related file defined.
+Must be a string extraction in format [x,y]nnA or a field extraction in format [c,n] otherwise must begin "@" and exist in the PGM.FILE as a defined subroutine. */
+		REL_MOD_CALL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, t24Name=REL.MOD.CALL)
+	}
+	ARCHIVES_PARAMETER__CO_CODE_UPDATE
+	{
+		/* Fields CO.CODE.UPDATE to DATE.TIME.UPDTE form a related multi value set.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT, no copy field. */
+		CO_CODE_UPDATE : T24BusinessTypes:COM
+			@t24:i (align=L, inputBehaviour=E, maxLength=11, sysNumber=25.0, core=true, t24Name=CO.CODE.UPDATE, mask="R##-###-####")
+		/* Fields CO.CODE.UPDATE to DATE.TIME.UPDTE form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 15 characters may be entered.
+This is a NOINPUT, no copy field. */
+		DATE_TIME_UPDTE : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=15, sysNumber=26.0, core=true, t24Name=DATE.TIME.UPDTE, mask="RDD DD  DD ##:##")
+	}
+	ARCHIVES_PARAMETER__CO_CODE_SPOOL
+	{
+		/* Fields CO.CODE.SPOOL to DATE.TIME.SPOOL form a related multi value set.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT, no copy field. */
+		CO_CODE_SPOOL : T24BusinessTypes:COM
+			@t24:i (align=L, inputBehaviour=E, maxLength=11, sysNumber=27.0, core=true, t24Name=CO.CODE.SPOOL, mask="R##-###-####")
+		/* Fields CO.CODE.SPOOL to DATE.TIME.SPOOL form a related multi value set.
+Validation Rules
+A maximum of 15 characters may be entered. */
+		DATE_TIME_SPOOL : T24BusinessTypes:COM
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=28.0, core=true, t24Name=DATE.TIME.SPOOL)
+	}
+	ARCHIVES_PARAMETER__CO_CODE_CANCEL
+	{
+		/* Fields CO.CODE.CANCEL to DATE.TIME.CANCL form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT, no copy field. */
+		CO_CODE_CANCEL : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=11, sysNumber=29.0, core=true, t24Name=CO.CODE.CANCEL, mask="R##-###-####")
+		/* Fields CO.CODE.CANCEL to DATE.TIME.CANCL form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 15 characters may be entered.
+This is a NOINPUT, no copy field. */
+		DATE_TIME_CANCL : mml:Integer
+			@t24:i (align=R, inputBehaviour=E, maxLength=15, sysNumber=30.0, core=true, t24Name=DATE.TIME.CANCL, mask="RDD DD  DD ##:##")
+	}
+	ARCHIVES_PARAMETER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=33.0, core=true, t24Name=INPUTTER)
+	}
+	ARCHIVES_PARAMETER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=34.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This file holds the instructions for spooling the contents of the archiving system. Three records only exist on the file to specify spool to the tape drive, printer, or to both simultaneously. */
+	ARCHIVES_SPOOL
+		@t24:i (t24Name=ARCHIVES.SPOOL, level=F, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* The key to the file.
+Keys to archives spool are descriptively named according to the spool type they are related to.
+Examples:   TYPE1 spools to tape only             TYPE2 spools to printer only             TYPE3 spools to both
+Validation Rules
+1-14 alphanumeric characters. */
+		KEY -> EB_Archiving:ARCHIVES_SPOOL PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=S, t24Name=KEY)
+		DESCRIPTION -> byValue EB_Archiving:ARCHIVES_SPOOL__DESCRIPTION *
+		/* Specifies the spool type to be used.
+Validation Rules
+1 numeric character.  Mandatory input.
+Must be one of the following:  1   Spool to tape only 2   Spool to printer only 3   Spool to both tape and printer */
+		SPOOL_TYPE : EB_Archiving:ARCHIVES_SPOOL__SPOOL_TYPE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=2.0, core=true, t24Name=SPOOL.TYPE)
+		/* Specifies the maximum run time for the spool process.
+The time out minutes defines the maximum run time allowed for the spool. When reached the process will terminate with an appropriate message in the batch como or on the screen.
+Next time the spool is run the process will continue from the last key used in the file being treated when the process timed out.
+Validation Rules
+1-2 numeric characters.
+Minimum entry of 30 minutes. Maximum 99. */
+		TIME_OUT_MINUTES : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=3.0, core=true, t24Name=TIME.OUT.MINUTES)
+		/* Specifies the tape drive unit number to be assigned to the spool process.
+Validation Rules
+1 numeric character. */
+		TAPE_UNIT : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=4.0, core=true, t24Name=TAPE.UNIT)
+		/* Specifies the logical tape number to be assigned to the tape.
+Validation Rules
+1 numeric character. */
+		LOGICAL_TAPE_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=5.0, core=true, t24Name=LOGICAL.TAPE.NO)
+		/* Validation Rules
+A maximum of 4 characters may be entered.
+The following values are permitted:       800      1600      3200      6250 */
+		DENSITY : EB_Archiving:ARCHIVES_SPOOL__DENSITY
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=6.0, core=true, t24Name=DENSITY)
+		/* Specifies the last key and file being processed when the spool timed out on the last run.
+This field will be blank unless the last spool run timed out in which case it will contain the filename and record key which was in progress at the time. This is used to define the point at which to continue in the next spool run.
+Validation Rules
+1-54 alphanumeric characters.
+This is a NOINPUT field. */
+		LAST_KEY : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=54, sysNumber=7.0, core=true, t24Name=LAST.KEY)
+		/* Specifies whether further updates will be allowed before the spool run completes after a timeout.
+If "Y" further updates to the archives file are allowed after a timeout on the last spool run. If "NO" the spool run must complete by being rerun before further updates may proceed.
+Validation Rules
+2 alphanumeric characters.
+"Y" or "NO". */
+		RESET_LAST_RUN : EB_Archiving:ARCHIVES_SPOOL__RESET_LAST_RUN
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=8.0, core=true, t24Name=RESET.LAST.RUN)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Archiving:ARCHIVES_SPOOL__INPUTTER *
+		DATE_TIME -> byValue EB_Archiving:ARCHIVES_SPOOL__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=13.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=14.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=16.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=17.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ARCHIVES_SPOOL__DESCRIPTION
+	{
+		DESCRIPTION -> byValue EB_Archiving:ARCHIVES_SPOOL__DESCRIPTION__DESCRIPTION *
+	}
+	ARCHIVES_SPOOL__DESCRIPTION__DESCRIPTION
+	{
+		/* Description of the record.
+Validation Rules
+1-35 alphanumeric characters. (Multivalue field) */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	ARCHIVES_SPOOL__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, core=true, t24Name=INPUTTER)
+	}
+	ARCHIVES_SPOOL__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=12.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* The archives update file holds the instructions for which parameters to apply to which files during the update stage of archiving.
+Each record on the file defines the language to be used in printed output and a time out for the process.
+Large files may take some time to be archived since the conditions which must be satisfied can be complex. The time out exists to stop the process after a defined length of time in minutes. The next time the same update is run the process will continue from the point reached in the file last time out.
+Following these fields begins a multivalue set of keys to the parameter file. This is the list of files which will be considered for archiving by this update record.
+The "V" verify function actually invokes the update or alternatively updates may be run from within the end of day batch processing. */
+	ARCHIVES_UPDATE
+		@t24:i (t24Name=ARCHIVES.UPDATE, level=F, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* The key to the file.
+Keys to archives update are descriptively named according to the application to which they are related. They are further subdivided between transaction based files and static tables for each application.
+Examples: FX.TRANS contains parameter records for the foreign exchange           transaction files.
+LD.TABLES contains parameter records for static tables           archiving within the loans and deposits module.
+Validation Rules
+1-14 alphanumeric characters. */
+		KEY -> EB_Archiving:ARCHIVES_UPDATE PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=S, t24Name=KEY)
+		DESCRIPTION -> byValue EB_Archiving:ARCHIVES_UPDATE__DESCRIPTION *
+		/* Specifies the maximum run time for the update process.
+The time out minutes defines the maximum run time allowed for the update. When reached the process will terminate with an appropriate message in the batch como or on the screen.
+Next time the update is run the process will continue from the last key used in the file being treated when the process timed out.
+Validation Rules
+1-2 numeric characters.
+Minimum entry of 30 minutes. Maximum 99. */
+		TIME_OUT_MINUTES : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=2.0, core=true, t24Name=TIME.OUT.MINUTES)
+		/* Specifies the language to be used for saved records.
+Validation Rules
+1 numeric character.
+Numeric language code, e.g. 1 ENGLISH must exist on the language table. */
+		LANGUAGE_CODE -> EB_SystemTables:LANGUAGE required
+			@i18n:Label (en="Language Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=LANGUAGE.CODE)
+		FILE_NAME -> byValue EB_Archiving:ARCHIVES_UPDATE__FILE_NAME *
+		/* Specifies the last key and file being processed when the update timed out on the last run.
+This field will be blank unless the last update run timed out in which case it will contain the filename and record key which was in progress at the time. This is used to define the point at which to continue in the next update run.
+Validation Rules
+1-54 alphanumeric characters.
+This is a NOINPUT field. */
+		LAST_KEY : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=5.0, core=true, t24Name=LAST.KEY)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=6.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=7.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Archiving:ARCHIVES_UPDATE__INPUTTER *
+		DATE_TIME -> byValue EB_Archiving:ARCHIVES_UPDATE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=13.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=14.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ARCHIVES_UPDATE__DESCRIPTION
+	{
+		DESCRIPTION -> byValue EB_Archiving:ARCHIVES_UPDATE__DESCRIPTION__DESCRIPTION *
+	}
+	ARCHIVES_UPDATE__DESCRIPTION__DESCRIPTION
+	{
+		/* Description of the record.
+Validation Rules
+1-35 alphanumeric characters. (Multivalue field) */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	ARCHIVES_UPDATE__FILE_NAME
+	{
+		/* Specifies a list of keys to the parameter file whose conditions will be applied to their files in this update run.
+Validation Rules
+2-27 alphanumeric characters. (Multivalue field)
+Each file name entered must exist as a key on the ARCHIVES.PARAMETER file and therefore as a defined routine on the PGM.FILE. */
+		FILE_NAME : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=27, sysNumber=4.0, core=true, t24Name=FILE.NAME)
+	}
+	ARCHIVES_UPDATE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, core=true, t24Name=INPUTTER)
+	}
+	ARCHIVES_UPDATE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=9.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	ARCHIVE__ARCHIVE_DATA : mml:string
+		Y=Y
+		NO=NO
+	ARCHIVE__STOP_INDICATOR : mml:string
+		Y=Y
+		NO=NO
+	ARCHIVE__GENERIC_METHOD : mml:string
+		Y=Y
+		N=N
+	ARCHIVES_CANCEL__PRINT_RECORD_ID : mml:string
+		Y=Y
+		NULL=NULL
+	ARCHIVES_PARAMETER__HISTORY_TYPE : mml:string
+		n1_HISTORY_CONTRACT="1 HISTORY CONTRACT"
+		n2_HISTORY_NONCONTRACT="2 HISTORY NONCONTRACT"
+		n3_LIVE="3 LIVE"
+		n4_LIVE_HISTORY="4 LIVE+HISTORY"
+		n5_SINGLE_FIELD="5 SINGLE FIELD"
+		n6_LIVE_TO_HISTORY="6 LIVE.TO.HISTORY"
+	ARCHIVES_PARAMETER__FIELD_NUMBER__DATE_FORMAT : mml:string
+		n1_YYYYMMDD="1 YYYYMMDD"
+		n2_YYMMDD="2 YYMMDD"
+		n3_YYYYJJJ="3 YYYYJJJ"
+		n4_YYJJJ="4 YYJJJ"
+		n5_YYYYMM="5 YYYYMM"
+		n6_YYMM="6 YYMM"
+		n7_YYYY="7 YYYY"
+		n8_YY="8 YY"
+	ARCHIVES_PARAMETER__FIELD_NUMBER__DECISION : mml:string
+		EQ=EQ
+		GE=GE
+		GT=GT
+		LE=LE
+		LK=LK
+		LT=LT
+		NE=NE
+		UL=UL
+	ARCHIVES_PARAMETER__FIELD_NUMBER__REL_NEXT_FIELD : mml:string
+		AND=AND
+		OR=OR
+	ARCHIVES_PARAMETER__CHECKFILE_ENRICHM : mml:string
+		Y=Y
+		NULL=NULL
+	ARCHIVES_SPOOL__SPOOL_TYPE : mml:string
+		n1_TAPE="1 TAPE"
+		n2_PRINTER="2 PRINTER"
+		n3_TAPE_PRINTER="3 TAPE+PRINTER"
+	ARCHIVES_SPOOL__DENSITY : mml:string
+		n800=800
+		n1600=1600
+		n3200=3200
+		n6250=6250
+	ARCHIVES_SPOOL__RESET_LAST_RUN : mml:string
+		Y=Y
+		NULL=NULL
+}

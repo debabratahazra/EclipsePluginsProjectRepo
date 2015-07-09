@@ -1,0 +1,159 @@
+## JavaServiceImplTAFJ.vm
+package ${service.getPackageName()}.tafj;
+
+// Java imports
+#set( $listImported = 0)
+#foreach($operation in $service.getGenOperations())
+#set( $paramList = $operation.getParameters() )
+#foreach($param in $paramList)
+#if($param.getCardinality() == "MULTIPLE")
+import java.util.List;
+#set( $listImported = 1)
+#break
+#end
+#end
+#if ($listImported == 1)#break#{end}
+#end
+import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
+// Java spring related imports
+import org.springframework.beans.BeansException;
+import ${service.getPackageName()}.${service.getName()}SpringContext;
+
+// Complex Data classes
+#foreach($class in $service.getClassDefDescriptors())
+import ${service.getPackageName()}.data.${class.getName()};
+#end
+
+// Soaframework imports
+import ${soaPackageName}.tafj.TAFJServiceHandler;
+import ${soaPackageName}.tafj.TAFJDefaultServiceHandlerImpl;
+import ${soaPackageName}.UserContextCallBack;
+import ${soaPackageName}.data.CFConstants;
+import ${soaPackageName}.data.ResponseDetails;
+import ${soaPackageName}.data.Response;
+
+// The Service and Provider INTERFACE
+import ${service.getPackageName()}.${service.getName()}API;
+import ${service.getPackageName()}.${service.getName()}ProviderAPI;
+
+public class $serviceImpl implements ${service.getName()}ProviderAPI {
+
+	private final static Logger logger = Logger.getLogger(${serviceImpl}.class.getName());
+	private ${servicePoolExt} ${service.getLowerCamelCaseName()}Pool;
+	private UserContextCallBack userContextCallBack = null;
+	private TAFJServiceHandler serviceHandler;
+	
+	// Default constructor - Initialise Java Provider API with TAFJ Default Service Call back Implementation
+	public $serviceImpl() {
+		setServiceHandler(new TAFJDefaultServiceHandlerImpl());
+	}
+	
+	// Additional Constructor - Initialise Java Provider API with customised Service Call back Implementation
+	public $serviceImpl(TAFJServiceHandler serviceHandler) {
+		setServiceHandler(serviceHandler);
+	}
+	
+#foreach($operation in $service.getGenOperations())
+	@Override
+#set( $paramList = $operation.getParameters() )
+    public ${operation.getReturnParameter().getTypeName()} ${operation.getLowerName()}(#foreach($param in $paramList)#if($param.getCardinality() == "SINGLE")$param.getTypeName()#{else}List<$param.getTypeName()>#end ${param.getName()}, #{end}ResponseDetails responseDetails) {
+		${service.getName()}API ${service.getLowerCamelCaseName()}Impl = null;
+		// Get the object from pool
+		try {
+			${service.getLowerCamelCaseName()}Impl = (${service.getName()}API) getServicePool().getTarget();
+		} catch (RuntimeException e) {
+			String responseDetailsResponseText = "'${service.getName()}' is currently not availble OR does not exist - RuntimeException : " + e.getMessage();
+			responseDetails.addError(new Response(CFConstants.T24_EB_JAVA_API_INITIALISATION_ERROR_CODE, CFConstants.RESPONSE_TYPE_FATAL_ERROR, responseDetailsResponseText, null));
+			logMessage(Level.SEVERE, responseDetailsResponseText);
+		} catch (Exception e) {
+			String responseDetailsResponseText = "'${service.getName()}' is currently not availble OR does not exist - Exception : " + e.getMessage();
+			responseDetails.addError(new Response(CFConstants.T24_EB_JAVA_API_NOT_AVAILABLE_CODE, CFConstants.RESPONSE_TYPE_FATAL_ERROR, responseDetailsResponseText, null));
+			logMessage(Level.SEVERE, responseDetailsResponseText);
+		} 
+		
+		if ( ! (responseDetails.getReturnCode().equals(CFConstants.RETURN_CODE_FAILURE)) && ${service.getLowerCamelCaseName()}Impl != null) {
+			
+			// Set the call back for user context if available
+			if (getUserContextCallBack() != null) {
+				${service.getLowerCamelCaseName()}Impl.setUserContextCallBack(getUserContextCallBack());
+			}
+			
+			// Set the service call back if available
+			if (getServiceHandler() != null) {
+				${service.getLowerCamelCaseName()}Impl.setServiceHandler(getServiceHandler());
+			}
+			
+			// Now call the operation
+			${service.getLowerCamelCaseName()}Impl.${operation.getLowerName()}(#foreach($param in $paramList)${param.getName()}, #{end}responseDetails);
+			
+			// Now put the object back in pool for others to use
+			try {
+				getServicePool().releaseTarget(${service.getLowerCamelCaseName()}Impl);
+			} catch (Exception e) {
+				String responseDetailsResponseText = "Failed to release JAVA API resource of service '${service.getName()}' after use - Exception : " + e.getMessage();
+				responseDetails.addWarning(new Response(CFConstants.T24_EB_JAVA_API_RELEASE_ERROR_CODE, CFConstants.RESPONSE_TYPE_WARNING, responseDetailsResponseText, null));
+				logMessage(Level.WARNING, responseDetailsResponseText);
+			}
+		}
+	}
+#end
+
+	/**
+	 * Service pool loader
+	 */
+	private ${servicePoolExt} getServicePool() throws Exception {
+		if (${service.getLowerCamelCaseName()}Pool == null) {
+			try {
+				${service.getLowerCamelCaseName()}Pool = (${servicePoolExt}) ${service.getName()}SpringContext.getContext().getBean("${service.getName()}APIPool");
+		} catch (BeansException e) {
+			String responseDetailsResponseText = "Failed to load '${service.getName()}' API Pool - BeansException : " + e.getMessage();
+			logMessage(Level.SEVERE, responseDetailsResponseText, e);
+			throw e;
+		} catch (Exception e) {
+			String responseDetailsResponseText = "Failed to load '${service.getName()}' API Pool - Exception : " + e.getMessage();
+			logMessage(Level.SEVERE, responseDetailsResponseText, e);
+			throw e;
+		}
+		}
+		return ${service.getLowerCamelCaseName()}Pool;
+	}
+
+	/**************** User Context Call Back *********************/
+	public void setUserContextCallBack(UserContextCallBack userContextCallBack) {
+		this.userContextCallBack = userContextCallBack;
+	}
+
+	public UserContextCallBack getUserContextCallBack () {
+		return this.userContextCallBack;
+	}
+	
+	/**************** Service Call Back *********************/
+	private void setServiceHandler (TAFJServiceHandler serviceHandler) {
+		if (serviceHandler == null){
+			logMessage(Level.WARNING, "serviceHandler provided is null, using TAFJDefaultServiceHandlerImpl instead");
+			this.serviceHandler = new TAFJDefaultServiceHandlerImpl();
+		} else {
+			this.serviceHandler = serviceHandler;
+		}
+	}
+
+	private TAFJServiceHandler getServiceHandler() {
+		return this.serviceHandler;
+	}
+	
+	/**
+	 * Logging messages
+	 */
+	private void logMessage(Level level, String message) {
+		logger.log(level, message);
+	}
+	
+	private void logMessage(Level level, String message, Exception e) {
+		logger.log(level, message, e);
+	}
+
+}
+

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="com.odcgroup.workbench.validation.check" name="Check Constraint Validation" schema="src/main/resources/schema/com.odcgroup.workbench.validation.check.exsd"/>
+   <extension
+         id="com.odcgroup.workbench.validation.builder"
+         name="Validation Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run
+               class="com.odcgroup.workbench.tap.validation.internal.builder.ValidationBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         point="com.odcgroup.workbench.core.initializer">
+      <initializer
+            class="com.odcgroup.workbench.tap.validation.internal.ValidationInitializer"
+            id="com.odcgroup.workbench.tap.validation.initializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.emf.validation.constraintBindings">
+      <clientContext
+            default="true"
+            id="com.odcgroup.workbench.validation.DefaultClientContext">
+         <enablement>
+            <instanceof
+                  value="org.eclipse.emf.ecore.EObject">
+            </instanceof>
+         </enablement>
+      </clientContext>
+<!-- not sure if these are useful, but I keep it in comments as a reminder that these exists and could be activated 
+      <binding
+            category="org.eclipse.gmf.runtime.emf.core.references"
+            context="com.odcgroup.workbench.validation.DefaultClientContext">
+      </binding>
+-->      <binding
+            category="com.odcgroup.validation"
+            context="com.odcgroup.workbench.validation.DefaultClientContext">
+      </binding>
+   </extension>
+   <extension
+         id="ProblemMarker"
+         name="Model Validation Problem"
+         point="org.eclipse.core.resources.markers">
+      <persistent
+            value="true">
+      </persistent>
+      <super
+            type="org.eclipse.emf.validation.problem">
+      </super>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.markerSupport">
+      <markerTypeCategory
+            name="Design Studio Problems">
+         <markerTypeReference
+               id="com.odcgroup.workbench.validation.ProblemMarker">
+         </markerTypeReference>
+      </markerTypeCategory>
+   </extension>
+   <extension
+         point="org.eclipse.emf.validation.constraintProviders">
+      <category
+            id="com.odcgroup.validation"
+            name="Design Studio">
+      </category>
+      <constraintProvider
+            cache="false"
+            class="com.odcgroup.workbench.tap.validation.internal.provider.CheckConstraintProvider">
+         <description>
+            oAW Check integration
+         </description>
+         <package
+               namespaceUri="*">
+         </package>
+         <constraints
+               categories="com.odcgroup.validation">            
+         </constraints>
+      </constraintProvider>
+   </extension>
+</plugin>

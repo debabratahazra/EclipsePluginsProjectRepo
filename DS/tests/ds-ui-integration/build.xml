@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ds-ui-tests" default="local-build">
+
+	<description>
+		Executes integration and UI tests for Design Studio
+	</description>
+
+  <property file="../../version.properties"/>
+	<property environment="env"/>
+
+	<condition property="mvn.exec" value="mvn.bat" else="mvn">
+		<os family="windows"/>
+	</condition>
+	
+	<target name="build" depends="init, clean, project-integration-test"/>
+
+	<!--
+	************************************************************************************************
+	**
+	** Initialization from constants from environment
+	**
+	**
+	************************************************************************************************
+	-->	
+	<target name="init" >
+		
+		<property name="builddir" value="${basedir}/target/eclipse"/>
+		
+		<property name="DS_FILENAME" value="//oams.com/Software/Incoming Packages/tmp/SDK-DS/${p2.postfix}/DesignStudioTAP-noBinaries-${ds.release}.${ds.patch}.zip"/>
+		<echo message="DS_FILENAME = ${DS_FILENAME}" />
+		<echo message="Max. Java Heap Size = ${java.heap}" />
+
+		<echo message="Completed" />
+	</target>
+
+	<target name="local-build" depends="init-local, project-integration-test" />
+	
+    
+	<!--
+	************************************************************************************************
+	**
+	** Initialization from constants for TESTS purposes
+	**
+	**
+	************************************************************************************************
+	-->
+	<target name="init-local" >
+
+		<property name="builddir" value="${basedir}/target/eclipse"/>
+
+		<property name="DS_FILENAME" value="//oams.com/Software/Incoming Packages/tmp/SDK-DS/${p2.postfix}/DesignStudioTAP-noBinaries-${ds.release}.${ds.patch}.zip"/>
+		<echo message="DS_FILENAME = ${DS_FILENAME}" />
+		<echo message="Max. Java Heap Size = ${java.heap}" />
+
+		<echo message="Completed" />
+	</target>
+
+	<target name="clean">
+    	    <delete dir="${builddir}" />
+	    <mkdir dir="${builddir}" />
+	</target>
+
+	<!--
+	************************************************************************************************
+	**
+	** The main test execution
+	**
+	** Executes all tests that are not pure unit tests. This target shall not be run in the continuous
+ 	** integration build, but only in a separate daily plan
+	**
+	************************************************************************************************
+	-->
+    <target name="project-integration-test">
+
+	  <fail unless="DS_FILENAME" message="DS_FILENAME system property must be set with the root where DS should be found"/>
+
+	  <property name="ds.p2.repo.location" value="file://oams.com/Software/Incoming%20Packages/tmp/SDK-DS/${p2.postfix}/p2repo"/>
+	  
+	  <!-- first build the test plugin and feature through Maven -->
+		<exec executable="${env.M2_HOME}/bin/${mvn.exec}" failonerror="true" dir="${basedir}/eclipse" >
+            <arg value="-X"/>
+            <arg value="clean"/>
+            <arg value="install"/>
+			<arg value="-Dds.p2.repo.location=${ds.p2.repo.location}"/>
+            <arg value="-Dp2.postfix=${p2.postfix}"/>
+        </exec>
+
+        <!-- Prepare the testable product -->        
+        <unzip src="${DS_FILENAME}" dest="${builddir}" />
+
+        <echo message="Installing Design Studio Integration Tests" />
+	
+		<!-- we have to remove the -showlocation argument from the ini as this is not valid for the p2 director -->
+		<copy file="${basedir}/target/eclipse/DesignStudioTAP.ini" tofile="${basedir}/target/eclipse/DesignStudioTAP.ini.bak" />
+		<replace file="${basedir}/target/eclipse/DesignStudioTAP.ini" token="-showlocation" />
+
+				<exec executable="${eclipse.sdk}/eclipsec" failonerror="true" timeout="300000">
+				  <arg line="-application org.eclipse.equinox.p2.director"/>
+				  <arg line="-repository file://${basedir}/eclipse/site/target/site"/>
+				  <arg line="-installIU com.odcgroup.integrationtests.feature.group"/>
+				  <arg line="-destination ${builddir}"/>
+				  <arg line="-consoleLog"/>
+				</exec>
+        <move file="${basedir}/target/eclipse/DesignStudioTAP.ini.bak" tofile="${basedir}/target/eclipse/DesignStudioTAP.ini" />
+
+        <echo message="Running Design Studio Integration Tests" />
+        <eclipse-swtbot-tests-runner base="${builddir}"
+            plugin="com.odcgroup.workbench.integration.tests" 
+            class-name="com.odcgroup.workbench.integration.tests.AllIntegrationTests" />
+		</target>
+        
+	<!--
+	************************************************************************************************
+      ++ Runs SWTBot UI unit tests in an headless Eclipse.
+      ++ 
+      ++ This macro expects a RCP product to be deployed.
+      ++
+      ++ @param base the directory where the RCP product to test is deployed.
+      ++ @param plugin the id of the plugin that contains the test class.
+      ++ @param class-name the fully qualified class name of the JUnit Test Case to execute.
+      ++ @param workspace the workspace location, Defaults to <tt>${base}/workspace</tt>.
+	************************************************************************************************
+      -->
+    <macrodef name="eclipse-swtbot-tests-runner">
+        <attribute name="base" />
+        <attribute name="plugin" />
+        <attribute name="class-name" />
+        <attribute name="workspace" default="@{base}/workspace"/>
+        <sequential>
+            <java taskname="eclipse-swtbot-tests-runner" 
+                jvm="${basedir}/target/eclipse/jre/bin/java" fork="yes" 
+                classname="org.eclipse.core.launcher.Main"
+                failonerror="false" timeout="2400000"
+                output="@{base}/.log">
+            <classpath>
+              <fileset dir="@{base}/plugins">
+                    <include name="org.eclipse.equinox.launcher_*.jar"/>
+                  </fileset>
+            </classpath>
+                
+            <sysproperty key="java.home"   value="@{base}/jre" />
+            <sysproperty key="baseLocation" value="@{base}" />
+
+            <jvmarg value="-Xms128m"/>
+            <jvmarg value="-Xmx${java.heap}"/>
+            <jvmarg value="-XX:PermSize=64m"/>
+            <jvmarg value="-XX:MaxPermSize=256m"/>
+
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xnoagent"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8001"/>
+
+            <jvmarg value="-Dlogback.configurationFile=@{base}/configuration/debug-logging.xml"/>
+            <jvmarg value="-Dds.target.platform.version=${ds.target.platform.version}"/>
+
+            <arg line="-application org.eclipse.swtbot.eclipse.junit4.headless.swtbottestapplication"/>
+            <arg line="-data @{workspace}"/>
+            <arg line="formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,TEST-UI-@{plugin}.xml"/>
+            <arg line="-testPluginName @{plugin}"/>
+            <arg line="-className @{class-name}"/>
+            <arg line="-os win32"/>
+            <arg line="-ws win32"/>
+            <arg line="-arch x86_64"/>
+            <arg line="-consolelog"/>
+            <arg line="-clean"/>
+        </java>
+     </sequential>
+    </macrodef>
+        
+</project>

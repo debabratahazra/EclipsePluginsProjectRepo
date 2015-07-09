@@ -1,0 +1,190 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Fragment ---
+	cardinality = one
+	domainEntity = "AAADSDomain:DomainContext"
+{
+	--- Box ---
+		boxType = vertical
+		verticalAlignment = lead
+		width = 0
+	{
+		--- Grid ---
+			cssClass = blank
+			gridColumnCount = 2
+			gridColumnsWidth = "50,50" !
+			gridRowCount = 3
+		{
+			--- GridCell ---
+				gridColumnWidth = 50
+			{
+				--- LabelDomain ---
+					domainAttribute = forceLinkF !
+					for = forceLinkF
+					cssClass = grey
+					horizontalAlignment = "${corporatehalign}"
+					width = 0
+					required = true
+			}
+			--- GridCell ---
+				gridColumnWidth = 50
+			{
+				--- ComboBox ---
+					domainAttribute = forceLinkF !
+					horizontalAlignment = "${corporatehalign}"
+					required = true
+					bean-property = forceLinkF
+					id = forceLinkF
+				{
+					Event OnChange (submit)
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						widget-group-ref = form
+						param = "flow-action=reload"
+						only-changed = true
+						modal = false
+						prevalidate = false
+					}
+				}
+			}
+			--- GridCell ---
+				gridColumnWidth = 50
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						javaCode = "Boolean.toString(com.odcgroup.aaa.DomainAAAForceLinkF.No).equals(<bean:get-property bean=\"DomainContext\" property=\"forceLinkF\"/>.toString())"
+						technicalName = IsNotForced
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Label ---
+							cssClass = grey
+							horizontalAlignment = trail
+							width = 0
+							id = q_j_8
+					}
+					--- ConditionalBody ---
+						javaCode = "Boolean.toString(com.odcgroup.aaa.DomainAAAForceLinkF.Yes).equals(<bean:get-property bean=\"DomainContext\" property=\"forceLinkF\"/>.toString())"
+						technicalName = IsForced
+						boxType = vertical
+						isWidgetVisible = false
+					{
+						--- Label ---
+							cssClass = grey
+							horizontalAlignment = trail
+							width = 0
+							id = ERq_c
+					}
+				}
+			}
+			--- GridCell ---
+				gridColumnWidth = 50
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 1
+				{
+					--- ConditionalBody ---
+						javaCode = "Boolean.toString(com.odcgroup.aaa.DomainAAAForceLinkF.Yes).equals(<bean:get-property bean=\"DomainContext\" property=\"forceLinkF\"/>.toString())"
+						technicalName = IsForced
+						isWidgetVisible = false
+					{
+						--- Box ---
+							boxType = vertical
+							width = 0
+						{
+							--- ComboBox ---
+								domainAttribute = strategyDimensionE
+								bean-property = strategyDimensionE
+								id = strategyDimensionE
+							{
+								Event OnChange (submit)
+								{
+									method = post
+									call-URI = "<pageflow:continuation/>"
+									widget-group-ref = form
+									param = "flow-action=reload"
+									only-changed = true
+									modal = false
+									prevalidate = false
+								}
+							}
+						}
+						--- Box ---
+							boxType = vertical
+							width = 0
+						{
+							--- Conditional ---
+								indexOfSelectedChild = 2
+							{
+								--- ConditionalBody ---
+									javaCode = "Integer.toString(com.odcgroup.aaa.DomainAAAStrategyDimensionE.All).equals(<bean:get-property bean=\"DomainContext\" property=\"strategyDimensionE\"/>.toString())"
+									technicalName = All
+									boxType = vertical
+									isWidgetVisible = false
+								--- ConditionalBody ---
+									javaCode = "Integer.toString(com.odcgroup.aaa.DomainAAAStrategyDimensionE.Strategy).equals(<bean:get-property bean=\"DomainContext\" property=\"strategyDimensionE\"/>.toString())"
+									technicalName = Strategy
+									boxType = vertical
+									isWidgetVisible = false
+								{
+									--- Include ---
+										domainAssociation = strategyDimStrategy
+										includeSrc = "" !
+										resource:///default/defaultFragments/StrategyIdentifier.fragment
+										bean-property-prefix = strategyDimStrategy.
+								}
+								--- ConditionalBody ---
+									javaCode = "Integer.toString(com.odcgroup.aaa.DomainAAAStrategyDimensionE.StrategyList).equals(<bean:get-property bean=\"DomainContext\" property=\"strategyDimensionE\"/>.toString())"
+									technicalName = "Strategy List"
+									boxType = vertical
+									isWidgetSelected = true
+								{
+									--- Include ---
+										domainAssociation = strategyDimList
+										includeSrc = "" !
+										resource:///default/defaultFragments/ListIdentifier.fragment
+										bean-property-prefix = strategyDimList.
+								}
+							}
+						}
+					}
+					--- ConditionalBody ---
+						javaCode = "Boolean.toString(com.odcgroup.aaa.DomainAAAForceLinkF.No).equals(<bean:get-property bean=\"DomainContext\" property=\"forceLinkF\"/>.toString())"
+						technicalName = IsNotForced
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Spacer ---
+							height = 4
+							width = 4
+					}
+				}
+			}
+			--- GridCell ---
+				gridColumnWidth = 50
+			{
+				--- LabelDomain ---
+					domainAttribute = calcStratD !
+					for = calcStratD
+					cssClass = grey
+					horizontalAlignment = "${corporatehalign}"
+					width = 0
+			}
+			--- GridCell ---
+				gridColumnWidth = 50
+			{
+				--- CaldateField ---
+					domainAttribute = calcStratD !
+					format = date
+					horizontalAlignment = "${corporatehalign}"
+					type = datetime
+					bean-property = calcStratD
+					id = calcStratD
+			}
+		}
+	}
+}

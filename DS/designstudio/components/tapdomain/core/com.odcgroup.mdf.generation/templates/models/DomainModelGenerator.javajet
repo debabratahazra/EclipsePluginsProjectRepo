@@ -1,0 +1,80 @@
+<%@ jet package="com.odcgroup.mdf.generation.legacy.java.jet" 
+	class="DomainModelGenerator" 
+	skeleton="DomainModelGenerator.skel"
+	imports="java.util.*
+		com.odcgroup.mdf.transform.java.JavaCore
+		com.odcgroup.mdf.generation.legacy.java.SourceCodeGenerator
+		com.odcgroup.mdf.metamodel.*" %>
+<%@ include file="../header.txt" %>
+
+package <%= JavaCore.getModelPackage(_model) %>;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.odcgroup.mdf.*;
+import com.odcgroup.mdf.metamodel.*;
+import com.odcgroup.mdf.utils.*;
+
+/**
+ * @generated
+ */
+public final class <%= JavaCore.getDomainModelClassName(_model) %> extends MdfCoreRepository {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(<%= JavaCore.getDomainModelClassName(_model) %>.class);
+
+	public static final MdfDomain <%= JavaCore.getEntityModelInstanceName(_model) %>;	
+<%	Iterator entities = _model.getEntities().iterator();
+	while (entities.hasNext()) {
+		MdfEntity entity = (MdfEntity) entities.next();
+		if (entity instanceof MdfClass) {%>
+
+	public static final MdfClass <%= JavaCore.getEntityModelInstanceName(entity) %>;
+<%		} else if (entity instanceof MdfEnumeration) {%>
+
+	public static final MdfEnumeration <%= JavaCore.getEntityModelInstanceName(entity) %>;
+<%		}
+	}
+
+	Iterator datasets = _model.getDatasets().iterator();
+	while (datasets.hasNext()) {
+		MdfDataset dataset = (MdfDataset) datasets.next(); %>
+
+	public static final MdfDataset <%= JavaCore.getEntityModelInstanceName(dataset) %>;
+<%	} %>
+
+	static {
+		try {
+			<%= JavaCore.getEntityModelInstanceName(_model) %> = loadDomain("<%= _model.getName() %>", 
+				<%= JavaCore.getDomainModelClassName(_model) %>.class.getClassLoader(), 
+				new Slf4jMessageHandler(LOGGER));
+			
+<%
+	entities = _model.getEntities().iterator();
+	while (entities.hasNext()) {
+		MdfEntity entity = (MdfEntity) entities.next();
+		if (entity instanceof MdfClass) {%>
+			<%= JavaCore.getEntityModelInstanceName(entity) %> = (MdfClass) DOMAIN.getEntity("<%= entity.getName() %>");
+<%		} else if (entity instanceof MdfEnumeration) {%>
+			<%= JavaCore.getEntityModelInstanceName(entity) %> = (MdfEnumeration) DOMAIN.getEntity("<%= entity.getName() %>");
+<%		}
+	} 
+
+	datasets = _model.getDatasets().iterator();
+	while (datasets.hasNext()) {
+		MdfDataset dataset = (MdfDataset) datasets.next(); %> 
+			<%= JavaCore.getEntityModelInstanceName(dataset) %> = (MdfDataset) DOMAIN.getDataset("<%= dataset.getName() %>");
+<%	} %>  
+		} catch (Exception e) {
+			LOGGER.error("Could not load domain model <%= _model.getName() %>", e);
+			throw new RuntimeException("Could not load domain model <%= _model.getName() %>", e);
+		}
+	}
+	
+	///CLOVER:OFF
+	private <%= JavaCore.getDomainModelClassName(_model) %>() {
+		super();
+	} 	
+	///CLOVER:ON
+	
+}

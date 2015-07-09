@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN"
+"http://docs.oasis-open.org/dita/v1.1/OS/dtd/topic.dtd">
+<topic id="SdlcFdsTdsVersion_4_4_tech083">
+	<title>Design Studio should easily generate a deployment package (official)</title>
+	<body>
+		<section>
+			<title>Description</title>
+			<p>
+				This document specifies how the TECH083 requirement regarding "Design Studio should easily generate a deployment package (official)" is addressed.
+			</p>
+			<p>				 
+				A preview of the feature was released in 4.2.0. This version integrate the functionnality in the UI of Design Studio allowing a BA to use it.
+			</p>
+		</section>
+		<section>
+			<title>FDS Link</title>
+			<p>
+				<xref
+					href="https://lausvn/svn/devel/projects/doc/active/triplea_plus/R11/03.%20Construction%20(Design)/TECHNOLOGY/DS/FDS_DSR11_TECH083_DpiCustoPackage.doc"
+					scope="external">FDS_DSR11_TECH083_DpiCustoPackage.doc</xref>
+			</p>
+		</section>
+		<section>
+			<title>JIRA Issue(s)</title>
+			<p>
+				<xref href="http://rd.oams.com/browse/DS-4013" scope="external">DS-4013</xref>
+			</p>
+		</section>
+		<section>
+			<title>TDS</title>
+			<b>1. New plugin</b>
+			<p>A new plugin will be created: com.odcgroup.ocs.packager</p>
+			<p>It will be part of the ocs feature and hold the relevant code to generate custo packages.</p>
+			<b>2. Packager project (FDS 2.2.1)</b>
+			<p>A new nature will be introduced: com.odcgroup.ocs.packager.project</p>
+			<p>The small gift icon will be associated to it.</p>
+			<b>3. Reorganize the packager poms in one project (FDS 2.2.2)</b>
+			<p>The custo-pms-packager project will have the following structure:
+				<ul>
+					<li>custo-pms-packager/.project</li>
+					<li>custo-pms-packager/module-pom/pom.xml</li>
+					<li>custo-pms-packager/pom.xml</li>
+				</ul>
+			</p>
+			<p>The custo-pms-packager/.project file will include the nature defined in 2.</p>
+			<p>The custo-pms-packager /module-pom/pom.xml will define the module to be built simultaneously.</p>
+			<codeblock>
+&lt;project ...&gt;
+  ...
+  &lt;modules&gt;
+  	&lt;module&gt;../../pms-models-gen&lt;/module&gt;
+  	&lt;module&gt;../../custo-pms-packager&lt;/module&gt;
+  &lt;/modules&gt;
+&lt;/project&gt;
+			</codeblock>
+			<p>The custo-pms-packager/pom.xml will remain unchanged (from the current content in the custo-pms-packager).</p>
+			<b>4. Create a new popup menu entry (FDS 2.2.2)</b>
+			<p>The Create Custo Package menu entry will be added to packager project (with the nature defined in 2).</p>
+			<p>The DS Navigator being based on CNF, we will create a new command to launch the packager.</p>
+			<b>5. Launch the generation of the package (FDS 2.2.2)</b>
+			<p>Prior the packager is launch a warning message will be issued: "You are about to build a Custo Package. This process may take several minutes. Click OK to proceed, or Cancel to abort."</p>
+			<p>If the message is confirmed, DS will launch the package creation through a Maven Build launcher.</p>
+			<p>The launch config created should be</p>
+			<codeblock>
+&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;launchConfiguration type="org.maven.ide.eclipse.Maven2LaunchConfigurationType"&gt;
+&lt;booleanAttribute key="M2_DEBUG_OUTPUT" value="false"/&gt;
+&lt;stringAttribute key="M2_GOALS" value="clean install"/&gt;
+&lt;booleanAttribute key="M2_NON_RECURSIVE" value="false"/&gt;
+&lt;booleanAttribute key="M2_OFFLINE" value="true"/&gt;
+&lt;stringAttribute key="M2_PROFILES" value=""/&gt;
+&lt;listAttribute key="M2_PROPERTIES"&gt;
+&lt;listEntry value="ds.ignoreValidationErrors=false"/&gt;
+&lt;listEntry value="ds.no.jdk=true"/&gt;
+&lt;/listAttribute&gt;
+&lt;stringAttribute key="M2_RUNTIME" value="EMBEDDED"/&gt;
+&lt;booleanAttribute key="M2_SKIP_TESTS" value="false"/&gt;
+&lt;booleanAttribute key="M2_UPDATE_SNAPSHOTS" value="false"/&gt;
+&lt;booleanAttribute key="M2_WORKSPACE_RESOLUTION" value="true"/&gt;
+&lt;stringAttribute key="org.eclipse.debug.core.ATTR_REFRESH_SCOPE" value="${workspace}"/&gt;
+&lt;stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/DesignStudio-4.1.0"/&gt;
+&lt;stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:/custo-pms-packager/module-pom}"/&gt;
+&lt;/launchConfiguration&gt;
+			</codeblock>
+			<b>6. Feedback to the user</b>
+			<p>A new Job should be started and running until the launch config has finished executed. This can be done by monitoring the status of the ILaunch instance (ILaunch.isTerminated()).</p>
+		</section>
+	</body>
+</topic>

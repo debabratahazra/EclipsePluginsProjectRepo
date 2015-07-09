@@ -1,0 +1,515 @@
+domain T24 {
+	use common.CoreCommands.*
+	use common.HTTPEvents.*
+	use common.ODataCommands.*
+	use common.T24Commands.*
+	use common.T24Events.*
+	use common.NextState.*
+	use common.Errors.*
+	use T24.ContextEnquiry.*
+	rim verCustomer_CrmComm {
+		command T24FieldMetadata
+		command NoopGET
+		command GETEntities
+		command GetLiveEntity
+		command GetIauthEntity
+		command GetHauthEntity
+		command GetIauthEntities
+		command CreateEntity
+		command InputEntity
+		command HoldEntity
+		command AuthoriseEntity
+		command ReviewEntity
+		command ReverseEntity
+		command ValidateEntity
+		command RestoreEntity
+		command DeleteEntity
+		command T24Enrichment
+		command CheckAutoIdSupport
+		command GetHauthEntities
+		command T24NextState
+		basepath: "/{companyid}"
+	
+		resource verCustomer_CrmComm_errorHandler {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ GET : NoopGET ]
+			relations [ "http://temenostech.temenos.com/rels/error" ]
+			path: "/verCustomer_CrmComms('{id}')/error"
+			GET +-> ProcessErrors {
+				title: "errors"
+			}
+			POST +-> verCustomer_CrmComm_metadata {
+				title: "metadata"
+			}
+		}
+	
+		resource verCustomer_CrmComms {
+			type: collection
+			entity: verCustomer_CrmComm
+			commands [ GET : GETEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			path: "/verCustomer_CrmComms()"
+			GET *-> verCustomer_CrmComm {
+				parameters [ id = "{CustomerCode}" ]
+			}
+			GET *-> verCustomer_CrmComm_see {
+				parameters [ id = "{CustomerCode}" ]
+				title: "see record"
+			}
+			POST -> verCustomer_CrmComm_populate {
+				title: "populate existing deal"
+			}
+			PUT *-> verCustomer_CrmComm_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST *-> verCustomer_CrmComm_audit {
+				parameters [ id = "{CustomerCode}" ]
+				title: "audit deal"
+			}
+			POST *-> verCustomer_CrmComm_reverse {
+				parameters [ id = "{CustomerCode}" ]
+				title: "reverse deal"
+			}
+		}
+	
+		resource verCustomer_CrmComm {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ GET : GetLiveEntity ]
+			path: "/verCustomer_CrmComms('{id}')"
+			POST +-> verCustomer_CrmComm_metadata {
+				title: "metadata"
+			}
+			GET --> verCustomer_CrmComm_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmComm_IAuth)
+			}
+			POST -> verCustomer_CrmComm_validate {
+				parameters [ id = "{CustomerCode}" ]
+				title: "validate deal"
+			}
+			PUT -> verCustomer_CrmComm_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST -> verCustomer_CrmComm_audit {
+				parameters [ id = "{CustomerCode}" ]
+				title: "audit deal"
+			}
+			POST -> verCustomer_CrmComm_reverse {
+				parameters [ id = "{CustomerCode}" ]
+				title: "reverse deal"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmComm" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verCustomer_CrmComm_see {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ GET : GetLiveEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmComm","http://temenostech.temenos.com/rels/see" ]
+			path: "/verCustomer_CrmComms('{id}')/see"
+			POST +-> verCustomer_CrmComm_metadata {
+				title: "metadata"
+			}
+		}
+	
+		resource verCustomer_CrmComm_IAuth_see {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ GET : GetIauthEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmComm_IAuth","http://temenostech.temenos.com/rels/see" ]
+			path: "/verCustomer_CrmComms_IAuth('{id}')/see"
+		}
+	
+		resource verCustomer_CrmComm_HAuth_see {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ GET : GetHauthEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmComm_HAuth","http://temenostech.temenos.com/rels/see" ]
+			path: "/verCustomer_CrmComms_HAuth('{id}')/see"
+		}
+	
+		resource verCustomer_CrmComm_metadata {
+			type: collection
+			entity: T24FieldMetadata
+			commands [ POST : T24FieldMetadata ]
+			relations [ "http://temenostech.temenos.com/rels/metadata" ]
+			path: "/verCustomer_CrmComms()/metadata"
+		}
+	
+		resource verCustomer_CrmComms_IAuth {
+			type: collection
+			entity: verCustomer_CrmComm
+			commands [ GET : GetIauthEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			path: "/verCustomer_CrmComms_IAuth()"
+			GET *-> verCustomer_CrmComm_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+			}
+			POST -> verCustomer_CrmComm_populate {
+				title: "populate existing deal"
+			}
+			PUT *-> verCustomer_CrmComm_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			DELETE *-> verCustomer_CrmComm_delete {
+				parameters [ id = "{CustomerCode}" ]
+				title: "delete"
+			}
+			PUT *-> verCustomer_CrmComm_authorise {
+				parameters [ id = "{CustomerCode}" ]
+				title: "authorise deal"
+			}
+		}
+	
+		resource verCustomer_CrmComm_new {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ POST : CreateEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmComm","http://temenostech.temenos.com/rels/new" ]
+			path: "/verCustomer_CrmComms()/new"
+			POST +-> verCustomer_CrmComm_metadata {
+				title: "metadata"
+			}
+			POST -> verCustomer_CrmComm_validate {
+				parameters [ id = "{CustomerCode}" ]
+				title: "validate deal"
+			}
+			PUT -> verCustomer_CrmComm_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST -> verCustomer_CrmComm_hold {
+				parameters [ id = "{CustomerCode}" ]
+				title: "hold deal"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmComm" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verCustomer_CrmComm_input {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ PUT : InputEntity, POST : InputEntity ]
+			relations [ "http://temenostech.temenos.com/rels/input" ]
+			path: "/verCustomer_CrmComms('{id}')"
+			GET --> nextState {
+				condition: OK(nextState)
+			}
+			GET --> verCustomer_CrmComm_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmComm_IAuth)
+			}
+			GET --> verCustomer_CrmComm {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmComm)
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmComm" ]
+				title: "Context Enquiries"
+			}
+			onerror --> T24.verCustomer_CrmComm.verCustomer_CrmComm_errorHandler
+		}
+	
+		resource verCustomer_CrmComm_hold {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ POST : HoldEntity ]
+			relations [ "http://temenostech.temenos.com/rels/hold" ]
+			path: "/verCustomer_CrmComms('{id}')/hold"
+			PUT -> verCustomer_CrmComm_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			DELETE -> verCustomer_CrmComm_delete {
+				parameters [ id = "{CustomerCode}" ]
+				title: "delete"
+			}
+			onerror --> common.Errors.Errors
+		}
+	
+		resource verCustomer_CrmComm_authorise {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ PUT : AuthoriseEntity ]
+			relations [ "http://temenostech.temenos.com/rels/authorise" ]
+			path: "/verCustomer_CrmComms('{id}')/authorise"
+			GET --> verCustomer_CrmComm_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmComm_IAuth)
+			}
+			GET --> verCustomer_CrmComm {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmComm)
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmComm" ]
+				title: "Context Enquiries"
+			}
+			onerror --> common.Errors.Errors
+		}
+	
+		resource verCustomer_CrmComm_audit {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ POST : ReviewEntity ]
+			relations [ "http://temenostech.temenos.com/rels/review" ]
+			path: "/verCustomer_CrmComms('{id}')/review"
+			GET -> verCustomer_CrmComm {
+				parameters [ id = "{CustomerCode}" ]
+			}
+			onerror --> common.Errors.Errors
+		}
+	
+		resource verCustomer_CrmComm_reverse {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ PUT : ReverseEntity ]
+			relations [ "http://temenostech.temenos.com/rels/reverse" ]
+			path: "/verCustomer_CrmComms('{id}')/reverse"
+			GET --> verCustomer_CrmComm_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmComm_IAuth)
+			}
+			GET --> verCustomer_CrmComm_HAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmComm_HAuth)
+			}
+			onerror --> T24.verCustomer_CrmComm.verCustomer_CrmComm_errorHandler
+		}
+	
+		resource verCustomer_CrmComm_validate {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ POST : ValidateEntity ]
+			relations [ "http://temenostech.temenos.com/rels/validate" ]
+			path: "/verCustomer_CrmComms('{id}')/validate"
+			GET +-> ProcessErrors {
+				title: "errors"
+				condition: OK(CheckIfError)
+			}
+			POST +-> verCustomer_CrmComm_metadata {
+				title: "metadata"
+			}
+			PUT -> verCustomer_CrmComm_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST -> verCustomer_CrmComm_hold {
+				parameters [ id = "{CustomerCode}" ]
+				title: "hold deal"
+			}
+		}
+	
+		resource verCustomer_CrmComm_IAuth {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ GET : GetIauthEntity ]
+			path: "/verCustomer_CrmComms_IAuth('{id}')"
+			POST +-> verCustomer_CrmComm_metadata {
+				title: "metadata"
+			}
+			POST -> verCustomer_CrmComm_validate {
+				parameters [ id = "{CustomerCode}" ]
+				title: "validate deal"
+			}
+			PUT -> verCustomer_CrmComm_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST -> verCustomer_CrmComm_hold {
+				parameters [ id = "{CustomerCode}" ]
+				title: "hold deal"
+			}
+			POST -> verCustomer_CrmComm_authorise {
+				parameters [ id = "{CustomerCode}" ]
+				title: "authorise deal"
+			}
+			DELETE -> verCustomer_CrmComm_delete {
+				parameters [ id = "{CustomerCode}" ]
+				title: "delete"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmComm" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verCustomer_CrmComm_delete {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ DELETE : DeleteEntity ]
+			relations [ "http://temenostech.temenos.com/rels/delete" ]
+			path: "/verCustomer_CrmComms('{id}')/delete"
+		}
+	
+		resource verCustomer_CrmCommEntry {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ GET : NoopGET ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmComm","http://temenostech.temenos.com/rels/contract" ]
+			path: "/verCustomer_CrmCommEntry"
+			POST -> verCustomer_CrmComm_new {
+				title: "create new deal"
+				condition: OK(verCustomer_CrmComm_autoId)
+			}
+			POST -> verCustomer_CrmComm_populate {
+				title: "populate existing deal"
+			}
+			GET +-> verCustomer_CrmComm_see {
+				parameters [ id = "@" ]
+				title: "See transaction"
+			}
+			GET +-> verCustomer_CrmComm_IAuth_see {
+				parameters [ id = "@" ]
+				title: "GetIauthEntity"
+			}
+			GET +-> verCustomer_CrmComm_HAuth_see {
+				parameters [ id = "@" ]
+				title: "GetHauthEntity"
+			}
+			GET +-> verCustomer_CrmComm_IAuth {
+				parameters [ id = "@" ]
+				title: "GetIauthEntity"
+			}
+			GET +-> verCustomer_CrmComm_HAuth {
+				parameters [ id = "@" ]
+				title: "GetHauthEntity"
+			}
+		}
+	
+		resource verCustomer_CrmComm_populate {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ POST : CreateEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verCustomer_CrmComm","http://temenostech.temenos.com/rels/populate" ]
+			path: "/verCustomer_CrmComms()/populate"
+			POST -> verCustomer_CrmComm_validate {
+				parameters [ id = "{CustomerCode}" ]
+				title: "validate deal"
+			}
+			POST -> verCustomer_CrmComm_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			DELETE -> verCustomer_CrmComm_delete {
+				parameters [ id = "{CustomerCode}" ]
+				title: "delete"
+				condition: OK(verCustomer_CrmComm_IAuth)
+			}
+			POST -> verCustomer_CrmComm_metadata {
+				title: "metadata"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmComm" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verCustomer_CrmComms_enrichment {
+			type: item
+			entity: Enrichment
+			commands [ GET : T24Enrichment {
+				properties [ entity = "verCustomer_CrmComm" ]
+				} ]
+			relations [ "http://temenostech.temenos.com/rels/enrichment" ]
+			path: "/verCustomer_CrmComms()/enrichment"
+		}
+	
+		resource verCustomer_CrmComm_autoId {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ GET : CheckAutoIdSupport ]
+		}
+	
+		resource verCustomer_CrmComm_restore {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ POST : RestoreEntity ]
+			relations [ "http://temenostech.temenos.com/rels/restore" ]
+			path: "/verCustomer_CrmComms('{id}')/restore"
+			GET --> verCustomer_CrmComm_IAuth {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmComm_IAuth)
+			}
+			GET --> verCustomer_CrmComm {
+				parameters [ id = "{CustomerCode}" ]
+				condition: OK(verCustomer_CrmComm)
+			}
+			POST -> verCustomer_CrmComm_metadata {
+				title: "metadata"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmComm" ]
+				title: "Context Enquiries"
+			}
+			onerror --> common.Errors.Errors
+		}
+	
+		resource verCustomer_CrmComms_HAuth {
+			type: collection
+			entity: verCustomer_CrmComm
+			commands [ GET : GetHauthEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			path: "/verCustomer_CrmComms_HAuth()"
+			GET *-> verCustomer_CrmComm_HAuth {
+				parameters [ id = "{CustomerCode}" ]
+			}
+			POST -> verCustomer_CrmComm_populate {
+				title: "populate existing deal"
+			}
+			POST *-> verCustomer_CrmComm_restore {
+				parameters [ id = "{CustomerCode}" ]
+				title: "restore deal"
+			}
+		}
+	
+		resource verCustomer_CrmComm_HAuth {
+			type: item
+			entity: verCustomer_CrmComm
+			commands [ GET : GetHauthEntity ]
+			path: "/verCustomer_CrmComms_HAuth('{id}')"
+			POST +-> verCustomer_CrmComm_metadata {
+				title: "metadata"
+			}
+			POST -> verCustomer_CrmComm_validate {
+				parameters [ id = "{CustomerCode}" ]
+				title: "validate deal"
+			}
+			PUT -> verCustomer_CrmComm_input {
+				parameters [ id = "{CustomerCode}" ]
+				title: "input deal"
+			}
+			POST -> verCustomer_CrmComm_hold {
+				parameters [ id = "{CustomerCode}" ]
+				title: "hold deal"
+			}
+			POST -> verCustomer_CrmComm_authorise {
+				parameters [ id = "{CustomerCode}" ]
+				title: "authorise deal"
+			}
+			DELETE -> verCustomer_CrmComm_delete {
+				parameters [ id = "{CustomerCode}" ]
+				title: "delete"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verCustomer_CrmComm" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+	}
+	
+}

@@ -1,0 +1,904 @@
+Enquiry "CUSTOMER.POSITION" for "name:/ST_Customer:CUSTOMER.POSITION#" {
+	metamodelVersion: "9.0.0.20130126"
+	
+	header {
+		label {
+			en = "A/Off  :"
+		}
+
+		column: 1
+		line: 2
+	}
+
+	description {
+		en = "Client Details"
+	}
+
+	zero-records-display: true
+	no-selection: true
+	show-all-books: false
+	start-line: 4
+	end-line: 99
+	build-routines {
+		jBC: "E.BUILD.CUS.POSITION"
+	}
+
+	fixed-selection "LIMIT.LEVEL" {
+		Equals "PRODUCT", "NULL"
+	}
+
+	fixed-selection "EB.SYSTEM.ID" {
+		NotEquals "LIUT", "FX", "SCS", "SCB"
+	}
+
+	fixed-selection "EB.SYSTEM.ID" {
+		NotEquals "LIAL"
+	}
+
+	fixed-selection "DEAL.AMOUNT" {
+		NotEquals "NULL"
+	}
+
+	fixed-sort: "CUSTOMER" None
+	fixed-sort: "SORT.POSITION" None
+	fixed-sort: "MATURITY.DATE" None
+	fixed-sort: "TRANS.REF" None
+	custom-selection {
+
+		field "CUSTOMER.NO" {
+			mandatory: true
+			label {
+				en = "Customer Number"
+			}
+
+			operands: Equals
+		}
+
+		AND
+
+		field "INCL.JOINT.INFO" {
+			label {
+				en = "Include Joint Info?"
+			}
+
+		}
+
+		AND
+
+		field "CATEGORY" {
+			label {
+				en = "Product"
+			}
+
+		}
+
+		AND
+
+		field "SORT.POSITION" {
+			label {
+				en = "Sort Position"
+			}
+
+		}
+
+		AND
+
+		field "AC.NO.DAYS" {
+			label {
+				en = "Ac.No.Days"
+			}
+
+			operands: Equals
+		}
+
+		AND
+
+		field "EB.SYSTEM.ID" {
+			label {
+				en = "System id"
+			}
+
+		}
+
+		AND
+
+		field "ASSET.LIAB.MARKER" {
+			label {
+				en = "AL Marker"
+			}
+
+		}
+		None
+	}  
+
+	field "ASTERIX" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"*\""
+	}
+
+	field "F" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"F\""
+	}
+
+	field "HEADER" {
+		display-type: "CLASS-TITLE"
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 1
+			line: 0
+		}
+
+		operation: constant "\"Client Details\""
+	}
+
+	field "HEADER2" {
+		display-type: "CLASS-ENQ.H.DATA.LABEL"
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 1
+			line: 1
+		}
+
+		operation: constant "\"Client: \""
+	}
+
+	field "HEADER3" {
+		display-type: "CLASS-ENQ.H.DATA.LABEL"
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 1
+			line: 2
+		}
+
+		operation: constant "\"Acct Officer: \""
+	}
+
+	field "ENQUIRY.NAME" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"CUS.POSITION\""
+	}
+
+	field "TODAY" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: today
+	}
+
+	field "LOCAL.CCY" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: local-currency
+	}
+
+	field "PERC" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"PERC\""
+	}
+
+	field "CPE.TYPE" {
+		format: User break-condition {
+			break: Once
+		}
+
+		length: 10
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"\""
+	}
+
+	field "DETAIL.NEXT.LEVEL" {
+		format: User break-condition {
+			break: Once
+		}
+
+		length: 1
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"Y\""
+	}
+
+	field "STAR" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"*\""
+	}
+
+	field "NULL" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"\""
+	}
+
+	field "MINUS1" {
+		break-condition {
+			break: Once
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"-1\""
+	}
+
+	field "CUSTOMER" {
+		length: 60
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "@ID"
+		conversion: extract from 2 to 0 delimited by "*"
+	}
+
+	field "CPEP.RECORD" {
+		format: User
+		length: 50
+		alignment: Left
+		comma-separator: false
+		operation: i-desc "CPEP.RECORD"
+	}
+
+	field "AMT.TO.TAKE" {
+		alignment: Left
+		comma-separator: false
+		operation: field-extract "CPEP.RECORD"
+		conversion: extract from 4 to 0 delimited by ">"
+	}
+
+	field "AL.TYPE" {
+		alignment: Left
+		comma-separator: false
+		operation: field-extract "CPEP.RECORD"
+		conversion: extract from 6 to 0 delimited by ">"
+	}
+
+	field "BRKCUS" {
+		alignment: Left
+		comma-separator: false
+		position {
+			page-throw: true
+		}
+
+		operation: break-change "CUSTOMER"
+	}
+
+	field "DISP.CUST" {
+		label {
+			en = "Client"
+		}
+
+		display-type: "CLASS-ENQ.H.DATA" break-condition {
+			break: NewPage
+		}
+
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 10
+			line: 1
+		}
+
+		processing-mode: Single
+		operation: application-field-name "@ID"
+		conversion: extract from 2 to 1 delimited by "*"
+	}
+
+	field "CUSTOMER.NAME" {
+		display-type: "CLASS-ENQ.H.DATA"
+		format: User break-condition {
+			break: NewPage
+		}
+
+		length: 35
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 20
+			line: 1
+		}
+
+		operation: field-extract "DISP.CUST"
+		conversion: getFrom "CUSTOMER" "SHORT.NAME" false
+	}
+
+	field "ACCT.OFFICER" {
+		label {
+			en = "A/Off :"
+		}
+
+		display-type: "CLASS-ENQ.H.DATA" break-condition {
+			break: NewPage
+		}
+
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 10
+			line: 2
+		}
+
+		processing-mode: Single
+		operation: field-extract "CUSTOMER"
+		conversion: getFrom "CUSTOMER" "ACCOUNT.OFFICER" false
+	}
+
+	field "ACCT.OFFICER.NAME" {
+		display-type: "CLASS-ENQ.H.DATA" break-condition {
+			break: NewPage
+		}
+
+		length: 35
+		alignment: Left
+		comma-separator: false
+		display-section: Header
+		position {
+			column: 20
+			line: 2
+		}
+
+		operation: field-extract "ACCT.OFFICER"
+		conversion: getFrom "DEPT.ACCT.OFFICER" "NAME" false
+	}
+
+	field "CONVERT.RECORD" {
+		alignment: Left
+		comma-separator: false
+		operation: field-extract "LOCAL.CCY"
+		conversion: call
+		jBC: "@ E.CUS.POSITION.EXCHANGE"
+	}
+
+	field "EB.SYSTEM.ID" {
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "ID"
+		conversion: extract from 3 to 1 delimited by "*"
+	}
+
+	field "MODULE" {
+		label {
+			en = "Module"
+		}
+
+		length: 2
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 1
+		}
+
+		processing-mode: Single
+		operation: field-extract "EB.SYSTEM.ID"
+		conversion: extract from 1 to 2
+	}
+
+	field "TXN.REF" {
+		label {
+			en = "Transaction Ref"
+		}
+
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 2
+		}
+
+		processing-mode: Single
+		operation: application-field-name "ID"
+		conversion: extract from 6 to 1 delimited by "*"
+	}
+
+	field "CUP.ID" {
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "@ID"
+	}
+
+	field "NARRATIVE" {
+		length: 30
+		alignment: Left
+		comma-separator: false
+		processing-mode: Multi
+		operation: field-extract "CPEP.RECORD"
+		conversion: call
+		jBC: "@ E.CUS.NARRATIVE"
+	}
+
+	field "DISPLAY.NARRATIVE" {
+		label {
+			en = "Display Narrative"
+		}
+
+		format: User
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 3
+		}
+
+		processing-mode: Multi
+		operation: application-field-name "DISPLAY.NARRATIVE"
+	}
+
+	field "NEXT.ENQ" {
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: field-extract "CUP.ID"
+		conversion: call
+		jBC: "@ E.CUS.POS.NEXT.LEVEL"
+	}
+
+	field "DEAL.CCY" {
+		label {
+			en = "Deal Ccy"
+		}
+
+		length: 3
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 4
+		}
+
+		processing-mode: Single
+		operation: application-field-name "DEAL.CCY"
+	}
+
+	field "PERC.AMOUNT" {
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "PERC.AMOUNT"
+	}
+
+	field "DEAL.AMOUNT" {
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "DEAL.AMOUNT"
+	}
+
+	field "DEAL.USE.AMT" {
+		alignment: Left
+		comma-separator: false
+		operation: if "AMT.TO.TAKE" Equals "PERC" process "PERC.AMOUNT" "DEAL.AMOUNT"
+	}
+
+	field "DEAL.USE.AMT.OPP" {
+		alignment: Left
+		comma-separator: false
+		operation: calc "DEAL.USE.AMT" * "MINUS1"
+	}
+
+	field "A.L" {
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "ASSET.LIAB.MARKER"
+	}
+
+	field "USE.AL" {
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: if "AL.TYPE" NotEquals "NULL" process "AL.TYPE" "A.L"
+	}
+
+	field "DISP.AMT" {
+		label {
+			en = "Amount"
+		}
+
+		display-type: "CLASS-POSNEG"
+		format: Currency "DEAL.CCY" negative-pattern -#
+		length: 20
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 5
+		}
+
+		operation: if "USE.AL" Equals "A.L" process "DEAL.USE.AMT" "DEAL.USE.AMT.OPP"
+	}
+
+	field "MARGIN.PERC" {
+		format: Rate
+		alignment: Left
+		comma-separator: false
+		operation: i-desc "MARGIN.PERC"
+	}
+
+	field "MARGIN.NARR" {
+		alignment: Left
+		comma-separator: false
+		operation: if "MARGIN.PERC" NotEquals "NULL" process "STAR" "NULL"
+	}
+
+	field "VALUE.DATE" {
+		alignment: Left
+		comma-separator: false
+		processing-mode: Single
+		operation: application-field-name "VALUE.DATE"
+	}
+
+	field "MARGIN.DISP" {
+		label {
+			en = "Margin Display"
+		}
+
+		display-type: "CLASS-POSNEG"
+		format: Currency "DEAL.CCY" negative-pattern -#
+		length: 20
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 6
+		}
+
+		operation: if "AMT.TO.TAKE" Equals "PERC" process "MARGIN.NARR" "NULL"
+	}
+
+	field "FORWARD.IND" {
+		label {
+			en = "Forward Date"
+		}
+
+		format: Date
+		length: 12
+		alignment: Right
+		comma-separator: false
+		position {
+			column: 7
+		}
+
+		operation: if "VALUE.DATE" Greater "TODAY" process "F" "NULL"
+	}
+
+	field "COLL.RGHT.COVER" {
+		label {
+			en = "Coll Right Cover"
+		}
+
+		length: 15
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 8
+		}
+
+		processing-mode: Single
+		operation: application-field-name "COLL.RGHT.COVER"
+	}
+
+	field "NULL1" {
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"NONE\""
+	}
+
+	field "COLL.RIGHT.COVER.1" {
+		label {
+			en = "Coll Right Cover"
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: if "COLL.RGHT.COVER" Equals "NULL" process "NULL1" "COLL.RGHT.COVER"
+	}
+
+	field "COLL.RIGHT" {
+		label {
+			en = "Coll Right"
+		}
+
+		length: 15
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 9
+		}
+
+		processing-mode: Multi
+		operation: application-field-name "COLL.RIGHT"
+	}
+
+	field "LOCAL.AMOUNT" {
+		alignment: Left
+		comma-separator: false
+		operation: field-extract "CONVERT.RECORD"
+		conversion: extract from 1 to 1 delimited by ">"
+	}
+
+	field "LOCAL.PERC.AMOUNT" {
+		alignment: Left
+		comma-separator: false
+		operation: field-extract "CONVERT.RECORD"
+		conversion: extract from 2 to 1 delimited by ">"
+	}
+
+	field "LOC.AMT.USE" {
+		alignment: Left
+		comma-separator: false
+		operation: if "AMT.TO.TAKE" Equals "PERC" process "LOCAL.PERC.AMOUNT" "LOCAL.AMOUNT"
+	}
+
+	field "LOC.AMT.USE.OPP" {
+		alignment: Left
+		comma-separator: false
+		operation: calc "LOC.AMT.USE" * "MINUS1"
+	}
+
+	field "DISP.LOC.AMT.USE" {
+		alignment: Left
+		comma-separator: false
+		operation: if "USE.AL" Equals "A.L" process "LOC.AMT.USE" "LOC.AMT.USE.OPP"
+	}
+
+	field "LIAL" {
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"LIAL\""
+	}
+
+	field "ZERO" {
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"0\""
+	}
+
+	field "NON.LIMITS" {
+		alignment: Left
+		comma-separator: false
+		operation: if "EB.SYSTEM.ID" Equals "LIAL" process "ZERO" "DISP.LOC.AMT.USE"
+	}
+
+	field "TOTAL.NON.LIMITS" {
+		break-condition {
+			field: "BRKCUS"
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: total "NON.LIMITS"
+	}
+
+	field "LIMITS" {
+		alignment: Left
+		comma-separator: false
+		operation: if "EB.SYSTEM.ID" Equals "LIAL" process "DISP.LOC.AMT.USE" "ZERO"
+	}
+
+	field "TOT.LIMITS" {
+		break-condition {
+			field: "BRKCUS"
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: total "LIMITS"
+	}
+
+	field "CAP.LIMIT" {
+		break-condition {
+			field: "BRKCUS"
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: selection "CUSTOMER.NO"
+		conversion: call
+		jBC: "@ E.CAP.LIMIT.AMOUNT"
+	}
+
+	field "MAX.LIMITS" {
+		break-condition {
+			field: "BRKCUS"
+		}
+
+		alignment: Left
+		comma-separator: false
+		operation: if "TOT.LIMITS" Greater "CAP.LIMIT" process "CAP.LIMIT" "TOT.LIMITS"
+	}
+
+	field "TOTAL.NARR" {
+		display-type: "CLASS-ENQ.H.DATA" break-condition {
+			field: "BRKCUS"
+		}
+
+		alignment: Left
+		comma-separator: false
+		escapeSequence: RV
+		position {
+			column: 3
+			line: + 1
+		}
+
+		operation: constant "\"Total Value In Local Ccy :\""
+	}
+
+	field "TOTAL.LOCAL" {
+		label {
+			en = "Total Value In Local Ccy :"
+		}
+
+		display-type: "CLASS-POSNEG"
+		format: Currency "LOCAL.CCY" negative-pattern -# break-condition {
+			field: "BRKCUS"
+		}
+
+		length: 20
+		alignment: Right
+		comma-separator: true
+		position {
+			column: 5
+			line: + 1
+		}
+
+		processing-mode: Single
+		operation: calc "TOTAL.NON.LIMITS" + "MAX.LIMITS"
+	}
+
+	field "NENQ" {
+		alignment: Left
+		comma-separator: false
+		operation: field-extract "NEXT.ENQ"
+		conversion: extract from 1 to 1 delimited by ">"
+	}
+
+	field "NEXT.SEL1" {
+		alignment: Left
+		comma-separator: false
+		operation: field-extract "NEXT.ENQ"
+		conversion: extract from 2 to 1 delimited by ">"
+	}
+
+	field "NEXT.SEL2" {
+		alignment: Left
+		comma-separator: false
+		operation: field-extract "NEXT.ENQ"
+		conversion: extract from 3 to 1 delimited by ">"
+	}
+
+	field "NO.RECORDS" {
+		display-type: "CLASS-ENQ.NORECS" break-condition {
+			break: None
+		}
+
+		alignment: Left
+		comma-separator: false
+		position {
+			column: 1
+		}
+
+		operation: constant "\"No Customer Position Available\""
+	}
+
+	field "DRILL.COLL.RIGHT" {
+		alignment: Left
+		comma-separator: false
+		operation: if "COLL.RIGHT" Equals "NULL" process "DUMM.VAL" "COLL.RIGHT"
+	}
+
+	field "MOD.TRANS.REF" {
+		alignment: Left
+		comma-separator: false
+		operation: calc "MODULE":"TXN.REF"
+	}
+
+	field "DRILL.ENQ" {
+		alignment: Left
+		comma-separator: false
+		operation: if "MODULE" Equals "LI" process "\"CO.010\"" "\"CO.01C0\""
+	}
+
+	field "SEL.CRET1" {
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"CONTRACT.ID \""
+	}
+
+	field "EQ" {
+		alignment: Left
+		comma-separator: false
+		operation: constant "\"EQ \""
+	}
+
+	field "SEL.CRET2" {
+		alignment: Left
+		comma-separator: false
+		operation: field-extract "MOD.TRANS.REF"
+	}
+
+	field "SEL.CRET3" {
+		alignment: Left
+		comma-separator: false
+		operation: calc "SEL.CRET1":"EQ":"SEL.CRET2"
+	}
+
+	field "SEL.CRET" {
+		alignment: Left
+		comma-separator: false
+		operation: if "MODULE" Equals "LI" process "\"\"" "SEL.CRET3"
+	}
+
+	drilldown {
+		description {
+			en = "More detail..."
+		}
+
+		label-field: "MODULE"
+		criteria: "NEXT.SEL1"
+		criteria: "NEXT.SEL2"
+		from-field: "NENQ"
+	}
+
+	drilldown {
+		description {
+			en = "Collateral Cover Details"
+		}
+
+		label-field: "MODULE"
+		
+		criteria: "COLLATERAL.RIGHT" Equals "COLL.RIGHT.COVER.1"
+	    enquiry: "CO.100"
+	}
+
+	drilldown {
+		description {
+			en = "Collateral Right Details"
+		}
+
+		label-field: "MODULE"
+		criteria: "SEL.CRET"
+		criteria: "COLLAT.RIGHT" Equals "DRILL.COLL.RIGHT"
+		from-field: "DRILL.ENQ"
+	}
+
+}

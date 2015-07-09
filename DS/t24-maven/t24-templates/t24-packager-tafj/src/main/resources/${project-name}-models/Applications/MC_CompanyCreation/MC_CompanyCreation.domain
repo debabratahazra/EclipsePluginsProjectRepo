@@ -1,0 +1,467 @@
+# UTF-8
+# UTF-8
+/* Company Change Processing */
+Domain MC_CompanyCreation
+	@t24:i (module=MC)
+	@java:Package (value=com.temenos.t24.datamodel.mc.mc_companycreation)
+namespace "http://www.temenos.com/t24/MC_CompanyCreation"
+metamodelVersion 1.30.6
+Classes {
+	/* Contains details of contracts or accounts athat are set up to move from one company to another in a multi book set up. */
+	EB_COMPANY_CHANGE
+		@t24:i (t24Name=EB.COMPANY.CHANGE, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Standard T24 transaction key prefixed with EBCC. THe @ID to the EB.COMPANY.CHANGE record */
+		EBC_CO_CHANGE -> MC_CompanyCreation:EB_COMPANY_CHANGE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=A, t24Name=EBC.CO.CHANGE)
+		/* T24 Application of the contract to be transfered.T24 Application of the contract to be transferred.
+
+Validation Rules:
+Must be a valid T24 Application */
+		APPLICATION : T24BusinessTypes:A required
+			@i18n:Label (en=Application)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=APPLICATION)
+		/* Product code of the application. The system will default this field.
+
+Validation Rules:
+a valid T24 product code. No input field. */
+		PRODUCT : T24BusinessTypes:A
+			@i18n:Label (en=Product)
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=2.0, core=true, t24Name=PRODUCT)
+		/* The Contract or account key. */
+		CONTRACT_KEY : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, t24Name=CONTRACT.KEY)
+		/* The date on which the contract must be transferred.
+
+Validation Rules:
+Standard date format. */
+		EFFECTIVE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Effective Date")
+			@i18n:Tooltip (en="Effective date of the transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=EFFECTIVE.DATE)
+		/* The current company code of the contract. The system will default the company code from the contract.
+
+Validation Rules:
+A Valid company code. No input field */
+		COMPANY_FROM -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=5.0, core=true, businessType=COM, t24Name=COMPANY.FROM)
+		/* The company code of the branch that the contract is being moved to.
+
+Validation Rules:
+Must be a valid company. The lead company must be the same as the COMPANY.FROM ie the FINANCIAL.COM must be the same in each company record. */
+		COMPANY_TO -> ST_CompanyCreation:COMPANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, businessType=COM, t24Name=COMPANY.TO)
+		/* Indicates if the contract was transferred to the new company correctly.  If Yes, then the transfer was successful. NO indicates an error in the transfer. */
+		RESULT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESULT)
+		RESULT_DESC -> byValue MC_CompanyCreation:EB_COMPANY_CHANGE__RESULT_DESC *
+		LINK_CONTRACTS -> byValue MC_CompanyCreation:EB_COMPANY_CHANGE__LINK_CONTRACTS *
+		ACCOUNTING_CO_FROM -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=9, sysNumber=10.0, core=true, businessType=COM, t24Name=ACCOUNTING.CO.FROM)
+		ACCOUNTING_CO_TO -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=9, sysNumber=11.0, core=true, businessType=COM, t24Name=ACCOUNTING.CO.TO)
+		ACCT_CO_DEFAULT -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=9, sysNumber=12.0, core=true, businessType=COM, t24Name=ACCT.CO.DEFAULT)
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue MC_CompanyCreation:EB_COMPANY_CHANGE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=23.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue MC_CompanyCreation:EB_COMPANY_CHANGE__INPUTTER *
+		DATE_TIME -> byValue MC_CompanyCreation:EB_COMPANY_CHANGE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=26.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=27.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=28.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=29.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=30.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_COMPANY_CHANGE__RESULT_DESC
+	{
+		/* Description of the result. */
+		RESULT_DESC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESULT.DESC)
+	}
+	EB_COMPANY_CHANGE__LINK_CONTRACTS
+	{
+		/* Any contracts that were transfered with the main contract. */
+		LINK_CONTRACTS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=LINK.CONTRACTS)
+	}
+	EB_COMPANY_CHANGE__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=OVERRIDE)
+	}
+	EB_COMPANY_CHANGE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=INPUTTER)
+	}
+	EB_COMPANY_CHANGE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=25.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Contains details of contracts or accounts that have moved from one company to another in a multi book set up. */
+	EB_COMPANY_CHANGE_HIST
+		@t24:i (t24Name=EB.COMPANY.CHANGE.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The date on which the contract was transferred.
+
+Validation Rules:
+Standard date format. */
+		CONTRACT_DATE -> MC_CompanyCreation:EB_COMPANY_CHANGE_HIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT-DATE)
+		/* The original company code of the contract.
+
+Validation Rules:
+A Valid company code. No input field */
+		OLD_COMPANY -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, businessType=COM, t24Name=OLD.COMPANY)
+		/* The company code of the branch that the contract was moved to.
+
+Validation Rules:
+A Valid company code. No input field */
+		NEW_COMPANY -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, businessType=COM, t24Name=NEW.COMPANY)
+		/* The contract that was transferred. */
+		CO_CHANGE_REF_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=3.0, core=true, t24Name=CO.CHANGE.REF.NO)
+	}
+	/* Used to trigger the bulk transfer all accounts and contracts for applications defined on STANDARD.MAPPING from one company to another.
+Setting up this table will trigger the automatic creation of EB.COMPANY.CHANGE records to generate the transfer. */
+	EB_TNSFER_COMPANY
+		@t24:i (t24Name=EB.TNSFER.COMPANY, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* The company from which accounts and contracts are to be transferred. */
+		COMPANY_FROM -> MC_CompanyCreation:EB_TNSFER_COMPANY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=0.0, core=true, businessType=COM, t24Name=COMPANY.FROM)
+		/* The company to which accounts and contracts are to be transferred. */
+		COMPANY_TO -> ST_CompanyCreation:COMPANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, businessType=COM, t24Name=COMPANY.TO)
+		/* The effective date of the transfer. */
+		EFFECTIVE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Effective Date")
+			@i18n:Tooltip (en="Effective date of the transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=EFFECTIVE.DATE)
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=3.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue MC_CompanyCreation:EB_TNSFER_COMPANY__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue MC_CompanyCreation:EB_TNSFER_COMPANY__INPUTTER *
+		DATE_TIME -> byValue MC_CompanyCreation:EB_TNSFER_COMPANY__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=13.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=14.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=16.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=17.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_TNSFER_COMPANY__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=OVERRIDE)
+	}
+	EB_TNSFER_COMPANY__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, core=true, t24Name=INPUTTER)
+	}
+	EB_TNSFER_COMPANY__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=12.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	STANDARD_MAPPING
+		@t24:i (t24Name=STANDARD.MAPPING, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Definition of target balances for accounting events.
+
+This file contains the details of the relationships between subordinate tables and the master contract table. It is used for multi book SMS purposes, hence the fields used to link the subordinate table to the master table. This feature is mainly used for live files.
+
+This table operates in the same manner as STANDARD.SELECTION in that Temenos release the record with the SYS fields populated, and the user can subsequently populate the USR fields if required. */
+		APPLICATION -> MC_CompanyCreation:STANDARD_MAPPING PK required
+			@i18n:Label (en=Application)
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=A, t24Name=APPLICATION)
+		/* YES_NO indicates whether the history records are to be converted. */
+		MASTER_CONV_HIS : MC_CompanyCreation:STANDARD_MAPPING__MASTER_CONV_HIS
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=1.0, core=true, t24Name=MASTER.CONV.HIS)
+		SYS_SUB_TABLE -> byValue MC_CompanyCreation:STANDARD_MAPPING__SYS_SUB_TABLE *
+		USR_SUB_TABLE -> byValue MC_CompanyCreation:STANDARD_MAPPING__USR_SUB_TABLE *
+		/* A routine to check whether the contract can be moved from one branch to another.
+
+Must be defined on PGM.FILE as TYPE S and must be prefixed with @.
+
+Should return ETEXT if the contract cannot be moved from one branch to another. */
+		CONT_MOVE_CHK_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=32.0, core=true, t24Name=CONT.MOVE.CHK.RTN)
+		/* Identifies the file that is used to trigger the static change processing required to make sure the change of branch is reported correctly on the CAL.
+
+Must be a valid T24 table.
+
+If defined, the contract id will be used to update the relevant file to trigger the static change processing. */
+		STAT_CHG_TRIG_FILE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=33.0, core=true, t24Name=STAT.CHG.TRIG.FILE)
+		/* Identifies the routine that is used to trigger the static change processing required to make sure the change of branch is reported correctly on the CAL.
+
+Must be defined on the PGM.FILE as a TYPE S program and prefixed with @.
+
+2 arguments, contract being moved, and error flag to abort the move.
+
+If defined, this will write out a record to the relevant static changed file and can return an error to abort the change. */
+		STAT_CHG_TRIG_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=34.0, core=true, t24Name=STAT.CHG.TRIG.RTN)
+		/* A routine to return a list of record keys that need to have their company code changed. */
+		LINKED_IDS_RTN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=35.0, core=true, t24Name=LINKED.IDS.RTN)
+		ENTRY_VALUE -> byValue MC_CompanyCreation:STANDARD_MAPPING__ENTRY_VALUE *
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=38.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=39.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=40.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue MC_CompanyCreation:STANDARD_MAPPING__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=42.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=43.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue MC_CompanyCreation:STANDARD_MAPPING__INPUTTER *
+		DATE_TIME -> byValue MC_CompanyCreation:STANDARD_MAPPING__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=46.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=47.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=48.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=49.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=50.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	STANDARD_MAPPING__SYS_SUB_TABLE
+	{
+		/* The subordinate table e.g. ACCOUNT.DEBIT.INT
+
+Specifies the name of the System Table Validation Rules
+
+Should be the name of a valid T24 Application Name.
+Associated with the fields from SYS.SUB.TABLE to SYS.CONV.HIS */
+		SYS_SUB_TABLE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=2.0, core=true, t24Name=SYS.SUB.TABLE)
+		/* The field name used to link to the master record (normally the record key).
+
+Input can either be @ID or a valid field name */
+		SYS_LINK_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=3.0, core=true, t24Name=SYS.LINK.FIELD)
+		/* The part of the SYS.LINK.FIELD used to link.
+
+Only input when the field value contains more than the master file key. For example, the master key followed by a date.
+
+This operates in the same way as the MT.KEY.COMPONENT on the PGM.FILE, which is processed in BATCH.JOB.RUN. */
+		SYS_FIELD_PART : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=SYS.FIELD.PART)
+		/* YES_NO indicates that the CO.CODE field of the SUB.TABLE needs to be changed when the master record moves from one company to another.
+
+It is possible that for some subordinate tables it may not be necessary to change company code.
+
+A validation check is be made to make sure that there is a CO.CODE field on the sub-table. */
+		SYS_CHG_CO_CODE : MC_CompanyCreation:STANDARD_MAPPING__SYS_SUB_TABLE__SYS_CHG_CO_CODE
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=5.0, core=true, t24Name=SYS.CHG.CO.CODE)
+		/* YES_NO indicates whether the history records of the sub-table are also converted. */
+		SYS_CONV_HIS : MC_CompanyCreation:STANDARD_MAPPING__SYS_SUB_TABLE__SYS_CONV_HIS
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=6.0, core=true, t24Name=SYS.CONV.HIS)
+		SYS_RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=SYS.RESERVED.10)
+		SYS_RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=SYS.RESERVED.9)
+		SYS_RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=SYS.RESERVED.8)
+		SYS_RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=SYS.RESERVED.7)
+		SYS_RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=SYS.RESERVED.6)
+		SYS_RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=SYS.RESERVED.5)
+		SYS_RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=SYS.RESERVED.4)
+		SYS_RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=SYS.RESERVED.3)
+		SYS_RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=SYS.RESERVED.2)
+		SYS_RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=SYS.RESERVED.1)
+	}
+	STANDARD_MAPPING__USR_SUB_TABLE
+	{
+		/* The subordinate table.
+
+Specifies the name of the User defined  (non-T24 Core) Table Validation Rules
+
+Should be the name of a valid T24 Application Name.
+Associated with the fields from USR.SUB.TABLE to USR.CONV.HIS */
+		USR_SUB_TABLE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=17.0, core=true, t24Name=USR.SUB.TABLE)
+		/* The field name used to link to the master record (normall the record key). */
+		USR_LINK_FIELD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=18.0, core=true, t24Name=USR.LINK.FIELD)
+		/* The part of the USR.LINK.FIELD used to link.
+
+Only input when the field value contains more than the master file key.
+
+This operates in the same way as the MK.KEY.COMPONENT on the PGM.FILE. */
+		USR_FIELD_PART : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=USR.FIELD.PART)
+		/* YES_NO indicates that the CO.CODE field of the SUB.TABLE needs to be changed when the master record moves from one company to another.
+
+It is possible that for some subordinate tables it may not be necessary to change company code.
+
+A validation check is be made to make sure that there is a CO.CODE field on the sub-table. */
+		USR_CHG_CO_CODE : MC_CompanyCreation:STANDARD_MAPPING__USR_SUB_TABLE__USR_CHG_CO_CODE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=20.0, core=true, t24Name=USR.CHG.CO.CODE)
+		/* YES_NO indicates whether the history records of the sub table are also converted. */
+		USR_CONV_HIS : MC_CompanyCreation:STANDARD_MAPPING__USR_SUB_TABLE__USR_CONV_HIS
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=21.0, core=true, t24Name=USR.CONV.HIS)
+		USR_RESERVED_10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=USR.RESERVED.10)
+		USR_RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=USR.RESERVED.9)
+		USR_RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=USR.RESERVED.8)
+		USR_RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=25.0, core=true, t24Name=USR.RESERVED.7)
+		USR_RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=26.0, core=true, t24Name=USR.RESERVED.6)
+		USR_RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=27.0, core=true, t24Name=USR.RESERVED.5)
+		USR_RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=28.0, core=true, t24Name=USR.RESERVED.4)
+		USR_RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=USR.RESERVED.3)
+		USR_RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=30.0, core=true, t24Name=USR.RESERVED.2)
+		USR_RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=31.0, core=true, t24Name=USR.RESERVED.1)
+	}
+	STANDARD_MAPPING__ENTRY_VALUE
+	{
+		/* The name of the entry value that can be used in mapping the content of the field in the entry construction. Can be one of the following:
+
+REFERENCEn - where n is 1 to 9
+
+NARRATIVEn - where n is 1 to 9
+
+CUSTOMER.NO
+
+ACCOUNT.OFFICER
+
+CATEGORY
+
+POSITION.TYPE */
+		ENTRY_VALUE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=36.0, core=true, t24Name=ENTRY.VALUE)
+		/* The field name in the application identified by the key of this record that holds the associated ENTRY.VALUE.
+
+Values must be a valid DATA field name in the STANDARD.SELECTION record.
+
+Multi and sub-value instances can be specified if required (e.g. LOCAL.REF-2.1). */
+		ENTRY_LOCATION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=37.0, core=true, t24Name=ENTRY.LOCATION)
+	}
+	STANDARD_MAPPING__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=41.0, core=true, t24Name=OVERRIDE)
+	}
+	STANDARD_MAPPING__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=44.0, core=true, t24Name=INPUTTER)
+	}
+	STANDARD_MAPPING__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=45.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	STANDARD_MAPPING__MASTER_CONV_HIS : mml:string
+		YES=YES
+		NO=NO
+	STANDARD_MAPPING__SYS_SUB_TABLE__SYS_CHG_CO_CODE : mml:string
+		YES=YES
+		NO=NO
+	STANDARD_MAPPING__SYS_SUB_TABLE__SYS_CONV_HIS : mml:string
+		YES=YES
+		NO=NO
+	STANDARD_MAPPING__USR_SUB_TABLE__USR_CHG_CO_CODE : mml:string
+		YES=YES
+		NO=NO
+	STANDARD_MAPPING__USR_SUB_TABLE__USR_CONV_HIS : mml:string
+		YES=YES
+		NO=NO
+}

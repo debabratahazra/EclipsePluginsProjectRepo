@@ -1,0 +1,76 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Fragment ---
+	cardinality = one
+	domainEntity = "AAAIdentifierDatasets:ManagerIdentifier"
+{
+	--- Box ---
+		width = 0
+	{
+		--- SearchField ---
+			domainAttribute = code
+			columns = 25
+			chars = 20
+			bean-property = code
+			id = code
+			widgetGroup = formSearch
+			auto-delay = 700
+			nb-chars = 1
+			outputDesign = "" !
+			resource:///Default/autocompleteoutput/Advisor.module
+		{
+			Event OnBlur (switchWidgetProperty)
+			{
+				widget-group-id = btn_execute_in_domaincontext
+				property = enabled
+				delay = 300
+			}
+			Event OnFocus (switchWidgetProperty)
+			{
+				widget-group-id = btn_execute_in_domaincontext
+				property = enabled
+				delay = 0
+			}
+			Event OnBlur (switchWidgetProperty)
+			{
+				widget-group-id = btn_refresh_in_domaincontext
+				property = enabled
+				delay = 300
+			}
+			Event OnFocus (switchWidgetProperty)
+			{
+				widget-group-id = btn_refresh_in_domaincontext
+				property = enabled
+				delay = 0
+			}
+			Event Search (submit)
+			{
+				method = post
+				call-URI = "<pageflow:continuation/>"
+				widget-group-ref = form
+				target = self
+				param = "flow-action=search;flow-change=contextReload"
+				only-changed = true
+				modal = false
+				prevalidate = false
+				Snippet Query
+				queryAttributes = "extDenomination,searchCode,name,dataProfileSearchCode,code,languageSearchCode"
+				queryMappings = code
+				queryOutputModule = "" !
+				resource:///Default/module/aaa/administration/manager/search/ManagerSearch.module
+				Snippet FilterSet
+				id = fs_Jr7
+				level = 1
+				targetDataset = "AAADSManager:ManagerSearchCriteria"
+				{
+					Snippet Filter
+					attribute = searchCode
+					editMode = editable
+					filterValue = "valueOf(formSearch.portfolioDimCommMgr.code)"
+					operator = LIKE
+				}
+			}
+		}
+	}
+}

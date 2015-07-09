@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "http://docs.oasis-open.org/dita/dtd/task.dtd" []>
+<task id="Packagingonremoteserver">
+	<title>Packaging on remote server</title>
+	<shortdesc>This task describes how to build your package on a remote server, for instance for a continuous integration.
+		The goal is to create, from command lines, the tar/jar file to
+		install on T24.
+	</shortdesc>
+	<prolog>
+		<author type="creator">Olivier Cevaer</author>
+		<metadata>
+			<keywords>
+				<indexterm>packager</indexterm>
+			</keywords>
+		</metadata>
+	</prolog>
+	<taskbody>
+		<prereq>
+			<ul>
+				<li>
+					You must already have created your packager project and committed all your changes to your source control
+					management. This includes the
+					following projects:
+					<ul>
+						<li>[project-name]-data-code</li>
+						<li>[project-name]-models</li>
+						<li>[project-name]-packager</li>
+					</ul>
+					For more details, please refer to section
+					<xref href="../../Workbench\Reference\PackagerProjectList.dita" />
+				</li>
+				<li>You need a 64 bit build server with Java JDK (1.6 minimum) installed.</li>
+			</ul>
+		</prereq>
+		<context>This applies when you want to industrialize the process of building the package on a regular basis or when
+			you run TAFC environment on a remote server with another platform than Windows.
+		</context>
+
+		<steps>
+			<step>
+				<cmd>
+					Install maven 3.0.4 (https://maven.apache.org/download.cgi) on your server. Only 3.0.4 is supported to work
+					with a Maven offline (no internet access).
+					Newer Maven releases require other versions of Maven Plug-Ins which are not part of the t24-binaries ZIP provided.
+					If your server has access to Maven central repository, newer Maven versions can be installed.
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					Unzip the t24-binaries that comes with Design Studio on your server, providing to maven all references your
+					projects require during the
+					build if you want to set a local repository. You can choose any location. The path
+					becomes a parameter in the maven command.
+				</cmd>
+				<info>You also can move the T24-binaries to a remote repository (intranet) using Nexus as repository manager.</info>
+			</step>
+			<step>
+				<cmd>For TAFJ, you need to install a TAFJ Release on your server and set the corresponding TAFJ_HOME required by
+					TAFJ Maven plug-ins.
+				</cmd>
+			</step>
+			<step>
+				<cmd>
+					Use a scheduling tool to run the following steps:
+				</cmd>
+				<substeps>
+					<substep>
+						<cmd>
+							Checkout
+							your projects from your source control management, using command line.
+							It copies all sources modified
+							in collaborative mode to
+							your server on your
+							current directory.
+						</cmd>
+					</substep>
+					<substep>
+						<cmd>
+							From the same directory, run command:
+							<cmdname>
+
+							</cmdname>
+						</cmd>
+						<info>
+							<ul>
+								<li>
+									For TAFJ:
+									<codeblock>								
+mvn -U -f [projet]-packager/module/pom.xml clean -o install
+ -Dds.ignoreValidationErrors=false
+ -DtafjHome=[TAFJ home where packager is running]
+ -DInsertDir=[value of temn.tafj.directory.insert in TAFJ properties file]
+ -DlibDir=[value of temn.tafj.directory.precompile in TAFJ properties file]
+ –Dmaven.repo.local=[T24-binaries unzip folder]
+ </codeblock>
+								</li>
+								<li>
+									For TAFC:
+									<codeblock>								
+mvn -U -f [projet]-packager/module/pom.xml clean -o install
+ -Dds.ignoreValidationErrors=false
+ -Dt24Home=[TAFC home (bnk-run) where packager is running]
+ -Dt24infra=[infra folder where packager is running]
+ –Dmaven.repo.local=[T24-binaries unzip folder]
+ </codeblock>
+								</li>
+							</ul>
+							These
+							<i>-D</i>
+							parameters differ from values set in
+							<xref href="../references/TemplateParameters.dita">project template</xref>
+							created locally pointing to local TAFJ installation.
+						</info>
+					</substep>
+				</substeps>
+			</step>
+		</steps>
+		<result>
+			Your tar/jar file is created and available in
+			<filepath>[projet]-packager/target,</filepath>
+			ready to be installed on T24 environment(s).
+		</result>
+	</taskbody>
+	<related-links>
+		<link href="./CreatingDemoPackager.dita" />
+		<link href="./InstallingPackageTAFC.dita" />
+		<link href="./InstallingPackageTAFJ.dita" />
+		<link href="../references/TemplateParameters.dita" />
+	</related-links>
+
+</task>

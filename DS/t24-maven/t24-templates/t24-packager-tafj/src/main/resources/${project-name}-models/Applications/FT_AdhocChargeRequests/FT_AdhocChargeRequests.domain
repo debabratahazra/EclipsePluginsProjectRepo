@@ -1,0 +1,474 @@
+# UTF-8
+# UTF-8
+/* AdhocChargeRequests for Funds Transfer */
+Domain FT_AdhocChargeRequests
+	@t24:i (module=FT)
+	@java:Package (value=com.temenos.t24.datamodel.ft.ft_adhocchargerequests)
+namespace "http://www.temenos.com/t24/FT_AdhocChargeRequests"
+metamodelVersion 1.30.6
+Classes {
+	/* Charge Request is a fully integrated module with the T24 environment to provide advanced banking services to the user. Used as an interbank facility for requesting or advising charges of many types from other financial institutions.
+Instructions are entered manually by the user and the system will fully interact with the internal Delivery Module and Swift. The Charge Request module will calculate any tax or commission that should apply to the charge and then process the requested SWIFT and update accounting records. */
+	AC_CHARGE_REQUEST
+		@t24:i (t24Name=AC.CHARGE.REQUEST, level=F, type=H, additionalInfo="UNP OEU", allowedFunctions="A C D E I L Q S", localRefAllowed=true)
+	{
+		/* Identifies uniquely each Charge Request transaction.
+The Reference Number will be shown on all output generated from the transaction.
+To avoid the necessity to input the complete Reference Number, the User has the facility to input only the sequence number of the transaction to access any transaction which has been input that day. The Application will automatically generate the seven first digits and append them to the front of the sequence number in order to retrieve the requested transaction.
+Access to any Charge Request transaction from a previous day requires the input of the day number and sequence number, the system will automatically generate the first 5 characters, assuming that the current year is applicable.
+Explanation of Reference Number format: CHGYYDDDNNNNN
+CHG - Application indicator for the Charge Request Module.. YY - Last two digits of year when transaction is processed. DDD - Julian day number within year when the AC.CHARGE.REQUEST is processed. NNNNN - Five digit sequential number.
+This range will allow up to 99,999 Charge Request transactions to be entered on each single day. Thus: CHG8530500010 is the 10th Charge Request transaction of the 2nd of November 1985, i.e.: - CHG = Charge Request Module Id. - 85 = Year 1985 - 305 = 2nd of November (305th day 1985) - 00010 = 10th transaction on that day.
+Validation Rules
+
+11 numeric characters, prefixed by CHG: CHGyydddnnnnn         i.e. CHG followed by 10 numbers(see Details for further         explanation). (Mandatory input)
+If the Reference sequence Number is entered, during         initial input, it will be validated for uniqueness. */
+		REQUEST_ID -> FT_AdhocChargeRequests:AC_CHARGE_REQUEST PK required
+			@i18n:Label (en="Request id")
+			@i18n:Tooltip (en="Request Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=0.0, core=true, businessType=A, t24Name=REQUEST.ID, mask="###/#####/#####")
+		/* Request Type field, along with the Message Series field, determines which SWIFT message is to be generated. In conjunction with the Status field it determines whether any accounting entries are raised.
+Valid Entries
+
+REQUEST - raises a MTn91 but no accounting
+CHARGE - raises accounting and a MTn90 for a Customer/Vostro or raises accounting and MTn91 for an Internal/Nostro account type
+ADVICE - raises a MTm90
+BOOK - raises accounting entries only
+Validation Rules
+
+Only the above entries are allowed */
+		REQUEST_TYPE : FT_AdhocChargeRequests:AC_CHARGE_REQUEST__REQUEST_TYPE required
+			@i18n:Label (en="Request Type")
+			@i18n:Tooltip (en="Request Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=1.0, core=true, t24Name=REQUEST.TYPE)
+		/* The account which the charge is to be raised against. Nostro/Vostro, Customer or Internal accounts are all acceptable. A valid mnemonic can also be entered and T24 will default the account details.
+Validation Rules
+
+Must be a valid T24 account.
+Mandatory field. */
+		DEBIT_ACCOUNT -> ACM_AccountOpening:ACCOUNT required
+			@i18n:Label (en="Debit Account")
+			@i18n:Tooltip (en="Debit Account")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=2.0, core=true, businessType=ANT, t24Name=DEBIT.ACCOUNT)
+		/* This is the customer number to whom the charge relates.
+Validation Rules
+
+If nothing entered then the Customer associated with the         DEBIT.ACCOUNT is used.
+Valid T24 customer or mnemonic. */
+		CUSTOMER_NO -> ST_Customer:CUSTOMER
+			@i18n:Label (en="Customer No")
+			@i18n:Tooltip (en="Identifies the Customer for the transaction.")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, businessType=CUS, t24Name=CUSTOMER.NO)
+		/* Enter the date of the charge, this is the date that will appear on transactions.
+If the STATUS field is changed from Unpaid to Paid at any time, the accounting entries will still be raised for the date shown in this field.
+It is possible to update this field with a new value when a record is amended.
+Validation Rules
+Must be a valid date. If nothing is entered todays date is automatically defaulted */
+		CHARGE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Charge Date")
+			@i18n:Tooltip (en="Indicates value date for online charges raised")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=CHARGE.DATE)
+		/* The currency that the charge is to be made in. It is a noninput field and is derived from the curency of the DEBIT.ACCOUNT already entered.
+Validation Rules
+No validation done here but the Account can be in any valid currency. */
+		CHARGE_CCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en="Charge Ccy")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=5.0, core=true, businessType=CCY, t24Name=CHARGE.CCY)
+		CHARGE_CODE -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__CHARGE_CODE *
+		/* This is the total amount of money to be charged to the previously entered account in that account's currency and dependent on the charge codes and commission types and the corresponding amounts relating to those codes. It is purely a total of all the amounts entered and all the tax amounts derived from those codes.
+Validation Rules
+This is a noinput field and is calculated by T24 infomation input. */
+		TOTAL_CHG_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Charge Amount")
+			@i18n:Tooltip (en="Total Charge Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=10.0, core=true, t24Name=TOTAL.CHG.AMT, typeModifiers="5")
+		/* This is a free format field and should contain any reference that is related to this charge that should appear on the SWIFT message.
+Validation Rules
+This is a mandatory field unless the REQUEST.TYPE entered above is "BOOK" */
+		RELATED_REF : T24BusinessTypes:S
+			@i18n:Label (en="Related Reference")
+			@i18n:Tooltip (en="Related Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=11.0, core=true, t24Name=RELATED.REF)
+		/* This field contains a single numeric value and is the SWIFT message type that the charge should be raised for. Together with the REQUEST.TYPE this will determine the actual SWIFT message to generate.
+Validation Rules
+A single numeric in the range 1-9 is allowed with "1" being the default if nothing is entered. */
+		MSG_SERIES : T24BusinessTypes:A
+			@i18n:Label (en="Message Series")
+			@i18n:Tooltip (en="Message Series")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=12.0, core=true, t24Name=MSG.SERIES)
+		/* This field contains the specific SWIFT message to generate based on infomation enterd earlier for this charge. It is a conbination of REQUEST.TYPE and MSG.SERIES.
+Validation Rules
+No validation on this field, it is display only. */
+		SWIFT_TO_RAISE : mml:Integer
+			@i18n:Label (en="Swift to Raise")
+			@i18n:Tooltip (en="Swift to Raise")
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=13.0, core=true, t24Name=SWIFT.TO.RAISE)
+		/* This field contains a code which details what the charge is for, such as telephone charges or agents commission etc. This is a universally defined code and appears on the SWIFT message. All valid codes are maintained on the SWIFT.CODE.WORDS file and relate to a particular message type.  If there are no valid codes for a specific message series, then the EXTRA.DETAILS field must be used.
+Validation Rules
+Either this field or EXTRA.DETAILS must be populated. Must be a valid code for the message series (MSG.SERIES) entered above and correspond to the SWIFT message this charge wishes to raise as detailed here;
+In category 1 and 2 messages the following codes can be used;
+
+COMM - Our commission.
+INT - Interest related charges.
+PHON - Our telephone cost.
+TELE - Charges relating to the most appropriate and efficient means of telecommunications available, eg, S.W.I.F.T., telex, telephone, facsimile, as determined by the party executing the payment instruction.
+TELEX - Our telex cost.
+In category 4 and 7 messages the following codes are valid;
+
+AGENT - Agent's commission.
+COMM - Our commission.
+CORCOM - Our correspondent's commission.
+DISC - Commercial discount
+INSUR - Insurance premium.
+POST - Our postage.
+STAMP - Stamp duty.
+TELECHAR - Teletransmission charges.
+WAREHOUS - Wharfing and warehouse.
+In category 5 messages the code may contain one or more of the following
+
+BROK - Brokerage.
+CHGS - Charges.
+COMM - Commission.
+FEES - Fees.
+MISC - Miscellaneous
+POST - Postage.
+SHIN - Shipping including insurance, etc.
+STAMP - Stamp duty.
+TTAX - Transaction tax.
+VATX - Value added tax.
+WITX - Withholding tax */
+		CHARGE_DETAIL -> DE_Config:SWIFT_CODE_WORDS
+			@i18n:Label (en="Charge Detail")
+			@i18n:Tooltip (en="Charge Detail")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=14.0, core=true, businessType=S, t24Name=CHARGE.DETAIL)
+		EXTRA_DETAILS -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__EXTRA_DETAILS *
+		/* This field can contain ADDRESS, BIC or NULL and determines what type of address the SWIFT message is being sent to. Either a valid banks address,  a valid SWIFT code or a valid bank customer number
+Validation Rules
+Only ADDRESS, BIC or NULL can be accepted */
+		ORD_INST_TYPE : FT_AdhocChargeRequests:AC_CHARGE_REQUEST__ORD_INST_TYPE
+			@i18n:Label (en="Ordering Inst Type")
+			@i18n:Tooltip (en="Ordering Inst. Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=16.0, core=true, t24Name=ORD.INST.TYPE)
+		ORDERING_INST -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__ORDERING_INST *
+		/* This field can contain ADDRESS, BIC or NULL and determines what type of address the SWIFT message is being sent to. Either a valid banks address, a valid SWIFT code or a valid bank customer number
+Validation Rules
+Only ADDRESS, BIC or NULL can be accepted */
+		ACCT_WITH_TYPE : FT_AdhocChargeRequests:AC_CHARGE_REQUEST__ACCT_WITH_TYPE
+			@i18n:Label (en="Acct With Type")
+			@i18n:Tooltip (en="Account With Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=18.0, core=true, t24Name=ACCT.WITH.TYPE)
+		ACCT_WITH_BANK -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__ACCT_WITH_BANK *
+		/* This field contains the code for additional information for the receiver. The additional information is keyed in the SENDER.INFO field.
+This field corresponds to field 72 on SWIFT messages, and must never to used for information for which another field is intended, or for instructions not required in a message.
+Whenever this field is used in a message transmitted between countries with different languages, it is recommended that English be used.
+
+Validation Rules
+
+
+Code must exist on SWIFT.CODE.WORDS. */
+		SENDER_DETAIL -> DE_Config:SWIFT_CODE_WORDS
+			@i18n:Label (en="Sender Details")
+			@i18n:Tooltip (en="Sender Details")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=20.0, core=true, businessType=A, t24Name=SENDER.DETAIL)
+		SENDER_INFO -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__SENDER_INFO *
+		/* The current value of the charge request. This field also updates the REMOVE.DATE field if the status is anything other that UNPAID.
+Validation Rules
+
+Mandatory field.
+
+There are four valid entries for this field;
+
+UNPAID - A request has been made but no further                 action has been taken
+TAKEN - Account entries for the charge have been                 raised via another application.
+PAID - The charge has been paid, and accounting                 entries raised.
+WOF - The charge has been written off. */
+		STATUS : FT_AdhocChargeRequests:AC_CHARGE_REQUEST__STATUS required
+			@i18n:Label (en=Status)
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=22.0, core=true, t24Name=STATUS)
+		REMARKS -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__REMARKS *
+		SEND_NOTICE -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__SEND_NOTICE *
+		/* This field is populated automatically by T24 when a status is entered that means the Charge Request record can safely be moved to history.
+Whilst the date in the field will be set to today's date, this does not mean the record will be written away immediately. Recently changed deals are often the subject of client enquiries so the records need to be kept on the live file for a short period.
+This period is calculated by using the
+HLD.RPT.RETENTION
+field on the SPF application. During the eod processing any deals with
+REMOVE.DATE
+set AND where the date is less than a computed date will be written to history.
+Example
+
+If the SPF application has 5 in the
+HLD.RPT.RETENTION
+field and today's date is 20020118 (18th Jan 2002) then deals older than 20020111 (11th Jan 2002 note this is 5 working days prior) would be written to history. So any deals which have a
+
+REMOVE.DATE
+of 10th January 2002 or earlier will be processed.
+Validation Rules
+Updated when the STATUS field has a PAID or WOF status entered. */
+		REMOVE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Remove Date")
+			@i18n:Tooltip (en="Remove Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=25.0, core=true, t24Name=REMOVE.DATE)
+		HIST_STATUS -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__HIST_STATUS *
+		ACTIVITY_CODE -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__ACTIVITY_CODE *
+		RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=33.0, core=true, t24Name=RESERVED1)
+		RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=34.0, core=true, t24Name=RESERVED2)
+		RESERVED3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=35.0, core=true, t24Name=RESERVED3)
+		RESERVED4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=36.0, core=true, t24Name=RESERVED4)
+		RESERVED5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=37.0, core=true, t24Name=RESERVED5)
+		RESERVED6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=38.0, core=true, t24Name=RESERVED6)
+		RESERVED7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=39.0, core=true, t24Name=RESERVED7)
+		RESERVED8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=40.0, core=true, t24Name=RESERVED8)
+		RESERVED9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=41.0, core=true, t24Name=RESERVED9)
+		RESERVED10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=42.0, core=true, t24Name=RESERVED10)
+		RESERVED11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=43.0, core=true, t24Name=RESERVED11)
+		RESERVED12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=44.0, core=true, t24Name=RESERVED12)
+		STMT_NOS -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__STMT_NOS *
+		OVERRIDE -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__OVERRIDE *
+		/* Indicates the record status of the contract.
+The record status is as follows:- INAU charge requestinput not authorised. CNAU charge request copied not authorised. RNAU charge request reversed not authorised. IHLD charge request input to hold. CHLD charge request copied to hold. MAT charge request matured. REVE charge request reversed. INAO charge request partially authorised, needs person(s) with special override classification to complete authorisation.
+Validation Rules
+
+4 alphabetic characters of the form: INAU INAO CNAU RNAU         IHLD CHLD MAT REVE (System generated.)
+Input prohibited. */
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=47.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=48.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__INPUTTER *
+		DATE_TIME -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=51.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=52.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=53.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=54.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=55.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	AC_CHARGE_REQUEST__CHARGE_CODE
+	{
+		/* This mandatory field is where any valid Charge Code is entered and forms the basis of what the charge relates to. Any charge or commission type may be used. It will also produce any necessary tax charges that may need to be applied.
+Validation Rules
+
+Field is case sensitive.
+Must exist on either the FT.CHARGE.TYPE or FT.COMMISSION.TYPE         file */
+		CHARGE_CODE : T24BusinessTypes:CHG required
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=CHARGE.CODE, typeModifiers="COMCHG")
+		/* Mandatory field for the amount of the charge, in the currency of the previously enter account, to be levied against the related Charge Code entered above. It will also generate the Tax details as held on these two files. All amounts shown will be in the currency of the account entered on this contract.
+Validation Rules
+
+An amount must be entered. */
+		CHARGE_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=CHARGE.AMOUNT, typeModifiers="5")
+		TAX_CODE -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__CHARGE_CODE__TAX_CODE *
+	}
+	AC_CHARGE_REQUEST__CHARGE_CODE__TAX_CODE
+	{
+		/* This field is derived from the data entered in the CHARGE.CODE field above and based on the TAX code held on the FT.CHARGE.CODE or FT.COMMISSION.TYPE for the Charge or Commssion that has been entered.The related tax information is held within the TAX file and managed by the user
+Validation Rules
+
+System generated value */
+		TAX_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=8.0, core=true, t24Name=TAX.CODE)
+		/* This field is calculated from the CHARGE.CODE and CHARGE.AMOUNT entered above and based on the TAX code held on the FT.CHARGE.CODE or FT.COMMISSION.TYPE files, depending if a Charge or Commission has been entered. The amount of tax is calculated from any banding or percentage information contained within the relevant TAX record that is maintained by the user.
+Validation Rules
+
+System generated value
+. */
+		TAX_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=30, sysNumber=9.0, core=true, t24Name=TAX.AMT, typeModifiers="5")
+	}
+	AC_CHARGE_REQUEST__EXTRA_DETAILS
+	{
+		/* This field should contain further infomation that describes the details of the charge being raised. It is free format text and will appear on the SWIFT message.
+Validation Rules
+
+Either this field or CHARGE.DETAIL must exist as they         form a mandatory SWIFT field
+Only five EXTRA.DETAILS are allowed */
+		EXTRA_DETAILS : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=15.0, core=true, t24Name=EXTRA.DETAILS)
+	}
+	AC_CHARGE_REQUEST__ORDERING_INST
+	{
+		/* This field identifies the ordering institution of the initial transaction, if different from the Receiver. Either a valid address, bic code or customer number must be entered.
+This field corresponds to field 52a on SWIFT messages
+Validation Rules
+Validation depends on what option was used in the previous field ORD.INST.TYPE either a valid BIC code or a valid ADDERESS or customer number for NULL
+For ADDRESS:
+
+Up to 35 characters (uppercase alpha or numeric) - Type         SW. Multivalue field. A maximum of 5 lines of 35         characters each will be allowed.
+If this field is         used, the first multivalue must contain a code word         followed by further information.
+All code words must be present on the SWIFT.CODE.WORDS         file, and must be enclosed between slashes '/', at the         beginning of the line.
+Further code words and information can be entered in         subsequent multivalues, but additional information         contained on a new line must be preceeded by double         slashes '//'.
+For BIC:
+
+Must be a valid BIC code
+For NULL
+
+Must be a valid Customer Number or mnemonic. */
+		ORDERING_INST : T24BusinessTypes:CUS
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=17.0, core=true, t24Name=ORDERING.INST)
+	}
+	AC_CHARGE_REQUEST__ACCT_WITH_BANK
+	{
+		/* This field identifies the financial institution at which the sender wishes to receive the funds.
+Corresponds to field 57a on the SWIFT message.
+Validation Rules
+
+
+Validated according to the value in ACCT.WITH.BANK, (one of BIC, ADDRESS or NULL)
+Only applicable for SWIFT MTn91 messages.
+For ADDRESS:
+
+Up to 35 characters (uppercase alpha or numeric) - Type SW. Multivalue field. A maximum of 5 lines of 35 characters each will be allowed.
+For BIC:
+
+Must be a valid BIC code
+For NULL
+
+The code enrered must be a valid customer number or mnemonic. If entered the associated SWIFT address code will appear on the SWIFT. */
+		ACCT_WITH_BANK : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=19.0, core=true, t24Name=ACCT.WITH.BANK)
+	}
+	AC_CHARGE_REQUEST__SENDER_INFO
+	{
+		/* Additional infomation for the receiver that is requird on the SWIFT.
+Validation Rules
+Only allowed if SENDER.DETAIL is present. */
+		SENDER_INFO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=21.0, core=true, t24Name=SENDER.INFO)
+	}
+	AC_CHARGE_REQUEST__REMARKS
+	{
+		/* Free format text for any comments that may relate to this charge.
+Validation Rules
+Free format text on multivalued lines. */
+		REMARKS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=23.0, core=true, t24Name=REMARKS)
+	}
+	AC_CHARGE_REQUEST__SEND_NOTICE
+	{
+		/* Part of the delivery processing, this field provides the user with the ability to decide whether to send or withhold sending the delivery of any message produced under the charge.
+Validation Rules
+
+Options available are (Y)es - Send Message or (N)o - Do         Not Send Message
+Default is (Y)es */
+		SEND_NOTICE : FT_AdhocChargeRequests:AC_CHARGE_REQUEST__SEND_NOTICE__SEND_NOTICE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=24.0, core=true, t24Name=SEND.NOTICE, mvSvExpansionAccess=NOMODIFY)
+	}
+	AC_CHARGE_REQUEST__HIST_STATUS
+	{
+		/* Populated automatically by T24 when there is a change in the STATUS on the charge request. */
+		HIST_STATUS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=27.0, core=true, t24Name=HIST.STATUS)
+		/* Populated automatically by T24 when there is a change in the STATUS on the charge request, refers to the HIST.STATUS. */
+		STATUS_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=28.0, core=true, t24Name=STATUS.DATE)
+	}
+	AC_CHARGE_REQUEST__ACTIVITY_CODE
+	{
+		/* Populated by the T24 delivery mechenism with the Activity that this charge request has raised. */
+		ACTIVITY_CODE -> EB_Delivery:EB_ACTIVITY
+			@t24:i (align=R, inputBehaviour=N, maxLength=7, sysNumber=29.0, core=true, t24Name=ACTIVITY.CODE)
+		/* Populated by the T24 delivery mechenism with the date the ACTIVITY.CODE was generated. */
+		ACTIVITY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=30.0, core=true, t24Name=ACTIVITY.DATE)
+		MAPPING_KEY -> byValue FT_AdhocChargeRequests:AC_CHARGE_REQUEST__ACTIVITY_CODE__MAPPING_KEY *
+	}
+	AC_CHARGE_REQUEST__ACTIVITY_CODE__MAPPING_KEY
+	{
+		/* Populated by the T24 delivery mechenism with the Mapping reference that this charge request has generated. */
+		MAPPING_KEY -> DE_Config:DE_MAPPING
+			@t24:i (align=R, inputBehaviour=N, maxLength=13, sysNumber=31.0, core=true, t24Name=MAPPING.KEY)
+		/* Confirmation that charge request details have been sent to the T24 delivery system for onward transmission to ordering institution..
+Validation Rules
+
+21 type A (alphanumeric) characters in the form:         AYYYYMMDDUUUUUCCCCCC where A = (D)ELIVERED (R)ECEIVED         YYYY = YEAR MM = MONTH DD = SEQUENCE NO UUUUU = SYSTEM         USER NUMBER CCCCC = TIME STAMP (System generated.)
+This is a NOINPUT field. */
+		DELIVERY_REF : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=32.0, core=true, t24Name=DELIVERY.REF)
+	}
+	AC_CHARGE_REQUEST__STMT_NOS
+	{
+		/* Number to identify either a Statement Entry or a Category Entry in respect of the charge request..
+When a new charge request is input,there will be an entry on the Drawdown Account and field entries will be generated e.g.
+Value .1 STMT NO. 664445752.06
+Value .2 STMT NO. 1
+Value .3 STMT NO. 1
+where value .1 indicates a reference number unique to the transaction, and value .2 indicates the number of events which have occurred in relation to this transaction, Value .3 indicates a Category Entry reference no.These suffices can be appended to the unique reference no. for the purpose of 'SEEing' information on the terminal screen.
+Validation Rules
+
+11 Numeric characters of the form: nnnnnnnnn.nn
+System generated
+Multivalue field
+This field is NOINPUT */
+		STMT_NOS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=45.0, core=true, t24Name=STMT.NOS)
+	}
+	AC_CHARGE_REQUEST__OVERRIDE
+	{
+		/* Contains all the override messages which the user has confirmed during input.
+At validation,the system may generate a series of screen override messages to indicate some anomaly within the transaction (e.g. ther is no sender detail entered when there is a sender type). User may change the data or override the message. If the charge request is subsequently displayed or printed, all override messages are shown.
+Validation Rules
+
+System generated. Multivalue field.
+This is a NOINPUT field. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=46.0, core=true, t24Name=OVERRIDE)
+	}
+	AC_CHARGE_REQUEST__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=49.0, core=true, t24Name=INPUTTER)
+	}
+	AC_CHARGE_REQUEST__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=50.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	AC_CHARGE_REQUEST__REQUEST_TYPE : mml:string
+		CHARGE=CHARGE
+		ADVICE=ADVICE
+		REQUEST=REQUEST
+		BOOK=BOOK
+	AC_CHARGE_REQUEST__ORD_INST_TYPE : mml:string
+		ADDRESS=ADDRESS
+		BIC=BIC
+	AC_CHARGE_REQUEST__ACCT_WITH_TYPE : mml:string
+		ADDRESS=ADDRESS
+		BIC=BIC
+	AC_CHARGE_REQUEST__STATUS : mml:string
+		UNPAID=UNPAID
+		TAKEN=TAKEN
+		PAID=PAID
+		WOF=WOF
+	AC_CHARGE_REQUEST__SEND_NOTICE__SEND_NOTICE : mml:string
+		YES=YES
+		NO=NO
+}

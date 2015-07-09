@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN"
+"http://docs.oasis-open.org/dita/v1.1/OS/dtd/topic.dtd">
+<topic id="SdlcFdsTdsVersion_7_0_Xtooltip_Table">
+  <title>Extended tooltip for TableTree</title>
+  <body> 
+    <section>
+      <title>Description</title>
+      <p>This document talks about the design and development of including Xtooltip functionality for TableTree Widget. The Xtooltip functionality has to adapted to the Table Columns, Table Column Items and the Tree nodes (Grouping, Hierarchy)</p>
+    </section>
+    <section>
+      <title>FDS Link</title>
+      <p>
+      <xref href="https://lausvn/svn/devel/projects/doc/active/triplea_plus/6.0/03.%20Construction%20(Design)/FDS_DS12-XTooltipDesign.doc"  scope= "external" >FDS_DS12-XTooltipDesign.doc</xref>
+     </p>
+    </section>
+    <section>
+      <title>JIRA Issue(s)</title>
+      <p>
+    <xref href="http://rd.oams.com/browse/DS-4943" scope="external">DS-4943</xref>
+   </p>
+    </section>
+    <section>
+      <title>TDS</title>
+      <p>
+    <i> Note: FDS references are in parenthesis </i>
+   </p>
+    </section>
+    <section>
+      <title>1 Changes to TableTree Widget</title>
+    </section>
+    <section>
+      <b>1.1 Grouping Widget(6.1.1)</b>
+    </section>
+    <section>
+      <p>In the current implementation, TableGroup widgets are included for the TableTree and the properties for these widgets are editable through the Transformation tab in the properties view of TableTree widget.  In the
+      current implementation, the groupings are not selectable in the editor. In order to edit a particular group, the user has to select the table widget in the editor, go to the transformation tab in the properties view
+      and then open the group tab with in it and then open the group dialog.  For usability, it would be appropriate for the user to select the respective group in the editor and access their properties from the properties view directly.
+      </p>
+      <p>
+      The new requirement is to include the TableGroup widgets directly into a TableColumn widget. A new Includeability Rule is added to the Accountability node of the page-designer.metamodel. This new rule would allow adding
+      of TableGroup widget to a TableColumn.
+      </p>
+    </section>
+    <section>
+      <b>1.2 Add Grouping entry - Contextual Menu of TableColumn(6.1.2)</b>
+    </section>
+    <section>
+      <p>In the page-designer.uimodel, a new action "Add Grouping" is added to the Actions node. This action node has to be included to the TableTreeColumn actiongroup of the ActionGroups node.</p>
+      <p>An action class <codeph>com.odcgroup.page.ui.action.table.TableColumnAddGroupAction</codeph> that extends <codeph>com.odcgroup.page.ui.action.table.AbstractTableAction</codeph>, will be implemented in the page-ui plugin.  This action class will calculate the enablement of this
+      action based on the conditions specified in the FDS.  The <codeph>run()</codeph> implementation will take care of adding a grouping widget to the column and also setting the "Display Grouping" property of the column to true.</p>
+    </section>
+     <section>
+     <b>1.3 Grouping Widget Properties &amp; Property View</b>
+     </section> 
+     <section> 
+       <p>In the <codeph>xgui-widget-library.metamodel</codeph>, the category (tab name) for all the grouping widget properties is set to 'none' in the current version.  This has to be changed to 'general', so that all the properties of grouping widget will be
+       displayed in the General tab of the properties view.</p>
+     </section>
+     <section>
+      <b>1.4 TableGroup Widget Figure</b>         
+      </section> 
+     <section>
+      <p>In <codeph>page-designer.uimodel</codeph>, a new Renderer Info entry is made to the Renderers node.  The followign entries will go into the Renderer Info
+      <ul>
+      <li>Delete Command - <codeph>com.odcgroup.page.ui.command.table.TableGroupDeleteCommand</codeph> - command to delete grouping from a column</li>
+      <li>Drag Tracker - <codeph>com.odcgroup.page.ui.edit.table.TableGroupDragEditPartTracker</codeph> - drag tracker for grouping widget</li>
+      <li>Edit Part - <codeph>com.odcgroup.page.ui.edit.table.TableGroupWidgetEditPart</codeph> - edit part for grouping widget</li>
+      <li>Figure - <codeph>com.odcgroup.page.ui.figure.table.TableGroupFigure</codeph> - figure representing the group in the editor</li>
+      <li>Widget Type - TableGroup</li>
+      </ul>
+      The above mentioned classes will be implemented in the page-ui plugin. The delete command will also take care of setting the "display grouping" property
+      of the table column after the last group deletion.
+      </p>         
+      </section> 
+     <section>
+      <b>1.5 TableGroup UI behaviour in TableColumn</b>         
+      </section> 
+     <section>
+      <p><u>Group Indentation</u> : Groups are indented for each new level, this is handled by the TableGroupFigure class, depending on its prior grouping.  The <codeph>renderDisplayGroupings(..)</codeph> method will be removed from the TableColumnFigure class</p>         
+      <p><u>Moving groups in a column</u> : Groups can be moved with in the column, changing the level.  New actions are added to the Actions node in the <codeph>page-designer.uimodel</codeph>.  The details are as follows,
+      </p><p>Move up Action :
+      <ul>
+      <li>Accelerator	: ARROW_UP</li>
+      <li>Delegate	: com.odcgroup.page.ui.action.table.MoveTableGroupUpAction</li>
+      <li>ID	: com.odcgroup.page.ui.action.table.MoveTableGroupUpAction</li>
+      </ul>
+      Move up Action :
+      <ul>
+      <li>Accelerator	: ARROW_DOWN</li>
+      <li>Delegate	: com.odcgroup.page.ui.action.table.MoveTableGroupDownAction</li>
+      <li>ID	: com.odcgroup.page.ui.action.table.MoveTableGroupDownAction</li>
+      </ul>
+      The delegate implementations will be done in respective packages of the page-ui plugin
+      </p>
+      </section> 
+     
+     <section>
+      <b>1.6 Migration (6.1.4)</b>   
+      A migration is required to move the groupings from the table widget to a table-column with property "display grouping" set to true.      
+      <codeph>com.odcgroup.page.model.migration.TableGroupMigration</codeph> will be implemented which will take care of the migration. A ModelMigration entry
+      is also made in the plugin.xml of page-migration plugin for model types fragment and moduel.
+      </section> 
+      
+    <section>
+      <title>2 Xtooltip in TableTree</title>
+    </section> 
+    <section>
+      <b>Xtooltip Properties for TableTree widgets</b>
+    </section>
+    <section>
+    <p>The widgets TableColumn, TableColumnItem and TableGroup will have the Xtooltip specific properties specified in the FDS section 4.3.  The PropertyTypes and the respective DataTypes are already defined in the <codeph>xgui-widget-library.metamodel</codeph>
+    and <codeph>data-types.metamodel</codeph>.  These properties are now added to the WidgetTypes TableColumn, TableColumnItem and TableGroup in <codeph>xgui-widget-library.metamodel</codeph>.
+    </p>
+    </section>
+    <section>
+      <b>Icon decorators for Widgets</b>
+    </section>
+    <section>
+    <p>
+    The <codeph>com.odcgroup.page.ui.figure.AbstractWidgetFigure</codeph> will have a protected method addDecoration()with a generic implementation that adds icons to the left of the widget indicating if tooltip, xtooltip or events are defined for a widget.  This method can be overridden by the implementing
+    figures to change the placement of this decorating icon(s).
+    </p>
+    </section>
+    <section>
+      <b>Contextaul Menu - Toggle Decorators Action</b>
+    </section>
+    <section>
+    <p>
+   New action entries will be made in <codeph>page-designer.uimodel</codeph> for contextual menu entries on root widget types (module, fragment), to toggle the display of decorating icons on widgets. Separate action entries are made for each of Events, Xtooltips, Tooltips.
+    </p>
+    </section>
+    <section>
+      <title>3 Code Generation (9.2)</title>
+    </section> 
+    <section>
+    <p>
+    The <codeph>com.odcgroup.page.transformmodel.table.TableWidgetTransformer</codeph> will be adapted to include the xtooltip specific code generation changes as specified in the FDS
+    </p>
+    </section>
+   </body>
+</topic>
+   

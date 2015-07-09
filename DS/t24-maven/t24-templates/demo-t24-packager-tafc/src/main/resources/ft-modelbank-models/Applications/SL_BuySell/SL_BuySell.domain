@@ -1,0 +1,474 @@
+# UTF-8
+# UTF-8
+/* Loan Trade Processing for Syndicated Loans */
+Domain SL_BuySell
+	@t24:i (module=SL)
+	@java:Package (value=com.temenos.t24.datamodel.sl.sl_buysell)
+namespace "http://www.temenos.com/t24/SL_BuySell"
+metamodelVersion 1.30.6
+Classes {
+	SL_BS_NC_LIST
+		@t24:i (t24Name=SL.BS.NC.LIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		BS_NC_LIST -> SL_BuySell:SL_BS_NC_LIST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=BS.NC.LIST)
+		NC_ID -> byValue SL_BuySell:SL_BS_NC_LIST__NC_ID *
+	}
+	SL_BS_NC_LIST__NC_ID
+	{
+		NC_ID : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=15, sysNumber=1.0, core=true, t24Name=NC.ID)
+	}
+	/* If during the life of the Syndicate, one of the Participants sells either a portion or the entire un-availed amount to another Bank, the share of participation needs to be redefined. The details of such transaction are recorded in this template.
+
+
+
+Sale of participation may happen either during the drawdown period or during the repayment period. Any premium paid/received on such sale or purchase may also be recorded and either taken to P&L immediately or amortised over the life of the syndicate.
+
+Apart from catering to buying and selling of un-availed amount and loan, any principal movement in the facility may also be recorded. The system would rebuild the participants share in the facility and tranche and raise appropriate accounting entries for GLOBUS Bank. */
+	SL_BUY_SELL
+		@t24:i (t24Name=SL.BUY.SELL, level=F, type=H, additionalInfo="NOH UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* The ID of the record is the facility ID suffixed with a four digit sequence number. It is sufficient to input the facility ID alone and the system would generate a four digit sequence number and concatenate with the facility ID.
+For example, if the facility ID is SL/01088/00001/01 and the user inputs this ID alone, the system would generate the ID as SL/01088/00001-01-0001. */
+		ID -> SL_BuySell:SL_BUY_SELL PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=24, sysNumber=0.0, core=true, businessType=A, t24Name=ID, mask="##/#####/#####-##-####")
+		/* Indicates the value date of the Buy/Sell transaction.
+Validation Rules
+
+Standard Date field.
+Can be backdated if TXN.TYPE is PM.
+Cannot be greater than System date . Value date should not lesser than the Tranche start date and greater than the tranche end date for BS types. */
+		VALUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=VALUE.DATE)
+		/* Allowed values or BS or PM. BS may be chosen for recording Buy/Sell transaction. PM may be chosen for recording Principal Movement. Based on the value in this field certain fields would be blocked for input.
+For PM type transaction, field Total.SL.Amt and associated multi-value set of fields from Tr.Code to Part.Amount would alone be available for input. The amount of principal movement may be input in Total.SL.Amt field. The tranche particulars may be input in the fields Tr.Code to Part.Amount.
+For BS type transaction, Field Sell.Type to Amortise.Prem.Disc would only be available for input.
+Validation Rules
+
+Allowed values or BS or PM
+Input Mandatory */
+		TXN_TYPE : SL_BuySell:SL_BUY_SELL__TXN_TYPE required
+			@i18n:Label (en="Transaction Type")
+			@i18n:Tooltip (en="Transaction Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=2.0, core=true, t24Name=TXN.TYPE, isValidateOnChange=true)
+		/* Indicates whether the Buy/Sell operation is for Contingent portion (Commitment available amount) or for Non-Contingent portion (loan). Option 'C' indicates Contingent portion and Option NC indicates non-contingent portion.
+If option 'C' is chosen, fields Sell.Participant, Buy.Participant, Tranche.Code, Total.Sl.Amt, Tot.Consideration and Amortise.Prem.Disc alone would be available for input.
+For option NC, fields Sell.Participant, Buy.Participant, associated fields Sl.Ref.No to Cons.Perc and Amortise.Prem.Disc would be available for input.
+Validation Rules
+
+Allowed values are C or NC
+Once a value is chosen, the same cannot be modified in the same record. */
+		SELL_TYPE : SL_BuySell:SL_BUY_SELL__SELL_TYPE
+			@i18n:Label (en="Sell Type")
+			@i18n:Tooltip (en="If Buy/Sell is for Contingent portion or not")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=SELL.TYPE, isValidateOnChange=true)
+		/* Indicates the ID of the participant selling either the Contingent or Non-Contingent portion.
+Validation Rules
+
+For Sell.Type 'C',  must be a participant in the facility.
+For Sell.Type 'NC', must be a participant in the underlying loan. */
+		SELL_PARTICIPANT -> ST_Customer:CUSTOMER
+			@i18n:Label (en="Sell Participant")
+			@i18n:Tooltip (en="Participant selling either Contingent portion ")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=4.0, core=true, businessType=CUS, t24Name=SELL.PARTICIPANT)
+		/* Indicates the ID of the participant buying either the Contingent or Non-contingent portion. A new participant can enter into a syndicate by buying a portion of the facility.
+Validation Rules
+
+Must be a valid reference in the Customer table. */
+		BUY_PARTICIPANT -> ST_Customer:CUSTOMER
+			@i18n:Label (en="Buy Participant")
+			@i18n:Tooltip (en="Participant buying a portion")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=5.0, core=true, businessType=CUS, t24Name=BUY.PARTICIPANT)
+		/* When a facility is defined with tranches the available amount under each tranche is held separately for drawdown management. Further individual participants' share is held at tranche level also. For a Contingent buy/sell transaction (buy/sell of available amount) , the tranche under which trading is done needs to be captured to update the revised share of participation at the tranche level. The tranche under a facility is uniquely identified by a code and the same may be input here.
+Validation Rules
+
+Must be a valid tranche code in the facility.
+Allow.Cont.Sale field in the tranche must be flagged 'Y'
+Input allowed only for Sell.type 'C'.
+Mandatory input for Sell.Type 'C'. */
+		TRANCHE_CODE : mml:Integer
+			@i18n:Label (en="Tranche Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, t24Name=TRANCHE.CODE)
+		SL_REF_NO -> byValue SL_BuySell:SL_BUY_SELL__SL_REF_NO *
+		/* Indicates the amount by which principal movement is to be effected. Also, indicates the amount being bought or sold for a contingent buy/sell transaction.
+Validation Rules
+
+Input allowed for Txn.Type 'PM'.
+Input allowed for Txn.Type 'BS' and Sell.Type 'C' */
+		TOTAL_SL_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Buy/Sell Amount")
+			@i18n:Tooltip (en="Amount involved in princiapaL movement or buysell ")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, core=true, t24Name=TOTAL.SL.AMT, typeModifiers=-)
+		/* Indicates the amount of consideration for a contingent buy/sell transaction.
+It is possible to record a transaction involving bulk sale of loans (NC type) denominated the same currency. This is done by multivaluing SL.Ref.No field which is associated with fields SL.Amount, Consideration and Cons.Perc. The sum of values in Consideration field in the multivale sets is populated in this field.
+Example : GLOBUS Bank has participation in two drawings to the extent of USD 10,000 and USD 20,000. These two drawings are sold for a consideration of USD 11,000 and USD 19,500 respectively, which may be input in the field Consideration or Cons.Perc in each multivalue set. The total consideration for the transaction is USD 30,500. This value is calculated by the system and populated in Tot.Consideration field.
+For a Non Contingent buy/sell transaction fund flow would happen for the value in this field, if GLOBUS Bank is involved in the transaction.
+Validation Rules
+
+Input allowed only Txn.Type 'BS' and Sell.Type 'C' */
+		TOT_CONSIDERATION : T24BusinessTypes:AMT
+			@i18n:Label (en="Consideration Amount")
+			@i18n:Tooltip (en="Consideration for contingent buy/sell transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=TOT.CONSIDERATION)
+		/* System calculated. Indicates premium or discount on a transaction.
+Validation Rules
+
+No input field */
+		PREM_DISC : mml:Integer
+			@i18n:Label (en="Premium / Discount")
+			@i18n:Tooltip (en="Indicates the premium or discount on a transaction")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=14.0, core=true, t24Name=PREM.DISC)
+		/* A transaction involving buying/selling at a premium or discount could result in a profit or loss to the bank. Such profit or loss may be either immediately recognised in the Profit & Loss Account or amortised over the life of the contract. If this field is flagged 'YES', the profit or loss on the transaction would be amortised over the life of the contract. If this field is flagged 'NO', the profit or loss would be recognised immediately.
+For example
+GLOBUS Bank Buys a loan of USD 10,000 for USD 11,000. As the loan is bought at a premium, there is a loss of USD 1,000due to this transaction. GLOBUS Bank may decide to amortise this loss over the life of the loan.
+Validation Rules
+
+Allowed values are 'YES' or 'NO'
+Default value is NULL
+Input allowed only if GLOBUS Bank is either the Seller or Buyer */
+		AMORTISE_PREM_DISC : SL_BuySell:SL_BUY_SELL__AMORTISE_PREM_DISC
+			@i18n:Label (en="Amortise Prem/Disc")
+			@i18n:Tooltip (en="If recognised in the Profit & Loss or amortised ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=15.0, core=true, t24Name=AMORTISE.PREM.DISC)
+		/* System maintained field. Indicates the limit line to be impacted upon when GLOBUS bank is involved in the transaction.
+Validation Rules
+
+No input allowed. */
+		LIMIT_REF : mml:Integer
+			@i18n:Label (en="Limit Ref")
+			@i18n:Tooltip (en="Limit Reference")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=16.0, core=true, t24Name=LIMIT.REF)
+		TR_CODE -> byValue SL_BuySell:SL_BUY_SELL__TR_CODE *
+		DELIVERY_CUST -> byValue SL_BuySell:SL_BUY_SELL__DELIVERY_CUST *
+		DELIVERY_REF -> byValue SL_BuySell:SL_BUY_SELL__DELIVERY_REF *
+		/* This field holds the new drawdown end date which is used to update  DRAW.MAT.DATE, CMT.FEE.DUE.DT, TRANCHE.END.DT in Facility.  Input to this field is allowed only after expiry of DRAW.MAT.DATE and for NON-REVOLVING type Facility with TXN.TYPE is PM (Prin movement)
+
+Validation rules:
+Standard date type field
+Allowed date would be greater than TODAY and less than Facility Maturity date */
+		NEW_DD_END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="New Drawmat Date")
+			@i18n:Tooltip (en="Indicates the new drawdown end date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=32.0, core=true, t24Name=NEW.DD.END.DATE)
+		/* Frequency at which the amortisation of the premium/discount amount should be carried out in a loan trading operation
+
+Validation rules:
+Standard frequency field
+Allowed only in number of months or days */
+		AMORTISE_FREQ : T24BusinessTypes:FQU
+			@i18n:Label (en="Amortise Frequency")
+			@i18n:Tooltip (en="Amortisation frequency if amount is carried")
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=33.0, core=true, t24Name=AMORTISE.FREQ, mask="RDDDD DD  DD #####")
+		/* Holds the interest settlement amount during NC type of  contract.
+Validation Rules
+Standard T24 amount type field
+Input is allowed only for NC type of contracts */
+		PART_INT_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Participant\'s Int.Amount")
+			@i18n:Tooltip (en="Participant\'s Int.Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=34.0, core=true, t24Name=PART.INT.AMOUNT, typeModifiers=-)
+		PRODUCT_TYPE -> byValue SL_BuySell:SL_BUY_SELL__PRODUCT_TYPE *
+		NEW_PART_ACCOUNT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=39.0, core=true, businessType=ANT, t24Name=NEW.PART.ACCOUNT)
+		RESERVED_FIELDS_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=40.0, core=true, t24Name=RESERVED.FIELDS.5)
+		RESERVED_FIELDS_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=41.0, core=true, t24Name=RESERVED.FIELDS.4)
+		RESERVED_FIELDS_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=42.0, core=true, t24Name=RESERVED.FIELDS.3)
+		RESERVED_FIELDS_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=43.0, core=true, t24Name=RESERVED.FIELDS.2)
+		RESERVED_FIELDS_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=44.0, core=true, t24Name=RESERVED.FIELDS.1)
+		STMT_NO -> byValue SL_BuySell:SL_BUY_SELL__STMT_NO *
+		OVERRIDE -> byValue SL_BuySell:SL_BUY_SELL__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=48.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=49.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SL_BuySell:SL_BUY_SELL__INPUTTER *
+		DATE_TIME -> byValue SL_BuySell:SL_BUY_SELL__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=52.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=53.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=54.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=55.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=56.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		LINKED_TFDR_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=45.1, core=false, t24Name=LINKED.TFDR.REF)
+	}
+	SL_BUY_SELL__SL_REF_NO
+	{
+		/* Indiactes the reference number of the loan in which a buy/sell transaction is to be recorded.
+Validation Rules
+
+Must be a drawdown under the facility.
+Allow.NC.Sale field in the tranche under which the loan has been drawn       must have been flagged 'Y'.
+Associated multi-value field.
+Input allowed only for Sell.Type 'NC'.
+Mandatory input for Sell.Type 'NC'. */
+		SL_REF_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=21, sysNumber=7.0, core=true, t24Name=SL.REF.NO)
+		/* Indicates the amount of loan being bought or sold. A participant could sell either its share in the loan either partially or wholly.
+Validation Rules
+
+Amount cannot exceed the Sell.Participant's share in the loan.
+Input allowed only if SL.REF.NO is input.
+System would defalt the Sell.Participant's share in the loan which could       be midified only for a lower value. */
+		SL_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=SL.AMOUNT)
+		/* This field captures the interest settlement amount between the participants during a loan trading. and will be used on schedule date.
+
+Validation rules:
+Standard amount type field
+Noinput field */
+		INT_SETTLE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=9.0, core=true, t24Name=INT.SETTLE.AMT, typeModifiers=-)
+		/* Indicates the amount of consideration for buy/sell of the loan. A loan may be traded at  premium or discount. The consideration amount includes the premium or discount. For a Non-Contingent  buy/sell involving GLOBUS Bank, fund flow would take place for the value in this field. For a Contingent buy/sell involving GLOBUS Bank, fund flow would take place for the discount or premium amount only. The consideration may be expressed either as an absolute amount or as a percentage to the value under consideration. If expressed in absolute amount, the same may be input in this field.
+Example
+1) GLOBUS Bank sells its share of USD 100,000 in a loan to Participant A. The loan is sold for a consideration of USD 110,000 (at a premium). In such case either the consideration amount of USD 110,000 may be entered in this field or the consideration percentage of 110% may be entered in Cons.Perc field. In this case GLOBUS Bank would receive USD 110,000 from Participant A of which USD 10,000 would be accounted as profit on sale of loan.
+Validation Rules
+
+Input allowed only for Txn.Type 'BS'.
+Input allowed either in this field or in Cons.Perc field. */
+		CONSIDERATION : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=CONSIDERATION)
+		/* Indicates the consideration for buy/sell transaction as a percentage.
+Validation Rules
+
+Input allowed only for Txn.Type 'BS'.
+Input allowed only for Sell.Type 'NC'. */
+		CONS_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=CONS.PERC)
+	}
+	SL_BUY_SELL__TR_CODE
+	{
+		/* When a principal movement in a facility is recorded, the tranche/s in which the movement is to be effected also needs to be specified. It is possible to split the amount of principal movement across tranches under the facility. The fields Tr.Code to Part.Amount, which are associated mutivalue fields, can be used to record such transaction.
+This field represents the tranche code under the facility in which the principal movement is to be effected.
+For example a facility has two tranches with tranche codes 001 and 002. The amount of facility is increased by 100,000 of which tranche 001 is increased by 60,000 and tranche 002 by 40,000. This information may be input as follows:
+Tr.Code                    : 001
+Tr.Amount                : 60000
+Tr.Code                    : 002
+Tr.Amount                : 40000
+
+Validation Rules
+
+Input allowed only for Txn.Type 'PM'
+Must be a valid tranche code under the facility
+The tranche must be a live tranche. */
+		TR_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=17.0, core=true, t24Name=TR.CODE)
+		/* Indicates the amount by which the movement under the tranche is effected.
+Validation Rules
+
+Negative value only allowed for Principal Decrease
+Positive value only allowed for Principal Increase
+If multivalued, aggregate Tr.Amount should be equal to Total.SL.Amount. */
+		TR_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=TR.AMOUNT, typeModifiers=-)
+		/* The principal movement effected at the tranche level needs to be reflected at participant level to arrive at the revised participant's share in the tranche. If option 'YES' is chosen, the system would default the share of individual participants in the principal movement. The default would be based on proportionate share of individual participants in the tranche. In some instances, only a few participants under the tranche participate in the principal movement. In such cases the field may be left blank and the details of participant and their respective shares may be input.
+Validation Rules
+
+Only allowed option is 'YES' */
+		PM_PRORATA : SL_BuySell:SL_BUY_SELL__TR_CODE__PM_PRORATA
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=19.0, core=true, t24Name=PM.PRORATA)
+		PARTICIPANT -> byValue SL_BuySell:SL_BUY_SELL__TR_CODE__PARTICIPANT *
+	}
+	SL_BUY_SELL__TR_CODE__PARTICIPANT
+	{
+		/* Indicates the customer reference of the participant involved in the principal movement. Associated subvalue field with Part.Amount to record details of multiple participants in a principal movement. If PM.PRORATA is flagged 'YES', system would default the value in this field.
+Validation Rules
+
+If input must be a valid participant in the facility. */
+		PARTICIPANT -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=20.0, core=true, businessType=CUS, t24Name=PARTICIPANT)
+		/* Indicates the share of the participant (indicated in Participant field) in the principal movement. If PM.PRORATA field is flagged 'YES', the value in this field would be defaulted by the system.
+Validation Rules
+
+If subvalued aggregate of Part.Amount must be equal to Tr.Amount. */
+		PART_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=21.0, core=true, t24Name=PART.AMOUNT, typeModifiers=-)
+	}
+	SL_BUY_SELL__DELIVERY_CUST
+	{
+		/* The ID of the customer who is the addressee of the message is system written in this field.
+This field is the first of the set of multi-value fields which contain the delivery related information.
+Validation Rules
+
+System written */
+		DELIVERY_CUST -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=22.0, core=true, businessType=CUS, t24Name=DELIVERY.CUST)
+		/* System written field.  Forms part of the multi-value set of delivery related fields.
+This field holds the 4 digit activity code generated by the system and written in the form SL-....
+Each of the 4 digits are arrived at as below :
+The first digit indicates the application for which the activity has been generated. Presently it has three values  viz. 1 -  PRE    2 - FACILITY and  3 - SL.LOAN
+The second digit indicates the operation done under each application.  Presently it has six values viz.       0 - OTHERS     1 - INPUT     2 - AMENDMENT     3 - NOTICE      4 - CONFIRMATION           5 - REVERSAL
+The third digit indicates the component for which the message is being generated viz. Principal or Interest or commitment fee etc.  Presently it has five values viz.   0 - OTHERS   1 - PRINCIPAL                         2 - COMMITMENT FEE     3 - INTEREST     4 - CHARGES
+The fourth digit indicates to whom the message is being generated, whether to the participant or to the borrower  or  to both.  Presently it has three values viz.  1 -  PARTICIPANT ONLY                             2 - PARTICIPANT AND BORROWER    3 - BORROWER ONLY
+For example when a new loan is drawn down and message to be sent to borrower,  the activity generated would be SL-3103 meaning 3-LOAN, 1-INPUT, 0-OTHERS(since it involves all components) and 3-BORROWER.
+Validation Rules
+
+System generated
+Four digits will be prefixed by SL- */
+		ACTIVITY_CODE -> EB_Delivery:EB_ACTIVITY
+			@t24:i (align=L, inputBehaviour=N, maxLength=7, sysNumber=23.0, core=true, businessType=A, t24Name=ACTIVITY.CODE)
+		/* The date on which the activity is generated is system written in this field.
+Validation Rules
+
+System Written */
+		ACTIVITY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=24.0, core=true, t24Name=ACTIVITY.DATE)
+		/* Reserved for future use.
+Validation Rules
+
+Rule 1
+Rule 2 */
+		PRIOR_DAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=25.0, core=true, t24Name=PRIOR.DAYS)
+		MSG_TYPE -> byValue SL_BuySell:SL_BUY_SELL__DELIVERY_CUST__MSG_TYPE *
+	}
+	SL_BUY_SELL__DELIVERY_CUST__MSG_TYPE
+	{
+		/* The type of the message produced for this activity is system written in this field. Forms a part of the multi-value set of delivery related fields.
+Validation Rules
+
+System Written
+Will be a valid record in the DE.MESSAGE file. */
+		MSG_TYPE -> DE_Config:DE_MESSAGE
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, businessType=A, t24Name=MSG.TYPE)
+		/* Forms a part of the multi-value set of delivery related fields.  This field is system written and is used to determine whether message is to be sent to BORROWER or PARTICIPANT.
+At present the values allowed are ADVICEBORR  and  ADVICEPART, which are defined in the EB.MESSAGE.CLASS file.
+Validation Rules
+
+Values now used are ADVICEBORR and ADVICEPART */
+		MSG_CLASS -> EB_Delivery:EB_MESSAGE_CLASS
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=27.0, core=true, businessType=A, t24Name=MSG.CLASS)
+		/* An integral part of the 'Delivery' multi-value set, this field enables the user to override the defaulted carrier for a particular message type and select a new carrier.
+For example : If a specific message is generated by SWIFT, the user is able to override this by choosing other available options from the CARRIER table, eg TELEX or PRINT.
+Validation Rules
+
+Must be a valid record in the DE.CARRIER application. */
+		OVR_CARRIER -> DE_Config:DE_CARRIER
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, sysNumber=28.0, core=true, businessType=A, t24Name=OVR.CARRIER)
+		/* Acting as part of the delivery multivale set, this field provides the user with the ability to decide whether to send or withhold sending the delivery of any message produced under the contract.
+Validation Rules
+
+Options available are (Y)es - Send Message or (N)o - Do Not Send Message
+Default is YES. */
+		SEND_MSG : SL_BuySell:SL_BUY_SELL__DELIVERY_CUST__MSG_TYPE__SEND_MSG
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=29.0, core=true, t24Name=SEND.MSG)
+		/* The date on which the message will be generated is system written in this field.
+Validation Rules
+
+System written */
+		MSG_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=30.0, core=true, t24Name=MSG.DATE)
+	}
+	SL_BUY_SELL__DELIVERY_REF
+	{
+		/* System written and maintained field.
+Contains the delivery keys used for the generation of the advices.
+Validation Rules
+
+System written.
+User input not allowed */
+		DELIVERY_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=46, sysNumber=31.0, core=true, t24Name=DELIVERY.REF)
+	}
+	SL_BUY_SELL__PRODUCT_TYPE
+	{
+		/* It accepts the product type defined under the respective FACILITY.
+This field has the Associated set of fields PRODUCT.AMT,PRODUCT.TR.CODE, PRODUCT.TR.AMT for defining multiple product utilisation for the facility amount under each tranche
+Allowed values in this field are LN, SC, GT.
+LN implies Loan Product
+SC implies Stand by Letter of Credit
+GT implies Guarantee assistance.
+Validation Rules
+
+Mandatory when TXN.TYPE is 'PM' for multi product facility
+Sum of the product amount can be greater than the Movement amount
+Sum of the PRODUCT.TR.AMT should be equal to the PRODUCT.AMT */
+		PRODUCT_TYPE : SL_BuySell:SL_BUY_SELL__PRODUCT_TYPE__PRODUCT_TYPE
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=35.0, core=true, t24Name=PRODUCT.TYPE)
+		/* This field accepts the maximum movement amount that can be utilised against the PRODUCT defined in the PRODUCT.TYPE field. */
+		PRODUCT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=36.0, core=true, t24Name=PRODUCT.AMT, typeModifiers=-)
+		PROD_TR_CODE -> byValue SL_BuySell:SL_BUY_SELL__PRODUCT_TYPE__PROD_TR_CODE *
+	}
+	SL_BUY_SELL__PRODUCT_TYPE__PROD_TR_CODE
+	{
+		/* Tranche reference number which is used to define the tranche level utilisation on the Product for a Phased out Disbursement. */
+		PROD_TR_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=37.0, core=true, t24Name=PROD.TR.CODE)
+		/* This field holds the tranche level utilisation of the movement amount against each product. */
+		PROD_TR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=38.0, core=true, t24Name=PROD.TR.AMT, typeModifiers=-)
+	}
+	SL_BUY_SELL__STMT_NO
+	{
+		/* Holds the references of STMT and CATEG entries raised from this application.
+Validation Rules
+
+System Written */
+		STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=29, sysNumber=46.0, core=true, t24Name=STMT.NO)
+	}
+	SL_BUY_SELL__OVERRIDE
+	{
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=47.0, core=true, t24Name=OVERRIDE)
+	}
+	SL_BUY_SELL__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=50.0, core=true, t24Name=INPUTTER)
+	}
+	SL_BUY_SELL__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=51.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	SL_BUY_SELL__TXN_TYPE : mml:string
+		BS=BS
+		PM=PM
+		TT=TT
+	SL_BUY_SELL__SELL_TYPE : mml:string
+		NC=NC
+		C=C
+	SL_BUY_SELL__AMORTISE_PREM_DISC : mml:string
+		YES=YES
+		NO=NO
+	SL_BUY_SELL__TR_CODE__PM_PRORATA : mml:string
+		YES=YES
+		NULL=NULL
+	SL_BUY_SELL__DELIVERY_CUST__MSG_TYPE__SEND_MSG : mml:string
+		NO=NO
+		NULL=NULL
+	SL_BUY_SELL__PRODUCT_TYPE__PRODUCT_TYPE : mml:string
+		SC=SC
+		GT=GT
+		LN=LN
+		LCI=LCI
+		LCE=LCE
+}

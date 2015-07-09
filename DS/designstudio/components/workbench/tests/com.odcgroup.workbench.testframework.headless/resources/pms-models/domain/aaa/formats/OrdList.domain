@@ -1,0 +1,886 @@
+# UTF-8
+Domain AAAFormatsOrdList 
+	@java:Package (value=com.odcgroup.aaa.formats) 
+namespace "http://www.odcgroup.com/aaa-formats-ord-list" 
+metamodelVersion 4.3.0.20110527 
+Classes { 
+	/* PCK_DS_ORD_LIST */ 
+	PCK_DS_ORD_LIST 
+		@aaa:FormatColumnFilter (value=SERVER_FILTER) 
+		@aaa:FormatFunction (value="Order List") 
+		@sql:SQLName (value=PCK_DS_ORD_LIST) 
+		@aaa:TripleA (ColumnFilter=SERVER_FILTER, EntitySQLName=ext_operation, FinFuncName="Order List", FinFuncProcName=ord_list, FormatName=PCK_DS_ORD_LIST) 
+	{ 
+		/* ACCOUNT_CURRENCY */ 
+		ACCOUNT_CURRENCY : AAABusinessTypes:UniCode 
+			@sql:SQLName (value=ACCOUNT_CURRENCY) 
+			@aaa:TripleA (FormatEltName=ACCOUNT_CURRENCY, Rank=140, ScriptDef="{Display the currency synonym as set in the \"DS_CURRENCY_CODE\" system parameter. If the synonym does not exist, display the code} IF( acc_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code <> NULL, acc_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, acc_currency_id.code )") 
+			@aaa:scpt (value="{Display the currency synonym as set in the \"DS_CURRENCY_CODE\" system parameter. If the synonym does not exist, display the code} IF( acc_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code <> NULL, acc_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, acc_currency_id.code )") 
+		
+		/* ACCRUED_INTEREST */ 
+		ACCRUED_INTEREST : AAABusinessTypes:Amount 
+			@i18n:Label (de="Stückzins", en="Accrued Interest", fr="Intérêt couru") 
+			@sql:SQLName (value=ACCRUED_INTEREST) 
+			@aaa:TripleA (FormatEltName=ACCRUED_INTEREST, Rank=400, ScriptDef=accr_amount_m) 
+			@aaa:scpt (value=accr_amount_m) 
+		
+		/* ACTION_RIGHT_CANCEL */ 
+		ACTION_RIGHT_CANCEL : AAABusinessTypes:Flag 
+			@sql:SQLName (value=ACTION_RIGHT_CANCEL) 
+			@aaa:TripleA (FormatEltName=ACTION_RIGHT_CANCEL, Rank=20, ScriptDef="{Check if the cancel action is available\"} GET_RIGHTS(GET_APPL_PARAM(\"DS_UF_CANCEL\"),1,1,1)") 
+			@aaa:scpt (value="{Check if the cancel action is available\"} GET_RIGHTS(GET_APPL_PARAM(\"DS_UF_CANCEL\"),1,1,1)") 
+		
+		/* ACTION_RIGHT_VALIDAT */ 
+		ACTION_RIGHT_VALIDATE : AAABusinessTypes:Flag 
+			@sql:SQLName (value=ACTION_RIGHT_VALIDATE) 
+			@aaa:TripleA (FormatEltName=ACTION_RIGHT_VALIDAT, Rank=10, ScriptDef="{Check if the validation and rejection actions are available} IF(GET_RIGHTS(GET_APPL_PARAM(\"DS_UF_VALIDATE\"),1,1,1)=1 AND GET_RIGHTS(GET_APPL_PARAM(\"DS_UF_REJECT\"),1,1,1)=1,1,0)") 
+			@aaa:scpt (value="{Check if the validation and rejection actions are available} IF(GET_RIGHTS(GET_APPL_PARAM(\"DS_UF_VALIDATE\"),1,1,1)=1 AND GET_RIGHTS(GET_APPL_PARAM(\"DS_UF_REJECT\"),1,1,1)=1,1,0)") 
+		
+		/* CATEGORY */ 
+		CATEGORY : AAABusinessTypes:UniName 
+			@i18n:Label (de=Kategorie, en=Category, fr="Catégorie") 
+			@sql:SQLName (value=CATEGORY) 
+			@aaa:TripleA (FormatEltName=CATEGORY, Rank=40, ScriptDef="{Script to group orders into categories: - SEC = Security, Derivatives and Other - FX = FX spot convention, FX spot negotiated and account transfers on same currencies - MM = Call and term deposit contracts, loan contracts These categories depends on the order type. In standard, a set of order types are delivered} {Forex} IF(order_type_id.code IN (\"PCK_DS_ACCT_SAME_CCY\",\"PCK_DS_FXSPOT_CONV\",\"PCK_DS_FXSPOT_NEGO\", \"PCK_DS_FXFWD_CONV\",\"PCK_DS_FXFWD_NEGO\"),\"FX\", {Deposit, Loan} IF(order_type_id.code IN (\"PCK_DS_CALL_DEP_NEW\",\"PCK_DS_CALL_DEP_AMD\",\"PCK_DS_TERM_DEP_NEW\",\"PCK_DS_LOAN\"),\"MM\", {Security, Derivatives and Other} \"SEC\" ) )") 
+			@aaa:scpt (value="{Script to group orders into categories: - SEC = Security, Derivatives and Other - FX = FX spot convention, FX spot negotiated and account transfers on same currencies - MM = Call and term deposit contracts, loan contracts These categories depends on the order type. In standard, a set of order types are delivered} {Forex} IF(order_type_id.code IN (\"PCK_DS_ACCT_SAME_CCY\",\"PCK_DS_FXSPOT_CONV\",\"PCK_DS_FXSPOT_NEGO\", \"PCK_DS_FXFWD_CONV\",\"PCK_DS_FXFWD_NEGO\"),\"FX\", {Deposit, Loan} IF(order_type_id.code IN (\"PCK_DS_CALL_DEP_NEW\",\"PCK_DS_CALL_DEP_AMD\",\"PCK_DS_TERM_DEP_NEW\",\"PCK_DS_LOAN\"),\"MM\", {Security, Derivatives and Other} \"SEC\" ) )") 
+		
+		/* CATEGORY_LABEL */ 
+		CATEGORY_LABEL : AAABusinessTypes:UniInfo 
+			@i18n:Label (de=Kategorie, en=Category, fr="Catégorie") 
+			@sql:SQLName (value=CATEGORY_LABEL) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=CATEGORY_LABEL, Rank=50, ScriptDef="{Translated label of order category} {Security, Derivatives and Other} IF(@CATEGORY=\"SEC\", DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_SEC\", TSL_CURRENT_LANGUAGE(), NULL), {Forex} IF(@CATEGORY=\"FX\", DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_FX\", DOMAIN().language_dict_id, NULL), {Deposit, Loan} IF(@CATEGORY=\"MM\",DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_MM\", TSL_CURRENT_LANGUAGE(), NULL) )))") 
+			@aaa:scpt (value="{Translated label of order category} {Security, Derivatives and Other} IF(@CATEGORY=\"SEC\", DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_SEC\", TSL_CURRENT_LANGUAGE(), NULL), {Forex} IF(@CATEGORY=\"FX\", DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_FX\", DOMAIN().language_dict_id, NULL), {Deposit, Loan} IF(@CATEGORY=\"MM\",DISP_MSG(2{User Message},\"PCK_DS_ORD_CATEG_MM\", TSL_CURRENT_LANGUAGE(), NULL) )))") 
+		
+		/* CATEGORY_LABEL */ 
+		CATEGORY_LABEL_de : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=CATEGORY_LABEL_de) 
+			@aaa:TripleA (FormatEltName=CATEGORY_LABEL, Rank=50, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* CATEGORY_LABEL */ 
+		CATEGORY_LABEL_en : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=CATEGORY_LABEL_en) 
+			@aaa:TripleA (FormatEltName=CATEGORY_LABEL, Rank=50, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* CATEGORY_LABEL */ 
+		CATEGORY_LABEL_fr : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=CATEGORY_LABEL_fr) 
+			@aaa:TripleA (FormatEltName=CATEGORY_LABEL, Rank=50, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* client_id */ 
+		client_id : AAABusinessTypes:Id 
+			@sql:SQLName (value=client_id) 
+			@aaa:TripleA (FormatEltName=client_id, Rank=490, ScriptDef=portfolio_id.third_id) 
+			@aaa:scpt (value=portfolio_id.third_id) 
+		
+		/* CONTRACT_REF */ 
+		CONTRACT_REF : AAABusinessTypes:UniInfo 
+			@i18n:Label (de=Kontrakt, en=Contract, fr=Contrat) 
+			@sql:SQLName (value=CONTRACT_REF) 
+			@aaa:TripleA (FormatEltName=CONTRACT_REF, Rank=305, ScriptDef=source_code) 
+			@aaa:scpt (value=source_code) 
+		
+		/* CONTRACT_TYPE */ 
+		CONTRACT_TYPE : AAABusinessTypes:UniInfo 
+			@i18n:Label (de="Kontrakt Typ", en="Contract Type", fr="Type de contrat") 
+			@sql:SQLName (value=CONTRACT_TYPE) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=CONTRACT_TYPE, Rank=310, ScriptDef="IF(order_type_id<>NULL, IF(order_type_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom<>NULL, order_type_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom, IF(order_type_id.denom<>NULL, order_type_id.denom,order_type_id.name)))") 
+			@aaa:scpt (value="IF(order_type_id<>NULL, IF(order_type_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom<>NULL, order_type_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom, IF(order_type_id.denom<>NULL, order_type_id.denom,order_type_id.name)))") 
+		
+		/* CONTRACT_TYPE */ 
+		CONTRACT_TYPE_de : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=CONTRACT_TYPE_de) 
+			@aaa:TripleA (FormatEltName=CONTRACT_TYPE, Rank=310, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* CONTRACT_TYPE */ 
+		CONTRACT_TYPE_en : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=CONTRACT_TYPE_en) 
+			@aaa:TripleA (FormatEltName=CONTRACT_TYPE, Rank=310, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* CONTRACT_TYPE */ 
+		CONTRACT_TYPE_fr : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=CONTRACT_TYPE_fr) 
+			@aaa:TripleA (FormatEltName=CONTRACT_TYPE, Rank=310, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* CONTRACT_TYPE_ID */ 
+		CONTRACT_TYPE_ID : AAABusinessTypes:Int 
+			@sql:SQLName (value=CONTRACT_TYPE_ID) 
+			@aaa:TripleA (FormatEltName=CONTRACT_TYPE_ID, Rank=315, ScriptDef=order_type_id.rank_n) 
+			@aaa:scpt (value=order_type_id.rank_n) 
+		
+		/* COUNT_STATUS_ALL */ 
+		COUNT_STATUS_ALL : AAABusinessTypes:Int 
+			@i18n:Label (de="Anz. Aufträge", en="Nb of Orders", fr="Nb d\'ordres") 
+			@sql:SQLName (value=COUNT_STATUS_ALL) 
+			@aaa:TripleA (FormatEltName=COUNT_STATUS_ALL, Rank=420, ScriptDef=1) 
+			@aaa:scpt (value=1) 
+		
+		/* CREATION_DATE */ 
+		CREATION_DATE : AAABusinessTypes:Datetime 
+			@i18n:Label (de=Erstellungsdatum, en="Creation Date", fr="Date de création") 
+			@sql:SQLName (value=CREATION_DATE) 
+			@aaa:TripleA (FormatEltName=CREATION_DATE, Rank=90, ScriptDef=creation_time_d) 
+			@aaa:scpt (value=creation_time_d) 
+		
+		/* CREDITED_ACCOUNT */ 
+		CREDITED_ACCOUNT : AAABusinessTypes:UniName 
+			@i18n:Label (de="Erkanntes Konto", en="Credited Account", fr="Compte crédité") 
+			@sql:SQLName (value=CREDITED_ACCOUNT) 
+			@aaa:TripleA (FormatEltName=CREDITED_ACCOUNT, Rank=330, ScriptDef="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} IF(order_type_id.code IN (\"PCK_DS_FXFWD_CONV\",\"PCK_DS_FXFWD_NEGO\"), account2_id.name,instr_id.name), {Sell} account_id.name))") 
+			@aaa:scpt (value="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} IF(order_type_id.code IN (\"PCK_DS_FXFWD_CONV\",\"PCK_DS_FXFWD_NEGO\"), account2_id.name,instr_id.name), {Sell} account_id.name))") 
+		
+		/* CREDITED_AMOUNT */ 
+		CREDITED_AMOUNT : AAABusinessTypes:Amount 
+			@i18n:Label (de=Gutschriftsbetrag, en="Credited Amount", fr="Montant crédité") 
+			@sql:SQLName (value=CREDITED_AMOUNT) 
+			@aaa:TripleA (FormatEltName=CREDITED_AMOUNT, Rank=340, ScriptDef="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} quantity_n, {Sell} acc_net_amount_m))") 
+			@aaa:scpt (value="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} quantity_n, {Sell} acc_net_amount_m))") 
+		
+		/* CREDITED_CURR */ 
+		CREDITED_CURR : AAABusinessTypes:UniCode 
+			@i18n:Label (de="Gutschrifts-Währung", en="Credited Currency", fr="Devise créditée") 
+			@sql:SQLName (value=CREDITED_CURR) 
+			@aaa:TripleA (FormatEltName=CREDITED_CURR, Rank=350, ScriptDef="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} @ORDER_CURRENCY, {Sell} @ACCOUNT_CURRENCY) )") 
+			@aaa:scpt (value="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} @ORDER_CURRENCY, {Sell} @ACCOUNT_CURRENCY) )") 
+		
+		/* CURR_PAIR */ 
+		CURR_PAIR : AAABusinessTypes:UniInfo 
+			@i18n:Label (de="Währungspaar", en="Currencies Pair", fr="Paire de devises") 
+			@sql:SQLName (value=CURR_PAIR) 
+			@aaa:TripleA (FormatEltName=CURR_PAIR, Rank=320, ScriptDef="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} PRINTF(\"%s/%s\", @ORDER_CURRENCY, @ACCOUNT_CURRENCY), {Sell} PRINTF(\"%s/%s\", @ACCOUNT_CURRENCY, @ORDER_CURRENCY) ) )") 
+			@aaa:scpt (value="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} PRINTF(\"%s/%s\", @ORDER_CURRENCY, @ACCOUNT_CURRENCY), {Sell} PRINTF(\"%s/%s\", @ACCOUNT_CURRENCY, @ORDER_CURRENCY) ) )") 
+		
+		/* DEBITED_ACCOUNT */ 
+		DEBITED_ACCOUNT : AAABusinessTypes:UniName 
+			@i18n:Label (de="Belastetes Konto", en="Debited Account", fr="Compte débité") 
+			@sql:SQLName (value=DEBITED_ACCOUNT) 
+			@aaa:TripleA (FormatEltName=DEBITED_ACCOUNT, Rank=360, ScriptDef="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} account_id.name, {Sell} IF(order_type_id.code IN (\"PCK_DS_FXFWD_CONV\",\"PCK_DS_FXFWD_NEGO\"), account2_id.name, instr_id.name)))") 
+			@aaa:scpt (value="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} account_id.name, {Sell} IF(order_type_id.code IN (\"PCK_DS_FXFWD_CONV\",\"PCK_DS_FXFWD_NEGO\"), account2_id.name, instr_id.name)))") 
+		
+		/* DEBITED_AMOUNT */ 
+		DEBITED_AMOUNT : AAABusinessTypes:Amount 
+			@i18n:Label (de=Belastetungs-Betrag, en="Debited Amount", fr="Montant débité") 
+			@sql:SQLName (value=DEBITED_AMOUNT) 
+			@aaa:TripleA (FormatEltName=DEBITED_AMOUNT, Rank=370, ScriptDef="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} acc_net_amount_m, {Sell} quantity_n))") 
+			@aaa:scpt (value="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} acc_net_amount_m, {Sell} quantity_n))") 
+		
+		/* DEBITED_CURR */ 
+		DEBITED_CURR : AAABusinessTypes:UniCode 
+			@i18n:Label (de="Belastungswährung", en="Debited Currency", fr="Devise débitée") 
+			@sql:SQLName (value=DEBITED_CURR) 
+			@aaa:TripleA (FormatEltName=DEBITED_CURR, Rank=380, ScriptDef="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} @ACCOUNT_CURRENCY, {Sell} @ORDER_CURRENCY) )") 
+			@aaa:scpt (value="IF(@CATEGORY = \"FX\", IF(nature_e = 1, {Buy} @ACCOUNT_CURRENCY, {Sell} @ORDER_CURRENCY) )") 
+		
+		/* EXCH_RATE */ 
+		EXCH_RATE : AAABusinessTypes:Number 
+			@i18n:Label (de=Wechselkurs, en="Client Rate", fr="Taux client") 
+			@sql:SQLName (value=EXCH_RATE) 
+			@aaa:TripleA (FormatEltName=EXCH_RATE, Rank=300, ScriptDef="IF(fx_client_rate_n<>NULL, fx_client_rate_n, acc_exch_rate)") 
+			@aaa:scpt (value="IF(fx_client_rate_n<>NULL, fx_client_rate_n, acc_exch_rate)") 
+		
+		/* EXPIRATION_DATE */ 
+		EXPIRATION_DATE : AAABusinessTypes:Date 
+			@i18n:Label (de="Fälligkeitsdatum", en="Maturity Date", fr="Date de maturité") 
+			@sql:SQLName (value=EXPIRATION_DATE) 
+			@aaa:TripleA (FormatEltName=EXPIRATION_DATE, Rank=270, ScriptDef="IF(instr_id.nature_e = 5,expiration_d,NULL)") 
+			@aaa:scpt (value="IF(instr_id.nature_e = 5,expiration_d,NULL)") 
+		
+		/* FEES_TAXES */ 
+		FEES_TAXES : AAABusinessTypes:Amount 
+			@i18n:Label (de="Gebühren u. Steuern", en="Fees & Taxes", fr="Frais et taxes") 
+			@sql:SQLName (value=FEES_TAXES) 
+			@aaa:TripleA (FormatEltName=FEES_TAXES, Rank=410, ScriptDef="EXCH_RATE(bp_1_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_1_amount_m + EXCH_RATE(bp_2_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_2_amount_m + EXCH_RATE(bp_3_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_3_amount_m + EXCH_RATE(bp_4_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_4_amount_m + EXCH_RATE(bp_5_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_5_amount_m + EXCH_RATE(bp_6_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_6_amount_m + EXCH_RATE(bp_7_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_7_amount_m + EXCH_RATE(bp_8_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_8_amount_m + EXCH_RATE(bp_9_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_9_amount_m + EXCH_RATE(bp_10_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_10_amount_m") 
+			@aaa:scpt (value="EXCH_RATE(bp_1_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_1_amount_m + EXCH_RATE(bp_2_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_2_amount_m + EXCH_RATE(bp_3_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_3_amount_m + EXCH_RATE(bp_4_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_4_amount_m + EXCH_RATE(bp_5_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_5_amount_m + EXCH_RATE(bp_6_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_6_amount_m + EXCH_RATE(bp_7_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_7_amount_m + EXCH_RATE(bp_8_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_8_amount_m + EXCH_RATE(bp_9_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_9_amount_m + EXCH_RATE(bp_10_currency_id, operation_d, @ORDER_CURRENCY,0,0,0).exch_rate*bp_10_amount_m") 
+		
+		/* INSTR_CODE */ 
+		INSTR_CODE : AAABusinessTypes:UniCode 
+			@i18n:Label (de=Instrument, en=Instrument, fr=Instrument) 
+			@sql:SQLName (value=INSTR_CODE) 
+			@aaa:TripleA (FormatEltName=INSTR_CODE, Rank=200, ScriptDef=instr_id.code) 
+			@aaa:scpt (value=instr_id.code) 
+		
+		/* INSTR_ISIN */ 
+		INSTR_ISIN : AAABusinessTypes:UniCode 
+			@i18n:Label (de=ISIN, en=ISIN, fr=ISIN) 
+			@sql:SQLName (value=INSTR_ISIN) 
+			@aaa:TripleA (FormatEltName=INSTR_ISIN, Rank=220, ScriptDef="SYNONYM(\"instrument\", instr_id, GET_APPL_PARAM(\"DS_ISIN_CODE_INSTRUMENT\"), 0).code") 
+			@aaa:scpt (value="SYNONYM(\"instrument\", instr_id, GET_APPL_PARAM(\"DS_ISIN_CODE_INSTRUMENT\"), 0).code") 
+		
+		/* INSTR_NAME */ 
+		INSTR_NAME : AAABusinessTypes:UniName 
+			@i18n:Label (de=Instrumentenname, en="Instrument Name", fr="Nom de l\'instrument") 
+			@sql:SQLName (value=INSTR_NAME) 
+			@aaa:TripleA (FormatEltName=INSTR_NAME, Rank=210, ScriptDef=instr_id.name) 
+			@aaa:scpt (value=instr_id.name) 
+		
+		/* LIMIT */ 
+		LIMIT : AAABusinessTypes:Amount 
+			@i18n:Label (de=Limit, en=Limit, fr=Limite) 
+			@sql:SQLName (value=LIMIT) 
+			@aaa:TripleA (FormatEltName=LIMIT, Rank=240, ScriptDef=limit_quote_n) 
+			@aaa:scpt (value=limit_quote_n) 
+		
+		/* manager_id */ 
+		manager_id : AAABusinessTypes:Id 
+			@sql:SQLName (value=manager_id) 
+			@aaa:TripleA (FormatEltName=manager_id, Rank=510, ScriptDef=portfolio_id.comm_mgr_id) 
+			@aaa:scpt (value=portfolio_id.comm_mgr_id) 
+		
+		/* MARKET */ 
+		MARKET : AAABusinessTypes:UniInfo 
+			@i18n:Label (de=Marktkurs, en=Market, fr="Marché") 
+			@sql:SQLName (value=MARKET) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=MARKET, Rank=280, ScriptDef="IF(market_third_id<>NULL, IF(market_third_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom<>NULL, market_third_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom, IF(market_third_id.denom<>NULL, market_third_id.denom,market_third_id.name)), \"NO MARKET\")") 
+			@aaa:scpt (value="IF(market_third_id<>NULL, IF(market_third_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom<>NULL, market_third_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom, IF(market_third_id.denom<>NULL, market_third_id.denom,market_third_id.name)), \"NO MARKET\")") 
+		
+		/* MARKET */ 
+		MARKET_de : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=MARKET_de) 
+			@aaa:TripleA (FormatEltName=MARKET, Rank=280, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* MARKET */ 
+		MARKET_en : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=MARKET_en) 
+			@aaa:TripleA (FormatEltName=MARKET, Rank=280, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* MARKET */ 
+		MARKET_fr : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=MARKET_fr) 
+			@aaa:TripleA (FormatEltName=MARKET, Rank=280, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_CODE */ 
+		ORDER_CODE : AAABusinessTypes:UniCode 
+			@i18n:Label (de="TA Code", en="TA Code", fr="Code TA") 
+			@sql:SQLName (value=ORDER_CODE) 
+			@aaa:TripleA (FormatEltName=ORDER_CODE, Rank=70, ScriptDef=code) 
+			@aaa:scpt (value=code) 
+		
+		/* ORDER_CURRENCY */ 
+		ORDER_CURRENCY : AAABusinessTypes:UniCode 
+			@i18n:Label (de="Währung", en=Currency, fr=Devise) 
+			@sql:SQLName (value=ORDER_CURRENCY) 
+			@aaa:TripleA (FormatEltName=ORDER_CURRENCY, Rank=130, ScriptDef="{Display the currency synonym as set in the \"DS_CURRENCY_CODE\" system parameter. If the synonym does not exist, display the code} IF(order_type_id.code IN (\"PCK_DS_FXFWD_CONV\",\"PCK_DS_FXFWD_NEGO\"), IF( acc2_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code <> NULL, acc2_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, acc2_currency_id.code ), IF( op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code <> NULL, op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, op_currency_id.code ) )") 
+			@aaa:scpt (value="{Display the currency synonym as set in the \"DS_CURRENCY_CODE\" system parameter. If the synonym does not exist, display the code} IF(order_type_id.code IN (\"PCK_DS_FXFWD_CONV\",\"PCK_DS_FXFWD_NEGO\"), IF( acc2_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code <> NULL, acc2_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, acc2_currency_id.code ), IF( op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code <> NULL, op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, op_currency_id.code ) )") 
+		
+		/* ORDER_DATE */ 
+		ORDER_DATE : AAABusinessTypes:Datetime 
+			@i18n:Label (de=Handelsdatum, en="Trade Date", fr="Date de transaction") 
+			@sql:SQLName (value=ORDER_DATE) 
+			@aaa:TripleA (FormatEltName=ORDER_DATE, Rank=100, ScriptDef=operation_d) 
+			@aaa:scpt (value=operation_d) 
+		
+		/* ORDER_GROSS_AMOUNT */ 
+		ORDER_GROSS_AMOUNT : AAABusinessTypes:Amount 
+			@i18n:Label (de=Bruttobetrag, en="Gross Amount", fr="Montant brut") 
+			@sql:SQLName (value=ORDER_GROSS_AMOUNT) 
+			@aaa:TripleA (FormatEltName=ORDER_GROSS_AMOUNT, Rank=390, ScriptDef=op_gross_amount_m) 
+			@aaa:scpt (value=op_gross_amount_m) 
+		
+		/* ORDER_HIER_STR */ 
+		ORDER_HIER_STR : AAABusinessTypes:UniNote 
+			@sql:SQLName (value=ORDER_HIER_STR) 
+			@aaa:TripleA (FormatEltName=ORDER_HIER_STR, Rank=600, ScriptDef="IF( parent_oper_nat_e = 3 {Child Order}, PRINTF(\"%s[HIERLEV%s]%s[HIERLEV%s]\", parent_operation_code,parent_operation_code, code,code ), {ELSE} PRINTF(\"%s[HIERLEV%s]%s\", code,code ) )") 
+			@aaa:scpt (value="IF( parent_oper_nat_e = 3 {Child Order}, PRINTF(\"%s[HIERLEV%s]%s[HIERLEV%s]\", parent_operation_code,parent_operation_code, code,code ), {ELSE} PRINTF(\"%s[HIERLEV%s]%s\", code,code ) )") 
+		
+		/* order_id */ 
+		order_id : AAABusinessTypes:Id 
+			@i18n:Label (de=Auftragsnr., en="Order ID", fr="Order ID") 
+			@sql:SQLName (value=order_id) 
+			@aaa:TripleA (FormatEltName=order_id, Rank=500, ScriptDef=id) 
+			@aaa:scpt (value=id) 
+		
+		/* ORDER_MODE_TYPE */ 
+		ORDER_MODE_TYPE : AAABusinessTypes:UniInfo 
+			@i18n:Label (de="Auftragsmodus Typ", en="Order Mode Type", fr="Mode de transmission") 
+			@sql:SQLName (value=ORDER_MODE_TYPE) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=ORDER_MODE_TYPE, Rank=110, ScriptDef="order_nat_e.LABEL[TSL_CURRENT_LANGUAGE()]") 
+			@aaa:scpt (value="order_nat_e.LABEL[TSL_CURRENT_LANGUAGE()]") 
+		
+		/* ORDER_MODE_TYPE */ 
+		ORDER_MODE_TYPE_de : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=ORDER_MODE_TYPE_de) 
+			@aaa:TripleA (FormatEltName=ORDER_MODE_TYPE, Rank=110, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_MODE_TYPE */ 
+		ORDER_MODE_TYPE_en : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=ORDER_MODE_TYPE_en) 
+			@aaa:TripleA (FormatEltName=ORDER_MODE_TYPE, Rank=110, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_MODE_TYPE */ 
+		ORDER_MODE_TYPE_fr : AAABusinessTypes:UniInfo 
+			@sql:SQLName (value=ORDER_MODE_TYPE_fr) 
+			@aaa:TripleA (FormatEltName=ORDER_MODE_TYPE, Rank=110, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_NATURE */ 
+		ORDER_NATURE : AAABusinessTypes:UniName 
+			@i18n:Label (de=Kauf/Verkauf, en=Buy/Sell, fr=Achat/Vente) 
+			@sql:SQLName (value=ORDER_NATURE) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=ORDER_NATURE, Rank=80, ScriptDef="nature_e.LABEL[TSL_CURRENT_LANGUAGE()]") 
+			@aaa:scpt (value="nature_e.LABEL[TSL_CURRENT_LANGUAGE()]") 
+		
+		/* ORDER_NATURE */ 
+		ORDER_NATURE_de : AAABusinessTypes:UniName 
+			@sql:SQLName (value=ORDER_NATURE_de) 
+			@aaa:TripleA (FormatEltName=ORDER_NATURE, Rank=80, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_NATURE */ 
+		ORDER_NATURE_en : AAABusinessTypes:UniName 
+			@sql:SQLName (value=ORDER_NATURE_en) 
+			@aaa:TripleA (FormatEltName=ORDER_NATURE, Rank=80, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_NATURE */ 
+		ORDER_NATURE_fr : AAABusinessTypes:UniName 
+			@sql:SQLName (value=ORDER_NATURE_fr) 
+			@aaa:TripleA (FormatEltName=ORDER_NATURE, Rank=80, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_NET_AMOUNT */ 
+		ORDER_NET_AMOUNT : AAABusinessTypes:Amount 
+			@i18n:Label (de=Nettobetrag, en="Net Amount", fr="Montant net") 
+			@sql:SQLName (value=ORDER_NET_AMOUNT) 
+			@aaa:TripleA (FormatEltName=ORDER_NET_AMOUNT, Rank=120, ScriptDef=op_net_amount_m) 
+			@aaa:scpt (value=op_net_amount_m) 
+		
+		/* ORDER_SUMMARY */ 
+		ORDER_SUMMARY : AAABusinessTypes:UniNote 
+			@i18n:Label (de=Zusammenfassung, en=Summary, fr="Résumé") 
+			@sql:SQLName (value=ORDER_SUMMARY) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=ORDER_SUMMARY, Rank=430, ScriptDef="{Order Summary per order category} {SECURITY & OTHER} IF(@CATEGORY = \"SEC\", PRINTF(\"%s %s %s %s\", {Client + Sense} IF(nature_e = 1, {Buy} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_BUYS\", TSL_CURRENT_LANGUAGE(), NULL), {Sell} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_SELLS\", TSL_CURRENT_LANGUAGE(), NULL) ), {Quantity} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Instrument name} instr_id.name, {Order mode} IF(order_nat_e=1{Market}, PRINTF(\"(%s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_MARKET\", TSL_CURRENT_LANGUAGE(), NULL)), IF(order_nat_e=2{Limit}, PRINTF(\"(%s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_LIMIT\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(limit_quote_n,\"999,999.000000000\"))), IF(order_nat_e=3{Stop}, PRINTF(\"(%s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_STOP\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(stop_quote_n,\"999,999.000000000\"))), IF(order_nat_e=4{Stop-Limit}, PRINTF(\"(%s %s, %s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_STOP\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(stop_quote_n,\"999,999,999,999.000000000\")), DISP_MSG(2{User Message},\"PCK_DS_AT_LIMIT\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(limit_quote_n,\"999,999.000000000\"))))))) ), {FOREX} IF(@CATEGORY = \"FX\", {Transfer same ccy} IF(order_type_id.code = \"PCK_DS_ACCT_SAME_CCY\", DISP_MSG(2{User Message},\"PCK_DS_TRANSFER_CCY\", TSL_CURRENT_LANGUAGE(), NULL, {Transfer amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Transfer currency} @ORDER_CURRENCY, {Debit account} @DEBITED_ACCOUNT, {Credit account} @CREDITED_ACCOUNT), {Other FX orders} PRINTF(\"%s %s %s %s %s %s %s %5.5f %s\", {Client + Sense} IF(nature_e = 1, {Buy} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_BUYS\", TSL_CURRENT_LANGUAGE(), NULL), {Sell} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_SELLS\", TSL_CURRENT_LANGUAGE(), NULL) ), {Base amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Base currency} @ORDER_CURRENCY, {Against} DISP_MSG(2{User Message},\"PCK_DS_AGAINST\", TSL_CURRENT_LANGUAGE(), NULL), {Counterparty amount} TRIMSTR(NUMSTR(acc_net_amount_m,\"999,999,999,999.000000000\")), {Counterparty currency} @ACCOUNT_CURRENCY, {At the rate of} DISP_MSG(2{User Message},\"PCK_DS_AT_RATE\", TSL_CURRENT_LANGUAGE(), NULL), {Exchange rate} @EXCH_RATE, @CURR_PAIR) ), {MM} IF(@CATEGORY = \"MM\", PRINTF(\"%s %s %s %s %s\", {Contract type} @CONTRACT_TYPE, {Increase/Decrease for call amendment + Of} IF(order_type_id.code = \"PCK_DS_CALL_DEP_AMD\", CONCAT( CONCAT( \":\", IF(nature_e =1 {Buy}, DISP_MSG(2{User Message},\"PCK_DS_INCREASE\", TSL_CURRENT_LANGUAGE(), NULL), DISP_MSG(2{User Message},\"PCK_DS_DECREASE\", TSL_CURRENT_LANGUAGE(), NULL)) ,1), DISP_MSG(2{User Message},\"PCK_DS_OF\", TSL_CURRENT_LANGUAGE(), NULL),1), DISP_MSG(2{User Message},\"PCK_DS_OF\", TSL_CURRENT_LANGUAGE(), NULL) ), {Currency} @ORDER_CURRENCY, {Amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Expiration date for term contract only} IF(order_type_id.code IN (\"PCK_DS_TERM_DEP_NEW\",\"PCK_DS_LOAN\"), CONCAT(DISP_MSG(2{User Message},\"PCK_DS_UNTIL\", TSL_CURRENT_LANGUAGE(), NULL),DATESTR(expiration_d),1)) ))))") 
+			@aaa:scpt (value="{Order Summary per order category} {SECURITY & OTHER} IF(@CATEGORY = \"SEC\", PRINTF(\"%s %s %s %s\", {Client + Sense} IF(nature_e = 1, {Buy} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_BUYS\", TSL_CURRENT_LANGUAGE(), NULL), {Sell} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_SELLS\", TSL_CURRENT_LANGUAGE(), NULL) ), {Quantity} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Instrument name} instr_id.name, {Order mode} IF(order_nat_e=1{Market}, PRINTF(\"(%s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_MARKET\", TSL_CURRENT_LANGUAGE(), NULL)), IF(order_nat_e=2{Limit}, PRINTF(\"(%s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_LIMIT\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(limit_quote_n,\"999,999.000000000\"))), IF(order_nat_e=3{Stop}, PRINTF(\"(%s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_STOP\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(stop_quote_n,\"999,999.000000000\"))), IF(order_nat_e=4{Stop-Limit}, PRINTF(\"(%s %s, %s %s)\", DISP_MSG(2{User Message},\"PCK_DS_AT_STOP\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(stop_quote_n,\"999,999,999,999.000000000\")), DISP_MSG(2{User Message},\"PCK_DS_AT_LIMIT\", TSL_CURRENT_LANGUAGE(), NULL), TRIMSTR(NUMSTR(limit_quote_n,\"999,999.000000000\"))))))) ), {FOREX} IF(@CATEGORY = \"FX\", {Transfer same ccy} IF(order_type_id.code = \"PCK_DS_ACCT_SAME_CCY\", DISP_MSG(2{User Message},\"PCK_DS_TRANSFER_CCY\", TSL_CURRENT_LANGUAGE(), NULL, {Transfer amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Transfer currency} @ORDER_CURRENCY, {Debit account} @DEBITED_ACCOUNT, {Credit account} @CREDITED_ACCOUNT), {Other FX orders} PRINTF(\"%s %s %s %s %s %s %s %5.5f %s\", {Client + Sense} IF(nature_e = 1, {Buy} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_BUYS\", TSL_CURRENT_LANGUAGE(), NULL), {Sell} DISP_MSG(2{User Message},\"PCK_DS_CLIENT_SELLS\", TSL_CURRENT_LANGUAGE(), NULL) ), {Base amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Base currency} @ORDER_CURRENCY, {Against} DISP_MSG(2{User Message},\"PCK_DS_AGAINST\", TSL_CURRENT_LANGUAGE(), NULL), {Counterparty amount} TRIMSTR(NUMSTR(acc_net_amount_m,\"999,999,999,999.000000000\")), {Counterparty currency} @ACCOUNT_CURRENCY, {At the rate of} DISP_MSG(2{User Message},\"PCK_DS_AT_RATE\", TSL_CURRENT_LANGUAGE(), NULL), {Exchange rate} @EXCH_RATE, @CURR_PAIR) ), {MM} IF(@CATEGORY = \"MM\", PRINTF(\"%s %s %s %s %s\", {Contract type} @CONTRACT_TYPE, {Increase/Decrease for call amendment + Of} IF(order_type_id.code = \"PCK_DS_CALL_DEP_AMD\", CONCAT( CONCAT( \":\", IF(nature_e =1 {Buy}, DISP_MSG(2{User Message},\"PCK_DS_INCREASE\", TSL_CURRENT_LANGUAGE(), NULL), DISP_MSG(2{User Message},\"PCK_DS_DECREASE\", TSL_CURRENT_LANGUAGE(), NULL)) ,1), DISP_MSG(2{User Message},\"PCK_DS_OF\", TSL_CURRENT_LANGUAGE(), NULL),1), DISP_MSG(2{User Message},\"PCK_DS_OF\", TSL_CURRENT_LANGUAGE(), NULL) ), {Currency} @ORDER_CURRENCY, {Amount} TRIMSTR(NUMSTR(quantity_n,\"999,999,999,999.000000000\")), {Expiration date for term contract only} IF(order_type_id.code IN (\"PCK_DS_TERM_DEP_NEW\",\"PCK_DS_LOAN\"), CONCAT(DISP_MSG(2{User Message},\"PCK_DS_UNTIL\", TSL_CURRENT_LANGUAGE(), NULL),DATESTR(expiration_d),1)) ))))") 
+		
+		/* ORDER_SUMMARY */ 
+		ORDER_SUMMARY_de : AAABusinessTypes:UniNote 
+			@sql:SQLName (value=ORDER_SUMMARY_de) 
+			@aaa:TripleA (FormatEltName=ORDER_SUMMARY, Rank=430, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_SUMMARY */ 
+		ORDER_SUMMARY_en : AAABusinessTypes:UniNote 
+			@sql:SQLName (value=ORDER_SUMMARY_en) 
+			@aaa:TripleA (FormatEltName=ORDER_SUMMARY, Rank=430, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_SUMMARY */ 
+		ORDER_SUMMARY_fr : AAABusinessTypes:UniNote 
+			@sql:SQLName (value=ORDER_SUMMARY_fr) 
+			@aaa:TripleA (FormatEltName=ORDER_SUMMARY, Rank=430, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* PORTFOLIO_CODE */ 
+		PORTFOLIO_CODE : AAABusinessTypes:UniCode 
+			@i18n:Label (de=Portfolio, en=Portfolio, fr=Portefeuille) 
+			@sql:SQLName (value=PORTFOLIO_CODE) 
+			@aaa:TripleA (FormatEltName=PORTFOLIO_CODE, Rank=180, ScriptDef=portfolio_id.code) 
+			@aaa:scpt (value=portfolio_id.code) 
+		
+		/* portfolio_id */ 
+		portfolio_id : AAABusinessTypes:Id 
+			@sql:SQLName (value=portfolio_id) 
+			@aaa:TripleA (FormatEltName=portfolio_id, Rank=480, ScriptDef=portfolio_id) 
+			@aaa:scpt (value=portfolio_id) 
+		
+		/* PORTFOLIO_NAME */ 
+		PORTFOLIO_NAME : AAABusinessTypes:UniCode 
+			@i18n:Label (de=Portfolio, en=Portfolio, fr=Portfeuille) 
+			@sql:SQLName (value=PORTFOLIO_NAME) 
+			@aaa:TripleA (FormatEltName=PORTFOLIO_NAME, Rank=190, ScriptDef=portfolio_id.name) 
+			@aaa:scpt (value=portfolio_id.name) 
+		
+		/* PRICE */ 
+		PRICE : AAABusinessTypes:Number 
+			@i18n:Label (de=Preis, en=Price, fr=Prix) 
+			@sql:SQLName (value=PRICE) 
+			@aaa:TripleA (FormatEltName=PRICE, Rank=160, ScriptDef="IF(quote_n <> NULL,quote_n, price_n)") 
+			@aaa:scpt (value="IF(quote_n <> NULL,quote_n, price_n)") 
+		
+		/* QUANTITY */ 
+		QUANTITY : AAABusinessTypes:Amount 
+			@i18n:Label (de=Anzahl, en=Quantity, fr="Quantité") 
+			@sql:SQLName (value=QUANTITY) 
+			@aaa:TripleA (FormatEltName=QUANTITY, Rank=150, ScriptDef=quantity_n) 
+			@aaa:scpt (value=quantity_n) 
+		
+		/* RATE */ 
+		RATE : AAABusinessTypes:UniInfo 
+			@i18n:Label (de=Zinssatz, en="Interest Rate", fr="Taux d\'intérêt") 
+			@sql:SQLName (value=RATE) 
+			@aaa:TripleA (FormatEltName=RATE, Rank=290, ScriptDef="NUMSTR(rate_p,\"99.00000%\")") 
+			@aaa:scpt (value="NUMSTR(rate_p,\"99.00000%\")") 
+		
+		/* seqno */ 
+		seqno : AAABusinessTypes:LongInt PK required 
+			@sql:SQLName (value=seqno) 
+			@aaa:TripleA (FormatEltName=seqno, Rank=0, ScriptDef=0) 
+			@aaa:scpt (value=0) 
+		
+		/* SERVER_FILTER */ 
+		SERVER_FILTER : AAABusinessTypes:Flag 
+			@i18n:Label (de="Server Filter", en="Server Filter", fr="Filtre Serveur") 
+			@sql:SQLName (value=SERVER_FILTER) 
+			@aaa:TripleA (FormatEltName=SERVER_FILTER, Rank=30, ScriptDef="{TA server filter used for the WUI 1. Display only buy and sell orders 2. Display only orders on portfolios that can be seen by the logged user 3. WUI page filtering: we use the same format for 3 order list pages and we filter the orders to be diplayed via the setting of a type at domain level} {1. Display only buy and sell orders} IF(nature_e IN (1 {Buy}, 2 {Sell}), {2. Display only orders on portfolios that can be seen by the logged user} IF(GET_ADMIN_RIGHTS(\"portfolio\", portfolio_id, {action} VIEW , {data_profile} TRUE, {function} FALSE)=1, {3. WUI page filtering} IF(DOMAIN().type_id.code=\"PCK_DS_OL_ALL\"{Order list all}, 1, IF(DOMAIN().type_id.code=\"PCK_DS_OL_VALIDATE\"{Order list to validate}, @ACTION_RIGHT_VALIDATE {1}, IF(DOMAIN().type_id.code=\"PCK_DS_OL_CANCEL\"{Order list cancellable}, @ACTION_RIGHT_CANCEL {1}) ) ) ) )") 
+			@aaa:scpt (value="{TA server filter used for the WUI 1. Display only buy and sell orders 2. Display only orders on portfolios that can be seen by the logged user 3. WUI page filtering: we use the same format for 3 order list pages and we filter the orders to be diplayed via the setting of a type at domain level} {1. Display only buy and sell orders} IF(nature_e IN (1 {Buy}, 2 {Sell}), {2. Display only orders on portfolios that can be seen by the logged user} IF(GET_ADMIN_RIGHTS(\"portfolio\", portfolio_id, {action} VIEW , {data_profile} TRUE, {function} FALSE)=1, {3. WUI page filtering} IF(DOMAIN().type_id.code=\"PCK_DS_OL_ALL\"{Order list all}, 1, IF(DOMAIN().type_id.code=\"PCK_DS_OL_VALIDATE\"{Order list to validate}, @ACTION_RIGHT_VALIDATE {1}, IF(DOMAIN().type_id.code=\"PCK_DS_OL_CANCEL\"{Order list cancellable}, @ACTION_RIGHT_CANCEL {1}) ) ) ) )") 
+		
+		/* STATUS */ 
+		STATUS : AAABusinessTypes:UniName 
+			@i18n:Label (de=Auftragsstatus, en="Order Status", fr="Statut de l\'ordre") 
+			@sql:SQLName (value=STATUS) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=STATUS, Rank=230, ScriptDef="status_e.LABEL[TSL_CURRENT_LANGUAGE()]") 
+			@aaa:scpt (value="status_e.LABEL[TSL_CURRENT_LANGUAGE()]") 
+		
+		/* STATUS */ 
+		STATUS_de : AAABusinessTypes:UniName 
+			@sql:SQLName (value=STATUS_de) 
+			@aaa:TripleA (FormatEltName=STATUS, Rank=230, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* STATUS */ 
+		STATUS_en : AAABusinessTypes:UniName 
+			@sql:SQLName (value=STATUS_en) 
+			@aaa:TripleA (FormatEltName=STATUS, Rank=230, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* STATUS */ 
+		STATUS_fr : AAABusinessTypes:UniName 
+			@sql:SQLName (value=STATUS_fr) 
+			@aaa:TripleA (FormatEltName=STATUS, Rank=230, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* status_id */ 
+		status_id : AAABusinessTypes:Enum 
+			@sql:SQLName (value=status_id) 
+			@aaa:TripleA (FormatEltName=status_id, Rank=520, ScriptDef=status_e) 
+			@aaa:scpt (value=status_e) 
+		
+		/* STOP */ 
+		STOP : AAABusinessTypes:Number 
+			@i18n:Label (de=Stop, en=Stop, fr=Stop) 
+			@sql:SQLName (value=STOP) 
+			@aaa:TripleA (FormatEltName=STOP, Rank=250, ScriptDef=stop_quote_n) 
+			@aaa:scpt (value=stop_quote_n) 
+		
+		/* TRANSMISSION_DATE */ 
+		TRANSMISSION_DATE : AAABusinessTypes:Datetime 
+			@i18n:Label (de="Übermittlungsdatum", en="Transmission Date", fr="Date de transmission") 
+			@sql:SQLName (value=TRANSMISSION_DATE) 
+			@aaa:TripleA (FormatEltName=TRANSMISSION_DATE, Rank=105, ScriptDef=transmission_d) 
+			@aaa:scpt (value=transmission_d) 
+		
+		/* VALIDITY_DATE */ 
+		VALIDITY_DATE : AAABusinessTypes:Date 
+			@i18n:Label (de="Gültigkeit", en=Validity, fr="Validité") 
+			@sql:SQLName (value=VALIDITY_DATE) 
+			@aaa:TripleA (FormatEltName=VALIDITY_DATE, Rank=260, ScriptDef=order_limit_d) 
+			@aaa:scpt (value=order_limit_d) 
+		
+		/* VALUE_DATE */ 
+		VALUE_DATE : AAABusinessTypes:Date 
+			@i18n:Label (de=Valuta-Datum, en="Value Date", fr="Date valeur") 
+			@sql:SQLName (value=VALUE_DATE) 
+			@aaa:TripleA (FormatEltName=VALUE_DATE, Rank=170, ScriptDef=value_d) 
+			@aaa:scpt (value=value_d) 
+	} 
+	/* PCK_DS_PG_EXT_POS */ 
+	PCK_DS_PG_EXT_POS 
+		@aaa:FormatColumnFilter (value=SERVER_FILTER) 
+		@aaa:FormatFunction (value="Order List") 
+		@sql:SQLName (value=PCK_DS_PG_EXT_POS) 
+		@aaa:TripleA (ColumnFilter=SERVER_FILTER, EntitySQLName=ext_operation, FinFuncName="Order List", FinFuncProcName=ord_list, FormatName=PCK_DS_PG_EXT_POS) 
+	{ 
+		/* DELETE_RIGHT */ 
+		DELETE_RIGHT : AAABusinessTypes:Flag 
+			@i18n:Label (de="Löschen", en=Delete, fr=Supprimer) 
+			@sql:SQLName (value=DELETE_RIGHT) 
+			@aaa:TripleA (FormatEltName=DELETE_RIGHT, Rank=120, ScriptDef="GET_ADMIN_RIGHTS(\"portfolio\", portfolio_id, DELETE, TRUE, FALSE)") 
+			@aaa:scpt (value="GET_ADMIN_RIGHTS(\"portfolio\", portfolio_id, DELETE, TRUE, FALSE)") 
+		
+		/* INSTR_CODE */ 
+		INSTR_CODE : AAABusinessTypes:UniCode 
+			@i18n:Label (de="Code Instrument", en="Instrument Code", fr="Code Instrument") 
+			@sql:SQLName (value=INSTR_CODE) 
+			@aaa:TripleA (FormatEltName=INSTR_CODE, Rank=20, ScriptDef="IF(instr_id.nature_e=4, {then} op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, {else} instr_id.code )") 
+			@aaa:scpt (value="IF(instr_id.nature_e=4, {then} op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, {else} instr_id.code )") 
+		
+		/* INSTR_NAME_ISIN */ 
+		INSTR_NAME_ISIN : AAABusinessTypes:UniNote 
+			@i18n:Label (de="Name Instrument /ISIN", en="Instrument Name/ISIN", fr=Instrument/ISIN) 
+			@sql:SQLName (value=INSTR_NAME_ISIN) 
+			@aaa:TripleA (FormatEltName=INSTR_NAME_ISIN, Rank=30, ScriptDef="IF(instr_id.SYNONYM[GET_APPL_PARAM(\"DS_ISIN_CODE_INSTRUMENT\")].code <> NULL, {then} CONCAT(CONCAT(instr_id.name,\" / \"),instr_id.SYNONYM[GET_APPL_PARAM(\"DS_ISIN_CODE_INSTRUMENT\")].code), {else} IF(instr_id.nature_e=4, {then} IF(op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code<>NULL, {then} op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, {else} op_currency_id.code), {else} instr_id.name ) )") 
+			@aaa:scpt (value="IF(instr_id.SYNONYM[GET_APPL_PARAM(\"DS_ISIN_CODE_INSTRUMENT\")].code <> NULL, {then} CONCAT(CONCAT(instr_id.name,\" / \"),instr_id.SYNONYM[GET_APPL_PARAM(\"DS_ISIN_CODE_INSTRUMENT\")].code), {else} IF(instr_id.nature_e=4, {then} IF(op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code<>NULL, {then} op_currency_id.SYNONYM[GET_APPL_PARAM(\"DS_CURRENCY_CODE\")].code, {else} op_currency_id.code), {else} instr_id.name ) )") 
+		
+		/* INSTR_NATURE */ 
+		INSTR_NATURE : AAABusinessTypes:UniLongName 
+			@i18n:Label (de=Instrumentenart, en="Instrument nature", fr="Nature de l\'instrument") 
+			@sql:SQLName (value=INSTR_NATURE) 
+			@aaa:TripleA (FormatEltName=INSTR_NATURE, Rank=40, ScriptDef="instr_id.nature_e.LABEL[]") 
+			@aaa:scpt (value="instr_id.nature_e.LABEL[]") 
+		
+		/* OPER_CODE */ 
+		OPER_CODE : AAABusinessTypes:UniCode 
+			@i18n:Label (de=Code, en=Code, fr=Code) 
+			@sql:SQLName (value=OPER_CODE) 
+			@aaa:TripleA (FormatEltName=OPER_CODE, Rank=130, ScriptDef=code) 
+			@aaa:scpt (value=code) 
+		
+		/* ORDER_CURRENCY */ 
+		ORDER_CURRENCY : AAABusinessTypes:UniCode 
+			@i18n:Label (de="Währung", en=Currency, fr=Devise) 
+			@sql:SQLName (value=ORDER_CURRENCY) 
+			@aaa:TripleA (FormatEltName=ORDER_CURRENCY, Rank=90, ScriptDef="IF( GET_APPL_PARAM(\"DS_CURRENCY_CODE\") <> NULL, SYNONYM(\"currency\", op_currency_id, GET_APPL_PARAM(\"DS_CURRENCY_CODE\"), 1).code, {ELSE} op_currency_id.code )") 
+			@aaa:scpt (value="IF( GET_APPL_PARAM(\"DS_CURRENCY_CODE\") <> NULL, SYNONYM(\"currency\", op_currency_id, GET_APPL_PARAM(\"DS_CURRENCY_CODE\"), 1).code, {ELSE} op_currency_id.code )") 
+		
+		/* ORDER_NET_AMOUNT */ 
+		ORDER_NET_AMOUNT : AAABusinessTypes:Amount 
+			@i18n:Label (de=Nettobetrag, en="Net Amount", fr="Montant net") 
+			@sql:SQLName (value=ORDER_NET_AMOUNT) 
+			@aaa:TripleA (FormatEltName=ORDER_NET_AMOUNT, Rank=70, ScriptDef="IF(nature_e = 1 {Buy}, -op_net_amount_m, op_net_amount_m)") 
+			@aaa:scpt (value="IF(nature_e = 1 {Buy}, -op_net_amount_m, op_net_amount_m)") 
+		
+		/* ORDER_PTF_AMOUNT */ 
+		ORDER_PTF_AMOUNT : AAABusinessTypes:Amount 
+			@i18n:Label (de="Nettobetrag in Ptf Währung", en="Net Amount in Ptf Curr.", fr="Montant net en devise Ptf") 
+			@sql:SQLName (value=ORDER_PTF_AMOUNT) 
+			@aaa:TripleA (FormatEltName=ORDER_PTF_AMOUNT, Rank=80, ScriptDef="IF(nature_e = 1 {Buy}, -pf_net_amount_m, pf_net_amount_m)") 
+			@aaa:scpt (value="IF(nature_e = 1 {Buy}, -pf_net_amount_m, pf_net_amount_m)") 
+		
+		/* PRICE */ 
+		PRICE : AAABusinessTypes:Number 
+			@i18n:Label (de=Preis, en=Price, fr=Prix) 
+			@sql:SQLName (value=PRICE) 
+			@aaa:TripleA (FormatEltName=PRICE, Rank=60, ScriptDef="IF(instr_id.nature_e <> 4, IF(quote_n <> NULL,quote_n, price_n) )") 
+			@aaa:scpt (value="IF(instr_id.nature_e <> 4, IF(quote_n <> NULL,quote_n, price_n) )") 
+		
+		/* PTF_CURRENCY */ 
+		PTF_CURRENCY : AAABusinessTypes:UniCode 
+			@i18n:Label (de="Portfolio-Währung", en="Portfolio Currency", fr="Devise du portefeuille") 
+			@sql:SQLName (value=PTF_CURRENCY) 
+			@aaa:TripleA (FormatEltName=PTF_CURRENCY, Rank=100, ScriptDef="IF( GET_APPL_PARAM(\"DS_CURRENCY_CODE\") <> NULL, SYNONYM(\"currency\", pf_currency_id, GET_APPL_PARAM(\"DS_CURRENCY_CODE\"), 1).code, {ELSE} pf_currency_id.code )") 
+			@aaa:scpt (value="IF( GET_APPL_PARAM(\"DS_CURRENCY_CODE\") <> NULL, SYNONYM(\"currency\", pf_currency_id, GET_APPL_PARAM(\"DS_CURRENCY_CODE\"), 1).code, {ELSE} pf_currency_id.code )") 
+		
+		/* QUANTITY */ 
+		QUANTITY : AAABusinessTypes:Amount 
+			@i18n:Label (de=Anzahl, en=Quantity, fr="Quantité") 
+			@sql:SQLName (value=QUANTITY) 
+			@aaa:TripleA (FormatEltName=QUANTITY, Rank=50, ScriptDef=quantity_n) 
+			@aaa:scpt (value=quantity_n) 
+		
+		/* seqno */ 
+		seqno : AAABusinessTypes:LongInt PK required 
+			@sql:SQLName (value=seqno) 
+			@aaa:TripleA (FormatEltName=seqno, Rank=0, ScriptDef=0) 
+			@aaa:scpt (value=0) 
+		
+		/* SERVER_FILTER */ 
+		SERVER_FILTER : AAABusinessTypes:Flag 
+			@i18n:Label (en="Server Filter", fr="Filtre Serveur") 
+			@sql:SQLName (value=SERVER_FILTER) 
+			@aaa:TripleA (FormatEltName=SERVER_FILTER, Rank=10, ScriptDef="IF(DOMAIN().func_result_id=function_result_id,1,0)") 
+			@aaa:scpt (value="IF(DOMAIN().func_result_id=function_result_id,1,0)") 
+		
+		/* UPDATE_RIGHT */ 
+		UPDATE_RIGHT : AAABusinessTypes:Flag 
+			@i18n:Label (de=Aktualisieren, en=Modify, fr=Modifier) 
+			@sql:SQLName (value=UPDATE_RIGHT) 
+			@aaa:TripleA (FormatEltName=UPDATE_RIGHT, Rank=110, ScriptDef="GET_ADMIN_RIGHTS(\"portfolio\", portfolio_id, UPDATE, TRUE, FALSE)") 
+			@aaa:scpt (value="GET_ADMIN_RIGHTS(\"portfolio\", portfolio_id, UPDATE, TRUE, FALSE)") 
+	} 
+	/* PCK_RMT_ORDER_LST */ 
+	PCK_RMT_ORDER_LST 
+		@aaa:FormatFunction (value="Order List") 
+		@sql:SQLName (value=PCK_RMT_ORDER_LST) 
+		@aaa:TripleA (EntitySQLName=ext_operation, FinFuncName="Order List", FinFuncProcName=ord_list, FormatName=PCK_RMT_ORDER_LST) 
+	{ 
+		/* ACCT_DATE */ 
+		ACCT_DATE : AAABusinessTypes:Date 
+			@sql:SQLName (value=ACCT_DATE) 
+			@aaa:TripleA (FormatEltName=ACCT_DATE, Rank=180, ScriptDef=account_d) 
+			@aaa:scpt (value=account_d) 
+		
+		/* client_id */ 
+		client_id : AAABusinessTypes:Id 
+			@sql:SQLName (value=client_id) 
+			@aaa:TripleA (FormatEltName=client_id, Rank=1001, ScriptDef=portfolio_id.third_id) 
+			@aaa:scpt (value=portfolio_id.third_id) 
+		
+		/* EXCH_RATE */ 
+		EXCH_RATE : AAABusinessTypes:Amount 
+			@sql:SQLName (value=EXCH_RATE) 
+			@aaa:TripleA (FormatEltName=EXCH_RATE, Rank=200, ScriptDef=op_exch_rate) 
+			@aaa:scpt (value=op_exch_rate) 
+		
+		/* INSTR_CODE */ 
+		INSTR_CODE : AAABusinessTypes:Code 
+			@sql:SQLName (value=INSTR_CODE) 
+			@aaa:TripleA (FormatEltName=INSTR_CODE, Rank=40, ScriptDef=instr_id.code) 
+			@aaa:scpt (value=instr_id.code) 
+		
+		/* INSTR_CUR */ 
+		INSTR_CUR : AAABusinessTypes:Code 
+			@sql:SQLName (value=INSTR_CUR) 
+			@aaa:TripleA (FormatEltName=INSTR_CUR, Rank=90, ScriptDef="IF (nature_e = 6, IF( GET_APPL_PARAM(\"DS_CURRENCY_CODE\") <> NULL, SYNONYM(\"currency\", account_id.ref_curr_id, GET_APPL_PARAM(\"DS_CURRENCY_CODE\"), 1).code, {ELSE} account_id.ref_curr_id.code ), IF( GET_APPL_PARAM(\"DS_CURRENCY_CODE\") <> NULL, SYNONYM(\"currency\", instr_id.ref_curr_id, GET_APPL_PARAM(\"DS_CURRENCY_CODE\"), 1).code, {ELSE} instr_id.ref_curr_id.code )) {IF (nature_e = 6, account_id.ref_curr_id.code, instr_id.ref_curr_id.code)}") 
+			@aaa:scpt (value="IF (nature_e = 6, IF( GET_APPL_PARAM(\"DS_CURRENCY_CODE\") <> NULL, SYNONYM(\"currency\", account_id.ref_curr_id, GET_APPL_PARAM(\"DS_CURRENCY_CODE\"), 1).code, {ELSE} account_id.ref_curr_id.code ), IF( GET_APPL_PARAM(\"DS_CURRENCY_CODE\") <> NULL, SYNONYM(\"currency\", instr_id.ref_curr_id, GET_APPL_PARAM(\"DS_CURRENCY_CODE\"), 1).code, {ELSE} instr_id.ref_curr_id.code )) {IF (nature_e = 6, account_id.ref_curr_id.code, instr_id.ref_curr_id.code)}") 
+		
+		/* INSTR_DENOM */ 
+		INSTR_DENOM : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=INSTR_DENOM) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=INSTR_DENOM, Rank=50, ScriptDef="IF(instr_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom<>NULL, instr_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom, instr_id.name)") 
+			@aaa:scpt (value="IF(instr_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom<>NULL, instr_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom, instr_id.name)") 
+		
+		/* INSTR_DENOM */ 
+		INSTR_DENOM_de : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=INSTR_DENOM_de) 
+			@aaa:TripleA (FormatEltName=INSTR_DENOM, Rank=50, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* INSTR_DENOM */ 
+		INSTR_DENOM_en : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=INSTR_DENOM_en) 
+			@aaa:TripleA (FormatEltName=INSTR_DENOM, Rank=50, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* INSTR_DENOM */ 
+		INSTR_DENOM_fr : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=INSTR_DENOM_fr) 
+			@aaa:TripleA (FormatEltName=INSTR_DENOM, Rank=50, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* LIMIT_DATE */ 
+		LIMIT_DATE : AAABusinessTypes:Date 
+			@sql:SQLName (value=LIMIT_DATE) 
+			@aaa:TripleA (FormatEltName=LIMIT_DATE, Rank=310, ScriptDef=order_limit_d) 
+			@aaa:scpt (value=order_limit_d) 
+		
+		/* LIMIT_QUOTE */ 
+		LIMIT_QUOTE : AAABusinessTypes:Number 
+			@sql:SQLName (value=LIMIT_QUOTE) 
+			@aaa:TripleA (FormatEltName=LIMIT_QUOTE, Rank=320, ScriptDef=limit_quote_n) 
+			@aaa:scpt (value=limit_quote_n) 
+		
+		/* manager_id */ 
+		manager_id : AAABusinessTypes:Id 
+			@sql:SQLName (value=manager_id) 
+			@aaa:TripleA (FormatEltName=manager_id, Rank=1002, ScriptDef=portfolio_id.comm_mgr_id) 
+			@aaa:scpt (value=portfolio_id.comm_mgr_id) 
+		
+		/* OP_GROSS_AMOUNT */ 
+		OP_GROSS_AMOUNT : AAABusinessTypes:Amount 
+			@sql:SQLName (value=OP_GROSS_AMOUNT) 
+			@aaa:TripleA (FormatEltName=OP_GROSS_AMOUNT, Rank=210, ScriptDef=op_gross_amount_m) 
+			@aaa:scpt (value=op_gross_amount_m) 
+		
+		/* OP_NET_AMOUNT */ 
+		OP_NET_AMOUNT : AAABusinessTypes:Amount 
+			@sql:SQLName (value=OP_NET_AMOUNT) 
+			@aaa:TripleA (FormatEltName=OP_NET_AMOUNT, Rank=230, ScriptDef=op_net_amount_m) 
+			@aaa:scpt (value=op_net_amount_m) 
+		
+		/* OP_TYPE */ 
+		OP_TYPE : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=OP_TYPE) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=OP_TYPE, Rank=280, ScriptDef="IF(type_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom<>NULL, type_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom, type_id.name)") 
+			@aaa:scpt (value="IF(type_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom<>NULL, type_id.DENOMINATION[TSL_CURRENT_LANGUAGE()].denom, type_id.name)") 
+		
+		/* OP_TYPE */ 
+		OP_TYPE_de : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=OP_TYPE_de) 
+			@aaa:TripleA (FormatEltName=OP_TYPE, Rank=280, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* OP_TYPE */ 
+		OP_TYPE_en : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=OP_TYPE_en) 
+			@aaa:TripleA (FormatEltName=OP_TYPE, Rank=280, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* OP_TYPE */ 
+		OP_TYPE_fr : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=OP_TYPE_fr) 
+			@aaa:TripleA (FormatEltName=OP_TYPE, Rank=280, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* OPER_CODE */ 
+		OPER_CODE : AAABusinessTypes:Code 
+			@sql:SQLName (value=OPER_CODE) 
+			@aaa:TripleA (FormatEltName=OPER_CODE, Rank=120, ScriptDef=code) 
+			@aaa:scpt (value=code) 
+		
+		/* OPER_DATE */ 
+		OPER_DATE : AAABusinessTypes:Datetime 
+			@sql:SQLName (value=OPER_DATE) 
+			@aaa:TripleA (FormatEltName=OPER_DATE, Rank=130, ScriptDef=operation_d) 
+			@aaa:scpt (value=operation_d) 
+		
+		/* OPER_NATURE_DENOM */ 
+		OPER_NATURE_DENOM : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=OPER_NATURE_DENOM) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=OPER_NATURE_DENOM, Rank=150, ScriptDef="IF(DOMAIN() != NULL AND TSL_CURRENT_LANGUAGE() > 0, nature_e.LABEL[TSL_CURRENT_LANGUAGE()], nature_e.LABEL[])") 
+			@aaa:scpt (value="IF(DOMAIN() != NULL AND TSL_CURRENT_LANGUAGE() > 0, nature_e.LABEL[TSL_CURRENT_LANGUAGE()], nature_e.LABEL[])") 
+		
+		/* OPER_NATURE_DENOM */ 
+		OPER_NATURE_DENOM_de : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=OPER_NATURE_DENOM_de) 
+			@aaa:TripleA (FormatEltName=OPER_NATURE_DENOM, Rank=150, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* OPER_NATURE_DENOM */ 
+		OPER_NATURE_DENOM_en : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=OPER_NATURE_DENOM_en) 
+			@aaa:TripleA (FormatEltName=OPER_NATURE_DENOM, Rank=150, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* OPER_NATURE_DENOM */ 
+		OPER_NATURE_DENOM_fr : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=OPER_NATURE_DENOM_fr) 
+			@aaa:TripleA (FormatEltName=OPER_NATURE_DENOM, Rank=150, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_NATURE */ 
+		ORDER_NATURE : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=ORDER_NATURE) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=ORDER_NATURE, Rank=290, ScriptDef="IF(DOMAIN() != NULL AND TSL_CURRENT_LANGUAGE() > 0, order_nat_e.LABEL[TSL_CURRENT_LANGUAGE()], order_nat_e.LABEL[])") 
+			@aaa:scpt (value="IF(DOMAIN() != NULL AND TSL_CURRENT_LANGUAGE() > 0, order_nat_e.LABEL[TSL_CURRENT_LANGUAGE()], order_nat_e.LABEL[])") 
+		
+		/* ORDER_NATURE */ 
+		ORDER_NATURE_de : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=ORDER_NATURE_de) 
+			@aaa:TripleA (FormatEltName=ORDER_NATURE, Rank=290, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_NATURE */ 
+		ORDER_NATURE_en : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=ORDER_NATURE_en) 
+			@aaa:TripleA (FormatEltName=ORDER_NATURE, Rank=290, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* ORDER_NATURE */ 
+		ORDER_NATURE_fr : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=ORDER_NATURE_fr) 
+			@aaa:TripleA (FormatEltName=ORDER_NATURE, Rank=290, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* PF_CUR */ 
+		PF_CUR : AAABusinessTypes:UniCode 
+			@sql:SQLName (value=PF_CUR) 
+			@aaa:TripleA (FormatEltName=PF_CUR, Rank=30, ScriptDef="IF( GET_APPL_PARAM(\"DS_CURRENCY_CODE\") <> NULL, SYNONYM(\"currency\", pf_currency_id, GET_APPL_PARAM(\"DS_CURRENCY_CODE\"), 1).code, {ELSE} pf_currency_id.code )") 
+			@aaa:scpt (value="IF( GET_APPL_PARAM(\"DS_CURRENCY_CODE\") <> NULL, SYNONYM(\"currency\", pf_currency_id, GET_APPL_PARAM(\"DS_CURRENCY_CODE\"), 1).code, {ELSE} pf_currency_id.code )") 
+		
+		/* PORTFOLIO_CODE */ 
+		PORTFOLIO_CODE : AAABusinessTypes:Code 
+			@sql:SQLName (value=PORTFOLIO_CODE) 
+			@aaa:TripleA (FormatEltName=PORTFOLIO_CODE, Rank=10, ScriptDef=portfolio_id.code) 
+			@aaa:scpt (value=portfolio_id.code) 
+		
+		/* portfolio_id */ 
+		portfolio_id : AAABusinessTypes:Id 
+			@sql:SQLName (value=portfolio_id) 
+			@aaa:TripleA (FormatEltName=portfolio_id, Rank=1000, ScriptDef=portfolio_id) 
+			@aaa:scpt (value=portfolio_id) 
+		
+		/* PORTFOLIO_NAME */ 
+		PORTFOLIO_NAME : AAABusinessTypes:UniName 
+			@sql:SQLName (value=PORTFOLIO_NAME) 
+			@aaa:TripleA (FormatEltName=PORTFOLIO_NAME, Rank=20, ScriptDef=portfolio_id.name) 
+			@aaa:scpt (value=portfolio_id.name) 
+		
+		/* POS_F_T */ 
+		POS_F_T : AAABusinessTypes:Amount 
+			@sql:SQLName (value=POS_F_T) 
+			@aaa:TripleA (FormatEltName=POS_F_T, Rank=220, ScriptDef="op_net_amount_m - op_gross_amount_m") 
+			@aaa:scpt (value="op_net_amount_m - op_gross_amount_m") 
+		
+		/* PRICE */ 
+		PRICE : AAABusinessTypes:Number 
+			@sql:SQLName (value=PRICE) 
+			@aaa:TripleA (FormatEltName=PRICE, Rank=170, ScriptDef="IF(quote_n <> NULL,quote_n, price_n)") 
+			@aaa:scpt (value="IF(quote_n <> NULL,quote_n, price_n)") 
+		
+		/* QUANTITY */ 
+		QUANTITY : AAABusinessTypes:Amount 
+			@sql:SQLName (value=QUANTITY) 
+			@aaa:TripleA (FormatEltName=QUANTITY, Rank=160, ScriptDef="IF(instr_id.contract_size_n<>0 AND instr_id.contract_size_n<>NULL,quantity_n/instr_id.contract_size_n,quantity_n)") 
+			@aaa:scpt (value="IF(instr_id.contract_size_n<>0 AND instr_id.contract_size_n<>NULL,quantity_n/instr_id.contract_size_n,quantity_n)") 
+		
+		/* REF_NET_AMOUNT */ 
+		REF_NET_AMOUNT : AAABusinessTypes:Amount 
+			@sql:SQLName (value=REF_NET_AMOUNT) 
+			@aaa:TripleA (FormatEltName=REF_NET_AMOUNT, Rank=240, ScriptDef=pf_net_amount_m) 
+			@aaa:scpt (value=pf_net_amount_m) 
+		
+		/* seqno */ 
+		seqno : AAABusinessTypes:LongInt PK required 
+			@sql:SQLName (value=seqno) 
+			@aaa:TripleA (FormatEltName=seqno, Rank=0, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* STATUS_DENOM */ 
+		STATUS_DENOM : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=STATUS_DENOM) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=STATUS_DENOM, Rank=270, ScriptDef="IF(DOMAIN() != NULL AND TSL_CURRENT_LANGUAGE() > 0, status_e.LABEL[TSL_CURRENT_LANGUAGE()], status_e.LABEL[])") 
+			@aaa:scpt (value="IF(DOMAIN() != NULL AND TSL_CURRENT_LANGUAGE() > 0, status_e.LABEL[TSL_CURRENT_LANGUAGE()], status_e.LABEL[])") 
+		
+		/* STATUS_DENOM */ 
+		STATUS_DENOM_de : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=STATUS_DENOM_de) 
+			@aaa:TripleA (FormatEltName=STATUS_DENOM, Rank=270, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* STATUS_DENOM */ 
+		STATUS_DENOM_en : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=STATUS_DENOM_en) 
+			@aaa:TripleA (FormatEltName=STATUS_DENOM, Rank=270, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* STATUS_DENOM */ 
+		STATUS_DENOM_fr : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=STATUS_DENOM_fr) 
+			@aaa:TripleA (FormatEltName=STATUS_DENOM, Rank=270, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* STOP_QUOTE */ 
+		STOP_QUOTE : AAABusinessTypes:Number 
+			@sql:SQLName (value=STOP_QUOTE) 
+			@aaa:TripleA (FormatEltName=STOP_QUOTE, Rank=330, ScriptDef=stop_quote_n) 
+			@aaa:scpt (value=stop_quote_n) 
+		
+		/* VALIDITY_NATURE */ 
+		VALIDITY_NATURE : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=VALIDITY_NATURE) 
+			@aaa:TripleA (AttrMultiLanguage=true, FormatEltName=VALIDITY_NATURE, Rank=300, ScriptDef="IF(DOMAIN() != NULL AND TSL_CURRENT_LANGUAGE() > 0, order_validity_nat_e.LABEL[TSL_CURRENT_LANGUAGE()], order_validity_nat_e.LABEL[])") 
+			@aaa:scpt (value="IF(DOMAIN() != NULL AND TSL_CURRENT_LANGUAGE() > 0, order_validity_nat_e.LABEL[TSL_CURRENT_LANGUAGE()], order_validity_nat_e.LABEL[])") 
+		
+		/* VALIDITY_NATURE */ 
+		VALIDITY_NATURE_de : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=VALIDITY_NATURE_de) 
+			@aaa:TripleA (FormatEltName=VALIDITY_NATURE, Rank=300, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* VALIDITY_NATURE */ 
+		VALIDITY_NATURE_en : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=VALIDITY_NATURE_en) 
+			@aaa:TripleA (FormatEltName=VALIDITY_NATURE, Rank=300, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* VALIDITY_NATURE */ 
+		VALIDITY_NATURE_fr : AAABusinessTypes:UniLongName 
+			@sql:SQLName (value=VALIDITY_NATURE_fr) 
+			@aaa:TripleA (FormatEltName=VALIDITY_NATURE, Rank=300, ScriptDef) 
+			@aaa:scpt (value) 
+		
+		/* VALUE_DATE */ 
+		VALUE_DATE : AAABusinessTypes:Date 
+			@sql:SQLName (value=VALUE_DATE) 
+			@aaa:TripleA (FormatEltName=VALUE_DATE, Rank=190, ScriptDef=value_d) 
+			@aaa:scpt (value=value_d) 
+	} 
+} 

@@ -1,0 +1,159 @@
+domain RestbucksModel {
+rim Restbucks {
+
+	event DELETE {
+		method: DELETE
+	}
+	event GET {
+		method: GET
+	}
+	event POST {
+		method: POST
+	}
+	event PUT {
+		method: PUT
+	}
+
+	command CreateEntity
+	command DeleteEntity
+	command GETEntities
+	command GETEntity
+	command GETException
+	command GETNavProperty
+	command GETServiceDocument
+	command NoopGET
+	command UpdateEntity
+
+initial resource ServiceDocument {
+	type: item
+	entity: ServiceDocument
+	view: GETServiceDocument
+	path: "/"
+	GET -> Orders
+	GET -> Payments
+	GET -> shop
+}
+
+resource shop {
+	type: item
+	entity: ServiceDocument
+	view: NoopGET
+	path: "/shop"
+	POST -> OrderCreated
+}
+
+
+resource Orders {
+	type: collection
+	entity: Order
+	view: GETEntities
+	path: "/Orders()"
+	POST -> OrderCreated
+	GET *-> order {
+		// not required because 'Id' is a property of the Entity 'Order' so you get this link parameter automatically
+		// You specify path parameters or query parameters
+		parameters [ Id="{Id}" ]
+	}
+	GET *-> payment {
+		title: "Payment"
+	}
+	PUT *-> OrderUpdated
+	DELETE *-> OrderCancelled
+}
+
+resource order {
+	type: item
+	entity: Order
+	view: GETEntity
+	path: "/Orders({Id})"
+	GET -> payment {
+		title: "Payment"
+	}
+	// Can only update or delete if we haven't paid
+	PUT -> OrderUpdated {
+		condition: NOT_FOUND(payment)
+	}
+	DELETE -> OrderCancelled {
+		condition: NOT_FOUND(payment)
+	}
+	POST -> PaymentAccepted {
+		condition: NOT_FOUND(payment)
+	}
+}
+
+resource OrderCancelled {
+	type: item
+	entity: Order
+	actions [ DeleteEntity ]
+	relations [ "http://relations.restbucks.com/cancel" ]
+	path: "/Orders({Id})"
+}
+
+resource OrderUpdated {
+	type: item
+	entity: Order
+	actions [ UpdateEntity ]
+	relations [ "http://relations.restbucks.com/update" ]
+	path: "/Orders({Id})"
+}
+
+resource OrderCreated {
+	type: item
+	entity: Order
+	actions [ CreateEntity ]
+	path: "/Orders()"
+	GET --> order {
+		condition: OK(order)
+	}
+}
+
+resource Payments {
+	type: collection
+	entity: Payment
+	view: GETEntities
+	path: "/Payments()"
+	GET *-> payment
+	GET *-> order {
+		title: "Order"
+	}
+}
+
+resource payment {
+	type: item
+	entity: Payment
+	view: GETEntity
+	path: "/Payments({Id})"
+	GET -> order {
+		title: "Order"
+	}
+}
+
+resource PaymentAccepted {
+	type: item
+	entity: Payment
+	actions [ CreateEntity ]
+	relations [ "http://relations.restbucks.com/payment" ]
+	path: "/Payments()"
+	GET --> payment {
+		condition: OK(payment)
+	}
+}
+
+
+//resource order_Payment {
+//	type: item
+//	entity: Payment
+//	view: GETNavProperty navproperty="Payment", entity=Order
+//	path: "/Orders({id})/Payment"
+//}
+
+//resource payment_Order {
+//	type: item
+//	entity: Order
+//	view: GETNavProperty navproperty="Order", entity=Payment
+//	path: "/Payments({id})/Order"
+//}
+
+
+}
+}

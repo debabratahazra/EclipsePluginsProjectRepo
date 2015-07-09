@@ -1,0 +1,364 @@
+# UTF-8
+# UTF-8
+/* Limit Order Processing for Forex */
+Domain FX_LimitOrder
+	@t24:i (module=FX)
+	@java:Package (value=com.temenos.t24.datamodel.fx.fx_limitorder)
+namespace "http://www.temenos.com/t24/FX_LimitOrder"
+metamodelVersion 1.30.6
+Classes {
+	FX_LIM_ORDER
+		@t24:i (t24Name=FX.LIM.ORDER, level=F, type=H, additionalInfo=NOH, allowedFunctions="A C D E I L P Q R S", localRefAllowed=true)
+	{
+		FX_LIM_ORD_ID -> FX_LimitOrder:FX_LIM_ORDER PK required
+			@i18n:Label (en="FX.Limit order Id")
+			@i18n:Tooltip (en="FX Limit order id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=FX.LIM.ORD.ID)
+		/* This field should contain the type of FOREX deal to be created by the order
+Validation Rules
+
+Valid inputs are SP - Spot, FW - Forward , SW - Swap
+Mandatory, No-change field */
+		DEAL_TYPE : FX_LimitOrder:FX_LIM_ORDER__DEAL_TYPE required
+			@i18n:Label (en="Deal Type")
+			@i18n:Tooltip (en="Indicates the type of deal")
+			@t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=1.0, core=true, t24Name=DEAL.TYPE)
+		/* This field should contain the customer reference for whom the FX Order has been undertaken
+Validation Rules
+
+Must be a valid      Customer id, present in CUSTOMER table
+
+
+Mandatory, No-change field */
+		COUNTERPARTY -> ST_Customer:CUSTOMER required
+			@i18n:Label (en=Counterparty)
+			@i18n:Tooltip (en="Counterparty with whom the deal is made")
+			@t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=2.0, core=true, businessType=CUS, t24Name=COUNTERPARTY)
+		/* This field should contain the currency in which the FX ORDER has been placed
+Validation Rules
+
+Must be a valid record      in CURRENCY table
+
+Mandatory, No-change field */
+		ORDER_CCY -> FIN_CurrencyConfig:CURRENCY required
+			@i18n:Label (en="Order Ccy")
+			@i18n:Tooltip (en="Specify Order Currency")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=3.0, core=true, businessType=CCY, t24Name=ORDER.CCY)
+		/* This field should contain the other currency of the FX ORDER placed by the customer
+Validation Rules
+
+Must be a valid record in      CURRENCY table
+Mandatory, No-change field */
+		CONTRA_CCY -> FIN_CurrencyConfig:CURRENCY required
+			@i18n:Label (en="Contra Ccy")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=4.0, core=true, businessType=CCY, t24Name=CONTRA.CCY)
+		/* This field should contain the value date for SP, FW and 1st leg of SW type contracts
+Validation Rules
+
+Absolute date as  YYYYMMDD
+
+
+Codes like T, TO, S, nnD, nnW, nnM, nnY
+
+
+Mandatory. Can be modified until execution for first time */
+		VALUE_DATE : T24BusinessTypes:FOREXD required
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=5.0, core=true, t24Name=VALUE.DATE, mask="RDD DDD DDDD")
+		/* This field should contain the Value date for 2nd leg of SW type contracts
+Validation Rules
+
+Absolute date as YYYYMMDD
+
+
+Codes like nnD, nnW, nnM, nnY
+
+Mandatory for deal type SW, otherwise input not allowed
+
+Can be modified until execution for first time */
+		VALUE_DATE2 : T24BusinessTypes:FOREXD
+			@i18n:Label (en="Value Date2")
+			@i18n:Tooltip (en="Value Date2")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=6.0, core=true, t24Name=VALUE.DATE2, mask="RDD DDD DDDD")
+		/* This field should contain expiry date of the FX Order, in local time zone
+Validation Rules
+
+Standard T24 date format
+
+Mandatory if GTC is null
+Not allowed if GTC is YES
+Can be modified until execution for first time */
+		EXPIRY_DATE : T24BusinessTypes:FOREXD
+			@i18n:Label (en="Expiry Date")
+			@i18n:Tooltip (en="Expiry Date of order")
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=7.0, core=true, t24Name=EXPIRY.DATE, mask="RDD DDD DDDD")
+		/* This field should contain expiry time of the FX Order contract, in local time zone
+Validation Rules
+
+24 hour time format: HH:MM
+
+
+Mandatory if GTC is null
+
+Not allowed if GTC is YES
+
+Can be modified until execution for first time */
+		EXPIRY_TIME : T24BusinessTypes:TIME
+			@i18n:Label (en="Expiry Time")
+			@i18n:Tooltip (en="Expiry Time of Order")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=8.0, core=true, t24Name=EXPIRY.TIME)
+		/* This field denotes that FX ORDER is Good till Cancellation. Therefore, system will not expire the order based on EXPIRY.DATE and EXPIRY.TIME but has to be expired manually
+Validation Rules
+
+Valid inputs 'YES'  or NULL
+
+
+Can be modified until execution for first time */
+		GTC : FX_LimitOrder:FX_LIM_ORDER__GTC
+			@t24:i (align=L, inputBehaviour=F, maxLength=4, sysNumber=9.0, core=true, t24Name=GTC)
+		/* This field contains definitions for overall type of order, which can be any of the following :
+Single order - only one order item may be input
+If done order - exactly two order items must be input
+Revolving order - exactly two order item must be input
+Validation Rules
+
+Valid inputs are SINGLE,IFDONE or REVOL
+
+
+Mandatory and can be modified until execution for first time */
+		ORDER_TYPE : FX_LimitOrder:FX_LIM_ORDER__ORDER_TYPE required
+			@i18n:Label (en="Order Type")
+			@i18n:Tooltip (en="Order Type")
+			@t24:i (align=L, inputBehaviour=F, maxLength=6, sysNumber=10.0, core=true, t24Name=ORDER.TYPE)
+		BUY_SELL -> byValue FX_LimitOrder:FX_LIM_ORDER__BUY_SELL *
+		/* This field should contain the LIMIT reference corresponding to the Order
+Validation Rules
+
+Should be a valid LIMIT.REFERENCE record
+
+
+Inputtable field if left null will be system defaulted */
+		LIMIT_REFERENCE : T24BusinessTypes:A
+			@i18n:Label (en="Limit Reference")
+			@i18n:Tooltip (en="Indicates the limit that will be updated")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=18.0, core=true, t24Name=LIMIT.REFERENCE)
+		/* This field should contain the account number details through which the currency sold is to be settled. This information is carried forward to the FOREX record created on execution of the FX.ORDER
+Validation Rules
+
+Should be a valid record in ACCOUNT application */
+		OUR_ACCOUNT_PAY -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Payment Through")
+			@i18n:Tooltip (en="Our Payment thourgh")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=19.0, core=true, businessType=ACC, t24Name=OUR.ACCOUNT.PAY)
+		/* This field should contain the account number details through which the currency purchased is to be settled. This information is carried forward to the FOREX record created on execution of the FX.ORDER
+
+
+Validation Rules
+
+
+Should be a valid record in ACCOUNT application */
+		OUR_ACCOUNT_REC -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Receive Through")
+			@i18n:Tooltip (en="Our Receipt received through")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=20.0, core=true, businessType=ACC, t24Name=OUR.ACCOUNT.REC)
+		/* This field contains details of the bank to which the counterparty wishes the amount sold by T24 bank to be delivered.
+
+This can either be counterpartys bank or the bank of their nominated beneficiary. This information is carried forward to the FOREX record created on execution of the FX.ORDERValidation Rules
+
+Must be a valid record in CUSTOMER application */
+		CPARTY_CORR_NO : T24BusinessTypes:CUS
+			@i18n:Label (en="Counterparty Corres Id")
+			@i18n:Tooltip (en="Counterparty Correspondent Id")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=21.0, core=true, t24Name=CPARTY.CORR.NO)
+		/* Validation Rules */
+		CPARTY_CORR_ADD : T24BusinessTypes:A
+			@i18n:Label (en="Counterparty Corrs Address")
+			@i18n:Tooltip (en="Counterparty Correspondent\'s Address")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=22.0, core=true, t24Name=CPARTY.CORR.ADD)
+		DEALER_DESK -> ST_Config:DEALER_DESK
+			@i18n:Label (en="Dealer Desk")
+			@i18n:Tooltip (en="Specifies the Dealer Desk handling the transaction")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=23.0, core=true, businessType=A, t24Name=DEALER.DESK)
+		ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Account Officer")
+			@i18n:Tooltip (en="Indicates Account Officer responsible")
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=24.0, core=true, businessType=DAO, t24Name=ACCOUNT.OFFICER)
+		EXEC_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Executed Rate")
+			@i18n:Tooltip (en="Executed Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=EXEC.RATE)
+		EXEC_FWD_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Execution Forward Rate")
+			@i18n:Tooltip (en="Execution Forward Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=EXEC.FWD.RATE)
+		EXECUTE_ORDER : FX_LimitOrder:FX_LIM_ORDER__EXECUTE_ORDER
+			@i18n:Label (en="Execute Order")
+			@i18n:Tooltip (en="Whether to Execute Order")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=27.0, core=true, t24Name=EXECUTE.ORDER)
+		CANCEL_ORDER : FX_LimitOrder:FX_LIM_ORDER__CANCEL_ORDER
+			@i18n:Label (en="Cancel the order")
+			@i18n:Tooltip (en="Whether the order is cancelled")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=28.0, core=true, t24Name=CANCEL.ORDER)
+		EXPIRE_ORDER : FX_LimitOrder:FX_LIM_ORDER__EXPIRE_ORDER
+			@i18n:Label (en="Expire Order")
+			@i18n:Tooltip (en="Whether to Expire the order?")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=29.0, core=true, t24Name=EXPIRE.ORDER)
+		ORDER_STATUS : T24BusinessTypes:A
+			@i18n:Label (en="Order Status")
+			@i18n:Tooltip (en="Order Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=30.0, core=true, t24Name=ORDER.STATUS)
+		FOREX_ID -> byValue FX_LimitOrder:FX_LIM_ORDER__FOREX_ID *
+		DEAL_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Deal Date")
+			@i18n:Tooltip (en="Indicates the Deal date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=32.0, core=true, t24Name=DEAL.DATE)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=34.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=35.0, core=true, t24Name=RESERVED.2)
+		OVERRIDE -> byValue FX_LimitOrder:FX_LIM_ORDER__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=37.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=38.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue FX_LimitOrder:FX_LIM_ORDER__INPUTTER *
+		DATE_TIME -> byValue FX_LimitOrder:FX_LIM_ORDER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=41.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=42.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=43.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=44.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=45.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	FX_LIM_ORDER__BUY_SELL
+	{
+		/* This field should specify whether the current active order should create a BUY or SELL of the Order currency.
+Validation Rules
+
+Valid inputs are BUY or      SELL
+
+
+Can be modified until execution for first time */
+		BUY_SELL : FX_LimitOrder:FX_LIM_ORDER__BUY_SELL__BUY_SELL required
+			@t24:i (align=L, inputBehaviour=F, maxLength=4, sysNumber=11.0, core=true, t24Name=BUY.SELL)
+		/* This field contains definition for individual multi-value order type, which can be any of the following :
+TP - Take Profit
+SL - Stop Loss
+OCO - One cancels the other
+Validation Rules
+
+Valid inputs TP, SL,OCO
+
+Mandatory. Can be modified until execution for first time */
+		ORDER_ITEM_TYPE : FX_LimitOrder:FX_LIM_ORDER__BUY_SELL__ORDER_ITEM_TYPE required
+			@t24:i (align=L, inputBehaviour=F, maxLength=4, sysNumber=12.0, core=true, t24Name=ORDER.ITEM.TYPE)
+		/* This field should contain the amount in terms of ORDER.CCY
+Validation Rules
+
+Standard T24 amount field
+
+
+Mandatory. Can be modified until execution for first time */
+		ORDER_AMT : T24BusinessTypes:AMT required
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=13.0, core=true, t24Name=ORDER.AMT)
+		/* This field will be populated with order amount in terms of CONTRA.CCY
+Validation Rules
+
+No Input field.
+
+
+System defaulted when order is executed */
+		CONTRA_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=14.0, core=true, t24Name=CONTRA.AMT)
+		/* This field should contain the low rate at which the order should be triggered.
+Exactly one of REQUIRED.LO.RATE and REQUIRED.HI.RATE can be input for SL and TP orders. Both must be input for OCO
+Validation Rules
+
+Can be modified until execution for first time */
+		REQD_LO_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=15.0, core=true, t24Name=REQD.LO.RATE)
+		/* This field should contain the high rate at which the order should be triggered
+Validation Rules
+
+Can be modified until execution for first time */
+		REQD_HI_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=16.0, core=true, t24Name=REQD.HI.RATE)
+		/* This field will contain the status of each individual Order item, which can be any of the following :
+OPEN - Active Order item for execution
+PENDING - Next Order item awaiting for execution
+EXECUTED - the order item has been executed
+CANCELLED - the order item is cancelled. No further executions are allowed
+EXPIRED - the order item has expired. No further executions are allowed
+Validation Rules
+
+No Input and system maintained field
+Values populated by system  are OPEN, PENDING, EXECUTED, CANCELLED or EXPIRED */
+		ORD_ITEM_STATUS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=17.0, core=true, t24Name=ORD.ITEM.STATUS)
+	}
+	FX_LIM_ORDER__FOREX_ID
+	{
+		FOREX_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=31.0, core=true, t24Name=FOREX.ID)
+	}
+	FX_LIM_ORDER__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=36.0, core=true, t24Name=OVERRIDE)
+	}
+	FX_LIM_ORDER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=39.0, core=true, t24Name=INPUTTER)
+	}
+	FX_LIM_ORDER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=40.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	FX_LIM_ORDER__DEAL_TYPE : mml:string
+		SP=SP
+		FW=FW
+		SW=SW
+	FX_LIM_ORDER__GTC : mml:string
+		YES=YES
+		NULL=NULL
+	FX_LIM_ORDER__ORDER_TYPE : mml:string
+		SINGLE=SINGLE
+		IFDONE=IFDONE
+		REVOL=REVOL
+		OCO=OCO
+	FX_LIM_ORDER__BUY_SELL__BUY_SELL : mml:string
+		BUY=BUY
+		SELL=SELL
+	FX_LIM_ORDER__BUY_SELL__ORDER_ITEM_TYPE : mml:string
+		TP=TP
+		SL=SL
+		OCO=OCO
+	FX_LIM_ORDER__EXECUTE_ORDER : mml:string
+		YES=YES
+		NULL=NULL
+	FX_LIM_ORDER__CANCEL_ORDER : mml:string
+		YES=YES
+		NULL=NULL
+	FX_LIM_ORDER__EXPIRE_ORDER : mml:string
+		YES=YES
+		NULL=NULL
+}

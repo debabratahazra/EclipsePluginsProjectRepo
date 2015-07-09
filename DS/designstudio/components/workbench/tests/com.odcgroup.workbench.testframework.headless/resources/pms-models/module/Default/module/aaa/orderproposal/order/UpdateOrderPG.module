@@ -1,0 +1,104 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = "Modify Order", de = "Auftrag ändern", fr = "Modifier un ordre"
+	containment = container
+	domainEntity = "AAADSExtOperation:ExtOperationAll"
+	bean-define = DSBean.AAADSExtOperation.ExtOperationAll
+	bean-name = ExtOperationAll
+	id = UpdateOrder_G__Ig
+	tid = 454543019419751
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- Conditional ---
+			indexOfSelectedChild = 0
+		{
+			--- ConditionalBody ---
+				javaCode = "null != <bean:get-property bean=\"ExtOperationAll\" property=\"natureE\"/> &amp;&amp; Integer.toString(com.odcgroup.aaa.OperationNatureE.Buy).equals(<bean:get-property bean=\"ExtOperationAll\" property=\"natureE\"/>.toString())"
+				technicalName = Buy
+				boxType = vertical
+				isWidgetSelected = true
+			{
+				--- Box ---
+					boxType = vertical
+					cssClass = lightblue
+				{
+					--- Include ---
+						includeSrc = "" !
+						resource:///Default/module/aaa/administration/extoperation/order/orderproposal/QuickOrderPG.module
+				}
+			}
+			--- ConditionalBody ---
+				javaCode = true
+				technicalName = Sell
+				boxType = vertical
+				isWidgetVisible = false
+			{
+				--- Box ---
+					boxType = vertical
+					cssClass = lightred
+				{
+					--- Include ---
+						includeSrc = "" !
+						resource:///Default/module/aaa/administration/extoperation/order/orderproposal/QuickOrderPG.module
+				}
+			}
+		}
+		--- Spacer ---
+			height = 5
+			width = 4
+		--- Grid ---
+			cssClass = blank
+			gridColumnCount = 2
+			gridColumnsWidth = "25,25" !
+			gridRowCount = 1
+		{
+			--- GridCell ---
+				gridColumnWidth = 25
+			{
+				--- Button ---
+					labels en = Save, de = Speichern, fr = Sauver
+					id = btn_q5t_Q
+					tid = 459626093487441
+				{
+					Event OnClick (submit)
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						widget-group-ref = form
+						target = self
+						param = "flow-action=updateorder"
+						only-changed = true
+						functionResult.id = "valueOf(form.functionResult.id)" ud
+						portfolio.code = "valueOf(form.portfolio.code)" ud
+						modal = false
+						prevalidate = false
+					}
+				}
+				--- Button ---
+					labels en = Cancel, de = Abbrechen, fr = Annuler
+					id = btn_T304p
+					tid = 182268345483755
+				{
+					Event OnClick (submit) S
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						target = self
+						flow-action = cancelorder ud
+						functionResult.id = "valueOf(form.functionResult.id)" ud
+						portfolio.code = "valueOf(form.portfolio.code)" ud
+						modal = false
+						only-changed = false
+						prevalidate = false
+					}
+				}
+			}
+			--- GridCell ---
+				gridColumnWidth = 25
+		}
+	}
+}

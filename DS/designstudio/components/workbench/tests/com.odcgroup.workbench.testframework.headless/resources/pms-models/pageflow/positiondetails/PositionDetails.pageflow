@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmlns:pageflow="http://www.odcgroup.com/ofs/pageflow">
+  <pageflow:Pageflow xmi:id="_fYknwCLlEd-te_xfPk81xQ" desc="This pageflow is used to display the page containing all details of a selected position in the Valuation. It is enacted as soon as the user clicks on the quantity of a position" name="PositionDetails" id="Pageflow/wui-pms-models/PositionDetails" fileName="positiondetails-pageflow-PositionDetails" metamodelVersion="7.2.0.20120620">
+    <states xmi:type="pageflow:InitState" xmi:id="_h9Yt4CLlEd-te_xfPk81xQ" desc="The page flow is enacted as soon as the user clicks on a position's quantity displayed in the Valuation." name="InitState" displayName="Start"/>
+    <states xmi:type="pageflow:EndState" xmi:id="_i4GCoCLlEd-te_xfPk81xQ" desc="The layer containing the page is removed from display and the page flow is terminated." name="End" displayName="End" exitUrl="end" id="EndState/wui-pms-models/PositionDetails/EndState0"/>
+    <states xmi:type="pageflow:ViewState" xmi:id="_jUtGICLlEd-te_xfPk81xQ" desc="This view state displays the page containing all information about the position details. It must be displayed in a layer, in order to let the user still have a look to the WUI main screen." name="PositionDetailsViewState" displayName="PositionDetails">
+      <view xmi:type="pageflow:View" xmi:id="_wvwKEO2hEeCH_7RKA254Jw" url="resource:///Default/activity/aaa/positiondetails/PositionDetailsFromValuation.page"/>
+    </states>
+    <states xmi:type="pageflow:SubPageflowState" xmi:id="_rfPZxedVEd-CfrxUI-Q1qA" name="FilterSubPageflow" displayName="Filter">
+      <subPageflow xmi:type="pageflow:Pageflow" href="resource:///administration/filter/Filter.pageflow#_F0rTwdnIEd6qnbv9rmkhrg"/>
+      <transitionMappings xmi:type="pageflow:TransitionMapping" xmi:id="_P9JjIG9oEeGVjONiRth1Kw" transition="_yqDaoOdVEd-CfrxUI-Q1qA">
+        <endState xmi:type="pageflow:EndState" href="resource:///administration/filter/Filter.pageflow#_uVzjoNnJEd6qnbv9rmkhrg"/>
+      </transitionMappings>
+    </states>
+    <states xmi:type="pageflow:SubPageflowState" xmi:id="_tUHA4KaYEeCpfIcf32c0xg" desc="This sub-pageflow will display a page containing all the operation details corresponding to the selected operation in the position details' page." name="SubOperationDetailsPageflow" displayName="OperationDetails">
+      <subPageflow xmi:type="pageflow:Pageflow" href="resource:///administration/extoperation/ExtOperationViewDetail.pageflow#_A55dwPxLEd2SjeKlJWy0zg"/>
+      <transitionMappings xmi:type="pageflow:TransitionMapping" xmi:id="_PFi7EKaZEeCpfIcf32c0xg" transition="_wewX8KaYEeCpfIcf32c0xg">
+        <endState xmi:type="pageflow:EndState" href="resource:///administration/extoperation/ExtOperationViewDetail.pageflow#_CNLqkPxLEd2SjeKlJWy0zg"/>
+      </transitionMappings>
+    </states>
+    <abortView xmi:type="pageflow:View" xmi:id="_faD1gSLlEd-te_xfPk81xQ" url="class:com.odcgroup.uif.workflow.ConfigurableURLRedirector"/>
+    <errorView xmi:type="pageflow:View" xmi:id="_faD1gCLlEd-te_xfPk81xQ" url="/page/common/OneModule?module=general/PageflowErrorModule"/>
+    <transitions xmi:type="pageflow:Transition" xmi:id="_keeKkCLlEd-te_xfPk81xQ" desc="As the Valuation was already computed, the first module is feed by extracting directly the values of the selected position using its identifier.&#xD;&#xA;&#xD;&#xA;The financial function Operation History is executed to feed the second modules of the page containing all information about the related operations.&#xD;&#xA;&#xD;&#xA;The execution of this financial function must take into account the 5 following points:&#xD;&#xA;&#xD;&#xA;1) The financial function must be executed with the same portfolio corresponding to the position's portfolio (case of a hierarchy or a list for example)&#xD;&#xA;2) The financial function must be executed with the same instrument corresponding to the position's instrument&#xD;&#xA;3) The financial function must be executed with the same minimum and maximum status as those defined in the Valuation context (domain)&#xD;&#xA;4) The financial function must be executed starting from the From date of the Valuation context (domain) less 15 years until the From date of the context (domain)" name="init" fromState="_h9Yt4CLlEd-te_xfPk81xQ" toState="_jUtGICLlEd-te_xfPk81xQ" displayName="Init">
+      <actions xmi:type="pageflow:TransitionAction" xmi:id="_9gvKwJmvEeGdlN_SVcCoAQ" uri="class:com.odcgroup.tsl.fc.wui.process.InitiateEntityProcess" name="InitiateValoEntityProcess">
+        <property xmi:type="pageflow:Property" xmi:id="_9gvKwZmvEeGdlN_SVcCoAQ" name="DSTargetEntity" value="AAADSDomain:DomainContextDetail"/>
+        <property xmi:type="pageflow:Property" xmi:id="_9gvKwpmvEeGdlN_SVcCoAQ" name="DSEntity" value="AAADSDomain:DomainValuation"/>
+        <property xmi:type="pageflow:Property" xmi:id="_9gvKw5mvEeGdlN_SVcCoAQ" name="DSIncludes" value="portfolioDimensionE,portfolioDimPortfolio,queryDefinition,portfolioDimList,portfolioDimAdminMgr,portfolioDimCommMgr,portfolioDimThirdParty,instrumentDimensionE,instrumentDimInstrument,instrumentDimList,currency,loadHierarchyF,zeroQtyF,calcRefD"/>
+        <property xmi:type="pageflow:Property" xmi:id="_9gvKxJmvEeGdlN_SVcCoAQ" name="inputFieldPrefix" value="pos_"/>
+        <property xmi:type="pageflow:Property" xmi:id="_9gvKxZmvEeGdlN_SVcCoAQ" name="function.procName" value="valo"/>
+      </actions>
+      <actions xmi:type="pageflow:TransitionAction" xmi:id="_LCgGoJmwEeGdlN_SVcCoAQ" uri="class:com.odcgroup.tsl.fc.wui.process.InitiateEntityProcess" name="InitiateOpHistEntityProcess">
+        <property xmi:type="pageflow:Property" xmi:id="_LCgGoZmwEeGdlN_SVcCoAQ" name="DSTargetEntity" value="AAADSDomain:DomainPositionDetail"/>
+        <property xmi:type="pageflow:Property" xmi:id="_LCgGopmwEeGdlN_SVcCoAQ" name="DSEntity" value="AAADSDomain:DomainValuation"/>
+        <property xmi:type="pageflow:Property" xmi:id="_LCgGo5mwEeGdlN_SVcCoAQ" name="DSIncludes" value="portfolioDimensionE,portfolioDimPortfolio,queryDefinition,portfolioDimList,portfolioDimAdminMgr,portfolioDimCommMgr,portfolioDimThirdParty,instrumentDimensionE,instrumentDimInstrument,instrumentDimList,currency,loadHierarchyF,zeroQtyF"/>
+        <property xmi:type="pageflow:Property" xmi:id="_LCgGpJmwEeGdlN_SVcCoAQ" name="function.procName" value="PCK_DS_POS_DETAILS"/>
+        <property xmi:type="pageflow:Property" xmi:id="_LCgGpZmwEeGdlN_SVcCoAQ" name="inputFieldPrefix" value="pos_"/>
+      </actions>
+      <actions xmi:type="pageflow:TransitionAction" xmi:id="_u0WksO9fEeCh-rbWUdKGFw" uri="class:com.odcgroup.tsl.fc.wui.process.ExecuteFinFunctionProcess" desc="" name="OpHistExecuteFinFunctionProcess" problemManagement="Go back">
+        <property xmi:type="pageflow:Property" xmi:id="_u0Wkse9fEeCh-rbWUdKGFw" name="function.procName" value="PCK_DS_POS_DETAILS"/>
+        <property xmi:type="pageflow:Property" xmi:id="_u0Wksu9fEeCh-rbWUdKGFw" name="DSDomain" value="AAADSDomain:DomainPositionDetail"/>
+        <property xmi:type="pageflow:Property" xmi:id="_u0Wks-9fEeCh-rbWUdKGFw" name="DSFormat" value="AAADSPositionDetails:PositionDetailsOperation"/>
+      </actions>
+      <actions xmi:type="pageflow:TransitionAction" xmi:id="_y18FIJkkEeGBhJ2FWMlqdA" uri="class:com.odcgroup.tsl.fc.wui.process.ExecuteFinFunctionProcess" desc="" name="ValoExecuteFinFunctionProcess" problemManagement="Go back">
+        <property xmi:type="pageflow:Property" xmi:id="_y18FIZkkEeGBhJ2FWMlqdA" name="function.procName" value="valo"/>
+        <property xmi:type="pageflow:Property" xmi:id="_y18FIpkkEeGBhJ2FWMlqdA" name="DSDomain" value="AAADSDomain:DomainContextDetail"/>
+        <property xmi:type="pageflow:Property" xmi:id="_y18FI5kkEeGBhJ2FWMlqdA" name="DSFormat" value="AAADSPositionDetails:PositionDetailsFromValuation"/>
+      </actions>
+    </transitions>
+    <transitions xmi:type="pageflow:Transition" xmi:id="_lplS0CLlEd-te_xfPk81xQ" desc="The page is removed from display and the page flow terminates when the user clicks on the close symbol of the window (usually a white cross in a red square)" name="close" fromState="_jUtGICLlEd-te_xfPk81xQ" toState="_i4GCoCLlEd-te_xfPk81xQ" displayName="Close"/>
+    <transitions xmi:type="pageflow:Transition" xmi:id="_yPOf0OdVEd-CfrxUI-Q1qA" name="openFilter" fromState="_jUtGICLlEd-te_xfPk81xQ" toState="_rfPZxedVEd-CfrxUI-Q1qA" displayName="OpenFilter"/>
+    <transitions xmi:type="pageflow:Transition" xmi:id="_yqDaoOdVEd-CfrxUI-Q1qA" name="ok" fromState="_rfPZxedVEd-CfrxUI-Q1qA" toState="_jUtGICLlEd-te_xfPk81xQ" displayName="Ok"/>
+    <transitions xmi:type="pageflow:Transition" xmi:id="_vipVAKaYEeCpfIcf32c0xg" desc="This transition is executed as soon as the user clicks on the quantity of an operation displayed in the second module of the position details' page.&#xD;&#xA;&#xD;&#xA;The layer will display the operation details' page, corresponding to the selected operation." name="viewOperation" fromState="_jUtGICLlEd-te_xfPk81xQ" toState="_tUHA4KaYEeCpfIcf32c0xg" displayName="ViewOperation"/>
+    <transitions xmi:type="pageflow:Transition" xmi:id="_wewX8KaYEeCpfIcf32c0xg" desc="This transition is executed as soon as the user clicks on a button to go back.&#xD;&#xA;&#xD;&#xA;The layer will go back to the position details' page." name="back" fromState="_tUHA4KaYEeCpfIcf32c0xg" toState="_jUtGICLlEd-te_xfPk81xQ" displayName="Back" techDesc=""/>
+    <property xmi:type="pageflow:Property" xmi:id="_MZDoQCafEd-PPJkhEzOo8Q" name="DSEntity" value="AAADSDomain:DomainContext"/>
+    <property xmi:type="pageflow:Property" xmi:id="_T3ZpYO6LEeCkHa2K23i_vg" name="DSFormat" value="AAADSPositionDetails:PositionDetailsFromValuation"/>
+  </pageflow:Pageflow>
+  <notation:Diagram xmi:id="_fZw6kCLlEd-te_xfPk81xQ" type="Pageflow" element="_fYknwCLlEd-te_xfPk81xQ" name="PositionDetails.pageflow" measurementUnit="Pixel">
+    <children xmi:type="notation:Node" xmi:id="_h9ro0CLlEd-te_xfPk81xQ" type="1001" element="_h9Yt4CLlEd-te_xfPk81xQ">
+      <children xmi:type="notation:Node" xmi:id="_h9ro0yLlEd-te_xfPk81xQ" type="4001">
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_h9ro1CLlEd-te_xfPk81xQ" x="14" y="48"/>
+      </children>
+      <styles xmi:type="notation:ShapeStyle" xmi:id="_h9ro0SLlEd-te_xfPk81xQ"/>
+      <layoutConstraint xmi:type="notation:Bounds" xmi:id="_h9ro0iLlEd-te_xfPk81xQ" x="48" y="264"/>
+    </children>
+    <children xmi:type="notation:Node" xmi:id="_i4PzoCLlEd-te_xfPk81xQ" type="1003" element="_i4GCoCLlEd-te_xfPk81xQ">
+      <children xmi:type="notation:Node" xmi:id="_i4PzoyLlEd-te_xfPk81xQ" type="4003">
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_i4PzpCLlEd-te_xfPk81xQ" y="5"/>
+      </children>
+      <styles xmi:type="notation:ShapeStyle" xmi:id="_i4PzoSLlEd-te_xfPk81xQ"/>
+      <layoutConstraint xmi:type="notation:Bounds" xmi:id="_i4PzoiLlEd-te_xfPk81xQ" x="648" y="264"/>
+    </children>
+    <children xmi:type="notation:Node" xmi:id="_jU23ICLlEd-te_xfPk81xQ" type="1004" element="_jUtGICLlEd-te_xfPk81xQ">
+      <children xmi:type="notation:Node" xmi:id="_jU23IyLlEd-te_xfPk81xQ" type="4004"/>
+      <children xmi:type="notation:Node" xmi:id="_jU23JCLlEd-te_xfPk81xQ" type="4005"/>
+      <styles xmi:type="notation:ShapeStyle" xmi:id="_jU23ISLlEd-te_xfPk81xQ" fillColor="10020088" lineColor="0"/>
+      <layoutConstraint xmi:type="notation:Bounds" xmi:id="_jU23IiLlEd-te_xfPk81xQ" x="264" y="216"/>
+    </children>
+    <children xmi:type="notation:Node" xmi:id="_rfPZwOdVEd-CfrxUI-Q1qA" type="1005" element="_rfPZxedVEd-CfrxUI-Q1qA">
+      <children xmi:type="notation:Node" xmi:id="_rfPZwedVEd-CfrxUI-Q1qA" type="4006"/>
+      <children xmi:type="notation:Node" xmi:id="_rfPZwudVEd-CfrxUI-Q1qA" type="4007"/>
+      <styles xmi:type="notation:ShapeStyle" xmi:id="_rfPZw-dVEd-CfrxUI-Q1qA" fillColor="13024422" lineColor="0"/>
+      <layoutConstraint xmi:type="notation:Bounds" xmi:id="_rfPZxOdVEd-CfrxUI-Q1qA" x="264" y="24"/>
+    </children>
+    <children xmi:type="notation:Node" xmi:id="_tUjs0KaYEeCpfIcf32c0xg" type="1005" element="_tUHA4KaYEeCpfIcf32c0xg">
+      <children xmi:type="notation:Node" xmi:id="_tUjs06aYEeCpfIcf32c0xg" type="4006"/>
+      <children xmi:type="notation:Node" xmi:id="_tUjs1KaYEeCpfIcf32c0xg" type="4007"/>
+      <styles xmi:type="notation:ShapeStyle" xmi:id="_tUjs0aaYEeCpfIcf32c0xg" fillColor="13024422" lineColor="0"/>
+      <layoutConstraint xmi:type="notation:Bounds" xmi:id="_tUjs0qaYEeCpfIcf32c0xg" x="264" y="432"/>
+    </children>
+    <styles xmi:type="notation:DiagramStyle" xmi:id="_fZw6kSLlEd-te_xfPk81xQ"/>
+    <edges xmi:type="notation:Edge" xmi:id="_keeKkSLlEd-te_xfPk81xQ" type="3001" element="_keeKkCLlEd-te_xfPk81xQ" source="_h9ro0CLlEd-te_xfPk81xQ" target="_jU23ICLlEd-te_xfPk81xQ">
+      <children xmi:type="notation:Node" xmi:id="_keeKliLlEd-te_xfPk81xQ" type="4008">
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_keeKlyLlEd-te_xfPk81xQ" y="40"/>
+      </children>
+      <styles xmi:type="notation:RoutingStyle" xmi:id="_keeKkiLlEd-te_xfPk81xQ" jumpLinkStatus="Above"/>
+      <styles xmi:type="notation:FontStyle" xmi:id="_keeKkyLlEd-te_xfPk81xQ"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_keeKlCLlEd-te_xfPk81xQ" lineColor="0"/>
+      <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_keeKlSLlEd-te_xfPk81xQ" points="[14, 3, -239, -61]$[215, 65, -38, 1]"/>
+      <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_kfEngCLlEd-te_xfPk81xQ" id="(0.19,0.525)"/>
+    </edges>
+    <edges xmi:type="notation:Edge" xmi:id="_lplS0SLlEd-te_xfPk81xQ" type="3001" element="_lplS0CLlEd-te_xfPk81xQ" source="_jU23ICLlEd-te_xfPk81xQ" target="_i4PzoCLlEd-te_xfPk81xQ">
+      <children xmi:type="notation:Node" xmi:id="_lpucwCLlEd-te_xfPk81xQ" type="4008">
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_lpucwSLlEd-te_xfPk81xQ" y="40"/>
+      </children>
+      <styles xmi:type="notation:RoutingStyle" xmi:id="_lplS0iLlEd-te_xfPk81xQ" jumpLinkStatus="Above"/>
+      <styles xmi:type="notation:FontStyle" xmi:id="_lplS0yLlEd-te_xfPk81xQ"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_lplS1CLlEd-te_xfPk81xQ" lineColor="0"/>
+      <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_lplS1SLlEd-te_xfPk81xQ" points="[100, 12, -84, -11]$[180, 21, -4, -2]"/>
+      <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_lpucwiLlEd-te_xfPk81xQ" id="(0.14285715,0.35714287)"/>
+    </edges>
+    <edges xmi:type="notation:Edge" xmi:id="_yPOf0edVEd-CfrxUI-Q1qA" type="3001" element="_yPOf0OdVEd-CfrxUI-Q1qA" source="_jU23ICLlEd-te_xfPk81xQ" target="_rfPZwOdVEd-CfrxUI-Q1qA">
+      <children xmi:type="notation:Node" xmi:id="_yPYQ0OdVEd-CfrxUI-Q1qA" type="4008">
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_yPYQ0edVEd-CfrxUI-Q1qA" x="1" y="-57"/>
+      </children>
+      <styles xmi:type="notation:RoutingStyle" xmi:id="_yPOf0udVEd-CfrxUI-Q1qA" jumpLinkStatus="Above"/>
+      <styles xmi:type="notation:FontStyle" xmi:id="_yPOf0-dVEd-CfrxUI-Q1qA"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_yPOf1OdVEd-CfrxUI-Q1qA" lineColor="0"/>
+      <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_yPOf1edVEd-CfrxUI-Q1qA" points="[-1, -28, 2, 96]$[-33, -100, -30, 24]"/>
+      <sourceAnchor xmi:type="notation:IdentityAnchor" xmi:id="_yPYQ0udVEd-CfrxUI-Q1qA" id="(0.29,0.23333333333333334)"/>
+      <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_yPYQ0-dVEd-CfrxUI-Q1qA" id="(0.275,0.8)"/>
+    </edges>
+    <edges xmi:type="notation:Edge" xmi:id="_yqDaoedVEd-CfrxUI-Q1qA" type="3001" element="_yqDaoOdVEd-CfrxUI-Q1qA" source="_rfPZwOdVEd-CfrxUI-Q1qA" target="_jU23ICLlEd-te_xfPk81xQ">
+      <children xmi:type="notation:Node" xmi:id="_yqDapudVEd-CfrxUI-Q1qA" type="4008">
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_yqDap-dVEd-CfrxUI-Q1qA" x="-1" y="-21"/>
+      </children>
+      <styles xmi:type="notation:RoutingStyle" xmi:id="_yqDaoudVEd-CfrxUI-Q1qA" jumpLinkStatus="Above"/>
+      <styles xmi:type="notation:FontStyle" xmi:id="_yqDao-dVEd-CfrxUI-Q1qA"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_yqDapOdVEd-CfrxUI-Q1qA" lineColor="0"/>
+      <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_yqDapedVEd-CfrxUI-Q1qA" points="[0, 6, -3, -74]$[0, 78, -3, -2]"/>
+      <sourceAnchor xmi:type="notation:IdentityAnchor" xmi:id="_yqMkkOdVEd-CfrxUI-Q1qA" id="(0.675,0.95)"/>
+      <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_yqMkkedVEd-CfrxUI-Q1qA" id="(0.69,0.016666666666666666)"/>
+    </edges>
+    <edges xmi:type="notation:Edge" xmi:id="_vi83AKaYEeCpfIcf32c0xg" type="3001" element="_vipVAKaYEeCpfIcf32c0xg" source="_jU23ICLlEd-te_xfPk81xQ" target="_tUjs0KaYEeCpfIcf32c0xg">
+      <children xmi:type="notation:Node" xmi:id="_vi83BaaYEeCpfIcf32c0xg" type="4008">
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_vi83BqaYEeCpfIcf32c0xg" y="40"/>
+      </children>
+      <styles xmi:type="notation:RoutingStyle" xmi:id="_vi83AaaYEeCpfIcf32c0xg" jumpLinkStatus="Above"/>
+      <styles xmi:type="notation:FontStyle" xmi:id="_vi83AqaYEeCpfIcf32c0xg"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_vi83A6aYEeCpfIcf32c0xg" lineColor="0"/>
+      <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_vi83BKaYEeCpfIcf32c0xg" points="[-90, 60, -27, -144]$[-196, 132, -133, -72]$[-100, 183, -37, -21]"/>
+      <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_vi83B6aYEeCpfIcf32c0xg" id="(0.185,0.4)"/>
+    </edges>
+    <edges xmi:type="notation:Edge" xmi:id="_wewX8aaYEeCpfIcf32c0xg" type="3001" element="_wewX8KaYEeCpfIcf32c0xg" source="_tUjs0KaYEeCpfIcf32c0xg" target="_jU23ICLlEd-te_xfPk81xQ">
+      <children xmi:type="notation:Node" xmi:id="_we6I8KaYEeCpfIcf32c0xg" type="4008">
+        <layoutConstraint xmi:type="notation:Location" xmi:id="_we6I8aaYEeCpfIcf32c0xg" y="40"/>
+      </children>
+      <styles xmi:type="notation:RoutingStyle" xmi:id="_wewX8qaYEeCpfIcf32c0xg" jumpLinkStatus="Above"/>
+      <styles xmi:type="notation:FontStyle" xmi:id="_wewX86aYEeCpfIcf32c0xg"/>
+      <styles xmi:type="notation:LineStyle" xmi:id="_wewX9KaYEeCpfIcf32c0xg" lineColor="0"/>
+      <bendpoints xmi:type="notation:RelativeBendpoints" xmi:id="_wewX9aaYEeCpfIcf32c0xg" points="[25, -12, 30, 150]$[137, -64, 142, 98]$[25, -142, 30, 20]"/>
+      <sourceAnchor xmi:type="notation:IdentityAnchor" xmi:id="_we6I8qaYEeCpfIcf32c0xg" id="(0.875,0.3333333333333333)"/>
+      <targetAnchor xmi:type="notation:IdentityAnchor" xmi:id="_we6I86aYEeCpfIcf32c0xg" id="(0.85,0.7833333333333333)"/>
+    </edges>
+  </notation:Diagram>
+</xmi:XMI>

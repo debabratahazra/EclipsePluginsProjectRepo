@@ -1,0 +1,265 @@
+<!DOCTYPE mapping PUBLIC "-//EXOLAB/Castor Mapping DTD Version 1.0//EN" "http://tools.odcgroup.com/advisor/schemas/2002-07/otf-castor-mapping.dtd">
+<mapping>
+	<!-- Configuration of the workflows -->
+	<class name="com.odcgroup.uif.workflow.config.WorkflowConfig">
+		<map-to xml="config" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<field name="cached" type="boolean">
+			<bind-xml name="use-cache" node="attribute"/>
+		</field>
+		<!-- XML-defined Graphs -->
+		<field name="graphs" type="com.odcgroup.uif.workflow.Graph" set-method="addGraph" collection="collection">
+			<bind-xml auto-naming="deriveByClass" node="element"/>
+		</field>
+		<!-- Attributes of the workflows -->
+		<field name="attributes" type="com.odcgroup.uif.workflow.config.WorkflowAttributes" set-method="addWorkflowAttributes" collection="map">
+			<bind-xml name="workflow" node="element"/>
+		</field>
+		<!-- Attributes of the wizards -->
+		<field name="wizardAttributes" type="com.odcgroup.uif.workflow.config.WizardAttributes" set-method="addWizardAttributes" collection="map">
+			<bind-xml name="wizard" node="element"/>
+		</field>
+	</class>
+	<!-- Graphs definition-->
+	<class name="com.odcgroup.uif.workflow.config.GraphConfig" identity="name">
+		<map-to xml="graph" xstype="Graph" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<!-- Name of the graph -->
+		<field name="name" type="string">
+			<bind-xml name="name" node="attribute"/>
+		</field>
+		<!-- States of the graph -->
+		<field name="state" type="com.odcgroup.uif.workflow.statemachine.State" set-method="addState" collection="map">
+			<bind-xml name="state" node="element"/>
+		</field>
+		<!-- Initial Transition of the graph -->
+		<field name="initTransition" type="com.odcgroup.uif.workflow.statemachine.StateTransition">
+			<bind-xml name="init-transition" node="element"/>
+		</field>
+		<!-- Transitions of the graph -->
+		<field name="transition" type="com.odcgroup.uif.workflow.statemachine.StateTransition" set-method="addTransition" collection="map">
+			<bind-xml name="transition" node="element"/>
+		</field>
+	</class>
+	<!-- States of the graph -->
+	<class name="com.odcgroup.uif.workflow.statemachine.State" identity="key">
+		<map-to xml="state" xstype="State" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<!-- Key of the state -->
+		<field name="key" type="string">
+			<bind-xml name="key" node="attribute"/>
+		</field>
+		<!-- Description of the state -->
+		<field name="description" type="string">
+			<bind-xml name="desc" node="attribute"/>
+		</field>
+		<!-- Is it a terminal state? -->
+		<field name="terminal" type="boolean">
+			<bind-xml name="is-terminal" node="attribute"/>
+		</field>
+	</class>
+	<!-- Transitions of the graph -->
+	<class name="com.odcgroup.uif.workflow.statemachine.StateTransition">
+		<map-to xml="transition" xstype="Transition" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<!-- Name of the transition -->
+		<field name="name" type="string">
+			<bind-xml name="name" node="attribute"/>
+		</field>
+		<!-- Coming from State -->
+		<field name="fromState" type="com.odcgroup.uif.workflow.statemachine.State">
+			<bind-xml name="from-state" node="attribute" reference="true"/>
+		</field>
+		<!-- Going to State -->
+		<field name="toState" type="com.odcgroup.uif.workflow.statemachine.State">
+			<bind-xml name="to-state" node="attribute" reference="true"/>
+		</field>
+		<!-- Is there a redirector? -->
+		<field name="hasRedirector" type="boolean">
+			<bind-xml name="to-redirector" node="attribute"/>
+		</field>
+		<!-- Is the transition repeatable? -->
+		<field name="isIdempotent" type="boolean">
+			<bind-xml name="is-idempotent" node="attribute"/>
+		</field>
+		<!-- Process(es) linked to the transition -->
+		<field name="processes" type="com.odcgroup.uif.workflow.config.ProcessConfig" collection="collection" set-method="addProcess">
+			<bind-xml name="process" node="element"/>
+		</field>
+		<!-- Validation process(es) linked to the transition -->
+		<field name="validation" type="com.odcgroup.uif.workflow.config.ValidationProcessConfig" collection="collection" set-method="addProcess">
+			<bind-xml name="validation" node="element"/>
+		</field>
+		<!-- Redirector linked to the transition -->
+		<field name="redirector" type="com.odcgroup.uif.workflow.config.RedirectorConfig">
+			<bind-xml name="redirector" node="element"/>
+		</field>
+	</class>
+	<!-- Processes of the graph (attached to a transition) -->
+	<class name="com.odcgroup.uif.workflow.config.ProcessConfig">
+		<map-to xml="process" xstype="Process" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<field name="stopOnFailure" type="boolean">
+			<bind-xml name="stop-on-failure" node="attribute"/>
+		</field>
+		<!-- Name of the class implementing that process -->
+		<field name="className" type="string">
+			<bind-xml name="class-name" node="attribute"/>
+		</field>
+		<!-- Possible properties passed to a process -->
+		<field name="properties" type="com.odcgroup.uif.workflow.config.PropertyConfig" set-method="addProperty" collection="hashtable">
+			<bind-xml name="property" node="element"/>
+		</field>
+	</class>
+	<!-- Validation Processes of the graph (attached to a transition) -->
+	<class name="com.odcgroup.uif.workflow.config.ValidationProcessConfig">
+		<map-to xml="validation" xstype="ValidationProcess" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<!-- Name of the class implementing that process -->
+		<field name="className" type="string">
+			<bind-xml name="class-name" node="attribute"/>
+		</field>
+		<!-- Possible properties passed to a process -->
+		<field name="properties" type="com.odcgroup.uif.workflow.config.PropertyConfig" set-method="addProperty" collection="hashtable">
+			<bind-xml name="property" node="element"/>
+		</field>
+	</class>
+	<!-- Name-Value pair to define a property accessible from a process -->
+	<class name="com.odcgroup.uif.workflow.config.PropertyConfig">
+		<map-to xml="property" xstype="Property" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<field name="name" type="string">
+			<bind-xml name="name" node="attribute"/>
+		</field>
+		<field name="value" type="string">
+			<bind-xml name="value" node="attribute"/>
+		</field>
+	</class>
+	<!-- Redirectors of the graphs (attached to a transition) -->
+	<class name="com.odcgroup.uif.workflow.config.RedirectorConfig">
+		<map-to xml="my-redirector" xstype="Redirector" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<!-- Possible results of the redirector -->
+		<field name="results" type="com.odcgroup.uif.workflow.config.ResultConfig" set-method="addResult" collection="map">
+			<bind-xml name="result" node="element"/>
+		</field>
+	</class>
+	<!-- Value-state pairs to reach appropriate state depending on process result -->
+	<class name="com.odcgroup.uif.workflow.config.ResultConfig">
+		<map-to xml="result" xstype="StateResult" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<field name="value" type="integer">
+			<bind-xml name="value" node="attribute"/>
+		</field>
+		<field name="state" type="com.odcgroup.uif.workflow.statemachine.State">
+			<bind-xml name="state" node="attribute" reference="true"/>
+		</field>
+		<!-- Transition of the redirector -->
+		<field name="transition" type="com.odcgroup.uif.workflow.statemachine.StateTransition">
+			<bind-xml name="transition" node="element"/>
+		</field>
+	</class>
+	<!-- Attributes of the workflow  -->
+	<class name="com.odcgroup.uif.workflow.config.WorkflowAttributes" identity="name">
+		<map-to xml="workflow" xstype="Workflow" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<!-- Name of the workflow -->
+		<field name="name" type="string">
+			<bind-xml name="name" node="attribute"/>
+		</field>
+		<!-- Name of the class, which gives the sequence of the graph -->
+		<field name="graphClassName" type="string">
+			<bind-xml name="graph-class-name" node="attribute"/>
+		</field>
+		<!-- Graph -->
+		<field name="graph" type="com.odcgroup.uif.workflow.Graph">
+			<bind-xml name="graph" node="attribute" reference="true"/>
+		</field>
+		<!-- Abort view -->
+		<field name="abortView" type="com.odcgroup.uif.workflow.config.UrlView">
+			<bind-xml name="abort-view" node="element"/>
+		</field>
+		<!-- Error view -->
+		<field name="errorView" type="com.odcgroup.uif.workflow.config.UrlView">
+			<bind-xml name="error-view" node="element"/>
+		</field>
+		<!-- Views of the workflow -->
+		<field name="views" type="com.odcgroup.uif.workflow.config.UrlView" set-method="addView" collection="map">
+			<bind-xml name="view" node="element"/>
+		</field>
+		<!-- Nested pageflow views -->
+		<field name="pageflowViews" type="com.odcgroup.uif.workflow.config.PageflowView" set-method="addView" collection="map">
+			<bind-xml name="pageflow-view" node="element"/>
+		</field>
+		<!-- Possible properties set on a Workflow -->
+		<field name="properties" type="com.odcgroup.uif.workflow.config.PropertyConfig" set-method="addProperty" collection="hashtable">
+			<bind-xml name="property" node="element"/>
+		</field>
+	</class>
+	<!-- Attributes of the wizard  -->
+	<class name="com.odcgroup.uif.workflow.config.WizardAttributes">
+		<map-to xml="wizard" xstype="Wizard" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<!-- Name of the wizard -->
+		<field name="name" type="string">
+			<bind-xml name="name" node="attribute"/>
+		</field>
+		<!--Workflow-->
+		<field name="workflow" type="com.odcgroup.uif.workflow.config.WorkflowAttributes" set-method="setWorkflow">
+			<bind-xml name="workflow" node="attribute" reference="true"/>
+		</field>
+		<!-- Views of the workflow -->
+		<field name="views" type="com.odcgroup.uif.workflow.config.UrlView" set-method="addView" collection="map">
+			<bind-xml name="view" node="element"/>
+		</field>
+	</class>
+	<!-- URL View of the workflow -->
+	<class name="com.odcgroup.uif.workflow.config.UrlView">
+		<map-to xml="view" xstype="View" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<!-- Key of the state (node of the graph) -->
+		<field name="stateKey" type="string">
+			<bind-xml name="state-key" node="attribute"/>
+		</field>
+		<!-- Name of the class, which gives the url redirector -->
+		<field name="urlRedirectorClassName" type="string">
+			<bind-xml name="url-redirector-class-name" node="attribute"/>
+		</field>
+		<!-- Url for the view if the view has not a url redirector -->
+		<field name="url" type="string">
+			<bind-xml name="url" node="attribute"/>
+		</field>
+		<!-- index for the view if the view has not a url redirector -->
+		<field name="index" type="int">
+			<bind-xml name="index" node="attribute"/>
+		</field>
+	</class>
+	<!-- View to attach a nested pageflow to a state of a pageflow -->
+	<class name="com.odcgroup.uif.workflow.config.PageflowView">
+		<map-to xml="pageflow-view" xstype="PageflowView" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<!-- Key of the state (node of the graph) -->
+		<field name="stateKey" type="string">
+			<bind-xml name="state-key" node="attribute"/>
+		</field>
+		<!-- Name of the configration containing the definition of the pageflow to nest (optional) -->
+		<field name="configuration" type="string">
+			<bind-xml name="configuration" node="attribute"/>
+		</field>
+		<!-- Name of the nested pageflow -->
+		<field name="pageflow" type="string">
+			<bind-xml name="pageflow" node="attribute"/>
+		</field>
+		<!-- The process to handle the input of the nested pageflow -->
+		<field name="inputHandler" type="com.odcgroup.uif.workflow.config.ProcessConfig">
+			<bind-xml name="input-handler" node="element"/>
+		</field>
+		<!-- The process to handle the output of the nested pageflow -->
+		<field name="outputHandler" type="com.odcgroup.uif.workflow.config.ProcessConfig">
+			<bind-xml name="output-handler" node="element"/>
+		</field>
+		<!-- Mapping between the terminal states of the nested pageflow and the transition from the nesting state -->
+		<field name="exitTransitions" type="com.odcgroup.uif.workflow.config.ExitTransitionConfig" collection="collection" set-method="addExitTransition">
+			<bind-xml name="exit-transition" node="element"/>
+		</field>
+	</class>
+	<!-- The mapping between the terminal state of the nested pageflow and the transition from the nesting state -->
+	<class name="com.odcgroup.uif.workflow.config.ExitTransitionConfig">
+		<map-to xml="exit-transition" xstype="ExitTransition" ns-prefix="wf" ns-uri="http://www.odcgroup.com/wui-workflow"/>
+		<!-- Name of the terminal state of the nested pageflow -->
+		<field name="state" type="string">
+			<bind-xml name="state" node="attribute"/>
+		</field>
+		<!-- Name of the transition state of the nesting pageflow that corresponds to this state -->
+		<field name="transition" type="string">
+			<bind-xml name="transition" node="attribute"/>
+		</field>
+	</class>
+</mapping>

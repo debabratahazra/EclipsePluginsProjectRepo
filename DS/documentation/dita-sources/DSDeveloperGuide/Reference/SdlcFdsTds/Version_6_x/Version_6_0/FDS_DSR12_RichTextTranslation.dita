@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN"
+"http://docs.oasis-open.org/dita/v1.1/OS/dtd/topic.dtd">
+<topic id="SdlcFdsTdsVersion_6_0_richtext_translations">
+	<title>Rich Text Translations</title>
+	<body>
+		<section>
+			<title>Description</title>
+			<p>
+				This new feature allows the user to decorate a translation with presentation
+				styles (font-size, bold, underline, italic, color,...). Ordered and unordered
+				list are also supported. Pararaphs can also be aligned and indented.
+			</p>
+			<p>	
+				The following elements support this new feature: Dataset Attribute, Widgets 
+				(Label, LabelDamain, Button, RadioButton and CheckBox). 
+			</p>
+			<p>
+				This TDS explains briefly the technical design.
+			</p>
+		</section>
+		<section>
+			<title>FDS Link</title>
+			<p>
+				<xref
+					href="https://lausvn.oams.com/cgi-bin/viewvc.cgi/devel/projects/doc/active/triplea_plus/6.0/03.%20Construction%20%28Design%29/FDS_DSR12_RichTextTranslations.doc?view=log"
+					scope="external">FDS_DSR12_RichTextTranslations.doc</xref>
+			</p>
+		</section>
+		<section>
+			<title>JIRA Issue(s)</title>
+			<p>
+				<xref href="http://rd.oams.com/browse/DS-4758" scope="external">DS-4758</xref>
+			</p>
+		</section>
+		<section>
+			<title>TDS</title>
+			<p></p>
+			<b>1. Changes in Translation API</b>
+			<p>The interface <b>ITranslation</b> is updated. The following operations are added
+				<ul>
+				<li>boolean messagesFound(ITranslationKind kind, boolean richtext)</li>
+				<li>boolean acceptRichText(ITranslationKind kind)</li>
+				</ul>
+			</p>
+			<p>
+				The operation <i>messagesFound</i> must returned true if at least one translations contains rich-text
+				decorators, otherwise it returns false. When the parameter 'richtext' is false it has the same
+				semantic as the other operation messagesFound. This operations is used by a generator to generate
+				the correct target for a rich-text translation.
+			</p>
+			<p>
+				The second operation <i>acceptRichText</i> must returned true if the underlying translatable
+				object supports rich-text translation for the given translation kind, otherwise it must
+				returns false. This operations is used in the class TranslationTable to select the correct 
+				translation Editor (i.e the class TranslationModel has also the method acceptRichText). 
+				The class TranslationTableCellModifier uses this information to enable/disable the direct 
+				editing of the translation. 
+			</p>
+			<p>
+				<b>IMPORTANT: the rich-text feature is ONLY supported by the translation kind
+				<i>ITranslationKind.NAME</i> (hardcoded in the implementation of this method). 
+				It means that a tooltip has never rich-text</b> 
+			</p> 
+	
+	
+			<b>2. Changes in Page Designer Metamodel</b>
+			<p>
+				In order to easily implement the operation <i>acceptRichtext</i> for widget we add the following
+				meta information in the definition of a WidgetType.
+				<ul>
+					<li>attribute: richtext, boolean, default value: false</li>
+				</ul>
+			</p>
+			<p>
+				This value must be set to true for the following widget types: Label, LabelDomain, RadioButton, 
+				and CheckBox.
+			</p>	
+					
+			<b>3. Changes in Page Designer Editor</b>
+			<p>
+				In order to easily displayed rich-text translation. the xml repsentation of a rich-text
+				translation is filtered, i.e all xml tags are removed from the string. The resulting
+				string is displayed in the editor.
+			</p>
+			<p>
+				The following classed need to be updated in order to recognized rich-text translation, and
+				to invoke the filtering mechanism (plugin page-ui).				
+				<ul>
+					<li>The class WidgetEditPart</li>
+					<li>The class FigureFactory</li>
+				</ul>
+			</p>
+						
+			<b>4. Translation Editor </b>
+			<p>A Translation Editor is implemented by the class RichTextTranslationDialog. This editor is
+			opened when the underlying translated object supports rich-text. (see method editPressed() in
+			class TranslationTable) The implementation of this editor is based on the SWT custom widget 
+			StyledText that support the display of decorated text. 
+			</p>
+			<p>
+			The class SimpleRichTextEditor encapsulates the widget StyledText and some others data structure, 
+			create the handler for all buttons/combobox defined in the toolBar. It also delegates the 
+			transformation of the XML representation of rich-text to two converters: classes 
+			StyleTextToRichTextConverter and RichTextToStyledTextConverter.
+			</p>
+			<p> Each action handler is implemented in a specific class. This way, it is easy to add
+			new action in the toolBar, and/or enable/disable actions.
+			</p>
+			<p>
+			The class RichTextToolbar implements the toolBar.
+			</p>
+			<b>5. Translation Converters </b>
+			<p>
+				These converters are used to transform a rich-text expression into another language.
+				4 converters need to be developed. The implementation of this converter are based
+				on the SAX event model. Each converter is notified by event defined in the
+				interface IRichTextHhandler. The implementation of this handler represents the
+				concrete converter</p>
+				
+				<ul>
+				<li>StyledTextToRichTextConverter. This converter transforms the content 
+				of the data structure StyledText into a XML representation compliant to the 
+				rich-text grammar defined in the richtext_translation.xsd. The concrete converter
+				is implemented by the class StyledTextToRichTextHandler. The class StyledTextToRichTectConverter
+				wlaks through the StyledText data structure and notifies the concrete converter. </li>
+				<li>RichTextToStyledTextConverter. This converter transforms the 
+				into the StyledText data structure.</li>
+				<li>RichTextToHTMLHandler. This converter transforms the xml rich-text expression into its 
+				HTML equivalent string</li>
+				<li>RichTextFilterHandler. This converter simply remove the rich-text tags from the 
+				XML rich-text expression, in order to have a simple text that can be displayed in the page designer.
+				This concrete converter is implemented in the class RichTextFilterHandler </li>
+				</ul>
+				The 3 converters RichTextToStyledTextConverter, RichTextToHTMLHandler and RichTextFilterHandler
+				are invoked through a standard visitor based on a SAX reader. This reader read the XML rich-text 
+				representation and notifies the concrete converter through the interface IRichTextHandler. So this
+				SAX reader is reused for all three converters. 
+			
+			<b>6. Code Generation</b>
+			<p>
+				Regarding the message.xml, the rich-text translation are converted into its equivalent 
+				HTML string, and escaped before saving it in the xml file. This is done in the class
+				MessageStore, by invoking the RichText-2-HTML converter.
+			</p>
+			<p>
+			</p>
+			<b>7. Excel Export</b>
+			<p>
+				The Excel export need to be updated in order to add a new column for each language.
+				This new column must contains either the rich-text translation converted to its 
+				equivalent HTML representation, or its textual representation if no rich-text decorators
+				are found.
+			</p>
+			<p>
+				The classes XLSGenerator and XLSWriter are updated. 
+			</p>
+			
+			<b>8. Rich-Text Translation Validation</b>
+			<p>
+				The validation of a rich-text expression, compliant to the XML grammar (richtext_translation.xsd)
+				is done in the class PageWidgetTranslationValidator.
+			</p>
+
+			<b>9. Rich-Text common operations</b>
+			<p>
+				The class RichTextUtils, provides some low level services to escape/unescape rich-text string, 
+				do to some conversion, validation, and check that a translation contains rich-text decorators.
+			</p>
+		</section>
+	</body>
+</topic>
+ 

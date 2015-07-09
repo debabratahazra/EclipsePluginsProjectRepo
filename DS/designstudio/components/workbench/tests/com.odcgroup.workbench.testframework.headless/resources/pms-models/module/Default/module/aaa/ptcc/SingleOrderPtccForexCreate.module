@@ -1,0 +1,83 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = "Create Forex Order", de = "Devisen-Auftrag erstellen", fr = "Créer un ordre de change"
+	containment = container
+	domainEntity = "AAADSExtOperation:ExtOperationAll"
+	bean-define = DSBean.AAADSExtOperation.ExtOperationAll
+	bean-name = ExtOperationAll
+	id = SingleOrderPtccForexCreate_rxm_5
+	tid = 186991842458468
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- Include ---
+			includeSrc = "" !
+			resource:///Default/module/aaa/administration/extoperation/order/create/ForexNoButtonCreate.module
+		--- Grid ---
+			cssClass = blank
+			gridColumnCount = 4
+			gridColumnsWidth = "25,25,25,25" !
+			gridRowCount = 1
+		{
+			--- GridCell ---
+				gridColumnWidth = 25
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						javaCode = "null != <bean:get-property bean=\"ExtOperationAll\" property=\"instr.code\"/> &amp;&amp;\r\nnull != <bean:get-property bean=\"ExtOperationAll\" property=\"portfolio.code\"/> &amp;&amp;\r\nnull != <bean:get-property bean=\"ExtOperationAll\" property=\"account.code\"/>"
+						technicalName = instrPtfSelected
+						boxType = vertical
+						isWidgetSelected = true
+					{
+						--- Button ---
+							labels en = Check, de = Prüfen, fr = Vérifier
+							horizontalTextPosition = lead
+							id = btn_f4011
+							tid = 186991843500780
+						{
+							Event OnClick (submit)
+							{
+								method = post
+								call-URI = "<pageflow:continuation/>"
+								widget-group-ref = form
+								param = "flow-action=check"
+								only-changed = true
+								modal = false
+								prevalidate = false
+							}
+						}
+					}
+				}
+				--- Button ---
+					labels en = Cancel, fr = Annuler, de = Abbrechen
+					horizontalTextPosition = lead
+					verticalAlignment = lead
+					id = btn_a____
+					tid = 186991845397669
+				{
+					Event OnClick (submit) S
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						target = self
+						flow-action = newOrder ud
+						modal = false
+						only-changed = false
+						prevalidate = false
+					}
+				}
+			}
+			--- GridCell ---
+				gridColumnWidth = 25
+			--- GridCell ---
+				gridColumnWidth = 25
+			--- GridCell ---
+				gridColumnWidth = 25
+		}
+	}
+}

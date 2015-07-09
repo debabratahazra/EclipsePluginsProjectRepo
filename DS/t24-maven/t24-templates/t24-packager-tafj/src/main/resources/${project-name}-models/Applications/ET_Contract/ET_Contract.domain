@@ -1,0 +1,901 @@
+# UTF-8
+# UTF-8
+/* European Union Savings Directive Tax */
+Domain ET_Contract
+	@t24:i (module=ET)
+	@java:Package (value=com.temenos.t24.datamodel.et.et_contract)
+namespace "http://www.temenos.com/t24/ET_Contract"
+metamodelVersion 1.30.6
+Classes {
+	/* This application is one of the EU Base Files which is updated when a sale transaction is input for a customer and security in scope. It gives the details of the purchase transactions that have been allocated to this particular sale, the nominal that has been allocated out of each purchase, the base amount for tax and tax calculated. This is a live file. */
+	EU_ALLOCATION_DETS
+		@t24:i (t24Name=EU.ALLOCATION.DETS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This field is the key which contains the SECURITY.TRANS key appended with portfolio and separated by the asterisk.(For e.g.) SCTRSC003399QTRM.1*70001-1Where, SCTRSC003399QTRM.1 - SECURITY.TRANS key, 70001-1 - SEC.ACC.MASTER key. */
+		REFERENCE_NUMBER -> ET_Contract:EU_ALLOCATION_DETS PK required
+			@i18n:Label (en=Reference)
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=0.0, core=true, businessType=A, t24Name=REFERENCE.NUMBER)
+		CR_TXN_REF -> byValue ET_Contract:EU_ALLOCATION_DETS__CR_TXN_REF *
+		DR_TXN_REF -> byValue ET_Contract:EU_ALLOCATION_DETS__DR_TXN_REF *
+		/* This field holds the manually calculated tax amount in security currency. */
+		MAN_TAX_SCCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=28.0, core=true, t24Name=MAN.TAX.SCCY)
+		/* This field holds the manually calculated tax amount in account currency. */
+		MAN_TAX_ACCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=29.0, core=true, t24Name=MAN.TAX.ACCY)
+		JOINT_CUST_TAXID -> byValue ET_Contract:EU_ALLOCATION_DETS__JOINT_CUST_TAXID *
+	}
+	EU_ALLOCATION_DETS__CR_TXN_REF
+	{
+		/* This field holds the purchase transaction reference that have been allocated against each sale transaction. */
+		CR_TXN_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=1.0, core=true, t24Name=CR.TXN.REF)
+		/* This field holds the purchase transaction date that have been allocated against each sale transaction. */
+		CR_TXN_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=CR.TXN.DATE)
+		/* This field holds the purchase transaction nominal that have been allocated against each sale transaction. */
+		CR_NOMINAL : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=3.0, core=true, t24Name=CR.NOMINAL)
+		/* This field holds the tax amount before applying the tax percentage which is specified in the TAX record for EUSD. */
+		EU_TAX_BASE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=4.0, core=true, t24Name=EU.TAX.BASE)
+		/* This field holds the tax percentage which is specified in the TAX record for EUSD. */
+		EU_TAX_RATE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=5.0, core=true, t24Name=EU.TAX.RATE)
+		/* This field holds the calculated tax amount in security currency. */
+		EU_TAX_SEC_CR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=6.0, core=true, t24Name=EU.TAX.SEC.CR)
+		/* This field holds the calculated tax amount in account currency. */
+		EU_TAX_ACC_CR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=7.0, core=true, t24Name=EU.TAX.ACC.CR)
+	}
+	EU_ALLOCATION_DETS__DR_TXN_REF
+	{
+		/* This field holds the sale transaction reference that have been allocated against each purchase transaction. */
+		DR_TXN_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=8.0, core=true, t24Name=DR.TXN.REF)
+		/* This field holds the sale transaction code that have been allocated against each purchase transaction. */
+		DR_TXN_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=9.0, core=true, t24Name=DR.TXN.CODE)
+		/* This field holds the sale transaction date that have been allocated against each purchase transaction. */
+		DR_TXN_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=DR.TXN.DATE)
+		/* This field holds the sale transaction time that have been allocated against each purchase transaction. */
+		DR_TXN_TIME : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=11.0, core=true, t24Name=DR.TXN.TIME)
+		/* This field holds the sale transaction nominal that have been allocated against each purchase transaction. */
+		DR_NOMINAL : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=12.0, core=true, t24Name=DR.NOMINAL)
+		/* This field holds the number of days where the tax amount have been calculated. */
+		HLD_PERIOD : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=13.0, core=true, t24Name=HLD.PERIOD)
+		/* This field holds the tax amount for the number of days the security has been hold by the customer. */
+		HLD_PD_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=14.0, core=true, t24Name=HLD.PD.INT)
+		HLD_PD_DISC : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=15.0, core=true, t24Name=HLD.PD.DISC)
+		HLD_PD_DISCDAYS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=16.0, core=true, t24Name=HLD.PD.DISCDAYS)
+		/* This field holds the sale price of the transaction that has been allocated out of each purchase. */
+		NAV_OUT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=17.0, core=true, t24Name=NAV.OUT)
+		/* This field holds the weighted average capital gain (CG) after all transactions have been performed. */
+		AVG_CAP_GAIN : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=18.0, core=true, t24Name=AVG.CAP.GAIN)
+		/* This field holds the tax amount calculated based on the capital gain (CG) method. */
+		CAP_GAIN : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=19.0, core=true, t24Name=CAP.GAIN)
+		/* This field holds the weighted average interest counter after all transactions have been performed. */
+		INT_CTR_AVG : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=20.0, core=true, t24Name=INT.CTR.AVG)
+		/* This field holds the interest counter to calculate the tax based interest counter gain/loss. */
+		INT_CTR_OUT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=21.0, core=true, t24Name=INT.CTR.OUT)
+		/* This field holds the tax amount calculated based on the interest counter (IC) method. */
+		INT_CTR_GAIN : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=22.0, core=true, t24Name=INT.CTR.GAIN)
+		/* This field holds the tax amount before applying the tax percentage which is specified in the TAX record for EUSD. */
+		TAX_BASE_REV : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=23.0, core=true, t24Name=TAX.BASE.REV)
+		/* This field holds the tax percentage which is specified in the TAX record for EUSD. */
+		TAX_RATE_REV : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=24.0, core=true, t24Name=TAX.RATE.REV)
+		/* This field holds the tax amount including the tax percentage which is specified in the TAX record for EUSD. */
+		TAX_REV_SEC_CCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=25.0, core=true, t24Name=TAX.REV.SEC.CCY)
+		INCR_TAX_SCCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=26.0, core=true, t24Name=INCR.TAX.SCCY)
+		INCR_TAX_ACCY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=27.0, core=true, t24Name=INCR.TAX.ACCY)
+	}
+	EU_ALLOCATION_DETS__JOINT_CUST_TAXID
+	{
+		JOINT_CUST_TAXID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=JOINT.CUST.TAXID)
+		TAX_AMT_SPLIT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=31.0, core=true, t24Name=TAX.AMT.SPLIT, typeModifiers="C")
+	}
+	/* This application is used to rebuild the EUSD related files (like EU.TAX.LINK, EU.ALLOCATION.DETS and EU.TXN.BASE) based on the selection criteria specified for the ET security or customer in scope holds the position within the tax period.
+To rebuild the ET files, the service XXX/INITIAL.DATA.BUILD need to be run after authorizing the record in this application. */
+	EU_DATA_BUILD
+		@t24:i (t24Name=EU.DATA.BUILD, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This field is the key which contains the company id, appended with date and time separated by the dot.
+(For e.g. - COMPANY_KEY.DATE.TIME) US0010001.20001204.17:42:40
+The ET files are rebuild based on the last authorised record.
+Validation Rules
+
+
+Valid Inputs are 'A valid key from COMPANY record' */
+		COMPANY_DATE -> ET_Contract:EU_DATA_BUILD PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=S, t24Name=COMPANY.DATE)
+		/* This field holds the criteria based on which the selection should be done from security position to pick and rebuild the ET files.
+Validation Rules
+
+
+Valid input are 'CUSTOMER', 'SECURITY', 'PORTFOLIO' or 'ALL'
+This is a Mandatory field. */
+		SELECTION_CRITERIA : ET_Contract:EU_DATA_BUILD__SELECTION_CRITERIA required
+			@i18n:Label (en="Selection Criteria")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=SELECTION.CRITERIA)
+		SELECTION_ID -> byValue ET_Contract:EU_DATA_BUILD__SELECTION_ID *
+		/* This field holds the date from which the selection should be done in security trans to pick and rebuild the ET files. If this field is null then ET files are rebuild for all the ET Customer/Security which holds position.
+Validation Rules
+
+
+Valid T24 Date
+Default will be null */
+		FROM_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Start Date")
+			@i18n:Tooltip (en="Date from which it is effective")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=FROM.DATE)
+		/* This field holds the date upto which the selection should be done in security trans to pick and rebuild the ET files. If this field is null then ET files are rebuild for all the ET Customer/Security which holds position.
+Validation Rules
+
+
+Valid T24 Date
+Default will be null */
+		TO_DATE : T24BusinessTypes:D
+			@i18n:Label (en="To Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=TO.DATE)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ET_Contract:EU_DATA_BUILD__INPUTTER *
+		DATE_TIME -> byValue ET_Contract:EU_DATA_BUILD__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=13.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=14.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=16.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=17.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EU_DATA_BUILD__SELECTION_ID
+	{
+		/* This field contains the valid value based on the selection criteria specified.
+Validation Rules
+
+
+Valid input are
+If SELECTION.CRITERIA is 'CUSTOMER' then this field holds a valid key from CUSTOMER record.
+If SELECTION.CRITERIA is 'SECURITY' then this field holds a valid key from SECURITY.MASTER record.
+If SELECTION.CRITERIA is 'PORTFOLIO' then this field holds a valid key from SEC.ACC.MASTER record.
+If SELECTION.CRITERIA is 'ALL' then this field holds null (means ET files are rebuild for all the ET Customer/Security which holds position).
+This is a Mandatory field. */
+		SELECTION_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=SELECTION.ID)
+	}
+	EU_DATA_BUILD__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, core=true, t24Name=INPUTTER)
+	}
+	EU_DATA_BUILD__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=12.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application holds the charges/fees related fields that are used to deduct from the actual interest counter before selling funds in the scope.Deduction is made only on the Interest Counter (IC) calculation and not on the Capital Gains (CG) calculation. If the interest counter value is negative, then the interest counter should be zero and no tax is to be applied. */
+	EU_FEES_DEDUCTION
+		@t24:i (t24Name=EU.FEES.DEDUCTION, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This field is the key which contains the name of the application where the charges/fees are to be deducted.
+Validation Rules
+
+Valid Inputs are 'SEC.TRADE' or 'SECURITY.TRANSFER' */
+		APPLICATION_NAME -> ET_Contract:EU_FEES_DEDUCTION PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=APPLICATION.NAME)
+		CUST_TRANS_CODE -> byValue ET_Contract:EU_FEES_DEDUCTION__CUST_TRANS_CODE *
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=4.0, core=true, t24Name=RESERVED.10)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ET_Contract:EU_FEES_DEDUCTION__INPUTTER *
+		DATE_TIME -> byValue ET_Contract:EU_FEES_DEDUCTION__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=20.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EU_FEES_DEDUCTION__CUST_TRANS_CODE
+	{
+		/* This field contains the transaction type for which the charges/fees are to be deducted.
+Validation Rules
+
+Valid Inputs are 'ALL' or A Valid key from SC.TRANS.NAME application.
+This is a Mandatory field */
+		CUST_TRANS_CODE : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=CUST.TRANS.CODE)
+		APP_FLD_NAME -> byValue ET_Contract:EU_FEES_DEDUCTION__CUST_TRANS_CODE__APP_FLD_NAME *
+		PERC_FLDNAME -> byValue ET_Contract:EU_FEES_DEDUCTION__CUST_TRANS_CODE__PERC_FLDNAME *
+	}
+	EU_FEES_DEDUCTION__CUST_TRANS_CODE__APP_FLD_NAME
+	{
+		/* This field holds the charges/fees related field names pertaining to the application specified in the APPLICATION.NAME field.
+Validation Rules
+
+The field name entered should be a valid entry in STANDARD.SELECTION record of the respective application as a key specified in the APPLICATION.NAME field. */
+		APP_FLD_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=2.0, core=true, t24Name=APP.FLD.NAME)
+	}
+	EU_FEES_DEDUCTION__CUST_TRANS_CODE__PERC_FLDNAME
+	{
+		/* This field holds the percentage specific charges/fees related field names pertaining to the application specified in the APPLICATION.NAME field.
+Validation Rules
+
+The field name entered should be a valid entry in STANDARD.SELECTION record of the respective application as a key specified in the APPLICATION.NAME field. */
+		PERC_FLDNAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=3.0, core=true, t24Name=PERC.FLDNAME)
+	}
+	EU_FEES_DEDUCTION__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=INPUTTER)
+	}
+	EU_FEES_DEDUCTION__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application is one of the EU Base Files which maintains the FIFO/LIFO sequence of the transactions for a particular holding. This is a live file.
+Whenever the ET Security is traded by the withholding (WHT) customers in scope, this file is updated online.
+Whenever the ET Security is traded by the reporting (INFO) customers in scope, this file is updated during COB. */
+	EU_TAX_LINK
+		@t24:i (t24Name=EU.TAX.LINK, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This field is the key which contains the portfolio appended with security and separated by the dot.
+(For e.g.) 70001-1.100040-000
+Where, 70001-1 - SEC.ACC.MASTER key, 100040-000 - SECURITY.MASTER key. */
+		REFERENCE_NUMBER -> ET_Contract:EU_TAX_LINK PK required
+			@i18n:Label (en=Reference)
+			@t24:i (align=L, inputBehaviour=I, maxLength=31, sysNumber=0.0, core=true, businessType=A, t24Name=REFERENCE.NUMBER)
+		/* This field holds the transaction basis of the record. Each transaction that involve the mentioned portfolio and security from the key field, are filed under this transaction basis.
+Valid Transaction Basis are 'FIFO','LIFO' and 'AVERAGE'. */
+		TXN_BASIS : T24BusinessTypes:A
+			@i18n:Label (en="Txn Basis")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, t24Name=TXN.BASIS)
+		TXN_DATE -> byValue ET_Contract:EU_TAX_LINK__TXN_DATE *
+		/* This field holds the SECURITY.TRANS key to start the first reworking of transaction that needs to be done that involve the mentioned portfolio and security from the key field. */
+		FIRST_REWORK_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=9.0, core=true, t24Name=FIRST.REWORK.TXN)
+		/* This field acts as a pointer for FIFO allocation of nominal which holds the SECURITY.TRANS key to start the allocation that involve the mentioned portfolio and security from the key field. */
+		EARLIEST_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=10.0, core=true, t24Name=EARLIEST.TXN)
+		/* This field holds the date on when the earliest transaction was updated in the record for FIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		EARLIEST_INS_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=EARLIEST.INS.DT)
+		/* This field acts as a pointer for LIFO allocation of nominal which holds the SECURITY.TRANS key to start the allocation that involve the mentioned portfolio and security from the key field. */
+		LATEST_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=12.0, core=true, t24Name=LATEST.TXN)
+		/* This field holds the date on when the latest transaction was updated in the record for LIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		LATEST_INS_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, core=true, t24Name=LATEST.INS.DT)
+		/* This field holds the last updated SECURITY.TRANS key in the record for FIFO/LIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		LAST_UPDATED_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=14.0, core=true, t24Name=LAST.UPDATED.TXN)
+		/* This field holds the date on when the SECURITY.TRANS key is last updated in the record for FIFO/LIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		LAST_UPD_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Last Update Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=LAST.UPD.DATE)
+		/* This field holds the total nominal of all transactions for AVERAGE transaction basis. */
+		TOTAL_NOMINAL : mml:Integer
+			@i18n:Label (en="No Nominals")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=16.0, core=true, t24Name=TOTAL.NOMINAL)
+		/* This field holds the total weighted cost of all transactions for AVERAGE transaction basis. */
+		TOTAL_COST : mml:Integer
+			@i18n:Label (en="Total Cost")
+			@i18n:Tooltip (en="Total Cost")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=17.0, core=true, t24Name=TOTAL.COST)
+		/* This field holds the total weighted average cost of all transactions for AVERAGE transaction basis. */
+		AVG_COST : T24BusinessTypes:AMT
+			@i18n:Label (en="Average Cost")
+			@i18n:Tooltip (en="Average Cost")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=18.0, core=true, t24Name=AVG.COST)
+		/* This field holds the total weighted interest counter value of all transactions for AVERAGE transaction basis. */
+		TOTAL_INT_CTR : mml:Integer
+			@i18n:Label (en="Total Interest Counter")
+			@i18n:Tooltip (en="Total Interest Counter")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=19.0, core=true, t24Name=TOTAL.INT.CTR)
+		/* This field holds the total weighted average interest counter value of all transactions for AVERAGE transaction basis. */
+		INT_CTR : T24BusinessTypes:AMT
+			@i18n:Label (en="Interest Counter")
+			@i18n:Tooltip (en="Interest Counter")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=20.0, core=true, t24Name=INT.CTR)
+		/* This field holds the date on when the last purging of the record happens (i.e.) The transaction details upto this date would be purged from EU.TAX.LINK file and moved to EU.TAX.LINK.PAST file. */
+		EU_PURGE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, core=true, t24Name=EU.PURGE.DATE)
+		TOTAL_HPI : T24BusinessTypes:AMT
+			@i18n:Label (en="Total HPI")
+			@i18n:Tooltip (en="Average Total Interest of Outstanding Nominal")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=22.0, core=true, t24Name=TOTAL.HPI)
+		AVG_HPI : T24BusinessTypes:AMT
+			@i18n:Label (en="Average HPI")
+			@i18n:Tooltip (en="Average Interest of Position")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=23.0, core=true, t24Name=AVG.HPI)
+		TOTAL_DISCOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Discount")
+			@i18n:Tooltip (en="Total Discount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=24.0, core=true, t24Name=TOTAL.DISCOUNT)
+		AVG_DISC : T24BusinessTypes:AMT
+			@i18n:Label (en="Average Discount")
+			@i18n:Tooltip (en="Average Discount of Position")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=25.0, core=true, t24Name=AVG.DISC)
+	}
+	EU_TAX_LINK__TXN_DATE
+	{
+		/* This field holds the date on which the transaction is updated in the record. Each transaction details are updated based on the respective transaction date. */
+		TXN_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=TXN.DATE)
+		TXN_INPUT -> byValue ET_Contract:EU_TAX_LINK__TXN_DATE__TXN_INPUT *
+		TRA_CODE -> byValue ET_Contract:EU_TAX_LINK__TXN_DATE__TRA_CODE *
+		DATE_TIME -> byValue ET_Contract:EU_TAX_LINK__TXN_DATE__DATE_TIME *
+		ACTUAL_NOM -> byValue ET_Contract:EU_TAX_LINK__TXN_DATE__ACTUAL_NOM *
+		AVAIL_NOM -> byValue ET_Contract:EU_TAX_LINK__TXN_DATE__AVAIL_NOM *
+	}
+	EU_TAX_LINK__TXN_DATE__TXN_INPUT
+	{
+		/* This field holds the SECURITY.TRANS key of each transaction that involve the mentioned portfolio and security from the key field. */
+		TXN_INPUT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=3.0, core=true, t24Name=TXN.INPUT)
+	}
+	EU_TAX_LINK__TXN_DATE__TRA_CODE
+	{
+		/* This field holds the transaction code of each transaction that involve the mentioned portfolio and security from the key field.
+Valid Transaction codes are 'CREDIT' for purchase transaction and 'DEBIT' for sale transaction. */
+		TRA_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=4.0, core=true, t24Name=TRA.CODE)
+	}
+	EU_TAX_LINK__TXN_DATE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=5.0, core=true, t24Name=DATE.TIME)
+	}
+	EU_TAX_LINK__TXN_DATE__ACTUAL_NOM
+	{
+		/* This field holds the actual transaction nominal of each transaction that involve the mentioned portfolio and security from the key field. */
+		ACTUAL_NOM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=6.0, core=true, t24Name=ACTUAL.NOM)
+	}
+	EU_TAX_LINK__TXN_DATE__AVAIL_NOM
+	{
+		/* This field holds the available nominal for each purchase transaction after a sale transaction has been allocated against those purchase that involve the mentioned portfolio and security from the key field. */
+		AVAIL_NOM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=7.0, core=true, t24Name=AVAIL.NOM)
+		/* This field tells whether the rework for 'DEBIT' transaction needs to be done against 'CREBIT' transaction or not. Reworking of transaction is done to reallocate the nominal with updated sequence of FIFO/LIFO transactions. Based on the FIFO/LIFO allocation whenever any transaction are updated the rework flag set to 'YES' which indicates the need for reallocation of nominal.
+
+Valid values are 'YES' and 'NO' */
+		REWORK_FLAG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, t24Name=REWORK.FLAG)
+	}
+	/* This application is one of the EUSD live file which maintains the depository-wise FIFO/LIFO sequence of the transactions for a particular holding. */
+	EU_TAX_LINK_DEPOS
+		@t24:i (t24Name=EU.TAX.LINK.DEPOS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		REFERENCE_NUMBER -> ET_Contract:EU_TAX_LINK_DEPOS PK required
+			@i18n:Label (en=Reference)
+			@t24:i (align=L, inputBehaviour=I, maxLength=31, sysNumber=0.0, core=true, businessType=A, t24Name=REFERENCE.NUMBER)
+		/* This field holds the transaction basis of the record. Each transaction that involve the mentioned portfolio and security from the key field, are filed under this transaction basis.
+Valid Transaction Basis are 'FIFO','LIFO' and 'AVERAGE'. */
+		TXN_BASIS : T24BusinessTypes:A
+			@i18n:Label (en="Txn Basis")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, t24Name=TXN.BASIS)
+		TXN_DATE -> byValue ET_Contract:EU_TAX_LINK_DEPOS__TXN_DATE *
+		/* This field holds the SECURITY.TRANS key to start the first reworking of transaction that needs to be done that involve the mentioned portfolio and security from the key field. */
+		FIRST_REWORK_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=9.0, core=true, t24Name=FIRST.REWORK.TXN)
+		/* This field acts as a pointer for FIFO allocation of nominal which holds the SECURITY.TRANS key to start the allocation that involve the mentioned portfolio and security from the key field. */
+		EARLIEST_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=10.0, core=true, t24Name=EARLIEST.TXN)
+		/* This field holds the date on when the earliest transaction was updated in the record for FIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		EARLIEST_INS_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=EARLIEST.INS.DT)
+		/* This field acts as a pointer for LIFO allocation of nominal which holds the SECURITY.TRANS key to start the allocation that involve the mentioned portfolio and security from the key field. */
+		LATEST_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=12.0, core=true, t24Name=LATEST.TXN)
+		/* This field holds the date on when the latest transaction was updated in the record for LIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		LATEST_INS_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, core=true, t24Name=LATEST.INS.DT)
+		/* This field holds the last updated SECURITY.TRANS key in the record for FIFO/LIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		LAST_UPDATED_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=14.0, core=true, t24Name=LAST.UPDATED.TXN)
+		/* This field holds the date on when the SECURITY.TRANS key is last updated in the record for FIFO/LIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		LAST_UPD_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Last Update Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=LAST.UPD.DATE)
+		/* This field holds the total nominal of all transactions for AVERAGE transaction basis. */
+		TOTAL_NOMINAL : mml:Integer
+			@i18n:Label (en="No Nominals")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=16.0, core=true, t24Name=TOTAL.NOMINAL)
+		/* This field holds the total weighted cost of all transactions for AVERAGE transaction basis. */
+		TOTAL_COST : mml:Integer
+			@i18n:Label (en="Total Cost")
+			@i18n:Tooltip (en="Total Cost")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=17.0, core=true, t24Name=TOTAL.COST)
+		/* This field holds the total weighted average cost of all transactions for AVERAGE transaction basis. */
+		AVG_COST : T24BusinessTypes:AMT
+			@i18n:Label (en="Average Cost")
+			@i18n:Tooltip (en="Average Cost")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=18.0, core=true, t24Name=AVG.COST)
+		/* This field holds the total weighted interest counter value of all transactions for AVERAGE transaction basis. */
+		TOTAL_INT_CTR : mml:Integer
+			@i18n:Label (en="Total Interest Counter")
+			@i18n:Tooltip (en="Total Interest Counter")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=19.0, core=true, t24Name=TOTAL.INT.CTR)
+		/* This field holds the total weighted average interest counter value of all transactions for AVERAGE transaction basis. */
+		INT_CTR : T24BusinessTypes:AMT
+			@i18n:Label (en="Interest Counter")
+			@i18n:Tooltip (en="Interest Counter")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=20.0, core=true, t24Name=INT.CTR)
+	}
+	EU_TAX_LINK_DEPOS__TXN_DATE
+	{
+		/* This field holds the date on which the transaction is updated in the record. Each transaction details are updated based on the respective transaction date. */
+		TXN_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=TXN.DATE)
+		TXN_INPUT -> byValue ET_Contract:EU_TAX_LINK_DEPOS__TXN_DATE__TXN_INPUT *
+		TRA_CODE -> byValue ET_Contract:EU_TAX_LINK_DEPOS__TXN_DATE__TRA_CODE *
+		DATE_TIME -> byValue ET_Contract:EU_TAX_LINK_DEPOS__TXN_DATE__DATE_TIME *
+		ACTUAL_NOM -> byValue ET_Contract:EU_TAX_LINK_DEPOS__TXN_DATE__ACTUAL_NOM *
+		AVAIL_NOM -> byValue ET_Contract:EU_TAX_LINK_DEPOS__TXN_DATE__AVAIL_NOM *
+	}
+	EU_TAX_LINK_DEPOS__TXN_DATE__TXN_INPUT
+	{
+		/* This field holds the SECURITY.TRANS key of each transaction that involve the mentioned portfolio and security from the key field. */
+		TXN_INPUT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=3.0, core=true, t24Name=TXN.INPUT)
+	}
+	EU_TAX_LINK_DEPOS__TXN_DATE__TRA_CODE
+	{
+		/* This field holds the transaction code of each transaction that involve the mentioned portfolio and security from the key field.
+Valid Transaction codes are 'CREDIT' for purchase transaction and 'DEBIT' for sale transaction. */
+		TRA_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=4.0, core=true, t24Name=TRA.CODE)
+	}
+	EU_TAX_LINK_DEPOS__TXN_DATE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=5.0, core=true, t24Name=DATE.TIME)
+	}
+	EU_TAX_LINK_DEPOS__TXN_DATE__ACTUAL_NOM
+	{
+		/* This field holds the actual transaction nominal of each transaction that involve the mentioned portfolio and security from the key field. */
+		ACTUAL_NOM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=6.0, core=true, t24Name=ACTUAL.NOM)
+	}
+	EU_TAX_LINK_DEPOS__TXN_DATE__AVAIL_NOM
+	{
+		/* This field holds the available nominal for each purchase transaction after a sale transaction has been allocated against those purchase that involve the mentioned portfolio and security from the key field. */
+		AVAIL_NOM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=7.0, core=true, t24Name=AVAIL.NOM)
+		/* This field tells whether the rework for 'DEBIT' transaction needs to be done against 'CREBIT' transaction or not. Reworking of transaction is done to reallocate the nominal with updated sequence of FIFO/LIFO transactions. Based on the FIFO/LIFO allocation whenever any transaction are updated the rework flag set to 'YES' which indicates the need for reallocation of nominal.
+
+Valid values are 'YES' and 'NO' */
+		REWORK_FLAG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, t24Name=REWORK.FLAG)
+	}
+	/* This application is the archive file of the EU.TAX.LINK where all the transactions prior to the purge date that have an available nominal of zero are purged and moved during the course of the next COB run. This is a live file. */
+	EU_TAX_LINK_PAST
+		@t24:i (t24Name=EU.TAX.LINK.PAST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This field is the key which contains the portfolio appended with security and separated by the dot.
+(For e.g.) 70001-1.100040-000
+Where, 70001-1 - SEC.ACC.MASTER key, 100040-000 - SECURITY.MASTER key. */
+		REFERENCE_NUMBER -> ET_Contract:EU_TAX_LINK_PAST PK required
+			@i18n:Label (en=Reference)
+			@t24:i (align=L, inputBehaviour=I, maxLength=31, sysNumber=0.0, core=true, businessType=A, t24Name=REFERENCE.NUMBER)
+		/* This field holds the transaction basis of the record. Each transaction that involve the mentioned portfolio and security from the key field, are filed under this transaction basis.
+Valid Transaction Basis are 'FIFO','LIFO' and 'AVERAGE'. */
+		TXN_BASIS : T24BusinessTypes:A
+			@i18n:Label (en="Txn Basis")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, t24Name=TXN.BASIS)
+		TXN_DATE -> byValue ET_Contract:EU_TAX_LINK_PAST__TXN_DATE *
+		/* This field holds the SECURITY.TRANS key to start the first reworking of transaction that needs to be done that involve the mentioned portfolio and security from the key field. */
+		FIRST_REWORK_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=9.0, core=true, t24Name=FIRST.REWORK.TXN)
+		/* This field acts as a pointer for FIFO allocation of nominal which holds the SECURITY.TRANS key to start the allocation that involve the mentioned portfolio and security from the key field. */
+		EARLIEST_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=10.0, core=true, t24Name=EARLIEST.TXN)
+		/* This field holds the date on when the earliest transaction was updated in the record for FIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		EARLIEST_INS_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=EARLIEST.INS.DT)
+		/* This field acts as a pointer for LIFO allocation of nominal which holds the SECURITY.TRANS key to start the allocation that involve the mentioned portfolio and security from the key field. */
+		LATEST_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=12.0, core=true, t24Name=LATEST.TXN)
+		/* This field holds the date on when the latest transaction was updated in the record for LIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		LATEST_INS_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=13.0, core=true, t24Name=LATEST.INS.DT)
+		/* This field holds the last updated SECURITY.TRANS key in the record for FIFO/LIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		LAST_UPDATED_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=14.0, core=true, t24Name=LAST.UPDATED.TXN)
+		/* This field holds the date on when the SECURITY.TRANS key is last updated in the record for FIFO/LIFO allocation of nominal that involve the mentioned portfolio and security from the key field. */
+		LAST_UPD_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Last Update Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=LAST.UPD.DATE)
+		/* This field holds the total nominal of all transactions for AVERAGE transaction basis. */
+		TOTAL_NOMINAL : mml:Integer
+			@i18n:Label (en="No Nominals")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=16.0, core=true, t24Name=TOTAL.NOMINAL)
+		/* This field holds the total weighted cost of all transactions for AVERAGE transaction basis. */
+		TOTAL_COST : mml:Integer
+			@i18n:Label (en="Total Cost")
+			@i18n:Tooltip (en="Total Cost")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=17.0, core=true, t24Name=TOTAL.COST)
+		/* This field holds the total weighted average cost of all transactions for AVERAGE transaction basis. */
+		AVG_COST : T24BusinessTypes:AMT
+			@i18n:Label (en="Average Cost")
+			@i18n:Tooltip (en="Average Cost")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=18.0, core=true, t24Name=AVG.COST)
+		/* This field holds the total weighted interest counter value of all transactions for AVERAGE transaction basis. */
+		TOTAL_INT_CTR : mml:Integer
+			@i18n:Label (en="Total Interest Counter")
+			@i18n:Tooltip (en="Total Interest Counter")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=19.0, core=true, t24Name=TOTAL.INT.CTR)
+		/* This field holds the total weighted average interest counter value of all transactions for AVERAGE transaction basis. */
+		INT_CTR : T24BusinessTypes:AMT
+			@i18n:Label (en="Interest Counter")
+			@i18n:Tooltip (en="Interest Counter")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=20.0, core=true, t24Name=INT.CTR)
+		/* This field holds the date on when the last purging of the record happens (i.e.) The transaction details upto this date would be purged from EU.TAX.LINK file and moved to EU.TAX.LINK.PAST file. It provides the user with the ability to purge transactions from the EU.TAX.LINK file and move them to the EU.TAX.LINK.PAST file. All transactions prior to the purge date that have an available nominal of zero are purged and moved during the course of the next COB run. */
+		EU_PURGE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, core=true, t24Name=EU.PURGE.DATE)
+	}
+	EU_TAX_LINK_PAST__TXN_DATE
+	{
+		/* This field holds the date on which the transaction is updated in the record. Each transaction details are updated based on the respective transaction date. */
+		TXN_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=TXN.DATE)
+		TXN_INPUT -> byValue ET_Contract:EU_TAX_LINK_PAST__TXN_DATE__TXN_INPUT *
+		TRA_CODE -> byValue ET_Contract:EU_TAX_LINK_PAST__TXN_DATE__TRA_CODE *
+		DATE_TIME -> byValue ET_Contract:EU_TAX_LINK_PAST__TXN_DATE__DATE_TIME *
+		ACTUAL_NOM -> byValue ET_Contract:EU_TAX_LINK_PAST__TXN_DATE__ACTUAL_NOM *
+		AVAIL_NOM -> byValue ET_Contract:EU_TAX_LINK_PAST__TXN_DATE__AVAIL_NOM *
+	}
+	EU_TAX_LINK_PAST__TXN_DATE__TXN_INPUT
+	{
+		/* This field holds the SECURITY.TRANS key of each transaction that involve the mentioned portfolio and security from the key field. */
+		TXN_INPUT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=3.0, core=true, t24Name=TXN.INPUT)
+	}
+	EU_TAX_LINK_PAST__TXN_DATE__TRA_CODE
+	{
+		/* This field holds the transaction code of each transaction that involve the mentioned portfolio and security from the key field.
+Valid Transaction codes are 'CREDIT' for purchase transaction and 'DEBIT' for sale transaction. */
+		TRA_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=4.0, core=true, t24Name=TRA.CODE)
+	}
+	EU_TAX_LINK_PAST__TXN_DATE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:TIME
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=5.0, core=true, t24Name=DATE.TIME)
+	}
+	EU_TAX_LINK_PAST__TXN_DATE__ACTUAL_NOM
+	{
+		/* This field holds the actual transaction nominal of each transaction that involve the mentioned portfolio and security from the key field. */
+		ACTUAL_NOM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=6.0, core=true, t24Name=ACTUAL.NOM)
+	}
+	EU_TAX_LINK_PAST__TXN_DATE__AVAIL_NOM
+	{
+		/* This field holds the available nominal for each purchase transaction after a sale transaction has been allocated against those purchase that involve the mentioned portfolio and security from the key field. */
+		AVAIL_NOM : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=7.0, core=true, t24Name=AVAIL.NOM)
+		/* This field tells whether the rework for 'DEBIT' transaction needs to be done against 'CREBIT' transaction or not. Reworking of transaction is done to reallocate the nominal with updated sequence of FIFO/LIFO transactions. Based on the FIFO/LIFO allocation whenever any transaction are updated the rework flag set to 'YES' which indicates the need for reallocation of nominal.
+
+Valid values are 'YES' and 'NO' */
+		REWORK_FLAG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, t24Name=REWORK.FLAG)
+	}
+	/* This application is the Parameter file for EU Savings Directive. This file holds all the relevant information required for EU tax calculation. The key of the file is either 'SYSTEM' or a valid COMPANY key. */
+	EU_TAX_PARAM
+		@t24:i (t24Name=EU.TAX.PARAM, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This field is the key which contains either 'SYSTEM' or 'COMPANY' depends upon the parameter file required for the company specfic or accross the company.
+Validation Rules
+
+
+Valid Inputs are 'SYSTEM' or 'A valid key from COMPANY record' */
+		COMPANY_CODE -> ET_Contract:EU_TAX_PARAM PK required
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=0.0, core=true, businessType=AA, t24Name=COMPANY.CODE)
+		/* This field holds the type of EU tax option which defines the company level setting on the levy of EU tax or exchange of information. The amendment in this field is allowed only when there is no records exists in EU.TAX.LINK file.
+There are two types of EUSD tax options available,
+1. WHT	- With-Holding Customer
+2. INFO	- Reporting Customer
+
+Validation Rules
+
+
+Valid Inputs are 'WHT' or 'INFO'
+This is a Mandatory field */
+		TAX_OPTION : ET_Contract:EU_TAX_PARAM__TAX_OPTION required
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=1.0, core=true, t24Name=TAX.OPTION)
+		/* This field holds the type to consider the date to calculate the holding period.
+
+Validation Rules
+
+
+Valid Inputs are 'BUY.DATE', 'STATUS.DATE' or 'EU.DATE'
+This is a Mandatory field */
+		SC_HOLD_PERIOD : ET_Contract:EU_TAX_PARAM__SC_HOLD_PERIOD required
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=SC.HOLD.PERIOD)
+		/* This field holds the type of transaction basis for the allocation/unallocation of nominals in ET files. The 'AVERAGE' option is available only at Security/Sub-Asset-type level.
+Validation Rules
+
+
+Valid Inputs are 'FIFO'(First In First Out) ,'LIFO' (Last In First Out) or 'AVERAGE'
+This is a Mandatory field */
+		TAX_BASIS : ET_Contract:EU_TAX_PARAM__TAX_BASIS required
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=3.0, core=true, t24Name=TAX.BASIS)
+		/* This field holds the local reference field name from the CUSTOMER record which contains the customer effective date to check whether the customer involved are in EU scope.
+Validation Rules
+
+
+Valid Inputs are 'A valid local reference field from CUSTOMER application.'
+This is a Mandatory field */
+		CU_EFF_DATE_FLD : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=4.0, core=true, t24Name=CU.EFF.DATE.FLD)
+		/* This field holds the local reference field name from the SECURITY.MASTER record which contains the security effective date to check whether the security involved are in EU scope.
+Validation Rules
+
+
+Valid Inputs are 'A valid local reference field from SECURITY.MASTER application.'
+This is a Mandatory field */
+		SM_EFF_DATE_FLD : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=5.0, core=true, t24Name=SM.EFF.DATE.FLD)
+		CU_TAX_GRP -> byValue ET_Contract:EU_TAX_PARAM__CU_TAX_GRP *
+		/* This field holds the value 'ONLINE' for With-Holding customer whenever the tax group is set.
+Validation Rules
+
+
+Valid Inputs are 'ONLINE' */
+		TAX_UPD_MODE : ET_Contract:EU_TAX_PARAM__TAX_UPD_MODE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=7.0, core=true, t24Name=TAX.UPD.MODE)
+		CU_INFO_GRP -> byValue ET_Contract:EU_TAX_PARAM__CU_INFO_GRP *
+		/* This field holds the value 'BATCH' for reporting customer whenever the info group is set.
+Validation Rules
+
+
+Valid Inputs are 'BATCH' */
+		INFO_UPD_MODE : ET_Contract:EU_TAX_PARAM__INFO_UPD_MODE
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=9.0, core=true, t24Name=INFO.UPD.MODE)
+		CU_EXEMPT_GRP -> byValue ET_Contract:EU_TAX_PARAM__CU_EXEMPT_GRP *
+		/* This field tells whether to update the EUSD log file(EU.UPATE.LOG) or not, whenever the in-scope ET customer involved in purchase/sale with ET security.
+Validation Rules
+
+
+Valid Inputs are 'YES' or 'NO' */
+		UPDATE_LOG : ET_Contract:EU_TAX_PARAM__UPDATE_LOG
+			@i18n:Label (en="Update Log")
+			@i18n:Tooltip (en="Update Log")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=11.0, core=true, t24Name=UPDATE.LOG)
+		/* This field holds the date on which the ET records are purged and moved those records to archive file.
+This field holds the date on when the last purging happens (i.e.) The transaction details upto this date would be purged from EU.TAX.LINK file and moved to EU.TAX.LINK.PAST file. It provides the user with the ability to purge transactions from the EU.TAX.LINK file and move them to the EU.TAX.LINK.PAST file. All transactions prior to the purge date that have an available nominal of zero are purged and moved during the course of the next COB run.
+Validation Rules
+
+
+Valid T24 Date */
+		EU_PURGE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=EU.PURGE.DATE)
+		INC_SOURCE_TAX : ET_Contract:EU_TAX_PARAM__INC_SOURCE_TAX
+			@i18n:Label (en="Include Source Tax")
+			@i18n:Tooltip (en="Include Source Tax for Entitlement Amount")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=13.0, core=true, t24Name=INC.SOURCE.TAX)
+		TOTAL_DISC_PREM : T24BusinessTypes:R
+			@i18n:Label (en="Total Discount/Premium")
+			@i18n:Tooltip (en="Total Discount/Premium for the Security")
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=14.0, core=true, t24Name=TOTAL.DISC.PREM)
+		PERIOD_DISC_PREM : T24BusinessTypes:R
+			@i18n:Label (en="Period Discount/Premium")
+			@i18n:Tooltip (en="Period Discount/Premium for the Security")
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=15.0, core=true, t24Name=PERIOD.DISC.PREM)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ET_Contract:EU_TAX_PARAM__INPUTTER *
+		DATE_TIME -> byValue ET_Contract:EU_TAX_PARAM__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=29.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=30.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=31.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=32.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=33.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EU_TAX_PARAM__CU_TAX_GRP
+	{
+		/* This field holds the tax group for the with-holding customer when the TAX.OPTION is set to 'WHT' otherwise this field remains null.
+Validation Rules
+
+
+Valid Inputs are 'A valid group from TAX.GEN.CONDITION along with TAX.TYPE'
+(For e.g.) TAX.GEN.CONDITION key - 'EUSD-001' where, EUSD - TAX.TYPE key and 001 - A valid tax group. */
+		CU_TAX_GRP : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, t24Name=CU.TAX.GRP)
+	}
+	EU_TAX_PARAM__CU_INFO_GRP
+	{
+		/* This field holds the tax group for the reporting customer.
+Validation Rules
+
+
+Valid Inputs are 'A valid group from TAX.GEN.CONDITION along with TAX.TYPE'
+(For e.g.) TAX.GEN.CONDITION key - 'EUSD-002' where, 'EUSD' - TAX.TYPE key and '002' - A valid tax group. */
+		CU_INFO_GRP : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, t24Name=CU.INFO.GRP)
+	}
+	EU_TAX_PARAM__CU_EXEMPT_GRP
+	{
+		/* This field holds the tax group for the exempt customer.
+Validation Rules
+
+
+Valid Inputs are 'A valid group from TAX.GEN.CONDITION along with TAX.TYPE'
+(For e.g.) TAX.GEN.CONDITION key - 'EUSD-003' where, 'EUSD' - TAX.TYPE key and '003' - A valid tax group. */
+		CU_EXEMPT_GRP : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=10.0, core=true, t24Name=CU.EXEMPT.GRP)
+	}
+	EU_TAX_PARAM__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=27.0, core=true, t24Name=INPUTTER)
+	}
+	EU_TAX_PARAM__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=28.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application is the log file for the EU Savings Directive. If the field UPDATE.LOG in EU.TAX.PARAM application is set and whenever the ET customer involve in the purchase/sale of the ET security, this file gets updated with the respective transaction reference. This is a live file. */
+	EU_UPDATE_LOG
+		@t24:i (t24Name=EU.UPDATE.LOG, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This field hold the key of this application which is same as the key of the EU.TAX.LINK file. */
+		REF_NO -> ET_Contract:EU_UPDATE_LOG PK required
+			@i18n:Label (en="Reference Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=REF.NO)
+		UPDATED_TXN -> byValue ET_Contract:EU_UPDATE_LOG__UPDATED_TXN *
+	}
+	EU_UPDATE_LOG__UPDATED_TXN
+	{
+		/* This field contains the key of each transaction reference pertaining to the REF.NO field. */
+		UPDATED_TXN : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=1.0, core=true, t24Name=UPDATED.TXN)
+		/* This field contains the CURR.NO of each transaction reference pertaining to the REF.NO field. */
+		UPDATED_CURR_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=UPDATED.CURR.NO)
+	}
+}
+Enumerations {
+	EU_DATA_BUILD__SELECTION_CRITERIA : mml:string
+		CUSTOMER=CUSTOMER
+		PORTFOLIO=PORTFOLIO
+		SECURITY=SECURITY
+		ALL=ALL
+	EU_TAX_PARAM__TAX_OPTION : mml:string
+		WHT=WHT
+		INFO=INFO
+	EU_TAX_PARAM__SC_HOLD_PERIOD : mml:string
+		BUY_DATE=BUY.DATE
+		STATUS_DATE=STATUS.DATE
+		EU_DATE=EU.DATE
+	EU_TAX_PARAM__TAX_BASIS : mml:string
+		LIFO=LIFO
+		FIFO=FIFO
+		AVERAGE=AVERAGE
+	EU_TAX_PARAM__TAX_UPD_MODE : mml:string
+		ONLINE=ONLINE
+	EU_TAX_PARAM__INFO_UPD_MODE : mml:string
+		BATCH=BATCH
+	EU_TAX_PARAM__UPDATE_LOG : mml:string
+		YES=YES
+		NO=NO
+	EU_TAX_PARAM__INC_SOURCE_TAX : mml:string
+		YES=YES
+		NULL=NULL
+}

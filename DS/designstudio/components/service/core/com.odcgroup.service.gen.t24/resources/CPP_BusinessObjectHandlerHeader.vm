@@ -1,0 +1,51 @@
+#ifndef SOA_${umlClass.getHandlerClassName().toUpperCase()}_H
+\#define SOA_${umlClass.getHandlerClassName().toUpperCase()}_H
+
+#set($stdClassRefList = ${umlClass.getstdClsRefListInBOHanderHeader()})
+#foreach($stdClassRef in $stdClassRefList)
+\#include <${stdClassRef}>
+#end
+\#include <jsystem.h>
+
+#set($temenosClassRefList = ${umlClass.getTemenosClsRefListInBOHandlerHeader()})
+#foreach($temenosClassRef in $temenosClassRefList)
+\#include <${temenosClassRef}.h>
+#end
+#set($userClassRefList = ${umlClass.getUserClsRefListInBOHandlerHeader()})
+#foreach($userClassRef in $userClassRefList)
+\#include "${userClassRef}.h"
+#end
+
+\#include "${umlClass.getClassHeaderFileName()}"
+
+// Pre dec of TAFCSession
+namespace tafc {
+namespace session {
+class TAFCSession;
+}  // namespace session
+}  // namespace tafc
+
+namespace temenos {${formatter.indent()}
+  namespace soa {${formatter.indent()}
+    namespace ${namespace} {${formatter.indent()}	  
+	  class DLLDECL ${umlClass.getHandlerClassName()} {${formatter.indent()}
+	  public:
+${umlClass.declareBOToJBCVarMethod()}
+
+${umlClass.declareJBCVarToBOMethod()}
+
+      private:
+#set($members = ${umlClass.getMembers()})
+#foreach($member in $members)
+${member.declareCppIndexHelperVarInBOHandler()}
+
+#end
+
+
+	  };${formatter.outdent()}	  
+	}${formatter.outdent()}
+  }${formatter.outdent()}
+}${formatter.outdent()}
+
+
+#endif

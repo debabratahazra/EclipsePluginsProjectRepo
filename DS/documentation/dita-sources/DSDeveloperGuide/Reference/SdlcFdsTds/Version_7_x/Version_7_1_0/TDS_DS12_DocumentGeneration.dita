@@ -1,0 +1,240 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN"
+"http://docs.oasis-open.org/dita/v1.1/OS/dtd/topic.dtd">
+<topic id="SdlcFdsTdsVersion_7_1_0_DocumentGeneration">
+  <title>Document Generation</title>
+  <body> 
+    <section>
+      <title>Description</title>
+      <p>This document talks about the design and development of document generation of Design Studio models into various file formats using appropriate cartridges.</p>
+    </section>
+    <section>
+      <title>FDS Link</title>
+      <p>
+      <xref href="https://lausvn.oams.com/svn/devel/projects/doc/active/triplea_plus/6.0/03. Construction (Design)/TECHNOLOGY/DS/DocumentationGeneration/FDS_DSR12_DocumentationGeneration.doc"  scope= "external" >FDS_DSR12_DocumentationGeneration.doc</xref>
+     </p>
+    </section>
+    <section>
+      <title>JIRA Issue(s)</title>
+      <p>
+    	<xref href="http://rd.oams.com/browse/DS-5032" scope="external">DS-5032</xref>
+   	  </p>
+    </section>
+    <section>
+      <title>TDS</title>
+      <p>
+    	<i> Note: FDS references are in parenthesis </i>
+   	  </p>
+    </section>
+	<section>
+    	<ol>
+	    	<li><b> Document Generation Preference(5.1)</b>
+		    	<p> The existing project preference setting for DocumentGeneration needs to upgrade with a two tab - first tab displaying for each type of model and second tab target location of generated files</p>
+	   
+		    	<p>
+		      		In the current implementation, there is no grouping, supports only two types of model and generates only excel files.
+		      	</p>
+		      	<p>
+		      		To support new requirement the <codeph>DocumentationGenerationPropertyPage</codeph> class will be modified on similar lines with <codeph>CodeGenerationPropertyPage</codeph> as it already provides functionality.
+		      	</p>
+		       	<p>
+			       The <codeph>DocumentationGenerationAction</codeph> holds both the default target location "C:\DesignStudio\" and the user specified location.
+			       The respective cartridges <codeph>Generator</codeph> classes will be responsible for clearing and recreating the desired content files. 
+			       The generated document shall be shown in DS navigator as linked folder by creating <codeph>IFolder.createLink("FILE_NAME")</codeph>
+		       	</p>
+			</li>
+    		<li><b> Scope Generation (5.2)</b>
+
+		    	<p>
+		    		The current scope is limited to project. The new requirement is support at various level viz. project, model type, package, and model. 
+		    		The plugin.xml file of plug-in <codeph>com.odcgroup.documentation.generation.ui</codeph> will have extensions to </p> 
+		      	<p>
+<codeblock>
+extension point="org.eclipse.ui.navigator.navigatorContent"  
+actionProvider class="com.odcgroup.documentation.generation.ui.actions.DocumentationGenerationActionProvider"
+id="com.odcgroup.workbench.ui.navigator.action.docGeneration"
+</codeblock></p>
+	         	enabled at different level for following types 
+				<p>
+<codeblock>        
+type = 	"com.odcgroup.workbench.core.IOfsProject" || 
+"com.odcgroup.workbench.core.IOfsElement" ||
+"com.odcgroup.workbench.core.IOfsModelPackage" || 
+"com.odcgroup.workbench.core.IOfsModelFolder" ||
+"com.odcgroup.workbench.core.IOfsModelResource" and 
+instanceof "org.eclipse.core.resources.IFolder" then test property="org.eclipse.core.resources.name" value="rules" or 
+instanceof "org.eclipse.core.resources.IFile" then test property="org.eclipse.core.resources.extension" value="translation"
+</codeblock>			
+				for visual rules one need to modify plugin.xml of plug-in <codeph>com.odcgroup.visualrules.integration.ui</codeph>
+<codeblock>
+adapt type="de.visualrules.model.navigator.adapter.IResourceProvider"
+</codeblock>         	
+    		  	</p>
+		</li>
+    	<li><b> Index File (5.5)</b>        
+	    	<p>
+	      		The plug-in <codeph>com.odcgroup.documentation.generation</codeph> provides extension point with id "docGenCartridge" so that all document generator plug-in can contribute.
+	      		The extensionPoint contents are -
+	      		id and name are mandatory
+	      		class - should implement com.odcgroup.documentation.generation.DocGenerator interface
+	      		enabledByDefault - Defines whether this cartridge should be enabled for newly created Design Studio projects. 
+	      		Additional attribute "priority" will be added to help in creation of index file at the fag end of generation.
+	      		priority - indicates the priority at which the generation should take place
+	      	</p>
+	      	<p>
+	      		The priority value will take only numbers (1,2,...n) 1 being the lowest takes first priority and highest number take last priority.
+	      		For example. In Documentation Generation preference setting 
+	      		Domain,Translations,Workflow,Pageflow,Pages,Module/Fragment,Moddule table,Module matrix,Menu and Visual Rules take priority value as '1' and
+	      		List of project models will take priority value as '2'
+	      		If priority value is not mentioned then default priority value '1' shall be considered
+	      	</p>
+	      	<p> 
+	      		when List of project models is checked in Documentation Generation preference, the class <codeph>IndexGenerator</codeph> reads from generated location eg. "C:\DesignStudio" or
+	      		user specified location, iterate all the files and copy file properties to an CustomObject which will be stored in a map. 
+			    collating all the generated files (xls, docs, jpg, html) and folders can be achieved by reading from the map and generate index.html in the prescribed order mentioned in FDS.  
+	      	</p>         
+		</li>
+  	  	<li><b> Excel File generation (6,8)</b> 
+		     	<p> 
+		     		JavaExcelApi will be used to convert domain model to excel files, in plug-in <codeph>com.odcgroup.mdf.generation</codeph> 
+			        <codeph>SheetManager</codeph> will be enhanced to support generation of model content in separate sheets / columns, <codeph>ExcelSheetGenerator</codeph> 
+			      	used to populate in respective sheets / columns in ListOfModels.xls as mention in FDS.  </p>
+			    <p>
+			    <ol>  	
+			    	<li> <codeph>ExcelDomainGenerator</codeph> undergoes changes to support Domain models generation changes mentioned in FDS </li>
+			    
+			       
+			    	<li> Whole Project (FDS ref. 8) this will be generated as an project.xls with required information mentioned in FDS</li> 
+		      	</ol>
+		      	</p>
+   		</li> 
+      	<li><b> Html File generation (7,9,10,11,12)</b>  
+	     	<p>
+		     	Html files are generated for the page, workflow, pageflow and menu models. A
+		     	new plugin <codeph>com.odcgroup.page.docgen</codeph> will be created to support page models for generation of html files.
+		     	It will use Xtend2 expression language to build page related html content and 
+		     	respective cartridges classes will invoke these xtend2 templates to generate the actual html files.
+	     	</p> 
+	    	The cartidges for page are 
+     		<p>
+     		<ol>
+		     	<li> <codeph>PageDescriptionCartridge</codeph> uses <codeph>PageModel2PageDescription.xtend</codeph> to generate "PageDescription.html"</li>
+		     	<li> <codeph>PageContainersCartridge</codeph> uses <codeph>PageModel2PageContainers.xtend</codeph> to generate "PageContainers.html"</li>
+		     	<li> <codeph>PageIncludesCartridge</codeph> uses <codeph>PageModel2PageIncludes.xtend</codeph> to generate "PageIncludes.html"</li>
+		     	<li> <codeph>XPageContainersCartridge</codeph> uses <codeph>PageModel2XPageContainers.xtend</codeph> to generate "XPageContainers.html"</li>
+     		</ol>
+	     	</p>
+	     	<p>
+		    	there will few utility classes for computing list of Includes <codeph>PageIncludesList</codeph>, list of Containers <codeph>PageContainersList</codeph>, and list of XContainers <codeph>PageXContainersList</codeph>
+		    </p>
+		    <p> 
+				Simillarly for module cartidges are 
+<codeblock>
+ModuleDescriptionCartridge
+ModuleContainersCartridge
+ModuleIncludesCartridge
+XModuleContainersCartridge
+ModuleAttributesCartridge
+ModuleActionsCartridge
+ModuleActionFiltersCartridge
+ModuleActionSearchCartridge
+ModuleAutoCompleteDesignCartridge
+ModuleTranslationsCartridge
+XModuleAttributesCartridge
+</codeblock>
+			
+			</p>
+			<p>
+			 	for fragment catridges are 
+<codeblock>
+FragmentDescriptionCartridge
+FragmentContainersCartridge
+FragmentIncludesCartridge
+XFragmentContainersCartridge
+FragmentAttributesCartridge
+FragmentActionsCartridge
+FragmentActionFiltersCartridge
+FragmentActionSearchCartridge
+FragmentAutoCompleteDesignCartridge
+FragmentTranslationsCartridge
+XFragmentAttributesCartridge
+</codeblock>
+		 </p>
+		 <p>
+		 	catridges for table 
+<codeblock>
+TableDescriptionCartridge
+TableGroupingCartridge
+TableSortingCartridge 
+</codeblock> and etc...
+		 	simillarly for matrix catridges are 
+<codeblock>		 
+MatrixDescriptionCartridge
+MatrixAxisCartridge
+MatrixCellCartridge
+</codeblock> and etc...
+		 	
+		</p>
+		<p>
+			Simillarly new plugins <codeph>com.odcgroup.workflow.docgen</codeph>, <codeph>com.odcgroup.menu.docgen</codeph> and <codeph>com.odcgroup.pageflow.docgen</codeph> will be created to support workflow, menu and pageflow models generation as html files and respective catridges in each plugin simillar to the one showd in page example</p> 
+		</li>
+	  	<li><b> Image File generation (13)</b>  
+     		<p>
+		     	new plugin <codeph>com.odcgroup.visualrules.docgen</codeph> will be created to support image files generation or html files containing inages and  
+		     	The cartidges for visual rules are 
+<codeblock>
+CompletionRulesCartridge  
+ValidationRulesCartridge
+</codeblock>
+
+				The pseudo-code for creation of image files
+<codeblock>			
+IProject ruleProject = res.getResource().getProject();
+IRuleIntegration ruleIntegration = VisualRulesIntegration.getRuleIntegration(ruleProject);
+ruleIntegration.findRuleModels();
+IImageParameters parameters = new IImageParameters() {
+	public void setWidth(int widthInMilliMeters) {}
+	
+	public void setHeight(int heightInMilliMeters) {}
+	
+	public boolean isShowStatistics() {
+		return false;
+	}
+	
+	public boolean isShowNotes() {
+		return true;
+	}
+	
+	public boolean isShowErrorHandling() {
+		return true;
+	}
+	
+	public boolean isShowDescriptions() {
+		return true;
+	}
+	
+	public boolean isShowContents() {
+		return true;
+	}
+	
+	public Integer getMaxSliceHeight() {
+		return 600;
+	}
+	
+	public int getFormat() {
+		return SWT.IMAGE_JPEG;
+	}
+   };
+//get the vrpaths
+RuleModelFacade ruleModelFact = RuleModelFacadeFactory.getInstance(res.getResource().getProject());
+// saving to image files
+String[] images = ruleIntegration.saveImageSlices(getSelectedRuleEntityPath(ruleModelFact), new File("c:\\temp\\imgs"), parameters, null);
+</codeblock>				
+			    The sliced images pertaining to a single rule model will be placed in folder having datasetName under target folder defined in preference and all the images will have datasetName_imagenumber. This folder will be read by  
+			    class <codeph>ImageSticher</codeph> that uses Xtend2 template to build html script and attach each sliced image with html attribute "img" and finally generating html file.
+     		</p>
+     	</li>
+      </ol> 
+      </section>
+   </body>
+</topic>

@@ -1,0 +1,52 @@
+##
+## As we can have multiple services in a single model, we need to use Java Generator to correctly generate
+## the services.xml, This VM is not is use anymore but just an skeleton to represent the contents
+## 
+<?xml version="1.0" encoding="UTF-8"?>
+<serviceGroup>
+	<!-- Invoke ${service.getNameOnlyInUpperCamelCase()}SpringInit on server startup and shutdown -->
+	<service name="${serviceName}SpringInit" class="${service.getPackageName()}.${serviceName}SpringInit" >
+    	<description>This service will initializes Spring.</description>
+    	<parameter name="ServiceClass">${service.getPackageName()}.${serviceName}SpringInit</parameter>
+    	<parameter name="ServiceTCCL">composite</parameter>
+    	<parameter name="load-on-startup">true</parameter>
+    </service>
+	
+	<!-- Initiating T24 ${service.getNameOnlyInUpperCamelCase()} WebService -->
+    <service name="${service.getNameOnlyInUpperCamelCase()}WebService" scope="application" targetNamespace="http://${serviceName}Ws"> 
+        <schema schemaNamespace="http://${serviceName}Ws"/>
+        <description>${service.getNameOnlyInUpperCamelCase()} Web Service</description>
+        <messageReceivers>
+            <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-only"
+                class="org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver" />
+            <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-out"
+                class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+        </messageReceivers>
+        <parameter name="ServiceClass">
+            ${service.getWsPackageName()}.${webServiceName}
+        </parameter>
+    </service>
+	
+	<!-- Initiating WS-Security Enabled T24 ${service.getNameOnlyInUpperCamelCase()} WebService -->
+	<service name="${service.getNameOnlyInUpperCamelCase()}SecWebService" scope="soapsession" targetNamespace="http://${serviceName}SecWs"> 
+        <schema schemaNamespace="http://${serviceName}SecWs"/>
+        <description>${service.getNameOnlyInUpperCamelCase()} WS-Security Enabled Web Service</description>
+        <messageReceivers>
+            <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-only"
+                class="org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver" />
+            <messageReceiver mep="http://www.w3.org/2004/08/wsdl/in-out"
+                class="org.apache.axis2.rpc.receivers.RPCMessageReceiver" />
+        </messageReceivers>
+        <parameter name="ServiceClass">
+            ${service.getWsPackageName()}.${secWebServiceName}
+        </parameter>
+        <module ref="rampart" />
+    	<parameter name="InflowSecurity">
+          <action>
+            <items>UsernameToken</items>
+            <passwordCallbackClass>${service.getWsPackageName()}.${secWebServiceName}SamplePWHandler</passwordCallbackClass>
+          </action>
+        </parameter>
+	</service>
+	
+</serviceGroup>

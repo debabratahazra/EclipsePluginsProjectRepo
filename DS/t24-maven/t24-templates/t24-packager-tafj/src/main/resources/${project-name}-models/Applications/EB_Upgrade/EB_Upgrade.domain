@@ -1,0 +1,853 @@
+# UTF-8
+# UTF-8
+/* Core Release Mechanism */
+Domain EB_Upgrade
+	@t24:i (module=EB)
+	@java:Package (value=com.temenos.t24.datamodel.eb.eb_upgrade)
+namespace "http://www.temenos.com/t24/EB_Upgrade"
+metamodelVersion 1.30.6
+Classes {
+	DATABASE_XREF
+		@t24:i (t24Name=DATABASE.XREF, level=I, type=U, allowedFunctions="A C D E I L P Q R S", localRefAllowed=false)
+	{
+		/* This field specifies a field join.
+Validation Rules:
+Minimum one character and a maximum of 50 characters is allowed. */
+		LINK -> EB_Upgrade:DATABASE_XREF PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=ANY, t24Name=LINK)
+		FIELD -> byValue EB_Upgrade:DATABASE_XREF__FIELD *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=3.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=4.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Upgrade:DATABASE_XREF__INPUTTER *
+		DATE_TIME -> byValue EB_Upgrade:DATABASE_XREF__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=7.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=8.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=10.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=11.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DATABASE_XREF__FIELD
+	{
+		FIELD -> byValue EB_Upgrade:DATABASE_XREF__FIELD__FIELD *
+	}
+	DATABASE_XREF__FIELD__FIELD
+	{
+		/* Fields FIELD to FILE form a related multi value set.
+Validation Rules
+Mandatory input.
+A maximum of 32 characters may be entered. */
+		FIELD : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=1.0, core=true, t24Name=FIELD)
+		/* Fields FIELD to FILE form a related multi value set.
+Validation Rules
+Mandatory input.
+A maximum of 32 characters may be entered. */
+		FILE : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=32, sysNumber=2.0, core=true, t24Name=FILE)
+	}
+	DATABASE_XREF__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=5.0, core=true, t24Name=INPUTTER)
+	}
+	DATABASE_XREF__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=6.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* T24 Data Library - Shareware for T24
+The T24 Data Library has been created to enable data to be copied between different sites easily.  When a user or implementor of T24 has created data which he feels may be of use to other sites, he can save the data to the Data Library.  Data should be saved into logical units, for example, Dutch Bank Returns, which may include report control records, enquiries, repgens and even programs.  To save the unit, a record is created in DL.DEFINE, listing all the items which make up the unit.  The data is then saved into the unit by using the V function in DL.DEFINE, with the operation set to S.
+NOTE : As with all shareware, the distributor, in this case, Temenos, does        not accept any liability for the data or programs contained in the        Data Library - it is the users responsibility to ensure that all        data and programs being installed through the Data Library are        checked and tested thoroughly before being used.
+When saving records, sensitive data (e.g. the name of your bank or your VAT registration number) can be replaced by specifying the characters to be replaced and the characters they are to be replaced with, on the data library parameter file, DL.PARAMETER.
+Once units have been saved, the Data Library should be sent to Temenos Development, where it will be merged into one central library.  This should be done by using the save operation in DL.PARAMETER (using the "V"erify mode in DL.PARAMETER with the OPERATION set to "S" - save).
+Should you wish to restore data from another site, you should restore the data library from tape into an area on disk (e.g. /globus/DLrestore). Examine this file to determine which units you wish to copy into your data library, or whether you wish to copy all units, or only those units which have been created in the "from" data library more recently than yours. Once you have decided which units you want copied onto your data library, enter the requirements in the data library parameter file (DL.PARAMETER). You must enter an OPERATION of "R" to restore, then enter the UNIX pathname of the file from which units are to be copied (e.g. /globus/ DLrestore/F.DL.DATA should be entered in FROM.FILE), the names of the units to be restored or blank to restore all units (RESTORE.UNITS) and whether you wish to overwrite existing units (OVERWRITING = "Y" or "N") or only if the units on the from file are later ("L").  Then run DL.PARAMETER in "V"erify mode to copy the units.
+Similarly if you wish to copy units from a data library in a different T24 account, you can follow the above procedure.  If the file is on the same machine you do not need to restore - just simply enter the pathname of the from data library (e.g. /globus/test/F.DL.DATA).
+When you upgrade your T24 database by running GLOBUS.RELEASE, your data library will be populated with the latest units available.  Existing units will not be overwritten if there were saved after the ones on the data library on the upgrade tape. */
+	DL_DEFINE
+		@t24:i (t24Name=DL.DEFINE, level=I, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* Name of the unit identifying the records to be grouped together.  When entered, the unit name will be prefixed by "xxxxnnn-" where "xxxxnnn" is the site name (the last seven digits from the license code on the SPF).
+The full unit name (xxxxnnn-yyyyyyyyyy) can be entered when restoring units saved from other sites.  However, when creating new units, only the site name as specified on the SPF can be entered.
+Validation Rules
+1-35 Type "A" (alphanumeric) characters
+If the bank code is not entered, a maximum of 22 characters can be entered. */
+		UNIT_NAME -> EB_Upgrade:DL_DEFINE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=30, sysNumber=0.0, core=true, businessType=A, t24Name=UNIT.NAME)
+		DESCRIPTN -> byValue EB_Upgrade:DL_DEFINE__DESCRIPTN *
+		SHORT_DESC -> byValue EB_Upgrade:DL_DEFINE__SHORT_DESC *
+		/* The language or country the unit is primarily used for.
+This field will be used for selection purposes only.
+Validation Rules
+2 type SSS (uppercase alpha) characters.
+Must be a valid country code as defined on the COUNTRY file.
+Optional input */
+		LANGUAGE_COUNTRY -> ST_Config:COUNTRY
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, businessType=SSS, t24Name=LANGUAGE/COUNTRY)
+		INDICES -> byValue EB_Upgrade:DL_DEFINE__INDICES *
+		/* Whether data is to be "S" (saved) or "R" (restored).  This field is only used when the record is "V"erified.
+When the program is run in "V"erify mode, if the operation is set to "S" (save), a unit is created in the data library, with an id as specified in UNIT.NAME.  The records specified in fields FILE.NAME and RECORD.NAME are copied from the live files into the unit in the data library.  The fields SAVED.FROM, SAVED.RELEASE and SAVED.DATE on the DL.DEFINE record are updated with details of when the data was saved.
+When the program is run in "V"erify mode with the operation set to "R" (restore), the following actions are performed:
+i)  Any new files (specified by releasing the FILE.CONTROL record) are       created
+ii) Records contained in the unit are copied into the unauthorised file,      with a status of "IHLD"
+iii) Programs are copied into DL.BP, but are not compiled (use EB.COMPILE      to do this when required)
+iv) The fields RESTORED.USER, RESTD.COMPANY, RESTD.RELEASE and      RESTD.DATE on the DL.DEFINE record are updated with details of when      the data was restored.
+
+Defaulted to "R" if the data unit has previously been saved (i.e. if there is a date in SAVED.DATE); defaults to "S" otherwise.
+Validation Rules
+"S" (save) or "R" (restore)
+Optional input
+Defaults to "R" if the data has previously been saved.  Defaults to "S" otherwise. */
+		OPERATION : T24BusinessTypes:A
+			@i18n:Label (en=Operation)
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=5.0, core=true, t24Name=OPERATION)
+		/* Name of the select list containing the names of records which make up the unit.  Record names should be entered as filename>recordname, e.g. ENQUIRY>MG.CLOSING.BALANCES.  After the select list has been entered, the fields FILE.NAME and RECORD.NAME will be cleared, then populated with the contents of the select list; the select list name will be removed from SELECT.LIST.
+Validation Rules
+1-35 Type "A" (alphanumeric) character
+Optional input
+If entered, must be the name of a select list in &SAVEDLISTS&
+Can only be entered if operation is "S" */
+		SELECT_LIST : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=SELECT.LIST)
+		/* TOP.LEVEL.TYPE is used to create a list of all data items associated with a particular record.  Valid types are DELIVERY, ENQUIRY, MENU, REPGEN and VERSION. When the TOP.LEVEL.TYPE and TOP.LEVEL.ITEM are entered, the fields FILE.NAME and RECORD.NAME will be cleared, then populated with the names of all the associated data items; then TOP.LEVEL.TYPE and TOP.LEVEL.ITEM will be cleared.
+For DELIVERY, TOP.LEVEL.TYPE should the message type (the id of the record on DE.MESSAGE).  FILE.NAME and RECORD.NAME will be populated with all DE.MAPPING, DE.FORMAT.SWIFT and DE.FORMAT.PRINT records for this message type, as well as the DE.MESSAGE record.
+For ENQUIRY, FILE.NAME and RECORD.NAME will be populated with any routines used by the enquiry, as well as the ENQUIRY record.
+For REPGEN, FILE.NAME and RECORD.NAME will be populated with the REPGEN.SORT, REPGEN.CREATE and REPGEN.OUTPUT records.
+Validation Rules
+1-35 Type "A" (alphanumeric) character
+Optional input
+Can only be entered if operation is "S"
+Must be one of the following:   DELIVERY  ENQUIRY  MENU  REPGEN  VERSION */
+		TOP_LEVEL_TYPE : EB_Upgrade:DL_DEFINE__TOP_LEVEL_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, t24Name=TOP.LEVEL.TYPE)
+		/* TOP.LEVEL.ITEM is used to create a list of all data items associated with a particular record.  When the TOP.LEVEL.TYPE and TOP.LEVEL.ITEM are entered, the fields FILE.NAME and RECORD.NAME will be cleared, then populated with the names of all the associated data items; then TOP.LEVEL.TYPE and TOP.LEVEL.ITEM will be cleared.
+For DELIVERY, TOP.LEVEL.TYPE should the message type (the id of the record on DE.MESSAGE).  FILE.NAME and RECORD.NAME will be populated with all DE.MAPPING, DE.FORMAT.SWIFT and DE.FORMAT.PRINT records for this message type, as well as the DE.MESSAGE record.
+For ENQUIRY, FILE.NAME and RECORD.NAME will be populated with any routines used by the enquiry, as well as the ENQUIRY record.
+For REPGEN, FILE.NAME and RECORD.NAME will be populated with the REPGEN.SORT, REPGEN.CREATE and REPGEN.OUTPUT records.
+Validation Rules
+1-35 Type "A" (alphanumeric) character
+Optional input
+Can only be entered if operation is "S"
+Must reference a record on the corresponding TOP.LEVEL.TYPE file. */
+		TOP_LEVEL_ITEM : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=TOP.LEVEL.ITEM)
+		FILE_NAME -> byValue EB_Upgrade:DL_DEFINE__FILE_NAME *
+		SAVED_FROM -> byValue EB_Upgrade:DL_DEFINE__SAVED_FROM *
+		RESTORED_USER -> byValue EB_Upgrade:DL_DEFINE__RESTORED_USER *
+		/* The type in which data will stored.
+Validation Rules
+Value can be XML or Null */
+		SAVE_FORMAT : EB_Upgrade:DL_DEFINE__SAVE_FORMAT
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=19.0, core=true, t24Name=SAVE.FORMAT)
+		COMP_TO_RESTORE -> byValue EB_Upgrade:DL_DEFINE__COMP_TO_RESTORE *
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=21.0, core=true, t24Name=RESERVED.7)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=22.0, core=true, t24Name=RESERVED.6)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=23.0, core=true, t24Name=RESERVED.5)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=24.0, core=true, t24Name=RESERVED.4)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=25.0, core=true, t24Name=RESERVED.3)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=26.0, core=true, t24Name=RESERVED.2)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=27.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=28.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=29.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Upgrade:DL_DEFINE__INPUTTER *
+		DATE_TIME -> byValue EB_Upgrade:DL_DEFINE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=32.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=33.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=34.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=35.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=36.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DL_DEFINE__DESCRIPTN
+	{
+		DESCRIPTN -> byValue EB_Upgrade:DL_DEFINE__DESCRIPTN__DESCRIPTN *
+	}
+	DL_DEFINE__DESCRIPTN__DESCRIPTN
+	{
+		/* Description of the unit.
+This should be as meaningful as possible, so that other sites who wish to restore a unit understand what the unit contains.
+Validation Rules
+1-35 Type "A" (alphanumeric) characters
+Multivalue field
+Multi-language field
+Mandatory input */
+		DESCRIPTN : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTN)
+	}
+	DL_DEFINE__SHORT_DESC
+	{
+		/* Short description describing what the unit contains.
+Validation Rules
+1-20 Type "A" (alphanumeric) characters
+Multi-language field
+Mandatory input */
+		SHORT_DESC : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SHORT.DESC)
+	}
+	DL_DEFINE__INDICES
+	{
+		/* This field can contain keywords (specified as seperate values which may be used for searching (for example, to search for all units to relate to central bank reporting).
+Validation Rules
+1-35 Type "A" (alphanumeric) characters
+Multivalue field
+Optional input */
+		INDICES : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=4.0, core=true, t24Name=INDICES)
+	}
+	DL_DEFINE__FILE_NAME
+	{
+		/* Specifies the name of the file containing records to be copied.
+The file name should be entered without the "F." prefix (if the "F." prefix is entered, it will be removed) and must reference a record on STANDARD.SELECTION.  Alternatively, if a program is to be copied, FILE.NAME can be BP1, BP2 or BP.  When the programs are restored, they will always be restored into DL.BP, regardless of where they were originally saved from.  On the restore, programs are not compiled and cataloged - use EB.COMPILE to do this.
+If FILE.NAME is left blank and RECORD.NAME is entered, the FILE.NAME is defaulted to the FILE.NAME in the previous multivalue (multivalue 2 onwards).
+Validation Rules
+1-35 Type "A" (alphanumeric) character
+Optional input
+Multi-value field
+Fields FILE.NAME, RECORD.NAME and RECORD.DESC form a multi-value associated set.
+Can only be entered if operation is "S"
+Must reference a record on STANDARD.SELECTION, or can be BP1, BP2 or BP (if a program is to be copied). */
+		FILE_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=FILE.NAME)
+		/* Specifies the name of the record to be copied.  The record must exist on the file specified in FILE.NAME.
+Validation Rules
+1-35 Type "ANY" (any) character
+Optional input
+Multi-value field
+Fields FILE.NAME, RECORD.NAME and RECORD.DESC form a multi-value associated set.
+Can only be entered if operation is "S"
+The record must exist on the file specified in FILE.NAME */
+		RECORD_NAME : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=60, sysNumber=10.0, core=true, t24Name=RECORD.NAME)
+		RECORD_DESC -> byValue EB_Upgrade:DL_DEFINE__FILE_NAME__RECORD_DESC *
+	}
+	DL_DEFINE__FILE_NAME__RECORD_DESC
+	{
+		/* Description of the record to be copied.  This field should be used so that each record which has been saved has a meaningful description of what the record is for.  Although it may be apparent to the user when they saved the record, other users who may wish to restore units need to know precisely what each record in the unit is for.
+Validation Rules
+1-35 Type "ANY" (any) character
+Optional input
+Sub-value field
+Fields FILE.NAME, RECORD.NAME and RECORD.DESC form a multi-value associated set. */
+		RECORD_DESC : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=11.0, core=true, t24Name=RECORD.DESC)
+	}
+	DL_DEFINE__SAVED_FROM
+	{
+		/* Description of where the data unit was saved.
+Validation Rules
+1-35 Type "A" (alphanumeric) character
+Optional input
+Multi-value field
+Fields SAVED.FROM to SAVED.DATE form a multi-value associated set.
+Can only be entered if operation is "S" */
+		SAVED_FROM : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, t24Name=SAVED.FROM)
+		/* The release level of T24 when the data unit was saved.
+Validation Rules
+1-35 Type "A" (alphanumeric) characters
+Internal field
+Populated each time the unit is saved
+Multivalue field
+Fields SAVED.FROM to SAVED.DATE form a multi-value associated set. */
+		SAVED_RELEASE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=SAVED.RELEASE)
+		/* The date when the data unit was saved.
+Validation Rules
+"D"ate field
+Internal field
+Populated each time the unit is saved
+Multivalue field
+Fields SAVED.FROM to SAVED.DATE form a multi-value associated set. */
+		SAVED_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=SAVED.DATE)
+	}
+	DL_DEFINE__RESTORED_USER
+	{
+		/* The name of the user who restored the data unit.
+Validation Rules
+1-35 Type "A" (alphanumeric) characters
+Internal field
+Populated each time the unit is restored
+Multivalue field
+Fields RESTORED.USER to RESTD.DATE form a multi-value associated set. */
+		RESTORED_USER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESTORED.USER)
+		/* The id of the company into which the data unit was restored.
+Validation Rules
+2-9 type A (alphanumeric) characters.
+Internal field
+Populated each time the unit is restored
+Multivalue field
+Fields RESTORED.USER to RESTD.DATE form a multi-value associated set. */
+		RESTD_COMPANY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESTD.COMPANY)
+		/* The release of T24 when the data unit was restored.
+Validation Rules
+2-9 type A (alphanumeric) characters.
+Internal field
+Populated each time the unit is restored
+Multivalue field
+Fields RESTORED.USER to RESTD.DATE form a multi-value associated set. */
+		RESTD_RELEASE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESTD.RELEASE)
+		/* The date when the data unit was restored.
+Validation Rules
+"D"ate field
+Internal field
+Populated each time the unit is restored
+Multivalue field
+Fields RESTORED.USER to RESTD.DATE form a multi-value associated set. */
+		RESTD_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESTD.DATE)
+	}
+	DL_DEFINE__COMP_TO_RESTORE
+	{
+		COMP_TO_RESTORE -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=20.0, core=true, businessType=COM, t24Name=COMP.TO.RESTORE)
+	}
+	DL_DEFINE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=30.0, core=true, t24Name=INPUTTER)
+	}
+	DL_DEFINE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=31.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* T24 Data Library - Shareware for T24
+The T24 Data Library has been created to enable data to be copied between different sites easily.  When a user or implementor of T24 has created data which he feels may be of use to other sites, he can save the data to the Data Library.  Data should be saved into logical units, for example, Dutch Bank Returns, which may include report control records, enquiries, repgens and even programs.  To save the unit, a record is created in DL.DEFINE, listing all the items which make up the unit.  The data is then saved into the unit by using the V function in DL.DEFINE, with the operation set to S.
+NOTE : As with all shareware, the distributor, in this case, Temenos, does        not accept any liability for the data or programs contained in the        Data Library - it is the users responsibility to ensure that all        data and programs being installed through the Data Library are        checked and tested thoroughly before being used.
+When saving records, sensitive data (e.g. the name of your bank or your VAT registration number) can be replaced by specifying the characters to be replaced and the characters they are to be replaced with, on the data library parameter file, DL.PARAMETER.
+Once units have been saved, the Data Library should be sent to Temenos Development, where it will be merged into one central library.  This should be done by using the save operation in DL.PARAMETER (using the "V"erify mode in DL.PARAMETER with the OPERATION set to "S" - save).
+Should you wish to restore data from another site, you should restore the data library from tape into an area on disk (e.g. /globus/DLrestore). Examine this file to determine which units you wish to copy into your data library, or whether you wish to copy all units, or only those units which have been created in the "from" data library more recently than yours. Once you have decided which units you want copied onto your data library, enter the requirements in the data library parameter file (DL.PARAMETER). You must enter an OPERATION of "R" to restore, then enter the UNIX pathname of the file from which units are to be copied (e.g. /globus/ DLrestore/F.DL.DATA should be entered in FROM.FILE), the names of the units to be restored or blank to restore all units (RESTORE.UNITS) and whether you wish to overwrite existing units (OVERWRITING = "Y" or "N") or only if the units on the from file are later ("L").  Then run DL.PARAMETER in "V"erify mode to copy the units.
+Similarly if you wish to copy units from a data library in a different T24 account, you can follow the above procedure.  If the file is on the same machine you do not need to restore - just simply enter the pathname of the from data library (e.g. /globus/test/F.DL.DATA).
+When you upgrade your T24 database by running GLOBUS.RELEASE, your data library will be populated with the latest units available.  Existing units will not be overwritten if there were saved after the ones on the data library on the upgrade tape. */
+	DL_PARAMETER
+		@t24:i (t24Name=DL.PARAMETER, level=I, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* The id of the record on the data library parameter file
+Validation Rules
+Must be "SYSTEM" */
+		ID -> EB_Upgrade:DL_PARAMETER PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, businessType=A, t24Name=ID)
+		REPLACE_CHARS -> byValue EB_Upgrade:DL_PARAMETER__REPLACE_CHARS *
+		/* Defines whether data is to be "S" (saved) or "R" (restored).  This field is only used when the record is "V"erified.
+When the program is run in "V"erify mode, if the operation is set to "S" (save), the data library is saved to tape.  The tape device used is specified in TAPE.DEVICE.  If units are specified in SAVE.UNITS, only those units are saved to tape; otherwise the whole data library (F.DL.DATA) is saved to tape.  The data library or specific units are saved to tape by the program executing the shell script, "dl_save.sh" which is created when the "V"erify mode is taken.
+When the program is run in "V"erify mode with the operation set to "R" (restore), units are copied from the data library specified in FROM.FILE into F.DL.DATA, creating the unit definition record on F.DL.DEFINE.  The units which are copied are specified in RESTORE.UNITS.  If RESTORE.UNITS is blank, all units in the from file are copied.  The OVERWRITING field is used when the units to be copied already exist in F.DL.DATA.  If OVERWRITING is set to "Y", the units in F.DL.DATA are overwritten; if OVERWRITING is set to "N", the units in F.DL.DATA are not overwritten; if OVERWRITING is set to "L" (latest), the units are only overwritten if they were saved in the from data library after the date they were saved in the to data library.  (The default setting of OVERWRITING is "L".)
+OPERATION does not default: it must be entered if the "V"erify mode is taken.
+Validation Rules
+"S" (save) or "R" (restore)
+Optional input
+Mandatory input when the "V"erify mode is taken */
+		OPERATION : EB_Upgrade:DL_PARAMETER__OPERATION
+			@i18n:Label (en=Operation)
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=3.0, core=true, t24Name=OPERATION)
+		/* The UNIX pathname of the file from which data units are to be restored.
+If the operation is "R"estore, the UNIX pathname of the data library from which units are to be restored should be entered.
+For example, if units are to be copied from a test account into the current account, FROM.FILE should contain the pathname of the data library in the test account.
+e.g. /globus/test/F.DL.DATA
+A VOC entry, F.DL.FROM.DATA will be created to point to this file which will then be checked to see if it can be opened.  If restore units are specified, this file will be checked to ensure that the units exist.
+If the operation is "R"estore and FROM.FILE is left blank, it will default to the UNIX pathname of the file in the VOC pointer F.DL.FROM.DATA if it exists.  If this file does not exist and the operation is "R", FROM.FILE must be entered.
+Validation Rules
+If OPERATION is "R"estore and FILE.NAME is blank, defaults to the UNIX pathname of the file specified in the VOC entry F.DL.FROM.DATA, if it exists
+If OPERATION is "R"estore, FROM.FILE must reference a file which exists
+1-50 Type "A" (alphanumeric) characters */
+		FROM_FILE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=4.0, core=true, t24Name=FROM.FILE)
+		/* When data units are being restored from the from data library into F.DL.DATA, OVERWRITING is used to specify whether existing units in F.DL.DATA should be overwritten.
+If OPERATION is "Y", units will be copied from the from data library, overwriting the units in F.DL.DATA if they already exist.
+If OPERATION is "N", units will only be copied from the from data library if they do not already exist in F.DL.DATA.
+If OPERATION is "L" (latest), units will only be copied from the from data library if they were saved in the from file after the date on which they were saved in F.DL.DATA.
+
+NOTE : Units in F.DL.DATA are only overwritten if the criteria specified        in OPERATION are matched and the unit is to be copied from the from        data library.  Units in F.DL.DATA which are not being copied from        the from data library will remain unchanged.
+e.g. F.DL.DATA contains two units: TMNS000-NL.REPORTING and TMNS000-CH.REPORTING.  All units are to be copied from the data library specified in FROM.FILE, overwriting the records in F.DL.DATA (OPERATION = "Y").  If the from data library contains TMNS000-CH.REPORTING and TMNS000-PD.ADVICES, TMNS000-CH.REPORTING will be copied into F.DL.DATA, overwriting the unit which was already there; TMNS000-PD.ADVICES will be copied, creating a new unit; TMNS000-NL.REPORTING will remain unchanged.
+Validation Rules
+Valid values are "Y", "N" and "L" (latest)
+Optional input
+If the operation is "R", defaults to "L" (latest) */
+		OVERWRITING : EB_Upgrade:DL_PARAMETER__OVERWRITING
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=5.0, core=true, t24Name=OVERWRITING)
+		RESTORE_UNITS -> byValue EB_Upgrade:DL_PARAMETER__RESTORE_UNITS *
+		SAVE_UNITS -> byValue EB_Upgrade:DL_PARAMETER__SAVE_UNITS *
+		/* Specifies the names of the tape device to which the data library or specific units are to be saved to.
+When copying units from the data library to tape, F.DL.DATA, either all units can be copied or just specific units.  If all units are to be copied (i.e. SAVE.UNITS is blank), the whole of F.DL.DATA will be copied to tape; if specific units are to be copied, only the units specified in SAVE.UNITS will be copied to tape.
+When the "V"erify mode is taken, a shell script, "dl_save.sh" will be created to save the data library/units.  This shell script will then be executed to save the file/units.
+Examples:
+Shell script to save the whole file to tape:
+cd .. find F.DL.DATA -print | cpio -ovcBdum > /dev/rmt1
+(TAPE.DEVICE has been specified as "/dev/rmt1"; SAVE.UNITS has been left blank)
+
+Shell script to save specific units to tape:
+cd .. find 'F.DL.DATA/TMNS000-NL.REPORTING' 'F.DL.DATA/TMNS000-PD.ADVICES' -print |cpio -ovcBdum > /dev/rmt0.4
+(TAPE.DEVICE has been specified as "/dev/rmt0.4"; two values have been entered into SAVE.UNITS: TMNS000-NL.REPORTING and TMNS000-PD.ADVICES)
+Validation Rules
+Can only be entered if the OPERATION flag is set to "S" (save)
+If entered, must reference a unit in the data library (F.DL.DATA)
+Mandatory input if OPERATION is "S" (save)
+1-50 Type "A" (alphanumeric) characters */
+		TAPE_DEVICE : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=8.0, core=true, t24Name=TAPE.DEVICE)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=9.0, core=true, t24Name=RESERVED.9)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=10.0, core=true, t24Name=RESERVED.8)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=11.0, core=true, t24Name=RESERVED.7)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=12.0, core=true, t24Name=RESERVED.6)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=13.0, core=true, t24Name=RESERVED.5)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=14.0, core=true, t24Name=RESERVED.4)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=15.0, core=true, t24Name=RESERVED.3)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=16.0, core=true, t24Name=RESERVED.2)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Upgrade:DL_PARAMETER__INPUTTER *
+		DATE_TIME -> byValue EB_Upgrade:DL_PARAMETER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=23.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=24.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=25.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=26.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	DL_PARAMETER__REPLACE_CHARS
+	{
+		/* This field is used to specify that certain characters or text should be replaced with the characters specified in REPLACE.WITH when records are saved from T24 files into the data library.  These fields will be checked when the "V"erify mode is taken in DL.DEFINE to save records into a unit in the data library (OPERATION in DL.DEFINE is set to "S").
+For example:
+You have spent some considerable time creating PD advices, which you feel may be of benefit to other T24 clients and you therefore want to share these records with everyone.  However, these advices contain the name of your bank, which you do not want other T24 clients either seeing this information or using it inadvertently.  Therefore, you can specify in REPLACE.CHARS which characters/text you want removed.
+e.g.    REPLACE.CHARS     T24 Test Bank         REPLACE.WITH      ***Bank Name ***
+REPLACE.CHARS     183535902         REPLACE.WITH      *Vat.No**
+REPLACE.CHARS must be replaced by an equal number of characters in REPLACE.WITH.
+Validation Rules
+Optional input
+Multi-value field
+Fields REPLACE.CHARS to REPLACE.WITH form a multi-value associated set.
+1-50 Type "A" (alphanumeric) characters */
+		REPLACE_CHARS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=1.0, core=true, t24Name=REPLACE.CHARS)
+		/* This field is used to specify that certain characters or text should be replaced with the characters specified in REPLACE.WITH when records are saved from T24 files into the data library.  These fields will be checked when the "V"erify mode is taken in DL.DEFINE to save records into a unit in the data library (OPERATION in DL.DEFINE is set to "S").
+For example:
+You have spent some considerable time creating PD advices, which you feel may be of benefit to other T24 clients and you therefore want to share these records with everyone.  However, these advices contain the name of your bank, which you do not want other T24 clients either seeing this information or using it inadvertently.  Therefore, you can specify in REPLACE.CHARS which characters/text you want removed.
+e.g.    REPLACE.CHARS     T24 Test Bank         REPLACE.WITH      ***Bank Name ***
+REPLACE.CHARS     183535902         REPLACE.WITH      *Vat.No**
+REPLACE.CHARS must be replaced by an equal number of characters in REPLACE.WITH.
+Validation Rules
+Optional input
+Can only be entered if REPLACE.CHARS has been entered
+If blank, will default to asterixes, for the same length as REPLACE.CHARS (e.g. if REPLACE.CHARS is ANY BANK, REPLACE.WITH will default to ********)
+If entered, must contain the same number of characters as REPLACE.CHARS
+Multi-value field
+Fields REPLACE.CHARS to REPLACE.WITH form a multi-value associated set.
+1-50 Type "A" (alphanumeric) characters */
+		REPLACE_WITH : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=2.0, core=true, t24Name=REPLACE.WITH)
+	}
+	DL_PARAMETER__RESTORE_UNITS
+	{
+		/* Specifies the names of the units to be restored from the data library specified in FROM.FILE to F.DL.DATA.
+When copying units from a data library into F.DL.DATA, either all units can be copied or just specific units.  If all units are to be copied (dependent on the setting of the OVERWRITING flag), this field should be left blank; if specific units are to be copied, the names of the units must be entered in this field.
+Validation Rules
+Can only be entered if the OPERATION flag is set to "R" (restore)
+If entered, must reference a unit in the data library specified in FROM.FILE
+Optional input
+Multi-value field
+1-50 Type "A" (alphanumeric) characters */
+		RESTORE_UNITS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=6.0, core=true, t24Name=RESTORE.UNITS)
+	}
+	DL_PARAMETER__SAVE_UNITS
+	{
+		/* Specifies the names of the units to be saved from the data library (F.DL.DATA) to tape (using the device specified in TAPE.DEVICE). specified in FROM.FILE to F.DL.DATA.
+When copying units from the data library to tape, F.DL.DATA, either all units can be copied or just specific units.  If all units are to be copied, this field should be left blank; if specific units are to be copied, the names of the units must be entered in this field.
+Validation Rules
+Can only be entered if the OPERATION flag is set to "S" (save)
+If entered, must reference a unit in the data library (F.DL.DATA)
+Optional input
+Multi-value field
+1-50 Type "A" (alphanumeric) characters */
+		SAVE_UNITS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=7.0, core=true, t24Name=SAVE.UNITS)
+	}
+	DL_PARAMETER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=INPUTTER)
+	}
+	DL_PARAMETER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=21.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_SERVICE_PACK
+		@t24:i (t24Name=EB.SERVICE.PACK, level=I, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=true)
+	{
+		/* ID of the EB.SERVICE.PACK record.
+Validation Rule:
+Accepts all characters. */
+		EB_SERVICE_PACK_ID -> EB_Upgrade:EB_SERVICE_PACK PK required
+			@i18n:Label (en="Service Pack Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=ANY, t24Name=EB.SERVICE.PACK.ID)
+		/* A description to identify the Service Pack */
+		DESCRIPTION : T24BusinessTypes:A
+			@i18n:Label (en=Description)
+			@i18n:Tooltip (en=Description)
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=1.0, core=true, t24Name=DESCRIPTION, isTextarea=true)
+		/* If set to 'YES' then it is available for download. Set to yes by default. */
+		SP_RELEASED : EB_Upgrade:EB_SERVICE_PACK__SP_RELEASED
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=SP.RELEASED)
+		/* GA Release information. */
+		GA_RELEASE -> EB_Updates:EB_UPDATE_RELEASE required
+			@i18n:Label (en="Ga Release")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, businessType=A, t24Name=GA.RELEASE)
+		/* Date that the Service Pack was released. */
+		RELEASE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Release Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=RELEASE.DATE)
+		/* The iteration of the Service Pack i.e if this was the 3rd Service Pack for this GA release then the version would be 3. */
+		VERSION : T24BusinessTypes:A
+			@i18n:Label (en=Version)
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=VERSION)
+		/* Location of the Service Pack. */
+		LOCATION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=LOCATION)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.10)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue EB_Upgrade:EB_SERVICE_PACK__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Upgrade:EB_SERVICE_PACK__INPUTTER *
+		DATE_TIME -> byValue EB_Upgrade:EB_SERVICE_PACK__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=24.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=26.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=27.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_SERVICE_PACK__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=OVERRIDE)
+	}
+	EB_SERVICE_PACK__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, core=true, t24Name=INPUTTER)
+	}
+	EB_SERVICE_PACK__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=22.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	EB_SERVICE_PACK_ITEM
+		@t24:i (t24Name=EB.SERVICE.PACK.ITEM, level=I, type=L, allowedFunctions="L P S", localRefAllowed=true)
+	{
+		/* ID for the Service Pack Item. */
+		EB_SERVICE_PACK_ITEM_ID -> EB_Upgrade:EB_SERVICE_PACK_ITEM PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=0.0, core=true, businessType=ANY, t24Name=EB.SERVICE.PACK.ITEM.ID)
+		/* Information linked to the GA release. */
+		RELATED_SP : T24BusinessTypes:A required
+			@i18n:Label (en="Search by Related SP")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=RELATED.SP)
+		/* The Product code of the Service Pack Item. */
+		PRODUCT : mml:Integer required
+			@i18n:Label (en=Product)
+			@t24:i (align=R, inputBehaviour=I, maxLength=55, sysNumber=2.0, core=true, t24Name=PRODUCT)
+		/* Normally contains the Helpdesk CSS reference. */
+		REFERENCE : T24BusinessTypes:A required
+			@i18n:Label (en="Search by Referece")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, t24Name=REFERENCE)
+		/* A description of the exact problem. */
+		PROBLEM : T24BusinessTypes:A required
+			@i18n:Label (en="Search by Problem")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, core=true, t24Name=PROBLEM)
+		/* Any effects that caused by the problem. */
+		SYMPTOM : T24BusinessTypes:A required
+			@i18n:Label (en="Search by Symptom")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=5.0, core=true, t24Name=SYMPTOM)
+		/* A description of the fix issued to solve the problem. */
+		NATURE_OF_FIX : T24BusinessTypes:A required
+			@i18n:Label (en="Nature of Fix")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, t24Name=NATURE.OF.FIX)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED.10)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.9)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.8)
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.7)
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.6)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=15.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.1)
+		OVERRIDE -> byValue EB_Upgrade:EB_SERVICE_PACK_ITEM__OVERRIDE *
+	}
+	EB_SERVICE_PACK_ITEM__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=OVERRIDE)
+	}
+	/* The patch release file defines individual patch releases which can be
+sent to clients.  Patch releases are created from one or more pifs.
+The items on each pif are used to populate the patch record, along with
+the location of each item, according to the status of the pif when it
+is entered.  Items can be removed or the location of them amended if
+necessary.  When the record is verified, the relevant records and
+programs are copied into PATCH.DATA. */
+	PATCH_RELEASE
+		@t24:i (t24Name=PATCH.RELEASE, level=I, type=W, allowedFunctions="C I L P Q S", localRefAllowed=false)
+	{
+		KEY -> EB_Upgrade:PATCH_RELEASE PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=S, t24Name=KEY)
+		USER_PW_ATTEMPT -> byValue EB_Upgrade:PATCH_RELEASE__USER_PW_ATTEMPT *
+		USER_ATTEMPT -> byValue EB_Upgrade:PATCH_RELEASE__USER_ATTEMPT *
+		USER_DEACT_PERD -> byValue EB_Upgrade:PATCH_RELEASE__USER_DEACT_PERD *
+		USER_RESET -> byValue EB_Upgrade:PATCH_RELEASE__USER_RESET *
+		USER_TYPE : EB_Upgrade:PATCH_RELEASE__USER_TYPE required
+			@t24:i (align=L, inputBehaviour=F, maxLength=5, sysNumber=9.0, core=true, t24Name=USER.TYPE)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=11.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue EB_Upgrade:PATCH_RELEASE__INPUTTER *
+		DATE_TIME -> byValue EB_Upgrade:PATCH_RELEASE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=15.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=17.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=18.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PATCH_RELEASE__USER_PW_ATTEMPT
+	{
+		USER_PW_ATTEMPT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=1.0, core=true, t24Name=USER.PW.ATTEMPT)
+	}
+	PATCH_RELEASE__USER_ATTEMPT
+	{
+		USER_ATTEMPT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=2.0, core=true, t24Name=USER.ATTEMPT)
+		NO_OF_ATTEMPTS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=3.0, core=true, t24Name=NO.OF.ATTEMPTS)
+	}
+	PATCH_RELEASE__USER_DEACT_PERD
+	{
+		USER_DEACT_PERD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=4.0, core=true, t24Name=USER.DEACT.PERD)
+		DEACTIV_PERIOD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=25, sysNumber=5.0, core=true, t24Name=DEACTIV.PERIOD)
+	}
+	PATCH_RELEASE__USER_RESET
+	{
+		USER_RESET : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=6.0, core=true, t24Name=USER.RESET)
+		USER_PASSWORD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=7.0, core=true, t24Name=USER.PASSWORD)
+		USER_PWD : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=70, sysNumber=8.0, core=true, t24Name=USER.PWD)
+	}
+	PATCH_RELEASE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=INPUTTER)
+	}
+	PATCH_RELEASE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=13.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	DL_DEFINE__TOP_LEVEL_TYPE : mml:string
+		DELIVERY=DELIVERY
+		MENU=MENU
+		REPGEN=REPGEN
+		VERSION=VERSION
+		ENQUIRY=ENQUIRY
+	DL_DEFINE__SAVE_FORMAT : mml:string
+		XML=XML
+	DL_PARAMETER__OPERATION : mml:string
+		S=S
+		R=R
+	DL_PARAMETER__OVERWRITING : mml:string
+		Y=Y
+		N=N
+		L=L
+	EB_SERVICE_PACK__SP_RELEASED : mml:string
+		YES=YES
+		NULL=NULL
+	PATCH_RELEASE__USER_TYPE : mml:string
+		INT=INT
+		EXT=EXT
+}

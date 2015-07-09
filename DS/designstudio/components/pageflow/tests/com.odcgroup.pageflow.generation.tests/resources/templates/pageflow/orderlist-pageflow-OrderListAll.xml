@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<wf:config xmlns:wf="http://www.odcgroup.com/wui-workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.odcgroup.com/wui-workflow wui-workflow.xsd">
+	<!-- 
+		*************************************************************************************
+																DO NOT MODIFY THIS FILE!
+
+		This file has been generated automatically by Design Studio. 
+		Any change will be lost when regenerated.
+		*************************************************************************************
+										Design Studio information of  pageflow file
+										
+		Project name     : pms-models
+		Package          : //ds5314
+		Generation user  : atr
+		Generation date  : Fri Aug 17 15:42:55 CEST 2012
+		DS version       :  
+		*************************************************************************************
+	 -->
+	
+		
+	<!-- 
+		*****************************************************
+		Design Studio information of pageflow model
+		Model name       : OrderListAll
+		Description      : 
+		******************************************************
+    -->	
+    
+	<!-- 
+		*************************************
+		OrderListAll workflow
+		*************************************
+    -->
+
+	<wf:workflow name="OrderListAll" graph="OrderListAllGraph">
+	    <!-- declaration of the used panels -->
+	    <wf:property name="DSDomain" value="AAADSDomain:DomainOrderList"/>
+	    <wf:property name="DSFormat" value="AAADSOrderList:OrderListDetailedList,AAADSOrderList:OrderListSummaryList"/>
+	    <wf:property name="DSAction" value="refresh"/>
+	    <wf:property name="bookPortfolio.code" value="GET_APPL_PARAM(DS_BOOK_PTF)"/>
+		<wf:abort-view url-redirector-class-name="com.odcgroup.uif.workflow.ConfigurableURLRedirector"/>
+		<wf:error-view url="/page/common/OneModule?module=general/PageflowErrorModule"/>
+		<wf:view state-key="ContextState" url="/page/aaa/orderlist/OrderListContext"/>		
+		<wf:view state-key="FilterSubPageflow.filter" url="/page/aaa/administration/filter/Filter"/>		
+		<wf:view state-key="OrderListSecurityState" url="/page/aaa/orderlist/OrderListAll"/>		
+		<wf:view state-key="Search.Load" url="/page/aaa/administration/search/LoadQuery"/>		
+		<wf:view state-key="Search.Save" url="/page/aaa/administration/search/SaveQuery"/>		
+		<wf:view state-key="Search.Search" url="/page/aaa/administration/search/DynamicSearch"/>		
+		<wf:view state-key="SubPageflowState3.FilterSubPageflow.filter" url="/page/aaa/administration/filter/Filter"/>		
+		<wf:view state-key="SubPageflowState3.InstrumentAllViewDetails" url="/page/aaa/administration/instrument/View/InstrumentDetailsView"/>		
+		<wf:view state-key="SubPageflowState3.InstrumentDetailsFactSheet.ViewFactsheet" url="/page/com/document/aaa-domain.InstrumentFactsheet.documentsource"/>		
+		<wf:view state-key="ViewOrderState.DepositViewState" url="/page/aaa/administration/extoperation/MoneyMarketDepositViewOnly"/>		
+		<wf:view state-key="ViewOrderState.FxSpotViewState" url="/page/aaa/administration/extoperation/ForexViewOnly"/>		
+		<wf:view state-key="ViewOrderState.LoanViewState" url="/page/aaa/administration/extoperation/MoneyMarketLoanViewOnly"/>		
+		<wf:view state-key="ViewOrderState.SecurityViewState" url="/page/aaa/administration/extoperation/SecurityViewOnly"/>		
+		<wf:view state-key="ViewOrderState.ViewState4" url="/page/aaa/administration/extoperation/MoneyMarketAmdDepositViewOnly"/>		
+		<wf:view state-key="EndState" url="URI"/>
+	</wf:workflow>
+
+	    
+	<!--
+		*************************************
+		OrderListAll graph
+		*************************************
+	-->
+	
+	<wf:graph name="OrderListAllGraph">
+		<!-- ============================== -->	
+	    <!-- declaration of the used states -->
+	    <!-- ============================== -->
+	    <wf:state key="EndState" is-terminal="true"/>
+	    <wf:state key="ContextState"/>
+	    <wf:state key="FilterSubPageflow.filter"/>
+	    <wf:state key="OrderListSecurityState"/>
+	    <wf:state key="Search.Load"/>
+	    <wf:state key="Search.Save"/>
+	    <wf:state key="Search.Search"/>
+	    <wf:state key="SubPageflowState3.FilterSubPageflow.filter"/>
+	    <wf:state key="SubPageflowState3.InstrumentAllViewDetails"/>
+	    <wf:state key="SubPageflowState3.InstrumentDetailsFactSheet.ViewFactsheet"/>
+	    <wf:state key="ViewOrderState.DepositViewState"/>
+	    <wf:state key="ViewOrderState.FxSpotViewState"/>
+	    <wf:state key="ViewOrderState.LoanViewState"/>
+	    <wf:state key="ViewOrderState.SecurityViewState"/>
+	    <wf:state key="ViewOrderState.ViewState4"/>
+    
+    	<!-- ============================== -->
+        <!-- declaration of init transition -->
+        <!-- ============================== -->
+        <wf:init-transition name="init" to-redirector="true">        
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.CompleteEntityProcess">
+		      	<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+		      	<wf:property name="type.code" value="PCK_DS_OL_ALL"/>
+		      	<wf:property name="function.procName" value="ord_list"/>
+		      	<wf:property name="type.attribute.dict" value="1200213"/>
+	      	</wf:process>
+  			<wf:process class-name="com.odcgroup.tsl.fc.wui.process.RedirectorOnAttributeProcess">
+   	  			<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+   	  			<wf:property name="DSField" value="f2bDimension"/>
+			</wf:process>
+			<wf:redirector>
+   				<wf:result state="ContextState" value="0" />
+ 				<wf:result value="1">
+ 					<wf:transition to-state="OrderListSecurityState" name="1">
+					      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.ExecuteWuiFinFunctionProcess"/>
+ 					</wf:transition>
+ 				</wf:result>
+			</wf:redirector>
+        </wf:init-transition>
+        <!-- ============================== -->
+        <!-- declaration of the transitions -->
+        <!-- ============================== -->
+        <wf:transition name="back" from-state="ViewOrderState.SecurityViewState" to-state="OrderListSecurityState"/>        
+        <wf:transition name="cancel" from-state="OrderListSecurityState" to-state="OrderListSecurityState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.UpdateFieldProcess">
+		      	<wf:property name="DSEntity" value="AAADSExtOperation:ExtOperationAll"/>
+		      	<wf:property name="DSFormat" value="AAADSOrderList:OrderListDetailedList"/>
+		      	<wf:property name="DSReporter" value="AAADSOrderList:OrderListDetailedList"/>
+		      	<wf:property name="TAFunction" value="DS_UF_CANCEL"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.ExecuteWuiFinFunctionProcess">
+		      	<wf:property name="DSFormat" value="AAADSOrderList:OrderListDetailedList,AAADSOrderList:OrderListSummaryList"/>
+		      	<wf:property name="DSDomain" value="AAADSDomain:DomainOrderList"/>
+		      	<wf:property name="DSAction" value="refresh"/>
+		      	<wf:property name="function.procName" value="ord_list"/>
+		      	<wf:property name="DSKeepCurrentState" value="true"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="cancel" from-state="Search.Load" to-state="Search.Search"/>        
+        <wf:transition name="cancel" from-state="Search.Save" to-state="Search.Search"/>        
+        <wf:transition name="cancel" from-state="Search.Search" to-state="ContextState"/>        
+        <wf:transition name="changeTab" from-state="Search.Load" to-state="Search.Load">
+	      	<wf:process class-name="com.odcgroup.tsl.core.wui.process.ApplyFilterProcess"/>
+        </wf:transition>
+        <wf:transition name="changeTab" from-state="Search.Search" to-state="Search.Search">
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.ChangeTabProcess"/>
+        </wf:transition>
+        <wf:transition name="close" from-state="SubPageflowState3.InstrumentAllViewDetails" to-state="OrderListSecurityState"/>        
+        <wf:transition name="contextReload" from-state="ContextState" to-state="ContextState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.CompleteEntityProcess">
+		      	<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="contextReload" from-state="OrderListSecurityState" to-state="ContextState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.CompleteEntityProcess">
+		      	<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="delete" from-state="Search.Load" to-state="Search.Load">
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.DeleteQueryProcess">
+		      	<wf:property name="DSEntity" value="AAADSList:Query"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.core.wui.process.RefreshDelegatingTableModelProcess">
+		      	<wf:property name="DSEntity" value="AAADSList:ListList"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="end" from-state="OrderListSecurityState" to-state="EndState"/>        
+        <wf:transition name="end" from-state="SubPageflowState3.InstrumentDetailsFactSheet.ViewFactsheet" to-state="OrderListSecurityState"/>        
+        <wf:transition name="end" from-state="ViewOrderState.DepositViewState" to-state="OrderListSecurityState"/>        
+        <wf:transition name="end" from-state="ViewOrderState.FxSpotViewState" to-state="OrderListSecurityState"/>        
+        <wf:transition name="end" from-state="ViewOrderState.LoanViewState" to-state="OrderListSecurityState"/>        
+        <wf:transition name="end" from-state="ViewOrderState.ViewState4" to-state="OrderListSecurityState"/>        
+        <wf:transition name="execute" from-state="Search.Search" to-state="Search.Search">
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.QueryBuilderSearchProcess"/>
+        </wf:transition>
+        <wf:transition name="filter" from-state="OrderListSecurityState" to-state="OrderListSecurityState">
+	      	<wf:process class-name="com.odcgroup.tsl.core.wui.process.ApplyFilterProcess"/>
+        </wf:transition>
+        <wf:transition name="getfactsheet" from-state="SubPageflowState3.InstrumentAllViewDetails" to-state="SubPageflowState3.InstrumentDetailsFactSheet.ViewFactsheet">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.GetInstrumentFactsheetProcess">
+		      	<wf:property name="DSEntity" value="AAADSInstrument:InstrumentAll"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="ok" from-state="FilterSubPageflow.filter" to-state="OrderListSecurityState">
+	      	<wf:process class-name="com.odcgroup.tsl.core.wui.process.ApplyFilterProcess"/>
+        </wf:transition>
+        <wf:transition name="ok" from-state="SubPageflowState3.FilterSubPageflow.filter" to-state="SubPageflowState3.InstrumentAllViewDetails">
+	      	<wf:process class-name="com.odcgroup.tsl.core.wui.process.ApplyFilterProcess"/>
+        </wf:transition>
+        <wf:transition name="openFilter" from-state="OrderListSecurityState" to-state="FilterSubPageflow.filter">
+	      	<wf:process class-name="com.odcgroup.tsl.core.wui.process.GetFilterProcess"/>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.InitGlobalFilterProcess"/>
+        </wf:transition>
+        <wf:transition name="openFilter" from-state="SubPageflowState3.InstrumentAllViewDetails" to-state="SubPageflowState3.FilterSubPageflow.filter">
+	      	<wf:process class-name="com.odcgroup.tsl.core.wui.process.GetFilterProcess"/>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.InitGlobalFilterProcess"/>
+        </wf:transition>
+        <wf:transition name="openLoad" from-state="Search.Search" to-state="Search.Load">
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.fs.targetDS" value="AAADSList:ListList"/>
+		      	<wf:property name="Query.DSOutput" value="AAADSList:ListList"/>
+		      	<wf:property name="Query.fs.f1.attribute" value="natureE"/>
+		      	<wf:property name="Query.fs.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs.f1.value1" value="6"/>
+		      	<wf:property name="Query.fs.f2.attribute" value="queryDefinition"/>
+		      	<wf:property name="Query.fs.f2.op" value="CONTAINS"/>
+		      	<wf:property name="Query.fs.f2.value1" value="#aaa-search.session:OutputDataset"/>
+		      	<wf:property name="Query.fs.f3.attribute" value="queryDefinition"/>
+		      	<wf:property name="Query.fs.f3.op" value="CONTAINS"/>
+		      	<wf:property name="Query.fs.f3.value1" value="#aaa-search.session:CriteriaDataSet"/>
+		      	<wf:property name="Query.fs.level" value="1"/>
+		      	<wf:property name="Query.sessionKey" value="aaa-search.sessionTmp"/>
+		      	<wf:property name="Query.fs.f4.attribute" value="code"/>
+		      	<wf:property name="Query.fs.f4.op" value="BEGINS_WITH"/>
+		      	<wf:property name="Query.fs.f4.value1" value="Query_"/>
+		      	<wf:property name="Query.fsu.level" value="2"/>
+		      	<wf:property name="Query.fsu.f1.attribute" value="userCode"/>
+		      	<wf:property name="Query.fsu.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fsu.f1.value1" value="$CURRENT_USER_CODE"/>
+		      	<wf:property name="Query.fsu.targetDS" value="AAADSList:ListList"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="orderDetach" from-state="OrderListSecurityState" to-state="OrderListSecurityState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.DetachOrderProcess">
+		      	<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+		      	<wf:property name="DSSelection" value="AAADSOrderList:OrderListDetailedList"/>
+		      	<wf:property name="DSAction" value="orderSel"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.ExecuteWuiFinFunctionProcess">
+		      	<wf:property name="DSFormat" value="AAADSOrderList:OrderListDetailedList,AAADSOrderList:OrderListSummaryList"/>
+		      	<wf:property name="DSDomain" value="AAADSDomain:DomainOrderList"/>
+		      	<wf:property name="DSAction" value="refresh"/>
+		      	<wf:property name="function.procName" value="ord_list"/>
+		      	<wf:property name="DSKeepCurrentState" value="true"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="orderGrouping" from-state="OrderListSecurityState" to-state="OrderListSecurityState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.OrderGroupingProcess">
+		      	<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+		      	<wf:property name="DSSelection" value="AAADSOrderList:OrderListDetailedList"/>
+		      	<wf:property name="DSAction" value="orderSel"/>
+		      	<wf:property name="TAFunction" value="DS_ORDER_GROUPING"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.ExecuteWuiFinFunctionProcess">
+		      	<wf:property name="DSFormat" value="AAADSOrderList:OrderListDetailedList,AAADSOrderList:OrderListSummaryList"/>
+		      	<wf:property name="DSDomain" value="AAADSDomain:DomainOrderList"/>
+		      	<wf:property name="DSAction" value="refresh"/>
+		      	<wf:property name="function.procName" value="ord_list"/>
+		      	<wf:property name="DSKeepCurrentState" value="true"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="quickViewInstrument" from-state="OrderListSecurityState" to-state="SubPageflowState3.InstrumentAllViewDetails">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.GetEntityProcess">
+		      	<wf:property name="DSEntity" value="AAADSInstrument:InstrumentAll"/>
+		      	<wf:property name="code" value="#instrId"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.fs_iw1.TargetDS" value="AAADSSynonym:SynonymList"/>
+		      	<wf:property name="Query.DSOutput" value="AAADSSynonym:SynonymList"/>
+		      	<wf:property name="Query.fs_iw1.f1.attribute" value="entityDict"/>
+		      	<wf:property name="Query.fs_iw1.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw1.f1.value1" value="900"/>
+		      	<wf:property name="Query.fs_iw1.f2.attribute" value="object"/>
+		      	<wf:property name="Query.fs_iw1.f2.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw1.f2.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.session-synonyms"/>
+		      	<wf:property name="Query.fs_iw1.f2.mode" value="HIDDEN"/>
+		      	<wf:property name="Query.fs_iw1.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSInstrPrice:InstrPriceList"/>
+		      	<wf:property name="Query.fs_iw2.TargetDS" value="AAADSInstrPrice:InstrPriceList"/>
+		      	<wf:property name="Query.fs_iw2.f1.attribute" value="instr"/>
+		      	<wf:property name="Query.fs_iw2.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw2.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.session-prices"/>
+		      	<wf:property name="Query.fs_iw2.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSTradingCurrency:TradingCurrencyList"/>
+		      	<wf:property name="Query.fs_iw6.TargetDS" value="AAADSTradingCurrency:TradingCurrencyList"/>
+		      	<wf:property name="Query.fs_iw6.f1.attribute" value="instr"/>
+		      	<wf:property name="Query.fs_iw6.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw6.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.tradingcurr"/>
+		      	<wf:property name="Query.fs_iw6.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.fs_iw8.TargetDS" value="AAADSTradingPlace:TradingPlaceList"/>
+		      	<wf:property name="Query.DSOutput" value="AAADSTradingPlace:TradingPlaceList"/>
+		      	<wf:property name="Query.fs_iw8.f1.attribute" value="instr"/>
+		      	<wf:property name="Query.fs_iw8.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw8.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.session-tradingPlaces"/>
+		      	<wf:property name="Query.fs_iw8.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSIncomeEvent:IncomeEventList"/>
+		      	<wf:property name="Query.fs_iw4.TargetDS" value="AAADSIncomeEvent:IncomeEventList"/>
+		      	<wf:property name="Query.fs_iw4.f1.attribute" value="instr"/>
+		      	<wf:property name="Query.fs_iw4.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw4.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.session-income"/>
+		      	<wf:property name="Query.fs_iw4.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSCorporateAction:CorporateActionList"/>
+		      	<wf:property name="Query.fs_iw6.TargetDS" value="AAADSCorporateAction:CorporateActionList"/>
+		      	<wf:property name="Query.fs_iw6.f1.attribute" value="instr"/>
+		      	<wf:property name="Query.fs_iw6.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw6.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.exchange"/>
+		      	<wf:property name="Query.fs_iw6.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSSectorAttrib:SectorAttribList"/>
+		      	<wf:property name="Query.fs_iw0.TargetDS" value="AAADSSectorAttrib:SectorAttribList"/>
+		      	<wf:property name="Query.fs_iw0.f1.attribute" value="entityDict"/>
+		      	<wf:property name="Query.fs_iw0.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw0.f1.value1" value="900"/>
+		      	<wf:property name="Query.fs_iw0.f2.attribute" value="object"/>
+		      	<wf:property name="Query.fs_iw0.f2.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw0.f2.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.session-sector"/>
+		      	<wf:property name="Query.fs_iw0.f2.mode" value="HIDDEN"/>
+		      	<wf:property name="Query.fs_iw0.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSRatingAttrib:RatingAttribList"/>
+		      	<wf:property name="Query.fs_iw3.TargetDS" value="AAADSRatingAttrib:RatingAttribList"/>
+		      	<wf:property name="Query.fs_iw3.f1.attribute" value="entityDict"/>
+		      	<wf:property name="Query.fs_iw3.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw3.f1.value1" value="900"/>
+		      	<wf:property name="Query.fs_iw3.f2.attribute" value="object"/>
+		      	<wf:property name="Query.fs_iw3.f2.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw3.f2.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.session-rating"/>
+		      	<wf:property name="Query.fs_iw3.f2.mode" value="HIDDEN"/>
+		      	<wf:property name="Query.fs_iw3.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSDenomination:DenominationList"/>
+		      	<wf:property name="Query.fs_iw4.TargetDS" value="AAADSDenomination:DenominationList"/>
+		      	<wf:property name="Query.fs_iw4.f1.attribute" value="entityDict"/>
+		      	<wf:property name="Query.fs_iw4.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw4.f1.value1" value="900"/>
+		      	<wf:property name="Query.fs_iw4.f2.attribute" value="object"/>
+		      	<wf:property name="Query.fs_iw4.f2.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw4.f2.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.session-denom"/>
+		      	<wf:property name="Query.fs_iw4.f2.mode" value="HIDDEN"/>
+		      	<wf:property name="Query.fs_iw4.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSInstrChrono:InstrChronoList"/>
+		      	<wf:property name="Query.fs_iw6.TargetDS" value="AAADSInstrChrono:InstrChronoList"/>
+		      	<wf:property name="Query.fs_iw6.f1.attribute" value="instrId"/>
+		      	<wf:property name="Query.fs_iw6.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw6.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.session-chrono"/>
+		      	<wf:property name="Query.fs_iw6.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSGuarantie:GuaranteeList"/>
+		      	<wf:property name="Query.fs_iw6.TargetDS" value="AAADSGuarantie:GuaranteeList"/>
+		      	<wf:property name="Query.fs_iw6.f1.attribute" value="instr"/>
+		      	<wf:property name="Query.fs_iw6.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw6.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.guarantee"/>
+		      	<wf:property name="Query.fs_iw6.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSInstrCompo:InstrCompoList"/>
+		      	<wf:property name="Query.fs_iw6.TargetDS" value="AAADSInstrCompo:InstrCompoList"/>
+		      	<wf:property name="Query.fs_iw6.f1.attribute" value="parentInstrId"/>
+		      	<wf:property name="Query.fs_iw6.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw6.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.session-compos"/>
+		      	<wf:property name="Query.fs_iw6.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSInterestCond:InterestCondList"/>
+		      	<wf:property name="Query.fs_iw6.TargetDS" value="AAADSInterestCond:InterestCondList"/>
+		      	<wf:property name="Query.fs_iw6.f1.attribute" value="instr"/>
+		      	<wf:property name="Query.fs_iw6.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw6.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.interest"/>
+		      	<wf:property name="Query.fs_iw6.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSTermEvent:TermEventList"/>
+		      	<wf:property name="Query.fs_iw6.TargetDS" value="AAADSTermEvent:TermEventList"/>
+		      	<wf:property name="Query.fs_iw6.f1.attribute" value="instr"/>
+		      	<wf:property name="Query.fs_iw6.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw6.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.session-event"/>
+		      	<wf:property name="Query.fs_iw6.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSExchangeEvent:ExchangeEventList"/>
+		      	<wf:property name="Query.fs_iw6.TargetDS" value="AAADSExchangeEvent:ExchangeEventList"/>
+		      	<wf:property name="Query.fs_iw6.f1.attribute" value="instr"/>
+		      	<wf:property name="Query.fs_iw6.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw6.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.session-exchange"/>
+		      	<wf:property name="Query.fs_iw6.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSIssRedmEvent:IssRedmEventList"/>
+		      	<wf:property name="Query.fs_iw6.TargetDS" value="AAADSIssRedmEvent:IssRedmEventList"/>
+		      	<wf:property name="Query.fs_iw6.f1.attribute" value="instr"/>
+		      	<wf:property name="Query.fs_iw6.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw6.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="search.session" value="aaa-search.issue"/>
+		      	<wf:property name="Query.fs_iw6.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSNotepad:NotepadList"/>
+		      	<wf:property name="Query.fs_iw5.f1.attribute" value="object"/>
+		      	<wf:property name="Query.fs_iw5.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw5.f1.value1" value="@AAADSInstrument:InstrumentAll:id"/>
+		      	<wf:property name="Query.fs_iw5.f2.attribute" value="entityDict"/>
+		      	<wf:property name="Query.fs_iw5.f2.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw5.f2.value1" value="900"/>
+		      	<wf:property name="Query.fs_iw5.TargetDS" value="AAADSNotepad:NotepadSearchCriteria"/>
+		      	<wf:property name="search.session" value="aaa-search.session-notepad"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess">
+		      	<wf:property name="Query.DSOutput" value="AAADSInstrDeposit:InstrDepositList"/>
+		      	<wf:property name="Query.fs_iw4.TargetDS" value="AAADSInstrDeposit:InstrDepositList"/>
+		      	<wf:property name="Query.fs_iw4.f1.attribute" value="instrCode"/>
+		      	<wf:property name="Query.fs_iw4.f1.op" value="EQUAL"/>
+		      	<wf:property name="Query.fs_iw4.f1.value1" value="@AAADSInstrument:InstrumentAll:code"/>
+		      	<wf:property name="search.session" value="aaa-search.session-deposit"/>
+		      	<wf:property name="Query.fs_iw4.f1.mode" value="HIDDEN"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="refresh" from-state="ContextState" to-state="OrderListSecurityState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.ExecuteWuiFinFunctionProcess"/>
+	      	<wf:validation/>
+        </wf:transition>
+        <wf:transition name="refresh" from-state="OrderListSecurityState" to-state="OrderListSecurityState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.ExecuteWuiFinFunctionProcess"/>
+        </wf:transition>
+        <wf:transition name="reject" from-state="OrderListSecurityState" to-state="OrderListSecurityState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.UpdateFieldProcess">
+		      	<wf:property name="DSEntity" value="AAADSExtOperation:ExtOperationAll"/>
+		      	<wf:property name="DSFormat" value="AAADSOrderList:OrderListDetailedList"/>
+		      	<wf:property name="DSReporter" value="AAADSOrderList:OrderListDetailedList"/>
+		      	<wf:property name="TAFunction" value="DS_UF_REJECT"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.ExecuteWuiFinFunctionProcess">
+		      	<wf:property name="DSFormat" value="AAADSOrderList:OrderListDetailedList,AAADSOrderList:OrderListSummaryList"/>
+		      	<wf:property name="DSDomain" value="AAADSDomain:DomainOrderList"/>
+		      	<wf:property name="DSAction" value="refresh"/>
+		      	<wf:property name="function.procName" value="ord_list"/>
+		      	<wf:property name="DSKeepCurrentState" value="true"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="reload" from-state="ContextState" to-state="ContextState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.CompleteEntityProcess">
+		      	<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="reload" from-state="OrderListSecurityState" to-state="OrderListSecurityState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.CompleteEntityProcess">
+		      	<wf:property name="DSEntity" value="AAADSDomain:DomainOrderList"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.core.wui.process.ApplyFilterProcess"/>
+        </wf:transition>
+        <wf:transition name="reload" from-state="Search.Search" to-state="Search.Search"/>        
+        <wf:transition name="reload" from-state="SubPageflowState3.InstrumentAllViewDetails" to-state="SubPageflowState3.InstrumentAllViewDetails">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.CompleteEntityProcess">
+		      	<wf:property name="DSEntity" value="AAADSInstrument:InstrumentAll"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="reset" from-state="ContextState" to-state="ContextState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.InitiateEntityProcess">
+		      	<wf:property name="DSIncludes" value="function,portfolioDimensionE,portfolioDimPortfolio,instrumentDimensionE,instrumentDimInstrument,type"/>
+		      	<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="reset" from-state="OrderListSecurityState" to-state="ContextState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.InitiateEntityProcess">
+		      	<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+		      	<wf:property name="DSIncludes" value="function,portfolioDimensionE,portfolioDimPortfolio,instrumentDimensionE,instrumentDimInstrument,type"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="save" from-state="Search.Save" to-state="Search.Search">
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SaveQueryProcess">
+		      	<wf:property name="DSReporterMinLevel" value="WARNING"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="saveAs" from-state="Search.Search" to-state="Search.Save">
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.CreateQueryProcess">
+		      	<wf:property name="DSCopy" value="true"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="search" from-state="ContextState" to-redirector="true">        
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess"/>
+	      	<wf:process class-name="com.odcgroup.tsl.core.wui.process.ResetTabViewProcess">
+		      	<wf:property name="DSTabIds" value="instrumentTabView"/>
+	      	</wf:process>
+  			<wf:process class-name="com.odcgroup.tsl.wui.search.process.NumberOfHitProcess"/>
+			<wf:redirector>
+   				<wf:result state="Search.Search" value="0" />
+ 				<wf:result value="1">
+ 					<wf:transition to-state="ContextState" name="1">
+					      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.AutoSelectProcess"/>
+					      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.CompleteEntityProcess">
+						      	<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+					      	</wf:process>
+ 					</wf:transition>
+ 				</wf:result>
+			</wf:redirector>
+        </wf:transition>
+        <wf:transition name="search" from-state="OrderListSecurityState" to-redirector="true">        
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SearchProcess"/>
+	      	<wf:process class-name="com.odcgroup.tsl.core.wui.process.ResetTabViewProcess">
+		      	<wf:property name="DSTabIds" value="instrumentTabView"/>
+	      	</wf:process>
+  			<wf:process class-name="com.odcgroup.tsl.wui.search.process.NumberOfHitProcess"/>
+			<wf:redirector>
+   				<wf:result state="Search.Search" value="0" />
+ 				<wf:result value="1">
+ 					<wf:transition to-state="ContextState" name="1">
+					      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.AutoSelectProcess"/>
+					      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.CompleteEntityProcess">
+						      	<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+					      	</wf:process>
+ 					</wf:transition>
+ 				</wf:result>
+			</wf:redirector>
+        </wf:transition>
+        <wf:transition name="select" from-state="Search.Search" to-state="ContextState">
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.SelectProcess"/>
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.CompleteEntityProcess">
+		      	<wf:property name="DSEntity" value="AAADSDomain:DomainContext"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="selectQuery" from-state="Search.Load" to-state="Search.Search">
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.LoadQueryProcess"/>
+        </wf:transition>
+        <wf:transition name="update" from-state="Search.Search" to-state="Search.Save">
+	      	<wf:process class-name="com.odcgroup.tsl.wui.search.process.CreateQueryProcess"/>
+        </wf:transition>
+        <wf:transition name="validate" from-state="OrderListSecurityState" to-state="OrderListSecurityState">
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.UpdateFieldProcess">
+		      	<wf:property name="DSEntity" value="AAADSExtOperation:ExtOperationAll"/>
+		      	<wf:property name="DSFormat" value="AAADSOrderList:OrderListDetailedList"/>
+		      	<wf:property name="DSReporter" value="AAADSOrderList:OrderListDetailedList"/>
+		      	<wf:property name="TAFunction" value="DS_UF_VALIDATE"/>
+	      	</wf:process>
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.ExecuteWuiFinFunctionProcess">
+		      	<wf:property name="DSFormat" value="AAADSOrderList:OrderListDetailedList,AAADSOrderList:OrderListSummaryList"/>
+		      	<wf:property name="DSDomain" value="AAADSDomain:DomainOrderList"/>
+		      	<wf:property name="DSAction" value="refresh"/>
+		      	<wf:property name="function.procName" value="ord_list"/>
+		      	<wf:property name="DSKeepCurrentState" value="true"/>
+	      	</wf:process>
+        </wf:transition>
+        <wf:transition name="view" from-state="OrderListSecurityState" to-redirector="true">        
+	      	<wf:process class-name="com.odcgroup.tsl.fc.wui.process.GetEntityProcess">
+		      	<wf:property name="DSEntity" value="AAADSExtOperation:ExtOperationAll"/>
+	      	</wf:process>
+  			<wf:process class-name="com.odcgroup.tsl.fc.wui.process.RedirectorOnAttributeProcess">
+   	  			<wf:property name="DSField" value="orderTypeDecision"/>
+   	  			<wf:property name="DSEntity" value="AAADSExtOperation:ExtOperationAll"/>
+			</wf:process>
+			<wf:redirector>
+   				<wf:result state="ViewOrderState.SecurityViewState" value="0" />
+   				<wf:result state="ViewOrderState.SecurityViewState" value="1" />
+   				<wf:result state="ViewOrderState.FxSpotViewState" value="2" />
+   				<wf:result state="ViewOrderState.DepositViewState" value="3" />
+   				<wf:result state="ViewOrderState.LoanViewState" value="4" />
+   				<wf:result state="ViewOrderState.ViewState4" value="5" />
+			</wf:redirector>
+        </wf:transition>
+	</wf:graph>
+
+
+	</wf:config>
+	

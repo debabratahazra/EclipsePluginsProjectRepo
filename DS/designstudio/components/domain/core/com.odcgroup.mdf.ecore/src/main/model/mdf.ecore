@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="mdf" nsURI="http://www.odcgroup.com/mdf" nsPrefix="mdf">
+  <eClassifiers xsi:type="ecore:EEnum" name="MdfContainment" instanceClassName="int">
+    <eLiterals name="BY_VALUE" literal="byValue"/>
+    <eLiterals name="BY_REFERENCE" value="1" literal="byReference"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="MdfMultiplicity" instanceClassName="int">
+    <eLiterals name="ONE" literal="one"/>
+    <eLiterals name="MANY" value="1" literal="many"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfModelElement" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="documentation" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        defaultValueLiteral=""/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="annotations" upperBound="-1"
+        eType="#//MdfAnnotation" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfEntity" eSuperTypes="#//MdfModelElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfDomain" eSuperTypes="#//MdfModelElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="importedDomains" upperBound="-1"
+        eType="#//MdfDomain"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="namespace" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="classes" upperBound="-1"
+        eType="#//MdfClass" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="datasets" upperBound="-1"
+        eType="#//MdfDataset" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="businessTypes" upperBound="-1"
+        eType="#//MdfBusinessType" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="enumerations" upperBound="-1"
+        eType="#//MdfEnumeration" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="primitives" upperBound="-1"
+        eType="#//MdfPrimitive" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="metamodelVersion" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfClass" eSuperTypes="#//MdfEntity">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseClass" eType="#//MdfClass"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="abstract" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="properties" upperBound="-1"
+        eType="#//MdfProperty" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="referenceable" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        unsettable="true" derived="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfProperty" abstract="true" eSuperTypes="#//MdfModelElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="businessKey" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="required" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="multiplicity" eType="#//MdfMultiplicity"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="primaryKey" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfAttribute" eSuperTypes="#//MdfProperty">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" lowerBound="1" eType="#//MdfPrimitive"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="default" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfAssociation" eSuperTypes="#//MdfProperty">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" lowerBound="1" eType="#//MdfClass"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="containment" eType="#//MdfContainment"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="reverse" eType="#//MdfReverseAssociation"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfReverseAssociation" eSuperTypes="#//MdfProperty">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="reversedAssociation" eType="#//MdfAssociation"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="reversedAssociationType"
+        eType="#//MdfClass"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfPrimitive" eSuperTypes="#//MdfEntity"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfEnumeration" eSuperTypes="#//MdfPrimitive">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="values" upperBound="-1"
+        eType="#//MdfEnumValue" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" eType="#//MdfPrimitive"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="acceptNullValue" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfEnumValue" eSuperTypes="#//MdfModelElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfDataset" eSuperTypes="#//MdfEntity">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseClass" lowerBound="1"
+        eType="#//MdfClass"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="properties" upperBound="-1"
+        eType="#//MdfDatasetProperty" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="linked" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sync" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfDatasetProperty" abstract="true"
+      eSuperTypes="#//MdfModelElement">
+    <eOperations name="getType" eType="#//MdfEntity"/>
+    <eOperations name="getMultiplicity" lowerBound="1" eType="#//MdfMultiplicity"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfAnnotation">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="namespace" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="properties" upperBound="-1"
+        eType="#//MdfAnnotationProperty" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfAnnotationProperty">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="cDATA" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfDatasetDerivedProperty" eSuperTypes="#//MdfDatasetProperty">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="default" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        defaultValueLiteral=""/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="multiplicity" eType="#//MdfMultiplicity"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" lowerBound="1" eType="#//MdfEntity"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfDatasetMappedProperty" eSuperTypes="#//MdfDatasetProperty">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="path" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="unique" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="singleValued" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="linkDataset" eType="#//MdfDataset"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MdfBusinessType" eSuperTypes="#//MdfPrimitive">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="type" lowerBound="1" eType="#//MdfPrimitive"/>
+  </eClassifiers>
+</ecore:EPackage>

@@ -1,0 +1,1527 @@
+# UTF-8
+# UTF-8
+/* Template Servicing of Payment Due */
+Domain PD_Contract
+	@t24:i (module=PD)
+	@java:Package (value=com.temenos.t24.datamodel.pd.pd_contract)
+namespace "http://www.temenos.com/t24/PD_Contract"
+metamodelVersion 1.30.6
+Classes {
+	PD_CAPTURE
+		@t24:i (t24Name=PD.CAPTURE, level=F, type=H, additionalInfo="NOH UNP OEU", allowedFunctions="A C D E H I L P Q S", localRefAllowed=true)
+	{
+		/* The unique reference number by which a PD.CAPTURE contract is identified.
+This number is assigned when the contract is first entered into the system. This can be done either manually or automatically by use of the F3 key, providing auto IDs have been specified on the COMPANY record.
+Validation Rules
+14 character reference number comprised of: "PDCA" application identifier, followed by 5 digit Julian date without century, followed by 5 digit sequence number. (Mandatory input). */
+		ID -> PD_Contract:PD_CAPTURE PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=A, t24Name=ID, mask="R####/#####/#####")
+		/* Specifies the ID of the underlying loan for which a PD.PAYMENT.DUE contract is being raised, or in case there is no underlying loan a value of "NEW" must be input.
+The input to this field must be a valid contract on either the SWAP, LD.LOANS.AND.DEPOSITS, MM.MONEY.MARKET or MG.MORTGAGE files or a value of "NEW".
+Validation Rules
+14 type A alphanumeric characters. (Mandatory input).
+Must be a valid entry on either the SWAP, LD.LOANS.AND.DEPOSITS, MM.MONEY.MARKET or MG.MORTGAGE files if the input is not "NEW".
+The underlying contract must be a loan type (not deposit) if the field contains a loan contract number.
+If the underlying contract is a SWAP then it must contain, or be, an asset side. */
+		CONTRACT_NUMBER : T24BusinessTypes:A required
+			@i18n:Label (en="Contract Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=1.0, core=true, t24Name=CONTRACT.NUMBER, isValidateOnChange=true)
+		/* Defines the Customer of the PD.PAYMENT.DUE contract to be raised.
+This field is automatically defaulted by the system if the field CONTRACT.NUMBER contains a valid loan contract ID.
+Validation Rules
+3-10 alphanumeric customer mnemonic or, 1-10 numeric character customer number. (Defaulted by system, or Mandatory input).
+Must be a valid Customer number or mnemonic on the CUSTOMER table.
+Mandatory input if CONTRACT.NUMBER field contains "NEW", otherwise defaulted from underlying loan. */
+		CUSTOMER -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Customer)
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=2.0, core=true, businessType=CUS, t24Name=CUSTOMER)
+		/* Defines the Currency of the PD.PAYMENT.DUE contract to be raised.
+This field is automatically defaulted by the system if the the field CONTRACT.NUMBER contains a valid loan contract ID.
+Validation Rules
+3 type SSS characters (uppercase alpha) or, 1 to 3 numeric character currency code. (Defaulted by system, or Mandatory input).
+Must be a valid Currency code on the CURRENCY table.
+Mandatory input if CONTRACT.NUMBER field contains "NEW", otherwise defaulted from underlying loan. */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Currency)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=3.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* Defines the Currency Market of the PD.PAYMENT.DUE contract to be raised. This field is automatically defaulted by the system to the value of "1".
+Validation Rules
+Up to 2 numeric digits Currency Market code. (System default value is "1").
+Must be a valid code on the CURRENCY.MARKET table.
+Optional input if CONTRACT.NUMBER field contains "NEW", otherwise defaulted from underlying loan. */
+		CURRENCY_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET
+			@i18n:Label (en="Currency Market")
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=4.0, core=true, t24Name=CURRENCY.MARKET)
+		/* Identifies the Position Type applicable to the PD.PAYMENT.DUE contract to be raised.
+This field is automatically defaulted by the system to the value of "TR" (trading).
+Validation Rules
+2 alphanumeric characters. (System default value is "TR").
+Must be a valid code on the FX.POS.TYPE table.
+Optional input if CONTRACT.NUMBER field contains "NEW", otherwise defaulted from underlying loan. */
+		POSITION_TYPE -> RE_Config:FX_POS_TYPE
+			@i18n:Label (en="Position Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=5.0, core=true, businessType=A, t24Name=POSITION.TYPE)
+		/* Defines the Product Category of the PD.PAYMENT.DUE contract to be raised.
+This field is automatically defaulted by the system if the field CONTRACT.NUMBER contains a valid loan contract ID.
+Validation Rules
+
+
+5 numeric character Category code.(Defaulted by system, or Mandatory input).
+Must be a valid code on the CATEGORY table.
+Mandatory input if CONTRACT.NUMBER field contains 'NEW', otherwise defaulted from underlying loan. */
+		CATEGORY -> ST_Config:CATEGORY
+			@i18n:Label (en=Category)
+			@t24:i (align=R, inputBehaviour=N, maxLength=6, sysNumber=6.0, core=true, t24Name=CATEGORY)
+		/* Defines the Limit Reference number of the PD.PAYMENT.DUE contract to be raised.
+This field is automatically defaulted by the system if the field CONTRACT.NUMBER contains a valid loan contract ID.
+If the CONTRACT.NUMBER field contains a value of "NEW", then the system will try to default a limit reference number if the CUSTOMER and CURRENCY fields contain valid input.
+Validation Rules
+3-10 numeric characters LIMIT.REFERENCE code. (Defaulted by system, or Mandatory input).
+Must be a valid LIMIT.REFERENCE number.
+Mandatory input if CONTRACT.NUMBER field contains "NEW", otherwise defaulted from underlying loan. */
+		LIMIT_REFERENCE : mml:Integer
+			@i18n:Label (en="Limit Reference")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=7.0, core=true, t24Name=LIMIT.REFERENCE)
+		/* Identifies the Account Officer or Department responsible for the relationship with the counterparty for the PD.PAYMENT.DUE contract to be raised.
+This field is automatically defaulted by the system if the field CONTRACT.NUMBER contains a valid loan contract ID.
+If the CONTRACT.NUMBER field contains a value of "NEW", then the system will try to default the Account Officer if the CUSTOMER field contains valid input.
+It is used by the Management Information System (M.I.S.) for the determination of the Customer Profitability Analysis.
+Validation Rules
+1-4 digit numeric characters. (Defaulted by system, or Mandatory input).
+Must be a valid code on the DEPT.ACCT.OFFICER table.
+Mandatory input if CONTRACT.NUMBER field contains "NEW", otherwise defaulted from underlying loan. */
+		ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Account Officer")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, businessType=DAO, t24Name=ACCOUNT.OFFICER)
+		/* Defines the Interest Day Basis which indicates the calculation method to be used for interest amount calculations for the PD.PAYMENT.DUE contract to be raised.
+This field is automatically defaulted by the system if the field CONTRACT.NUMBER contains a valid loan contract ID.
+Can accept one of the following types, dependant on the underlying deal:
+Key#Days/Denominator##
+A#360/360##
+A1#360/360*##
+A2#360/360*##
+B#366/360##
+CC2#Act/Act ISDAAct/Act AFB##
+D#360/366##
+E#366/365##
+F#360/365##
+F1#360/365*##
+F2#360/365*##
+S#Special##
+For illustrations of all supported INTEREST.BASIS see INTEREST.BASIS
+Validation Rules
+
+
+1-2 alphanumeric characters. (Defaulted by system, or Mandatory input).
+Must be a valid entry on the INTEREST.BASIS table.
+Mandatory input if CONTRACT.NUMBER field contains "NEW", otherwise defaulted from underlying loan. */
+		INTEREST_BASIS -> ST_RateParameters:INTEREST_BASIS
+			@i18n:Label (en="Interest Basis")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=9.0, core=true, businessType=A, t24Name=INTEREST.BASIS)
+		/* Identifies the Dealer Desk relating to the PD.PAYMENT.DUE contract to be raised.
+This field is automatically defaulted by the system if the field CONTRACT.NUMBER contains a valid loan contract ID. If the underlying loan contract is a LD or MG type, then a value of "00" will be defaulted.
+If the CONTRACT.NUMBER field contains a value of "NEW", then the system will default this field to a value of "00".
+This code is used to maintain position at the dealer desk level.
+Validation Rules
+2 alphanumeric character dealer code in the range "A-Z", "a-z" plus "0-9". (System default value is "00").
+Must be a valid entry on the DEALER.DESK table.
+Optional input if CONTRACT.NUMBER field contains "NEW", otherwise defaulted from underlying loan. */
+		DEALER_DESK -> ST_Config:DEALER_DESK
+			@i18n:Label (en="Dealer Desk")
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=10.0, core=true, businessType=A, t24Name=DEALER.DESK)
+		/* Defines the Customer Portfolio Number for which the PD.PAYMENT.DUE contract is to be raised.
+This field is automatically defaulted by the system if the field CONTRACT.NUMBER contains a valid loan contract ID.
+Validation Rules
+Up to 3 numeric characters. (Optional input).
+Any input will be validated against the SEC.ACC.MASTER file.
+Optional input if CONTRACT.NUMBER field contains "NEW", otherwise defaulted from underlying loan if present. */
+		PORTFOLIO_NUMBER : mml:Integer
+			@i18n:Label (en="Portfolio Number")
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=11.0, core=true, t24Name=PORTFOLIO.NUMBER)
+		/* Defines the total amount which is overdue.
+This is the sum of all the amounts in the field PAYMENT.AMT.
+This field is automatically updated by the system whenever any input is made to the PAYMENT.AMT field.
+Validation Rules
+Noinput field. */
+		TOTAL_OVERDUE_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Overdue Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=12.0, core=true, t24Name=TOTAL.OVERDUE.AMT, typeModifiers="3D")
+		NARRATIVE -> byValue PD_Contract:PD_CAPTURE__NARRATIVE *
+		/* Specifies the date on which the payment became overdue.
+This date must be prior or equal to today's date and may even be before the value date of the underlying loan contract specified in the CONTRACT.NUMBER field.
+Validation Rules
+11 type D characters - standard date format. (Mandatory input).
+Date entered must be less than or equal to today's date. */
+		VALUE_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Value Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=14.0, core=true, t24Name=VALUE.DATE)
+		/* Defines the fixed rate of interest of the underlying loan contract specified in the CONTRACT.NUMBER field.
+Either this field or INTEREST.KEY must be input.
+Validation Rules
+Up to 11 numeric type R characters including optional decimal point.
+Input must be greater than 0.
+Input cannot be greater than 100.
+Cannot contain a value if INTEREST.KEY is not null.
+Must contain a value if INTEREST.KEY is null. */
+		INTEREST_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Interest Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=INTEREST.RATE)
+		/* Contains the key to the BASIC.RATE.TEXT table and subsequently the BASIC.INTEREST table, which indicates the interest rate to be applied.
+Either this field or INTEREST.RATE must be input.
+Validation Rules
+Up to 4 numeric characters.
+Must be a valid entry on the BASIC.RATE.TEXT table.
+Cannot contain a value if INTEREST.RATE is not null.
+Must contain a value if INTEREST.KEY is null. */
+		INTEREST_KEY : mml:Integer
+			@i18n:Label (en="Interest Key")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=16.0, core=true, t24Name=INTEREST.KEY)
+		/* Defines the amount which is outstanding on the underlying loan contract specified in the CONTRACT.NUMBER field.
+This amount is used in the calculation of penalty interest.
+Validation Rules
+Up to 19 numeric type AMT characters. (Mandatory input). */
+		OUTSTANDING_BAL : T24BusinessTypes:AMT required
+			@i18n:Label (en="Outstanding Balance")
+			@i18n:Tooltip (en="Outstanding Balance")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=OUTSTANDING.BAL)
+		PAYMENT_TYPE -> byValue PD_Contract:PD_CAPTURE__PAYMENT_TYPE *
+		/* Defines the ID to the PD.PAYMENT.DUE record which will be raised if the CONTRACT.NUMBER field contains a value of "NEW".
+This field is automatically defaulted upon validation of the PD.CAPTURE contract, as long as a record for "PD.PAYMENT.DUE" is set up on the AUTO.ID.START table.
+Validation Rules
+14 alphanumeric characters. (Noinput field).
+Field is only populated if CONTRACT.NUMBER field contains a value of "NEW". */
+		NEXT_PD_ID : T24BusinessTypes:A
+			@i18n:Label (en="PD Reference")
+			@i18n:Tooltip (en="PD Reference")
+			@t24:i (align=L, inputBehaviour=N, maxLength=14, sysNumber=21.0, core=true, t24Name=NEXT.PD.ID)
+		PD_LOC_REF_NO -> byValue PD_Contract:PD_CAPTURE__PD_LOC_REF_NO *
+		/* This field will hold Product level valid EB.ACCRUAL.PARAM id */
+		ACCRUAL_PARAM -> AC_Fees:EB_ACCRUAL_PARAM
+			@i18n:Label (en="Accrual Parameter")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=25.0, core=true, businessType=A, t24Name=ACCRUAL.PARAM)
+		/* This field will hold Product level rounding rule penalty interest calculations. For detailed options on different rounding options help text on EB.ROUNDING.RULE file can be referred.
+Validation Rules
+Should be a valid EB.ROUNDING.RULE id. */
+		ROUNDING_RULE -> ST_Config:EB_ROUNDING_RULE
+			@i18n:Label (en="Rounding Rule")
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=26.0, core=true, businessType=A, t24Name=ROUNDING.RULE)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=27.0, core=true, t24Name=RESERVED.8)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=28.0, core=true, t24Name=RESERVED.7)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=29.0, core=true, t24Name=RESERVED.6)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=30.0, core=true, t24Name=RESERVED.5)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=31.0, core=true, t24Name=RESERVED.4)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=32.0, core=true, t24Name=RESERVED.3)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=33.0, core=true, t24Name=RESERVED.2)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=34.0, core=true, t24Name=RESERVED.1)
+		STMT_NO -> byValue PD_Contract:PD_CAPTURE__STMT_NO *
+		OVERRIDE -> byValue PD_Contract:PD_CAPTURE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=37.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=38.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PD_Contract:PD_CAPTURE__INPUTTER *
+		DATE_TIME -> byValue PD_Contract:PD_CAPTURE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=41.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=42.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=43.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=44.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=45.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PD_CAPTURE__NARRATIVE
+	{
+		/* Allows any narrative to be input for user information.
+This is a multivalued multilanguage field.
+Validation Rules
+Up to 35 type A alphanumeric characters. (Optional input). */
+		NARRATIVE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=13.0, core=true, t24Name=NARRATIVE)
+	}
+	PD_CAPTURE__PAYMENT_TYPE
+	{
+		/* Indicates the type of payment which is overdue.
+This field is part of an associated multivalue set.
+Validation Rules
+2 alphanumeric type A characters. (Mandatory input. Associated multivalue field).
+Must be a valid entry on the PD.AMOUNT.TYPE file.
+The values allowed are "PR", "IN", "CH", "CO" and "TX". */
+		PAYMENT_TYPE -> PD_Config:PD_AMOUNT_TYPE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=18.0, core=true, businessType=A, t24Name=PAYMENT.TYPE)
+		/* Specifies the amount overdue for the type in the corresponding PAYMENT.TYPE field.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Mandatory input. Associated multivalue field). */
+		PAYMENT_AMT : T24BusinessTypes:AMT required
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=PAYMENT.AMT)
+		/* Identifies the account which is to be credited for the corresponding payment type and amount.
+The account must be in the same currency as that defined in the CURRENCY field.
+This field is part of an associated multivalue set.
+In case the underlying Contract Customer (eg. Customer.id in MONEYMARKET,Counterparty in FOREX, etc.) has a record in CUSTOMER.SSI application, then the account number in this field gets defaulted as per the definition for that Customer from CUSTOMER.SSI.For more information on the usage of this feature please refer to CUSTOMER.SSI application.
+Validation Rules
+
+
+1-16 numeric characters relating to a Customer account or a Nostro account. (Mandatory input. Associated multivalue field).
+Must be a valid entry on the ACCOUNT table.
+Must be of the same currency as defined in the CURRNECY field. */
+		SETTLEMENT_ACCT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=20.0, core=true, businessType=ANT, t24Name=SETTLEMENT.ACCT)
+	}
+	PD_CAPTURE__PD_LOC_REF_NO
+	{
+		/* Specifies the LOCAL.REFERENCE element to be used defined for the PD.PAYMENT.DUE application on the LOCAL.REF.TABLE file by it's position.
+The contents of this field identify the LOCAL.REFERENCE element to be used. It must be one that is defined on LOCAL.REF.TABLE for the PD.PAYMENT.DUE application.
+Validation Rules
+1 - 3 numeric characters. (Optional Input. Associated multivalue field). */
+		PD_LOC_REF_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=23.0, core=true, t24Name=PD.LOC.REF.NO)
+		/* Specifies the data to be input to the LOCAL.REFERENCE field defined in PD.LOC.REF.NO.
+The contents of this field will be placed in the corresponding local reference field on the PD.PAYMENT.DUE contract created or updated. The input must of course match the requirements for the local reference field defined on LOCAL.TABLE.
+Validation Rules
+Up to 35 characters as defined in the LOCAL.TABLE definition for the LOCAL.REFERENCE field whose position is in PD.LOC.REF.NO.  (Optional or mandatory input if corresponding PD.LOC.REF.NO input. Associated multivalue field). */
+		PD_LOC_REF_DATA : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=24.0, core=true, t24Name=PD.LOC.REF.DATA)
+	}
+	PD_CAPTURE__STMT_NO
+	{
+		/* A number generated automatically by the system which identifies either a statement entry or a category entry in respect of the PD contract.
+Whenever an amendment to, or input of, a contract requires an accounting entry to be raised, this field will record the IDs of the entries generated. The IDs to accounting entries, both STMT.ENTRYs and CATEG.ENTRYs, consist of a date-time stamp and a sequence number. All entries raised by a particular input/transaction will have the same date-time stamp but different sequence numbers.
+This field has three multivalues, the first contains the base date-time stamp which is common to all entries. The second contains the sequence numbers of the STMT.ENTRYs raised and the third the sequence numbers of any CATEG.ENTRYs.
+Whenever a contract is viewed using the (S)ee function this field will show the entry IDs that were raised by that version of the contract only. If the amendment made on a particular version did not raise any entries, then the field will be blank. Any end of day processing which raises accounting entries will also update this field and write a history record.
+This is a multivalue field.
+Validation Rules
+Up to 29 alphanumeric characters. (Multivalue field).
+Noinput field. */
+		STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=29, sysNumber=35.0, core=true, t24Name=STMT.NO)
+	}
+	PD_CAPTURE__OVERRIDE
+	{
+		/* Contains all the Override messages which the user agreed to during Input.
+During the validation of a contract, the system may provide the user with a series of screen override messages to indicate an anomaly, for instance,
+the repayment date is not a working day.
+In the event that the user confirms the Override, the full text of the actual Override Message will be stored, for reference purposes only, in this multivalue field.
+In the example given above when the deal is validated a warning bell will sound and a message will appear, at the foot of the screen, which reads:
+"VALUE DATE IS NOT A WORKING DAY"
+This will draw the user's attention to the account entered, which may be a mistake and can then be corrected, alternatively the input may be correct in which case the user must confirm the input.
+If, subsequently, the contract record is either fully displayed or printed
+then all override messages raised during the input of that version of the contract will be displayed.
+This is a multivalue field.
+Validation Rules
+Up to 35 alphanumeric type A characters. (Multivalue field).
+Noinput field. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=36.0, core=true, t24Name=OVERRIDE)
+	}
+	PD_CAPTURE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=39.0, core=true, t24Name=INPUTTER)
+	}
+	PD_CAPTURE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=40.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PD_ENT_TODAY
+		@t24:i (t24Name=PD.ENT.TODAY, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Please refer the helptext section of PD.PAYMENT.DUE */
+		CONTRACT_ID -> PD_Contract:PD_ENT_TODAY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=31, sysNumber=0.0, core=true, businessType=A, t24Name="CONTRACT ID", mask="L####/#####/####################")
+	}
+	PD_PAYMENT_DUE
+		@t24:i (t24Name=PD.PAYMENT.DUE, level=F, type=H, additionalInfo="NOH UNP OEU", allowedFunctions="A C D E H I L P Q S", localRefAllowed=true)
+	{
+		/* A unique reference number which identifies a particular Payment Due contract.
+Contract numbers are generated automatically by the system and are composed of the underlying deal's contract number with a prefix of "PD", e.g. PDMM9601200015. From this example we can see that the PD record was created through the Money Market application for the deal MM9601200015. Input of new PD transactions is not allowed as they can only be created by the system.
+It is possible to create a Payment Due contract without an underlying loan contract being present using the PD.CAPTURE application. If this is the case then the Id to the file will be in the format PDPDYYDDDNNNNN, e.g. PDPD9708900023.
+Validation Rules
+10 numeric characters prefixed by "PDXX", where XX is the application for which the PD record has been raised, e.g. LD, MM or MG. XX may be PD if the Payment Due contract was produced through the PD.CAPTURE application without an underlying loan contract being present.
+If the reference number is entered, during initial input, it will be validated for uniqueness.
+The transaction number can never be changed.
+The ID to the contract from the third character onwards, in other words after the PD prefix, must exist on the live file of the underlying application. For example if we have a PD contract with an ID of PDMG9602300152, then a contract with an ID of MG9602300152 must exist on the MG.MORTGAGE file.  The above is only not true if the PD contract was created through the PD.CAPTURE application without the presence of an underlying loan contract.
+Mandatory input. */
+		CONTRACT_NUMBER -> PD_Contract:PD_PAYMENT_DUE PK required
+			@i18n:Label (en="Contract Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=31, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NUMBER, mask="L####/#####/####################")
+		/* Defines the processing to be performed on the PD contract.
+Only one type of process may be performed at one time of which there are four. They are MAINTENANCE, ADJUSTMENT, REPAYMENT and SCHEDULE.
+Upon input to a PD contract this is the only field which allows any input. Once an operation to be performed has been input this field blocks any further input and opens up the required fields depending upon the operation. Therefore to perform another operation on the same contract, the record must be authorised or deleted, unless of course one exits using F1.
+The MAINTENANCE operation is used to change contract details such as the limit reference of the PD contract, the status of individual payments due on a particular date, whether or not to net any entries across the customer's account together, or to change the customer's portfolio.
+The ADJUSTMENT operation is used to adjust the outstanding payment amounts, by type, either upwards or downwards.
+The REPAYMENT operation is used to for entering details when a customer wishes to repay all or part of his/her loan.
+The SCHEDULE operation is used for entering scheduled events such as rate or spread changes and for the production of chaser advices.
+Validation Rules
+Input must be one of the following: MAINTENANCE, ADJUSTMENT, REPAYMENT, SCHEDULE.
+It is not necessary to type in full the operation to be performed. If for example an adjustment is to be made, then an input of "A" will suffice.
+Mandatory input. */
+		OPERATION : PD_Contract:PD_PAYMENT_DUE__OPERATION
+			@i18n:Label (en=Operation)
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=OPERATION, isValidateOnChange=true)
+		/* Identifies the Customer of the PD contract.
+This field is automatically defaulted from the underlying contract when the PD contract is created.
+Validation Rules
+3-10 alphanumeric customer mnemonic or, 1-10 numeric character customer number.
+Must be a valid Customer number or mnemonic on the CUSTOMER table.
+Noinput field. */
+		CUSTOMER -> ST_Customer:CUSTOMER
+			@i18n:Label (en="Client ID")
+			@i18n:Tooltip (en="Identifies the customer of the PD contract")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=2.0, core=true, businessType=CUS, t24Name=CUSTOMER)
+		/* Indicates the Currency of the PD contract.
+This field is automatically defaulted from the underlying contract when the PD contract is created.
+Validation Rules
+3 type SSS characters (uppercase alpha) or, 1 to 3 numeric Character currency code.
+Must be a valid Currency code on the CURRENCY table.
+Noinput field. */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Currency)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=3.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* Identifies which Currency Market is accessed for this transaction.
+This field is automatically defaulted from the underlying contract when the PD contract is created.
+The use of this field will only be applicable for those countries where the exchange authorities have defined different markets for foreign currency dealing.
+A typical example would be Belgium where foreign currencies are dealt with on the Regular Market and also on the Free Market.
+The default value of "1" means that, for the majority of countries, where only one exchange rate market exists, input in this field will not be necessary.
+Note:    In the present release, only one market can be defined on the          CURRENCY.MARKET table. Consequently, for the time being, only          the value of "1" will be accepted in this field.
+Validation Rules
+One numeric digit Currency Market code. (System default value is "1")
+Must be a valid code on the CURRENCY.MARKET table.
+Noinput field. */
+		CURRENCY_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET
+			@i18n:Label (en="Currency Market")
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=4.0, core=true, t24Name=CURRENCY.MARKET)
+		/* Identifies the Position Type applicable to the PD contract.
+This field is automatically defaulted from the underlying contract when the PD contract is created.
+This field is not used at present and is reserved for future use.
+Validation Rules
+2 alphanumeric characters (System default value is "TR")
+Noinput field. */
+		POSITION_TYPE -> RE_Config:FX_POS_TYPE
+			@i18n:Label (en="Position Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=5.0, core=true, businessType=A, t24Name=POSITION.TYPE)
+		/* Identifies the Dealer Desk relating to the PD transaction.
+For Money Market linked PDs this field is automatically defaulted from the underlying contract when the PD contract is created, but for the other application linked PDs this field is set to "00" upon creation.
+This code is used to maintain position at the dealer desk level.
+Validation Rules
+2 alphanumeric character dealer code in the range "A-Z", "a-z", plus "0-9".
+Must be a valid entry on the DEALER.DESK table.
+Noinput field. */
+		DEALER_DESK -> ST_Config:DEALER_DESK
+			@i18n:Label (en="Dealer Desk")
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=6.0, core=true, businessType=A, t24Name=DEALER.DESK)
+		/* Identifies the Account Officer or Department responsible for the relationship with the counterparty.
+This field is automatically defaulted from the underlying contract when the PD contract is created.
+It is used by the Management Information System (M.I.S.) for the determination of the Customer Profitability Analysis.
+Validation Rules
+1-4 digit numeric character.
+Must be a valid code on the DEPT.ACCT.OFFICER table.
+Noinput field. */
+		ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Account Officer")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=7.0, core=true, businessType=DAO, t24Name=ACCOUNT.OFFICER)
+		/* Contains the Product Category Code to which the transaction will be assigned.
+This field is automatically defaulted from the underlying contract when the PD contract is created.
+Validation Rules
+5 numeric character Category Code.
+Must be a valid code on the CATEGORY table.
+Noinput field. */
+		CATEGORY -> ST_Config:CATEGORY
+			@i18n:Label (en=Product)
+			@i18n:Tooltip (en="Specifies Product Category Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=6, sysNumber=8.0, core=true, t24Name=CATEGORY)
+		/* Defines the Interest Day Basis which indicates the calculation method to be used for interest amount calculations.
+This field is automatically defaulted from the underlying contract when the PD contract is created.
+Can contain one of the following types, dependent on the underlying deal:
+
+Key#Days/Denominator##
+A#360/360##
+A1#360/360*##
+A2#360/360*##
+B#366/360##
+C#366/366##
+D#360/366##
+E#366/365##
+F#360/365##
+F1#360/365*##
+F2#360/365*##
+S#Special##
+For illustrations of all supported
+INTEREST.BASIS
+INTEREST.BASIS
+Validation Rules
+
+1-2 alphanumeric characters.
+Must be a valid entry on the INTEREST.BASIS table.
+Noinput field. */
+		INTEREST_BASIS -> ST_RateParameters:INTEREST_BASIS
+			@i18n:Label (en="Interest Basis")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=9.0, core=true, businessType=A, t24Name=INTEREST.BASIS)
+		ORIG_STLMNT_ACT -> byValue PD_Contract:PD_PAYMENT_DUE__ORIG_STLMNT_ACT *
+		/* Defines the fixed interest rate at which penalty interest is calculated for the PD contract.
+This field is automatically defaulted from the underlying contract or the PD.PARAMETER file, depending on how the parameter record is set up.
+If the SCHEDULE operation is used to make a rate change, then the new rate will be updated in this field, and also be present on the PD.RATES file.
+Note:   Either this field or PENALTY.KEY must contain a value, but not         both.
+Validation Rules
+1-11 numeric type R characters plus a decimal point. (Optional input).
+Cannot contain a value if PENALTY.KEY is not null.
+Must contain a value if PENALTY.KEY is null.
+Noinput field. */
+		PENALTY_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Penalty Rate")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, t24Name=PENALTY.RATE)
+		/* Contains the key to the BASIC.RATE.TEXT table, and subsequently the BASIC.INTEREST table, which indicates the interest rate to be applied for the calculation of penalty interest for floating rate type PD contracts.
+This field is automatically defaulted from the underlying contract or the PD.PARAMETER file, depending on how the parameter record is set up.
+Note:   Either this field or PENALTY.RATE must contain a value, but not         both.
+Validation Rules
+1-4 numeric characters. (Optional input).
+Must be a valid entry on the BASIC.RATE.TEXT table.
+Cannot contain a value if PENALTY.RATE is not null.
+Must contain a value if PENALTY.RATE is null.
+Noinput field. */
+		PENALTY_KEY -> ST_RateParameters:BASIC_RATE_TEXT
+			@i18n:Label (en="Penalty Key")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=PENALTY.KEY)
+		/* Indicates the rate at which penalty spread is calculated for the PD contract.
+If the PD.PARAMETER file has been set up to accrue penalty spread separately then this field will be automatically updated.
+If the SCHEDULE operation is used to make a spread change, then the new spread rate will not be reflected in this field, but will be present on the PD.RATES file. This field only contains the original value at the time of the PD's creation.
+Validation Rules
+1-11 numeric type R characters plus a decimal point. (Optional input).
+Noinput field. */
+		PENALTY_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Penalty Spread")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=13.0, core=true, t24Name=PENALTY.SPREAD)
+		/* Specifies which record on the PD.PARAMETER file this PD contract is currently using.
+This field is automatically updated when the PD contract is created and may subsequently change if relevant new records are added to the PD.PARAMETER file.
+Validation Rules
+May only contain "SYSTEM" or, up to 5 numeric characters CATEGORY code.
+Must be a valid code on the CATEGORY table.
+Noinput field. */
+		PARAMETER_RECORD : T24BusinessTypes:A
+			@i18n:Label (en="Parameter Record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=14.0, core=true, t24Name=PARAMETER.RECORD)
+		/* Identifies the Limit Reference number of the underlying contract.
+This field is automatically defaulted from the underlying contract when the PD contract is created.
+Validation Rules
+3-10 numeric characters LIMIT.REFERENCE code.
+Must be a valid LIMIT.REFERENCE number.
+Noinput field. */
+		ORIG_LIMIT_REF : mml:Integer
+			@i18n:Label (en="Original Limit Reference")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=15.0, core=true, t24Name=ORIG.LIMIT.REF)
+		/* Identifies the Limit Reference number of the PD contract.
+This field is automatically defaulted upon the creation of the PD contract though it may be changed by the User with the MAINTENANCE operation.
+An override will be given if the input differs from the default.
+
+
+Validation Rules
+
+
+3-10 numeric characters
+Must be a valid */
+		LIMIT_REFERENCE : mml:Integer
+			@i18n:Label (en="Limit Reference")
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=16.0, core=true, t24Name=LIMIT.REFERENCE)
+		/* Identifies the total amount of outstanding principal on the PD contract held in the LIMITS system.
+This field is automatically defaulted.
+Validation Rules
+Up to 19 numeric type AMT characters including negative "-" sign.
+Noinput field. */
+		LIMIT_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Limit Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=17.0, core=true, t24Name=LIMIT.AMOUNT, typeModifiers="3D")
+		/* Identifies the total amount that is overdue for the PD contract.
+This amount is the sum of all outstandings due by type such as principal, interest, charges etc. as well as any taxes due. Basically it is the sum of the fields TOTAL.OVERDUE.AMT and TOTAL.OVERDUE.TAX.
+Validation Rules
+Up to 19 numeric type AMT characters.
+Noinput field. */
+		TOTAL_AMT_TO_REPAY : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Amt to Repay")
+			@i18n:Tooltip (en="Total Amount to Repay")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=18.0, core=true, t24Name=TOTAL.AMT.TO.REPAY, typeModifiers="3D")
+		/* Identifies the total amount due for the individual payment types on the PD contract.
+This field is the sum of the multivalue fields TOT.OD.TYPE.AMT.
+Validation Rules
+Up to 19 numeric type AMT characters.
+Noinput field. */
+		TOTAL_OVERDUE_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Overdue Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=19.0, core=true, t24Name=TOTAL.OVERDUE.AMT, typeModifiers="3D")
+		/* Identifies the total amount of tax outstanding on the PD contract.
+This field is the sum of the multivalue fields PAYMENT.AMT.TAX.
+Validation Rules
+Up to 19 numeric type AMT characters.
+Noinput field. */
+		TOTAL_OVERDUE_TAX : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Overdue Tax Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=20.0, core=true, t24Name=TOTAL.OVERDUE.TAX, typeModifiers="3D")
+		TOT_OVRDUE_TYPE -> byValue PD_Contract:PD_PAYMENT_DUE__TOT_OVRDUE_TYPE *
+		/* Specifies the date on which the underlying loan matures.
+If the underlying loan is a call or notice type contract then this field will be empty, otherwise it is automatically defaulted.
+Validation Rules
+11 type D characters - standard date format.
+Noinput field. */
+		FINAL_DUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Mat Date of Loan")
+			@i18n:Tooltip (en="Maturity Date of Loan")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=23.0, core=true, t24Name=FINAL.DUE.DATE)
+		PAYMENT_DTE_DUE -> byValue PD_Contract:PD_PAYMENT_DUE__PAYMENT_DTE_DUE *
+		SCHD_TYPE -> byValue PD_Contract:PD_PAYMENT_DUE__SCHD_TYPE *
+		/* Specifies the date on which the repayment was made.
+Input is only allowed for the REPAYMENT operation. The date entered cannot be greater than today's date and may be backvalued as far as the oldest date in the multivalued set of fields PAYMENT.DTE.DUE, which is the last multivalue, or the last date on which penalty interest/spread was repaid whichever is the latest date.
+If the status of the contract is "NAB" then backvalued repayments are not allowed.
+An override will be given if the date is not a working day.
+Validation Rules
+11 type D characters - standard date format.
+Input cannot be greater than today's date.
+Input may not be backvalued further than the oldest date present in the multivalue field PAYMENT.DTE.DUE.
+Input may not be backvalued further than the last date on which penalty interest/spread was repaid.
+Input may not be backvalued if the status of the contract is "NAB". */
+		REPAYMENT_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Date Of Repayment")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=47.0, core=true, t24Name=REPAYMENT.DATE, isValidateOnChange=true)
+		REPAYMENT_REF -> byValue PD_Contract:PD_PAYMENT_DUE__REPAYMENT_REF *
+		/* Identifies the account to be debited with repayment amount.
+If no input is made to this field then the system will try to default an account. If no default account is found by the system then the account in the first multivalue of the field ORIG.STLMNT.ACT will be defaulted.
+An override will be given if the account is a NOSTRO.
+Using the MAINTENANCE operation this field can be used to record an Account to override the defaulted Account or ORIG.STLMNT.ACT.
+Validation Rules
+1-16 numeric characters relating to a Customer or Nostro account.
+Must be a valid entry on the account table.
+Must be of the same currency as defined in the CURRENCY field. */
+		REPAYMENT_ACCT -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Account to Debit")
+			@i18n:Tooltip (en="Specifies total amount due for individual payment")
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=49.0, core=true, businessType=ANT, t24Name=REPAYMENT.ACCT)
+		/* Specifies the amount being repaid by the customer.
+This amount is the amount presented by the customer to the bank in respect of the payment due.
+Validation Rules
+Up to 19 numeric type AMT characters.
+Input must be greater than 0.
+The amount being repaid cannot be greater than what is owed. */
+		TOT_REPAY_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Repayment Amt")
+			@i18n:Tooltip (en="Specifies the total repayment amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=50.0, core=true, t24Name=TOT.REPAY.AMT, typeModifiers="3D", isValidateOnChange=true)
+		/* Specifies the total amount which is actually used towards repayment of the funds due.
+This amount may not be the same as the TOT.REPAY.AMT due to the deduction of any charges or taxes on the amounts due. This is equivalent to the TOT.REPAY.AMT minus the total of any charges and taxes.
+Validation Rules
+Up to 19 numeric type AMT characters.
+Noinput field. */
+		TOT_AFTER_DEDUCT : T24BusinessTypes:AMT
+			@i18n:Label (en="Total Amount Which Is Actually Used Towards Repayment Of The Funds Due")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=51.0, core=true, t24Name=TOT.AFTER.DEDUCT, typeModifiers="3D")
+		CHARGE_TYPE -> byValue PD_Contract:PD_PAYMENT_DUE__CHARGE_TYPE *
+		CHARGE_TAX_CODE -> byValue PD_Contract:PD_PAYMENT_DUE__CHARGE_TAX_CODE *
+		REPAY_TYPE -> byValue PD_Contract:PD_PAYMENT_DUE__REPAY_TYPE *
+		/* Defines whether or not to net any accounting entries across the customer's account together.
+Note that CRF entries cannot be netted together.
+Validation Rules
+1-2 alphabetic characters - "NO" or "YES".
+The system will default to "NO". */
+		NET_CUST_ENTRIES : PD_Contract:PD_PAYMENT_DUE__NET_CUST_ENTRIES
+			@i18n:Label (en="To Net Any Accounting Entries Across The Customer\'S Account Together")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=69.0, core=true, t24Name=NET.CUST.ENTRIES)
+		/* Identifies the customer portfolio number to which the PD contract will be associated with.
+This will be used for the portfolio valuation for the customer.
+Noinput will result in the deal to be excluded from the portfolio valuation.
+Validation Rules
+Up to 3 numeric characters.
+Input only allowed if the operation is MAINTENANCE.
+Any input will be validated against the SEC.ACC.MASTER application. */
+		PORTFOLIO_NUMBER : mml:Integer
+			@i18n:Label (en="Portfolio Number")
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=70.0, core=true, t24Name=PORTFOLIO.NUMBER)
+		/* Identifies the ID of the consolidation record on the CONSOLIDATE.ASST.LIAB file into which this contract is to be consolidated for financial reporting.
+This field is maintained by the system during the end of day batch processing. It is defaulted from the underlying loan, the only change being that the first two characters, which are the IDs to the application such as "LD" or "MM" are replaced by "PD".
+Validation Rules
+Up to 70 alphanumeric characters.
+Noinput field. */
+		CONSOL_KEY : T24BusinessTypes:A
+			@i18n:Label (en="Consolidation Record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=70, sysNumber=71.0, core=true, t24Name=CONSOL.KEY)
+		/* Signifies the overall status of the PD contract.
+This field is automatically updated by the system. It shows the "worst" status of the contract, e.g. if we have two payments due and the statuses of the two in the field REPAID.STATUS are "NAB" and "PDO", then the status in this field would be "NAB".
+The possible values in this field are:
+GRA - grace (penalty interest not being calculated or posted)     PDO - past due obligation (penalty interest being calculated and           posted)     NAB - non accrual basis (penalty interest being calculated but not           posted)     CUR - current (not currently overdue but was previously), WOF (written off), FWOF (financial write-off) and MAT - matured (nothing due and underlying loan is fully repaid).
+Validation Rules
+
+
+3 alphabetical characters which must be one of the above statuses.
+Noinput field. */
+		STATUS : T24BusinessTypes:A
+			@i18n:Label (en=Status)
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=72.0, core=true, t24Name=STATUS)
+		NOTES -> byValue PD_Contract:PD_PAYMENT_DUE__NOTES *
+		MESSAGE_TYPE -> byValue PD_Contract:PD_PAYMENT_DUE__MESSAGE_TYPE *
+		/* This field specifies whether charges linked to advices will be applied to this contract.  This field is used to override the setting of a charge on the PD.ADVICES record
+Validation Rules
+Input can only be YES or NO (Optional input)
+Default (Blank) is YES. */
+		ADVICE_CHGS : PD_Contract:PD_PAYMENT_DUE__ADVICE_CHGS
+			@i18n:Label (en="Charges For Advices")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=78.0, core=true, t24Name=ADVICE.CHGS)
+		/* With the opening up of  EOD retry for all PDPD contracts apart from the PD contracts with  the underlying contract's liquidation mode SEMI-AUTOMATIC, the functionality of this field has been enabled for the user to PREVENT the EOD RETRY for a particular PD contract.
+This field can now be input through a MAINTENANCE operation. The default value in this field (for no input by user) is  NULL  and the only value permitted for input is YES.
+During EOD retry, all PD records with value NULL in PREVENT.RETRY will only be selected (provided it is a PDPD contract or a contract with the liquidation mode of underlying contract being SEMI-AUTOMATIC). Should the user desire that a particular PD record should not be selected for such retry, using MAINTENANCE operation the value YES is to be input in this field.
+Validation Rules
+
+
+Can be input by MAINTENANCE operation only.
+Only accepted value 'YES'.
+If no input done by user value held is 'NULL'. */
+		PREVENT_RETRY : PD_Contract:PD_PAYMENT_DUE__PREVENT_RETRY
+			@i18n:Label (en="Prevent Retry?")
+			@i18n:Tooltip (en="Prevent Retry?")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=79.0, core=true, t24Name=PREVENT.RETRY)
+		/* When backdated overdue amount is increased through PD.CAPTURE applications,  the adjustment date if any will be updated in this field
+Validation Rules
+NOINPUT field */
+		BACK_VALUE : T24BusinessTypes:D
+			@i18n:Label (en="Backdated Value")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=80.0, core=true, t24Name=BACK.VALUE)
+		/* The date on which the PD record is created. */
+		START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Start Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=81.0, core=true, t24Name=START.DATE)
+		/* System updated . Derived from the relevant PD.PARAMETER record.
+Validation Rules
+
+
+No input field
+If STATUS.ADV.STOP is set to NO in the parameter record,         then this field will not be populated. */
+		ADVICE_FREQ : T24BusinessTypes:FQU
+			@i18n:Label (en="Freqeuncy For Sending Advices")
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=82.0, core=true, t24Name=ADVICE.FREQ, mask="RDDDD DD  D #####")
+		/* The group to which this contract / customer belongs based on the rules defined in the PD.PAYMENT.DUE record of APPL.GEN.CONDITION
+Validation Rules
+
+
+No input field; system updated */
+		CONTRACT_GRP : T24BusinessTypes:A
+			@i18n:Label (en="Group To Which This Contract Or Customer Belongs")
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=83.0, core=true, t24Name=CONTRACT.GRP)
+		/* Holds the last Interest capitalisation date */
+		CE_LAST_CAP_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Last Interest Capitalisation Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=84.0, core=true, t24Name=CE.LAST.CAP.DATE)
+		/* Holds the last spread  capitalisation date */
+		CS_LAST_CAP_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Last Spread Capitalisation Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=85.0, core=true, t24Name=CS.LAST.CAP.DATE)
+		/* This field is to identify whether the pd has been maintained to nab
+
+
+
+
+by the
+
+
+
+
+
+
+
+the NAB.PERIOD.INT
+
+
+
+Once the user maintains a
+
+
+
+f
+ield populated as YES so that this contact does not get selected for the status.change functionality.
+
+
+The user can make this field NULL, as long as the contract is in nab so that the status change functionality will take effect.
+
+
+
+
+
+Validation Rules
+
+
+System updated field.
+Updated value will be 'YES'.
+
+Can be made null by the user       only if the contract is in 'NAB' using MAINTENANCE operation. */
+		MANUAL_NAB : PD_Contract:PD_PAYMENT_DUE__MANUAL_NAB
+			@i18n:Label (en="Manual NAB ?")
+			@i18n:Tooltip (en="Manual NAB ?")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=86.0, core=true, t24Name=MANUAL.NAB)
+		/* Spread from the underlying loan contract is stored in this field  - for information only.
+Validation Rules
+
+
+System updated field.
+User input not allowed. */
+		LOAN_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Loan Spread")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=87.0, core=true, t24Name=LOAN.SPREAD)
+		/* If AUTO.ADJ.SPREAD field in PD.PARAMETER is set to YES, penalty spread would be determined by the system automatically.For such scenarios AUTO.SPREAD would be updated to YES and  spread change is not permitted in PD through schedule operation.
+Validation Rules
+Noinput field. */
+		AUTO_SPREAD : PD_Contract:PD_PAYMENT_DUE__AUTO_SPREAD
+			@i18n:Label (en="Auto Spread")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=88.0, core=true, t24Name=AUTO.SPREAD)
+		/* Indicates the asset classification for the contract.
+If the contract is eligible for Provisioning, system updates this field during COB according to the rules stated in ASSET.CLASS.PARAMETER.
+Allows Manual input as well (by changing PROVISION.METHOD field to MANUAL) to override the System classification. Accounting entries would be raised online in accordance with the new asset class.
+Validation Rules
+
+
+Field opens up for MAINTENANCE operation.
+Input allowed only when PROVISION.METHOD is MANUAL
+Should be a valid key to LN.ASSET.CLASS table.
+Holds Null when there is no asset classification.
+Maximum of 3 Numeric characters. */
+		ASSET_CLASS -> ST_AssetProcessing:LN_ASSET_CLASS
+			@i18n:Label (en="Asset Classification For The Contract")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=89.0, core=true, businessType=A, t24Name=ASSET.CLASS)
+		/* Indicates the Provision percentage that has been applied for this contract.
+If the contract is eligible for Provisioning, system updates this field during COB according to the rules defined in ASSET.CLASS.PARAMETER.
+Allows Manual input as well (by changing PROVISION.METHOD field to MANUAL) to override the System classification. Accounting entries would be raised online in accordance with the new Provision percentage.
+Validation Rules
+
+
+Field opens up for MAINTENANCE operation.
+Input allowed only when PROVISION.METHOD is MANUAL.
+Holds Null when there is no asset classification.
+Maximum of 3 Numeric characters.
+Allows '0'(Zero) value. */
+		PROVISION : T24BusinessTypes:R
+			@i18n:Label (en="Provision Percentage")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=90.0, core=true, t24Name=PROVISION)
+		/* Indicates if FWOF contracts will be moved to history or not
+Validation Rules
+Holds YES, ''. PD will move to history only if  'YES' */
+		MOVE_TO_HIS : PD_Contract:PD_PAYMENT_DUE__MOVE_TO_HIS
+			@i18n:Label (en="Move to History?")
+			@i18n:Tooltip (en="Move to History?")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=91.0, core=true, t24Name=MOVE.TO.HIS)
+		/* Indicates the total amount provisioned for this PD.
+System computes Provisioning on the total overdue PR amount.
+Validation Rules
+
+
+No-Input field
+Standard Amount field. */
+		PROVISION_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Provision Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=92.0, core=true, t24Name=PROVISION.AMOUNT, typeModifiers="3")
+		/* Indicates whether asset classification should be computed Automatically or maintained manually.
+When this field is populated with NULL (for new contracts) or AUTO, system computes the asset classification during the next Provision review Frequency( defined in ASSET.CLASS.PARAMETER) and updates the ASSET.CLASS, PROVISION and PROVISION.AMOUNT with the new details.
+When this field is populated as MANUAL, it is assumed that the user Manages the asset classification manually and the contract would be skipped for any computation of asset classification until the field is switched back to AUTO.
+Validation Rules
+
+
+Accepts either MANUAL or AUTO */
+		PROVISION_METHOD : PD_Contract:PD_PAYMENT_DUE__PROVISION_METHOD
+			@i18n:Label (en="Asset Classification For The Contract")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=93.0, core=true, t24Name=PROVISION.METHOD)
+		/* This field is used to capture the reasons for write-off (during manual WRITE-OFF).
+Validation Rules
+
+
+Maximum of 2 Numeric characters.
+Optional input.
+Should be a valid key to PD.WOF.REASON table. */
+		WOF_REASON -> PD_Config:PD_WOF_REASON
+			@i18n:Label (en="Reason for Writeoff")
+			@i18n:Tooltip (en="Reason for Writeoff")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=94.0, core=true, businessType=A, t24Name=WOF.REASON)
+		/* The normal accrual calculation in PD can be overridden by rules indicated by EB.ACCRUAL.PARAM linked to this field.
+
+Any valid EB.ACCRUAL.PARAM */
+		ACCRUAL_PARAM -> AC_Fees:EB_ACCRUAL_PARAM
+			@i18n:Label (en="Accrual Parameter")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=95.0, core=true, businessType=A, t24Name=ACCRUAL.PARAM)
+		/* This field will hold contract level rounding rule penalty interest calculations and will be defaulted from underlying contract.
+Validation Rules
+Should be a valid EB.ROUNDING.RULE id.
+No change permitted after first authorization
+For detailed options on different rounding options help text on EB.ROUNDING.RULE file can be referred. */
+		ROUNDING_RULE -> ST_Config:EB_ROUNDING_RULE
+			@i18n:Label (en="Rounding Rule")
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=96.0, core=true, businessType=A, t24Name=ROUNDING.RULE)
+		/* This field indicates whether the Penalty interest calculated (PE) needs  to be waived when Repayment is made during GRA status
+Validation rules
+
+Can be YES/Null
+Prohibited for contract method 4 and 5. */
+		WAIVE_GRA_PE : PD_Contract:PD_PAYMENT_DUE__WAIVE_GRA_PE
+			@i18n:Label (en="To Waive GRA PE?")
+			@i18n:Tooltip (en="Indicates whether to waive grace period PE")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=97.0, core=true, t24Name=WAIVE.GRA.PE)
+		/* This field indicates whether the Penalty Spread calculated (PS) needs  to be waived when Repayment is made during GRA status
+Validation rules
+
+Can be YES/Null
+Prohibited for contract method 4 and 5. */
+		WAIVE_GRA_PS : PD_Contract:PD_PAYMENT_DUE__WAIVE_GRA_PS
+			@i18n:Label (en="To Waive GRA PS?")
+			@i18n:Tooltip (en="Indicates whether to waive grace period PS")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=98.0, core=true, t24Name=WAIVE.GRA.PS)
+		INSTAL_DATE -> byValue PD_Contract:PD_PAYMENT_DUE__INSTAL_DATE *
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=101.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=102.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=103.0, core=true, t24Name=RESERVED.1)
+		STMT_NO -> byValue PD_Contract:PD_PAYMENT_DUE__STMT_NO *
+		OVERRIDE -> byValue PD_Contract:PD_PAYMENT_DUE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=106.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=107.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue PD_Contract:PD_PAYMENT_DUE__INPUTTER *
+		DATE_TIME -> byValue PD_Contract:PD_PAYMENT_DUE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=110.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=111.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=112.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=113.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=114.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		/* Internal descriptor field */
+		CUSTOMER_NAME : mml:Integer
+			@i18n:Label (en="Customer Name")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, core=false, t24Name=CUSTOMER.NAME, genOperation="CUSTOMER>CUSTOMER>SHORT.NAME")
+		/* Jdescriptor field */
+		CONTRACT_ID : mml:Integer
+			@i18n:Label (en="Contract Id")
+			@t24:i (align=R, inputBehaviour=N, maxLength=14, core=false, t24Name=CONTRACT.ID, genOperation="@ID[3,99]")
+	}
+	PD_PAYMENT_DUE__ORIG_STLMNT_ACT
+	{
+		/* Indicates the Original Settlement account/s of the underlying loan.
+This field is automatically defaulted from the underlying contract when the PD contract is created and subsequently updated.
+It is a multivalue field which will record different settlement accounts if the underlying account uses different accounts for settling different kinds of payments, e.g. for principal and interest.
+Validation Rules
+1-16 numeric characters relating to a Customer account or a Nostro account. (Multivalue field).
+Must be a valid entry on the ACCOUNT table.
+Must be of the same currency as defined in the CURRENCY field.
+Noinput field. */
+		ORIG_STLMNT_ACT -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=10.0, core=true, businessType=ANT, t24Name=ORIG.STLMNT.ACT)
+	}
+	PD_PAYMENT_DUE__TOT_OVRDUE_TYPE
+	{
+		/* Specifies the type of payment which is overdue.
+This field is a multivalue field associated with TOT.OD.TYPE.AMT.
+Validation Rules
+2-12 alphanumeric type A characters. (Associated multivalue field).
+Must be a valid entry on the PD.AMOUNT.TYPE file.
+Noinput field. */
+		TOT_OVRDUE_TYPE -> PD_Config:PD_AMOUNT_TYPE
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=21.0, core=true, businessType=A, t24Name=TOT.OVRDUE.TYPE)
+		/* Identifies the total amount due for the particular type defined in the associated field TOT.OVRDUE.TYPE.
+This field is the sum of the subvalue fields PAY.AMT.OUTS for the type defined in the associated field TOT.OVRDUE.TYPE.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated multivalue field).
+Noinput field. */
+		TOT_OD_TYPE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=22.0, core=true, t24Name=TOT.OD.TYPE.AMT, typeModifiers="3D")
+	}
+	PD_PAYMENT_DUE__PAYMENT_DTE_DUE
+	{
+		/* Specifies the date on which the payment was due.
+This field is automatically populated when the PD contract is created or subsequently updated. This date is also used as part of the ID to the PD.BALANCES file.
+This field is part of an associated multivalue set.
+Validation Rules
+11 type D characters - standard date format. (Associated multivalue field).
+Noinput field. */
+		PAYMENT_DTE_DUE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=24.0, core=true, t24Name=PAYMENT.DTE.DUE, mvSvExpansionAccess=NOMODIFY)
+		/* Identifies the total outstanding amount due at the date defined in field PAYMENT.DTE.DUE for all the different payment types.
+This field is the sum of the subvalue fields PAY.AMT.OUTS.
+This field is automatically populated when the PD contract is created or subsequently updated.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated multivalue field).
+Noinput field. */
+		PAYMENT_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=25.0, core=true, t24Name=PAYMENT.AMOUNT, typeModifiers="3D")
+		/* Identifies the total amount of tax due on the date defined in the field PAYMENT.DTE.DUE for all the different payment types.
+This field is the sum of the subvalue fields PAY.AMT.OSTX.
+This field is automatically populated when the PD contract is created or subsequently updated.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated multivalue field).
+Noinput field. */
+		PAYMENT_AMT_TAX : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=26.0, core=true, t24Name=PAYMENT.AMT.TAX, typeModifiers="3D")
+		/* Identifies the total outstanding amount of the underlying loan on the date defined in the field PAYMENT.DTE.DUE.
+This amount is inclusive of the amounts on the PD contract, though not any penalty interest/spread amounts or any taxes/charges incurred since the PD contract came into existence.
+This field is automatically populated when the PD contract is created or subsequently updated.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated multivalue field).
+Noinput field. */
+		OUTSTANDING_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=27.0, core=true, t24Name=OUTSTANDING.AMT, typeModifiers="3D")
+		PAY_TYPE -> byValue PD_Contract:PD_PAYMENT_DUE__PAYMENT_DTE_DUE__PAY_TYPE *
+		/* Signifies the status of the payment which was due on the date in the field PAYMENT.DTE.DUE.
+This field is automatically populated when the PD contract is created or subsequently updated.
+The contents of this field may be changed by using the MAINTENANCE operation.
+The normal order of status changes through the life of a PD contract are that it starts off with a status of either PRE (pre-grace), or GRA (grace period), after which it becomes PDO (past due obligation) and then it finally changes to the status of NAB (non-accrual basis).
+The number of days that it takes to go through these status changes is dependent on the values defined on the PD.PARAMETER record. The contents of this field may also contain the values RPD (repaid) or WOF (written off). If the WOF option is chosen, all dues under the PD contract will be written off.
+It should be noted that it is not possible to change the status backwards i.e. if the present status is "PDO", then it is not possible to change it back to "GRA". It is also not possible to change the status to "RPD" as this is only done automatically by the system if the total outstanding amount due is fully repaid.
+The user may also change the status of the contract to FWOF (financial write-off). Unlike WOF, where only PD dues are written off (i.e there can still be a live underlying contract), FWOF can be used only if the underlying contract has been completely liquidated (ie) the contract is entirely in PD module. Even if the FWOF option is chosen for one set of dues, it results in the entire PD contract being written off. A contract in FWOF status will continue to show the dues frozen as on the date of the FWOF.
+This field is part of an associated multivalue set.
+Validation Rules
+
+
+3 alphabetical characters which may be "PDO", "NAB" or "WOF". (Associated multivalue field).
+Input only allowed with MAINTENANCE operation.
+Status may not be changed backwards, e.g. from "NAB" to "PDO".
+FWOF status cannot be chosen if there is an underlying contract in CUR   status.
+FWOF can be chosen only if REVERSE.PL.AT.NAB = YES and SUSPEND.INCOME =YES   in the relevant PD.PARAMETER record
+Once a contract is in FWOF status, REPAYMENT, ADJUSTMENT and SCHEDULE   changes would not be permitted
+If more than one payment is due, i.e. there is more than one value in the field PAYMENT.DTE.DUE, then the status of the later payment may not be in a more advanced state than the previous payment. For example if the status of the older payment is "PDO", then the status of the later payment could not be changed to "NAB". */
+		REPAID_STATUS : PD_Contract:PD_PAYMENT_DUE__PAYMENT_DTE_DUE__REPAID_STATUS
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=35.0, core=true, t24Name=REPAID.STATUS)
+	}
+	PD_PAYMENT_DUE__PAYMENT_DTE_DUE__PAY_TYPE
+	{
+		/* Indicates the type of payment which is overdue on the date defined in field PAYMENT.DTE.DUE.
+This field is automatically populated when the PD contract is created or subsequently updated.
+This field is part of an associated subvalue set.
+Validation Rules
+2-12 alphanumeric type A characters. (Associated subvalue field).
+Must be a valid entry on the PD.AMOUNT.TYPE file.
+Noinput field. */
+		PAY_TYPE -> PD_Config:PD_AMOUNT_TYPE
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=28.0, core=true, businessType=A, t24Name=PAY.TYPE)
+		/* Identifies the amount originally due for the corresponding payment type on the date defined in the field PAYMENT.DTE.DUE.
+This is the amount which was originally due and does not reflect any repayments or adjustments which may have been made.
+This field is automatically populated when the PD contract is created or subsequently updated.
+This field is part of an associated subvalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated subvalue field).
+Noinput field. */
+		PAY_AMT_ORIG : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=29.0, core=true, t24Name=PAY.AMT.ORIG, typeModifiers="3D")
+		/* Identifies the amount outstanding for the corresponding payment amount.
+Any repayments or adjustments are reflected in this amount if they impact this particular payment due.
+This field is automatically populated when the PD contract is created or subsequently updated.
+This field is part of an associated subvalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated subvalue field).
+Noinput field. */
+		PAY_AMT_OUTS : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=30.0, core=true, t24Name=PAY.AMT.OUTS, typeModifiers="3D")
+		/* Identifies the amount of tax due on the corresponding amount in the field PAY.AMT.OUTS.
+This field is automatically populated when the PD contract is created or subsequently updated.
+This field is part of an associated subvalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated subvalue field).
+Noinput field. */
+		PAY_AMT_OSTX : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=31.0, core=true, t24Name=PAY.AMT.OSTX, typeModifiers="3D")
+		/* Identifies the actual amount which has been repaid from the amount due in the corresponding field PAY.AMT.ORIG.
+This field is automatically updated if the REPAYMENT operation impacts this particular payment due.
+This field is part of an associated subvalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated subvalue field).
+Noinput field. */
+		REPAID_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=32.0, core=true, t24Name=REPAID.AMT, typeModifiers="3D")
+		/* Identifies the actual amount which has been adjusted from the amount due in the corresponding field PAY.AMT.ORIG.
+This field is automatically updated if the ADJUSTMENT operation impacts this particular payment due.
+This field is part of an associated subvalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated subvalue field).
+Noinput field. */
+		ADJUSTED_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=20, sysNumber=33.0, core=true, t24Name=ADJUSTED.AMT, typeModifiers="-3D")
+		/* Identifies the amount which is to be the new outstanding amount in the corresponding PAY.AMT.OUTS field. This field is used for the ADJUSTMENT operation.
+This field is part of an associated subvalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated subvalue field).
+Input only allowed with ADJUSTMENT operation.
+Input cannot be the same as the corresponding PAY.AMT.OUTS field.
+Input cannot be greater than the value in the corresponding PAY.AMT.ORIG field. */
+		NEW_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=34.0, core=true, t24Name=NEW.OUTS.AMT, typeModifiers="3D")
+	}
+	PD_PAYMENT_DUE__SCHD_TYPE
+	{
+		/* Defines the type of scheduled event to take place.
+Input to this field is only allowed for the SCHEDULE operation. The types of schedule which may be currently input are for rate or spread changes and for producing chaser advices.
+This field is part of an associated multivalue set.
+Validation Rules
+2-8 alphanumeric type A characters. (Associated multivalue field).
+Must be a valid entry on the PD.SCHEDULE.TYPE file.
+Input only allowed for SCHEDULE operation.
+"RC" (rate change) schedule not allowed if the contents of field STATUS is "NAB".
+"SC" (spread change) schedule not allowed if the contents of field STATUS is "NAB". */
+		SCHD_TYPE -> PD_Config:PD_SCHEDULE_TYPE
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, sysNumber=36.0, core=true, businessType=A, t24Name=SCHD.TYPE)
+		/* Specifies the date or frequency on which the event defined in the field SCHD.TYPE is to commence.
+A frequency may only be entered for chaser advice schedules and the date entered may not be less than today. For rate and spread changes the date entered cannot be greater than today though they may be backvalued as long as the date entered is greater than the last interest payment date.
+An override will be given if the date is not a working day.
+This field is part of an associated multivalue set.
+Validation Rules
+16 character standard date/frequency code format - type FQO. (Associated multivalue field).
+A frequency is not allowed for "RC" and "SC" type schedules.
+A backvalued date is not allowed for "CH" type schedules.
+A forwardvalued date is not allowed for "RC" and "SC" type schedules.
+If a backvalued date is entered for "RC" or "SC" type schedules then the date must be greater than the last interest payment date. */
+		SCHD_DATE_FREQ : T24BusinessTypes:FQO
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=37.0, core=true, t24Name=SCHD.DATE.FREQ, mask="LDDDD DD  D #####")
+		/* Specifies the date on which the event defined in the field SCHD.TYPE is to end.
+For rate and spread change type schedules this date must be the same as the date entered in SCHD.DATE.FREQ. For the chaser advice schedule the date may be equal to or greater than the date entered in SCHD.DATE.FREQ.
+An override will be given if the date is not a working day.
+This field is part of an associated multivalue set.
+Validation Rules
+11 type D characters - standard date format. (Associated multivalue field).
+Must be the same date as SCHD.DATE.FREQ for "RC" and "SC" type schedules.
+Must be the same date or a later date as SCHED.DATE.FREQ for "CH" type schedules. */
+		SCHD_END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=38.0, core=true, t24Name=SCHD.END.DATE)
+		/* Reserved for future use.
+Validation Rules
+Noinput field. */
+		SCHD_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=39.0, core=true, t24Name=SCHD.AMOUNT, typeModifiers="3D")
+		/* Specifies the new rate to be used for calculating penalty interest from the date input in the SCHD.DATE.FREQ field.
+This field may only be input if the corresponding SCHD.TYPE is "RC".
+This field is part of an associated multivalue set.
+Validation Rules
+1-11 numeric type R characters including optional decimal point. (Associated mutlivalue field).
+Input only allowed if corresponding SCHD.TYPE is "RC".
+Input must be greater than 0.
+Input cannot be greater than 100.
+If the field MINIMUM.RATE is defined on the PD.PARAMETER record then the input cannot be less than this value.
+If the field MAXIMUM.LEGAL.RATE is defined on the PD.PARAMETER record then the input may not be greater than this value. */
+		SCHD_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=40.0, core=true, t24Name=SCHD.RATE)
+		/* Specifies the new spread to be used for calculating penalty spread from the date input in the SCHD.DATE.FREQ field.
+This field may only be input if the corresponding SCHD.TYPE is "SC".
+This field is part of an associated multivalue set.
+Validation Rules
+1-11 numeric type R characters including optional decimal point. (Associated mutlivalue field).
+Input only allowed if corresponding SCHD.TYPE is "SC".
+Input must be greater than 0.
+Input cannot be greater than 100.
+If the field MINIMUM.RATE is defined on the PD.PARAMETER record then the input cannot be less than this value.
+If the field MAXIMUM.LEGAL.RATE is defined on the PD.PARAMETER record then the input may not be greater than this value. */
+		SCHD_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=41.0, core=true, t24Name=SCHD.SPREAD)
+		SCHD_NARR -> byValue PD_Contract:PD_PAYMENT_DUE__SCHD_TYPE__SCHD_NARR *
+		/* Defines whether a chaser advice has been sent.
+This field may only be input if the corresponding SCHD.TYPE is "CH".
+If the contents of the corresponding field SCHD.DATE.FREQ is a frequency then this field will be updated by the system with "YES" if an advice has been sent. It is possible to cancel a particular chaser advice with an input of "CAN", but only if the SCHD.DATE.FREQ field is a frequency.
+This field is part of an associated multivalue set.
+Validation Rules
+3 alphabetic characters ("YES" or "CAN"). (Associated multivalue field).
+Input only allowed if corresponding SCHD.DATE.FREQ is a frequency.
+Input can only be "CAN". */
+		SCHD_ADV_SENT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=43.0, core=true, t24Name=SCHD.ADV.SENT)
+		/* Specifies the date the schedule was last processed.
+The system will automatically update this field for schedules which have a frequency defined in the field SCHD.DATE.FREQ.
+This field is part of an associated multivalue set.
+Validation Rules
+11 type D characters - standard date format. (Associated multivalue field).
+System updated field for frequency type schedules. */
+		SCHD_PROC_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=44.0, core=true, t24Name=SCHD.PROC.DATE)
+		/* Delivery advice related field. Used to hold the advice type given in ACTIVITY  field of PD.PARAMETER.
+Validation Rules
+Noinput field. */
+		SCHD_ACTIVITY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=45.0, core=true, t24Name=SCHD.ACTIVITY)
+		/* If this field is set then advice will be  sent with applied charges.
+Validation Rules
+Noinput field. */
+		SCHD_CHG_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=46.0, core=true, t24Name=SCHD.CHG.CODE)
+	}
+	PD_PAYMENT_DUE__SCHD_TYPE__SCHD_NARR
+	{
+		/* Specifies any narrative which can be included on the chaser advice.
+This field may only be input if the corresponding SCHD.TYPE is "CH".
+This field is part of an associated subvalue set.
+Validation Rules
+Up to 35 type S characters. (Associated subvalue field).
+A maximum of four lines (subvalues) allowed.
+Input only allowed if corresponding SCHD.TYPE is "CH". */
+		SCHD_NARR : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=42.0, core=true, t24Name=SCHD.NARR)
+	}
+	PD_PAYMENT_DUE__REPAYMENT_REF
+	{
+		/* Allows any reference number or narrative to be input for informational purposes.
+This is a multivalue field.
+Validation Rules
+Up to 35 alphanumeric type A characters. (Multivalue field). */
+		REPAYMENT_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=48.0, core=true, t24Name=REPAYMENT.REF)
+	}
+	PD_PAYMENT_DUE__CHARGE_TYPE
+	{
+		/* Defines the type of charge which is to be taken on the amount being repaid by the customer.
+The charge must be an existing entry on the FT.CHARGE.TYPE table or on the FT.COMMISSION.TYPE TABLE.
+If any codes are input on the PD.PARAMETER record in field DEFAULT.CHARGES then these code/s will be defaulted into this field, though it is possible to override these defaults by deleting them.
+This field is part of an associated multivalue set.
+Validation Rules
+1-11 alphanumeric type CHG characters - Optional input. (Associated multivalue field).
+Input mandatory if corresponding field CHARGE.AMT present.
+Must be a valid entry on either the FT.CHARGE.TYPE table or on the FT.COMMISSION.TYPE table. */
+		CHARGE_TYPE : T24BusinessTypes:CHG
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=52.0, core=true, t24Name=CHARGE.TYPE, typeModifiers="CHGCOM")
+		/* Specifies the amount of charge to be taken on the repayment.
+This amount will be automatically be calculated if the corresponding charge code is present in the field CHARGE.TYPE based on the repayment amount. It is possible to override this calculated value with one of the user's choice.
+This charge will be taken in the currency of the PD contract.
+This field is part of an associated multivalue set.
+Validation Rules
+1-19 numeric type AMT characters - Optional input. (Associated multivalue field).
+Input mandatory if corresponding field CHARGE.TYPE present. */
+		CHARGE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=53.0, core=true, t24Name=CHARGE.AMT, typeModifiers="3D")
+	}
+	PD_PAYMENT_DUE__CHARGE_TAX_CODE
+	{
+		/* Specifies the tax code to be used to levy any tax on the amount being charged on the repayment.
+This field is automatically updated by the system if the corresponding charge code has the field TAX.CODE furnished on either the FT.CHARGE.TYPE or FT.COMMISSION.TYPE file.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 2 numeric characters. (Associated multivalue field).
+This field is system generated.
+Noinput field. */
+		CHARGE_TAX_CODE -> ST_ChargeConfig:TAX
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=54.0, core=true, t24Name=CHARGE.TAX.CODE)
+		/* Specifies the amount of tax levied on the charge taken on the repayment.
+This field is generated automatically by the system.
+This amount is held in the currency of the PD contract.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated multivalue field).
+Noinput field. */
+		CHARGE_TAX_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=55.0, core=true, t24Name=CHARGE.TAX.AMT, typeModifiers="3D")
+		/* Specifies the amount of tax, in the local currency, levied on the charge taken on the repayment.
+This field is automatically generated by the system.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated multivalue field).
+Noinput field. */
+		CHARGE_TAX_LCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=56.0, core=true, t24Name=CHARGE.TAX.LCY, typeModifiers="USDD")
+		/* Specifies the exchange rate used in the conversion of the tax amount to it's local currency equivalent.
+This field is automatically generated by the system, though only if the currency of the PD contract is different to the local currency.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 11 numeric characters plus a decimal point. (Associated multivalue field).
+Noinput field. */
+		CHARGE_TAX_XRTE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=57.0, core=true, t24Name=CHARGE.TAX.XRTE)
+	}
+	PD_PAYMENT_DUE__REPAY_TYPE
+	{
+		/* Indicates the type of payment which is being repaid.
+This field is automatically generated by the system when a repayment is made.
+The types are defaulted by the system according to the hierarchy defined on the PD.PARAMETER file in field REPAYMENT.ORDER.
+This field is part of an associated multivalue set.
+Validation Rules
+2-12 alphanumeric type A characters. (Associated subvalue field).
+Must be a valid entry on the PD.AMOUNT.TYPE file.
+Noinput field. */
+		REPAY_TYPE -> PD_Config:PD_AMOUNT_TYPE
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=58.0, core=true, businessType=A, t24Name=REPAY.TYPE, mvSvExpansionAccess=NOMODIFY)
+		/* Specifies the amount being repaid against the payment type defined in the corresponding REPAY.TYPE field. It is possible to override this calculated value with one of the user's choice.
+This amount will be taken in the currency of the PD contract.
+This field is part of an associated multivalue set.
+Validation Rules
+1-19 numeric type AMT characters - Optional input. (Associated multivalue field).
+Input cannot be greater than what is owed. */
+		REPAY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=59.0, core=true, t24Name=REPAY.AMT, typeModifiers="3D", isValidateOnChange=true)
+		/* Indicates whether the amount in the corresponding field REPAY.AMT is the amount defaulted by the system or if it has been input by the user.
+This field is set to "Y" when the amount is defaulted by the system, but if the amount is input by the user then the system will change this field to "N".
+This field is part of an associated multivalue set.
+Validation Rules
+1 alphabetical character - "N" or "Y". (Associated multivalue field).
+Noinput field. */
+		REPAY_DEFAULT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=60.0, core=true, t24Name=REPAY.DEFAULT)
+		/* Specifies the tax code to be used to levy any tax on the amount being repaid.
+This field is automatically updated by the system if the corresponding repayment type has the field TAX.CODE furnished on the PD.AMOUNT.TYPE file.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 2 numeric characters. (Associated multivalue field).
+This field is system generated.
+Noinput field. */
+		REPAY_TAX_CODE -> ST_ChargeConfig:TAX
+			@t24:i (align=R, inputBehaviour=N, maxLength=2, sysNumber=61.0, core=true, t24Name=REPAY.TAX.CODE)
+		/* Specifies the amount of tax levied on the repayment.
+This field is generated automatically by the system.
+This amount is held in the currency of the PD contract.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated multivalue field).
+Noinput field. */
+		REPAY_TAX_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=62.0, core=true, t24Name=REPAY.TAX.AMT, typeModifiers="3D")
+		/* Specifies the amount of tax, in the local currency, levied on the repayment.
+This field is automatically generated by the system.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 19 numeric type AMT characters. (Associated multivalue field).
+Noinput field. */
+		REPAY_TAX_LCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=63.0, core=true, t24Name=REPAY.TAX.LCY, typeModifiers="USDD")
+		/* Specifies the exchange rate used in the conversion of the tax amount to it's local currency equivalent.
+This field is automatically generated by the system, though only if the currency of the PD contract is different to the local currency.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 11 numeric characters plus a decimal point. (Associated multivalue field).
+Noinput field. */
+		REPAY_TAX_XRATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=64.0, core=true, t24Name=REPAY.TAX.XRATE)
+		REPAY_DATE -> byValue PD_Contract:PD_PAYMENT_DUE__REPAY_TYPE__REPAY_DATE *
+	}
+	PD_PAYMENT_DUE__REPAY_TYPE__REPAY_DATE
+	{
+		/* If the REPAYMENT.METHOD field on the relevant PD.PARAMETER record indicates that repayments are to be made by date order, as opposed to amount type irrespective of date, then the amount allocated to the associated type will be subdivided by date.
+The associated sub valued fields RD.AMT to RD.TAX.LCY will contain the actual amounts allocated to each due date.
+For example if there are two outstanding  principal amounts being repaid then the information will be displayed as follows.
+58.1 PD.REPAY.TYPE...... PR 59.1 PD.REPAY.AMT........ 1,000.00
+65.1.1 PD.REPAY.DATE..01 JAN 1999 66.1.1 PD.RD.AMT........... 500.00 65.1.2 PD.REPAY.DATE..01 FEB 1999 66.1.2 PD.RD.AMT........... 500.00
+Validation Rules
+No Input field.  Part of the Sub valued field association REPAY.DATE TO RD.TAX.LCCY.  Standard T24 Date field. */
+		REPAY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=65.0, core=true, t24Name=REPAY.DATE)
+		/* If the REPAYMENT.METHOD field on the relevant PD.PARAMETER record indicates that repayments are to be made by date order, as opposed to amount type irrespective of date, then the amount allocated to the associated type will be subdivided by date.
+The associated sub valued fields RD.AMT to RD.TAX.LCY will contain the actual amounts allocated to each due date.
+This field will contain the repayment amount allocated to each payment date.
+Validation Rules
+No Input field.  Part of the sub valued assocation of REPAY.DATE to RD.TAX.LCCY.  Standard T24 amount field. */
+		RD_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=66.0, core=true, t24Name=RD.AMT, typeModifiers="3D")
+		/* If the REPAYMENT.METHOD field on the relevant PD.PARAMETER record indicates that repayments are to be made by date order, as opposed to amount type irrespective of date, then the amount allocated to the associated type will be subdivided by date.
+ThIs field  will contain the amount of tax (if any)  allocated to each repayment date.
+Validation Rules
+No Input.  Part of the sub valued association REPAY.DATE to RD.TAX.LCY.  Stabdard T24 amount field. */
+		RD_TAX : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=67.0, core=true, t24Name=RD.TAX, typeModifiers="3D")
+		/* If the REPAYMENT.METHOD field on the relevant PD.PARAMETER record indicates that repayments are to be made by date order, as opposed to amount type irrespective of date, then the amount allocated to the associated type will be subdivided by date.
+ThIs field  will contain the local currency equivalent amount of tax (if any)  allocated to each repayment date.
+Validation Rules
+No Input.  Part of the sub valued assocation REPAY.DATE to RD.TAX.LCY */
+		RD_TAX_LCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=68.0, core=true, t24Name=RD.TAX.LCY, typeModifiers="USDD")
+	}
+	PD_PAYMENT_DUE__NOTES
+	{
+		/* Details any notes made by the user for informational purposes.
+This is a multivalue field.
+Validation Rules
+Up to 35 alphanumeric type ANY characters. (Multivalue field).
+A maximum of four lines are allowed. */
+		NOTES : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=73.0, core=true, t24Name=NOTES, isTextarea=true)
+	}
+	PD_PAYMENT_DUE__MESSAGE_TYPE
+	{
+		/* Confirms that the contract details have been passed over to the Delivery system for onward communication to the counterparty.
+This field is defaulted to the Delivery message ID (DE.MESSAGE) of the message sent to the Delivery system.
+This field is part of an associated multivalue set.
+Validation Rules
+Up to 4 numeric characters. (Associated multivalue field).
+Noinput field. */
+		MESSAGE_TYPE -> DE_Config:DE_MESSAGE
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=75.0, core=true, t24Name=MESSAGE.TYPE)
+		/* Identifies the date that the associated Delivery message was produced.
+This field is part of an associated multivalue set.
+Validation Rules
+11 type D characters - standard date format. (Associated multivalue field).
+Noinput field. */
+		MESSAGE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=76.0, core=true, t24Name=MESSAGE.DATE)
+		/* Identifies the ID of the delivery reference.
+The Delivery system acknowledges receipt by returning the ID of the Delivery reference that has been generated for the message.
+The ID takes the following form :
+D19960103-392226
+where "D" signifies a delivered message (as opposed to "R" for a message received), "1996" the year, "01" the month, "03" the day in the month, and the code "392226" is the number of hundreds of seconds since midnight on that day.
+This field is part of an associated multivalue set.
+Validation Rules
+17 alphanumeric characters. (Associated multivalue field).
+Must be a valid entry on the DE.O.HEADER file.
+Noinput field. */
+		DELIVERY_REF : T24BusinessTypes:AA
+			@t24:i (align=L, inputBehaviour=N, maxLength=17, sysNumber=77.0, core=true, t24Name=DELIVERY.REF, mask="L#########-##############")
+	}
+	PD_PAYMENT_DUE__INSTAL_DATE
+	{
+		/* This field is  associated with INSTAL.AMT and holds the date on which the installment amount is due . Rollover of payment will happen   based on these fields
+Validation rules
+
+System Maintained NOINPUT field */
+		INSTAL_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=99.0, core=true, t24Name=INSTAL.DATE)
+		/* This field is  associated with INSTAL.DATE and holds the  the installment amount is due on INSTAL.DATE . Rollover of payment will happen   based on these fields
+Validation rules
+
+System Maintained NOINPUT field */
+		INSTAL_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=100.0, core=true, t24Name=INSTAL.AMT)
+	}
+	PD_PAYMENT_DUE__STMT_NO
+	{
+		/* A number generated automatically by the system which identifies either a statement entry or a category entry in respect of the PD contract.
+Whenever an amendment to, or input of, a contract requires an accounting entry to be raised, this field will record the IDs of the entries generated. The IDs to accounting entries, both STMT.ENTRYs and CATEG.ENTRYs, consist of a date-time stamp and a sequence number. All entries raised by a particular input/transaction will have the same date-time stamp but different sequence numbers.
+This field has three multivalues, the first contains the base date-time stamp which is common to all entries. The second contains the sequence numbers of the STMT.ENTRYs raised and the third the sequence numbers of any CATEG.ENTRYs.
+Whenever a contract is viewed using the (S)ee function this field will show the entry IDs that were raised by that version of the contract only. If the amendment made on a particular version did not raise any entries, then the field will be blank. Any end of day processing which raises accounting entries will also update this field and write a history record.
+This is a multivalue field.
+Validation Rules
+Up to 29 alphanumeric characters. (Multivalue field).
+Noinput field. */
+		STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=29, sysNumber=104.0, core=true, t24Name=STMT.NO)
+	}
+	PD_PAYMENT_DUE__OVERRIDE
+	{
+		/* Contains all the Override messages which the user agreed to during Input.
+During the validation of a contract, the system may provide the user with a series of screen override messages to indicate an anomaly, for instance, the repayment date is not a working day.
+In the event that the user confirms the Override, the full text of the actual Override Message will be stored, for reference purposes only, in this multivalue field.
+In the example given above when the deal is validated a warning bell will sound and a message will appear, at the foot of the screen, which reads:
+"REPAYMENT DATE IS NOT A WORKING DAY"
+This will draw the user's attention to the account entered, which may be a mistake and can then be corrected, alternatively the input may be correct in which case the user must confirm the input.
+If, subsequently, the contract record is either fully displayed or printed then all override messages raised during the input of that version of the contract will be displayed.
+This is a multivalue field.
+Validation Rules
+Up to 35 alphanumeric type A characters. (Multivalue field).
+Noinput field. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=105.0, core=true, t24Name=OVERRIDE)
+	}
+	PD_PAYMENT_DUE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=108.0, core=true, t24Name=INPUTTER)
+	}
+	PD_PAYMENT_DUE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=109.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	PD_PAYMENT_DUE__OPERATION : mml:string
+		MAINTENANCE=MAINTENANCE
+		ADJUSTMENT=ADJUSTMENT
+		REPAYMENT=REPAYMENT
+		SCHEDULE=SCHEDULE
+	PD_PAYMENT_DUE__PAYMENT_DTE_DUE__REPAID_STATUS : mml:string
+		PRE=PRE
+		GRA=GRA
+		PDO=PDO
+		NAB=NAB
+		RPD=RPD
+		FWOF=FWOF
+		WOF=WOF
+	PD_PAYMENT_DUE__SCHD_TYPE__SCHD_ADV_SENT : mml:string
+		YES=YES
+		CAN=CAN
+	PD_PAYMENT_DUE__NET_CUST_ENTRIES : mml:string
+		NO=NO
+		YES=YES
+	PD_PAYMENT_DUE__STATUS : mml:string
+		CUR=CUR
+		GRA=GRA
+		PDO=PDO
+		NAB=NAB
+		RPD=RPD
+		WOF=WOF
+		FWOF=FWOF
+		MAT=MAT
+	PD_PAYMENT_DUE__ADVICE_CHGS : mml:string
+		NO=NO
+		YES=YES
+	PD_PAYMENT_DUE__PREVENT_RETRY : mml:string
+		YES=YES
+	PD_PAYMENT_DUE__MANUAL_NAB : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PAYMENT_DUE__AUTO_SPREAD : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PAYMENT_DUE__MOVE_TO_HIS : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PAYMENT_DUE__PROVISION_METHOD : mml:string
+		AUTO=AUTO
+		MANUAL=MANUAL
+	PD_PAYMENT_DUE__WAIVE_GRA_PE : mml:string
+		YES=YES
+		NULL=NULL
+	PD_PAYMENT_DUE__WAIVE_GRA_PS : mml:string
+		YES=YES
+		NULL=NULL
+}

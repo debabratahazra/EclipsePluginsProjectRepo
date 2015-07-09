@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "http://docs.oasis-open.org/dita/dtd/concept.dtd">
+<concept id="devguide_programmersguide_frameworks_modelvalidation_overview">
+	<title>Model Validation Overview</title>
+	<prolog>
+		<author type="creator">Kai Kreuzer</author>
+
+		<metadata>
+			<keywords>
+				<indexterm>validation</indexterm>
+				<indexterm>triggers</indexterm>
+			</keywords>
+		</metadata>
+	</prolog>
+	<conbody>
+		<section>
+			<title>Overview</title>
+			<p>
+				The Design Studio model validation is based on the EMF Validation Framework.
+				There are helper classes that can be shared between all model types / designers and the validation upon resource 
+				changes on the file system is automatically taken care of for models in Design Studio projects.
+			</p>
+			<p>
+				You can find all relevant classes in the plugins <codeph>workbench-validation</codeph> and <codeph>workbench-validation</codeph>.
+				For each model type that should participate in the validation, there is a <codeph>&lt;modeltype&gt;-validation</codeph> plugin,
+				which has all relevant code. These plugins should be designed in a way that they can be added to Design Studio as optional plugins,
+				i.e. no hard dependencies should exist on these plugins from any non-validation plugin.
+			</p> 
+		</section>
+		<section>
+			<title>Enablement of Model Validation for a Specific Model Type</title>
+			<p>
+				The extension point <codeph>com.odcgroup.workbench.core.model</codeph> defines the boolean attribute "validation" for registered
+				model types. This needs to be set to true in order to have these models being regarded during model validation. The default value
+				of this attribute is "true", so if it is omitted, validation will be automatically activated.
+			</p>
+		</section>
+		<section>
+			<title>General Triggers for Model Validation</title>
+			<p>
+				The EMF Validation Framework distinguishes between two validation modes: Live and Batch.
+				The batch mode is usually used for the validation of multiple resources (files) upon changes on the file system (e.g. after a save in
+				an editor), whereas the live mode should provide quick user feedback while working with a designer. Therefore the live validation
+				is usually executed on single EObject instances and might cause EMF transactions to be cancelled if the validation fails. For each
+				constraint it can be defined whether it is applicable for live or batch mode.
+			</p>
+			<p>
+				The plugin <codeph>workbench-validation</codeph> defines a builder with the id <codeph>com.odcgroup.workbench.tap.validation.builder</codeph>
+				which executes batch constraints. It is implemented as an incremental builder, so it reacts on single resource/file changes as
+				well as on full build requests (e.g. after a project "clean"). This builder adds markers to the problem view for all problems that were
+				found during the validation. Please note that this builder validates live constraints as well as batch constraints.
+			</p>
+			<p>
+				The plugin <codeph>workbench-validation-ui</codeph> registers a "Validate" context menu with the DS Navigator, which is added to all
+				model projects, folders, packages and resources. When this action is executed, the model validation is executed for the selected trees (only).
+			</p>
+			<p>
+				There is no general trigger for live validation constraints. If a designer wants to make use of live validation, it needs to
+				add a trigger itself, see the tutorial section on how to do this.
+			</p>
+		</section>			
+	</conbody>
+
+</concept>

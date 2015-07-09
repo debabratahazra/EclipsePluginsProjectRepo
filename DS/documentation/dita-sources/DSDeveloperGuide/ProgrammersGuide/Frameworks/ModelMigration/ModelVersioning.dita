@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "http://docs.oasis-open.org/dita/dtd/concept.dtd">
+<concept id="devguide_programmersguide_frameworks_modelmigration_overview">
+	<title>Model Versioning</title>
+	<prolog>
+		<author type="creator">Kai Kreuzer</author>
+
+		<metadata>
+			<keywords>
+				<indexterm>migration</indexterm>
+			</keywords>
+		</metadata>
+	</prolog>
+	<conbody>
+		<section>
+			<title>Introduction</title>
+			<p>
+				Prior to Design Studio 1.40.0 there was no (programmatic) way to tell with which Design Studio version a model had been edited. All meta-model evolutions were done
+				backward compatible or temporary context menus were offered to the user for updating old models to be compatible with the latest meta-model version.
+			</p> 
+			<p>
+				Design Studio 1.40.0 then introduced a <i>metamodelVersion</i> attribute on all models. This allows Design Studio now to determine whether this model is compatible with it
+				or not.
+			</p>
+		</section>
+		<section>
+			<title>Implementation</title>
+			<p>
+				The introduction of the metamodel version support has been implemented in an almost non-invasive way, i.e. with least possible changes to the IOfsModelResource interface and
+				other classes in the <codeph>workbench-core</codeph> plugin.
+			</p>
+			<p>
+				For this, the Eclipse adapter concept is used; a model type can supplied with meta-model version support by adapting it to the new interface 
+				<codeph>com.odcgroup.workbench.core.IMetaModelVersioned</codeph>. 
+			</p>
+			<p>
+				Design Studio comes with a default implementation of this interface; this implementation is provided by the <codeph>MigrationAdapterFactory</codeph> for all
+				models for which a <codeph>MetaModelVersionHandler</codeph> is registered using the extension point <codeph>com.odcgroup.workbench.migration.metamodelversioned</codeph>.
+			</p>
+			<p>
+				The default implementation of the <codeph>MetaModelVersionHandler</codeph> has the following strategy to obtain the meta-model version of a model resource:
+				The first 1024 bytes of the resource are loaded and a SAX parser tries to parse the root xml element and read the metamodelVersion attribute from it. If no root
+				element can be found, the next 1024 bytes are read and so on and so forth. If no metamodelVersion attribute can be found , the version "1.30.6" is returned, assuming
+				that the file is older than version 1.40.0 and thus in general compatible with version 1.30.6. In order to determine, if a model needs to be migrated, it checks
+				whether any migration logic has been registered for this model type for the relevant version interval. If no migration logic is available, the model is regarded as 
+				up-to-date.
+			</p>
+			<p>
+				The following image gives an overview over the relevant classes and interfaces:
+			</p>
+			<p>
+				<image href="images/migrationframework2.jpg" />
+			</p>
+		</section>
+	</conbody>
+
+</concept>

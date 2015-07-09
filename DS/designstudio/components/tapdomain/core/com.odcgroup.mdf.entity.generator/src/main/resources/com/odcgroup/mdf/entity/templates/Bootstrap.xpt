@@ -1,0 +1,68 @@
+«IMPORT com::odcgroup::mdf::metamodel»
+
+«EXTENSION com::odcgroup::mdf::entity::helper::MdfEntityHelper» 
+
+«DEFINE Bootstrap FOR Collection[MdfDomain]»
+	«EXPAND Bootstrap FOREACH this»
+«ENDDEFINE»
+
+«DEFINE Bootstrap FOR MdfDomain»
+
+«FILE getBootstrapFileName() API»
+/*
+ * This file has been automatically generated, DO NOT MODIFY!
+ */
+package «getJavaPackage()»;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.odcgroup.mdf.MdfCoreRepository;
+import com.odcgroup.mdf.metamodel.MdfClass;
+import com.odcgroup.mdf.metamodel.MdfDataset;
+import com.odcgroup.mdf.metamodel.MdfDomain;
+import com.odcgroup.mdf.utils.Slf4jMessageHandler;
+
+public final class «name»Model extends MdfCoreRepository {
+
+	private static final Logger _LOGGER = LoggerFactory.getLogger(MdfCoreRepository.class);
+	
+	public static final MdfDomain DOMAIN;
+	«EXPAND ClassDeclaration FOREACH (List[MdfClass])this.classes»
+	«EXPAND DatasetDeclaration FOREACH (List[MdfDataset])this.datasets»
+
+	static {
+		try {
+			DOMAIN = loadDomain("«name»", 
+				«name»Model.class.getClassLoader(), 
+				new Slf4jMessageHandler(_LOGGER));
+
+				«EXPAND ClassInitialization FOREACH (List[MdfClass])this.classes»
+				«EXPAND DatasetInitialization FOREACH (List[MdfDataset])this.datasets»
+		} catch (Exception e) {
+			_LOGGER.error("Could not load domain model «name»", e);
+			throw new RuntimeException("Could not load domain model «name»", e);
+		}
+	}
+	
+	// private constructor
+	private «name»Model() { }
+}
+«ENDFILE»
+«ENDDEFINE»
+
+«DEFINE ClassDeclaration FOR MdfClass»
+	public static final MdfClass «getEntityModelInstanceName()»;
+«ENDDEFINE»
+
+«DEFINE ClassInitialization FOR MdfClass»
+	«getEntityModelInstanceName()» = (MdfClass)DOMAIN.getEntity("«name»");
+«ENDDEFINE»
+
+«DEFINE DatasetDeclaration FOR MdfDataset»
+	public static final MdfDataset «getEntityModelInstanceName()»;
+«ENDDEFINE»
+
+«DEFINE DatasetInitialization FOR MdfDataset»
+	«getEntityModelInstanceName()» = (MdfDataset)DOMAIN.getEntity("«name»");
+«ENDDEFINE»

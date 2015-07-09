@@ -1,0 +1,493 @@
+domain T24 {
+	use common.CoreCommands.*
+	use common.HTTPEvents.*
+	use common.ODataCommands.*
+	use common.T24Commands.*
+	use common.T24Events.*
+	use common.NextState.*
+	use common.Errors.*
+	use T24.ContextEnquiry.*
+	rim verAcEnrichment_Create {
+		command T24FieldMetadata
+		command NoopGET
+		command GETEntities
+		command GetLiveEntity
+		command GetIauthEntity
+		command GetIauthEntities
+		command CreateEntity
+		command InputEntity
+		command HoldEntity
+		command AuthoriseEntity
+		command GetChangedValues
+		command ReviewEntity
+		command ReverseEntity
+		command ValidateEntity
+		command RestoreEntity
+		command DeleteEntity
+		command CopyEntity
+		command PasteEntity
+		command CreateDEPreview
+		command GetDealSlipEntities
+		command T24Enrichment
+		command CheckAutoIdSupport
+		command T24NextState
+		basepath: "/{companyid}"
+	
+		resource verAcEnrichment_Create_errorHandler {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ GET : NoopGET ]
+			relations [ "http://temenostech.temenos.com/rels/error" ]
+			path: "/verAcEnrichment_Creates('{id}')/error"
+			POST +-> verAcEnrichment_Create_metadata {
+				title: "metadata"
+			}
+		}
+	
+		resource verAcEnrichment_Creates {
+			type: collection
+			entity: verAcEnrichment_Create
+			commands [ GET : GETEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			path: "/verAcEnrichment_Creates()"
+			GET *-> verAcEnrichment_Create {
+				parameters [ id = "{IdEnri}" ]
+			}
+			GET *-> verAcEnrichment_Create_see {
+				parameters [ id = "{IdEnri}" ]
+				title: "see record"
+			}
+			POST -> verAcEnrichment_Create_new {
+				title: "create new deal"
+				condition: OK(verAcEnrichment_Create_autoId)
+			}
+			POST -> verAcEnrichment_Create_populate {
+				title: "populate existing deal"
+			}
+			PUT *-> verAcEnrichment_Create_input {
+				parameters [ id = "{IdEnri}" ]
+				title: "input deal"
+			}
+			POST *-> verAcEnrichment_Create_audit {
+				parameters [ id = "{IdEnri}" ]
+				title: "audit deal"
+			}
+		}
+	
+		resource verAcEnrichment_Create {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ GET : GetLiveEntity ]
+			path: "/verAcEnrichment_Creates('{id}')"
+			POST +-> verAcEnrichment_Create_metadata {
+				title: "metadata"
+			}
+			GET --> verAcEnrichment_Create_IAuth {
+				parameters [ id = "{IdEnri}" ]
+				condition: OK(verAcEnrichment_Create_IAuth)
+			}
+			POST -> verAcEnrichment_Create_validate {
+				parameters [ id = "{IdEnri}" ]
+				title: "validate deal"
+			}
+			PUT -> verAcEnrichment_Create_input {
+				parameters [ id = "{IdEnri}" ]
+				title: "input deal"
+			}
+			POST -> verAcEnrichment_Create_audit {
+				parameters [ id = "{IdEnri}" ]
+				title: "audit deal"
+			}
+			POST -> verAcEnrichment_Create_reverse {
+				parameters [ id = "{IdEnri}" ]
+				title: "reverse deal"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verAcEnrichment_Create" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verAcEnrichment_Create_see {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ GET : GetLiveEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verAcEnrichment_Create","http://temenostech.temenos.com/rels/see" ]
+			path: "/verAcEnrichment_Creates('{id}')/see"
+			POST +-> verAcEnrichment_Create_metadata {
+				title: "metadata"
+			}
+		}
+	
+		resource verAcEnrichment_Create_IAuth_see {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ GET : GetIauthEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verAcEnrichment_Create_IAuth","http://temenostech.temenos.com/rels/see" ]
+			path: "/verAcEnrichment_Creates_IAuth('{id}')/see"
+		}
+	
+		resource verAcEnrichment_Create_ContextEnquiries {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ GET : NoopGET ]
+			path: "/verAcEnrichment_Create/ContextEnquiries"
+			GET -> T24.enqlistAcEnrichment.enqlistAcEnrichments {
+				parameters [ param = "list" ]
+				title: "List live deals"
+			}
+			GET -> T24.enqlistAcEnrichment.enqlistAcEnrichmentsUnauth {
+				parameters [ param = "list" ]
+				title: "List unauthorised deals"
+			}
+			GET -> T24.enqlistAcEnrichment.enqlistAcEnrichments {
+				title: "Search live deals"
+			}
+			GET -> T24.enqlistAcEnrichment.enqlistAcEnrichmentsUnauth {
+				title: "Search unauthorised deals"
+			}
+			GET +-> ContextEnquiryList {
+				parameters [ entity = "verAcEnrichment_Create" ]
+				title: "Other context Enquiries"
+			}
+		}
+	
+		resource verAcEnrichment_Create_metadata {
+			type: collection
+			entity: T24FieldMetadata
+			commands [ POST : T24FieldMetadata ]
+			relations [ "http://temenostech.temenos.com/rels/metadata" ]
+			path: "/verAcEnrichment_Creates()/metadata"
+		}
+	
+		resource verAcEnrichment_Creates_IAuth {
+			type: collection
+			entity: verAcEnrichment_Create
+			commands [ GET : GetIauthEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			path: "/verAcEnrichment_Creates_IAuth()"
+			GET *-> verAcEnrichment_Create_IAuth {
+				parameters [ id = "{IdEnri}" ]
+			}
+			POST -> verAcEnrichment_Create_new {
+				title: "create new deal"
+				condition: OK(verAcEnrichment_Create_autoId)
+			}
+			POST -> verAcEnrichment_Create_populate {
+				title: "populate existing deal"
+			}
+			PUT *-> verAcEnrichment_Create_input {
+				parameters [ id = "{IdEnri}" ]
+				title: "input deal"
+			}
+			DELETE *-> verAcEnrichment_Create_delete {
+				parameters [ id = "{IdEnri}" ]
+				title: "delete"
+			}
+			PUT *-> verAcEnrichment_Create_authorise {
+				parameters [ id = "{IdEnri}" ]
+				title: "authorise deal"
+			}
+		}
+	
+		resource verAcEnrichment_Create_new {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ POST : CreateEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verAcEnrichment_Create","http://temenostech.temenos.com/rels/new" ]
+			path: "/verAcEnrichment_Creates()/new"
+			POST +-> verAcEnrichment_Create_metadata {
+				title: "metadata"
+			}
+			POST -> verAcEnrichment_Create_validate {
+				parameters [ id = "{IdEnri}" ]
+				title: "validate deal"
+			}
+			PUT -> verAcEnrichment_Create_input {
+				parameters [ id = "{IdEnri}" ]
+				title: "input deal"
+			}
+			POST -> verAcEnrichment_Create_hold {
+				parameters [ id = "{IdEnri}" ]
+				title: "hold deal"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verAcEnrichment_Create" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verAcEnrichment_Create_input {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ PUT : InputEntity, POST : InputEntity ]
+			relations [ "http://temenostech.temenos.com/rels/input" ]
+			path: "/verAcEnrichment_Creates('{id}')"
+			GET --> nextState {
+				condition: OK(nextState)
+			}
+			GET --> verAcEnrichment_Create_IAuth {
+				parameters [ id = "{IdEnri}" ]
+				condition: OK(verAcEnrichment_Create_IAuth)
+			}
+			GET --> verAcEnrichment_Create {
+				parameters [ id = "{IdEnri}" ]
+				condition: OK(verAcEnrichment_Create)
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verAcEnrichment_Create" ]
+				title: "Context Enquiries"
+			}
+			onerror --> T24.verAcEnrichment_Create.verAcEnrichment_Create_errorHandler
+		}
+	
+		resource verAcEnrichment_Create_hold {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ POST : HoldEntity ]
+			relations [ "http://temenostech.temenos.com/rels/hold" ]
+			path: "/verAcEnrichment_Creates('{id}')/hold"
+			PUT -> verAcEnrichment_Create_input {
+				parameters [ id = "{IdEnri}" ]
+				title: "input deal"
+			}
+			DELETE -> verAcEnrichment_Create_delete {
+				parameters [ id = "{IdEnri}" ]
+				title: "delete"
+			}
+		}
+	
+		resource verAcEnrichment_Create_authorise {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ PUT : AuthoriseEntity ]
+			relations [ "http://temenostech.temenos.com/rels/authorise" ]
+			path: "/verAcEnrichment_Creates('{id}')/authorise"
+			GET --> verAcEnrichment_Create_IAuth {
+				parameters [ id = "{IdEnri}" ]
+				condition: OK(verAcEnrichment_Create_IAuth)
+			}
+			GET --> verAcEnrichment_Create {
+				parameters [ id = "{IdEnri}" ]
+				condition: OK(verAcEnrichment_Create)
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verAcEnrichment_Create" ]
+				title: "Context Enquiries"
+			}
+			onerror --> T24.verAcEnrichment_Create.verAcEnrichment_Create_errorHandler
+		}
+	
+		resource verAcEnrichment_Create_changedValues {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ GET : GetChangedValues ]
+			relations [ "http://temenostech.temenos.com/rels/changedValues" ]
+			path: "/verAcEnrichment_Creates('{id}')/changedValues"
+		}
+
+		resource verAcEnrichment_Create_audit {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ POST : ReviewEntity ]
+			relations [ "http://temenostech.temenos.com/rels/review" ]
+			path: "/verAcEnrichment_Creates('{id}')/review"
+			GET -> verAcEnrichment_Create {
+				parameters [ id = "{IdEnri}" ]
+			}
+		}
+	
+		resource verAcEnrichment_Create_reverse {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ PUT : ReverseEntity ]
+			relations [ "http://temenostech.temenos.com/rels/reverse" ]
+			path: "/verAcEnrichment_Creates('{id}')/reverse"
+			GET --> verAcEnrichment_Create_IAuth {
+				parameters [ id = "{IdEnri}" ]
+				condition: OK(verAcEnrichment_Create_IAuth)
+			}
+			onerror --> T24.verAcEnrichment_Create.verAcEnrichment_Create_errorHandler
+		}
+	
+		resource verAcEnrichment_Create_validate {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ POST : ValidateEntity ]
+			relations [ "http://temenostech.temenos.com/rels/validate" ]
+			path: "/verAcEnrichment_Creates('{id}')/validate"
+			POST +-> verAcEnrichment_Create_metadata {
+				title: "metadata"
+			}
+			PUT -> verAcEnrichment_Create_input {
+				parameters [ id = "{IdEnri}" ]
+				title: "input deal"
+			}
+			POST -> verAcEnrichment_Create_hold {
+				parameters [ id = "{IdEnri}" ]
+				title: "hold deal"
+			}
+		}
+	
+		resource verAcEnrichment_Create_IAuth {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ GET : GetIauthEntity ]
+			path: "/verAcEnrichment_Creates_IAuth('{id}')"
+			POST +-> verAcEnrichment_Create_metadata {
+				title: "metadata"
+			}
+			GET +-> verAcEnrichment_Create_changedValues {
+				parameters [ id = "{IdEnri}" ]
+				title: "changed values"
+			}
+			POST -> verAcEnrichment_Create_validate {
+				parameters [ id = "{IdEnri}" ]
+				title: "validate deal"
+			}
+			PUT -> verAcEnrichment_Create_input {
+				parameters [ id = "{IdEnri}" ]
+				title: "input deal"
+			}
+			POST -> verAcEnrichment_Create_hold {
+				parameters [ id = "{IdEnri}" ]
+				title: "hold deal"
+			}
+			POST -> verAcEnrichment_Create_authorise {
+				parameters [ id = "{IdEnri}" ]
+				title: "authorise deal"
+			}
+			DELETE -> verAcEnrichment_Create_delete {
+				parameters [ id = "{IdEnri}" ]
+				title: "delete"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verAcEnrichment_Create" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verAcEnrichment_Create_delete {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ DELETE : DeleteEntity ]
+			relations [ "http://temenostech.temenos.com/rels/delete" ]
+			path: "/verAcEnrichment_Creates('{id}')/delete"
+		}
+	
+		resource verAcEnrichment_CreateEntry {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ GET : NoopGET ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verAcEnrichment_Create","http://temenostech.temenos.com/rels/contract" ]
+			path: "/verAcEnrichment_CreateEntry"
+			POST -> verAcEnrichment_Create_new {
+				title: "create new deal"
+				condition: OK(verAcEnrichment_Create_autoId)
+			}
+			POST -> verAcEnrichment_Create_populate {
+				title: "populate existing deal"
+			}
+			GET +-> verAcEnrichment_Create_see {
+				parameters [ id = "@" ]
+				title: "See transaction"
+			}
+			GET +-> verAcEnrichment_Create_IAuth_see {
+				parameters [ id = "@" ]
+				title: "GetIauthEntity"
+			}
+			GET +-> verAcEnrichment_Create_IAuth {
+				parameters [ id = "@" ]
+				title: "GetIauthEntity"
+			}
+			GET +-> verAcEnrichment_Create_ContextEnquiries {
+				title: "All context Enquiries"
+			}
+			POST -> verAcEnrichment_Create_copy {
+				title: "Copy deal"
+			}
+			POST -> verAcEnrichment_Create_paste {
+				title: "Paste deal"
+			}
+		}
+	
+		resource verAcEnrichment_Create_populate {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ POST : CreateEntity ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/verAcEnrichment_Create","http://temenostech.temenos.com/rels/populate" ]
+			path: "/verAcEnrichment_Creates()/populate"
+			POST -> verAcEnrichment_Create_validate {
+				parameters [ id = "{IdEnri}" ]
+				title: "validate deal"
+			}
+			POST -> verAcEnrichment_Create_input {
+				parameters [ id = "{IdEnri}" ]
+				title: "input deal"
+			}
+			DELETE -> verAcEnrichment_Create_delete {
+				parameters [ id = "{IdEnri}" ]
+				title: "delete"
+				condition: OK(verAcEnrichment_Create_IAuth)
+			}
+			POST -> verAcEnrichment_Create_metadata {
+				title: "metadata"
+			}
+			GET -> "T24.ContextEnquiry.ContextEnquiryList" {
+				parameters [ entity = "verAcEnrichment_Create" ]
+				title: "Context Enquiries"
+			}
+		}
+	
+		resource verAcEnrichment_Create_copy {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ POST : CopyEntity ]
+			relations [ "http://temenostech.temenos.com/rels/copy" ]
+			path: "/verAcEnrichment_Creates()/copy"
+		}
+	
+		resource verAcEnrichment_Create_paste {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ POST : PasteEntity ]
+			relations [ "http://temenostech.temenos.com/rels/paste" ]
+			path: "/verAcEnrichment_Creates()/paste"
+			POST +-> verAcEnrichment_Create_metadata {
+				title: "metadata"
+			}
+			POST -> verAcEnrichment_Create_validate {
+				parameters [ id = "{IdEnri}" ]
+				title: "validate deal"
+			}
+			PUT -> verAcEnrichment_Create_input {
+				parameters [ id = "{IdEnri}" ]
+				title: "input deal"
+			}
+			POST -> verAcEnrichment_Create_hold {
+				parameters [ id = "{IdEnri}" ]
+				title: "hold deal"
+			}
+		}
+	
+		resource verAcEnrichment_Creates_enrichment {
+			type: item
+			entity: Enrichment
+			commands [ GET : T24Enrichment {
+				properties [ entity = "verAcEnrichment_Create" ]
+				} ]
+			relations [ "http://temenostech.temenos.com/rels/enrichment" ]
+			path: "/verAcEnrichment_Creates()/enrichment"
+		}
+	
+		resource verAcEnrichment_Create_autoId {
+			type: item
+			entity: verAcEnrichment_Create
+			commands [ GET : CheckAutoIdSupport ]
+		}
+	
+	}
+	
+}

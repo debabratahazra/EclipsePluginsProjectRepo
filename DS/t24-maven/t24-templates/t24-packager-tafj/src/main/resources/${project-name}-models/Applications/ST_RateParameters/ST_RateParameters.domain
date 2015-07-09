@@ -1,0 +1,1330 @@
+# UTF-8
+# UTF-8
+/* Parameter Definition for Rates */
+Domain ST_RateParameters
+	@t24:i (module=ST)
+	@java:Package (value=com.temenos.t24.datamodel.st.st_rateparameters)
+namespace "http://www.temenos.com/t24/ST_RateParameters"
+metamodelVersion 1.30.6
+Classes {
+	/* This table allows various frequently used floating Rates, e.g. Base Rate, Prime Rate, Overnight Rate etc., to be defined separately for each Currency and stored in a central place where they can be accessed by T24 Applications as required.
+'Prime records' with the same Interest conditions can be linked directly to a Basic Interest ID in this table, rather than defining the Interest Rate details on each Transaction record.  For example, if the overdraft interest conditions for Currency Accounts are related to the base rate, each current Account or group of Accounts (when conditions are applicable at group level), should refer directly to the Basic Interest Rate ID defined in this table and not contain the value of the Rate itself.
+When a Rate change takes place, the User will then only need to update the Basic Interest Rate IDs defined in this table with the new Rate(s) and the date on which it is to become effective.  This will then automatically update all the Transaction records which are tied to each Interest ID.
+A Description of each Rate is held in the BASIC.RATE.TEXT table to allow the User to easily identify each one of the Basic Interest Rate table ID's. For this reason, a description is not included in the input parameters of this table.  The BASIC.RATE.TEXT table of Descriptions must be defined prior to creating this table.
+E.B.S. also provides a PERIODIC.INTEREST Rate table to cater for Transactions where the Interest Rate conditions may change on a pre-defined periodic basis, e.g. LIBOR, and also according to the current balance on the 'Prime Record'.  The linking of 'Prime Records' to a Basic Interest Rate ID or a Periodic Rate ID will depend on the conditions existing for various products within the bank. */
+	BASIC_INTEREST
+		@t24:i (t24Name=BASIC.INTEREST, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* This is the Basic Rate code, Currency and effective date by which the Basic Interest Rate can be identified.
+When Prime Records refer to a Basic interest Rate of this table, only the first part of the key (Basic rate code) will be entered in the Prime record.  The Currency will be taken directly from the Prime record.
+Validation Rules
+5-16 characters: a)   1-4 numeric characters Basic Rate code. b)   3 type SSS SWIFT characters, or 1 to 3 numeric characters      Currency code. c)   1-9 characters.  Standard Date Format.  Input of a), b) and c) must each be separated by a '.' if a numeric currency code is entered in b).  If a SWIFT code is entered these are not required. (Mandatory input for a and b.  The date part of the key will be defaulted to the Run date if it has not been entered.)
+Input a) must be the code of an existing Basic Rate Text record.
+Input b) must be the code of an existing Currency record.
+Input c) must contain a valid date. */
+		KEY -> ST_RateParameters:BASIC_INTEREST PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=0.0, core=true, t24Name=KEY, mask="R#### ### DDDD DD  DD")
+		/* Identifies the Interest Rate.
+This is the Interest Rate that is linked via the Basic Interest Rate ID to 'Prime Records' from the effective date until new instructions are input.
+Validation Rules
+1-10 type R (Standard Rate Format, up to 6 integer and 9 decimal) numeric characters. (Mandatory input)
+Not more than 6 integers may be entered.
+Not more than 9 decimals may be entered. */
+		INTEREST_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Interest Rate")
+			@i18n:Tooltip (en="Indicates interest rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=INTEREST.RATE)
+		/* Negative rate of interest that can be used in applications (at present the applications that can use negative interest rate had been restricted to SW, MM and DX applications and conditional use with credit interest in IC) is given in this field.
+Validation Rules
+
+Standard rate format with a minus sign
+Optional input */
+		NEG_INT_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Neg Int Rate")
+			@i18n:Tooltip (en="Holds the negative rate of interest ")
+			@t24:i (align=R, inputBehaviour=I, maxLength=12, sysNumber=2.0, core=true, t24Name=NEG.INT.RATE, typeModifiers=-)
+		/* Validation Rules */
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=3.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=4.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_RateParameters:BASIC_INTEREST__INPUTTER *
+		DATE_TIME -> byValue ST_RateParameters:BASIC_INTEREST__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=7.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=8.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=10.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=11.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		BCCY : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=BCCY, genOperation="@ID[(LEN(@ID)-10),3]")
+	}
+	BASIC_INTEREST__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=5.0, core=true, t24Name=INPUTTER)
+	}
+	BASIC_INTEREST__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=6.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	BASIC_INTEREST_DATE
+		@t24:i (t24Name=BASIC.INTEREST.DATE, level=I, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		BASIC_KEY -> ST_RateParameters:BASIC_INTEREST_DATE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=BASIC.KEY)
+		EFFECTIVE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Effective Date")
+			@i18n:Tooltip (en="Effective date of the transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=EFFECTIVE.DATE)
+	}
+	BASIC_RATE_CHANGE
+		@t24:i (t24Name=BASIC.RATE.CHANGE, level=I, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 date field.
+Validation Rules
+Mandatory input.
+A maximum of 8 characters may be entered. */
+		PROCESS_DATE -> ST_RateParameters:BASIC_RATE_CHANGE PK required
+			@i18n:Label (en="Process Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=0.0, core=true, businessType=D, t24Name=PROCESS.DATE)
+		CODE_AND_CCY -> byValue ST_RateParameters:BASIC_RATE_CHANGE__CODE_AND_CCY *
+	}
+	BASIC_RATE_CHANGE__CODE_AND_CCY
+	{
+		/* Fields CODE.AND.CCY to OLD.RATE form a related multi value set. Standard T24 numeric field.
+Validation Rules
+Mandatory input.
+A maximum of 7 characters may be entered. */
+		CODE_AND_CCY : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=7, sysNumber=1.0, core=true, t24Name=CODE.AND.CCY, mask="R#### ###")
+		DATE -> byValue ST_RateParameters:BASIC_RATE_CHANGE__CODE_AND_CCY__DATE *
+	}
+	BASIC_RATE_CHANGE__CODE_AND_CCY__DATE
+	{
+		/* Fields CODE.AND.CCY to OLD.RATE form a related multi value set. Standard T24 date field.
+Validation Rules
+Mandatory input.
+A maximum of 11 characters may be entered. */
+		DATE : T24BusinessTypes:D required
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=DATE, mask="DDDD DD DD")
+		/* Fields CODE.AND.CCY to OLD.RATE form a related multi value set. Standard T24 numeric field.
+Validation Rules
+Mandatory input.
+A maximum of 11 characters may be entered. */
+		NEW_RATE : mml:Integer required
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=NEW.RATE)
+		/* Fields CODE.AND.CCY to OLD.RATE form a related multi value set. Standard T24 rate field.
+Validation Rules
+Mandatory input.
+A maximum of 11 characters may be entered. */
+		OLD_RATE : T24BusinessTypes:R required
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=OLD.RATE, typeModifiers=-)
+	}
+	/* This table defines Descriptions of the Basic Interest Rate table IDs to enable the user to identify each one of them easily.
+Each Description must be defined prior to creating Rates records for the corresponding ID in the BASIC.INTEREST rate table and will be used as the enrichment to the corresponding ID when it is displayed or printed during T24 processing.
+Up to 999 descriptions may be defined. */
+	BASIC_RATE_TEXT
+		@t24:i (t24Name=BASIC.RATE.TEXT, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This is the numeric code by which the Basic Rate Text can be identified.
+This ID forms part of the key when defining the BASIC.INTEREST rate table.
+Validation Rules
+1-4 numeric characters in the range 1-9999. */
+		KEY -> ST_RateParameters:BASIC_RATE_TEXT PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=0.0, core=true, t24Name=KEY)
+		DESCRIPTION -> byValue ST_RateParameters:BASIC_RATE_TEXT__DESCRIPTION *
+		/* Code word for a basic rate type to be passed to Delivery for output if rate change advices are in use. See the BASIC.RATE.CNG.ADV flag in this application.
+Validation Rules
+Optional input. Can be blank.
+If used this field must contain one of the following code words:     BASE     CALL     COMMERCIAL     CURRENT     DEPOSIT     NOTICE     PRIME */
+		SWIFT_RATE_CODE : ST_RateParameters:BASIC_RATE_TEXT__SWIFT_RATE_CODE
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=SWIFT.RATE.CODE)
+		/* Days Notice for this particular rate type when a rate change advice is produced. Entry in this field is only valid if basic rate change advices are in use (see the next field).
+If rate change advices are to be produced this field will be passed to Delivery for output when a rate change advice is produced during Loans and Deposits EOD for this rate type.
+Validation Rules
+Standard up to 2 character numeric field.
+Range between 1-99. */
+		DAYS_NOTICE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=DAYS.NOTICE)
+		/* Y/N Flag. Indicates whether rate change advices will be produced or not for this particular rate change during EOD processing for Loans and Deposits.
+Validation Rules
+'Y' or 'N'. Optional input. Blank entry in this field indicates that no rate change advices will be produced.
+If this field is set to 'Y' then rate change advices will be produced for a given rate change during LD EOD. */
+		BASIC_RATE_CNG_ADV : ST_RateParameters:BASIC_RATE_TEXT__BASIC_RATE_CNG_ADV
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=4.0, core=true, t24Name=BASIC.RATE.CNG.ADV)
+		MARGIN_ROUTINE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=5.0, core=true, t24Name=MARGIN.ROUTINE)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=7.0, core=true, t24Name=RESERVED.3)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=8.0, core=true, t24Name=RESERVED.2)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=9.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=11.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_RateParameters:BASIC_RATE_TEXT__INPUTTER *
+		DATE_TIME -> byValue ST_RateParameters:BASIC_RATE_TEXT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=15.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=17.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=18.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	BASIC_RATE_TEXT__DESCRIPTION
+	{
+		/* Describes the Basic Interest Rate Table ID to enable it to be easily identified.
+This field can be expanded to allow the user to enter the Description of the Basic Interest Rate in various languages.  Each expansion of the file will correspond to a new language as defined in the LANGUAGE table and will indicate to the user the language in which the Description must be entered.
+Validation Rules
+3-15 type A (alphanumeric) characters. Multilanguage field. Multivalue field. (Mandatory Input) */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	BASIC_RATE_TEXT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=INPUTTER)
+	}
+	BASIC_RATE_TEXT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=13.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This table allows the user to define for each currency and market, FORWARD exchange rates for any time period defined by the user.  These periods can be defined either in months, e.g. 1 month, 2 months, 3 months, 6 months etc. or in days, e.g. 7 days, 15 days, 30 days, etc..  The user will enter the details in the form of PREMIUM or DISCOUNT (preceded by the 'minus' sign).
+This premium or discount must refer to the one for the currency of the ID against the local currency.
+In accordance with the value of the field QUOTATION.PIPS, defined on the CURRENCY table for the ID currency, the system will automatically add/subtract this premium/discount from the Currency table middle rate. Forward rates are used by the Forward revaluation (Rebate method) and also to provide tolerance checks for forward rates on input of a Forward Foreign Exchange transaction. */
+	FORWARD_RATES
+		@t24:i (t24Name=FORWARD.RATES, level=Y, type=H, additionalInfo="UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Contains the SWIFT currency code and Market indicator for which the user needs to define forward rates.
+Validation Rules
+SWIFT currency code plus the currency market indicator.
+SWIFT currency code must exist on the CURRENCY table.
+The Market indicator must exist on the CURRENCY.MARKET table.
+Currency cannot be the local currency of the country. */
+		CCY_CCY_MARKET -> ST_RateParameters:FORWARD_RATES PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=0.0, core=true, businessType=SS, t24Name=CCY.CCY.MARKET)
+		DESCRIPTION -> byValue ST_RateParameters:FORWARD_RATES__DESCRIPTION *
+		/* Represents the last date when Forward rates have been updated.
+During the overall End of Day process, this date will be automatically updated by the system and moved to the next working day.
+Validation Rules
+Standard date format System Generated Default to the Run date when updating the table. */
+		EFFECTIVE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Effective Date")
+			@i18n:Tooltip (en="Effective date of the transaction")
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=2.0, core=true, t24Name=EFFECTIVE.DATE, mask="RDD DDD DDDD")
+		REST_PERIOD -> byValue ST_RateParameters:FORWARD_RATES__REST_PERIOD *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_RateParameters:FORWARD_RATES__INPUTTER *
+		DATE_TIME -> byValue ST_RateParameters:FORWARD_RATES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=13.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=15.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=16.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	FORWARD_RATES__DESCRIPTION
+	{
+		/* Allows the user to enter free form description of the key.
+Validation Rules
+1-15 characters.  Default value is 'AAA(N) FWD RATE' where AAA is the currency code and N is the currency market.  Multivalue field. */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	FORWARD_RATES__REST_PERIOD
+	{
+		/* Indicates the period to which a rate applies.
+Validation Rules
+
+NND where D = Number of days, NNNM where M = Number of months, NNY where     Y= Number of years and R for rest. E.g. a 10day rest period would be written     as 10D, a 120month rest period  as 120M and a 20years rest period as     20Y. R must be the last rest period entered. Multi value field. (Mandatory     input) The last rest period defined must contain the literal 'R'. */
+		REST_PERIOD : T24BusinessTypes:S required
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=3.0, core=true, t24Name=REST.PERIOD, typeModifiers=-)
+		/* Specifies the date of the rest period which is calculated by the system according to the value defined in REST.PERIOD.
+To calculate the date of the rest period, the system will add to the SPOT date the value defined in the field REST.PERIOD.  It is important to note that if the Rest period is defined in months and the date which is calculated happens to be a non working day, the system will automatically move forward to the next working day after this calculated date.  If, however, this next working day falls in the next month, the system will instead move BACKWARD to the previous working day.
+Validation Rules
+Standard date format.  System generated.  Multivalue field. */
+		REST_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=8, sysNumber=4.0, core=true, t24Name=REST.DATE)
+		/* Specifies the number of days from the spot date to the Rest date.
+Validation Rules
+System generated.  Multivalue field. */
+		DAYS_SINCE_SPOT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=5, sysNumber=5.0, core=true, t24Name=DAYS.SINCE.SPOT)
+		/* Specifies the Premium/Discount of the currency defined in the ID against local currency for the period stated in the rest period described.  The discount must be preceded by the '-' sign.
+Example:
+If the quotation PIPS for the Deutsche Mark has a value of 4 on the currency table and the Middle rate of the DEM against Local currency is equal to 3.0250:
+o   an input of '200' will automatically generate a Forward rate of     3.0250                       +    200                         ------                         3.0450
+o   an input of '-150' will automatically generate a Forward rate of     3.0250                       -    150                         ------                         3.0100
+The system will automatically convert the input according to the value defined in the field QUOTATION.PIPS of the currency defined in the ID.
+Validation Rules
+(+/-) Standard exchange rate format. */
+		FORWARD_PREMIUM : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=6.0, core=true, t24Name=FORWARD.PREMIUM)
+		/* Indicates whether this rate was input or derived from other rates input.
+Validation Rules
+System generated. */
+		RATE_INPUT_MKR : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=7.0, core=true, t24Name=RATE.INPUT.MKR)
+	}
+	FORWARD_RATES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=INPUTTER)
+	}
+	FORWARD_RATES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=11.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Input in this field determines the components for the interest calculation.
+The following values have been defined:
+KeyDays/Numerator Description of Use
+                                A
+                                        360/360
+                                        This method is where each month is considered to have 30 days for the numerator and the denominator will also be 360. Subdivided into methods A1 and A2. 
+                                A1
+                                        360/360
+                                        Similar to A - see examples below for deviation from A.
+                                A2
+                                        360/360
+                                        Similar to A1 - see examples below for deviation from A1.
+                                B
+                                        366/360
+                                        This method where the exact number of days will be considered in respect of the numerator while the denominator will be 360. 
+                                C
+                                        366/366
+                                        This is the method where the exact number of days will be considered in respect of the numerator while the denominator will be 365 in a non-leap year and 366 in a leap year.
+                                D
+                                        360/366
+                                        This method is where each month is considered to have 30 days for the numerator while the denominator will be 365 in a non-leap year and 366 in a leap year.
+                                E
+                                        366/365
+                                        This is the method where the exact number of days will be considered in respect of the numerator while the denominator will be 365.
+                                E1
+                                        
+                                       365/365
+                                        
+                                       This is the method where the exact number of days excluding February 29 of the leap years will be considered with respect of the numerator while the denominator will be 365.
+
+                                F
+                                        360/365
+                                        This is the method where each month is considered to have 30 days for the numerator while the denominator will be on a 365 basis. Subdivided into methods F1 and F2. 
+                                F1
+                                        360/365
+                                        Similar to F - see examples below for deviation from F.
+                                F2
+                                        360/365
+                                        Similar to F1 - see examples below for deviation from F1.
+                                G
+                                        366/364
+                                        This is the method where the exact number of days will be considered in respect of the numerator while the denominator will be 364.
+                                S
+                                        Note 1
+                                        Special (Special interest basis).
+
+1. Basis S - Special Interest Basis
+This basis is used to allow the interest amount to be entered manually. The amount entered is checked against the nominal rate entered, and to avoid mis-typed amounts, is checked against a tolerance.
+
+2. Conventions
+Where actual dates are used the convention in T24 is that the number of days in the year is calculated taking into accoutn whether the year is a leap year or not. The leap year does not need to be straddled by the start/end date. If the start date is in a leap year and the end date is in the following year then the number of days is calculated on 366 for the days in the leap year, plus 365 for the days in the following year.
+=============================================================================================
+A1, A2 and F1, F2 are sub-options of the 360/360 and 360/365 bases respectively. The detail of the method for treating each month as 30 days differs slightly as described below.
+In the options A, B, C, D, E, F, G and H specified above the number on the left (Days) represents the number of days basis for multiplying on the top line of the interest calculation. Whilst number on the right (Numerator) is the basis for dividing on the bottom line of the interest calculation and represents the number of days in the year.
+For example, if Interest Basis B (366/360) is selected, then the interest calculation would look as follows:-
+
+Principal Amt x Rate x 366
+                                        
+                                -----------------------------
+                                        
+                                360
+Where 366 is specified as the left factor (Days), interest will be calculated for the actual number of days in the month.
+Where 360 is specified as the left factor(Days), each month will be treated as having 30 days when calculating interest. In months with 31 days, the 30th day is ignored. In February, either the last or the penultimate day is counted as 3 days (or 2 days in a leap year) depending upon which 30-day rule is chosen.
+Methods A1 and F1 are the same as A and F respectively. Under these methods, the additional interest earned in February is calculated on the last day (i.e. 28th or 29th).
+Methods A2 and F2 calculate the additional interest earned in February on the penultimate day (i.e. 27th or 28th).
+
+Examples of Dates for each Basis
+Dates
+                                        A
+                                        B
+                                        C
+                                        D
+                                        E
+                                        E1
+                                        F
+                                        G
+                                        A2F2
+                                01 Jan 1999 - 31 Mar 1999
+                                        89
+                                        89
+                                        89
+                                        89
+                                        89
+                                        89
+                                        89
+                                        89
+                                        89
+                                        89
+                                        
+                                01 Jan 2000 - 31 Mar 2000
+                                        89
+                                        90
+                                        90
+                                        89
+                                        90
+                                        89
+                                        89
+                                        90
+                                        89
+                                        89
+                                        
+                                01 Dec 2000 - 30 Jun 2001
+                                        209
+                                        211
+                                        211
+                                        209
+                                        211
+                                        211
+                                        209
+                                        211
+                                        209
+                                        209
+                                        
+                                01 Dec 1999 - 30 Jun 2000
+                                        209
+                                        212
+                                        212
+                                        209
+                                        212
+                                        211
+                                        209
+                                        212
+                                        209
+                                        209
+                                        
+                                27 Feb 1998 - 31 Mar 1998
+                                        33
+                                        32
+                                        32
+                                        33
+                                        32
+                                        32
+                                        33
+                                        32
+                                        33
+                                        33
+                                        
+                                27 Feb 2000 - 31 Mar 2000
+                                        33
+                                        33
+                                        33
+                                        33
+                                        33
+                                        32
+                                        33
+                                        33
+                                        33
+                                        33
+                                        
+                                28 Feb 1998 - 31 Mar 1998
+                                        32
+                                        31
+                                        31
+                                        32
+                                        31
+                                        31
+                                        32
+                                        31
+                                        30
+                                        30
+                                        
+                                29 Feb 2000 - 31 Mar 2000
+                                        31
+                                        31
+                                        31
+                                        31
+                                        31
+                                        30
+                                        31
+                                        31
+                                        30
+                                        30
+
+To calculate the actual number of days between DATE1 and DATE2, the following rule will be followed when the 30-day basis has been selected:
+
+Split DATE1 into YEAR1, MONTH1 and DAY1
+Split DATE2 into YEAR2, MONTH2 and DAY2
+
+For bases A, A1, D, F & F1
+
+If DAYn = 31, set it to 30.
+
+Perform the following calculations:
+
+Subtract YEAR2 from YEAR1 and multiply result by 360. The result will be equal to 'X.'
+Subtract MONTH2 from MONTH1 and multiply result by 30. The result will be equal to 'Y.'
+Subtract DAY2 from DAY1. The result will be equal to '.' Add '' + 'Y' + 'Z' together to find the number of days between the two dates.
+Example 1
+18 OCT 1998 and 23 DEC 1999.
+YEAR2 - YEAR1 x 360 in this case 1999 - 1998 x 360 = 360 (X)
+MONTH2 - MONTH1 x 30 in this case (12 - 10) x 30 = 60 (Y)
+Day2 - DAY1 in this case 23 -18 = 5 (Z) Add X+Y+Z i.e 360 + 60 + 5 = 425
+Total number of days in period = 425
+Example 2
+Calculate the dates between 30 MAR 1999 and 31 MAR 1999.
+(1999 - 1999) x 360 = 0 (X) 3 - 3 x 30 = 0 (Y) 30 - 30 = 0 (Z) X + Y + Z or 0 + 0 + 0 = 0
+Total number of days in period = 0
+Example 3
+Calculate the dates between 31 JAN 1999 and 28 FEB 1999
+(1999 - 1999) x 360 = 0
+2 - 1 x 30 = 30
+28 - 30 = -2
+Total number of days in period = 28
+
+
+For bases A2 & F2
+
+If DAYn = 31, set it to 30 or if MONTHn = 2 (i.e February) and DAYn =29, set it to 30; or if MONTHn=2 and YEARn is not exactly divisible by four, set it to 30.
+
+Perform the following calculations:
+
+Subtract YEAR2 from YEAR1 and multiply result by 360. The result will be equal to 'X.'
+
+Subtract MONTH2 from MONTH1 and multiply result by 30. The result will be equal to 'Y.'
+
+Subtract DAY2 from DAY1. The result will be equal to 'Z.'
+Add 'X' + 'Y' + 'Z' together to find the number of days between the two dates.
+
+Example 1
+Calculate the dates between 31 JAN 1999 and 28 FEB 1999 (Note 28 Feb is treated as 30 Feb for A2 and F2)
+(1999 - 1999) x 360 = 0
+2 - 1 x 30 = 30
+30 - 30 = 0
+Total number of days in period = 30.
+
+
+Interest Basis 'C' & 'D' used in securities follow the rules indicated as under:
+SEC.TRADE always uses 365 days in the denominator. The example below illustrates this:
+A bond that pays 2 coupons of 10% a year on the 20th of December & 20th of June. The nominal amount of 1 Million was being traded on the 20th of March 2000. This would result in the following calculations for the coupon element of the consideration:
+Nominal
+                                        1,000,000
+                                        
+                                Rate
+                                        10%
+                                        
+                                Number of days
+                                        11 + 31 + 29 + 20 = 91
+                                        
+                                Basis denominator
+                                        365
+Interest
+                                        1,000,000 x 0.10 x 91 / 365
+                                        = 24,931.51
+
+Coupon Payment Calculation in T24 uses 366 days when required. The above example can be used to illustrate this:
+Nominal
+                                        1,000,000
+                                        
+                                Rate
+                                        10%
+                                        
+                                Number of days
+                                        11 + 31 + 29 + 31 + 30 + 31 + 20 = 183
+                                        
+                                Basis denominator
+                                        366
+Interest
+                                        1,000,000 x 0.10 x 183 / 366
+                                        = 50,000.00
+
+Interest Basis 'G' is used in Securites as follows :
+For Instruments that are issued with coupon dates that occur at set intervals. For example a bond is issued with a 2 year life (728 days) and will be paid twice a year. Each period will be of 182 days (26 weeks x 7 day s per week), a year will always be 364 days. For Bonds which pay more than twice year each period will be an exact multiple of 7 days. It should be noted that when these Interest Basis are selected then the number of payments must be a divisor of 52 (week s in a year), i.e. 1, 2, 4, 13, 26 or 52.
+
+Validation Rules
+
+Record id's of A, B, C, D, E, F, G and S can be mistaken for T24 functions so the record must be prefixed with a leading '.' (dot).
+i.e
+INTEREST.BASIS I .A
+
+1 to 2 type A (alphanumeric) characters.
+Valid input is A, B, C, D, E, E1, F, G, A1, A2, F1, F2, or S.
+3. Interest Basis 'E1'
+Overnight contract should not use the E1 interest basis. For example contract start date as 29 Feb 2000 and End date as 1 Mar 2000 then this type of contract use the interest basis other than E1. For the IC accrual processing interest will not happened. */
+	INTEREST_BASIS
+		@t24:i (t24Name=INTEREST.BASIS, level=I, type=U, allowedFunctions="A C D E I L P Q R S", localRefAllowed=false)
+	{
+		/* Any valid Interest Basis definition.
+Values currently defined:
+A 360/360
+A2 30/360
+B 366/360
+C 366/366
+D 360/366
+E 366/365
+E1 365/365
+F 360/365
+F2 30/365
+G 366/364
+S SPECIAL
+
+Validation Rules
+
+Any alphanumeric upto 3 characters
+To input or modify an Interest Basis which is a single         character key precede the input by a decimal point (.) e.g.         To modify interest basis "A" ".A"         must be entered. */
+		INTEREST_BASIS -> ST_RateParameters:INTEREST_BASIS PK required
+			@i18n:Label (en="Interest Basis")
+			@i18n:Tooltip (en="Indicates the interest day basis")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, businessType=A, t24Name=INTEREST.BASIS)
+		DESCRIPTION -> byValue ST_RateParameters:INTEREST_BASIS__DESCRIPTION *
+		/* Interest Basis calculation method.
+Validation Rules
+
+7 Alphanumeric characters.
+This field cannot be amended. */
+		INT_BASIS : T24BusinessTypes:A required
+			@i18n:Label (en="Interest Basis")
+			@i18n:Tooltip (en="Interest basis for interest calculation")
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=2.0, core=true, t24Name=INT.BASIS)
+		OLD_CALC_METHOD : ST_RateParameters:INTEREST_BASIS__OLD_CALC_METHOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=OLD.CALC.METHOD)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=4.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=5.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=6.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=7.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_RateParameters:INTEREST_BASIS__INPUTTER *
+		DATE_TIME -> byValue ST_RateParameters:INTEREST_BASIS__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=12.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=13.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=14.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=15.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=16.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	INTEREST_BASIS__DESCRIPTION
+	{
+		/* This description is the enrichment used by T24 when the specific INTEREST.BASIS is entered. You can either enter the description to match the basis or expand it to provide more explanation.
+e.g. 365/366 etc.
+or
+365 days / 365 or 366 actual days */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	INTEREST_BASIS__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=10.0, core=true, t24Name=INPUTTER)
+	}
+	INTEREST_BASIS__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=11.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This table defines Descriptions of tradable interest rates which are recognised by S.W.I.F.T.
+Each Description will be used as the enrichment to the corresponding ID when it is displayed or printed during T24 processing. */
+	MARKET_RATE_TEXT
+		@t24:i (t24Name=MARKET.RATE.TEXT, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* This field is used as the key to the records on this table.
+Validation Rules
+Up to six alphanumeric charaters. */
+		KEY -> ST_RateParameters:MARKET_RATE_TEXT PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		DESCRIPTION -> byValue ST_RateParameters:MARKET_RATE_TEXT__DESCRIPTION *
+		/* Must be a valid S.W.I.F.T. code word. This field specifies the Floating Rate Option of the swap transaction. The value in this field should be one of the valid code words as specified in the details for field 14F on MT360s.
+Input should be in the form ;
+alpha/alpha/alpha
+e.g. USD/LIBOR/ISDA
+or if the code word is not known input should be OTHER.
+Refer to the SWIFT manual and ISDA definitions for further details.
+Validation Rules
+24 alphanumeric characters. Mandatory input. */
+		RATE_TEXT : T24BusinessTypes:A required
+			@i18n:Label (en="Rate Text")
+			@i18n:Tooltip (en="Rate Text")
+			@t24:i (align=L, inputBehaviour=I, maxLength=24, sysNumber=2.0, core=true, t24Name=RATE.TEXT)
+		/* This field specifies a valid sequence number of the file PERIODIC.INTEREST.
+This sequence number is part of the key to the PERIODIC.INTEREST rate table.
+Validation Rules
+1-2 numeric characters. Optional input field. */
+		RATE_KEY : mml:Integer
+			@i18n:Label (en="Rate Key")
+			@i18n:Tooltip (en="Indicates the Basic Interest key")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=3.0, core=true, t24Name=RATE.KEY)
+		SWIFT_CODE_WORD -> DE_Config:SWIFT_CODE_WORDS
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, businessType=A, t24Name=SWIFT.CODE.WORD)
+		RESERVED_4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=5.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=6.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=7.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=8.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_RateParameters:MARKET_RATE_TEXT__INPUTTER *
+		DATE_TIME -> byValue ST_RateParameters:MARKET_RATE_TEXT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=13.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=14.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=16.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=17.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	MARKET_RATE_TEXT__DESCRIPTION
+	{
+		/* Multi-language field allowing the user to specify a description for the record.
+Validation Rules
+15 alphanumeric characters. Mandatory input. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	MARKET_RATE_TEXT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, core=true, t24Name=INPUTTER)
+	}
+	MARKET_RATE_TEXT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=12.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This table defines, for each currency, interest rates for any time period desired by the user.  These periods can be defined either in months, e.g. 1 month, 2 months, 3 months, 6 months etc.. or in days, e.g. 7 days, 15 days, 30 days etc..  For each period defined by the user, both a BID and OFFER rate can be entered.
+PERIODIC.INTEREST will be used by applications such as Foreign Exchange to default interest rate on Forward contracts using the Interest revaluation method or the Loans and Deposits applications to perform automatic Rollover.
+
+
+In LD contracts, where the INT.RATE.TYPE is set to PERIODIC.AUTOMATIC, on the R (rate revision) schedule dates, the PERIODIC.INTEREST table will be referred to, for the interest rate from the appropriate key (record). Changes can be made to keys which were created before current date, and contracts which have accessed these keys will also get updated with the changes, provided the R schedules were not prior to any principal or interest movements on the contract. Whenever a backvalued key in PERIODIC.INTEREST is changed, the ID of such key is stored in an internal file called PERIODIC.RATE.CHANGE. */
+	PERIODIC_INTEREST
+		@t24:i (t24Name=PERIODIC.INTEREST, level=Y, type=H, allowedFunctions="A C D E I L P Q S", localRefAllowed=true)
+	{
+		/* Contains the key to access a specific record on the table.
+Validation Rules
+
+NNCCYDATE       where: NN   =   Sequence number in range 01-99 CCY  =   Valid currency code in SWIFT Format DATE =   Valid date in format YYYYMMDD (Mandatory input for NN and CCY.  Date will be defaulted to the RUN date if not input.)
+As a minimum the sequence number and the currency code must be entered.
+SWIFT currency code must exist on the CURRENCY table. */
+		REF_CCY_DATE -> ST_RateParameters:PERIODIC_INTEREST PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=0.0, core=true, businessType=S, t24Name=REF.CCY.DATE, mask="R#### ### DDDD DD  DD")
+		DESCRIPTION -> byValue ST_RateParameters:PERIODIC_INTEREST__DESCRIPTION *
+		/* Identifies the default M.I.S. rate to be taken when the ID has been defined in a transaction.
+Validation Rules
+2 numeric characters in range 01-99. Default to the sequence number of the ID.
+The sequence number of this currency must already exist on the PERIODIC.INTEREST table. */
+		DEFAULT_MIS_TABLE : T24BusinessTypes:S
+			@i18n:Label (en="Default Mis Table")
+			@i18n:Tooltip (en="Default Mis Table")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=2.0, core=true, t24Name=DEFAULT.MIS.TABLE)
+		REST_PERIOD -> byValue ST_RateParameters:PERIODIC_INTEREST__REST_PERIOD *
+		/* Flag to indicate if Forward rate for this currency should be calculated automatically using the bid and offer rate from the Periodic Interest table. Format;    Y (Optional input)
+Validation Rules
+Only allowed for current record and for ID's having 01 as sequence number. */
+		BUILD_FWD_RATE : T24BusinessTypes:A
+			@i18n:Label (en="Build Fwd Rate")
+			@i18n:Tooltip (en="Build Fwd Rate")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=9.0, core=true, t24Name=BUILD.FWD.RATE)
+		/* Interest percentage tolerance allowed on money market contracts.  A tolerance entered here will be used to check if an over-ride is required for any interest rate difference found on any money market contracts entered.
+The existence of a default INT.TOLERANCE in LMM.INSTALL.CONDS indicates that a check for an interest rate difference over-ride should be made on money market contracts.  If the difference between the rate entered and that calculated exceeds the percentage tolerance entered here then an over-ride is required.
+Validation Rules
+4 Numeric character input up to 100% (Optional input)
+This field may only be entered for records in this file with a leading sequence number of '01'. */
+		INT_TOLERANCE : T24BusinessTypes:R
+			@i18n:Label (en="Int Tolerance")
+			@i18n:Tooltip (en="Int Tolerance")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=INT.TOLERANCE)
+		/* Definition of the largest possible interest rate for the currency.  No input indicates that there is no maximum rate.
+Validation Rules
+Standard Rate Format. Optional input. Should only be allowed if the key begins 01. */
+		MAX_INT_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=11.0, core=true, t24Name=MAX.INT.RATE)
+		LOCAL_ROUTINE -> byValue ST_RateParameters:PERIODIC_INTEREST__LOCAL_ROUTINE *
+		USE_LAST_WRKNG_DAY : ST_RateParameters:PERIODIC_INTEREST__USE_LAST_WRKNG_DAY
+			@i18n:Label (en="Use Last Wrkng Day")
+			@i18n:Tooltip (en="Use Last Working Day")
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=13.0, core=true, t24Name=USE.LAST.WRKNG.DAY)
+		APPLICATION -> byValue ST_RateParameters:PERIODIC_INTEREST__APPLICATION *
+		HIST_CO_CODE -> byValue ST_RateParameters:PERIODIC_INTEREST__HIST_CO_CODE *
+		OVERRIDE -> byValue ST_RateParameters:PERIODIC_INTEREST__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_RateParameters:PERIODIC_INTEREST__INPUTTER *
+		DATE_TIME -> byValue ST_RateParameters:PERIODIC_INTEREST__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=25.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=26.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=27.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=28.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PERIODIC_INTEREST__DESCRIPTION
+	{
+		/* Allows the user to enter free form description of the key.
+This field can be expanded to allow the User to enter the Description of the Periodic Interest rate in various languages.  Each expansion of the field will correspond to a new Language as defined in the LANGUAGE Table and will indicate to the User the Language in which the Description must be entered.
+Validation Rules
+Up to 15 type A (alphanumeric) characters. Multilanguage field. Multivalue field. (Optional input; default = currency of ID followed by literal 'TERM RATES'.) */
+		DESCRIPTION : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	PERIODIC_INTEREST__REST_PERIOD
+	{
+		/* Indicates the period to which a rate applies.
+Validation Rules
+
+'R' for Remaining, NND for Rest period in Days where D = Number of Days,      NNNM for Rest Period in Months where M= Number of Months and NNY for rest     period in years where Y= Number of years. e.g. a 10 day rest period would be     written as 10D, a 120 month rest period as 120M and a 20 year rest period as     20Y. R must be the last rest period entered. Multi value field. (Mandatory     input. No default.)
+The number of days or months must be entered in logical order i.e. in     ascending sequence.
+For days the range 01-31 will be allowed while for months 01-360 will be     accepted. For years the range 01-30 is accepted.
+When 'R' is defined, at least one additional rest period must be defined.
+When more than one rest period is defined, 'R' must be entered on the last     entered rest period. */
+		REST_PERIOD : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=3.0, core=true, t24Name=REST.PERIOD)
+		/* To calculate the date of the rest period, the system will add to the effective date of the key the value defined in REST.PERIOD (Field 3).
+Validation Rules
+Standard Date Format. System generated. Multivalue field */
+		REST_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=4.0, core=true, t24Name=REST.DATE, mask="RDD DDD DDDD")
+		/* Specifies the number of days from the effective date of the key to the Rest date. Format;    System generated. Multivalue field. */
+		DAYS_SINCE_SPOT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=5, sysNumber=5.0, core=true, t24Name=DAYS.SINCE.SPOT)
+		AMT -> byValue ST_RateParameters:PERIODIC_INTEREST__REST_PERIOD__AMT *
+	}
+	PERIODIC_INTEREST__REST_PERIOD__AMT
+	{
+		/* Defines the amount in the band. The field must be entered in an ascending order with no duplicate amounts. If this field is left blank then the below rates will be the defaults. If the BUILD.FWD.RATE field is set to Y then the rate with the amount set to blank will be used for the update of the forward rates in the end of day process.
+Validation Rules
+Input Optional
+No Duplicates allowed
+Mutlivalued associated field */
+		AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=AMT)
+		/* Identifies the BID rate of the related currency for the time period defined in REST PERIOD (Field 3.1).
+Validation Rules
+Standard Rate Format. Subvalue associated field. (Mandatory input) The BID rate must be less than the OFFER rate. */
+		BID_RATE : T24BusinessTypes:R required
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=BID.RATE, typeModifiers=-)
+		/* Identifies the OFFER rate of the related currency for the time period defined in REST PERIOD (Field 3.1). Standard Rate Format Subvalue associated field. (Mandatory input)
+Validation Rules
+The OFFER rate must be greater than the BID rate. */
+		OFFER_RATE : T24BusinessTypes:R required
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=OFFER.RATE, typeModifiers=-)
+	}
+	PERIODIC_INTEREST__LOCAL_ROUTINE
+	{
+		/* By using local routines in this field, regional developers can add their own tables to T24 and return spreads and/or interest rates based upon decisions in their own routines. This field allows local routines to be called when this record is accessed by the TERMRATE routine.
+Two parameters are passed to, and returned by, the local  routine:
+- INTEREST.RATE  the derived Periodic interest rate - MARGIN         which can be passed from the calling process
+If more than one local routine is defined then each routine will be called in turn with the above parameters.
+As an example, Money Market Auto Rollovers can use a routine to determine new rates and/or spreads based on locally developed spread tables related to department and customer groups.
+See Helptext for Money Market ROLLOVER.INT.RATE.
+Validation Rules
+Optional input. Multi Valued field up to 35 alphanumeric characters in length.
+Any value(s) entered must be the name(s) of a uniVerse routine(s) that have been compiled and cataloged successfully. */
+		LOCAL_ROUTINE -> EB_SystemTables:EB_API
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, businessType=ANY, t24Name=LOCAL.ROUTINE)
+	}
+	PERIODIC_INTEREST__APPLICATION
+	{
+		/* (Added in G14.0.0)
+Negative interest rates can be accessed in the application given in this field.  At present DX, MM, SW applications are given in the pick list attached to this field.  If this field is blank, the negative interest rates cannot be accessed in the application mentioned above.
+Validation Rules
+
+Optional input
+At present only DX, MM, SW can be given
+Default is NULL */
+		APPLICATION : ST_RateParameters:PERIODIC_INTEREST__APPLICATION__APPLICATION
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=14.0, core=true, t24Name=APPLICATION)
+	}
+	PERIODIC_INTEREST__HIST_CO_CODE
+	{
+		HIST_CO_CODE -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=9, sysNumber=15.0, core=true, businessType=A, t24Name=HIST.CO.CODE)
+		HIST_DATE -> byValue ST_RateParameters:PERIODIC_INTEREST__HIST_CO_CODE__HIST_DATE *
+	}
+	PERIODIC_INTEREST__HIST_CO_CODE__HIST_DATE
+	{
+		HIST_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=12, sysNumber=16.0, core=true, t24Name=HIST.DATE)
+		HIST_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=HIST.NO)
+	}
+	PERIODIC_INTEREST__OVERRIDE
+	{
+		/* Contains details of any overrides applicable to this Account.
+Validation Rules
+Up to 35 type A (alphanumeric) characters.
+Multivalue field.
+(Internal field.) */
+		OVERRIDE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=OVERRIDE)
+	}
+	PERIODIC_INTEREST__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=22.0, core=true, t24Name=INPUTTER)
+	}
+	PERIODIC_INTEREST__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=23.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This table is updated by the System.
+Records of this table are with a key of the Processing date and the 
+ keys of the  PERIODIC.INTEREST records (for a past date or for the
+ processing date) modified on the Processing date are stored in the records of
+ this  table. */
+	PERIODIC_RATE_CHANGE
+		@t24:i (t24Name=PERIODIC.RATE.CHANGE, level=Y, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		DATE -> ST_RateParameters:PERIODIC_RATE_CHANGE PK required
+			@i18n:Label (en=Date)
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=0.0, core=true, businessType=D, t24Name=DATE)
+		/* Specifies the Processing Date on which the PERIODIC.INTEREST records of a
+ past date or processing date have  been modified. */
+		PERIODIC_INT_KEY : T24BusinessTypes:S required
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=1.0, core=true, t24Name=PERIODIC.INT.KEY)
+	}
+	/* When a loan or deposit contract in LD is input with currencies of the liquidation account being different from that of deal currency, this file is created by the system on authorisation of such contract. The @ID of the file is the @ID of the LD deal. This file is used to store the exchange rates applied / to be applied for liquidation, for various event dates and event currencies, read from the relevant LD deal. The exchange rates derived by the system is based on currencies of the liquidation accounts, Settlement Market, Conversion Type (all defaulted from the deal) and Protection Clause. The user may also input an exchange rate for each currency that is to be considered for every liquidation.
+EVENT.DATE, EVENT.CCY, EV.SYS.RATE and EV.APPL.RATE are associated multivalue set of fields.  Within this multivalue set EVENT.CCY, EV.SYS.RATE and EV.APPL.RATE are associated sub value set of fields.
+The following example would illustrate the updation of this file;
+If a LD contract is input with the following features;
+LD LOAN CONTRACT @IDLD0012000001
+                                DEAL CCYGBP
+                                VALUE DATE Jan 01, 2001
+                                MATURITY DATEJan 15, 2001
+                                PRN.LIQ.ACCOUNT18927 (DEM Currency)
+                                INT.LIQ.ACCOUNT18935 (USD Currency)
+                                SETTLEMENT.MARKET1
+                                CONVERSION.TYPEBUY
+                                SCHEDULE DATE- Principal liquidation
+                                        Jan 05, 2001
+                                SCHEDULE DATE- Principal liquidation- Interest liquidation
+                                        Jan 10, 2001
+                                        
+                                SCHEDULE DATE- Principal liquidation- Interest liquidation
+                                        Jan 15, 2001
+
+
+Once the LD deal is authorised, SETTLEMENT.RATES file is created by the system with ID as LD0012000001.
+Value in SETTLEMENT.MARKET and CONVERSION.TYPE would be written from the deal. For each event (scheduled) date, the currencies involved (for liquidation) would be read from the deal and populated in this file. In the above example the file would be created as follows;
+@IDLD0012000001
+                                CONTRACT.CURRENCYGBP
+                                SETTLEMENT.MARKET1
+                                CONVERSION.TYPEBUY
+                                PROTECTION.CLAUSENO
+                                EVENT.DATE- EVENT.CCY- EV.SYS.RATE- EV.APPL.RATE
+                                        Jan 05, 2001DEM
+                                        
+                                EVENT.DATE- EVENT.CCY- EV.SYS.RATE- EV.APPL.RATE- EVENT.CCY- EV.SYS.RATE- EV.APPL.RATE
+                                        Jan 10, 2001DEMUSD
+                                        
+                                EVENT.DATE- EVENT.CCY- EV.SYS.RATE- EV.APPL.RATE- EVENT.CCY- EV.SYS.RATE- EV.APPL.RATE
+                                        Jan 15, 2001DEMUSD
+
+
+As can be observed from the above, the file is updated with event dates as input in the LD deal with the currencies involved for each date. In the above example for the event date Jan 05, 2001 only principal liquidation is envisaged. The Principal liquidation is in DEM currency and hence for this event date only DEM currency is populated. For event dates Jan 10, 2001 and Jan 15, 2001, both principal and interest liquidations are envisaged. Hence the respective liquidation account currencies are populated as associated sub value sets for the event dates.
+The EV.SYS.RATE is updated with the system derived exhange rate.
+The user may input the relevant exchange rate that is to be considered for liquidation in EV.APPL.RATE field. If the user has input any exchange rate in this field, the same would be used for liquidation and the system would continue to update its derived rate in EV.SYS.RATE. */
+	SETTLEMENT_RATES
+		@t24:i (t24Name=SETTLEMENT.RATES, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* The ID is the @ID of the relevant LD deal. */
+		CONTRACT_NO -> ST_RateParameters:SETTLEMENT_RATES PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO)
+		/* Currency of the LD deal. Written from the LD deal.
+Validation Rules
+
+System written.
+No input allowed. */
+		CONTRACT_CCY -> FIN_CurrencyConfig:CURRENCY required
+			@i18n:Label (en="Contract Ccy")
+			@i18n:Tooltip (en="Identifies the currency of the contract")
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=CONTRACT.CCY)
+		/* Written from the LD Deal.  If SETTLEMENT.MARKET needs to be changed, it has to be done at the LD deal. On authorisation the new value in LD deal would be written here.
+Validation Rules
+
+System written.
+No input allowed. */
+		SETTLEMENT_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET required
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=2.0, core=true, businessType=DEF, t24Name=SETTLEMENT.MARKET)
+		/* Written from the LD deal.  If value in this field needs to be changed, the change has to be done in the underlying LD deal. On authorisation of the LD deal, the new value would be written here.
+For more details on the functionality, please refer to help text in LD deal for this field.
+Validation Rules
+
+System written.
+No input allowed */
+		CONVERSION_TYPE : ST_RateParameters:SETTLEMENT_RATES__CONVERSION_TYPE required
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=3.0, core=true, t24Name=CONVERSION.TYPE)
+		/* The field can hold value YES or NO. If the field is flagged to YES,  the system derived exchange rate for the event date for a particular currency would be compared with historic exchange rates applied for the currency and the best exchange rate (either current day's rate or one of the historic rates, whichever is more beneficial to the Bank) would be considered for liquidation.
+If the field is flagged to NO, either the user input rate or the system derived rate (for no input by user) would be used for liquidation.
+Validation Rules
+
+Input must be either YES or NO
+Default is NO */
+		PROTECTION_CLAUSE : ST_RateParameters:SETTLEMENT_RATES__PROTECTION_CLAUSE required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=PROTECTION.CLAUSE)
+		EVENT_DATE -> byValue ST_RateParameters:SETTLEMENT_RATES__EVENT_DATE *
+		AMOUNT_TYPE -> byValue ST_RateParameters:SETTLEMENT_RATES__AMOUNT_TYPE *
+		RESERVED5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=14.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=15.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=16.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=17.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=18.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_RateParameters:SETTLEMENT_RATES__INPUTTER *
+		DATE_TIME -> byValue ST_RateParameters:SETTLEMENT_RATES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=24.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=26.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=27.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SETTLEMENT_RATES__EVENT_DATE
+	{
+		/* Represents a date for which an event (scheduled date) has been defined in the LD deal. The event could be principal liquidation, interest liquidation, commission liquidation etc.
+Validation Rules
+
+System written.
+No input allowed */
+		EVENT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=5.0, core=true, t24Name=EVENT.DATE, mvSvExpansionAccess=NOMODIFY)
+		EVENT_CCY -> byValue ST_RateParameters:SETTLEMENT_RATES__EVENT_DATE__EVENT_CCY *
+	}
+	SETTLEMENT_RATES__EVENT_DATE__EVENT_CCY
+	{
+		/* Represents the currency of liquidation for the event specified in LD deal. For example if principal liquidation should be from a DEM account while the deal is in GBP, this field will hold the value DEM.
+This field is an associated multivalue field and would be multivalued only when multiple currencies are involved for an event date.
+Example
+a)     Deal Currency    :    GBP
+Event date          :    Jan 05, 2001
+Events
+Principal Liquidation in DEM
+Interest Liquidation in CHF
+In this case alongwith EV.SYS.RATE and EV.APPL.RATE  this field would be multivalued holding values DEM and CHF.
+b)    Deal Currency    :    GBP
+Event date          :    Jan 05, 2001
+Events
+Principal Liquidation in DEM
+Interest Liquidation in DEM
+In this case the associated set of fields would not be multivalued and this field will hold value DEM.
+Validation Rules
+
+System written.
+No input allowed */
+		EVENT_CCY : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=6.0, core=true, t24Name=EVENT.CCY)
+		/* The exchange rate for the event date for the event currency derived by the system. This field would be updated during END.OF.DAY or START.OF.DAY processing based on the setting in the field MATURE.SOD in LD deal.
+For details on the basis of deriving the exchange rate please refer to the help text for CONVERSION.TYPE in LD deal.
+Validation Rules
+
+System written
+No input allowed */
+		EV_SYS_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=F, maxLength=16, sysNumber=7.0, core=true, t24Name=EV.SYS.RATE)
+		/* If the exchange rate applicable for the event date and event currency needs to be specified, the user may input the value here. The exchange rate input here would be used for liquidation. The system would update its derived rate in EV.SYS.RATE field as usual.
+Validation Rules
+
+Input allowed only on or prior to the event date for EOD maturity.
+Input allowed only prior to event date for SOD maturity. */
+		EV_APPL_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=8.0, core=true, t24Name=EV.APPL.RATE)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=9.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=10.0, core=true, t24Name=RESERVED.1)
+	}
+	SETTLEMENT_RATES__AMOUNT_TYPE
+	{
+		/* AMOUNT.TYPE, EXCG.RATE & ACCOUNT are associated multivalue fields.
+These set of fields are used to store the exchange rate and account used for each of the amount type at the time of first authorisation of LD deal. The purpose of writing these fields is to use the historic exchange rate and account for reversal of deals.
+At the time of first authorisation, the drawdown & liquidation accounts over which accounting entries have been raised and the relevant exchange rates applied are captured. Should a deal be reversed, the reversal entries would be raised over the respective accounts at the respective exchange rate captured.
+Validation Rules
+
+System written.
+No input allowed. */
+		AMOUNT_TYPE : mml:Integer
+			@t24:i (align=R, inputBehaviour=F, maxLength=2, sysNumber=11.0, core=true, t24Name=AMOUNT.TYPE)
+		/* This associated multivalue set of fields is used to store the exchange rate and account used for each of the amount type at the time of first authorisation of LD deal. The purpose of writing these fields is to use the historic exchange rate and account for reversal of deals.
+At the time of first authorisation, the drawdown & liquidation accounts over which accounting entries have been raised and the relevant exchange rates applied are captured. Should a deal be reversed, the reversal entries would be raised over the respective accounts at the respective exchange rate captured.
+Validation Rules
+
+System written.
+No input allowed. */
+		EXCG_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=F, maxLength=16, sysNumber=12.0, core=true, t24Name=EXCG.RATE)
+		/* This associated multivalue set of fields is used to store the exchange rate and account used for each of the amount type at the time of first authorisation of LD deal. The purpose of writing these fields is to use the historic exchange rate and account for reversal of deals.
+At the time of first authorisation, the drawdown & liquidation accounts over which accounting entries have been raised and the relevant exchange rates applied are captured. Should a deal be reversed, the reversal entries would be raised over the respective accounts at the respective exchange rate captured.
+Validation Rules
+
+System written.
+No input allowed. */
+		ACCOUNT : mml:Integer
+			@t24:i (align=R, inputBehaviour=F, maxLength=16, sysNumber=13.0, core=true, t24Name=ACCOUNT)
+	}
+	SETTLEMENT_RATES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, core=true, t24Name=INPUTTER)
+	}
+	SETTLEMENT_RATES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=22.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ST_RATE_PARAMETER
+		@t24:i (t24Name=ST.RATE.PARAMETER, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		COMPANY_CODE -> ST_RateParameters:ST_RATE_PARAMETER PK required
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=I, maxLength=9, sysNumber=0.0, core=true, businessType=COM, t24Name=COMPANY.CODE)
+		PI_COUNTRY -> byValue ST_RateParameters:ST_RATE_PARAMETER__PI_COUNTRY *
+		FWD_COUNTRY -> byValue ST_RateParameters:ST_RATE_PARAMETER__FWD_COUNTRY *
+		RESERVED10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=5.0, core=true, t24Name=RESERVED10)
+		RESERVED09 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=6.0, core=true, t24Name=RESERVED09)
+		RESERVED08 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=7.0, core=true, t24Name=RESERVED08)
+		RESERVED07 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED07)
+		RESERVED06 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED06)
+		RESERVED05 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED05)
+		RESERVED04 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED04)
+		RESERVED03 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED03)
+		RESERVED02 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=13.0, core=true, t24Name=RESERVED02)
+		RESERVED01 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=14.0, core=true, t24Name=RESERVED01)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue ST_RateParameters:ST_RATE_PARAMETER__INPUTTER *
+		DATE_TIME -> byValue ST_RateParameters:ST_RATE_PARAMETER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=20.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=21.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=23.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=24.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	ST_RATE_PARAMETER__PI_COUNTRY
+	{
+		PI_COUNTRY -> ST_Config:COUNTRY
+			@t24:i (align=L, inputBehaviour=F, maxLength=9, sysNumber=1.0, core=true, businessType=ANY, t24Name=PI.COUNTRY)
+		PI_REGION -> byValue ST_RateParameters:ST_RATE_PARAMETER__PI_COUNTRY__PI_REGION *
+	}
+	ST_RATE_PARAMETER__PI_COUNTRY__PI_REGION
+	{
+		PI_REGION -> ST_Config:REGION
+			@t24:i (align=L, inputBehaviour=F, maxLength=12, sysNumber=2.0, core=true, businessType=ANY, t24Name=PI.REGION)
+	}
+	ST_RATE_PARAMETER__FWD_COUNTRY
+	{
+		FWD_COUNTRY -> ST_Config:COUNTRY
+			@t24:i (align=L, inputBehaviour=F, maxLength=9, sysNumber=3.0, core=true, businessType=ANY, t24Name=FWD.COUNTRY)
+		FWD_REGION -> byValue ST_RateParameters:ST_RATE_PARAMETER__FWD_COUNTRY__FWD_REGION *
+	}
+	ST_RATE_PARAMETER__FWD_COUNTRY__FWD_REGION
+	{
+		FWD_REGION -> ST_Config:REGION
+			@t24:i (align=L, inputBehaviour=F, maxLength=12, sysNumber=4.0, core=true, businessType=ANY, t24Name=FWD.REGION)
+	}
+	ST_RATE_PARAMETER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=18.0, core=true, t24Name=INPUTTER)
+	}
+	ST_RATE_PARAMETER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=19.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	BASIC_RATE_TEXT__SWIFT_RATE_CODE : mml:string
+		BASE=BASE
+		CALL=CALL
+		COMMERCIAL=COMMERCIAL
+		CURRENT=CURRENT
+		DEPOSIT=DEPOSIT
+		NOTICE=NOTICE
+		PRIME=PRIME
+	BASIC_RATE_TEXT__BASIC_RATE_CNG_ADV : mml:string
+		Y=Y
+		N=N
+	INTEREST_BASIS__OLD_CALC_METHOD : mml:string
+		YES=YES
+		NULL=NULL
+	PERIODIC_INTEREST__USE_LAST_WRKNG_DAY : mml:string
+		Y=Y
+		N=N
+	PERIODIC_INTEREST__APPLICATION__APPLICATION : mml:string
+		MM=MM
+		SW=SW
+		DX=DX
+	SETTLEMENT_RATES__CONVERSION_TYPE : mml:string
+		BUY=BUY
+		MID=MID
+		SELL=SELL
+	SETTLEMENT_RATES__PROTECTION_CLAUSE : mml:string
+		YES=YES
+		NO=NO
+}

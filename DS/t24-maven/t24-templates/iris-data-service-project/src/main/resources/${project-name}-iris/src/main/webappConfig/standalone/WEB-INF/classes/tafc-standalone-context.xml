@@ -1,0 +1,57 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<!-- Read property files -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath*:tafc-connection.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true"/>
+	</bean>
+
+	<!-- TAFC connection configuration -->
+	<bean id="irisCxconfig" class="com.temenos.tocf.jencks.TafcConfiguration" >
+		<property name="hosts" value="${iris.tafc.hosts}" />
+		<property name="ports" value="${iris.tafc.ports}" />
+		<property name="ofsSource" value="${iris.tafc.ofssource}" />
+		<property name="allowInput" value="${iris.tafc.allowInput}" />
+		<property name="actionTimeout" value="${iris.tafc.actionTimeout}" />
+	</bean>
+	
+	<!-- Example of second connection details -->
+	<bean id="authenticatorCxconfig" class="com.temenos.tocf.jencks.TafcConfiguration" >
+		<property name="hosts" value="${auth.tafc.hosts}" />
+		<property name="ports" value="${auth.tafc.ports}" />
+		<property name="ofsSource" value="${auth.tafc.ofssource}" />
+		<property name="allowInput" value="${auth.tafc.allowInput}" />
+		<property name="actionTimeout" value="${auth.tafc.actionTimeout}" />
+		<property name="cxFactoryName" value="${auth.tafc.cxFactory}" />
+		<property name="managedCxFactoryName" value="${auth.tafc.managedCxFactory}" />
+	</bean>
+
+	<!-- Initialize a connection manager configurations -->
+	<bean id="connMgrConfig" class="com.temenos.tocf.jencks.ConnectionManagerConfiguration">
+		<property name="poolMinSize" value="${poolMinSize}" />
+		<property name="poolMaxSize" value="${poolMaxSize}" />
+		<property name="connectionMaxWaitSeconds" value="${connectionMaxWaitSeconds}" />
+		<property name="connectionMaxIdleMinutes" value="${connectionMaxIdleMinutes}" />
+	</bean>
+	
+	<!-- TAFC jencks jndi container -->
+	<bean id="jencksJcaContainer" class="com.temenos.tocf.jencks.JencksJcaContainer" >
+		<!-- Pass Individual connection properties here -->
+		<constructor-arg>
+		<list>
+		<ref bean="irisCxconfig" />
+		<ref bean="authenticatorCxconfig" />
+		<!-- Add More beans of type TafcConfiguration here -->
+            </list>
+	</constructor-arg>
+	<constructor-arg ref="connMgrConfig" />
+   </bean>
+</beans>
+

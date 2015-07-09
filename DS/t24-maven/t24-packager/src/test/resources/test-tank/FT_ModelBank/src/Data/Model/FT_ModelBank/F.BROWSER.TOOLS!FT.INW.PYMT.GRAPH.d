@@ -1,0 +1,22 @@
+Launch Detailed Enquiry
+JAVASCRIPT
+Detail
+
+records
+docommand("%%ACTION")
+YES
+
+
+
+
+IMAGE
+
+
+
+
+2
+9599_KARTHIK.2_I_INAU
+1102150613ý1102150613
+9599_KARTHIK.2
+GB0010001
+1

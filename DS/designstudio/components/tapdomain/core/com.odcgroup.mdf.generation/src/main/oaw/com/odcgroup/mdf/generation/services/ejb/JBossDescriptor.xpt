@@ -1,0 +1,26 @@
+«IMPORT mdf»
+«EXTENSION com::odcgroup::mdf::generation::java»
+
+«DEFINE JBossDescriptor FOR List[MdfDomain]»
+	«FILE "META-INF/jboss.xml" DESCRIPTORS-»
+<?xml version="1.0" encoding="UTF-8"?>
+		<!DOCTYPE jboss PUBLIC "-//JBoss//DTD JBOSS 4.0//EN"
+		   "http://www.jboss.org/j2ee/dtd/jboss_4_0.dtd">
+		<jboss>
+			<enterprise-beans>
+				«FOREACH this AS domain»
+					«FOREACH domain.datasets AS dataset»
+						«EXPAND BeanDescriptor FOR dataset»
+					«ENDFOREACH»
+				«ENDFOREACH»
+			</enterprise-beans>
+		</jboss>
+	«ENDFILE»
+«ENDDEFINE»
+
+«DEFINE BeanDescriptor FOR MdfEntity»
+	<session>
+		<ejb-name>«getParentDomain().name»_«name»Service</ejb-name>
+		<jndi-name>ejb/«getParentDomain().name»/«name»Service</jndi-name>
+	</session>
+«ENDDEFINE»

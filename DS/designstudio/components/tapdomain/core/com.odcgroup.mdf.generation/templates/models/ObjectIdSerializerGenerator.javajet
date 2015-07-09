@@ -1,0 +1,69 @@
+<%@ jet package="com.odcgroup.mdf.generation.legacy.java.jet" 
+	class="ObjectIdSerializerGenerator" 
+	skeleton="ObjectIdSerializerGenerator.skel"
+	imports="java.util.*
+		com.odcgroup.mdf.ecore.PrimitivesDomain
+		com.odcgroup.mdf.transform.java.JavaCore
+		com.odcgroup.mdf.generation.legacy.java.SourceCodeGenerator
+		com.odcgroup.mdf.metamodel.*" %>
+<%@ include file="../header.txt" %>
+
+package <%= JavaCore.getModelPackage(_model) %>.serializer;
+
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.IOException;
+
+import com.odcgroup.mdf.core.*;
+import com.odcgroup.mdf.serializer.*;
+
+/**
+ * Object id for the <%= _model.getName() %> class.
+ * @see <%= JavaCore.getQualifiedRefClassName(_model) %>
+ * @generated
+ */
+public class <%= JavaCore.getRefClassName(_model) %>Serializer implements Serializer {
+	 public static final long CLASSID = <%=JavaCore.generateRefSUID(_model)%>L;
+	 
+	 
+	 public void writeObject(Object obj, ObjectOutput out) throws IOException {
+	 	write((<%= JavaCore.getQualifiedRefClassName(_model) %>)obj , out);
+	 }
+
+	 public Object readObject(ObjectInput in) throws IOException {
+	 	return read(in);
+	 }
+
+    /*
+     * serialization
+     */ 
+	static public void write(<%=JavaCore.getQualifiedRefClassName(_model)%> obj, ObjectOutput out) throws IOException {
+<%		Iterator keys = _model.getPrimaryKeys(true).iterator();
+        if (keys.hasNext()) {
+            MdfProperty p = (MdfProperty) keys.next();
+            MdfEntity type = p.getType();
+            
+            Class javaClass = PrimitivesDomain.getJavaType(type); %>
+	    BasicObjectSerializer.write<%=JavaCore.getLastWord(javaClass.getName())%>(
+	    <% if (!javaClass.isPrimitive()){%>
+				(<%=javaClass.getName()%>)obj.getPrimaryKeyValue(), out);
+	    <%} else {%>
+	    			((<%=PrimitivesDomain.getJavaType(type).getName()%>)obj.getPrimaryKeyValue()).<%=javaClass.getName()%>Value(), out);
+<%	      }
+	}%>
+	}
+
+
+	static <%= JavaCore.getQualifiedRefClassName(_model)%> read(ObjectInput in)  throws IOException {
+<%		keys = _model.getPrimaryKeys(true).iterator();
+        if (keys.hasNext()) {
+            MdfProperty p = (MdfProperty) keys.next();
+            MdfEntity type = p.getType();
+            
+            Class javaClass = PrimitivesDomain.getJavaType(type); %>
+	     return <%= JavaCore.getQualifiedRefClassName(_model)%>.create<%=JavaCore.getRefClassName(_model)%>(BasicObjectSerializer.read<%=JavaCore.getLastWord(javaClass.getName())%>(in));
+<%	 } %>
+
+	}
+	
+}

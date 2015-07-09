@@ -1,0 +1,590 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = "Cash Summary View", de = "Geldfluss Zusammenfassung", fr = "Vue sommaire de liquidité"
+	domainEntity = "AAADSFutureCashFlow:FutureCashFlowSummaryList"
+	bean-define = DSBean.AAADSFutureCashFlow.FutureCashFlowSummaryList
+	bean-name = FutureCashFlowSummaryList
+	id = FutureCashFlowBalanceE_iU56_
+	documentation = "Using as reference the From date of the context (domain), this module displays all cumulated futur cash flows (balances) for the following periods:\r\n\r\n- today\r\n- next year\r\n- in 2 years\r\n- in 3 years\r\n- in 4 years\r\n- in 5 years\r\n- in 6 years and more"
+	tid = 659880200442235
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- Box ---
+			boxType = vertical
+		{
+			--- Label ---
+				labels en = "Flow per Dates", de = "Geldfluss per  Datum", fr = "Flux par dates"
+				id = QkJY_
+				tid = 659880215466211
+			--- Label ---
+				labels en = "Balance per Dates", de = "Saldo per Datum", fr = "Balance par dates"
+				cssClass = "blue bold italic fs12"
+				id = RZ8__
+				tid = 659880273214891
+		}
+		--- TableTree ---
+			table-rendering-mode = summary-delegated
+			id = CX_M8
+			documentation = "This table displays the cumulated futur cash flows (balances) from today, splitted in period of one year. The reference date used to define today is the From date of the context (domain)."
+			table-column-count = 18 !
+			table-columns-width = "5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5" !
+		{
+			--- TableColumn ---
+				labels en = Portfolio, fr = Portefeuille, de = Portfolio
+				column-display-grouping = true
+				column-name = GROUPING
+				column-type = placeholder !
+				type = text
+				column-locked = true
+				column-sortable = false !
+				column-width = 200
+				column-wrapped = false
+				id = U_7o7
+				table-column-width = 5
+				tid = 659880274890803
+			{
+				--- TableGroup ---
+					group-column-name = CURR_CLASS_CODE
+					group-sorting-column-name = CURR_CLASS_RANK
+					group-sorting-direction = ascending
+					group-rank = 4
+				--- TableGroup ---
+					group-column-name = PTF_HIER_STR
+					group-sorting-column-name = PTF_HIER_STR
+					group-sorting-direction = ascending
+					hierarchy = true
+					group-rank = 1
+				{
+					Event OnClick (submit) S
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						target = self
+						flow-action = selectPortfolio ud
+						portfolioDimPortfolio.code = "<udp:item column=\"_nodeCode\"/>" ud
+						portfolioDimensionE = 1 ud
+						modal = false
+						only-changed = false
+						prevalidate = false
+						code = "<udp:item column=\"_nodeCode\"/>" ud
+						Snippet FilterSet
+						id = fs_5be
+						level = 1
+						targetDataset = "AAADSFutureCashFlow:FutureCashFlowSummaryList"
+						{
+							Snippet Filter
+							attribute = PTF_HIER_STR
+							filterValue = "<udp:item column=\"PTF_HIER_STR\"/>"
+							operator = BEGINS_WITH
+						}
+					}
+				}
+			}
+			--- TableColumn ---
+				column-name = THIRD_COMP_RULE !
+				column-type = domain !
+				domainAttribute = THIRD_COMP_RULE !
+				type = text
+				column-visibility = not-visible
+				id = THIRD_COMP_RULE
+				table-column-width = 5
+			{
+				--- TableColumnItem ---
+					item-column = THIRD_COMP_RULE
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "Start Date", de = Anfangsdatum, fr = "Date de début"
+				column-name = StartDate
+				type = amount
+				id = PKN__
+				column-computation = make-amount
+				column-computation-parameters = "DEBIT_CREDIT_PER_0,POS_CURRENCY"
+				table-column-width = 5
+				tid = 659880276843844
+			{
+				--- TableColumnItem ---
+					toolTips en = Flow, fr = Flux, de = Flüsse
+					item-column = StartDate
+					item-halign = trail
+					item-width = 100
+					previewValue = value
+					tid = 659880278795768
+				--- TableColumnItem ---
+					toolTips en = Balance, fr = Solde, de = Saldo
+					item-column = Balance_per_0
+					item-css = "blue bold italic fs12"
+					item-halign = trail
+					item-width = 100
+					newLine = true
+					previewValue = value
+					tid = 659880280749927
+			}
+			--- TableColumn ---
+				column-name = Balance_per_0
+				type = amount
+				column-visibility = never-visible
+				id = fP09C
+				column-computation = make-amount
+				column-computation-parameters = "BALANCE_PER_0,POS_CURRENCY"
+				table-column-width = 5
+			{
+				--- TableColumnItem ---
+					item-column = Balance_per_0
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "One Week", de = "Eine Woche", fr = "Une semaine"
+				column-name = NextWeek
+				type = amount
+				id = E__Zo
+				column-computation = make-amount
+				column-computation-parameters = "DEBIT_CREDIT_PER_1,POS_CURRENCY"
+				table-column-width = 5
+				tid = 659880282703807
+			{
+				--- TableColumnItem ---
+					toolTips en = Flow, fr = Flux, de = Flüsse
+					item-column = NextWeek
+					item-halign = trail
+					item-width = 100
+					previewValue = value
+					tid = 659880284706296
+				--- TableColumnItem ---
+					toolTips en = Balance, fr = Solde, de = Saldo
+					item-column = Balance_per_1
+					item-css = "blue bold italic fs12"
+					item-halign = trail
+					item-width = 100
+					newLine = true
+					previewValue = value
+					tid = 659880293451542
+			}
+			--- TableColumn ---
+				column-name = Balance_per_1
+				type = amount
+				column-visibility = never-visible
+				id = h978t
+				column-computation = make-amount
+				column-computation-parameters = "BALANCE_PER_1,POS_CURRENCY"
+				table-column-width = 5
+			{
+				--- TableColumnItem ---
+					item-column = Balance_per_1
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "One Month", de = "Ein Monat", fr = "Un mois"
+				column-name = OneMonth
+				type = amount
+				id = t_NZw
+				column-computation = make-amount
+				column-computation-parameters = "DEBIT_CREDIT_PER_2,POS_CURRENCY"
+				table-column-width = 5
+				tid = 659880295428329
+			{
+				--- TableColumnItem ---
+					toolTips en = Flow, fr = Flux, de = Flüsse
+					item-column = OneMonth
+					item-halign = trail
+					item-width = 100
+					previewValue = value
+					tid = 659880297356228
+				--- TableColumnItem ---
+					toolTips en = Balance, fr = Solde, de = Saldo
+					item-column = Balancer_per_2
+					item-css = "blue bold italic fs12"
+					item-halign = trail
+					item-width = 100
+					newLine = true
+					previewValue = value
+					tid = 659880299302564
+			}
+			--- TableColumn ---
+				column-name = Balancer_per_2
+				type = amount
+				column-visibility = never-visible
+				id = Mh_Xy
+				column-computation = make-amount
+				column-computation-parameters = "BALANCE_PER_2,POS_CURRENCY"
+				table-column-width = 5
+			{
+				--- TableColumnItem ---
+					item-column = Balancer_per_2
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "Three Months", de = "Drei Monate", fr = "Trois mois"
+				column-name = ThreeMonths
+				type = amount
+				id = X4Z_0
+				column-computation = make-amount
+				column-computation-parameters = "DEBIT_CREDIT_PER_3,POS_CURRENCY"
+				table-column-width = 5
+				tid = 659880301258679
+			{
+				--- TableColumnItem ---
+					toolTips en = Flow, fr = Flux, de = Flüsse
+					item-column = ThreeMonths
+					item-halign = trail
+					item-width = 100
+					previewValue = value
+					tid = 659880303211441
+				--- TableColumnItem ---
+					toolTips en = Balance, fr = Solde, de = Saldo
+					item-column = Balance_per_3
+					item-css = "blue bold italic fs12"
+					item-halign = trail
+					item-width = 100
+					newLine = true
+					previewValue = value
+					tid = 659880305162807
+			}
+			--- TableColumn ---
+				column-name = Balance_per_3
+				type = amount
+				column-visibility = never-visible
+				id = CS90e
+				column-computation = make-amount
+				column-computation-parameters = "BALANCE_PER_3,POS_CURRENCY"
+				table-column-width = 5
+			{
+				--- TableColumnItem ---
+					item-column = Balance_per_3
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "Six Months", de = "Sechs Monate", fr = "Six mois"
+				column-name = SixMonths
+				type = amount
+				id = ivK4_
+				column-computation = make-amount
+				column-computation-parameters = "DEBIT_CREDIT_PER_4,POS_CURRENCY"
+				table-column-width = 5
+				tid = 659880307115010
+			{
+				--- TableColumnItem ---
+					toolTips en = Flow, fr = Flux, de = Flüsse
+					item-column = SixMonths
+					item-halign = trail
+					item-width = 100
+					previewValue = value
+					tid = 659880309068052
+				--- TableColumnItem ---
+					toolTips en = Balance, fr = Solde, de = Saldo
+					item-column = Balance_per_4
+					item-css = "blue bold italic fs12"
+					item-halign = trail
+					newLine = true
+					previewValue = value
+					tid = 659880311019417
+			}
+			--- TableColumn ---
+				column-name = Balance_per_4
+				type = amount
+				column-visibility = never-visible
+				id = Z_Lo_
+				column-computation = make-amount
+				column-computation-parameters = "BALANCE_PER_4,POS_CURRENCY"
+				table-column-width = 5
+			{
+				--- TableColumnItem ---
+					item-column = Balance_per_4
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "Nine Months", de = "Neun Monate", fr = "Neuf mois"
+				column-name = NineMonths
+				type = amount
+				id = p_P6L
+				column-computation = make-amount
+				column-computation-parameters = "DEBIT_CREDIT_PER_5,POS_CURRENCY"
+				table-column-width = 5
+				tid = 659880387719388
+			{
+				--- TableColumnItem ---
+					toolTips en = Flow, fr = Flux, de = Flüsse
+					item-column = NineMonths
+					item-halign = trail
+					item-width = 100
+					previewValue = value
+					tid = 659880389175719
+				--- TableColumnItem ---
+					toolTips en = Balance, fr = Solde, de = Saldo
+					item-column = Balance_per_5
+					item-css = "blue bold italic fs12"
+					item-halign = trail
+					item-width = 100
+					newLine = true
+					previewValue = value
+					tid = 659880391101941
+			}
+			--- TableColumn ---
+				column-name = Balance_per_5
+				type = amount
+				column-visibility = never-visible
+				id = D25U1
+				column-computation = make-amount
+				column-computation-parameters = "BALANCE_PER_5,POS_CURRENCY"
+				table-column-width = 5
+			{
+				--- TableColumnItem ---
+					item-column = Balance_per_5
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "One Year", de = "Ein Jahr", fr = "Un an"
+				column-name = OneYear
+				type = amount
+				id = b8_h_
+				column-computation = make-amount
+				column-computation-parameters = "DEBIT_CREDIT_PER_6,POS_CURRENCY"
+				table-column-width = 5
+				tid = 659880393058615
+			{
+				--- TableColumnItem ---
+					toolTips en = Flow, fr = Flux, de = Flüsse
+					item-column = OneYear
+					item-halign = trail
+					item-width = 100
+					previewValue = value
+					tid = 659880395006069
+				--- TableColumnItem ---
+					toolTips en = Balance, fr = Solde, de = Saldo
+					item-column = Balance_per_6
+					item-css = "blue bold italic fs12"
+					item-halign = trail
+					item-width = 100
+					newLine = true
+					previewValue = value
+					tid = 659880396965815
+			}
+			--- TableColumn ---
+				column-name = Balance_per_6
+				type = amount
+				column-visibility = never-visible
+				id = L_d3_
+				column-computation = make-amount
+				column-computation-parameters = "BALANCE_PER_6,POS_CURRENCY"
+				table-column-width = 5
+			{
+				--- TableColumnItem ---
+					item-column = Balance_per_6
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = THIRD_PARTY_OWNERSHIP_RULE !
+				column-type = domain !
+				domainAttribute = THIRD_PARTY_OWNERSHIP_RULE !
+				type = text
+				column-visibility = not-visible
+				id = THIRD_PARTY_OWNERSHIP_RULE
+				table-column-width = 5
+			{
+				--- TableColumnItem ---
+					item-column = THIRD_PARTY_OWNERSHIP_RULE
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = THIRD_PARTY_PERCT_OWNERSHIP !
+				column-type = domain !
+				domainAttribute = THIRD_PARTY_PERCT_OWNERSHIP !
+				type = text
+				column-visibility = not-visible
+				id = THIRD_PARTY_PERCT_OWNERSHIP
+				table-column-width = 5
+			{
+				--- TableColumnItem ---
+					item-column = THIRD_PARTY_PERCT_OWNERSHIP
+					format = percentTA
+					previewValue = value
+			}
+			--- TableExtra ---
+				domainAttribute = portfolio_id
+			--- TableAggregate ---
+				aggregate-column-name = PORTFOLIO_CODE
+				aggregate-computation = max
+				aggregate-group-names = PTF_HIER_STR
+			--- TableAggregate ---
+				aggregate-column-name = POS_CURRENCY
+				aggregate-computation = max
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = portfolio_id
+				aggregate-computation = max
+				aggregate-group-names = PTF_HIER_STR
+			--- TableAggregate ---
+				aggregate-column-name = CURR_CLASS_RANK
+				aggregate-computation = max
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = CURR_CLASS_CODE
+				aggregate-computation = max
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableExtra ---
+				domainAttribute = PORTFOLIO_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_PER_0
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_PER_1
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_PER_2
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_PER_3
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_PER_4
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_PER_5
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_PER_6
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = NextWeek
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = OneMonth
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = ThreeMonths
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = SixMonths
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = NineMonths
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = OneYear
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = THIRD_COMP_RULE
+				aggregate-computation = max
+				aggregate-group-names = PTF_HIER_STR
+			--- TableAggregate ---
+				aggregate-column-name = THIRD_PARTY_OWNERSHIP_RULE
+				aggregate-computation = max
+				aggregate-group-names = PTF_HIER_STR
+			--- TableAggregate ---
+				aggregate-column-name = THIRD_PARTY_PERCT_OWNERSHIP
+				aggregate-computation = max
+				aggregate-group-names = PTF_HIER_STR
+			--- TableAggregate ---
+				aggregate-column-name = StartDate
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = PTF_HIER_STR
+				aggregate-computation = max
+			--- TableKeepFilter ---
+				keep-filter-column-name = SERVER_FILTER
+				keep-filter-operand = 1
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_CUM_PER_0
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = Balance_per_0
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = BALANCE_PER_0
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = Balance_per_1
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = BALANCE_PER_1
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_CUM_PER_2
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = Balancer_per_2
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = BALANCE_PER_2
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_CUM_PER_3
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_CUM_PER_1
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = Balance_per_3
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = BALANCE_PER_3
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_CUM_PER_4
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = Balance_per_4
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = BALANCE_PER_4
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_CUM_PER_5
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = Balance_per_5
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = BALANCE_PER_5
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = DEBIT_CREDIT_CUM_PER_6
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = Balance_per_6
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+			--- TableAggregate ---
+				aggregate-column-name = BALANCE_PER_6
+				aggregate-computation = sum
+				aggregate-group-names = CURR_CLASS_CODE
+		}
+	}
+}

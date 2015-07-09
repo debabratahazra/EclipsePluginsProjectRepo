@@ -1,0 +1,84 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Fragment ---
+	cardinality = one
+	domainEntity = "AAADSDomain:DomainContext"
+{
+	--- Box ---
+		labels en = "Allocation Method", de = Zuteilungsmethode, fr = "Méthode d\'allocation"
+		boxType = vertical
+		tid = 113536068624972
+	{
+		--- Grid ---
+			cssClass = blank
+			gridColumnCount = 3
+			gridColumnsWidth = "6,47,47" !
+			gridRowCount = 1
+		{
+			--- GridCell ---
+				gridColumnWidth = 6
+			{
+				--- LabelDomain ---
+					domainAttribute = orderAllocNatE !
+					for = orderAllocNatE
+					cssClass = hidden
+					horizontalAlignment = "${corporatehalign}"
+					required = true
+					id = orderAllocNatE
+			}
+			--- GridCell ---
+				gridColumnWidth = 47
+			{
+				--- ComboBox ---
+					domainAttribute = orderAllocNatE !
+					horizontalAlignment = "${corporatehalign}"
+					editable = false
+					required = true
+					bean-property = orderAllocNatE
+					id = orderAllocNatE
+				{
+					Event OnChange (submit)
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						widget-group-ref = form
+						param = "flow-action=reload"
+						only-changed = true
+						modal = false
+						prevalidate = false
+					}
+				}
+			}
+			--- GridCell ---
+				gridColumnWidth = 47
+			{
+				--- Conditional ---
+					indexOfSelectedChild = 0
+				{
+					--- ConditionalBody ---
+						conditionLang = DSEL
+						javaCode = "DomainContext.orderAllocNatE==AAAEnumerations::DomainAAAOrderAllocNatE::GlobalOrderQuantity"
+						technicalName = "Global Ord Qty"
+						isWidgetSelected = true
+					{
+						--- Grid ---
+							cssClass = blank
+							gridColumnCount = 1
+							gridColumnsWidth = 100 !
+							gridRowCount = 1
+						{
+							--- GridCell ---
+								gridColumnWidth = 100
+							{
+								--- Include ---
+									includeSrc = "" !
+									resource:///default/domain/basicelements/DomainQuantityAllocationNature.fragment
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

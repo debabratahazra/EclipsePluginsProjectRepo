@@ -1,0 +1,614 @@
+# UTF-8
+# UTF-8
+/* Passbook Printing For Teller */
+Domain TT_Passbook
+	@t24:i (module=TT)
+	@java:Package (value=com.temenos.t24.datamodel.tt.tt_passbook)
+namespace "http://www.temenos.com/t24/TT_Passbook"
+metamodelVersion 1.30.6
+Classes {
+	/* The TELLER.PASSBOOK file allows you to define the format of the data output on a savings account passbook. There is one record allowed in this file, "SYSTEM".
+You can define the data to be output when:
+a)    A new passbook is issued. Eg The customer's name       & address.
+b)    A new page is printed. Eg The balance brought       forward.
+c)    An entry is printed. Ie The transaction amount,       debit/credit column, balance etc.
+d)    The last line of the page is printed. Eg The       balance carried forward.
+e)    The last page of the passbook is printed. Eg New       book issued message.
+The data printed can be any field from the following files:
+ACCOUNT CUSTOMER COMPANY TRANSACTION CURRENCY       ACCOUNT.STATEMENT STMT.ENTRY CATEGORY       DEPT.ACCT.OFFICER
+Any free format text or one of the following:
+CREDIT     +ve amount from the entry       DEBIT      -ve amount from the entry       BALANCE    the new account balance       TODAY      todays date       TELLER.ID  the current teller id.
+The remainder of the information in TELLER.PASSBOOK specifies the physical characteristics of the passbook itself. Ie the first physical line to print entries, the size of the spine, the number of pages in the passbook etc.
+Example
+Field                           Column Format Print On
+2. 1 ACCOUNT>ACCOUNT.NUMBER     42,2   16R    NEW 2. 2 CATEGORY>SHORT.NAME        38,5   15L    NEW 2. 3 DEPT.ACCT.OFFICER>AREA     12,6   35L    NEW 2. 4 CUSTOMER>SHORT.NAME        17,10  35L    NEW 2. 5 CUSTOMER>BIRTH.INCORP.DATE 17,12   4L    NEW 2. 6 " "                         1,35   1L    NEW
+2. 7 STMT.ENTRY>BOOKING.DATE     4,7   DATE   FIRST 2. 8 "BF"                       13,7    2L    FIRST 2. 9 BALANCE                    41,7   11*RX, FIRST 2.10 TELLER.ID                  53,7    4R    FIRST
+2.11 STMT.ENTRY>BOOKING.DATE     4     DATE   LINE 2.12 TRANSACTION>SHORT.DESC     13      2L    LINE 2.13 DEBIT                      16     11RX,N LINE 2.14 CREDIT                     28     11RX,  LINE 2.15 BALANCE                    41     11*RX, LINE 2.16 TELLER.ID                  53      4R    LINE
+6  FIRST.DETAIL.LINE             8 7  LAST.DETAIL.LINE             35 8  NUMBER.OF.PAGES               6 9  SPINE.LINES                  20-22 10 ATTRIBUTE                    INIT
+The "NEW" parameters print the customers name, account number, year of birth etc when a passbook is issued. The line parameter in the column field (column,line) forces the print to take place at the specific physical line rather than printing at the 'current' line. The " " printed at the last detail line forces a new page to be started, ready for the entries to be printed.
+The "FIRST" parameters print the balance carried forward details at the start of each page. The balance and the booking date are taken from the ACCOUNT.STATEMENT record and the last statement entry respectively. Note: The format of the balance field, "11*RX,", means the amount will be printed with leading asterix with the X being replaced by the number of decimal places for the account's currency, ie:  **11,056.78 or ******56.43
+The "LINE" parameters print the details of each entry. Note: Thecolumn field does not contain a line specification, hence, the data will be output on the current line. If the entry is a deposit then the CREDIT field will contain the amount, otherwise the amount will be held in the DEBIT field. For DEBIT the negative sign is removed before printing using the "N" in the format specification, (11RX,N).
+The output will look like the following:
+07.02.90 BF                        ***1,551.20 0001    08.02.90 CR                100.00  ***1,651.20 0001    30.06.90 IN                 82.70  ***1,733.90 0002    15.08.90 DR      50.00             ***1,683.90 0006
+Passbook Lines
+All of the line specifications within the TELLER.PASSBOOK record, SYSTEM, refer to the PHYSICAL lines in the passbook. This is not the same as the entry number or passbook line. In the previous example the last detail line is 35, the first detail line (where to start printing entries) is line 8 with a spine of 3 lines at line 20 to 22.
+It looks like this:
++------------------------------------------------------ |     Top margin 7 lines | |     Balance carried forward line 1     First entry line .     Entries from line 8 to 19 . 12 | |---- Spine 3 lines ---------------------------------- | 13    Entries from line 23 to 35 . . . . 25 | +-----------------------------------------------------
+The numbers, down the left hand side, refer to the passbook line which will be entered by the teller when he wishes to change the current line to start printing. It is this passbook line which is stored on the ACCOUNT.STATEMENT record.
+In summary, TELLER.PASSBOOK, requires the physical dimensions of the passbook in order to accurately position the print head for printing. The teller will refer only to the passbook line or entry number and the physical line is calculated automatically based on the these dimensions. */
+	TELLER_PASSBOOK
+		@t24:i (t24Name=TELLER.PASSBOOK, level=C, type=H, additionalInfo=NOD, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* Only one passbook format is currently supported, which is specified in the record SYSTEM.
+From 14.2.00 release - the id of the teller passbook is enhanced to accept other than SYSTEM as its id.  The implication is that there can be more than one type of lay out to the teller passbook from release 14.2.00
+Fro any account if pass. book field is yes the id would by default be "System" unless the field in account. statement i.e. passbook. id is input with any other id. The other validations remain the same.
+Validation Rules
+
+SYSTEM
+from 14.2.00 other than System is also accepted. */
+		TELLER_PASSBOOK -> TT_Passbook:TELLER_PASSBOOK PK required
+			@i18n:Label (en="Teller Passbook")
+			@i18n:Tooltip (en="Teller Passbook")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, businessType=ANY, t24Name=TELLER.PASSBOOK)
+		DESCRIPTION -> byValue TT_Passbook:TELLER_PASSBOOK__DESCRIPTION *
+		FIELD -> byValue TT_Passbook:TELLER_PASSBOOK__FIELD *
+		/* The physical line where the first entry, on a page, should be printed.
+To determine this it is best to print data, outside T24, on every physical line of the passbook. You can then check not only which line to start the entries on but also whether the data is output on the pre-printed lines. It is likely that you will have to modify the line spacing, best handled by ATTRIBUTEs, in order to marry the two exactly.
+The balance brought forward line is normally printed on the line preceding the FIRST.DETAIL.LINE.
+Validation Rules
+1-3 Numeric characters. */
+		FIRST_DETAIL_LINE : mml:Integer required
+			@i18n:Label (en="First Detail Line")
+			@i18n:Tooltip (en="First Detail Line")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, t24Name=FIRST.DETAIL.LINE)
+		/* The last phyical line, of the page, to print an entry.
+When an entry is printed on this line it will cause one or all of the following:
+LAST       Data to be output at the end of a page. FIRST      A new passbook page to be started. END        Data to be output at the end of the book. NEW        A new passbook to be issued.
+Validation Rules
+1-3 Numeric characters */
+		LAST_DETAIL_LINE : mml:Integer required
+			@i18n:Label (en="Last Detail Line")
+			@i18n:Tooltip (en="Last Detail Line")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=7.0, core=true, t24Name=LAST.DETAIL.LINE)
+		/* The number of pages in the passbook - including any 'header' page where the customer's name etc is printed.
+When this is exceeded then any "END" items are printed, a new passbook is issued "NEW" and the balance carried forward is printed "FIRST". Note: This occurs when the last entry is printed. Which means that a new passbook is issued when the current one is full & NOT when a new entry needs to be printed.
+Validation Rules
+1-3 Numeric characters. */
+		NUMBER_OF_PAGES : mml:Integer required
+			@i18n:Label (en="Number Of Pages")
+			@i18n:Tooltip (en="Number Of Pages")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, t24Name=NUMBER.OF.PAGES)
+		/* The physical line positions of the spine of the passbook where entries cannot be printed.
+Identifies the middle of the passbook where entries cannot be printed. This is only required for passbooks printed with the spine running horizontally rather than the vertically.
+The format is XX-YY where XX is the line number where the spine area begins and YY the end. Eg 20-22 would mean that entries should not be printed on lines 20,21 or 22.
+Validation Rules
+5 Alphanumeric characters in the format XX-YY. */
+		SPINE_LINES : T24BusinessTypes:A
+			@i18n:Label (en="Line Position Of Spine Of Passbook")
+			@i18n:Tooltip (en="Line Position Of Spine Of Passbook")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=9.0, core=true, t24Name=SPINE.LINES)
+		ATTRIBUTE -> byValue TT_Passbook:TELLER_PASSBOOK__ATTRIBUTE *
+		/* In order that the Passbook printing can be in a standard language, and not complicated by the User or Customer having a different language, this field allows the setting of a standard default.
+Setting the language here will ensure that the printing is done in one language and any amounts formatted in the correct manner.
+Validation Rules
+
+Must be a record on the LANGUAGE file. */
+		PRT_LANG -> EB_SystemTables:LANGUAGE required
+			@i18n:Label (en="Print Language")
+			@i18n:Tooltip (en="Print Language")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=11.0, core=true, t24Name=PRT.LANG)
+		/* This field reserved for future use. */
+		RESERVE_4 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=12.0, core=true, t24Name=RESERVE.4)
+		/* This field reserved for future use. */
+		RESERVE_3 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=13.0, core=true, t24Name=RESERVE.3)
+		/* This field reserved for future use. */
+		RESERVE_2 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=14.0, core=true, t24Name=RESERVE.2)
+		/* This field reserved for future use. */
+		RESERVE_1 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=15.0, core=true, t24Name=RESERVE.1)
+		COMPILED_IDX -> byValue TT_Passbook:TELLER_PASSBOOK__COMPILED_IDX *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@i18n:Tooltip (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=17.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue TT_Passbook:TELLER_PASSBOOK__INPUTTER *
+		DATE_TIME -> byValue TT_Passbook:TELLER_PASSBOOK__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=22.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@i18n:Tooltip (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=23.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=24.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=25.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	TELLER_PASSBOOK__DESCRIPTION
+	{
+		/* Holds a description or any relevant notes relating to this passbook format.
+Validation Rules
+3-35 type A (alphanumeric) characters. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	TELLER_PASSBOOK__FIELD
+	{
+		/* Specifies the field to be printed.
+The data printed can be any field from the following files:
+ACCOUNT CUSTOMER COMPANY TRANSACTION            CURRENCY ACCOUNT.STATEMENT STMT.ENTRY            CATEGORY DEPT.ACCT.OFFICER
+The TRANSACTION and STMT.ENTRY files contain details concerning the 'current' entry. The other files contain static information concerning the customer and account.
+The special fields are as follows:
+CREDIT     +ve amount from the entry            DEBIT      -ve amount from the entry            BALANCE    the new account balance            TODAY      todays date            TELLER.ID  the current teller id.
+Free format text can also be entered enclosed in double quotes, "xxxxx".
+Validation Rules
+1-40 Any character a)    FILE.NAME>FIELD.NAME b)    "text" c)    Special field. (i FILE.NAME>FIELD.NAME Must be one of the files listed above and the field must be a valid data field defined on the file's STANDARD.SELECTION record.
+Special Field Must be one of the field names listed above. */
+		FIELD : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=2.0, core=true, t24Name=FIELD)
+		/* Identifies the position where the 'field' should be printed.
+You can print at a position on the current line by just specifying the column, "CC" or you can print at a specific column and line, "CC,LL". The former is usually used for printing the passbook entries, whereas the latter is used for printing headings, customer details etc.
+You can also specify an offset from the current line, "CC,+N" or "CC,-N". This is used when the entry line consists of two or more printed lines.
+The PRINT.ON field, associated with COLUMN, will determine WHEN the data is printed.
+Validation Rules
+1-9   Any characters "CC", "CC,LL", "CC,-N" or "CC,+N" */
+		COLUMN : T24BusinessTypes:ANY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=9, sysNumber=3.0, core=true, t24Name=COLUMN)
+		/* Specifies the format of the output.
+The following format specifications are normally used:
+20L#20 chars - left justified##
+15R#15 chars - right justified##
+11R,#amount formatted with commas##
+11R2,#with 2 decimal places##
+11RX,#decimal places of the currency##
+11RX,N#negative sign not displayed##
+11*RX,#padded with "*"##
+DATE#date in the format dd.mm.yy##
+ACCOUNT#number using the mask from the COMPANY record##
+
+Validation Rules
+
+10 Any characters. Any valid FMT UniVerse Basic mask. */
+		FORMAT : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=4.0, core=true, t24Name=FORMAT)
+		/* Determines when the data, specified by FIELD, COLUMN & FORMAT, should be printed.
+Controls the output of the data. Depending on the code entered the data will be printed when:
+NEW        A new passbook is issued. Eg The            customer's name & address.
+NEW1       Additional details that can be printed on            page 2 when a new passbook issued.
+FIRST      A new page is printed. Eg The balance            brought forward.
+LINE       An entry is printed. Ie The transaction            amount, debit/credit column, balance etc.
+LAST       The last line of the page is printed. Eg            The balance carried forward.
+END        The last page of the passbook is printed.            Eg New book issued message.
+Validation Rules
+1-5 Alpha characters NEW, FIRST, LINE, LAST, END */
+		PRINT_ON : TT_Passbook:TELLER_PASSBOOK__FIELD__PRINT_ON required
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=5.0, core=true, t24Name=PRINT.ON)
+	}
+	TELLER_PASSBOOK__ATTRIBUTE
+	{
+		/* Defines the printer attributes which should be downloaded to the passbook printer prior to printing entries.
+This field will form a key to the PRINTER.ATTRIBUTE file based on the PASSBOOK.DEVICE defined on the TELLER.ID file. The key is 'PASSBOOK.DEVICE'.'ATTRIBUTE' eg. ND90.INIT.
+The purpose of this field is to download attributes such as, top margin, left margin, line spacing, fonts etc. to the passbook printer. See the PRINTER.ATTRIBUTE file to determine the format of the attributes. Note when defining attributes always set up a RESET sequence to return the printer to a known state after printing.
+Validation Rules
+10 Any characters */
+		ATTRIBUTE : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=10.0, core=true, t24Name=ATTRIBUTE)
+	}
+	TELLER_PASSBOOK__COMPILED_IDX
+	{
+		COMPILED_IDX -> byValue TT_Passbook:TELLER_PASSBOOK__COMPILED_IDX__COMPILED_IDX *
+	}
+	TELLER_PASSBOOK__COMPILED_IDX__COMPILED_IDX
+	{
+		/* Internal field to hold process sequence and flags for passbook format.
+Each multivalue represents a PRINT.ON sequence eg:
+1=LINE, 2=FIRST, 3=LAST, 4=NEW, 5=END
+Each subvalue represents a 'field' from the PASSBOOK.FORMAT record for that sequence. It is comprised of:
+File Num-Field Num-Language-Index-Column-Line-Offset
+Where File Num   0 = Free format text                  1 = Special info CREDIT, DEBIT etc.                  2 = ACCOUNT                  3 = CUSTOMER                  4 = COMPANY                  5 = TRANSACTION                  6 = CURRENCY                  7 = ACCOUNT.STATEMENT                  8 = STMT.ENTRY                  9 = CATEGORY                 10 = DEPT.ACCT.OFFICER And Field Num  Field number from file Language   Flag to show field is language field Index      Multi value number in TELLER.PASSBOOK Column     Position for print Line       Specific line number Offset     Print at current line + offset.
+Validation Rules
+NOINPUT */
+		COMPILED_IDX : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=COMPILED.IDX)
+	}
+	TELLER_PASSBOOK__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=INPUTTER)
+	}
+	TELLER_PASSBOOK__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=20.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	TELLER_PASSBOOK_REPRINT
+		@t24:i (t24Name=TELLER.PASSBOOK.REPRINT, nonStop=true, level=F, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* TELLER. PASSBOOK. REPRINT
+Presently, if the passbook is updated once- then reprinting of entries is not possible.  To overcome such short comings this application is introduced.  The application contains the following new fields
+Field Name#Type#Description##
+xx. ACCOUNT#A#The account number whose entries has to be printed##
+xx. Start. Date#D#Date from which the entries has to be printed. If null, then       the date on which the passbook was printed first will be defaulted##
+xx. End. Date#D#Date till which entries of the account has to be printed, if       null today's date will be defaulted.##
+MSG. Display#A#To display the message (passbook update, Abort, Reprint) for       browser##
+User. Input#A#The processing will be taken place according to the input in       the field (Y, A, R) for browser##
+Reserve. 6-1#-#Reserved for future use##
+Validation Rules */
+		PASSBOOK_REPRINT -> TT_Passbook:TELLER_PASSBOOK_REPRINT PK required
+			@i18n:Label (en="Reprint Passbook")
+			@i18n:Tooltip (en="Reprint Passbook")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=ANY, t24Name=PASSBOOK.REPRINT)
+		ACCOUNT -> byValue TT_Passbook:TELLER_PASSBOOK_REPRINT__ACCOUNT *
+		/* Not used */
+		MSG_DISPLAY : T24BusinessTypes:A
+			@i18n:Label (en="Display Message")
+			@i18n:Tooltip (en="Display Message")
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=4.0, core=true, t24Name=MSG.DISPLAY)
+		/* Not used */
+		USER_INPUT : T24BusinessTypes:A
+			@i18n:Label (en="User Input")
+			@i18n:Tooltip (en="User Input")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=5.0, core=true, t24Name=USER.INPUT)
+		/* Reserved for future use information. */
+		RESERVE_6 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=6.0, core=true, t24Name=RESERVE.6)
+		/* Reserved for future use information. */
+		RESERVE_5 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=7.0, core=true, t24Name=RESERVE.5)
+		/* Reserved for future use information. */
+		RESERVE_4 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=8.0, core=true, t24Name=RESERVE.4)
+		/* Reserved for future use information. */
+		RESERVE_3 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=9.0, core=true, t24Name=RESERVE.3)
+		/* Reserved for future use information. */
+		RESERVE_2 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=10.0, core=true, t24Name=RESERVE.2)
+		/* Reserved for future use information. */
+		RESERVE_1 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=11.0, core=true, t24Name=RESERVE.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@i18n:Tooltip (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=12.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=13.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue TT_Passbook:TELLER_PASSBOOK_REPRINT__INPUTTER *
+		DATE_TIME -> byValue TT_Passbook:TELLER_PASSBOOK_REPRINT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=16.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=17.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@i18n:Tooltip (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=18.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=19.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=20.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	TELLER_PASSBOOK_REPRINT__ACCOUNT
+	{
+		/* The field specifies the account for which the passbook is to be reprinted.Mandatory input.Should be a valid passbook account. */
+		ACCOUNT : T24BusinessTypes:ACC required
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, core=true, t24Name=ACCOUNT)
+		/* This field indicates the date from which passbook entries have to be reprinted. 
+If no value is entered then all the entries starting from the first passbook entry will get reprinted.
+Validation rules
+This is an optional field.
+Should not be less than PURGE.DATE or RETENTION.PERIOD in ARCHIVE.
+Should not be greater than TODAY.
+Should be greater or equal to the first passbook printed date." */
+		START_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=START.DATE)
+		/* This field indicates the date upto which the passbook entries have to be reprinted.
+If no value is entered then all the entries upto TODAY will get reprinted.
+
+This is an optional field.
+Should not be greater than TODAY.
+Should not be lesser than the START.DATE." */
+		END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=END.DATE)
+	}
+	TELLER_PASSBOOK_REPRINT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=14.0, core=true, t24Name=INPUTTER)
+	}
+	TELLER_PASSBOOK_REPRINT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=15.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This application enables a passbook to be updated, with outstanding entries, without requiring a transaction to be processed.
+It is a type 'W' application, consequently the passbook is updated when the Verify function is used. */
+	TELLER_PASSBOOK_UPDATE
+		@t24:i (t24Name=TELLER.PASSBOOK.UPDATE, level=F, type=W, allowedFunctions="C I L P Q R S V", localRefAllowed=false)
+	{
+		/* The key to this file is simply an identifier and bears no significance to the processing. It is recommended that the TELLER.ID or user name is used.
+Validation Rules
+20 Any characters */
+		PASSBOOK_UPDATE -> TT_Passbook:TELLER_PASSBOOK_UPDATE PK required
+			@i18n:Label (en="Update Passbook")
+			@i18n:Tooltip (en="Update Passbook")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=ANY, t24Name=PASSBOOK.UPDATE)
+		ACCOUNT -> byValue TT_Passbook:TELLER_PASSBOOK_UPDATE__ACCOUNT *
+		/* This field reserved for future use. */
+		RESERVE_2 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=2.0, core=true, t24Name=RESERVE.2)
+		/* This field reserved for future use. */
+		RESERVE_1 : mml:Integer
+			@i18n:Label (en="Reserved Field")
+			@i18n:Tooltip (en="Reserved Field")
+			@t24:i (align=R, inputBehaviour=N, maxLength=9, sysNumber=3.0, core=true, t24Name=RESERVE.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@i18n:Tooltip (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=4.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=5.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue TT_Passbook:TELLER_PASSBOOK_UPDATE__INPUTTER *
+		DATE_TIME -> byValue TT_Passbook:TELLER_PASSBOOK_UPDATE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=8.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=9.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@i18n:Tooltip (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=11.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=12.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	TELLER_PASSBOOK_UPDATE__ACCOUNT
+	{
+		/* A multi-value list of accounts whose passbooks require updating.
+A list of accounts or, more likely an account number, should be entered here in Verify mode.
+See Passbook Processing in the Module description for Retail Bank for a complete desciption of passbook updating.
+Validation Rules
+16 Account id (i It must be a valid passbook account.
+There must be outstanding entries. */
+		ACCOUNT : T24BusinessTypes:ACC required
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=1.0, core=true, t24Name=ACCOUNT)
+	}
+	TELLER_PASSBOOK_UPDATE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=6.0, core=true, t24Name=INPUTTER)
+	}
+	TELLER_PASSBOOK_UPDATE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=7.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This file holds the details of TODAY's passbook updates. It records the last STMT.ENTRY.ID and the last balance entered on the passbook.
+It is only applicable for TODAY's entries and is cleared during the end of day procedure when the ACCOUNT.STATEMENT & associated files are updated - see batch process TELLER.PASSBOOK.STMT. The update of a passbook is viewed by the system in the same way as the production of a statement. */
+	TELLER_PBOOK_PRINTED
+		@t24:i (t24Name=TELLER.PBOOK.PRINTED, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The passbook account which has been updated.
+Validation Rules
+16 ACCOUNT number NOINPUT */
+		ACCOUNT_NUMBER -> TT_Passbook:TELLER_PBOOK_PRINTED PK required
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en=Account)
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=A, t24Name=ACCOUNT.NUMBER)
+		/* Holds the last statement entry id to be printed on the passbook today.
+Validation Rules
+14 type A (alphanumeric) characters. NOINPUT */
+		LAST_STMT_ID : T24BusinessTypes:A
+			@i18n:Label (en="Last Statement Id")
+			@i18n:Tooltip (en="Last Statement Id")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=1.0, core=true, t24Name=LAST.STMT.ID)
+		/* Holds the last balance printed on the passbook today.
+Validation Rules
+19 Amount NOINPUT */
+		LAST_BALANCE : T24BusinessTypes:AMT
+			@i18n:Label (en="Last Available Balance")
+			@i18n:Tooltip (en="Last Available Balance")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=LAST.BALANCE)
+	}
+	/* This application allows a teller to print passbook entries.  This application is invoked directly after a TELLER transaction or after a TELLER.PASSBOOK.REPRINT instruction.  This application can also be run from the command line.
+
+This application will display the following information to the user:
+1. The Passbook to Insert.
+2. The Page Number to open.
+3. The Line No the print will begin from.
+4. The Number of Entries outstanding that will be printed.
+5. The Current Balance shown in the Passbook.
+6. The number of pages that should be printed.
+
+The Teller can use this application to modify the Page Number, Line Number and instruct a NEW Passbook to be printed.
+
+Once the Teller commits the data the Passbook Print Data will be collected from T24 and sent tot he Teller for printing.  After ALL the pages have been sent this application will display a confirmation message to the Teller asking to confirm if the print was OK.  The Teller can respond YES or NO.  If YES then the Statement Entry files are updated accordingly ready for the next transaction.  If NO then the entries will remain outstanding until they are actually printed.  This application will re-display the initial print page to allow the Teller to re-print the passbook.
+
+If the Passbook can not be printed at this particular time e.g. the customer does not have the passbook or the teller transaction arrived through an alternative channel then the Teller can set the PRINT.PASSBOOK field to NO and the Printing process will not be invoked. */
+	TT_PASSBOOK_PRINT
+		@t24:i (t24Name=TT.PASSBOOK.PRINT, nonStop=true, level=F, type=W, additionalInfo=NOD, allowedFunctions="C I L P Q R S", localRefAllowed=false)
+	{
+		/* This should be entered in the ID field.  This is the account number of the passbook to be printed. */
+		ACCOUNT_NUMBER -> TT_Passbook:TT_PASSBOOK_PRINT PK required
+			@i18n:Label (en="Account Number")
+			@i18n:Tooltip (en="Account Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=ANT, t24Name=ACCOUNT.NUMBER)
+		/* This field displays the Page Number of the Passbook that the print will begin from.  The user may modify this if need be. */
+		PAGE_NO : mml:Integer
+			@i18n:Label (en="Page Number")
+			@i18n:Tooltip (en="Page Number")
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=1.0, core=true, t24Name=PAGE.NO)
+		/* This field displays the Line Number of the Passbook that the print will begin from.  The user may modify this if need be. */
+		LINE_NO : mml:Integer
+			@i18n:Label (en="Line Number")
+			@i18n:Tooltip (en="Line Number")
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=2.0, core=true, t24Name=LINE.NO)
+		/* The user can set this to YES if they want a NEW passbook to be printed. */
+		NEW_PASSBOOK : TT_Passbook:TT_PASSBOOK_PRINT__NEW_PASSBOOK
+			@i18n:Label (en="New Passbook")
+			@i18n:Tooltip (en="New Passbook")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=NEW.PASSBOOK)
+		/* If the Passbook can not be printed at this particular time e.g. the customer does not have the passbook or the teller transaction arrived through an alternative channel then the Teller can set the this field to NO and the Printing process will not be invoked.
+
+This field is set to YES by default. */
+		PRINT_PASSBOOK : TT_Passbook:TT_PASSBOOK_PRINT__PRINT_PASSBOOK
+			@i18n:Label (en="Print Passbook")
+			@i18n:Tooltip (en="Print Passbook")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=PRINT.PASSBOOK)
+		/* This field displays the application that called the TT.PASSBOOK.PRINT application.  An example would be TELLER or TELLER.PASSBOOK.REPRINT.
+This field can not be modified by the user and is displayed for information only. */
+		CALLED_FROM : mml:Integer
+			@i18n:Label (en="Called From Application")
+			@i18n:Tooltip (en="Called From Application")
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=5.0, core=true, t24Name=CALLED.FROM)
+		/* The main account number specified in the ID may contain sub-accounts.  If there are any sub-accounts then they will be displayed in this field.  If the account does not have sub-accounts then this field will display the main account number only.
+This field can not be modified by the user and is displayed for information only. */
+		ACCT_LIST : mml:Integer
+			@i18n:Label (en="Sub Account List")
+			@i18n:Tooltip (en="Sub Account List")
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=6.0, core=true, t24Name=ACCT.LIST)
+		/* If this application was called from TELLER.PASSBOOK.REPRINT then this field will hold the Start Date specified for the transaction Date Range.
+This field can not be modified by the user and is displayed for information only. */
+		START_DATE : mml:Integer
+			@i18n:Label (en="Start Date")
+			@i18n:Tooltip (en="Start Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=7.0, core=true, t24Name=START.DATE)
+		/* If this application was called from TELLER.PASSBOOK.REPRINT then this field will hold the End Date specified for the transaction Date Range.
+This field can not be modified by the user and is displayed for information only. */
+		END_DATE : mml:Integer
+			@i18n:Label (en="End Date")
+			@i18n:Tooltip (en="End Date")
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=8.0, core=true, t24Name=END.DATE)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=9.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=10.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=11.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=12.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=13.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=14.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=15.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=16.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=17.0, core=true, t24Name=RESERVED1)
+		/* Displays the Override Message.
+This field can not be modified by the user and is displayed for information only. */
+		OVERRIDE : mml:Integer
+			@i18n:Label (en=Override)
+			@i18n:Tooltip (en="Overrides generated by this transaction")
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=18.0, core=true, t24Name=OVERRIDE)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@i18n:Tooltip (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=19.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=20.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue TT_Passbook:TT_PASSBOOK_PRINT__INPUTTER *
+		DATE_TIME -> byValue TT_Passbook:TT_PASSBOOK_PRINT__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=23.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=24.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@i18n:Tooltip (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=25.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=26.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=27.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	TT_PASSBOOK_PRINT__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=21.0, core=true, t24Name=INPUTTER)
+	}
+	TT_PASSBOOK_PRINT__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=22.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	TELLER_PASSBOOK__FIELD__PRINT_ON : mml:string
+		NEW=NEW
+		FIRST=FIRST
+		LINE=LINE
+		LAST=LAST
+		END=END
+		NEW1=NEW1
+	TT_PASSBOOK_PRINT__NEW_PASSBOOK : mml:string
+		YES=YES
+		NO=NO
+	TT_PASSBOOK_PRINT__PRINT_PASSBOOK : mml:string
+		YES=YES
+		NO=NO
+}

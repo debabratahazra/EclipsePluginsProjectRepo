@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "http://docs.oasis-open.org/dita/dtd/task.dtd" []>
+<task id="task-02-07-2008--13-02-00">
+  <title>Importing Triple&apos;A Plus XML workflow files</title>
+  <taskbody>
+    <context>Triple&apos;A Plus XML workflow files can be imported into the Design Studio (DS) Workflow Designer. The import process creates packages based on the workflow file name. For example, if the workflow file name is <filepath>string1-string2-xxx-stringN.xml</filepath> , the system will create the package <filepath>string1.string2.xxx.stringN</filepath> . All workflows contained in the workflow file will be created in this package with the name declared within the XML file. </context>
+    <steps>
+      <step>
+        <cmd> In the <wintitle>DS Navigator</wintitle> view pane, select the project in which you want to import a new workflow. </cmd>
+      </step>
+      <step>
+        <cmd> Right-click the Workflows node of the project that you want to work with and select <uicontrol>Import OCS Workflow File</uicontrol> . </cmd>
+        <stepresult> The <wintitle>OCS Workflow Import Wizard</wintitle> dialog box is displayed. </stepresult>
+      </step>
+      <step>
+        <cmd> In the <uicontrol>Select File</uicontrol> field, click <uicontrol>Browse</uicontrol> and search for the Triple&apos;A Plus XML workflow file to import. </cmd>
+      </step>
+      <step>
+        <cmd>Click <uicontrol>Finish</uicontrol>. </cmd>
+        <info>The import of workflow files is not as straightforward as the import of pageflow files. Additional actions are required after the workflow file is imported. </info>
+      </step>
+      <step>
+        <cmd>Click on the imported workflow file.</cmd>
+      </step>
+      <step>
+        <cmd> Recreate the reference to the pageflow file from the <uicontrol>User Task</uicontrol> property tab by using the <uicontrol>Browse</uicontrol> button. Repeat this step for all user tasks displayed in the diagram. </cmd>
+        <info>Note: In DS, the user task refers to a pageflow model and not a pageflow file in the runtime environment. Look at the original Triple&apos;A Plus workflow file to find out which pageflow to associate to the user task. These pageflows must be present in DS. </info>
+        <stepxmp> The following code shows an example of the original source. <codeblock>&lt;workflow:application&gt;
+ &lt;workflow:url&gt;/wui/activity/cdm/openingrequest/flow/requestOpening-start-flow?flow-action=init&amp;returnUrl=/redirect/activity/cdm/search/all/Search&lt;/workflow:url&gt;
+&lt;/workflow:application&gt; </codeblock> Note that the parameters passed in the URI will have to be declared as properties in DS when referencing the pageflow model. In this example, the pageflow name is <filepath>requestOpening</filepath> . </stepxmp>
+      </step>
+      <step>
+        <cmd>Create a reference to a service after the import in DS. This applies to a pool or gateway (assignee, selector and pre-elector in the XML file) calling a class. </cmd>
+        <info>The information about the class is not imported because DS expects services. The services must be declared in OTF-services. </info>
+        <stepxmp> The following code shows an example of the original source. <codeblock>   &lt;workflow:class class-name=&quot;com.odcgroup.advisor.assignee.OrgaDynamicAssigneeGetter&quot;&gt;
+      &lt;workflow:property name=&quot;roles&quot;&gt;gcl:role/Assistant,gcl:role/HeadManager&lt;/workflow:property&gt;
+      &lt;workflow:class-path&gt;
+         &lt;workflow:location&gt;file:/W:/EDS-Workspaces/OCS1.30.5/libapp/dynamic-assignee-orga.jar&lt;/workflow:location&gt;
+      &lt;/workflow:class-path&gt;
+   &lt;/workflow:class&gt; </codeblock> After the adaptation in DS, the newly-generated XML will contain the following: <codeblock>&lt;workflow:service href=&quot;OrgaDynamicAssigneeGetter&quot;&gt;
+      &lt;workflow:property name=&quot;roles&quot;&gt;gcl:role/Assistant,gcl:role/HeadManager&lt;/workflow:property&gt;
+   &lt;/workflow:service&gt;</codeblock>If gateways use a script for the condition or a pool to refer to a specific group or user name, there is nothing to change. </stepxmp>
+      </step>
+      <step>
+        <cmd>Check if the created pools match what is defined in the XML file.</cmd>
+        <stepxmp><p>The two definitions of assignees below
+      will create two different pools. Even if the class is the same, each
+      change on property creates a new pool. </p><p>The following creates the first  pool:</p><codeblock>&lt;workflow:assignees&gt;
+   &lt;workflow:class class-name=&quot;com.odcgroup.cdm.workflow.engine.AgreementUnitAssigneeGetter&quot;&gt;
+      &lt;workflow:property name=&quot;commercialRoleList&quot;&gt;gcl:role/LegalAndCompliance&lt;/workflow:property&gt;
+      &lt;workflow:property name=&quot;activityName&quot;&gt;foureyes.val.start.part.profile.<b>risk</b>&lt;/workflow:property&gt;
+      &lt;workflow:class-path&gt;
+         workflow:location&gt;file:/W:/EDS-Workspaces/OCS1.30.5/libapp/cdm-flow-core.jar&lt;/workflow:location&gt;
+      &lt;/workflow:class-path&gt;
+   &lt;/workflow:class&gt;
+&lt;/workflow:assignees&gt;    </codeblock> The following creates the second pool: <codeblock>&lt;workflow:assignees&gt;
+   &lt;workflow:class class-name=&quot;com.odcgroup.cdm.workflow.engine.AgreementUnitAssigneeGetter&quot;&gt;
+      &lt;workflow:property name=&quot;commercialRoleList&quot;&gt;gcl:role/LegalAndCompliance&lt;/workflow:property&gt;
+      &lt;workflow:property name=&quot;activityName&quot;&gt;foureyes.val.start.part.profile.<b>marketing</b>&lt;/workflow:property&gt;
+      &lt;workflow:class-path&gt;
+         workflow:location&gt;file:/W:/EDS-Workspaces/OCS1.30.5/libapp/cdm-flow-core.jar&lt;/workflow:location&gt;
+      &lt;/workflow:class-path&gt;
+   &lt;/workflow:class&gt;
+&lt;/workflow:assignees&gt;</codeblock>If the two activities &quot;risk&quot; and &quot;marketing&quot; are assigned, the two pools created at import must be “merged” in DS. Merge means that the activities must be moved to one pool, and the other pool deleted, if empty. </stepxmp>
+      </step>
+      <step>
+        <cmd> Set the pool&apos;s name. </cmd>
+      </step>
+      <step>
+        <cmd> Translate the workflow label and description. These translations are mandatory. </cmd>
+      </step>
+      <step>
+        <cmd> Translate all user activities label and description. These translations are mandatory. </cmd>
+      </step>
+    </steps>
+  </taskbody>
+</task>

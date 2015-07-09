@@ -1,0 +1,301 @@
+# UTF-8
+# UTF-8
+/* Delivery Definition and Processing for Loans and Money Market */
+Domain LM_Delivery
+	@t24:i (module=LM)
+	@java:Package (value=com.temenos.t24.datamodel.lm.lm_delivery)
+namespace "http://www.temenos.com/t24/LM_Delivery"
+metamodelVersion 1.30.6
+Classes {
+	/* The LMM.ACTIVITY file is a list of advice related activities which is used by the Loans & Deposits and Money Market systems.
+Each activity has been assigned a numeric code, and this table allows the input of a meaningful description.
+For example:-
+CODE   ACTIVITY/EVENT       TYPICAL INPUT DESCRIPTION 1010   A new contract has          New contract        been input 1030   A contract has been        Cancelled contract.        reversed
+The codes are hard-coded in the program and are used, in conjunction with the LMM.ADVICES table, to decide whether an advice/confirmation should be sent when the system has recognised a particular activity e.g. a new contract entered (1010).
+The codes/activities used by the Loans & Deposits and Money Market Systems are as follows:-
+Code         Activity
+1010         New Contract 1020         Changed Contract 1030         Cancelled Contract 1040         Liquidation Of Contract 1050         Early Liquidation Of Contract 1060         Adjustment Of Contract 1070         Rollover Schedules 1090         Interest Payment Advice 2010         Payment Schedules 2020         Payment Details 2030         Intra Account Transfer (Debit) 2040         Intra Account Transfer (Credit) 2050         Interest Capitalisation 2060         Customer Remarks (Basic details) 2070         Receipt Entry Confirmation 2080         Adjustment Entry Confirmation 3010         Claim Fees/Charges 3020         Claim Fees/Charges 3030         Claim Prin/Int/Comm 3040         Chaser One 3050         Chaser Two 3060         Chaser Three 3070         WHT Advice
+The last digit of the any of the codes, used by the System, may also be 1, 4, or 8. These other codes represent the same activities as those listed above, and therefore,have the same descriptions. The reason for the alternative last digits is to differentiate between Fixed Contracts (xxx0), Call/Notice Contracts (xxx1), and Syndicated Contracts (xxx4) and (xxx8) for S.W.I.F.T. purposes.
+Whenever one of the above activities occurs, the System looks at the LMM.ADVICES table to see if, for that contract, a confirmation/advice should be sent.
+If the LMM.ADVICES table states that a confirmation should be sent, then the activity code used would be the relevant code from the table above.
+This code is then used in the preparation of the message, and is written to the contract, along with the delivery reference number, as soon as the delivery system accepts the message. */
+	LMM_ACTIVITY
+		@t24:i (t24Name=LMM.ACTIVITY, level=I, type=U, additionalInfo="UNP OEU", allowedFunctions="A C D E I L P Q R S", localRefAllowed=false)
+	{
+		/* Represents the reference number which uniquely identifies a particular activity.
+Each activity that can occur in the life of a contract in the Loans and Deposit module has a specific code. e.g. 1010 = New Contract. The full list of codes used by the Loans and Deposit module is printed on the "OVERVIEW" pages of this document.
+Validation Rules
+4 Numeric characters. (Mandatory input).
+Input must be 4 valid numeric characters. */
+		ACTIVITY -> LM_Delivery:LMM_ACTIVITY PK required
+			@i18n:Label (en=Activity)
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=0.0, core=true, t24Name=ACTIVITY)
+		DESCRIPTION -> byValue LM_Delivery:LMM_ACTIVITY__DESCRIPTION *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=2.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=3.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue LM_Delivery:LMM_ACTIVITY__INPUTTER *
+		DATE_TIME -> byValue LM_Delivery:LMM_ACTIVITY__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=6.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=7.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=8.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=9.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=10.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LMM_ACTIVITY__DESCRIPTION
+	{
+		/* This field describes the activity code.
+This is a descriptive field and is simply a way of recording the title of the Activity Code.
+Validation Rules
+1-35 Type A (Alphanumeric) characters. (Mandatory input. Multilingual field).
+Input must be up to 35 valid alphanumeric characters. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	LMM_ACTIVITY__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=4.0, core=true, t24Name=INPUTTER)
+	}
+	LMM_ACTIVITY__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=5.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* The LMM ADVICES table specifies, by product type, the  activities for which confirmations/advices should be produced. i.e. the User can choose whether or not he wishes to have a confirmation/advice produced when an activity occurs on a particular type of contract.
+Each contract type used within the Loans & Deposits Module is identified by its own specific Category Code and the following is a list of all such codes used within the module:- Code Range          Contract Type 21-001 to 21-039    Deposit 21-040 to 21-044    MM Fiduciary Deposit 21-045 to 21-049    Sundry 21-050 to 21-074    Loan 21-075 to 21-084    MM Placement 21-085 to 21-089    MM Fiduciary Placement 21-090 to 21-094    Account Receivable 21-095 to 21-099    Commitment 21-101 to 21-119    Syndicated Loan 21-120 to 21-124    Syndicated Commitment
+Thus 21-001 represents a standard Deposit. However, should a User wish to introduce a new product under the generic heading XXXXXXXXXXXX Deposit, but with specific features, e.g. a special type of confirmation, then he has the range 21-002 to 21-039 available with which to do so. Additionally, there is a range of activities within the system, each of which may be applied to a particular contract type. The following is a list of such activities applicable, within the Loans & Deposits and Money Market modules:- CODE      ACTIVITY            DAYS PRIOR ALLOWED                                   (Y/N) 1010      New Contract              N 1020      Change of Contract        N 1030      Cancelled Contract        N 1040      Liquidation of Contract   N 1050      Early Liquidation of ContractN 1060      Adjustment of Contract    N 1070      Rollover Schedules        N 1090      Interest Payment Advice   N 2010      Payment Schedules         N 2020      Payment Details           N 2030      Intra Account Transfer (Debit)N 2040      Intra Account Transfer (Credit)N 2050      Interest Capitalisation   N 2060      Customer Remarks          N 2070      Receipt Entry ConfirmationN 2080      Adjustment Entry ConfirmationN 3010      Claim Fee/Charges         Y 3020      Claim Fee/Charges         Y 3030      Claim Prin/Int/Comm       Y 3040      Chaser One                Y 3050      Chaser Two                Y 3060      Chaser Three              Y 3070      WHT Advice                Y
+NOTE:     Other codes with the last digit changed to either 1, 4, or 8, are also used. These are fully explained in the LMM ACTIVITY documentation.
+Thus for SUNDRY contracts which are identified by Category Range 21-045 to 21-049, the following example might be a typical situation that a User may wish to set up on the LMM.ADVICES table:-
+SUNDRY CONTRACT  21-045
+1010      (New Contract)         - Y(es) 1040      (Liquidation)          - Y(es) 1050      (Early Liquidation)    - N(o)
+In this example, the User has chosen to have a confirmation/advice sent only on the initiation and liquidation of a contract in Category 21-045, but not if the Contract is liquidated early. This may be so that he may convey the more complicated details to the counterparty by other means e.g. verbally or by telex.
+Should the User require advices/confirmations for none of the different activities then he need only input NONE at field 1 of the table. No further input is allowed.
+If the User requires advices/confirmations for all of the different activities he need only input ALL at field 1 of the table. No further input is allowed. Where the user wishes to send specific advices, field 1 is left blank and further input is required in fields 2.1, 3.1 and 4.1 for each activity selected.
+Important Note:
+There must be an advices record present for the default Category Code for each product range.
+For example, for the product range 21-001 to 21-039 there must be an LMM ADVICES record with the key 21-001. */
+	LMM_ADVICES
+		@t24:i (t24Name=LMM.ADVICES, level=I, type=U, additionalInfo="UNP OEU", allowedFunctions="A C D E I L P Q R S", localRefAllowed=true)
+	{
+		/* This field represents the reference number which identifies a particular type of Contract.
+Input at this field must be a valid entry on the Category Code table. The following is a list of all the Codes that are used in the Loans & Deposit and Money Market Modules:-
+Code Range      Contract Type
+21-001 to 21-029    Deposit 21-040 to 21-044    MM Fiduciary Deposit 21-045 to 21-049    Sundry 21-050 to 21-074    Loan 21-075 to 21-084    MM Placement 21-085 to 21-089    MM Fiduciary Placement 21-090 to 21-094    Account Receivable 21-095 to 21-099    Commitment 21-101 to 21-119    Syndicated Loan 21-120 to 21-124    Syndicated Commitment
+Validation Rules
+5 Numeric characters. (Mandatory input) */
+		CATEGORY_CODE -> LM_Delivery:LMM_ADVICES PK required
+			@i18n:Label (en="Category Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, t24Name=CATEGORY.CODE)
+		/* Specifies whether advices are required for all or none of the different activities available.
+If N(ONE) is entered at this field then  no advice or confirmation will be produced, whatever the activity. No further input is allowed.
+If A(LL) is entered at this field then all possible advices/confirmations will be produced.  No further input is allowed and all advices will be produced on event date.
+Validation Rules
+1-4 alpha characters of the form A(LL) N(ONE) "blank" (Optional input; default value is blank.)
+Input must be valid alphabetic characters. */
+		ALL_NONE_ADVICES : LM_Delivery:LMM_ADVICES__ALL_NONE_ADVICES
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=1.0, core=true, t24Name=ALL.NONE.ADVICES)
+		ACTIVITY -> byValue LM_Delivery:LMM_ADVICES__ACTIVITY *
+		/* Defines the category code to be used in determining the DE.FORMAT.PRINT id which defines the layout of the confirmation / advice.
+To determine which DE.FORMAT.PRINT record is used when producing the advice the following formulae is used:           MMM.LDNNNN.1.GB Where     MMM   = Message type (320, 324 etc)           NNNN  = Category + Increment Category is the last two characters of the derived category code, see below, and the increment is derived from the first three numbers of the activity code, see the following table.
+ACTIVITY            INCREMENT           101                 0           102                 200           103                 400           104                 0           105                 2600           106                 1200
+107                 3000           108                 1400           109                 2800           201                 600           202                 0           203                 LD99           204                 LD99           205                 1800           206                 800           301                 1600           302                 0           303                 1000           304                 LD99           305                 LD99           307                 2200
+The category code to be used will either be that defined in this field or if left blank will default as follows:           Range               Default           21001 - 21039       21001           21045 - 21049       21045           21050 - 21074       21050           21075 - 21089       21075           21090 - 21094       21090           21095 - 21099       21095           Otherwise           21001
+Hence, an interest payment advice for a deposit, category 21035, will use the format record 320.LD2801.1.GB. If a special advice for a particular category is required then the FORMAT.CATEGORY field could be set to 21035 for example in which case the format record used would be 320.LD2835.1.GB.
+Validation Rules
+5 Numeric (Optional) */
+		FORMAT_CATEGORY : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=5.0, core=true, t24Name=FORMAT.CATEGORY)
+		/* This field is the MATURE.MM.AT.SOD, which stands for mature Money Market deals at the Start of Day.
+Validation Rules
+
+3 alphanumeric characters YES or NO. Mandatory input.
+Must be YES or NO.
+If Null then default value will be NO. */
+		MATURE_MM_AT_SOD : LM_Delivery:LMM_ADVICES__MATURE_MM_AT_SOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, t24Name=MATURE.MM.AT.SOD)
+		/* The field is the Fair Value rate key used to provide the fair user rate on LD and MM contracts.
+Entering a value here provides a default for the field of same name on the LD and MM applications. Where the CATEGORY used on the MM & LD contract matches the id the value here will be defaulted. It can be overridden at the contract level.
+This field is a link to the PERIODIC.INTEREST table and the record to use depends on the currency of the contract so if a value of 01 is entered here then a USD contract will look for a record such as 01USD20010731.
+Validation Rules
+
+1-4 numeric ID code although at present use of 2 digits is required to utilise PERIODIC.INTEREST records. */
+		FV_RATE_KEY : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=7.0, core=true, t24Name=FV.RATE.KEY)
+		/* The field is the Fair Value margin rate key used to provide the fair margin rate on LD and MM contracts.
+Entering a value here provides a default for the field of same name on the LD and MM applications. Where the CATEGORY used on the MM & LD contract matches the id the value here will be defaulted. It can be overriden at the contract level.
+This field is a link to the PERIODIC.INTEREST table and the record to use depends on the currency of the contract so if a value of 01 is entered here then a USD contract will look for a record such as 01USD20010731.
+Validation Rules
+
+1-4 numeric ID code although at present use of 2 digits is required to utilise PERIODIC.INTEREST records. */
+		FV_MARGIN_KEY : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=8.0, core=true, t24Name=FV.MARGIN.KEY)
+		/* Frequency field which is used to determine the number of compounding periods per year.
+
+The compounding periods can be expressed as daily, weeks or Months.
+
+Validation Rules:
+------------------------------------------------------------------------------
+
+(1) 5 type A (alphanumeric) character. Valid input is DAILY, WEEKn, Mnn, Nnn, or blank.
+(2) Optional field.
+(3) Used for money market deals. */
+		COMPOUND_TYPE : T24BusinessTypes:COMPFQU
+			@i18n:Label (en=Compounding)
+			@i18n:Tooltip (en="It supports both debit and credit interest")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=9.0, core=true, t24Name=COMPOUND.TYPE)
+		/* Field which is used to determine the method of compounding.
+
+Validation Rules:
+------------------------------------------------------------------------------
+
+(1) 8 type A (alphanumeric) character. Valid input is YIELD, or blank.
+(2) Can be allowed to input, if there is a value in COMPOUND.TYPE field.
+(3) YIELD can be set, only when the field COMPOUND.TYPE set to DAILY.
+(4) Optional field.
+(5) Used for money market deals. */
+		COMPOUND_YLD_MTHD : LM_Delivery:LMM_ADVICES__COMPOUND_YLD_MTHD
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=10.0, core=true, t24Name=COMPOUND.YLD.MTHD)
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=11.0, core=true, t24Name=RESERVED10)
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=12.0, core=true, t24Name=RESERVED9)
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=13.0, core=true, t24Name=RESERVED8)
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=14.0, core=true, t24Name=RESERVED7)
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=15.0, core=true, t24Name=RESERVED6)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=16.0, core=true, t24Name=RESERVED5)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=17.0, core=true, t24Name=RESERVED4)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=18.0, core=true, t24Name=RESERVED3)
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=19.0, core=true, t24Name=RESERVED2)
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=20.0, core=true, t24Name=RESERVED1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=22.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=23.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue LM_Delivery:LMM_ADVICES__INPUTTER *
+		DATE_TIME -> byValue LM_Delivery:LMM_ADVICES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=26.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=27.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=28.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=29.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=30.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LMM_ADVICES__ACTIVITY
+	{
+		/* Specifies the reference number which uniquely identifies a particular activity.
+If neither the 'ALL' nor the 'NONE' option are taken in field ALL NONE ADVICES then each activity number must be entered in this multivalue field - along with a Y(es) or N(o) in the field REQUIRED Y N stating whether a confirmation/advice is required for this activity or not.
+Note:     The activities input whether required or not will be           deemed to be the only relevant activities for the           appropriate category.
+Validation Rules
+Numeric field - 4 characters. Multivalue field. (Optional input; default value is blank)
+Input prohibited when ALL NONE ADVICES is set to "NONE".
+Input prohibited when ALL NONE ADVICES is set to "ALL". */
+		ACTIVITY -> LM_Delivery:LMM_ACTIVITY
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=2.0, core=true, businessType=A, t24Name=ACTIVITY)
+		/* Specifies whether the activity in the previous field should produce a confirmation/advice or not.
+If neither the 'ALL' nor the 'NONE' option are taken in field 1 then each activity number must be entered in the field ACTIVITY and a Y(ES) or N(O) entered in this field. This states  whether a confirmation/advice is to be sent (YES) or not (NO) whenever the activity in the previous field occurs.
+Validation Rules
+Alpha field up to 3 characters. Only input allowed is Y(ES) ; N(O) or blank. Multivalue field. (Optional input; default value is blank which is only allowed when field 2 is blank)
+Input prohibited when field ALL NONE ADVICES is set to 'NONE'.
+Input prohibited when field ALL NONE ADVICES is set to "ALL".
+Input mandatory if a value in field ACTIVITY. */
+		REQUIRED_Y_N : LM_Delivery:LMM_ADVICES__ACTIVITY__REQUIRED_Y_N
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=3.0, core=true, t24Name=REQUIRED.Y.N)
+		/* Indicates the number of days prior to or after an event when an advice will be despatched.
+This field indicates the number of days prior to or after an event when an advice will be despatched.  A minus sign preceding the no. of days will result in the advice being sent after the event date.
+Validation Rules
+Input must be of the following form:- NNN or XNNN or "blank"        where N = a number of days. X = a minus sign. "blank" = same day. (Optional input. Default = "blank".) (For LD.LOANS.AND.DEPOSITS only.)
+Input must be of a valid form.
+Input restricted to pre-advice type activities. (see overview for full list). */
+		DAYS_PRIOR_POST : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=4.0, core=true, t24Name=DAYS.PRIOR.POST)
+	}
+	LMM_ADVICES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=24.0, core=true, t24Name=INPUTTER)
+	}
+	LMM_ADVICES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=25.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	RE_LMM_INT_PAYMENT
+		@t24:i (t24Name=RE.LMM.INT.PAYMENT, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Validation Rules
+A maximum of 14 characters may be entered. */
+		CONTRACT_SEQ_NO -> LM_Delivery:RE_LMM_INT_PAYMENT PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=AA, t24Name=CONTRACT.SEQ.NO)
+		/* Standard T24 currency field.
+Validation Rules
+A maximum of 3 characters may be entered. */
+		CURRENCY : T24BusinessTypes:CCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=CURRENCY)
+		/* Validation Rules
+A maximum of 19 characters may be entered. */
+		INTEREST_RECEIVE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=INTEREST.RECEIVE)
+		/* Validation Rules
+A maximum of 19 characters may be entered. */
+		COMMISSION_RECVE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=COMMISSION.RECVE)
+		/* Validation Rules
+A maximum of 19 characters may be entered. */
+		INTEREST_PAYABLE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=INTEREST.PAYABLE)
+	}
+}
+Enumerations {
+	LMM_ADVICES__ALL_NONE_ADVICES : mml:string
+		ALL=ALL
+		NONE=NONE
+	LMM_ADVICES__ACTIVITY__REQUIRED_Y_N : mml:string
+		Y=Y
+		N=N
+	LMM_ADVICES__MATURE_MM_AT_SOD : mml:string
+		YES=YES
+		NO=NO
+	LMM_ADVICES__COMPOUND_YLD_MTHD : mml:string
+		YIELD=YIELD
+		NULL=NULL
+}

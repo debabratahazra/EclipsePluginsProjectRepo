@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow:workflow xmlns:workflow="http://www.odcgroup.com/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.odcgroup.com/workflow workflow.xsd">
+	<!-- DS2 -->	
+	<workflow:process name="DS2" displayName="DS2" description="test">	
+		<workflow:version-comment></workflow:version-comment>
+		<workflow:activity name="A" displayName="activity" description="an activity" initial="true" group="Pool1" >
+			<workflow:application>	
+					<workflow:url>http://testA</workflow:url>
+			</workflow:application>
+			
+			<workflow:assignees>
+				<workflow:assignee-ref name="orga:assignee"/>
+			</workflow:assignees>
+			<workflow:next activity="B" />
+			<workflow:next activity="C" />
+			<workflow:selector>
+				<workflow:service href="a-service-selector-with-context">
+			      	<workflow:property name="test1">a property</workflow:property>
+				</workflow:service>
+			</workflow:selector>			
+		</workflow:activity>
+		<workflow:activity name="B" displayName="activity" description="an activity" personal="true" group="Pool1" >
+			<workflow:application>	
+					<workflow:url>http://testB</workflow:url>
+			</workflow:application>
+			
+			<workflow:assignees>
+				<workflow:assignee-ref name="orga:assignee"/>
+			</workflow:assignees>
+			<workflow:next activity="D" />
+		</workflow:activity>
+		<workflow:activity name="C" displayName="activity" description="an activity" personal="true" group="Pool1" >
+			<workflow:application>	
+					<workflow:url>http://testC</workflow:url>
+			</workflow:application>
+			
+			<workflow:assignees>
+				<workflow:assignee-ref name="orga:assignee"/>
+			</workflow:assignees>
+			<workflow:next activity="D" />
+		</workflow:activity>
+		<workflow:activity name="D" displayName="activity" description="an activity" personal="true" group="Pool1" >
+			<workflow:application>	
+					<workflow:url>http://testD</workflow:url>
+			</workflow:application>
+			
+			<workflow:assignees>
+				<workflow:assignee-ref name="orga:assignee"/>
+			</workflow:assignees>
+			<workflow:pre-selector>				
+				<workflow:condition type="OR">
+					<workflow:completed activity="B"/>
+					<workflow:completed activity="C"/>
+				</workflow:condition>
+			</workflow:pre-selector>
+		</workflow:activity>
+	</workflow:process>	
+</workflow:workflow>

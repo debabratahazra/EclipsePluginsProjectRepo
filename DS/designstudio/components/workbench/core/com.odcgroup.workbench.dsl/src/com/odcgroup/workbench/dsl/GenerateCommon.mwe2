@@ -1,0 +1,59 @@
+module com.odcgroup.workbench.dsl.Common
+
+import org.eclipse.emf.mwe.utils.*
+import org.eclipse.xtext.generator.*
+import org.eclipse.xtext.ui.generator.*
+
+var grammarURI = "classpath:/com/odcgroup/workbench/dsl/Common.xtext"
+var file.extensions = "common"
+var projectName = "com.odcgroup.workbench.dsl"
+var runtimeProject = "../${projectName}"
+
+Workflow {
+    bean = StandaloneSetup {
+		platformUri = "${runtimeProject}/.."
+	}
+
+	component = DirectoryCleaner {
+		directory = "${runtimeProject}/src-gen"
+	}
+
+	component = DirectoryCleaner {
+		directory = "../../ui/${projectName}.ui/src-gen"
+	}
+
+	component = Generator {
+		pathRtProject = runtimeProject
+		pathUiProject = "../../ui/${projectName}.ui"
+		projectNameRt = projectName
+		projectNameUi = "${projectName}.ui"
+		language = {
+			uri = grammarURI
+			fileExtensions = file.extensions
+
+			// Java API to access grammar elements (required by several other fragments)
+			fragment = grammarAccess.GrammarAccessFragment {}
+
+			// the serialization component
+			fragment = serializer.SerializerFragment  {}
+			
+			// outline API 
+			fragment = outline.OutlineTreeProviderFragment {}
+			fragment = outline.QuickOutlineFragment {}
+
+			// quickfix API 
+			fragment = quickfix.QuickfixProviderFragment {}
+
+			// content assist API  
+			fragment = contentAssist.JavaBasedContentAssistFragment {}
+
+// This doesn't completely work properly...			
+//			// java-based API for validation 
+//			fragment = validation.JavaValidatorFragment {
+//			// composedCheck = "org.eclipse.xtext.validation.ImportUriValidator"
+//			// composedCheck = "org.eclipse.xtext.validation.NamesAreUniqueValidator"
+//			}
+			
+		}
+	}
+}

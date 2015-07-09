@@ -1,0 +1,2566 @@
+# UTF-8
+# UTF-8
+/* Template Servicing Of Teller Financial Services */
+Domain TT_TellerFinancialService
+	@t24:i (module=TT)
+	@java:Package (value=com.temenos.t24.datamodel.tt.tt_tellerfinancialservice)
+namespace "http://www.temenos.com/t24/TT_TellerFinancialService"
+metamodelVersion 1.30.6
+Classes {
+	/* It is not uncommon for a Customer to come to a Branch and ask the teller to do a set of transactions. For example, a customer might come in with
+1.	An ‘On-Us’ (certified) cheque in Local Currency
+2.	A wad of cash to deposit
+3.	A bill payment to make or make a loan repayment
+4.	Transfer part of the deposit to a Savings account
+5.	A couple of foreign cheques to be sent for collection
+Normally these will be captured on 5 different screens of TELLER or FUNDS.TRANSFER and committed as separate transactions in T24. The customer will end up being charged for each of these transactions and receive a transaction advice for each of them (5 in total).
+TELLER.FINANCIAL.SERVICES (TFS) is a T24 application, which facilitates capture of information for all these transactions in one screen and with one click, creates a Consolidated Entry (parameterised) on the Customer account, a Consolidated Charge and a Consolidated Transaction Advice.
+It is also possible to capture all information in one screen of TFS and create separate entries on the Customer account for each of them.
+It essentially acts as a front end to TELLER, FUNDS TRANSFER or DATA.CAPTURE applications using T24 Open Financial Services to create the child transactions in TT, FT or DC.
+The TFS Suite consists of a ‘Company’ wide parameter table (TFS.PARAMETER), a Transaction type definition table (TFS.TRANSACTION) and this is the main transaction application (TELLER.FINANCIAL.SERVICES).
+TELLER.FINANCIAL.SERVICES supports
+
+•	Capture of multiple transactions (any different combination of transactions) on the same screen
+a)	Even if they belong to different accounts of the customer.
+b)	Optional “Primary account” to avoid having to re-enter the same Account number in each Leg
+c)	Optional “Surrogate Account” to override the default “Primary Account” for a specific Leg
+•	Local and Foreign Currency Transactions
+a)	It is even possible to capture the information in a 3rd currency for the system to automatically calculate the exchange rates of Debit and Credit Accounts.
+i.	Ex, “Transfer USD 100 from my GBP Account into my EUR Account”
+•	Charges for each TFS Leg or a Consolidated Charge
+•	A Consolidated Transaction Advice
+•	A Consolidated entry on the Customer account per configuration
+a)	Consolidation could happen as either “All Debits and Credits Separately” or “All Debits and Credits together” resulting in 2 or 1 entries on the Customer account respectively
+•	All transactions supported by the underlying modules (FT, TT or DC) with the exception of Wire transfers through FT
+a)	Ex, SWIFT
+•	Reversal of FT or TT transactions in history by creating offsetting DC  Transaction.
+•	A typical sub-set of transactions supported by TFS on a single screen would be (all of these allow both local & foreign currencies)
+a)	Cash deposit
+b)	Cash Withdrawal
+c)	Cash back
+d)	Bill Payment
+e)	Loan Repayment
+f)	Account to Account transfer
+g)	Cheque Encashment
+h)	ON-US Cheque Deposit
+i)	Cheque Deposit for Local Clearing
+j)	Cheque Deposit for Collection
+k)	Currency Exchange
+l)	Units Exchange
+•	Transactions on Customer, Internal & PL Account.
+•	Easy keyboard navigation thereby improving user efficiency.
+•	Massive defaulting features facilitating minimal user input
+•	Easy trace back from Accounting Entry.
+•	Supports inter-branch transactions and Multi-book
+•	Complete control on the status of the child transactions – supports all T24 functions.
+a)	If TFS is in unauthorised status, all its child transactions will also be unauthorised. Authorising TFS will automatically authorise the child transactions.
+•	One click to ‘Reverse authorised Legs’ or ‘Delete unauthorised Legs’
+
+For a typical TFS leg, the only fields that require input are the Transaction type field and the Amount field and in cases of foreign currency transactions, the Currency field too. The rest are defaulted based on configurations.
+
+In the Context of Consolidation, the TFS Legs can be classified broadly into User input legs and Consolidated legs. User Input TFS Legs are those keyed in by the user. Consolidated legs are those automatically inserted by TFS when the user indicates that all information has been captured by setting the field CONSOLIDATE.NOW to YES. */
+	TELLER_FINANCIAL_SERVICES
+		@t24:i (t24Name=TELLER.FINANCIAL.SERVICES, level=F, type=H, additionalInfo=ACT, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Key to TELLER.FINANCIAL.SERVICES. Automatically generated.
+
+Validation Rules:
+===================
+
+Mandatory Input. Automatically generated. */
+		TXN_REF -> TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES PK required
+			@i18n:Label (en="Transaction Reference")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=TXN.REF)
+		/* The date on which this TFS Transaction was booked. This has no systemic/accounting significance but rather used for reporting purposes.
+
+Validation Rules:
+===================
+
+Defaulted to current bank date. But can be overriden. Input must be less than or equal to current bank date. */
+		BOOKING_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Booking Date")
+			@i18n:Tooltip (en="Booking Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=BOOKING.DATE)
+		/* The Customer of the account specified in PRIMARY.ACCOUNT. Defaulted from the field validation of PRIMARY.ACCOUNT.
+
+Validation Rules:
+===================
+If left blank and if PRIMARY.ACCOUNT is keyed in, then this is defaulted with the Customer number in the account record of the PRIMARY.ACCOUNT.
+If keyed in, and if PRIMARY.ACCOUNT is left blank, then will default the first account as held in CUSTOMER.ACCOUNT table.
+The value in this field must be the same as the Customer of the PRIMARY.ACCOUNT, as held in the Account record. */
+		PRIMARY_CUSTOMER -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en=Customer)
+			@t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=2.0, core=true, businessType=CUS, t24Name=PRIMARY.CUSTOMER)
+		/* When a number of TFS legs are input by the user, it is more likely that all of them have one thing in common - the main "transaction account" of the customer (a.k.a Current Accounts or Checking Accounts or DDAs). Instead of requiring the user to key in the same account number again and again in each of the TFS legs, this field can be used.
+
+Once keyed in, it also defaults the Customer of this account in the PRIMARY.CUSTOMER field.
+Subsequently in user input legs, this is used as one side of the leg while the other side could be a Till/Suspense account (based on CAT.DEP.CODE.1, CAT.DEPT.CODE.2 specifications in TELLER.TRANSACTION) or input in the associated SURROGATE.AC field  for that TFS leg.
+
+When consolidation is enabled, the user input legs are defaulted with the washthru account of the same currency as this account. A final consolidated leg is automatically calculated by the system between that Washthru account and this account at the end when the user instructs the system by setting the field CONSOLIDATE.NOW to YES.
+
+Validation Rules:
+==================
+
+Optional Input. Input mandatory if Consolidation is enabled.
+Input can be of any currency and can be either a Customer or an Internal account or even a PL Category (although the latter two are not really applicable for Teller Operations).
+If left blank and if PRIMARY.CUSTOMER is keyed in, then the first available account of that customer is defaulted in this field. */
+		PRIMARY_ACCOUNT : mml:Integer
+			@i18n:Label (en="Primary Account")
+			@i18n:Tooltip (en="Primary Account")
+			@t24:i (align=R, inputBehaviour=F, maxLength=36, sysNumber=3.0, core=true, t24Name=PRIMARY.ACCOUNT)
+		PRIMARY_ACCOUNT_INT : mml:Integer
+			@i18n:Label (en="Primary Account")
+			@i18n:Tooltip (en="Primary Account")
+			@t24:i (align=R, inputBehaviour=N, maxLength=36, sysNumber=4.0, core=true, t24Name=PRIMARY.ACCOUNT.INT)
+		/* If Consolidation is enabled at TFS.PARAMETER level, it is possible to override it at an individual TFS Transaction level by setting this field to NO. Although, it is not possible to enable at TFS transaction level if Consolidation is disabled at TFS.PARAMETER level.
+
+When set to YES, all the user input TFS legs will be consolidated for the Primary Account.
+These consolidated legs could be just 1 in number or more depending on the settings in CONSOL.METHOD and CONSOL.LEVEL.ADDON.
+
+TFS achieves this by using a temporary washthru account (a placeholder)on the user input legs and eventually when the user indicates that he/she is done with entering the transactions, it creates one or more consolidated leg(s) between this Washthru account and the account specified in PRIMARY.ACCOUNT field. The consolidated Leg is really just another TFS Leg corresponding to a TELLER Transaction.
+
+Even if Consolidation is enabled, if for a given TFS Leg, the field CONSOL.EXCLUDE in the respective TFS.TRANSACTION is set to YES, then that TFS leg will not be included in the Consolidation Process.
+
+Validation Rules:
+==================
+
+Defaulted to YES if CONSOLIDATION in TFS.PARAMETER is set to ENABLE. Can be overridden by user.
+Defaulted to NO if CONSOLIDATION in TFS.PARAMETER is set to DISABLE. Cannot be overridden by user. */
+		CONSOL_INSTRUCTION : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__CONSOL_INSTRUCTION
+			@i18n:Label (en="Consol Instruction")
+			@i18n:Tooltip (en="Consol Instruction")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=5.0, core=true, t24Name=CONSOL.INSTRUCTION)
+		/* This is the same field as in TFS.PARAMETER. Any settings in this field in TFS.PARAMETER can be overridden here at a TFS Transaction level.
+
+If Consolidation is enabled, then TFS will combine all the user input transactions on a single TFS screen and create that as a single transaction hitting the account specified in PRIMARY.ACCOUNT field.
+
+
+
+This field allows to define if the combined transaction should be "NET" - Consolidation of all debits and credits or "GROSS" - Consolidate all debits together and Consolidate all credits together.
+
+Even if this field is set to NET, there is an exception - if the Consolidated amount happens to be 0, then if the field CONSOL.AMT.ZERO in TFS.PARAMETER is set to FORCE.GROSS, then the consolidation is forced to be at GROSS level.
+
+Similarly, if there are Credit and Debit TFS legs and if even one of the Credit leg carries a forward exposure, then the system will automatically force the Consolidation to be at GROSS level becasue it is not possible to combine credits with forward exposure & debits.
+
+
+
+Validation Rules:
+
+=================
+
+
+
+Optional Input.
+
+Allowed Values: GROSS, NET
+
+Input not allowed if CONSOLIDATION is disabled. */
+		CONSOL_METHOD : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__CONSOL_METHOD
+			@i18n:Label (en="Consol Method")
+			@i18n:Tooltip (en="Consol Method")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=6.0, core=true, t24Name=CONSOL.METHOD)
+		/* This is the same field as in TFS.PARAMETER. Any settings in this field in TFS.PARAMETER can be overridden here at a TFS transaction level.
+
+If Consolidation is enabled, then TFS will combine all the user input transactions on a single TFS screen and create that as a single transaction hitting the account specified in PRIMARY.ACCOUNT field.
+
+
+
+The default Consolidation level is the VALUE.DATE of the individual user input TFS transactions.
+
+
+
+On top of that, if there is a need to combine transactions using additional attributes, that can be set in this field.
+
+
+
+Validation Rules:
+
+=================
+
+
+
+Optional Input.
+
+Allowed Values: NO, CCY, CCY.TXN, TXN.
+
+Default Value: NO
+
+Input not allowed if CONSOLIDATION is set to DISABLE.
+
+
+
+If set to CCY, then all user input legs of a TFS transaction will be combined based on VALUE.DATE & CURRENCY of the Leg.
+
+If set to CCY.TXN, then all user input legs of a TFS transaction will be combined based on VALUE.DATE, CURRENCY & TRANSACTION type of the Leg.
+
+If set to TXN, then all user input legs of a TFS transaction will be combined based on VALUE.DATE & TRANSACTION type of the Leg. */
+		CONSOL_LEVEL_ADDON : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__CONSOL_LEVEL_ADDON
+			@i18n:Label (en="Consol Level Addon")
+			@i18n:Tooltip (en="Consol Level Addon")
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=7.0, core=true, t24Name=CONSOL.LEVEL.ADDON)
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=8.0, core=true, t24Name=RESERVED.8)
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=9.0, core=true, t24Name=RESERVED.9)
+		RESERVED_10 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=10.0, core=true, t24Name=RESERVED.10)
+		RESERVED_11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=11.0, core=true, t24Name=RESERVED.11)
+		RESERVED_12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=12.0, core=true, t24Name=RESERVED.12)
+		TRANSACTION -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION *
+		/* This field is used only when Consolidation is enabled.
+From a transaction processing perspective, this field marks the end of the user capturing all the information provided by the customer for a TFS transaction.
+By setting this field to YES, the user indicates that all information has been captured and essentially instructs the system to consolidate the legs.
+By setting this field to NO, the user instructs the system to Undo the consolidation.
+By setting this field to REVERSE, the user instructs the system to mark all the legs of that TFS Transaction, for reversal.
+
+Validation Rules:
+===================
+
+Mandatory Input of YES required when Consolidation is enabled.
+Input not allowed if Consolidation is disabled (field CONSOL.INSTRUCTION set to NO) */
+		CONSOLIDATE_NOW : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__CONSOLIDATE_NOW
+			@i18n:Label (en="Consolidate Now")
+			@i18n:Tooltip (en="Consolidate Now")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=89.0, core=true, t24Name=CONSOLIDATE.NOW, isValidateOnChange=true)
+		/* This field is part of the AML details captured as part of a TFS Transaction.
+If the TFS transaction is being done for an existing T24 customer, then the customer number can be keyed in here. This can also be different from the Primary Customer (where this customer is doing transactions on behalf of the Primary Customer)
+
+Validation Rules:
+=================
+
+Optional Input. Input must be key to a valid record in CUSTOMER table.
+
+If the field AML.DETAILS in TFS.PARAMETER is set to VALIDATION,
+When this field is left blank and if Primary Customer has been input, then this field will automatically be defaulted with that value and an Override will be raised to that effect. */
+		AML_CUSTOMER_NO -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer ")
+			@t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=90.0, core=true, businessType=CUS, t24Name=AML.CUSTOMER.NO)
+		AML_NAME -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__AML_NAME *
+		AML_ADDRESS -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__AML_ADDRESS *
+		/* This field is part of the AML details captured as part of a TFS Transaction. It holds the nationality of the walk-in customer.
+
+
+Validation Rules:
+=================
+
+Optional Input. Input not allowed when AML.CUSTOMER.NO has been keyed in with a valid T24 Customer Number. */
+		AML_NATIONALITY -> ST_Config:COUNTRY
+			@i18n:Label (en=Nationality)
+			@i18n:Tooltip (en=Nationality)
+			@t24:i (align=L, inputBehaviour=F, maxLength=2, sysNumber=93.0, core=true, businessType=A, t24Name=AML.NATIONALITY)
+		LEGAL_ID -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__LEGAL_ID *
+		COMM_TYPE -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__COMM_TYPE *
+		RT_ACCOUNT_NO -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__RT_ACCOUNT_NO *
+		/* Total Market exchange calculated on all TFS legs. This has no significance other than to present the value to the user on the screen.
+
+Validation Rules:
+==================
+
+Noinput field. Defaulted by the system. */
+		MKT_EXCH_PROFIT : T24BusinessTypes:AMT
+			@i18n:Label (en="Market Exchange Calculated")
+			@i18n:Tooltip (en="Market Exchange Calculated ")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=104.0, core=true, t24Name=MKT.EXCH.PROFIT, typeModifiers="USD")
+		UL_OFS_MSGS -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__UL_OFS_MSGS *
+		RESERVED_106 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=106.0, core=true, t24Name=RESERVED.106)
+		RESERVED_107 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=107.0, core=true, t24Name=RESERVED.107)
+		RESERVED_108 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=108.0, core=true, t24Name=RESERVED.108)
+		RESERVED_109 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=109.0, core=true, t24Name=RESERVED.109)
+		RESERVED_110 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=110.0, core=true, t24Name=RESERVED.110)
+		RESERVED_111 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=111.0, core=true, t24Name=RESERVED.111)
+		RESERVED_112 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=112.0, core=true, t24Name=RESERVED.112)
+		RESERVED_113 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=113.0, core=true, t24Name=RESERVED.113)
+		RESERVED_114 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=114.0, core=true, t24Name=RESERVED.114)
+		RESERVED_115 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=115.0, core=true, t24Name=RESERVED.115)
+		OVERRIDE -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@i18n:Tooltip (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=118.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=119.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__INPUTTER *
+		DATE_TIME -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=122.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=123.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Department Code")
+			@i18n:Tooltip (en="Department Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=124.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=125.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=126.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	TELLER_FINANCIAL_SERVICES__TRANSACTION
+	{
+		/* This determines the transaction type for that TFS Leg. All the validations on the allowed account types and currency of the TFS leg are based on the specification in TFS.TRANSACTION table as to what the underlying transaction type definition table is and its rules to be applied.
+
+
+Validation Rules:
+==================
+
+Input must be key to a valid record in TFS.TRANSACTION. */
+		TRANSACTION : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__TRANSACTION
+			@t24:i (align=L, inputBehaviour=F, maxLength=15, sysNumber=13.0, core=true, t24Name=TRANSACTION)
+		TRANSACTION_INT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=14.0, core=true, t24Name=TRANSACTION.INT)
+		/* The table BENEFICIARY is used to maintain a record of payees - this could either be maintained by the financial institution or by the customer.
+TFS allows simple bill payments using BENEFICIARY. This field is associated with each TFS leg. If a value is entered in this field, then TFS will fetch the beneficiary account number defined in BENEFICIARY table (if Bene account is not available, TFS will try to find the nostro account for the Currency specified in the associated CURRENCY field) and default it in the associated Surrogate Account field.
+This will subsequently be defaulted into the credit side of the TFS leg. (This can be accomplished by setting the field SURROGATE.AC in TFS.TRANSACTION for Bill Payment transactions will be set to ACCOUNT.CR)
+
+Validation Rules:
+===================
+
+Optional Input. Input must be key to a valid record in BENEFICIARY table. */
+		BENEFICIARY_ID -> FT_Config:BENEFICIARY
+			@t24:i (align=L, inputBehaviour=F, maxLength=17, sysNumber=15.0, core=true, businessType=A, t24Name=BENEFICIARY.ID, isValidateOnChange=true)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.16)
+		/* Where one side of each of the TFS legs being input happens to be the same account, the user could specify that account in the PRIMARY.ACCOUNT field. On simple transaction types like a Cash deposit or a collection cheque the other side of each of these legs could be defaulted with the Cash Till Account or Cheque Collection suspense respectively and configuration features exist for these transaction types (ex, the fields CAT.DEPT.CODE.1, CAT.DEPT.CODE.2 in TELLER.TRANSACTION).
+There are two exceptions to this.
+1. If the TFS Leg being input is that of a transfer of funds from/to the primary account to/from another one of the customer's accounts.
+2. If the Customer wants just one of the 5 TFS Legs to be done on a different account from the Primary account
+
+The Surrogate Account (as the name stands for, it is a surrogate to either the debit/credit or the Primary account but for that specific TFS Leg) is a feature designed to cater to these exceptions.
+
+For account to account transfers, we could specify a value in the field SURROGATE.AC in TFS.TRANSACTION as either ACCOUNT.DR or ACCOUNT.CR. Whenever that TFS Transaction type is used in a TFS leg, any value is keyed in this field will be defaulted as either the Debit Account or the Credit Account respectively, while the Primary account stays as the other side of the leg.
+
+Where no specification is given in TFS.TRANSACTION, any value keyed in SURROGATE.AC is treated to take precedence on the PRIMARY Account for that TFS Leg alone.
+
+The idea behind this is to avoid having to display both Debit and Credit Accounts on the screen to the user.
+
+Validation Rules:
+=================
+Optional Input.
+Mandatory when SURROGATE.AC in the TFS.TRANSACTION (of the value specified in TRANSACTION field) is set to either ACCOUNT.CR or ACCOUNT.DR. */
+		SURROGATE_AC : T24BusinessTypes:PLANT
+			@t24:i (align=L, inputBehaviour=F, maxLength=36, sysNumber=17.0, core=true, t24Name=SURROGATE.AC)
+		/* This is the Credit side of the TFS Leg.
+The account can belong to any company in T24 (not necessarily the one the user is currently logged onto) as long as the CUSTOMER table of the Account company is shared with the curent company.
+
+Validation Rules:
+=================
+
+Input can be either Internal account, PL Category code or a Customer account as long as it is allowed by the underlying child transaction type definition (ex, TELLER.TRANSACTION). In cases where the Child transaction is an FT or DC, no such restrictions apply.
+
+Defaulting:
+============
+The defaulting explained below applies to all TFS legs keyed in by the user (User Input Legs).
+
+In case the child transaction is TELLER and if allowed category (CAT.DEPT.CODE.1, CAT.DEPT.CODE.2 as appropriate) is defined in TELLER.TRANSACTION, then this field will automatically be defaulted based on the Currency of this side (CURRENCY.DR), the category code specified (CAT.DEPT.CODE.1, CAT.DEPT.CODE.2 as appropriate) and the Teller ID.
+Where that is not specified, as a second level defaulting, it looks for the SURROGATE.AC definition in TFS.TRANSACTION. If that is set to ACCOUNT.DR then, any input in SURROGATE.AC of the associated leg will be defaulted into this field.
+Where SURROGATE.AC is not applicable, TFS assumes that this side will be the account keyed in PRIMARY.ACCOUNT field and will default the primary account in this field. In such a situation, if Consolidation has been enabled, then instead of defaulting the Primary Account, TFS will default the Consolidation Washthru Account (built based on the the Currency of the Primary account, category defined in TFS.PARAMETER and the Teller ID).
+Consequently, if CURRENCY.DR is not input, that is also defaulted based on the currency of the account defaulted in this field. */
+		ACCOUNT_DR : T24BusinessTypes:TFS_AC
+			@t24:i (align=L, inputBehaviour=F, maxLength=36, sysNumber=18.0, core=true, t24Name=ACCOUNT.DR)
+		/* Currency of the Debit side of the TFS leg. Defaulted by the system as appropriate.
+Please refer to helptext of ACCOUNT.DR on defaulting logic.
+
+Validation Rules:
+==================
+
+Optional Input. Defaulted by the system as applicable. Value validated against the Currencies allowed by the underlying child transaction type definition table (ex, TELLER.TRANSACTION>VALID.CURRENCIES) */
+		CURRENCY_DR : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=19.0, core=true, t24Name=CURRENCY.DR)
+		CCY_DR_INT : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=20.0, core=true, t24Name=CCY.DR.INT)
+		/* This is the exchange rate between the currency of debit side of the TFS leg and the Currency of the TFS Leg.
+
+Please refer to helptext on ACCOUNT.CR  and AMOUNT for more information on defaulting logic.
+
+Validation Rules:
+==================
+
+Noinput field. Defaulted by the system. */
+		EXCH_TXN_DR : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=21.0, core=true, t24Name=EXCH.TXN.DR)
+		/* Debit side amount of the TFS leg, in the currency defaulted/defined in CURRENCY.DR.
+This value is converted from the currency defined in CURRENCY field. The rate to be used for this conversion is driven by the setting in the field TXN.CCY.TO.DR.CCY in TFS.PARAMETER/TFS.TRANSACTION
+
+
+Validation Rules:
+===================
+
+Input must be a valid amount ype. */
+		AMOUNT_DR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=22.0, core=true, t24Name=AMOUNT.DR, typeModifiers="19.X")
+		/* Local currency equivalent of the amount held in AMOUNT.DR. The local currency equivalent is arrived at based on Mid-reval rate.
+
+Validation Rules:
+===================
+
+Noinput field. Automatically defaulted by the system. */
+		AMOUNT_DR_LCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=23.0, core=true, t24Name=AMOUNT.DR.LCY)
+		/* This is the Credit side of the TFS Leg.
+The account can belong to any company in T24 (not necessarily the one the user is currently logged onto) as long as the CUSTOMER table of the Account company is shared with the curent company.
+
+Validation Rules:
+=================
+
+Input can be either Internal account, PL Category code or a Customer account as long as it is allowed by the underlying child transaction type definition (ex, TELLER.TRANSACTION). In cases where the Child transaction is an FT or DC, no such restrictions apply.
+
+Defaulting:
+============
+The defaulting explained below applies to all TFS legs keyed in by the user (User Input Legs).
+
+In case the child transaction is TELLER and if allowed category (CAT.DEPT.CODE.1, CAT.DEPT.CODE.2 as appropriate) is defined in TELLER.TRANSACTION, then this field will automatically be defaulted based on the Currency of this side (CURRENCY.DR), the category code defined (CAT.DEPT.CODE.1, CAT.DEPT.CODE.2 as appropriate) and the Teller ID.
+Where that is not specified, as a second level defaulting, it looks for the SURROGATE.AC definition in TFS.TRANSACTION. If that is set to ACCOUNT.CR then, any input in SURROGATE.AC of the associated leg will be defaulted into this field.
+Where SURROGATE.AC is not applicable, TFS assumes that this side will be the account keyed in PRIMARY.ACCOUNT field and will default the primary account in this field. In such a situation, if Consolidation has been enabled, then instead of defaulting the Primary Account, TFS will default the Consolidation Washthru Account (built based on the the Currency of the Primary account, category defined in TFS.PARAMETER and the Teller ID).
+Consequently, if CURRENCY.CR is not input, that is also defaulted based on the currency of the account defaulted in this field. */
+		ACCOUNT_CR : T24BusinessTypes:TFS_AC
+			@t24:i (align=L, inputBehaviour=F, maxLength=36, sysNumber=24.0, core=true, t24Name=ACCOUNT.CR)
+		/* Currency of the Credit side of the TFS leg. Defaulted by the system as appropriate.
+Please refer to helptext of ACCOUNT.CR on defaulting logic.
+
+Validation Rules:
+==================
+
+Optional Input. Defaulted by the system as applicable. Value validated against the Currencies allowed by the underlying child transaction type definition table (ex, TELLER.TRANSACTION>VALID.CURRENCIES) */
+		CURRENCY_CR : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=25.0, core=true, t24Name=CURRENCY.CR)
+		CCY_CR_INT : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=26.0, core=true, t24Name=CCY.CR.INT)
+		/* This is the exchange rate between the currency of credit side of the TFS leg and the Currency of the TFS Leg.
+
+Please refer to helptext on ACCOUNT.CR  and AMOUNT for more information on defaulting logic.
+
+Validation Rules:
+==================
+
+Noinput field. Defaulted by the system. */
+		EXCH_TXN_CR : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=27.0, core=true, t24Name=EXCH.TXN.CR)
+		/* Credit side amount of the TFS leg, in the currency defaulted/defined in CURRENCY.CR.
+This value is converted from the currency defined in CURRENCY field. The rate to be used for this conversion is driven by the setting in the field TXN.CCY.TO.CR.CCY in TFS.PARAMETER/TFS.TRANSACTION
+
+
+Validation Rules:
+===================
+
+Input must be a valid amount ype. */
+		AMOUNT_CR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=28.0, core=true, t24Name=AMOUNT.CR, typeModifiers="25.X")
+		/* Local currency equivalent of the amount held in AMOUNT.CR. The local currency equivalent is arrived at based on Mid-reval rate.
+
+Validation Rules:
+===================
+
+Noinput field. Automatically defaulted by the system. */
+		AMOUNT_CR_LCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=29.0, core=true, t24Name=AMOUNT.CR.LCY)
+		/* Currency of the TFS leg. This need not either be the Debit currency or the Credit Currency. This need not be the same as the currency of the Primary Account either.
+
+TFS will automatically calculate the exchange rates between this Transaction currency and the debit & Credit currencies.
+
+The exchange rates used to arrive at debit & credit equivalents are driven by the fields TXN.CCY.TO.DR.CCY and TXN.CCY.TO.CR.CCY (at TFS.PARAMETER and at TFS.TRANSACTION level)
+
+Validation Rules:
+==================
+
+Mandatory if the underlying child transaction type definition requires this to be a foreign currency. If not, and if left blank, defaulted to local currency. */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=30.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		CURRENCY_INT -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=31.0, core=true, businessType=CCY, t24Name=CURRENCY.INT)
+		/* This is the transaction amount of the associated TFS leg, in the currency specified in the associated CURRENCY field.
+
+Validation Rules:
+===================
+Mandatory input. Input must be a valid amount type data.
+
+Defaulting:
+==============
+
+Majority of defaulting and validations happen as part of this field's validation.
+
+Currency:
+----------
+When the currency of the TFS leg is not input, then as much as allowed by the child transaction type definition (ex, TELLER.TRANSACTION), it defaults local currency as the Currency of the TFS leg.
+
+Credit and Debit Accounts:
+---------------------------
+ACCOUNT.DR, CURRENCY.DR, ACCOUNT.CR, CURRENCY.CR are defaulted. Please refer to the help text for the fields ACCOUNT.DR and ACCOUNT.CR for the defaulting logic.
+
+Denominations:
+----------------
+For those TFS legs where denomination capture is applicable, the Denominations (either debit or credit side depending on whether its a deposit or withdrawal or both sides if its a till to till transfer/exchange type of transaction) are populated for the user to key in the units.
+In case of withdrawals, it also updates a field associated with the denomination sub-set, called CR.AVAIL with the available inventory for the associated denomination to guide the user.
+
+Currency Conversion:
+---------------------
+
+All currency conversions are done at this stage. The fields AMOUNT.DR, AMOUNT.DR.LCY, EXCH.TXN.DR, AMOUNT.CR, AMOUNT.CR.LCY, EXCH.TXN.CR, AMOUNT.LCY, DEAL.RATE are defaulted based on values in CURRENCY, AMOUNT, CURRENCY.DR, CURRENCY.CR in the associated TFS leg.
+
+Once these credit and debit side equivalents are calculated and defaulted, this field itself loses its significance. This is not passed along to the underlying child transaction.
+
+Value Dates & Exposure Dates:
+------------------------------
+
+Debit, Credit side value dates and credit exposure dates are defaulted. The specifications given in TRANSACTION table are respected. Where applicable, the specifications given in BC.SORT.CODE (keyed in the field SORT.CODE in TFS) overrides the definition in TRANSACTION table.
+
+Running Total:
+---------------
+
+A running total summary of each of the accounts involved in each of the TFS legs, in local currency equivalent is maintained in the fields RT.ACCOUNT.NO and RUNNING.TOTAL. Those two fields are defaulted from the field validation of AMOUNT field.
+
+Waive Charges:
+--------------
+It is determined here if the charges defined in the underlying child transaction type definition (ex, TELLER.TRANSACTION or FT.TXN.TYPE.CONDITION) should be waived or not by setting the associated WAIVE.CHARGES field to YES.
+If Consolidation is enabled, then each of the user input TFS legs will be defaulted with the consolidated washthru account. Hence the charges will need to be waived in those legs. */
+		AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=32.0, core=true, t24Name=AMOUNT)
+		AMOUNT_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=33.0, core=true, t24Name=AMOUNT.INT)
+		/* Local Currency equivalent of the value entered in the field AMOUNT. Automatically defaulted by the system based on mid-reval rate.
+This has absolutely no significance in any processing of TFS except to give a picture of what is the Local currency equivalent of the value entered in the field AMOUNT.
+
+Validation Rules:
+==================
+Noinput field. Defaulted by the system. */
+		AMOUNT_LCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=34.0, core=true, t24Name=AMOUNT.LCY, typeModifiers="USD")
+		/* The exchange rate between the Debit Currency and the Credit Currency of the associated TFS leg.
+
+The rate used to calculate this is driven by the parameter settings in TFS.PARAMETER and/or TFS.TRANSACTION (overrides TFS.PARAMETER settings for that TFS Leg alone).
+
+If Debit is Foreign Currency and Credit is Local Currency, then the settings in the field BUY.FCY.SELL.LCY is used to determine the rate to be used.
+If Debit is Local Currency and Credit is Foreign Currency, then the settings in the field BUY.LCY.SELL.FCY is used to determine the rate to be used.
+If Debit is Foreign Currency and Credit is also Foreign Currency, then the settings in the field BUY.FCY.SELL.FCY is used to determine the rate to be used.
+
+Validation Rules:
+=================
+
+Optional Input. Defaulted by the system. Default can be overridden by user.
+When keyed in by the user, all the currency conversion processing for the associated TFS leg is carried out with the new rate. */
+		DEAL_RATE : T24BusinessTypes:RR
+			@t24:i (align=L, inputBehaviour=F, maxLength=11, sysNumber=35.0, core=true, t24Name=DEAL.RATE)
+		/* Noinput field that holds the system defaulted DEAL.RATE.
+
+Validation Rules:
+=================
+
+Noinput field. Holds the system defaulted DEAL.RATE. Cannot be changed. No further validation is done by TFS on this field.
+
+The value in this field can be used for any reporting purposes as to what the system arrived at and what was input by the user as the Deal Rate. */
+		DEAL_RATE_INT : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=36.0, core=true, t24Name=DEAL.RATE.INT)
+		/* When Consolidation is enabled, TFS uses a washthru account as a temporary place holder for each TFS leg input by the user, so that the net of all these transactions can be used to create the Consolidated Leg between this washthru account and the Primary Account.
+This field is updated by TFS as either CREDIT or DEBIT on the user input legs to indicate whether the washthru account was defaulted as Credit Account or the Debit Account on that TFS leg, depending on the Transaction type.
+
+Validation Rules:
+==================
+
+Noinput field. Updated by the system. */
+		WASHTHRU_SIDE : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__WASHTHRU_SIDE
+			@t24:i (align=L, inputBehaviour=N, maxLength=7, sysNumber=37.0, core=true, t24Name=WASHTHRU.SIDE)
+		/* Associated with each TFS Leg that allows the user to indicate if the leg level Charging should be waived.
+
+Validation Rules:
+====================
+
+Optional Input field.
+
+When consolidation is enabled, this field is defaulted to YES for the user input legs (because they are on the Washthru account rather than the customer's account). Otherwise, defaulted to NO. Default can be overridden by user. */
+		WAIVE_CHARGE : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__WAIVE_CHARGE
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=38.0, core=true, t24Name=WAIVE.CHARGE)
+		CHG_CODE -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__CHG_CODE *
+		/* Value date for the credit side of the TFS leg. Defaulted by the system based on the specifications in TRANSACTION.
+
+Where a Sort code has been supplied in the associated SORT.CODE field, this will be defaulted from the BC.SORT.CODE table. */
+		CR_VALUE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=44.0, core=true, t24Name=CR.VALUE.DATE)
+		/* Value date for the debit side of the TFS leg. Defaulted by the system based on the specifications in TRANSACTION.
+
+Validation Rules:
+=================
+
+Optional Input. Defaulted by the system. Default can be overridden by the user. */
+		DR_VALUE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=45.0, core=true, t24Name=DR.VALUE.DATE)
+		/* When a bulk of cheques are being presented for deposit and if the financial institution wants to be able to record just the number of cheques and not the individual cheque details, then this field can be used for that purpose.
+
+Validation Rules:
+=================
+
+Optional Input. No further validation is done on this field by TFS. */
+		NO_OF_CHEQUES : mml:Integer
+			@t24:i (align=R, inputBehaviour=F, maxLength=5, sysNumber=46.0, core=true, t24Name=NO.OF.CHEQUES)
+		/* In case the TFS leg is for a cheque/draft issue, then the number of the cheque/draft can be keyed in here.
+
+Validation Rules:
+==================
+
+Optional Input. Value must be numeric. No further validation is done on this field by TFS.
+
+Value in this field can be used when printing the cheque/draft upon completion of the transaction. */
+		CHEQUE_DRAWN : mml:Integer
+			@t24:i (align=R, inputBehaviour=F, maxLength=14, sysNumber=47.0, core=true, t24Name=CHEQUE.DRAWN)
+		/* The date on the cheque being presented for deposit.
+
+Validation Rules:
+=================
+
+Optional Input. Value must be a valid date. No further validation is done on this field by TFS. */
+		CHEQUE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=48.0, core=true, t24Name=CHEQUE.DATE)
+		/* This field is used in conjunction with the fields CHEQUE.NUMBER, CHEQUE.ACCT.NO for recording information about Collection/Clearing cheques.
+Where T24 Cheque Collection functionality is not used, this field can still be used to apply a hold on the funds availability due to the cheque being presented for deposit.
+
+Validation Rules:
+==================
+
+Optional Input. Input must be key to a valid record in BC.SORT.CODE.
+
+TFS will check if the BC.SORT.CODE definition carries any specification on the Value Date and Exposure Date to be defaulted and will apply the specifications.
+
+If a default exposure period has been specified in BC.SORT.CODE, TFS uses the fields SPLIT.AMT and SPLIT.DATE to default the amount and the date on which it should be made available for withdrawal. */
+		SORT_CODE -> FT_LocalClearing:BC_SORT_CODE
+			@t24:i (align=L, inputBehaviour=F, maxLength=20, sysNumber=49.0, core=true, businessType=SORT.CODE, t24Name=SORT.CODE)
+		/* The number of the cheque being presented for deposit. This is especially useful for cheques drawn on us (either certified cheques or customer cheques belonging to the same bank).
+
+Validation Rules:
+==================
+
+Optional Input. Mandatory if flagged at TRANSACTION level.
+
+TFS does not do any validation on this field. Rather, any value keyed in here will be passed on to Teller and will ultimately be validated against cheque register. An override will be raised if
+a) its not a valid cheque
+b) it has already been presented
+c) it has been stopped */
+		CHEQUE_NUMBER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=50.0, core=true, t24Name=CHEQUE.NUMBER)
+		/* This is the account number as it is on the cheque being presented for deposit. This is especially applicable for Collection or Clearing cheques and not for On-us cheques.
+
+Validation Rules:
+=================
+
+Optional Input. Free text alphanumeric field. No validation is done on this field by TFS.
+Any value supplied here will be passed on to the field CHEQUE.ACCT.NO in TELLER. */
+		CHEQUE_ACCT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=20, sysNumber=51.0, core=true, t24Name=CHEQUE.ACCT.NO)
+		/* When a cheque issued on-us (issued in our bank either as a certified cheque or on another customer account) is presented for deposit, both the cheque number and cheque type need to be keyed inorder for the system to do the standard cheque validations (against the stock register, payment stop, duplicate presentation etc).
+
+This field is used to specify the Cheque Type.
+
+Validation Rules:
+=================
+
+Optional Input. Input must be key to a valid record in CHEQUE.TYPE. */
+		CHQ_TYPE -> CHQ_Config:CHEQUE_TYPE
+			@t24:i (align=L, inputBehaviour=F, maxLength=4, sysNumber=52.0, core=true, businessType=SSS, t24Name=CHQ.TYPE)
+		SPLIT_DATE -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__SPLIT_DATE *
+		/* Exposure date for the credit side of the TFS leg. Where Split exposure is not involved, this field will be defaulted by the system based on the specifications in TRANSACTION table.
+
+Validation Rules:
+=================
+
+Optional input. Automatically defaulted by the system. Can be overridden by the user. */
+		CR_EXP_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=55.0, core=true, t24Name=CR.EXP.DATE)
+		/* Exposure date for the debit side of the TFS leg. Normally this will be the current bank date as there cannot be forward exposure for debits, except when the underlying child transaction is on DC and if the DC Reversal Mark is set to R.
+
+Validation Rules:
+=================
+
+Optional input. Automatically defaulted by the system. Can be overridden by the user. */
+		DR_EXP_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=56.0, core=true, t24Name=DR.EXP.DATE)
+		CR_DENOM -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__CR_DENOM *
+		DR_DENOM -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__DR_DENOM *
+		/* If underlying child transaction is on DC or TT module, then the field OUR.REFERENCE can be used to pass along the value to the respective fields in DATA.CAPTURE or TELLER and eventually to the Accounting Entry.
+
+Validation Rules:
+=================
+
+Optional Input. No further validation is done on this field by TFS. */
+		OUR_REFERENCE : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=F, maxLength=16, sysNumber=65.0, core=true, t24Name=OUR.REFERENCE)
+		NARRATIVE -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__NARRATIVE *
+		PAYMENT_DETS -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__PAYMENT_DETS *
+		/* If the underlying child transaction is DATA.CAPTURE, this field can be keyed in with the CATEGORY id to be passed on to the Accounting Entry.
+
+Validation Rules:
+===================
+
+Mandatory input if underlying child transaction is on DC module.
+Input must be key to a valid record in CATEGORY. No further validation is done by TFS on this field.
+Input not allowed if neither side of the TFS leg is a PL Category. */
+		DC_PROD_CATEG -> ST_Config:CATEGORY
+			@t24:i (align=L, inputBehaviour=F, maxLength=10, sysNumber=68.0, core=true, businessType=CAT, t24Name=DC.PROD.CATEG)
+		/* If the underlying child transaction is DATA.CAPTURE, this field can be keyed in with the CUSTOMER id to be passed on to the Accounting Entry.
+
+Validation Rules:
+===================
+
+Mandatory input if underlying child transaction is on DC module.
+Input must be key to a valid record in CUSTOMER. No further validation is done by TFS on this field. */
+		DC_CUSTOMER_NO -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=F, maxLength=20, sysNumber=69.0, core=true, businessType=CUS, t24Name=DC.CUSTOMER.NO)
+		/* If the underlying child transaction is DATA.CAPTURE, this field can be keyed in with the DEPT.ACCT.OFFICER id to be passed on to the Accounting Entry.
+
+Validation Rules:
+===================
+
+Mandatory input if underlying child transaction is on DC module.
+Input must be key to a valid record in DEPT.ACCT.OFFICER. No further validation is done by TFS on this field. */
+		DC_ACCT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER
+			@t24:i (align=R, inputBehaviour=F, maxLength=20, sysNumber=70.0, core=true, t24Name=DC.ACCT.OFFICER)
+		/* If the underlying child transaction is DATA.CAPTURE, this field can be keyed in with the literal 'R' to be supplied to the REVERSAL.MARKER field in DATA.CAPTURE
+
+Validation Rules:
+===================
+
+Optional input if underlying child transaction is on DC module.
+No further validation is done by TFS on this field. */
+		DC_REVERSE_MARK : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__DC_REVERSE_MARK
+			@t24:i (align=L, inputBehaviour=F, maxLength=1, sysNumber=71.0, core=true, t24Name=DC.REVERSE.MARK)
+		/* If this TFS leg is a Card transaction, then card number can be recorded in this field.
+
+Validation Rules:
+==================
+
+Optional input. Free text alphanumeric field.
+If supplied with any value, this will be passed on to the corresponding field in TELLER. No validation is done on this field by TFS. */
+		CARD_NUMBER -> ST_Cards:CARD_ISSUE
+			@t24:i (align=L, inputBehaviour=F, maxLength=21, sysNumber=72.0, core=true, businessType=A, t24Name=CARD.NUMBER)
+		CARD_DETAILS -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__CARD_DETAILS *
+		/* Internal reference field. Holds the currency market as applicable for the Debit side of the TFS leg. This is inherited from the underlying child transaction type definition table (like TELLER.TRANSACTION) and where not available, is defaulted to 1.
+
+Used for currency conversion processing.
+
+Validation Rules:
+===================
+
+Noinput field. Automatically defaulted by the system. */
+		DR_CURR_MKT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=74.0, core=true, t24Name=DR.CURR.MKT)
+		/* Internal reference field. Holds the currency market as applicable for the Credit side of the TFS leg. This is inherited from the underlying child transaction type definition table (like TELLER.TRANSACTION) and where not available, is defaulted to 1.
+
+Used for currency conversion processing.
+
+Validation Rules:
+===================
+
+Noinput field. Automatically defaulted by the system. */
+		CR_CURR_MKT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=75.0, core=true, t24Name=CR.CURR.MKT)
+		/* Associated with each TFS Leg. Holds the reference to the underlying child transaction.
+
+Validation Rules:
+==================
+
+Noinput field. Updated by the system. */
+		UNDERLYING : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=76.0, core=true, t24Name=UNDERLYING)
+		RESERVED_77 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=77.0, core=true, t24Name=RESERVED.77)
+		UL_STMT_NO -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__UL_STMT_NO *
+		RESERVED_79 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=79.0, core=true, t24Name=RESERVED.79)
+		RESERVED_80 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=80.0, core=true, t24Name=RESERVED.80)
+		/* If the original child transaction could not be reversed for any reason (for ex, TELLER does not allow reversal of a transaction in history), TFS uses DATA.CAPTURE to generate offsetting entries.
+In such cases, the transaction reference of the underlying child transaction and the reversal transaction will be different. This field is updated with the reversal child transaction reference.
+
+Validation Rules:
+=================
+
+Noinput field. Updated by the system. */
+		R_UNDERLYING : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=81.0, core=true, t24Name=R.UNDERLYING)
+		R_UL_STMT_NO -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__R_UL_STMT_NO *
+		RESERVED_83 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=83.0, core=true, t24Name=RESERVED.83)
+		/* Associated with each TFS Leg. Holds the ID to T24 Company in which the underlying child transaction was created.
+
+Validation Rules:
+==================
+
+Noinput field. Updated by the system. */
+		UL_COMPANY -> ST_CompanyCreation:COMPANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=84.0, core=true, businessType=COM, t24Name=UL.COMPANY)
+		LOCK_REF -> byValue TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__LOCK_REF *
+		/* Indicates whether this is a Consolidated leg defaulted by the system or a User input leg.
+
+When left blank, it indicates it is a user input TFS leg. If set to YES, it indicates it is a Consolidated leg.
+
+Validation Rules:
+=================
+
+Noinput field. Automatically defaulted by the system. */
+		CONSOL_LEG : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__CONSOL_LEG
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=86.0, core=true, t24Name=CONSOL.LEG)
+		/* Noinput field. */
+		VAL_ERROR : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=87.0, core=true, t24Name=VAL.ERROR)
+		/* If a TFS leg needs to be reversed, then this field, which is associated with each TFS leg can be set to R. When TFS is committed with this field set to R, the it will automatically reverse the associated child transaction.
+If the underlying child transaction is still in unauthorised status (refer to the field UL.STATUS), TFS will recognise this and DELETE the child transaction from unauthorised status.
+If the underlying child transaction is in authorised status, then TFS will try to REVERSE it.
+When this reversal is committed using a version that requires additional authoriser, then the reversal will be in Unauthorised status too. Authorising TFS will authorise the reversal.
+If the reversal was initiated by mistake and needed to be undone, then all the user has to do is set the field REVERSAL.MARK (which by now would have been reset by TFS to ""), to R again and commit. This will result in the unauthorised reversal being deleted. However this is not possible if the reversal was authorised. */
+		REVERSAL_MARK : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__TRANSACTION__REVERSAL_MARK
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=88.0, core=true, t24Name=REVERSAL.MARK)
+	}
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__CHG_CODE
+	{
+		/* FT.CHARGE.TYPE or FT.COMMISSION.TYPE as defined in the underlying child transaction type definition and as returned by the child transaction and defaulted by TFS during contract validation.
+
+Please see helptext for CHG.ACCOUNT for more details.
+
+Validation Rules:
+=================
+
+Any input to this field is overriden to "" if the associated WAIVE.CHARGES is set to YES. */
+		CHG_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=20, sysNumber=39.0, core=true, t24Name=CHG.CODE)
+		/* This field is part of an associated sub-value set till CHG.CODE.
+
+TELLER.FINANCIAL.SERVICES supports leg-wise charges (as defined in the respective child transaction type definition tables (ex, TELLER.TRANSACTION, FT.TXN.TYPE.CONDITION) or a consolidated charge (as returned by the API attached in TFS.PARAMETER).
+
+In case of leg-wise charge, when validating a transaction, TFS gets the charges as calculated by the child transaction and defaults in these set of fields. This field gets populated with the Charge Account.
+
+Validation Rules:
+=================
+
+Automatically defaulted by system.
+Where the underlying child transaction is not TELLER, this field can be changed by the user.
+Any input to this field is overriden to "" if the associated WAIVE.CHARGES is set to YES. */
+		CHG_ACCOUNT : mml:Integer
+			@t24:i (align=R, inputBehaviour=F, maxLength=36, sysNumber=40.0, core=true, t24Name=CHG.ACCOUNT)
+		/* Currency of the Charge amount specified in CHG.AMT. This is as returned by the child transaction and defaulted by TFS during contract validation.
+
+Please see helptext for CHG.ACCOUNT for more details.
+
+Validation Rules:
+=================
+
+Must be a valid record in CURRENCY table.
+Any input to this field is overriden to "" if the associated WAIVE.CHARGES is set to YES. */
+		CHG_CCY : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=F, maxLength=3, sysNumber=41.0, core=true, t24Name=CHG.CCY)
+		/* Charge amount as calculated by the child transaction and defaulted by TFS during contract validation.
+
+Please see helptext for CHG.ACCOUNT for more details.
+
+Validation Rules:
+===================
+
+Automatically defaulted by the system.
+Where the underlying child transaction is not TELLER, this field can be changed by the user.
+Any input to this field is overriden to "" if the associated WAIVE.CHARGES is set to YES. */
+		CHG_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=42.0, core=true, t24Name=CHG.AMT)
+		/* LCY equivalent of the Charge amount. If this is not calculated by the child transaction, it is calculated by TFS using mid-reval rate and defaulted during contract validation.
+
+Please see helptext for CHG.ACCOUNT for more details.
+
+Validation Rules:
+=================
+
+Automatically defaulted by the system.
+Any input to this field is overriden to "" if the associated WAIVE.CHARGES is set to YES. */
+		CHG_AMT_LCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=43.0, core=true, t24Name=CHG.AMT.LCY)
+	}
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__SPLIT_DATE
+	{
+		/* This holds the date when the amount specified in the associated SPLIT.AMT field should be made available for withdrawal.
+
+It can be input by a user on any transaction type although, defaulting can be made possible by keying in an appropriate BC.SORT.CODE key in the SORT.CODE field.
+
+TFS uses this field to capture the forward exposures for the individual cheques being deposited and during Consolidation, it collates the split dates and split amounts from all the user input legs and populates them on the Consolidated leg. While doing so, if there is any "same day avaialability" deposit that is part of the total deposit amount, it uses the Default Sort code defined in the field CONSOL.SORT.CODE in TFS.PARAMETER for that portion of the deposit amount.
+
+What happens to the data in these fields is controlled by the field EXPOSURE.METHOD in TFS.PARAMETER.
+When committed, it either passes the values on these fields into EXP.SPT.DAT and EXP.SPT.AMT fields in TELLER (if EXPOSURE.METHOD is FLOAT) or creates AC.LOCKED.EVENTS for each of the split dates which are in the future (if EXPOSURE.METHOD is LOCK).
+
+Validation Rules:
+==================
+
+Date type field. Optional Input. Defaulted by system based on SORT.CODE. */
+		SPLIT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=53.0, core=true, t24Name=SPLIT.DATE)
+		/* This holds the amount which should be made available for withdrawal on the date specified in the associated SPLIT.DATE field.
+It can be input by a user on any transaction type although, defaulting can be made possible by keying in an appropriate BC.SORT.CODE key in the SORT.CODE field.
+
+TFS uses this field to capture the forward exposures for the individual cheques being deposited and during Consolidation, it collates the split dates and split amounts from all the user input legs and populates them on the Consolidated leg. While doing so, if there is any "same day avaialability" deposit that is part of the total deposit amount, it uses the Default Sort code defined in the field CONSOL.SORT.CODE in TFS.PARAMETER for that portion of the deposit amount.
+
+What happens to the data in these fields is controlled by the field EXPOSURE.METHOD in TFS.PARAMETER.
+When committed, it either passes the values on these fields into EXP.SPT.DAT and EXP.SPT.AMT fields in TELLER (if EXPOSURE.METHOD is FLOAT) or creates AC.LOCKED.EVENTS for each of the split dates which are in the future (if EXPOSURE.METHOD is LOCK).
+
+Validation Rules:
+==================
+
+Amount type field. Optional Input. Defaulted by system based on SORT.CODE. */
+		SPLIT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=F, maxLength=19, sysNumber=54.0, core=true, t24Name=SPLIT.AMT)
+	}
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__CR_DENOM
+	{
+		/* Denomination for the credit side (withdrawal side). Associated with the fields CR.AVAIL, CR.DEN.UNIT and CR.SERIAL.NO.
+
+Validation Rules:
+=================
+Noinput field. Automatically defaulted by the system. */
+		CR_DENOM -> TT_Config:TELLER_DENOMINATION
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=57.0, core=true, businessType=A, t24Name=CR.DENOM)
+		/* Holds the available inventory for the associated denomination. This is populated by the system when the denominations for withdrawal transactions are expanded.
+
+Associated with the fields CR.DENOM, CR.DEN.UNIT and CR.SERIAL.NO
+
+Validation Rules:
+==================
+
+Noinput field. Automatically defaulted by the system as appropriate. */
+		CR_AVAIL : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=58.0, core=true, t24Name=CR.AVAIL)
+		/* Unit field for the credit denominations (withdrawal side). Associated with the fields CR.DENOM, CR.AVAIL and CR.SERIAL.NO.
+
+Validation Rules:
+==================
+
+Mandatory input when required by the transaction type and the account settings (STOCK.CONTROL.TYPE field in ACCOUNT record of the Credit Account of this TFS Leg) */
+		CR_DEN_UNIT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=9, sysNumber=59.0, core=true, t24Name=CR.DEN.UNIT)
+		/* Serial number for the associated denomination & units for the credit side (withdrawal side). Associated with the fields CR.DENOM, CR.AVAIL and CR.DEN.UNIT
+
+Validation Rules:
+==================
+Mandatory Input when required by the transaction type and the account settings (STOCK.CONTROL.TYPE field in ACCOUNT record of the Credit Account of this TFS leg) */
+		CR_SERIAL_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=60.0, core=true, t24Name=CR.SERIAL.NO)
+	}
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__DR_DENOM
+	{
+		/* Denomination for the Debit side (Deposit side). Associated with the fields DR.AVAIL, DR.DEN.UNIT and DR.SERIAL.NO.
+
+Validation Rules:
+=================
+Noinput field. Automatically defaulted by the system. */
+		DR_DENOM -> TT_Config:TELLER_DENOMINATION
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, sysNumber=61.0, core=true, businessType=A, t24Name=DR.DENOM)
+		/* Not in use. Noinput field. */
+		DR_AVAIL : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=62.0, core=true, t24Name=DR.AVAIL)
+		/* Unit field for the Debit denominations (Deposit side). Associated with the fields DR.DENOM, DR.AVAIL and DR.SERIAL.NO.
+
+Validation Rules:
+==================
+
+Mandatory input when required by the transaction type and the account settings (STOCK.CONTROL.TYPE field in ACCOUNT record of the Debit Account of this TFS Leg) */
+		DR_DEN_UNIT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=9, sysNumber=63.0, core=true, t24Name=DR.DEN.UNIT)
+		/* Serial number for the associated denomination & units for the debit side (deposit side). Associated with the fields DR.DENOM, DR.AVAIL and DR.DEN.UNIT
+
+Validation Rules:
+==================
+Mandatory Input when required by the transaction type and the account settings (STOCK.CONTROL.TYPE field in ACCOUNT record of the Debit Account of this TFS leg) */
+		DR_SERIAL_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=64.0, core=true, t24Name=DR.SERIAL.NO)
+	}
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__NARRATIVE
+	{
+		/* Narrative for the TFS leg. For Consolidated legs, TFS uses a native logic to build the narrative text based on the user input legs which are being consolidated.
+There is also a way of populating narrative based on custom requirements by attaching an API in the field CONSOL.NARR.API in TFS.PARAMETER.
+For user input legs, the user can input values here.
+
+Validation Rules:
+=================
+
+Optional Input. Sub-valued field associated with each TFS leg.  Value supplied in this field will be passed onto the child transaction and eventually to the NARRATIVE field in the Accounting Entry. */
+		NARRATIVE : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=F, maxLength=34, sysNumber=66.0, core=true, t24Name=NARRATIVE)
+	}
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__PAYMENT_DETS
+	{
+		/* If the underlying child transaction is FT and if the user is trying to effect a bill payment transaction, then this field can be used to pass along the payment details.
+
+Any input in this field will be passed on to the PAYMENT.DETAILS field in FT.
+
+Validation Rules:
+==================
+
+Optional Input. No further validation is done on this field by TFS. */
+		PAYMENT_DETS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=67.0, core=true, t24Name=PAYMENT.DETS)
+	}
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__CARD_DETAILS
+	{
+		/* If this TFS leg is a Card transaction, then any information related to it can be recorded in this field.
+
+Validation Rules:
+==================
+
+Optional input. Free text alphanumeric field.
+If supplied with any value, this will be passed on to the corresponding field in TELLER. No validation is done on this field by TFS. */
+		CARD_DETAILS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=25, sysNumber=73.0, core=true, t24Name=CARD.DETAILS)
+	}
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__UL_STMT_NO
+	{
+		/* Associated with each TFS Leg. Holds the reference to the accounting/PL entries raised by the underlying child transaction whose reference is held in the associated UNDERLYING field.
+
+Validation Rules:
+==================
+
+Noinput field. Updated by the system. */
+		UL_STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=78.0, core=true, t24Name=UL.STMT.NO)
+	}
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__R_UL_STMT_NO
+	{
+		/* Statement entry/PL Entry numbers generated by the reversal of the child transaction.
+
+Validation Rules:
+=================
+
+Noinput field. Updated by the system. */
+		R_UL_STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=82.0, core=true, t24Name=R.UL.STMT.NO)
+	}
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__LOCK_REF
+	{
+		/* Key to AC.LOCKED.EVENTS record automatically stored by the system upon creation of records in AC.LOCKED.EVENTS.
+
+This is applicable only when the associated TFS leg carries a forward exposure and if the field EXPOSURE.METHOD in TFS.PARAMETER is set to LOCK.
+
+Validation Rules:
+=================
+
+Noinput field. Populated by the system. */
+		LOCK_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=85.0, core=true, t24Name=LOCK.REF)
+	}
+	TELLER_FINANCIAL_SERVICES__AML_NAME
+	{
+		/* This field is part of the AML details captured as part of a TFS Transaction.
+This is a language associated multi-valued field allowing free text input to capture the name of a walk-in customer.
+
+
+Validation Rules:
+=================
+
+Optional Input. Input not allowed when AML.CUSTOMER.NO has been keyed in with a valid T24 Customer Number. */
+		AML_NAME : T24BusinessTypes:SWI
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, multiLanguage=true, sysNumber=91.0, core=true, t24Name=AML.NAME)
+	}
+	TELLER_FINANCIAL_SERVICES__AML_ADDRESS
+	{
+		/* This field is part of the AML details captured as part of a TFS Transaction.
+This is a multi-valued field allowing free text input to capture the address details of a walk-in customer.
+
+Validation Rules:
+=================
+
+Optional Input. Input not allowed when AML.CUSTOMER.NO has been keyed in with a valid T24 Customer Number. */
+		AML_ADDRESS : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=92.0, core=true, t24Name=AML.ADDRESS)
+	}
+	TELLER_FINANCIAL_SERVICES__LEGAL_ID
+	{
+		/* This field is part of the AML details captured as part of a TFS Transaction.
+Free text field to record the identification of the legal document presented by the walk-in customer.
+
+Validation Rules:
+==================
+
+Optional Input. Upto 20 alphanumeric characters. */
+		LEGAL_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=20, sysNumber=94.0, core=true, t24Name=LEGAL.ID)
+		/* This field is part of the AML details captured as part of a TFS Transaction to capture the name of the legal document that the walk-in customer presents for identification/verification.
+This field has a lookup table running on a virtual table.
+
+If the field AML.LOOKUP in TFS.PARAMETER is set to CUSTOMER, then this field will point to a virtual look up table called CUS.LEGAL.DOC.NAME. If that is set to NATIVE, then this field will point to a virtual table look up called TFS.LEGAL.DOC.NAME.
+Valid records need to be defined in EB.LOOKUP for either of these, depending on the parameter setting.
+
+Validation Rules:
+==================
+
+Optional Input. */
+		LEGAL_DOC_NAME : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__LEGAL_ID__LEGAL_DOC_NAME
+			@t24:i (align=L, inputBehaviour=F, maxLength=20, sysNumber=95.0, core=true, t24Name=LEGAL.DOC.NAME)
+		/* This field is part of the AML details captured as part of a TFS Transaction.
+Free text field to record the name as in the legal document presented by the walk-in customer.
+
+Validation Rules:
+==================
+
+Optional Input. Upto 100 alphanumeric characters. */
+		LEGAL_HOLDER_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=100, sysNumber=96.0, core=true, t24Name=LEGAL.HOLDER.NAME)
+		/* This field is part of the AML details captured as part of a TFS Transaction to capture the name issuing authority of the legal document that the walk-in customer presents for identification/verification.
+This field has a lookup table running on a virtual table.
+
+If the field AML.LOOKUP in TFS.PARAMETER is set to CUSTOMER, then this field will point to a virtual look up table called CUS.LEGAL.ISS.AUTH. If that is set to NATIVE, then this field will point to a virtual table look up called TFS.LEGAL.ISS.AUTH.
+Valid records need to be defined in EB.LOOKUP for either of these, depending on the parameter setting.
+
+Validation Rules:
+==================
+
+Optional Input. */
+		LEGAL_ISS_AUTH : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=97.0, core=true, t24Name=LEGAL.ISS.AUTH)
+		/* This field is part of the AML details captured as part of a TFS Transaction.
+Free text field to record the issue date of the legal document presented by the walk-in customer.
+
+Validation Rules:
+==================
+
+Optional Input. T24 Standard Date type field. */
+		LEGAL_ISS_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=98.0, core=true, t24Name=LEGAL.ISS.DATE)
+		/* This field is part of the AML details captured as part of a TFS Transaction.
+Free text field to record the expiry date of the legal document presented by the walk-in customer.
+
+Validation Rules:
+==================
+
+Optional Input. T24 standard date type field.
+
+When the field AML.DETAILS in TFS.PARAMETER is set to VALIDATION, TFS validates against the AML details as recorded in CUSTOMER table or as captured in TFS itself.
+
+In case AML.CUSTOMER.NO has been input, then it will validate the legal ID information as captured in CUSTOMER table of that customer. TFS will validate to see if the Legal ID information is available in CUSTOMER table for this customer. If available and if the Legal ID has expired, an override will be raised to that effect. If Legal ID information is not available, an override will be raised to that effect.
+In case of Walk-in customers, the same validations are done albeit based on the value entered in this field. */
+		LEGAL_EXP_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=F, maxLength=11, sysNumber=99.0, core=true, t24Name=LEGAL.EXP.DATE)
+	}
+	TELLER_FINANCIAL_SERVICES__COMM_TYPE
+	{
+		/* This field is part of the AML details captured as part of a TFS Transaction to record the walk-in customer's preferred communication.
+This field has a lookup table running on a virtual table.
+
+If the field AML.LOOKUP in TFS.PARAMETER is set to CUSTOMER, then this field will point to a virtual look up table called CUS.COMM.TYPE. If that is set to NATIVE, then this field will point to a virtual table look up called TFS.COMM.TYPE.
+Valid records need to be defined in EB.LOOKUP for either of these, depending on the parameter setting.
+
+Validation Rules:
+==================
+
+Optional Input. */
+		COMM_TYPE : TT_TellerFinancialService:TELLER_FINANCIAL_SERVICES__COMM_TYPE__COMM_TYPE
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=100.0, core=true, t24Name=COMM.TYPE)
+		/* This field is part of the AML details captured as part of a TFS Transaction.
+Free text field to specify the information relevant (like a phone number or an email address) to the comnunication type chosen in COMM.TYPE field.
+
+Validation Rules:
+=================
+
+Optional Input. */
+		COMM_REFERENCE : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=F, maxLength=35, sysNumber=101.0, core=true, t24Name=COMM.REFERENCE)
+	}
+	TELLER_FINANCIAL_SERVICES__RT_ACCOUNT_NO
+	{
+		/* Account number for which a running summary of amount is held in the field RUNNING.TOTAL.
+
+This account is involved in one or more of the TFS legs in the current TFS Transaction.
+
+Validation Rules:
+=================
+
+Noinput field. Updated by the system. */
+		RT_ACCOUNT_NO : T24BusinessTypes:TFS_AC
+			@t24:i (align=L, inputBehaviour=N, maxLength=36, sysNumber=102.0, core=true, t24Name=RT.ACCOUNT.NO)
+		/* Running total summary in Local currency equivalent for each account involved in one or more TFS legs in the current TFS transaction.
+
+The LCY equivalent is arrived at using mid-reval rate.
+
+Validation Rules:
+=================
+
+Noinput field. Updated by the system. */
+		RUNNING_TOTAL : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=103.0, core=true, t24Name=RUNNING.TOTAL, typeModifiers="USD")
+	}
+	TELLER_FINANCIAL_SERVICES__UL_OFS_MSGS
+	{
+		UL_OFS_MSGS : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=200, sysNumber=105.0, core=true, t24Name=UL.OFS.MSGS)
+	}
+	TELLER_FINANCIAL_SERVICES__OVERRIDE
+	{
+		/* Standard T24 Override field. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=117.0, core=true, t24Name=OVERRIDE)
+	}
+	TELLER_FINANCIAL_SERVICES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=120.0, core=true, t24Name=INPUTTER)
+	}
+	TELLER_FINANCIAL_SERVICES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=121.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* The TELLER FINANCIAL SERVICES (TFS) suite of applications allow a user to enter multiple financial transactions on the same screen and commit all of them as one transaction. The TELLER.FINANCIAL.SERVICES application is the main transaction front end and captures user input data and creates a TELLER or FT or a DC batch, in the backend.
+
+TFS.PARAMETER is the main parameter file for the TFS suite of applications. It allows configuration of a number of features of the TFS Transaction Front end namely
+a) Interface Parameters - how to interface to TELLER or  FT or DC allowing definitions of OFS Version to be used, the API that builds the OFS body etc. (Note: This is a technical parameter and unless there is any financial institution specific development on this suite, the setup of these fields will need to adopt to standard configuration)
+b) Consolidation Parameters - If the user input transactions need to be consolidated to create one or fewer postings on the Customer Account, and if so, necessary parameters for Consolidation
+c) Usability Parameters - To improve user friendliness depending on the preferences of the financial institution
+d) Currency Conversion Parameters - Lets the financial institution define their preferences on how the rates should be arrived depending on the type of transaction involved and if and when market exchange profit should be calculated
+e) Security Parameters - to prevent fraud.
+f) Transaction Limit Parameters - to apply appropriate controls on users and their transaction limits
+
+Please note that any change to the parameters require a re-start of the Temenos Open Connectivity Framework. */
+	TFS_PARAMETER
+		@t24:i (t24Name=TFS.PARAMETER, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This is the key to the TFS.PARAMETER application. This could be setup for each Company. If not defined for the Company of the current TFS transaction, then the system will refer to the parameters defined under the Master Company.
+
+Validation Rules:
+=================
+
+Input must be a valid record in COMPANY table. */
+		PARAMETER_ID -> TT_TellerFinancialService:TFS_PARAMETER PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=0.0, core=true, businessType=COM, t24Name=PARAMETER.ID)
+		/* TFS allows capturing cheque deposits in one of two methods.
+
+1. Using the Cheque Collection process
+2. Using exposure ladder functionality - when cheque collection is not handled within T24 and the need is only to be able to apply a forward availability on the deposit amount.
+
+In case of option 2 above, the exposure ladder can either be translated into exposure ladder in TELLER or creating AC.LOCKED.EVENTS for each of the exposure split dates in the ladder.
+
+This field allows to define how the system should process Exposure ladder.
+
+Validatio Rules:
+================
+
+Allowed Values: LOCK, FLOAT
+If left blank, it is defaulted to LOCK
+
+If set to FLOAT, it translates the exposure ladder to the exposure ladder in TELLER. This option can be chosen if the financial institution's business process does not allow/require revision of previously applied float - because TELLER does not allow reversal of transactions in History.
+If set to LOCK, it creates AC.LOCKED.EVENTS for each of the exposure splits in the ladder. This option can be chosen if the business process allows/requires the ability to revise a previously applied hold on the deposit amount.
+
+It is important to note the accounting differences between the two approaches.
+
+Using TELLER exposure ladder would mean that the ONLINE.CLEARED.BALANCE on the account will not be updated until the Start of day of the respective Exposure dates.
+Using AC.LOCKED.EVENTS would mean that the ONLINE.CLEARED.BALANCE and WORKING.BALANCE will be updated with the deposit amount on the date of the transaction (assuming the VALUE.DATE is the current bank date). However the amount available for withdrawal will still be constrained with the Locked Amounts.
+The net effect in both approaches is the same - in terms of the actual amount available for withdrawal by the customer. However care must be taken in making sure that the enquiries/reports that display the balance of the account display the correct values. */
+		EXPOSURE_METHOD : TT_TellerFinancialService:TFS_PARAMETER__EXPOSURE_METHOD
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=1.0, core=true, t24Name=EXPOSURE.METHOD)
+		/* The transaction front end supports capture of Customer details
+1. For an existing customer, input of the Customer number would suffice.
+2. For walk-in customers who dont really have an account with T24, additional details (as required by the local/regional regulatory requirements) like Legal ID, Legal Document Name, Issuing authority, document issue and expiry date can be captured.
+
+This field indicates whether that information should be treated by the system as just information purposes or should any real validation be done. If this field is set to VALIDATION, then the expiry date is validated and if the document has expired, an override is generated.
+
+It should be noted that this feature does not extend to automatically do black-list checking or other real-time interface capability to an AML solution.
+
+Validation Rules:
+==================
+Allowed Values: INFORMATION, VALIDATION.
+If left blank, it is defaulted to INFORMATION */
+		AML_DETAILS : TT_TellerFinancialService:TFS_PARAMETER__AML_DETAILS
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=2.0, core=true, t24Name=AML.DETAILS)
+		/* See helptext for AML.DETAILS for more information about AML support.
+
+The same set of AML fields in CUSTOMER are used in the transaction front end (TELLER.FINANCIAL.SERVICES). There are a few look up tables used for attributes such as LEGAL DOCUMENT, ISSUING AUTHORITY, COMMUNICATION TYPE.
+These look up tables (in EB.LOOKUP) would have already been setup to be used to capture similar information when creating a customer.
+This field indicates whether the transaction front end should use the same look up tables defined for CUSTOMER application or if there are native lookup tables setup.
+
+Validation Rules:
+=================
+
+Allowed Values: CUSTOMER, NATIVE.
+If left blank, it is defaulted to CUSTOMER.
+
+When this field is set to CUSTOMER, then the following virtual look up tables need to have been setup in EB.LOOKUP.
+a) CUS.LEGAL.DOC.NAME - for the field LEGAL.DOC.NAME
+b) CUS.COMM.TYPE - for the field COMM.TYPE
+c) CUS.LEGAL.ISS.AUTH - for the field LEGAL.ISS.AUTH
+
+When this field is set to NATIVE, then the following virtual look up tables need to have been setup in EB.LOOKUP.
+
+a) TFS.LEGAL.DOC.NAME - for the field LEGAL.DOC.NAME
+b) TFS.COMM.TYPE - for the field COMM.TYPE
+c) TFS.LEGAL.ISS.AUTH - for the field LEGAL.ISS.AUTH
+
+Recommended value: CUSTOMER */
+		AML_LOOKUP : TT_TellerFinancialService:TFS_PARAMETER__AML_LOOKUP
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=3.0, core=true, t24Name=AML.LOOKUP)
+		/* This field forms part of the Consolidation Parameters. If this field is set to ENABLE, then TFS will combine all the user input transactions on a single TFS screen and create that as a single transaction hitting the account specified in PRIMARY.ACCOUNT field.
+
+
+TFS achieves this by using a temporary washthru account (a placeholder)on the user input legs and eventually when the user indicates that he/she is done with entering the transactions, it creates one or more consolidated leg(s) between this Washthru account and the account specified in PRIMARY.ACCOUNT field. The consolidated Leg is really just another TFS Leg corresponding to a TELLER Transaction.
+
+The default Consolidation level is the VALUE.DATE of the individual user input TFS transactions.
+
+Validation Rules:
+=================
+
+Allowed Values: ENABLE or DISABLE.
+If left blank, it is defaulted to ENABLE. */
+		CONSOLIDATION : TT_TellerFinancialService:TFS_PARAMETER__CONSOLIDATION
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=4.0, core=true, t24Name=CONSOLIDATION)
+		/* This field forms part of the Consolidation Parameters. If Consolidation is enabled, then TFS will combine all the user input transactions on a single TFS screen and create that as a single transaction hitting the account specified in PRIMARY.ACCOUNT field.
+
+This field allows to define if the combined transaction should be "NET" - Consolidate all debits and credits or "GROSS" - Consolidate all debits together and Consolidate all credits together.
+
+Validation Rules:
+=================
+
+Optional Input.
+Allowed Values: GROSS, NET
+Input not allowed if CONSOLIDATION is set to DISABLE */
+		CONSOL_METHOD : TT_TellerFinancialService:TFS_PARAMETER__CONSOL_METHOD
+			@i18n:Label (en="Consol Method")
+			@i18n:Tooltip (en="Indicates Consolidation Method")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=5.0, core=true, t24Name=CONSOL.METHOD)
+		/* This field forms part of the Consolidation Parameters. If Consolidation is enabled, then TFS will combine all the user input transactions on a single TFS screen and create that as a single transaction hitting the account specified in PRIMARY.ACCOUNT field.
+
+The default Consolidation level is the VALUE.DATE of the individual user input TFS transactions.
+
+On top of that, if there is a need to combine transactions using additional attributes, that can be set in this field.
+
+Validation Rules:
+=================
+
+Optional Input.
+Allowed Values: NO, CCY, CCY.TXN, TXN.
+Default Value: NO
+Input not allowed if CONSOLIDATION is set to DISABLE.
+
+If set to CCY, then all user input legs of a TFS transaction will be combined based on VALUE.DATE & CURRENCY of the Leg.
+If set to CCY.TXN, then all user input legs of a TFS transaction will be combined based on VALUE.DATE, CURRENCY & TRANSACTION type of the Leg.
+If set to TXN, then all user input legs of a TFS transaction will be combined based on VALUE.DATE & TRANSACTION type of the Leg. */
+		CONSOL_LEVEL_ADDON : TT_TellerFinancialService:TFS_PARAMETER__CONSOL_LEVEL_ADDON
+			@i18n:Label (en="Consol Level Addon")
+			@i18n:Tooltip (en="Indicates Consol Level Addon")
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=6.0, core=true, t24Name=CONSOL.LEVEL.ADDON)
+		/* This field forms part of the Consolidation Parameters. If Consolidation is enabled, then TFS will combine all the user input legs and create that as a single transaction hitting the account specified in PRIMARY.ACCOUNT field.
+
+This field holds the Category code of the Washthru account used by TFS on the user input legs.
+
+Validation Rules:
+==================
+
+Mandatory Input if CONSOLIDATION is set to ENABLE. Otherwise input not allowed.
+Input must be a valid record in CATEGORY table. */
+		CONSOL_WASHTHRU -> ST_Config:CATEGORY
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, businessType=A, t24Name=CONSOL.WASHTHRU)
+		/* This field forms part of the Consolidation Parameters. When a Cheque deposit with a float and a Cash deposit are consolidated, a default float (with same day availability) needs to be applied for the cash portion of the consolidated amount.
+
+This field holds the key to BC.SORT.CODE that has a 'same day availability' - In other words, the VALUE.DATE.PRD and EXP.DATE.PRD should be left blank. */
+		CONSOL_SORT_CODE -> FT_LocalClearing:BC_SORT_CODE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=8.0, core=true, businessType=A, t24Name=CONSOL.SORT.CODE)
+		/* When multiple TFS Transactions are combined to create a consolidated transaction, the system needs a TFS.TRANSACTION type to effect that consolidated transaction.
+
+This field holds the key to TFS.TRANSACTION that will be used in consolidated Transactions.
+
+Validation Rules:
+
+Input must be a valid record in TFS.TRANSACTION.
+Mandatory input if CONSOLIDATION is set to ENABLE. Otherwise Input not allowed. */
+		CONSOL_TFS_TXN -> TT_TellerFinancialService:TFS_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=9.0, core=true, businessType=A, t24Name=CONSOL.TFS.TXN)
+		/* This field forms part of the Consolidation Parameters. When Consolidation method is set to NET, it is possible that the resultant amount is 0.
+This field is used to specify the financial institution's preference on what the system should do in such cases.
+
+Validation Rules:
+===================
+
+Allowed Values: FORCE.GROSS, IGNORE.CONSOL.LEG, UNDO.CONSOLIDATION
+Default Value: FORCE.GROSS
+
+If set to FORCE.GROSS, then the system will force the consolidation method to be GROSS - All Debits together and All Credits together.
+If set to IGNORE.CONSOL.LEG, then the system will ignore the consolidated leg that has the amount as 0 - In other words, there will not be any entry on the customer account at all.
+If set to UNDO.CONSOLIDATION, then the consolidation will be un-done and each user input leg will directly hit the Customer account.
+
+For example, if there are 4 credit transactions and 2 debit transactions, and the net amount comes to 0, then
+
+If set to FORCE.GROSS, there will be 2 entries on the Customer account
+If set to IGNORE.CONSOL.LEG, there will be no entries on the Customer account
+If set to UNDO.CONSOLIDATION, there will be 6 entries on the Customer account. */
+		CONSOL_AMT_ZERO : TT_TellerFinancialService:TFS_PARAMETER__CONSOL_AMT_ZERO
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=10.0, core=true, t24Name=CONSOL.AMT.ZERO)
+		/* This field forms part of the Consolidation Parameters. If multiple transactions are combined to create one or more consolidated transactions for the Primary Account, it may be necessary to calculate a charge based on the combination of those transactions.
+
+Using the information provided the system would build a separate TFS Transaction leg.
+
+This field is used to define the TFS.TRANSACTION code that needs to be used for this Charge Transaction.
+
+Validation Rules:
+=================
+
+Optional Input. If left blank, it is defaulted to the value defined in CONSOL.TFS.TXN.
+Input not allowed if CONSOLIDATION is set to DISABLE. */
+		CONSOL_CHG_TFS_TXN -> TT_TellerFinancialService:TFS_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=11.0, core=true, businessType=A, t24Name=CONSOL.CHG.TFS.TXN)
+		/* This field forms part of the Consolidation Parameters. If multiple transactions are combined to create one or more consolidated transactions for the Primary Account, it may be necessary to calculate a charge based on the combination of those transactions.
+
+In such cases, a local API can be written to meet the requirements and attached to this field.
+Whenever Consolidation of transactions happen, TFS will invoke this API and expect this API to return the
+1. PL Category (Optional if Charge code is returned)
+2. Charge Code (Key to FT.CHARGE.TYPE; Optional if PL Category is returned)
+3. Charge Account (Account to be charged)
+4. Charge Currency (Currency of the Charge Amount. Could be different from the Currency of the Charge Account. Optional. If not provided, then will be assumed to be the same as that of the Charge Account)
+5. Charge Amount
+
+This information is then used to build a separate TFS Transaction leg.
+
+Validation Rules:
+==================
+
+Optional Input.
+Input not allowed if CONSOLIDATION is set to DISABLE.
+Input must be a valid record in EB.API */
+		CONSOL_CHG_API -> EB_SystemTables:EB_API
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=12.0, core=true, businessType=A, t24Name=CONSOL.CHG.API)
+		/* This field forms part of the Consolidation Parameters. If Consolidation is enabled, then TFS will combine all the user input transactions on a single TFS screen and create that as a single transaction hitting the account specified in PRIMARY.ACCOUNT field.
+
+TFS automatically populates the statement narrative for the consolidated transaction based on the user input Legs that were combined to create that consolidated transaction.
+
+If there is a need to build the narrative with a specific logic, a local API can be written and attached to this field.
+
+Whenever Consolidation is done, TFS will invoke this API and expect the narrative to be populated for the consolidated transaction.
+
+Validation Rules:
+==================
+
+Optional Input.
+Input not allowed if CONSOLIDATION is set to DISABLE */
+		CONSOL_NARR_API -> EB_SystemTables:EB_API
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=13.0, core=true, businessType=A, t24Name=CONSOL.NARR.API)
+		HOT_FIELDS -> byValue TT_TellerFinancialService:TFS_PARAMETER__HOT_FIELDS *
+		/* This field forms part of the Usability Parameters. Typically the lookups can be a Combobox or an enquiry drop down. Having a Combobox allows for easier input and facilitates better keyboard navigation without the use of a mouse.
+
+This field allows to define the preferences for how the lookup for the TRANSACTION field in TELLER.FINANCIAL.SERVICES should be.
+
+Validation Rules:
+=================
+
+Allowed Values: COMBOBOX, DROPDOWN
+Default Value: COMBOBOX
+
+Recommended Value: COMBOBOX
+
+If set to COMBOBOX, then the TRANSACTION field will list all the transactions in a Combo box type drop down (a.k.a Vetting table)
+If set to DROPDOWN, then the TRANSACTION field will list all the transactions as a enquiry dropdown (a.k.a. CHECKFILE)
+
+Please also see related helptext for VERSION, INCLUDE.TXN. */
+		TXN_LOOKUP : TT_TellerFinancialService:TFS_PARAMETER__TXN_LOOKUP
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=15.0, core=true, t24Name=TXN.LOOKUP)
+		/* This field forms part of the Usability Parameters. When launching TELLER.FINANCIAL.SERVICES, the user will be required to expand the multi-value set to record multiple transactions. To enable faster input, it is possible to auto-expand the multi-value sets to a predefined number so the user doesnt have to waste time on expanding the multi-values.
+The number specified in this field is the number of Legs that will be automatically expanded when launching TELLER.FINANCIAL.SERVICES (regardless of the Version used).
+
+Validation Rules:
+==================
+
+Optional Input
+Input must be numeric. */
+		AUTO_EXPAND_LEGS : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=16.0, core=true, t24Name=AUTO.EXPAND.LEGS)
+		VERSION -> byValue TT_TellerFinancialService:TFS_PARAMETER__VERSION *
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED.20)
+		RESERVED_21 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED.21)
+		/* This field forms part of the Currency Conversion Parameters. The CURRENCY field in TELLER.FINANCIAL.SERVICES is the Currency of the 'Transaction' itself and need not be either the Debit or the Credit Currency.
+
+A hypothetical example would be a Customer wanting to transfer USD 100 from his/her GBP account to his/her EUR Account.
+
+This means that there is a 3rd currency involved.
+
+This field allows to define the rate preferences on how the Debit Currency equivalent should be arrived at from the Transaction Currency.
+
+Validation Rules:
+=================
+
+Allowed Input: BUY.SELL, MID.REVAL
+If left blank, it is defaulted to MID.REVAL
+
+Recommended Value: MID.REVAL */
+		TXN_CCY_TO_DR_CCY : TT_TellerFinancialService:TFS_PARAMETER__TXN_CCY_TO_DR_CCY
+			@i18n:Label (en="Transaction to Debit A/C Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=22.0, core=true, t24Name=TXN.CCY.TO.DR.CCY)
+		/* This field forms part of the Currency Conversion Parameters. The CURRENCY field in TELLER.FINANCIAL.SERVICES is the Currency of the 'Transaction' itself and need not be either the Debit or the Credit Currency.
+
+A hypothetical example would be a Customer wanting to transfer USD 100 from his/her GBP account to his/her EUR Account.
+
+This means that there is a 3rd currency involved.
+
+This field allows to define the rate preferences on how the Credit Currency equivalent should be arrived at from the Transaction Currency.
+
+Validation Rules:
+=================
+
+Allowed Input: BUY.SELL, MID.REVAL
+If left blank, it is defaulted to MID.REVAL
+
+Recommended Value: MID.REVAL */
+		TXN_CCY_TO_CR_CCY : TT_TellerFinancialService:TFS_PARAMETER__TXN_CCY_TO_CR_CCY
+			@i18n:Label (en="Transaction to Credit A/C Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=23.0, core=true, t24Name=TXN.CCY.TO.CR.CCY)
+		/* This field forms part of the Currency Conversion Parameters.
+
+In a TFS transaction, if in a Leg, the debit side is Foreign Currency and the Credit Side is Local Currency, the system needs to arrive at a deal rate.
+This field allows to define the rate preferences for such a transaction.
+
+Value in this field is overriden by the setup in the corresponding field in TFS.TRANSACTION. If not setup in TFS.TRANSACTION, then it is inherited from this parameter.
+
+Validation Rules:
+==================
+
+Allowed Values: BUY.SELL, MID.REVAL
+If left blank, it is defaulted to BUY.SELL. */
+		BUY_FCY_SELL_LCY : TT_TellerFinancialService:TFS_PARAMETER__BUY_FCY_SELL_LCY
+			@i18n:Label (en="When Buying FCY and Selling LCY")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=24.0, core=true, t24Name=BUY.FCY.SELL.LCY)
+		/* This field forms part of the Currency Conversion Parameters.
+
+In a TFS transaction, if in a Leg, the debit side is Local Currency and the Credit Side is Foreign Currency, the system needs to arrive at a deal rate.
+This field allows to define the rate preferences for such a transaction.
+
+Value in this field is overriden by the setup in the corresponding field in TFS.TRANSACTION. If not setup in TFS.TRANSACTION, then it is inherited from this parameter.
+
+Validation Rules:
+==================
+
+Allowed Values: BUY.SELL, MID.REVAL
+If left blank, it is defaulted to BUY.SELL. */
+		BUY_LCY_SELL_FCY : TT_TellerFinancialService:TFS_PARAMETER__BUY_LCY_SELL_FCY
+			@i18n:Label (en="When Buying LCY and Selling FCY")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=25.0, core=true, t24Name=BUY.LCY.SELL.FCY)
+		/* This field forms part of the Currency Conversion Parameters.
+
+In a TFS transaction, if in a Leg, the debit and credit sides are both Foreign Currency, the system needs to arrive at a deal rate.
+This field allows to define the rate preferences for such a transaction.
+
+Value in this field is overriden by the setup in the corresponding field in TFS.TRANSACTION. If not setup in TFS.TRANSACTION, then it is inherited from this parameter.
+
+Validation Rules:
+==================
+
+Allowed Values: BUY.SELL, MID.REVAL
+If left blank, it is defaulted to BUY.SELL. */
+		BUY_FCY_SELL_FCY : TT_TellerFinancialService:TFS_PARAMETER__BUY_FCY_SELL_FCY
+			@i18n:Label (en="When Buying FCY and Selling FCY")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=26.0, core=true, t24Name=BUY.FCY.SELL.FCY)
+		/* This field forms part of the Currency Conversion Parameters. When cross currency transactions are done, TELLER application calculates market exchange profit. This field allows to define if market exchange profit should be calculated.
+
+Value in this field is overriden by the setup in the corresponding field in TFS.TRANSACTION. If not setup in TFS.TRANSACTION, then it is inherited from this parameter.
+
+Validation Rules:
+=================
+
+Allowed Values: YES or NO.
+If Left blank, it is defaulted to NO.
+
+Recommended Value: NO. It is advisable to set it to NO here and set it to YES at the transaction type (TFS.TRANSACTION) level, only for that specific transaction type for which exchange profit needs to be booked. A Foreign cash deposit into a local account and a Currency exchange both involve cross-currency but we might want to be able to calculate exchange profit only for the Currency Exchange transaction. */
+		MKT_EXCH_PROFIT : TT_TellerFinancialService:TFS_PARAMETER__MKT_EXCH_PROFIT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=27.0, core=true, t24Name=MKT.EXCH.PROFIT)
+		/* This field forms part of the Interface Parameters. This field holds the OFS.SOURCE that should be used to talk to the underlying applications like FT, TT or DC.
+
+Validation Rules:
+=================
+
+Mandatory Input.
+Input must be a valid record in OFS.SOURCE table. The field SOURCE.TYPE in OFS.SOURCE must be set to GLOBUS. The field FIELD.VAL must not be set to YES. */
+		OFS_SOURCE -> EB_Interface:OFS_SOURCE required
+			@i18n:Label (en="OFS Source")
+			@i18n:Tooltip (en="The OFS Source record ID")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=28.0, core=true, businessType=A, t24Name=OFS.SOURCE)
+		INTERFACE_TO -> byValue TT_TellerFinancialService:TFS_PARAMETER__INTERFACE_TO *
+		/* This field forms part of DATA.CAPTURE Related parameters.
+When trying to reverse a TFS leg which has the underlying as TELLER or FUNDS.TRANSFER in History, TFS would undo the entries by creating offsetting DATA.CAPTURE transactions.
+
+It will attempt to use the same TRANSACTION codes as in the accounting entries used by the original underlying TELLER or FUNDS.TRANSFER albeit with the REVERSAL.MARK in DC set to Y. However if those transaction codes are not enabled for use in DATA.CAPTURE module (DATA.CAPTURE field in TRANSACTION table must be set to Y), then it needs a default alternate code that it can use for the Credit Reversal Entry.
+
+Validation Rules:
+=================
+
+Mandatory Input.
+Input must be a valid record in TRANSACTION table.
+The DEBIT.CREDIT.IND in TRANSACTION must be set to CREDIT. */
+		TXN_REV_DC_CR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="DC Rev Credit Code")
+			@i18n:Tooltip (en="What should be the Credit Transaction Code?")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=34.0, core=true, t24Name=TXN.REV.DC.CR)
+		/* This field forms part of DATA.CAPTURE Related parameters.
+When trying to reverse a TFS leg which has the underlying as TELLER or FUNDS.TRANSFER in History, TFS would undo the entries by creating offsetting DATA.CAPTURE transactions.
+
+It will attempt to use the same TRANSACTION codes as in the accounting entries used by the original underlying TELLER or FUNDS.TRANSFER albeit with the REVERSAL.MARK in DC set to Y. However if those transaction codes are not enabled for use in DATA.CAPTURE module (DATA.CAPTURE field in TRANSACTION table must be set to Y), then it needs a default alternate code that it can use for the Debit Reversal Entry.
+
+Validation Rules:
+=================
+
+Mandatory Input.
+Input must be a valid record in TRANSACTION table.
+The DEBIT.CREDIT.IND in TRANSACTION must be set to DEBIT. */
+		TXN_REV_DC_DR -> ST_Config:TRANSACTION required
+			@i18n:Label (en="DC Rev Debit Code")
+			@i18n:Tooltip (en="What should be the Debit Transaction Code? ")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=35.0, core=true, t24Name=TXN.REV.DC.DR)
+		/* This field allows to define whether REVERSAL.MARKER field in DATA.CAPTURE should be retained or not when trying to Reverse a DC Transaction which by itself was input to Reverse another Underyling Transaction.
+
+Assume that a TFS transaction corresponds to a TELLER or FT transaction as the underlying. And that underyling transaction is now in History. If there is a need to reverse that transaction, TFS automatically creates Offsetting DC transactions because TELLER does not allow reversal of a transaction in History and FT only partially allows reversal of a transaction in History.
+In those offsetting DC transactions, the REVERSAL.MARK would be set to R.
+
+Now, if this DC transaction needs to be reversed (may be becasue the reversal was done by mistake and needs to be undone), the system will create Reverse on Reverse DC transaction to offset the original DC transaction.
+
+
+Validation Rules:
+=================
+
+Allowed Values: RETAIN.MARKER, NULL
+Default: NULL
+
+
+Example:
+========
+
+A TFS transaction corresponds to a TELLER transaction that created these entries.
+
+Debit 10.00 from A/C 23884. Dr Transaction Code: 1
+Credit 10.00 to A/C 23779. Cr Transaction Code: 51
+
+The DC transactions created to offset that underlying TELLER would create these entries
+
+Debit of 10 from A/C 23779: SIGN=D TRANSACTION=51 AMT=10 REVERSAL.MARK=R
+Credit of 10 to A/C 23884:  SIGN=C TRANSACTION=1 AMT=10 REVERSAL.MARK=R
+
+If these entries need to be reversed (Reverse on a Reversal DC Transaction), it can be achieved in one of two ways.
+
+Option 1:
+---------
+(If we want to retain the Reversal Marker),
+
+Credit 10 to A/C 23779 : SIGN=C TRANSACTION=1 AMT=10 REVERSAL.MARK=R
+Debit 10 from A/C 23884: SIGN=D TRANSACTION=51 AMT=10 REVERSAL.MARK=R
+
+Option 2:
+---------
+(If we dont want to retain the reversal marker)
+
+Credit 10 to A/C 23779: SIGN=C TRANSACTION=51 AMT=10
+Debit 10 from A/C 23884: SIGN=D TRANSACTION=1 AMT=10
+
+All these entries will be shown on the account statement unless explcitly suppressed using AC.PRINT.MASK. Assuming they are not supressed, the value in this field is a decision based on how the financial institution wants these entries to be shown on the account statement/activity to the Customer. It is the difference between displaying a 'R' marker against both reversal entries or just one of the reversal entries and showing the reversal on reversal as an Offset entry rather than a reversal entry. */
+		DC_REV_ON_REV : TT_TellerFinancialService:TFS_PARAMETER__DC_REV_ON_REV
+			@i18n:Label (en="Do you want to Retain the Reversal Marker?")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=36.0, core=true, t24Name=DC.REV.ON.REV)
+		/* This field forms part of the Transaction Limit Parameters. Using this feature, a financial institution can put in proper controls on large value transactions and mandate a supervisor approval for transactions that breach the pre-specified limit.
+
+In TFS, where there may be multiple legs, it is possible to validate the transaction amount for each of the User input legs or for the 'Consolidated' legs.
+
+Validation Rules:
+=================
+
+Allowed Values: NO, CONSOLIDATED.LEGS, USER.INPUT.LEGS.
+Default Value: CONSOLIDATED.LEGS
+
+It is important to note that TFS does not have any sensitivity to the user doing the transaction. It will simply raise an Override if the transaction amount breaches the limit.
+Control on how can approve of this override or not needs to be handled at the OVERRIDE table level using Override Class and Override Class Details. */
+		TRANSACTION_LIMIT : TT_TellerFinancialService:TFS_PARAMETER__TRANSACTION_LIMIT
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=37.0, core=true, t24Name=TRANSACTION.LIMIT)
+		/* This field forms part of the Transaction Limit Parameters. A limit specified here will be treated as in Local Currency. Typically the fields LIMIT.CCY and CCY.LIMIT will be used to specify the transaction limits by Currency.
+
+For any currency not defined in those fields, TFS will automatically convert into Local currency equivalent and validate against the limit specified in this field.
+
+Validation Rules:
+=================
+
+Optional Input. Input must be numeric (Amount type field). Either this or CCY.LIMIT is mandatory if TRANSACTION.LIMIT field is not set to NO.
+
+If this is not specified and if the Currency of the transaction is not specified in LIMIT.CCY/CCY.LIMIT fields, then TFS will raise an Override to that effect stating that 'Transaction Limit not defined for Currency xxx' */
+		LCY_LIMIT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=38.0, core=true, t24Name=LCY.LIMIT)
+		LIMIT_CCY -> byValue TT_TellerFinancialService:TFS_PARAMETER__LIMIT_CCY *
+		RESET_FIELDS -> byValue TT_TellerFinancialService:TFS_PARAMETER__RESET_FIELDS *
+		RESERVED_42 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=42.0, core=true, t24Name=RESERVED.42)
+		RESERVED_43 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=43.0, core=true, t24Name=RESERVED.43)
+		RESERVED_44 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=44.0, core=true, t24Name=RESERVED.44)
+		RESERVED_45 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=45.0, core=true, t24Name=RESERVED.45)
+		RESERVED_46 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=46.0, core=true, t24Name=RESERVED.46)
+		RESERVED_47 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=47.0, core=true, t24Name=RESERVED.47)
+		RESERVED_48 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=48.0, core=true, t24Name=RESERVED.48)
+		RESERVED_49 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=49.0, core=true, t24Name=RESERVED.49)
+		RESERVED_50 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=50.0, core=true, t24Name=RESERVED.50)
+		RESERVED_51 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=51.0, core=true, t24Name=RESERVED.51)
+		OVERRIDE -> byValue TT_TellerFinancialService:TFS_PARAMETER__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=54.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=55.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue TT_TellerFinancialService:TFS_PARAMETER__INPUTTER *
+		DATE_TIME -> byValue TT_TellerFinancialService:TFS_PARAMETER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=58.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=59.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=60.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=61.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=62.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	TFS_PARAMETER__HOT_FIELDS
+	{
+		/* This field forms part of the Usability Parameters. Depending on the preferred workflow and user preferences, the financial institution can choose to adopt one of the two workflows.
+
+1. Capture all information and finally submit the request. The system will validate all information in one go, return any errors, overrides and expand denomination fields as applicable and present the screen back to the user.
+2. Make certain fields as requiring validation upon field input - so any input to these fields will immediately send request for validation, upon field input and assocaited validations like expansion of denomination fields will happen on field input.
+
+Validation Rules:
+=================
+
+Allowed Values: As given in the Combobox.
+Optional Input.
+
+Recommended Values:
+===================
+
+DEAL.RATE
+CONSOLIDATE.NOW */
+		HOT_FIELDS : TT_TellerFinancialService:TFS_PARAMETER__HOT_FIELDS__HOT_FIELDS
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=14.0, core=true, t24Name=HOT.FIELDS)
+	}
+	TFS_PARAMETER__VERSION
+	{
+		/* This field forms part of the Usability Parameters. Please refer to helptext for TXN.LOOKUP for back-ground information.
+If the field TXN.LOOKUP is set to COMBOBOX, then by default, TFS will select all the records in TFS.TRANSACTION and display them in a Combobox. However it may not always be required to display all transaction types for all types of operations.
+
+This field and the associated INCLUDE.TXN allow filtering the transaction types that can be filtered based on a version of TELLER.FINANCIAL.SERVICES.
+
+Validation Rules:
+==================
+
+Optional Input.
+Input must be a valid record in VERSION table and must be for TELLER.FINANCIAL.SERVICES application.
+If left blank or if a specific version of TELLER.FINANCIAL.SERVICES not defined here is used, all the transaction types will be displayed for the user. */
+		VERSION -> EB_Versions:VERSION
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=17.0, core=true, businessType=PV, t24Name=VERSION, typeModifiers=H)
+		INCLUDE_TXN -> byValue TT_TellerFinancialService:TFS_PARAMETER__VERSION__INCLUDE_TXN *
+	}
+	TFS_PARAMETER__VERSION__INCLUDE_TXN
+	{
+		/* Please see help for the field TXN.LOOKUP for more information.
+
+If the field TXN.LOOKUP is set to COMBOBOX, then there might be a need to filter the transactions that appear in the Combo Box list based on the type of Screen.
+
+Validation Rules:
+=================
+
+Input must be a valid record in TFS.TRANSACTION.
+Mandatory input if the associated VERSION is defined. Otherwise Input not allowed. */
+		INCLUDE_TXN -> TT_TellerFinancialService:TFS_TRANSACTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=18.0, core=true, businessType=A, t24Name=INCLUDE.TXN)
+	}
+	TFS_PARAMETER__INTERFACE_TO
+	{
+		/* This field forms part of the Interface parameters. Defines the underlying modules that TFS can interface to.
+
+Input in this field will be validated against, at the time of setting up TFS.TRANSACTION.
+
+Validation Rules:
+=================
+
+Allowed Values: FT, TT and DC.
+Mandatory Input. */
+		INTERFACE_TO -> EB_SystemTables:EB_PRODUCT required
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=29.0, core=true, businessType=ANY, t24Name=INTERFACE.TO)
+		RESERVED_30 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=30.0, core=true, t24Name=RESERVED.30)
+		RESERVED_31 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, core=true, t24Name=RESERVED.31)
+		/* TFS builds the OFS Body for the underlying module during run-time. Should there be a need to customise this OFS Body - for ex, add some Local Reference fields that are attached to TFS that need to be passed along to TELLER, it is possible to develop a local API and attach it here in TFS.PARAMETER, for the respective Underlying Module.
+TFS will invoke this API and respect the body returned by this Local routine and pass it along to Open Financial Services.
+
+Validation Rules:
+=================
+
+Input must be a valid record in EB.API */
+		INTERFACE_API -> EB_SystemTables:EB_API
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=32.0, core=true, businessType=A, t24Name=INTERFACE.API)
+		/* This field forms part of the Interface Parameters. This field holds the Version that needs to be used when interfacing with the underyling application defined in the associated INTERFACE.TO field.
+
+The value in this field will be overriden by the setup in the corresponding field in TFS.TRANSACTION. If not setup at TFS.TRANSACTION level, then the value from this parameter will be used.
+
+Validation Rules:
+=================
+
+Mandatory Input.
+Input must be a valid record in VERSION table.
+If the associated INTERFACE.TO is FT, then this should be a valid version for FUNDS.TRANSFER Application
+If the associated INTERFACE.TO is TT, then this should be a valid version for TELLER Application
+If the associated INTERFACE.TO is DC, then this should be a valid version for DATA.CAPTURE Application. */
+		OFS_VERSION -> EB_Versions:VERSION required
+			@t24:i (align=L, inputBehaviour=I, maxLength=54, sysNumber=33.0, core=true, businessType=PV, t24Name=OFS.VERSION, typeModifiers=HULWDT)
+	}
+	TFS_PARAMETER__LIMIT_CCY
+	{
+		/* This field forms part of the Transaction Limit Parameters. For cases where transaction limit needs to be specified for each Currency, this field can be used to specify the Currency for which the Limit amount is specified in the associated CCY.LIMIT field.
+
+Validation Rules:
+==================
+
+Optional Input. Input must be a key to a valid record in the CURRENCY table.
+Either this or LCY.LIMIT is mandatory if TRANSACTION.LIMIT is not set to NO. */
+		LIMIT_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=39.0, core=true, businessType=CCY, t24Name=LIMIT.CCY)
+		/* This field forms part of the Transaction Limit Parameters. For cases where a Transaction Limit needs to be specified for a given Currency, this field can be used to specify the limit amount for the Currency defined in the associated LIMIT.CCY.
+
+During Transaction time, if TFS is not able to find the currency of the transaction here, it will convert the transaction amount into Local currency and validate against the global Local Currency limit specified in LCY.LIMIT.
+
+Validation Rules:
+=================
+
+Optional Input. Input mandatory if the associated LIMIT.CCY is defined. */
+		CCY_LIMIT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=40.0, core=true, t24Name=CCY.LIMIT)
+	}
+	TFS_PARAMETER__RESET_FIELDS
+	{
+		/* This field forms part of the Misc parameters. If in a TFS Transaction, while inputting one of the Legs, the user changes the TRANSACTION type after inputting other details of that Leg.
+
+This field allows us to define which of the associated field in that Leg should be cleared.
+
+Examples of this would be instead of choosing Cash Deposit, the user might have chosen the Cash withdrawal code and entered currency and amount. If this field does not include AMOUNT and CURRENCY but other fields of the Leg, changing this to Cash Withdrawal will clear out all fields of that Leg except for AMOUNT and CURRENCY.
+
+Validation Rules:
+================= */
+		RESET_FIELDS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=41.0, core=true, t24Name=RESET.FIELDS)
+	}
+	TFS_PARAMETER__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=53.0, core=true, t24Name=OVERRIDE)
+	}
+	TFS_PARAMETER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=56.0, core=true, t24Name=INPUTTER)
+	}
+	TFS_PARAMETER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=57.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* TFS.TRANSACTION is the transaction type definition table for TELLER.FINANCIAL.SERVICES (TFS). TFS captures user input data regarding multiple transactions and creates individual TT/FT/DC deals in the back-ground.
+This table allows us to create transaction types and indicate what should happen when this transaction type is chosen by the user on the deal input screen.
+By allowing to simply define what the underlying module and the transaction type is, it eliminates the need to configure rules/constraints for each transaction type all over again instead of just inheriting from the underlying module.
+
+It also includes a full set of fields related to currency conversion/rate preferences all of which, when left blank, the preferences defined at TFS.PARAMETER level will take effect.
+
+However, if these fields are defined at this level, then these preferences will take precedence over what is defined at TFS.PARAMETER level.
+
+It also allows definition of a Version of the underlying application. What it means is that when using this particular transaction, a version different from what is defined in TFS.PARAMETER will be used by TFS allowing transaction specific Version level customisation (specific version APIs etc) */
+	TFS_TRANSACTION
+		@t24:i (t24Name=TFS.TRANSACTION, level=F, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This is the key to TFS.TRANSACTION table. In TELLER.FINANCIAL.SERVICES, each transaction (like a Cash deposit or Cheque deposit) is input as one Leg. Each leg is identified what it is by a field that points to this table.
+
+Validation Rules:
+==================
+
+Alphanumeric. 15 Characters. */
+		TRANS_TYPE -> TT_TellerFinancialService:TFS_TRANSACTION PK required
+			@i18n:Label (en="Trans Type")
+			@i18n:Tooltip (en="Indicates the Transaction Type")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=A, t24Name=TRANS.TYPE)
+		DESCRIPTION -> byValue TT_TellerFinancialService:TFS_TRANSACTION__DESCRIPTION *
+		CONSOL_NARR -> byValue TT_TellerFinancialService:TFS_TRANSACTION__CONSOL_NARR *
+		/* Even if Consolidation is enabled, it is possible to specify a particular transaction type to be excluded from Consolidation by setting this field to YES.
+
+TFS will simply not consider any Legs that have this TFS Transaction type when it consolidates the legs. These TFS legs would directly hit the Customer account.
+
+Validation Rules:
+=================
+
+Optional Input.
+Allowed Values: YES or NO
+Default Value: NO
+
+If the implementation uses T24 Cheque Collection process to manage the life of the cheque (configured via CQ.PARAMETER), then this field needs to be set to YES for those TFS.TRANSACTION records used for recording Collection or Clearing Cheques. This is because we need the CHEQUE.COLLECTION record to have the Primary Account and not the Washthru Account. */
+		CONSOL_EXCLUDE : TT_TellerFinancialService:TFS_TRANSACTION__CONSOL_EXCLUDE
+			@i18n:Label (en="Exclude Consolidation?")
+			@i18n:Tooltip (en="Exclude Consolidation?")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=CONSOL.EXCLUDE)
+		/* This field forms part of the Interface parameters. Defines the underlying modules that TFS can interface to.
+
+
+
+Input in this field will be validated against, at the time of setting up TFS.TRANSACTION.
+
+
+
+Validation Rules:
+
+=================
+
+
+
+Allowed Values: FT, TT and DC.
+
+Mandatory Input. */
+		INTERFACE_TO -> EB_SystemTables:EB_PRODUCT required
+			@i18n:Label (en="Interface To")
+			@i18n:Tooltip (en="Indicates the interface link to other modules")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, businessType=ANY, t24Name=INTERFACE.TO)
+		/* This field forms part of the Interface parameters. This is used to map the transaction type of the underlying module.
+
+Validation Rules:
+==================
+
+Mandatory Input if INTERFACE.TO is FT or TT. Otherwise Input not allowed.
+
+If INTERFACE.TO is FT, then input in this field must be a valid record in FT.TXN.TYPE.CONDITION.
+If INTERFACE.TO is TT, then input in this field must be a valid record in TELLER.TRANSACTION. */
+		INTERFACE_AS : T24BusinessTypes:A required
+			@i18n:Label (en="Interface As")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=5.0, core=true, t24Name=INTERFACE.AS)
+		/* This field forms part of the Interface Parameters. This field holds the Version that needs to be used when interfacing with the underyling application defined in the associated INTERFACE.TO field.
+
+
+
+
+The value in this field overrides the setup in the corresponding field in TFS.PARAMETER. If not setup here, then TFS will use the setup defined in TFS.PARAMETER.
+
+
+
+Validation Rules:
+
+=================
+
+
+Optional Input.
+
+Input must be a valid record in VERSION table.
+
+If the associated INTERFACE.TO is FT, then this should be a valid version for FUNDS.TRANSFER Application
+
+If the associated INTERFACE.TO is TT, then this should be a valid version for TELLER Application
+
+If the associated INTERFACE.TO is DC, then this should be a valid version for DATA.CAPTURE Application. */
+		OFS_VERSION -> EB_Versions:VERSION
+			@i18n:Label (en="Default Version")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=6.0, core=true, businessType=PV, t24Name=OFS.VERSION, typeModifiers=H)
+		/* In the normal course of operations, a teller might be required to do a Cash deposit, Cheque deposit, A/C to A/C transfer between two accounts of the Customer.
+However, except for the A/C to A/C transfer, the other two transactions above require input in only one of the Account fields, by the user. The internal accounts corresponding to the Till or Cheque suspense are hidden from the user/screen.
+
+In TELLER.FINANCIAL.SERVICES (TFS), all these transactions mentioned above will be done on the same screen. However it is not possible to hide a particular field for one multi-value set and show it for another multi-value set (each multi-value set refers to one transaction type - Cash deposit, Cheque Deposit, Transfer etc).
+
+To overcome this constraint, TFS has what is called as a 'Surrogate Account' - a temporary place holder and this is the only field that will be displayed on screen. For transaction types like Cash deposit or Cheque deposit, the Surrogate Account field will be automatically defaulted by TFS with the Primary Account - indicating that that is the account to which the transaction will be posted.
+
+For account to account transfer, it needs to assume that one side of the transaction is the Primary Account and needs to require the user to input the other account in the Surrogate Account field. In order for it to recognise that a transaction type requires input of another account by the user, this field SURROGATE.AC in TFS.TRANSACTION is used.
+
+It tells TFS whether the account input in Surrogate Account field on TFS screen should be treated as the Debit or Credit account of the corresponding TFS Leg.
+
+Validation Rules:
+==================
+
+Optional Input.
+Allowed Values: ACCOUNT.DR, ACCOUNT.CR or NULL.
+
+Recommendation:
+================
+
+Instead of having one transaction type as 'Account Transfer', there will be two transaction types 'FROM' and 'TO' (although, both pointing to the same underlying module and its transaction code).
+
+The transaction type FROM will have this field set to ACCOUNT.DR and the transaction type TO will have this field set to ACCOUNT.CR */
+		SURROGATE_AC : TT_TellerFinancialService:TFS_TRANSACTION__SURROGATE_AC
+			@i18n:Label (en="Surrogate Ac")
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=7.0, core=true, t24Name=SURROGATE.AC)
+		/* This field forms part of DATA.CAPTURE Related parameters.
+
+When trying to reverse a TFS leg which has the underlying as TELLER or FUNDS.TRANSFER in History, TFS would undo the entries by creating offsetting DATA.CAPTURE transactions.
+
+
+
+It will attempt to use the same TRANSACTION codes as in the accounting entries used by the original underlying TELLER or FUNDS.TRANSFER albeit with the REVERSAL.MARK in DC set to Y. However if those transaction codes are not enabled for use in DATA.CAPTURE module (DATA.CAPTURE field in TRANSACTION table must be set to Y), then it needs a default alternate code that it can use for the Credit Reversal Entry.
+
+Setup in this field overrides the setup in the corresponding field in TFS.PARAMETER, but only when this transaction type is used. If left blank, then TFS uses the setup defined in TFS.PARAMETER.
+
+Validation Rules:
+
+=================
+
+
+
+Mandatory Input.
+
+Input must be a valid record in TRANSACTION table.
+
+The DEBIT.CREDIT.IND in TRANSACTION must be set to CREDIT. */
+		TXN_REV_DC_CR -> ST_Config:TRANSACTION
+			@i18n:Label (en="DC Rev Credit Code")
+			@i18n:Tooltip (en="DC Rev Credit Code")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=8.0, core=true, t24Name=TXN.REV.DC.CR)
+		/* This field forms part of DATA.CAPTURE Related parameters.
+
+When trying to reverse a TFS leg which has the underlying as TELLER or FUNDS.TRANSFER in History, TFS would undo the entries by creating offsetting DATA.CAPTURE transactions.
+
+
+
+It will attempt to use the same TRANSACTION codes as in the accounting entries used by the original underlying TELLER or FUNDS.TRANSFER albeit with the REVERSAL.MARK in DC set to Y. However if those transaction codes are not enabled for use in DATA.CAPTURE module (DATA.CAPTURE field in TRANSACTION table must be set to Y), then it needs a default alternate code that it can use for the Debit Reversal Entry.
+
+Setup in this field overrides the setup in the corresponding field in TFS.PARAMETER, but only when this transaction type is used. If left blank, then TFS uses the setup defined in TFS.PARAMETER.
+
+Validation Rules:
+
+=================
+
+
+
+Mandatory Input.
+
+Input must be a valid record in TRANSACTION table.
+
+The DEBIT.CREDIT.IND in TRANSACTION must be set to DEBIT. */
+		TXN_REV_DC_DR -> ST_Config:TRANSACTION
+			@i18n:Label (en="DC Rev Debit Code")
+			@i18n:Tooltip (en="DC Rev Debit Code ")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=9.0, core=true, t24Name=TXN.REV.DC.DR)
+		/* This field forms part of the Currency Conversion Parameters. The CURRENCY field in TELLER.FINANCIAL.SERVICES is the Currency of the 'Transaction' itself and need not be either the Debit or the Credit Currency.
+
+
+
+A hypothetical example would be a Customer wanting to transfer USD 100 from his/her GBP account to his/her EUR Account.
+
+
+
+This means that there is a 3rd currency involved.
+
+
+
+This field allows to define the rate preferences on how the Debit Currency equivalent should be arrived at from the Transaction Currency.
+
+
+Value in this field overrides the setup in the corresponding field in TFS.PARAMETER, but only when this transaction type is used. If left blank, then TFS will use the setup defined in TFS.PARAMETER.
+
+
+Validation Rules:
+
+=================
+
+
+
+Allowed Input: BUY.SELL, MID.REVAL
+Default Value: NULL */
+		TXN_CCY_TO_DR_CCY : TT_TellerFinancialService:TFS_TRANSACTION__TXN_CCY_TO_DR_CCY
+			@i18n:Label (en="Transaction to Debit A/C Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=10.0, core=true, t24Name=TXN.CCY.TO.DR.CCY)
+		/* This field forms part of the Currency Conversion Parameters. The CURRENCY field in TELLER.FINANCIAL.SERVICES is the Currency of the 'Transaction' itself and need not be either the Debit or the Credit Currency.
+
+
+
+A hypothetical example would be a Customer wanting to transfer USD 100 from his/her GBP account to his/her EUR Account.
+
+
+
+This means that there is a 3rd currency involved.
+
+
+
+This field allows to define the rate preferences on how the Credit Currency equivalent should be arrived at from the Transaction Currency.
+
+
+Value in this field overrides the setup in the corresponding field in TFS.PARAMETER, but only when this transaction type is used. If left blank, then TFS will use the setup defined in TFS.PARAMETER.
+
+
+Validation Rules:
+
+=================
+
+
+
+Allowed Input: BUY.SELL, MID.REVAL
+Default Value: NULL */
+		TXN_CCY_TO_CR_CCY : TT_TellerFinancialService:TFS_TRANSACTION__TXN_CCY_TO_CR_CCY
+			@i18n:Label (en="Transaction to Credit A/C Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=11.0, core=true, t24Name=TXN.CCY.TO.CR.CCY)
+		/* This field forms part of the Currency Conversion parameters for this transaction type.
+
+In a TFS transaction, if in a Leg, the debit side is Foreign Currency and the Credit Side is Local Currency, the system needs to arrive at a deal rate.
+
+This field allows to define the rate preferences for such a transaction - only when this transaction type is used in TFS.
+
+Value in this field overrides the setup in the corresponding field in TFS.PARAMETER. If not setup here, then TFS will use the preferences defined in TFS.PARAMETER.
+
+
+
+Validation Rules:
+
+==================
+
+
+
+Allowed Values: BUY.SELL, MID.REVAL */
+		BUY_FCY_SELL_LCY : TT_TellerFinancialService:TFS_TRANSACTION__BUY_FCY_SELL_LCY
+			@i18n:Label (en="When Buying FCY and Selling LCY")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=12.0, core=true, t24Name=BUY.FCY.SELL.LCY)
+		/* This field forms part of the Currency Conversion parameters for this transaction type.
+
+In a TFS transaction, if in a Leg, the debit side is Local Currency and the Credit Side is Foreign Currency, the system needs to arrive at a deal rate.
+
+This field allows to define the rate preferences for such a transaction - only when this transaction type is used in TFS.
+
+Value in this field overrides the setup in the corresponding field in TFS.PARAMETER. If not setup here, then TFS will use the preferences defined in TFS.PARAMETER.
+
+
+
+Validation Rules:
+
+==================
+
+
+
+Allowed Values: BUY.SELL, MID.REVAL */
+		BUY_LCY_SELL_FCY : TT_TellerFinancialService:TFS_TRANSACTION__BUY_LCY_SELL_FCY
+			@i18n:Label (en="When Buying LCY and Selling FCY")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=13.0, core=true, t24Name=BUY.LCY.SELL.FCY)
+		/* This field forms part of the Currency Conversion parameters for this transaction type.
+
+In a TFS transaction, if in a Leg, the debit side is Foreign Currency and the Credit Side is also Foreign Currency, the system needs to arrive at a deal rate.
+
+This field allows to define the rate preferences for such a transaction - only when this transaction type is used in TFS.
+
+Value in this field overrides the setup in the corresponding field in TFS.PARAMETER. If not setup here, then TFS will use the preferences defined in TFS.PARAMETER.
+
+
+
+Validation Rules:
+
+==================
+
+
+
+Allowed Values: BUY.SELL, MID.REVAL */
+		BUY_FCY_SELL_FCY : TT_TellerFinancialService:TFS_TRANSACTION__BUY_FCY_SELL_FCY
+			@i18n:Label (en="When Buying FCY and Selling FCY")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=14.0, core=true, t24Name=BUY.FCY.SELL.FCY)
+		/* This field forms part of the Currency Conversion Parameters. When cross currency transactions are done, TELLER application calculates market exchange profit. This field allows to define if market exchange profit should be calculated.
+
+
+
+Value in this field overrides the setup in the corresponding field in TFS.PARAMETER. If not setup here, then TFS will use the setup defined in TFS.PARAMETER.
+
+
+
+Validation Rules:
+
+=================
+
+Allowed Values: YES or NO.
+Default Value: Blank - so that TFS inherits the setup defined in TFS.PARAMETER. */
+		MKT_EXCH_PROFIT : TT_TellerFinancialService:TFS_TRANSACTION__MKT_EXCH_PROFIT
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=15.0, core=true, t24Name=MKT.EXCH.PROFIT)
+		RESERVED_16 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=16.0, core=true, t24Name=RESERVED.16)
+		RESERVED_17 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=17.0, core=true, t24Name=RESERVED.17)
+		RESERVED_18 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=18.0, core=true, t24Name=RESERVED.18)
+		RESERVED_19 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=19.0, core=true, t24Name=RESERVED.19)
+		RESERVED_20 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=20.0, core=true, t24Name=RESERVED.20)
+		EXC_FROM_TXN_LIMIT : TT_TellerFinancialService:TFS_TRANSACTION__EXC_FROM_TXN_LIMIT
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=21.0, core=true, t24Name=EXC.FROM.TXN.LIMIT)
+		LCY_LIMIT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=22.0, core=true, t24Name=LCY.LIMIT)
+		LIMIT_CCY -> byValue TT_TellerFinancialService:TFS_TRANSACTION__LIMIT_CCY *
+		/* If this transaction type corresonds to DC, then this field is used to define the transaction code to be used when creating the Credit leg of DC.
+
+Validation Rules:
+==================
+
+Mandatory input if the underlying (INTERFACE.TO) is DC. Otherwise, Input not allowed.
+Input must be a valid record in TRANSACTION table. The field DEBIT.CREDIT.IND in TRANSACTION must be set to CREDIT. */
+		CR_TXN_CODE -> ST_Config:TRANSACTION
+			@i18n:Label (en="Cr Txn Code")
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=25.0, core=true, businessType=ANY, t24Name=CR.TXN.CODE)
+		/* If this transaction type corresonds to DC, then this field is used to define the transaction code to be used when creating the Debit leg of DC.
+
+Validation Rules:
+==================
+
+Mandatory input if the underlying (INTERFACE.TO) is DC. Otherwise, Input not allowed.
+Input must be a valid record in TRANSACTION table. The field DEBIT.CREDIT.IND in TRANSACTION must be set to DEBIT. */
+		DR_TXN_CODE -> ST_Config:TRANSACTION
+			@i18n:Label (en="Dr Txn Code")
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=26.0, core=true, businessType=ANY, t24Name=DR.TXN.CODE)
+		/* Noinput field. Used by System during run-time. */
+		CR_ALLOWED_AC : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=27.0, core=true, t24Name=CR.ALLOWED.AC)
+		/* Noinput field. Used by System during run-time. */
+		DR_ALLOWED_AC : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=28.0, core=true, t24Name=DR.ALLOWED.AC)
+		/* Noinput field. Used by System during run-time. */
+		CR_ALLOWED_CCY : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=29.0, core=true, t24Name=CR.ALLOWED.CCY)
+		/* Noinput field. Used by System during run-time. */
+		DR_ALLOWED_CCY : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=30.0, core=true, t24Name=DR.ALLOWED.CCY)
+		/* Noinput field. Used by System during run-time. */
+		CR_CATEG : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=31.0, core=true, t24Name=CR.CATEG)
+		/* Noinput field. Used by System during run-time. */
+		DR_CATEG : T24BusinessTypes:ANY
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=32.0, core=true, t24Name=DR.CATEG)
+		/* Noinput field. Used by System during run-time. */
+		DR_CURR_MKT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=33.0, core=true, t24Name=DR.CURR.MKT)
+		/* Noinput field. Used by System during run-time. */
+		CR_CURR_MKT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, sysNumber=34.0, core=true, t24Name=CR.CURR.MKT)
+		/* Noinput field. Used by System during run-time. */
+		DENOM_FILTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=35.0, core=true, t24Name=DENOM.FILTER)
+		/* Noinput field. Used by System during run-time. */
+		CR_DENOM_TYPE : T24BusinessTypes:A
+			@i18n:Label (en="Cr Denom Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=36.0, core=true, t24Name=CR.DENOM.TYPE)
+		/* Noinput field. Used by System during run-time. */
+		DR_DENOM_TYPE : T24BusinessTypes:A
+			@i18n:Label (en="Dr Denom Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=37.0, core=true, t24Name=DR.DENOM.TYPE)
+		/* Noinput field. Used by System during run-time. */
+		CHARGE : T24BusinessTypes:A
+			@i18n:Label (en=Charge)
+			@i18n:Tooltip (en="Defines the charges")
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=38.0, core=true, t24Name=CHARGE)
+		/* Noinput field. Used by System during run-time. */
+		COMMISSION : T24BusinessTypes:A
+			@i18n:Label (en=Commission)
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=39.0, core=true, t24Name=COMMISSION)
+		/* Noinput field. Used by System during run-time. */
+		TT_SIDE_1 : TT_TellerFinancialService:TFS_TRANSACTION__TT_SIDE_1
+			@t24:i (align=L, inputBehaviour=N, maxLength=6, sysNumber=40.0, core=true, t24Name=TT.SIDE.1)
+		/* Noinput field. Used by System during run-time. */
+		AUTO_DENOMINATE : TT_TellerFinancialService:TFS_TRANSACTION__AUTO_DENOMINATE
+			@i18n:Label (en="Auto Denominate")
+			@i18n:Tooltip (en="Should denominations be filled automatically")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=41.0, core=true, t24Name=AUTO.DENOMINATE)
+		RESERVED_42 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=42.0, core=true, t24Name=RESERVED.42)
+		RESERVED_43 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=43.0, core=true, t24Name=RESERVED.43)
+		RESERVED_44 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=44.0, core=true, t24Name=RESERVED.44)
+		RESERVED_45 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=45.0, core=true, t24Name=RESERVED.45)
+		RESERVED_46 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=46.0, core=true, t24Name=RESERVED.46)
+		RESERVED_47 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=47.0, core=true, t24Name=RESERVED.47)
+		RESERVED_48 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=48.0, core=true, t24Name=RESERVED.48)
+		RESERVED_49 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=49.0, core=true, t24Name=RESERVED.49)
+		RESERVED_50 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=50.0, core=true, t24Name=RESERVED.50)
+		RESERVED_51 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=51.0, core=true, t24Name=RESERVED.51)
+		OVERRIDE -> byValue TT_TellerFinancialService:TFS_TRANSACTION__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=54.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=55.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue TT_TellerFinancialService:TFS_TRANSACTION__INPUTTER *
+		DATE_TIME -> byValue TT_TellerFinancialService:TFS_TRANSACTION__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=58.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=59.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=60.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=61.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=62.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	TFS_TRANSACTION__DESCRIPTION
+	{
+		/* Holds the literal that describes this transaction type. Used for enrichment purposes in TFS Transaction screen. */
+		DESCRIPTION : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	TFS_TRANSACTION__CONSOL_NARR
+	{
+		/* If consolidation is enabled, TFS consolidates all the user input legs on a TFS Transaction Screen and automatically populates the statement narrative for the consolidated transaction based on information from the user input Legs. While doing so, it uses the description of the transaction type from this table. However, since the total length of the narrative is limited to 34 characters, using the literal in DESCRIPTION field may not be suitable.
+This field is used to define a shorter text to be used in the narrative.
+
+Validation Rules:
+=================
+
+Optional input. */
+		CONSOL_NARR : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, multiLanguage=true, sysNumber=2.0, core=true, t24Name=CONSOL.NARR)
+	}
+	TFS_TRANSACTION__LIMIT_CCY
+	{
+		LIMIT_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=23.0, core=true, businessType=CCY, t24Name=LIMIT.CCY)
+		CCY_LIMIT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=24.0, core=true, t24Name=CCY.LIMIT)
+	}
+	TFS_TRANSACTION__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=53.0, core=true, t24Name=OVERRIDE)
+	}
+	TFS_TRANSACTION__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=56.0, core=true, t24Name=INPUTTER)
+	}
+	TFS_TRANSACTION__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=57.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+}
+Enumerations {
+	TELLER_FINANCIAL_SERVICES__CONSOL_INSTRUCTION : mml:string
+		YES=YES
+		NO=NO
+	TELLER_FINANCIAL_SERVICES__CONSOL_METHOD : mml:string
+		GROSS=GROSS
+		NET=NET
+	TELLER_FINANCIAL_SERVICES__CONSOL_LEVEL_ADDON : mml:string
+		CCY_TXN=CCY.TXN
+		CCY=CCY
+		TXN=TXN
+		NO=NO
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__TRANSACTION : mml:string
+		COLLECTION_LCY=COLLECTION.LCY
+		DISBURSE=DISBURSE
+		ON_US=ON.US
+		PARTIAL_WD=PARTIAL.WD
+		REPAY=REPAY
+		SELL_FCY=SELL.FCY
+		TCBUYCASH=TCBUYCASH
+		Bill__Pay=Bill-Pay
+		BILLPAY=BILLPAY
+		Collection=Collection
+		FCY__Collection=FCY-Collection
+		FCY__Withdraw=FCY-Withdraw
+		TC__Buy=TC-Buy
+		TC__Sell=TC-Sell
+		To=To
+		xConsol__Charge=xConsol-Charge
+		Units=Units
+		FCASHDEP=FCASHDEP
+		FROM=FROM
+		TCBUYACCT=TCBUYACCT
+		DATACORR=DATACORR
+		Exchange=Exchange
+		FCASH_BACK=FCASH.BACK
+		Local__Clearing=Local-Clearing
+		Sell__FCY=Sell-FCY
+		xConsol__Leg=xConsol-Leg
+		CASHDEP=CASHDEP
+		Deposit=Deposit
+		Withdraw=Withdraw
+		COLLECTION_FCY=COLLECTION.FCY
+		Buy__FCY=Buy-FCY
+		CASH_BACK=CASH.BACK
+		Encash=Encash
+		COLLECTION=COLLECTION
+		ENCASH=ENCASH
+		PAYOFF=PAYOFF
+		Cash__Back=Cash-Back
+		FCY__Cash__Back=FCY-Cash-Back
+		On__Us=On-Us
+		BUY_FCY=BUY.FCY
+		CONSOL_CHARGE=CONSOL.CHARGE
+		TCSELLACCT=TCSELLACCT
+		UNITS=UNITS
+		FCY__Deposit=FCY-Deposit
+		CASHWD=CASHWD
+		TCSELLCASH=TCSELLCASH
+		From=From
+		CLEARING=CLEARING
+		CREDITAA=CREDITAA
+		FCASHWD=FCASHWD
+		XCHANGE=XCHANGE
+		CONSOL_TXN=CONSOL.TXN
+		PRECLOSE=PRECLOSE
+		TO=TO
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__WASHTHRU_SIDE : mml:string
+		DEBIT=DEBIT
+		CREDIT=CREDIT
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__WAIVE_CHARGE : mml:string
+		YES=YES
+		NO=NO
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__DC_REVERSE_MARK : mml:string
+		R=R
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__CONSOL_LEG : mml:string
+		YES=YES
+		NO=NO
+	TELLER_FINANCIAL_SERVICES__TRANSACTION__REVERSAL_MARK : mml:string
+		R=R
+	TELLER_FINANCIAL_SERVICES__CONSOLIDATE_NOW : mml:string
+		YES=YES
+		NO=NO
+		REVERSE=REVERSE
+	TELLER_FINANCIAL_SERVICES__LEGAL_ID__LEGAL_DOC_NAME : mml:string
+		DRIVING_LICENSE=DRIVING.LICENSE
+		INCORP_CERT=INCORP.CERT
+		PASSPORT=PASSPORT
+		SOCIAL_SECURITY_NO=SOCIAL.SECURITY.NO
+	TELLER_FINANCIAL_SERVICES__COMM_TYPE__COMM_TYPE : mml:string
+		ADVICES=ADVICES
+		ALERTS=ALERTS
+		CAMPAIGN=CAMPAIGN
+		NEW_PRODUCT_UPDATE=NEW.PRODUCT.UPDATE
+		STATEMENTS=STATEMENTS
+	TFS_PARAMETER__EXPOSURE_METHOD : mml:string
+		LOCK=LOCK
+		FLOAT=FLOAT
+	TFS_PARAMETER__AML_DETAILS : mml:string
+		VALIDATION=VALIDATION
+		INFORMATION=INFORMATION
+	TFS_PARAMETER__AML_LOOKUP : mml:string
+		NATIVE=NATIVE
+		CUSTOMER=CUSTOMER
+	TFS_PARAMETER__CONSOLIDATION : mml:string
+		ENABLE=ENABLE
+		DISABLE=DISABLE
+	TFS_PARAMETER__CONSOL_METHOD : mml:string
+		GROSS=GROSS
+		NET=NET
+	TFS_PARAMETER__CONSOL_LEVEL_ADDON : mml:string
+		CCY_TXN=CCY.TXN
+		CCY=CCY
+		TXN=TXN
+		NO=NO
+	TFS_PARAMETER__CONSOL_AMT_ZERO : mml:string
+		UNDO_CONSOLIDATION=UNDO.CONSOLIDATION
+		IGNORE_CONSOL_LEG=IGNORE.CONSOL.LEG
+		FORCE_GROSS=FORCE.GROSS
+	TFS_PARAMETER__HOT_FIELDS__HOT_FIELDS : mml:string
+		PRIMARY_ACCOUNT=PRIMARY.ACCOUNT
+		CONSOL_INSTRUCTION=CONSOL.INSTRUCTION
+		AMOUNT=AMOUNT
+		DEAL_RATE=DEAL.RATE
+		CHG_CODE=CHG.CODE
+		CR_VALUE_DATE=CR.VALUE.DATE
+		DR_VALUE_DATE=DR.VALUE.DATE
+		SORT_CODE=SORT.CODE
+		CONSOLIDATE_NOW=CONSOLIDATE.NOW
+		AML_CUSTOMER_NO=AML.CUSTOMER.NO
+		BENEFICIARY_ID=BENEFICIARY.ID
+	TFS_PARAMETER__TXN_LOOKUP : mml:string
+		COMBOBOX=COMBOBOX
+		DROPDOWN=DROPDOWN
+	TFS_PARAMETER__TXN_CCY_TO_DR_CCY : mml:string
+		BUY_SELL=BUY.SELL
+		MID_REVAL=MID.REVAL
+	TFS_PARAMETER__TXN_CCY_TO_CR_CCY : mml:string
+		BUY_SELL=BUY.SELL
+		MID_REVAL=MID.REVAL
+	TFS_PARAMETER__BUY_FCY_SELL_LCY : mml:string
+		BUY_SELL=BUY.SELL
+		MID_REVAL=MID.REVAL
+	TFS_PARAMETER__BUY_LCY_SELL_FCY : mml:string
+		BUY_SELL=BUY.SELL
+		MID_REVAL=MID.REVAL
+	TFS_PARAMETER__BUY_FCY_SELL_FCY : mml:string
+		BUY_SELL=BUY.SELL
+		MID_REVAL=MID.REVAL
+	TFS_PARAMETER__MKT_EXCH_PROFIT : mml:string
+		YES=YES
+		NO=NO
+	TFS_PARAMETER__DC_REV_ON_REV : mml:string
+		RETAIN_MARKER=RETAIN.MARKER
+	TFS_PARAMETER__TRANSACTION_LIMIT : mml:string
+		NO=NO
+		CONSOLIDATED_LEGS=CONSOLIDATED.LEGS
+		USER_INPUT_LEGS=USER.INPUT.LEGS
+	TFS_TRANSACTION__CONSOL_EXCLUDE : mml:string
+		YES=YES
+		NO=NO
+	TFS_TRANSACTION__SURROGATE_AC : mml:string
+		ACCOUNT_DR=ACCOUNT.DR
+		ACCOUNT_CR=ACCOUNT.CR
+	TFS_TRANSACTION__TXN_CCY_TO_DR_CCY : mml:string
+		BUY_SELL=BUY.SELL
+		MID_REVAL=MID.REVAL
+	TFS_TRANSACTION__TXN_CCY_TO_CR_CCY : mml:string
+		BUY_SELL=BUY.SELL
+		MID_REVAL=MID.REVAL
+	TFS_TRANSACTION__BUY_FCY_SELL_LCY : mml:string
+		BUY_SELL=BUY.SELL
+		MID_REVAL=MID.REVAL
+	TFS_TRANSACTION__BUY_LCY_SELL_FCY : mml:string
+		BUY_SELL=BUY.SELL
+		MID_REVAL=MID.REVAL
+	TFS_TRANSACTION__BUY_FCY_SELL_FCY : mml:string
+		BUY_SELL=BUY.SELL
+		MID_REVAL=MID.REVAL
+		FORCE_BUY_SELL=FORCE.BUY.SELL
+	TFS_TRANSACTION__MKT_EXCH_PROFIT : mml:string
+		YES=YES
+		NO=NO
+	TFS_TRANSACTION__EXC_FROM_TXN_LIMIT : mml:string
+		YES=YES
+	TFS_TRANSACTION__TT_SIDE_1 : mml:string
+		CREDIT=CREDIT
+		DEBIT=DEBIT
+	TFS_TRANSACTION__AUTO_DENOMINATE : mml:string
+		YES=YES
+		NO=NO
+}

@@ -1,0 +1,90 @@
+## JBC_GetMetaAPI.vm
+*-----------------------------------------------------------------------------
+      SUBROUTINE ${service.getName()}.getMetaData(metaDataXMLString)
+      
+*-----------------------------------------------------------------------------
+*
+* Note : This subroutine is auto-generated and should not be changed.
+*
+* @author Auto-generated
+* @stereotype subroutine
+*!
+*-----------------------------------------------------------------------------
+      GOSUB initialise      
+      GOSUB process
+      GOSUB finalise
+      
+      RETURN
+*-----------------------------------------------------------------------------
+process: 
+      metaDataXMLString := '<?xml version = "1.0" encoding = "utf-8"?>'
+      metaDataXMLString := '<service xmlns="http://www.temenos.com/SOA/Meta"'
+      metaDataXMLString := '  name="${service.getName()}" '
+      metaDataXMLString := '  majorVersion="${majorVersion}" minorVersion="${minorVersion}" vendor="temenos">'
+
+      metaDataXMLString := '<operations>'
+#foreach($operation in ${service.getGenOperations()})
+
+## generate meta data for each business operation
+      metaDataXMLString := '<operation name="${operation.getName()}"'
+      metaDataXMLString := '  integrationFlowSupportable="${operation.stereotypeIsApplied("integrationFlowSupportable")}"'
+	  metaDataXMLString := '  idempotent="${operation.stereotypeIsApplied("idempotent")}"'
+	  metaDataXMLString := '  unsafe="${operation.stereotypeIsApplied("unsafe")}">'	  
+#foreach($param in ${operation.getParameters()})
+## generate meta for each parameter of the given operation
+      metaDataXMLString := '<parameter name="${param.getName()}"'
+      metaDataXMLString := '  typeName="${param.getTypeName()}"'
+      metaDataXMLString := '  isPrimitive="#if(${param.getComplexity()} == "PRIMITIVE")true#{else}false#end"'
+      metaDataXMLString := '  isCollection="#if(${param.getCardinality()} == "MULTIPLE")true#{else}false#end"'
+      metaDataXMLString := '  isMandatory="${param.isMandatory()}"'
+      metaDataXMLString := '  direction="${param.getDirection()}" />'
+#end
+#if(${operation.getReturnParameter().getTypeName().equalsIgnoreCase("void")} == false)
+## generate meta data for return parameter of the given operation
+      metaDataXMLString := '<parameter name="${operation.getReturnParameter().getName()}"'
+      metaDataXMLString := '  typeName="${operation.getReturnParameter().getTypeName()}"'
+      metaDataXMLString := '  isPrimitive="#if(${operation.getReturnParameter().getComplexity()} == "PRIMITIVE")true#{else}false#end"'
+      metaDataXMLString := '  isCollection="#if(${operation.getReturnParameter().getCardinality()} == "MULTIPLE")true#{else}false#end"'
+      metaDataXMLString := '  isMandatory="${operation.getReturnParameter().isMandatory()}"'
+      metaDataXMLString := '  direction="${operation.getReturnParameter().getDirection()}"/>'
+#end
+      metaDataXMLString := '</operation>'
+#end
+      
+      metaDataXMLString := '</operations>'
+			
+			
+#if(${service.getClassDefDescriptors().isEmpty()} == false)
+      metaDataXMLString := '<customizedTypes>'
+#foreach($classDescriptor in ${service.getClassDefDescriptors()})
+
+##generate meta data for each customized complex type
+      metaDataXMLString := '<customizedType name="${classDescriptor.getName()}">'
+#foreach($attr in ${classDescriptor.getAttributes()})
+      metaDataXMLString := '<member name="${attr.getName()}"'
+      metaDataXMLString := '  typeName="${attr.getTypeName()}"'
+      metaDataXMLString := '  isPrimitive="#if(${attr.getComplexity()} == "PRIMITIVE")true#{else}false#end"'
+      metaDataXMLString := '  isCollection="#if(${attr.getCardinality()} == "MULTIPLE")true#{else}false#end"/>'
+#end
+      metaDataXMLString := '</customizedType>'
+#end
+
+      metaDataXMLString := '</customizedTypes>'	
+#end
+
+      metaDataXMLString := '</service>'
+
+      
+      RETURN
+*-----------------------------------------------------------------------------
+initialise:
+    metaDataXMLString = ''
+		
+    RETURN
+
+*-----------------------------------------------------------------------------
+finalise:    
+
+    RETURN
+
+END

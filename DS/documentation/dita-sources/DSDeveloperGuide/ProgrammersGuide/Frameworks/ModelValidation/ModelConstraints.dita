@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//OASIS//DTD DITA Concept//EN" "http://docs.oasis-open.org/dita/dtd/concept.dtd">
+<concept id="devguide_programmersguide_frameworks_modelvalidation_modelconstraints">
+	<title>Model Validation Constraints</title>
+	<prolog>
+		<author type="creator">Kai Kreuzer</author>
+
+		<metadata>
+			<keywords>
+				<indexterm>validation</indexterm>
+				<indexterm>constraints</indexterm>
+			</keywords>
+		</metadata>
+	</prolog>
+	<conbody>
+		<section>
+			<title>Constraint Types and Declaration</title>
+			<p>
+				In general, you are free to use any of the ways to define model constraints that are provided through the EMF Validation Framework.
+				These can be individual constraints written in Java or OCL as well as a dynamic set of constraints provided through a 
+				constraint provider. It is up to your choice whether the constraints should be marked for live or batch mode.
+			</p>
+			<p>
+				It is important though to use the right category for your constraints in order to be automatically bound to the default
+				Design Studio client context. Design Studio defines the general category <codeph>com.odcgroup.validation</codeph>. The constraint
+				definition should be therefore done for sub-categories <codeph>com.odcgroup.validation/&lt;modeltype&gt;</codeph>, e.g.
+				<codeph>com.odcgroup.validation/pageflow</codeph>.
+			</p> 
+			<p>
+				Besides the standard EMF Validation Framework extension point, the Design Studio framework offers another extension point for
+				easily providing constraints - the oAW check constraint provider, which can be used by declaring an extension like
+			</p>
+			<codeblock>
+&lt;extension point="com.odcgroup.workbench.validation.check"&gt;
+	&lt;metaModel nsURI="http://www.odcgroup.com/ofs/pageflow"&gt;
+		&lt;checkFile 
+			category="com.odcgroup.validation/pageflow"
+			path="checks/PageflowTechBatchErrorsDE.chk" /&gt;
+	&lt;/metaModel&gt;
+&lt;/extension&gt;
+ 			</codeblock>
+			<p>
+				This extension simply adds all constraints that are defined in the given check file, so that they are evaluated for
+				elements of the defined meta-model. This is used by the Pageflow and Workflow designers in Design Studio and as there
+				is a good editor for check files with auto-completion etc., it is much easier to formulate constraints with the check
+				language than doing it with OCL in the extension point itself. The constraints will be listed in the UI under the
+				given category.
+			</p>
+		</section>
+	</conbody>
+
+</concept>

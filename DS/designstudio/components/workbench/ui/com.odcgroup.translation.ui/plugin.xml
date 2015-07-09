@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+ 
+   <extension-point id="com.odcgroup.translation.viewer" name="Translation Viewer" schema="schema/com.odcgroup.translation.ui.viewer.exsd"/>
+   <extension-point id="com.odcgroup.translation.viewer.command" name="Translation Command Provider" schema="schema/com.odcgroup.translation.ui.viewer.command.exsd"/>
+   <extension-point id="com.odcgroup.translation.collector" name="Translation Collector" schema="schema/com.odcgroup.translation.ui.collector.exsd"/>
+ 
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.odcgroup.translation.ui.editor.TranslationEditor"
+            default="true"
+            icon="icons/translations.png"
+            id="com.odcgroup.translation.ui.editor.TranslationEditor"
+            name="Translation Overview">
+      </editor>
+   </extension>
+ 
+	<extension
+		point="org.eclipse.ui.propertyPages">
+		<page
+			category="com.odcgroup.workbench.properties.ofs"
+            icon="icons/translations.png"
+            class="com.odcgroup.translation.ui.preferences.TranslationPreferencePage"
+            id="com.odcgroup.translation.ui.preferences"
+            name="Translation">
+            <filter
+            	name="nature"
+               	value="com.odcgroup.workbench.core.OfsNature"/>
+            <enabledWhen>
+                <adapt type="org.eclipse.core.resources.IProject"/> 
+            </enabledWhen>
+		</page>   
+	</extension>
+	
+	<extension
+		point="com.odcgroup.translation.viewer">
+		<provider
+			id="com.odcgroup.translation.ui.views.tableprovider"
+			name="Standard Translation Table Provider"
+			class="com.odcgroup.translation.ui.internal.views.provider.TranslationTableProvider"
+			natureId="org.eclipse.jdt.core.javanature"
+			priority="2">
+		</provider>
+	</extension>
+  
+   <extension point="org.eclipse.ui.navigator.linkHelper">
+      <linkHelper
+            id="com.odcgroup.workbench.ui.navigator.LinkHelper"
+            class="com.odcgroup.translation.ui.navigator.TranslationLinkHelper">
+         <editorInputEnablement>
+         <and>
+               <instanceof value="org.eclipse.ui.IEditorInput"/>
+            </and>
+         </editorInputEnablement>
+         <selectionEnablement>
+           <and>
+               <instanceof
+                     value="com.odcgroup.workbench.core.IOfsElement">
+               </instanceof>
+            </and>
+         </selectionEnablement>
+      </linkHelper>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.views.properties.tabbed.propertyContributor">
+      <propertyContributor
+            contributorId="com.odcgroup.translation.ui.editor.TranslationEditor"
+            labelProvider="com.odcgroup.translation.ui.editor.properties.TranslationPropertyViewLabelProvider"
+            typeMapper="com.odcgroup.translation.ui.editor.properties.TranslationTypeMapper">
+ 	        <propertyCategory category="General"/>
+      </propertyContributor>
+   </extension> 
+    
+   <extension
+         point="org.eclipse.ui.views.properties.tabbed.propertyTabs">
+      <propertyTabs
+            contributorId="com.odcgroup.translation.ui.editor.TranslationEditor">
+         <propertyTab
+               label="General"
+               category="General"
+               id="translation.tab.General">
+         </propertyTab>
+      </propertyTabs>
+   </extension> 
+   
+   <extension
+         point="org.eclipse.ui.views.properties.tabbed.propertySections">
+      <propertySections
+            contributorId="com.odcgroup.translation.ui.editor.TranslationEditor">    
+         <propertySection
+               tab="translation.tab.General"
+               class="com.odcgroup.translation.ui.editor.properties.TranslationGeneralPropertySection"
+               id="translation.section.General">
+            <input
+                  type="com.odcgroup.translation.ui.editor.model.ITranslationTableItem">
+            </input>
+         </propertySection> 
+      </propertySections>
+   </extension>
+   
+<extension
+		point="org.eclipse.ui.ide.markerResolution">
+	<markerResolutionGenerator
+		class="com.odcgroup.translation.ui.internal.migration.markers.TranslationMigrationMarkerResolutionGenerator"
+		markerType="com.odcgroup.translation.core.TranslationMigrationProblem">
+	</markerResolutionGenerator>
+ </extension>
+	   
+</plugin>

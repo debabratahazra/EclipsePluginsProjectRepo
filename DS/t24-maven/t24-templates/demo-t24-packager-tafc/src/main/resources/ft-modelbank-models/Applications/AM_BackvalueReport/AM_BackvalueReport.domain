@@ -1,0 +1,87 @@
+# UTF-8
+# UTF-8
+/* Reports for Asset Management Back Value Transactions */
+Domain AM_BackvalueReport
+	@t24:i (module=AM)
+	@java:Package (value=com.temenos.t24.datamodel.am.am_backvaluereport)
+namespace "http://www.temenos.com/t24/AM_BackvalueReport"
+metamodelVersion 1.30.6
+Classes {
+	/* This table is meant for a log file which holds the history of the back-value transactions. */
+	BV_REPORT_LOG
+		@t24:i (t24Name=BV.REPORT.LOG, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The ID is of the format (portfolio.id).(process.date)
+
+ex: 1040-1.20110531 */
+		SAM_NO_PROCESS_DATE -> AM_BackvalueReport:BV_REPORT_LOG PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=SAM.NO.PROCESS.DATE)
+		PROCESS_DATE -> byValue AM_BackvalueReport:BV_REPORT_LOG__PROCESS_DATE *
+	}
+	BV_REPORT_LOG__PROCESS_DATE
+	{
+		/* Date the Back value event was triggered (Start of the multi Value associated set)
+Validation Rules
+
+
+No input field automatically updated by the system.
+
+Up to 9 type D date characters, (Standard Date Format) */
+		PROCESS_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, t24Name=PROCESS.DATE)
+		/* Back Value date.
+Validation Rules
+
+
+No input field automatically updated by the system.
+
+Up to 9 type D date characters, (Standard Date Format) */
+		BV_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=BV.DATE)
+		/* Will contain id of the back value dated transaction */
+		TXN_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=3.0, core=true, t24Name=TXN.ID)
+		/* Indicates which BV processing is being triggered. Will contain the following data
+
+DC  data Capture
+
+FT  Funds Transfer
+
+ST  Sec Trade
+
+DAIR  Dairy
+
+SCPC  Price Change
+
+SECTR- Security Transfer
+
+POSTR - Position Transfer
+Validation Rules
+
+1 - 4 Alphanumeric characters. */
+		TXN_TYPE : T24BusinessTypes:AAA
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, t24Name=TXN.TYPE)
+		/* Will contain the event that triggered the back value event, such as:
+
+
+TXN  BV Transaction
+
+
+PCH  BV Price change
+
+
+FEE  Fee recalculation
+
+
+CSH  Cash Movement
+
+REV  Reversal
+Validation Rules
+
+
+
+1- 4 alphanumeric characters long free text */
+		TXN_TRIGGER : T24BusinessTypes:AAA
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=5.0, core=true, t24Name=TXN.TRIGGER)
+	}
+}

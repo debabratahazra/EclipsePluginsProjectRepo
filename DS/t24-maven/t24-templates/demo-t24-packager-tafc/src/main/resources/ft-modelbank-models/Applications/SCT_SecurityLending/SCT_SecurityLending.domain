@@ -1,0 +1,412 @@
+# UTF-8
+# UTF-8
+/* Lending Process of Bond and Shares */
+Domain SCT_SecurityLending
+	@t24:i (module=SC)
+	@java:Package (value=com.temenos.t24.datamodel.sc.sct_securitylending)
+namespace "http://www.temenos.com/t24/SCT_SecurityLending"
+metamodelVersion 1.30.6
+Classes {
+	/* The Bond Lent Master application allows a user to lend securities held within a particular depository.  It is a service offered by the larger depositories, Euroclear and Cedel being two of the larger examples, where the depository will lend bonds, where needed to their own clients.
+The depository pays the lender a fee for the borrowed securities. The user has the facility to pass this fee onto his client less any commission and/or handling charges he may incur.
+Any lent bonds are blocked on the clients' account with a warning message in the event that anyone tries to sell short.
+Date of loan and date of return are both stored within this application and in the event that the same bonds are lent time after time a different suffix number is attached to the record. */
+	BOND_LENT_MASTER
+		@t24:i (t24Name=BOND.LENT.MASTER, level=F, type=H, additionalInfo="NOH UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* A five part key that forms an unique identification of the Bond Loan.
+1 to 4 - Identify the Security Position from which the Bond.Loan is made.
+5 - Provides an identification number for the Bond.Loan.
+Five part key, each part separated by `.'   Structured thus:-  1.2.3.4.5
+1.  (a)   Specifies the Security Account that the Bond Loan is made from           (thus identifying which Customer is making the Bond Loan).     (b)   Must be a valid Sec.Acc.Master record Id.
+2.  (a)   Identifies the Bond that is being loaned.     (b)   Must be a valid Security.Master record id.
+3.  (a)   Specifies the Depository that the Bonds are held in.     (b)   Must be a valid Customer id for whom the Customer.Security           record (Field 1 Customer Type) equals Depository.
+4.  (a)   Specifies the Nominee with whom the Bond is registered.     (b)   Must be a valid Nominee record id.     (c)   Only applicable to Registered Bonds.
+5.  (a)   The identification number of the Bond Loan.     (b)   1 to 3 numeric characters in the range 1 to 999.
+In all the above leading zeros (00) may be omitted.
+The above components combine to form an unique key by which the Bond Loan is identified.
+Examples: (A)        1 = Security Account   = 121212-1            2 = Security Number    = 003456-000            3 = Depository         = 009876            4 = Nominee            = 06969            5 = Record Number      = 001
+1.       2.   3.   4.   5.       Key = 121212-1.3456.9876.6969.1
+(B)        1-4 as above (A) , Record Number = 002
+Key = 121212-1.3456.9876.6969.2
+(C)        1-3 as above (A)&(B), No Nominee, Record Number = 005
+Key = 121212-1.3456.9876. .5
+Validation Rules
+Five part key, each part separated by `.'   i.e. 1.2.3.4.5  1 = Sec.Acc.Master Id number. 2 = Security.Master Id number/mnemonic. 3 = Depository = Customer Id no./mnemonic. 4 = Nominee.Company Id number. 5 = 1 to 3 numeric character Bond.Loan Id.  (1,2,3,5 Mandatory input; 4 Optional input)
+As specified in Details (1 to 5 above). */
+		LENDING_KEY -> SCT_SecurityLending:BOND_LENT_MASTER PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=39, sysNumber=0.0, core=true, businessType=S, t24Name=LENDING.KEY)
+		/* Field to hold the type of lending. i.e. Lending by a Portfolio or Depository. */
+		LENDING_TYPE : SCT_SecurityLending:BOND_LENT_MASTER__LENDING_TYPE
+			@t24:i (align=L, inputBehaviour=F, maxLength=9, sysNumber=1.0, core=true, t24Name=LENDING.TYPE)
+		/* Display the information input under LENDING.KEY.
+Validation Rules
+This is a NOINPUT field.
+Internally generated field. */
+		SECURITIES_ACCOUNT -> SCO_PortfolioMaintenance:SEC_ACC_MASTER
+			@i18n:Label (en=Portfolio)
+			@t24:i (align=L, inputBehaviour=F, maxLength=14, sysNumber=2.0, core=true, businessType=A, t24Name=SECURITIES.ACCOUNT)
+		/* Display the information input under LENDING.KEY.
+Validation Rules
+This is a NOINPUT field.
+Internally generated field. */
+		SECURITY_NUMBER -> SCO_SecurityMasterMaintenance:SECURITY_MASTER required
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates the security number")
+			@t24:i (align=L, inputBehaviour=F, maxLength=12, sysNumber=3.0, core=true, businessType=SEC, t24Name=SECURITY.NUMBER)
+		/* Display the information input under LENDING.KEY.
+Validation Rules
+This is a NOINPUT field.
+Internally generated field. */
+		DEPOSITORY -> ST_Customer:CUSTOMER required
+			@i18n:Label (en=Depository)
+			@i18n:Tooltip (en="Depository the Security to be delivered from/to")
+			@t24:i (align=R, inputBehaviour=F, maxLength=10, sysNumber=4.0, core=true, businessType=CUS, t24Name=DEPOSITORY)
+		/* Display the information input under LENDING.KEY.
+Validation Rules
+This is a NOINPUT field.
+Internally generated field. */
+		NOMINEE_CODE -> SC_Config:NOMINEE_CODE
+			@i18n:Label (en="Nominee Code")
+			@i18n:Tooltip (en="Identifies the Nominee Company ")
+			@t24:i (align=L, inputBehaviour=F, maxLength=5, sysNumber=5.0, core=true, businessType=A, t24Name=NOMINEE.CODE)
+		/* Specifies the sub account at depository.
+It must be defined in sub account fields of customer security record for the transaction depository.
+It will be defaulted from SC.SUB.ACC.ROUTING record defined for the depository if the criteria match.
+Optional field
+Validation Rules
+
+
+1-16 numeric characters
+Must be defined in CUSTOMER.SECURITY record for the depository
+I */
+		SUB_ACCOUNT : mml:Integer
+			@i18n:Label (en="Sub Account")
+			@t24:i (align=R, inputBehaviour=F, maxLength=16, sysNumber=6.0, core=true, t24Name=SUB.ACCOUNT)
+		/* Field to hold the original amount of loan in  a Depository based lending.The related field NOMINAL  will hold the amount of loan pending.
+Validation Rules:
+Standard T24 numeric field and allows 1 to14 numeric characters (including 3 decimals).
+It is a noinput field. */
+		ORIG_NOMINAL : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=7.0, core=true, t24Name=ORIG.NOMINAL)
+		/* Specifies the Nominal Amount (i.e. the face value) of the Bond to be lent.
+Validation Rules
+
+
+1-18 numeric characters (including up to 6 decimal         places).
+
+
+The following multipliers may be used:
+T = X 1,000         e.g. 1T = 1,000 2.5T = 2,500
+M = X 1,000,000 e.g. 2M = 2,000,000 2.75M = 2,750,000
+B = X 1,000,000,000 e.g. 3B = 3,000,000,000 (Mandatory         input.) */
+		NOMINAL : T24BusinessTypes:NOMAMT required
+			@i18n:Label (en=Nominal)
+			@i18n:Tooltip (en="No of Units or Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=8.0, core=true, t24Name=NOMINAL, typeModifiers="3")
+		/* Specifies the expiry date of the loan.
+Validation Rules
+Up to 9 type D date characters (Standard Date Format in range 1950-2049).  (Mandatory input.)
+Must be greater than Run Date. */
+		EXPIRY_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Expiry Date")
+			@i18n:Tooltip (en="Indicates the Expiry Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=EXPIRY.DATE)
+		/* Specifies the start date of the loan.
+Validation Rules
+Up to 9 type D date characters (Standard Date Format in range 1950-2049).  (Mandatory input.)  Default value = Run Date.
+Must less than EXPIRY.DATE. */
+		DATE_OF_LOAN : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=DATE.OF.LOAN)
+		ADJ_DATE -> byValue SCT_SecurityLending:BOND_LENT_MASTER__ADJ_DATE *
+		NOTES -> byValue SCT_SecurityLending:BOND_LENT_MASTER__NOTES *
+		/* Records the date on which the Bond Loan is returned.
+Validation Rules
+Up to 9 type D date characters (Standard Date Format in range 1950-2049). (Mandatory input.)
+Must not be less than DATE.OF.LOAN. */
+		RETURN_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Return Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=RETURN.DATE)
+		/* Indicates the currency of any fees or charges relating to the Bond Loan.
+Validation Rules
+3 type SSS (uppercase alpha) character currency id         or 1-3 numeric character currency code.  (Mandatory input.)
+Must be an existing currency on the CURRENCY table. */
+		FEE_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=16.0, core=true, businessType=CCY, t24Name=FEE.CCY)
+		/* Records the amount of the fee, payable by the Depository for the Bond Loan.
+Validation Rules
+1-14 numeric characters (including up to 3 decimal places, dependant on the Ccy).  The following multipliers may be used:     T = X 1,000         e.g. 1T = 1,000 2.5T = 2,500    M = X 1,000,000              or    B = X 1,000,000,000  (Mandatory input.) */
+		FEE_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Fee Amount")
+			@i18n:Tooltip (en="Amount of Fees")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=17.0, core=true, t24Name=FEE.AMOUNT, typeModifiers="16D")
+		/* Records the amount of charges (to the lender of the Bonds) to be deducted from the FEE.AMOUNT.
+Validation Rules
+1-14 numeric characters (including up to 3 decimal places, dependant on the CCY).  The following multipliers may be used:     T = X 1,000         e.g. 1T = 1,000 2.5T = 2,500    M = X 1,000,000            or    B = X 1,000,000,000  (Optional input.)
+Must not be greater than FEE.AMOUNT. */
+		CHARGES : T24BusinessTypes:AMT
+			@i18n:Label (en="Charge Amt")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=18.0, core=true, t24Name=CHARGES, typeModifiers="16D")
+		/* Displays the amount due to the Lender of the Bonds, i.e. FEE.AMOUNT less CHARGES.
+Validation Rules
+This is a NOINPUT field.
+Internally generated field. */
+		NET_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Net Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=19.0, core=true, t24Name=NET.AMOUNT, typeModifiers="16D")
+		/* Specifies the Account (of the lender) to be credited with the NET.AMOUNT.
+Validation Rules
+1-14 numeric character Account id number             or 1-10 type MNE (uppercase alpha or numeric or ".") mnemonic Account      id. (Mandatory input.)
+Must be a valid Account for the Customer. */
+		ACCOUNT_NUMBER -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Account Number")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=20.0, core=true, businessType=ACC, t24Name=ACCOUNT.NUMBER)
+		/* Specifies the currency of the Account.
+Validation Rules
+This is a NOINPUT field.
+Internally generated field. */
+		ACCOUNT_CCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en="Account Ccy")
+			@i18n:Tooltip (en="Indicates the currency of the account")
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=21.0, core=true, t24Name=ACCOUNT.CCY)
+		/* Records the exchange rate for the conversion from FEE.CCY to ACCOUNT.CCY.
+Validation Rules
+Standard rate format. (mandatory input).  Default value = relevant rate as per Currency files. */
+		EXCHANGE_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Exchange Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=22.0, core=true, t24Name=EXCHANGE.RATE)
+		/* Identifies the Account of the Depository.
+Validation Rules
+1-14 numeric character Account id number          or 1-10 type MNE (uppercase alpha or numeric         or ".") mnemonic Account id.  (Mandatory input.)
+Must be a valid Account of the Depository. */
+		DEP_ACCT_NUMBER -> ACM_AccountOpening:ACCOUNT
+			@i18n:Label (en="Depo Acct No")
+			@i18n:Tooltip (en="Account No of the Depository")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=23.0, core=true, businessType=ACC, t24Name=DEP.ACCT.NUMBER)
+		/* Specifies the currency of the Depository Account.
+Validation Rules
+This is a NOINPUT field.
+Internally generated field. */
+		DEP_ACCT_CCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en="Depo Acct Ccy")
+			@i18n:Tooltip (en="Currency of the Depository\'s account")
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=24.0, core=true, t24Name=DEP.ACCT.CCY)
+		/* Records the exchange rate for the conversion from FEE.CCY to ACCOUNT.CCY.
+Validation Rules
+Standard rate format. (Mandatory input).  Default value = relevant rate as per currency files. */
+		DEP_EXCH_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Dep Exch Rate")
+			@i18n:Tooltip (en="Exchange rate to convert Fee Ccy to Acct Ccy")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=25.0, core=true, t24Name=DEP.EXCH.RATE)
+		/* Records the value date of the charges.
+Validation Rules
+Up to 9 type D characters (Standard Date Format in range 1950-2049). (Mandatory input.)
+Must not be prior to RETURN.DATE. */
+		VALUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Value Date")
+			@i18n:Tooltip (en="Indicates the Value date of the Contract")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=VALUE.DATE)
+		CLOSURE_NOTES -> byValue SCT_SecurityLending:BOND_LENT_MASTER__CLOSURE_NOTES *
+		/* Automatically credited ID number for each Bond Lent Transaction.
+Key is:
+(i) Application mnemonic "BDLD".
+(ii) Module mnemonic "SC"
+(iii) Julian date
+(iv) 6 character reference no.
+Validation Rules
+This is a NOINPUT field.
+Internally generated field. */
+		REFERENCE_NUMBER : T24BusinessTypes:A
+			@i18n:Label (en=Reference)
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=28.0, core=true, t24Name=REFERENCE.NUMBER)
+		/* Specifies the reference number of the advices, delivery instructions and payment/receipt messages related to this transaction.
+This field is generated by the delivery system when the messages are created.
+Validation Rules
+External field. */
+		DELIVERY_KEY : T24BusinessTypes:A
+			@i18n:Label (en="Delivery Key")
+			@i18n:Tooltip (en="IDs of the delivery records related to transaction")
+			@t24:i (align=L, inputBehaviour=N, maxLength=30, sysNumber=29.0, core=true, t24Name=DELIVERY.KEY)
+		RESERVED_2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=30.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=31.0, core=true, t24Name=RESERVED.1)
+		STATEMENT_NOS -> byValue SCT_SecurityLending:BOND_LENT_MASTER__STATEMENT_NOS *
+		OVERRIDE -> byValue SCT_SecurityLending:BOND_LENT_MASTER__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=35.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=36.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SCT_SecurityLending:BOND_LENT_MASTER__INPUTTER *
+		DATE_TIME -> byValue SCT_SecurityLending:BOND_LENT_MASTER__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=39.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=40.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=41.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=42.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=43.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	BOND_LENT_MASTER__ADJ_DATE
+	{
+		/* Associated multi-value field with ADJ.NOMINAL and ADJ.NARRATIVE, will hold the date on which he adjustment was made.
+Validation Rules:
+Forward value date is allowed only when the date of loan is foward dated.
+Mandatory field if ADJ.NOMINAL is input */
+		ADJ_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=11.0, core=true, t24Name=ADJ.DATE)
+		/* Associated multi-value field with ADJ.DATE and ADJ.NARRATIVE, will take positive or negative values to allow FOR adjustment of loan up or down. The outstanding loan amount after the adjustment would be reflected in the field NOMINAL. Mandatory field after the record is authorised when it is a depository based lending. */
+		ADJ_NOMINAL : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=18, sysNumber=12.0, core=true, t24Name=ADJ.NOMINAL, typeModifiers="-3")
+		/* Is a Standard T24 narrative field and describes the details of adjustment. */
+		ADJ_NARRATIVE : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=13.0, core=true, t24Name=ADJ.NARRATIVE)
+	}
+	BOND_LENT_MASTER__NOTES
+	{
+		/* Free format text field which may be utilised by the user to store any additional information relating to the Bond Lent transaction not covered by the allowed input fields.
+Validation Rules
+1-35 type A (alphanumeric) characters. (Optional input.) Multivalue field.
+Input is validated and authorised after NOTES to create the initial Bond Loan record.
+Fields RETURN.DATE onwards are concerned with the return of the Bond Loan and the associated fees and charges. These Fields cannot be accessed until after authorisation of field range LENDING.KEY to NOTES. */
+		NOTES : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=14.0, core=true, t24Name=NOTES)
+	}
+	BOND_LENT_MASTER__CLOSURE_NOTES
+	{
+		/* Free Format Text for information relating is closure of any particular Bond Lending Transaction.
+Fields RETURN.DATE and onwards are concerned only with the return of the "lent securities".  It cannot be accessed and authorised until after field range SECURITIES.ACCOUNT to NOTES have been completed.
+Validation Rules
+1-35 Type A (alphanumeric) characters. Free format input. */
+		CLOSURE_NOTES : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=27.0, core=true, t24Name=CLOSURE.NOTES)
+	}
+	BOND_LENT_MASTER__STATEMENT_NOS
+	{
+		/* A number generated automatically by the system after authorisation which identifies either a statement entry or a category entry in respect of a transaction. After validation but before authorisation, the value 'VAL' will be inserted in this field to indicate that the transaction has been validated successfully but is still waiting authorisation.
+After authorisation of a Funds Transfer transaction, the system will automatically insert a number into this field and this number may refer to a statement entry or a category entry depending on the value contained in the corresponding multivalue fields. The following examples will illustrate the use of this field.
+Example 1:
+On the execution date of a transaction there will normally be an entry on a Customer account and the following type of number will be generated at this field:
+24.1  STMT.NO  673732684.48            24.2  STMT.NO  1
+The number automatically generated in field 24.1 is unique to the transaction in question and is built in the following way:
+1.         The first four digits '6737' indicate the number of days since            the 1st of January 1968. In our example, it corresponds to the            11th of June 1986.
+2.         The next five digits '32684' indicate the number of seconds            since midnight. In our example, it corresponds to an entry            generated on line at 09:04:44 AM.
+3.         The last two digits '48' indicate the number of hundreds of            seconds.
+The value assigned (again automatically) to field 24.2 identifies the number in 24.1 as a statement entry number. If the User wishes to call this statement entry record on to the screen the User will invoke the STMT.ENTRY Application and the type the following at 'Awaiting ID':
+673732684.480001
+where the suffix '0001' identifies it as the first statement entry (there will normally be more than one as the next example will illustrate).
+Example 2:
+A second example outlined here is similar to that in example 1, in that there is a statement entry on value date for both the our account and the customer account. The system handles this case as follows:
+24.1  STMT.NO  673732684.48                  24.2  STMT.NO  1-2
+Once again field 24.1 contains the identification number automatically generated by the system while field 24.2 now contains two separate numbers signifying that there are infact two separate statement entries, one in respect of the our account pay and one in respect of the our account receive. If the User wishes to see either of these he must first of all invoke STMT.ENTRY followed by the desired function and then at 'Awaiting ID' type EITHER:
+673732684.480001
+where the addition of the suffix '0001' identifies the statement entry in respect of the our account OR
+673732684.480002
+where the addition of the suffix '0002' identifies the statement entry in respect of the customer account.
+Example 3:
+A third example might be that of a category entry generated at initiation of a transaction where commission or charges have been debited to the customer and credited to a profit and loss category code. In this case the following entries are generated on the transaction:
+24.1  STMT.NO  673732684.48                  24.3  STMT.NO  1
+Once again the standard type number is generated and inserted at field 24.1
+Now, however, field 24.2 is replaced by field 24.3 which now identifies the number in 24.1 as a category entry and not a statement entry.
+To call this category entry record onto the screen the User must now type:
+CATEG.ENTRY at 'Awaiting Application'
+followed by:
+673732684.480001 at 'Awaiting ID'.
+Validation Rules
+Internal multivalue field. */
+		STATEMENT_NOS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=29, sysNumber=33.0, core=true, t24Name=STATEMENT.NOS)
+	}
+	BOND_LENT_MASTER__OVERRIDE
+	{
+		/* Contains details of any overrides applicable to this Account.
+Validation Rules
+Up to 35 type A (alphanumeric) characters. Multivalue field. (Internal field.) */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=34.0, core=true, t24Name=OVERRIDE)
+	}
+	BOND_LENT_MASTER__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=37.0, core=true, t24Name=INPUTTER)
+	}
+	BOND_LENT_MASTER__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=38.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* Live file storing the nominals lent at a depository level through the application BOND.LENT.MASTER */
+	SC_DEPOT_POSITION
+		@t24:i (t24Name=SC.DEPOT.POSITION, level=C, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The key of the SC.DEPOT.POSITION file is made up of a number of elements separated by dots. These elements are; Portfolio Number, Security Number, Depository, Nominee Code, Maturity Date, Interest Rate and Sub-Account.
+Note ; The Maturity Date and Interest Rate are only included in the key of the Security Position if the Security the position is for is flagged as a KassenObligationen on the Sub Asset Type record the Security is linked to.
+These fields make up the first seven fields of the SC.DEPOT.POSITION record.
+The Portfolio Number is the depository where the position is held a with a suffix of '-999'. The Security Number is the Security Master ID of the Security. The Depository is the Depository where the position is held. The Nominee Code is blank if this position is not held by nominee and contains the ID from the NOMINEE.CODE file if this position is held by Nominee. The Sub Account is the depository sub account where the position is held. */
+		REFERENCE_NUMBER -> SCT_SecurityLending:SC_DEPOT_POSITION PK required
+			@i18n:Label (en=Reference)
+			@t24:i (align=L, inputBehaviour=I, maxLength=80, sysNumber=0.0, core=true, businessType=S, t24Name=REFERENCE.NUMBER)
+		/* Either the portfolio the Security Position is for or the depot the security position is for. Format is 6N - 3N Where 6N is the customer number and 3N the suffix. The suffix is 999 is for the depository whose ID is the 6N prefix of this field. */
+		SECURITY_ACCOUNT : T24BusinessTypes:S
+			@i18n:Label (en=Portfolio)
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=1.0, core=true, t24Name=SECURITY.ACCOUNT)
+		/* This field contains the Security Number the Security Position is for. */
+		SECURITY_NUMBER -> SCO_SecurityMasterMaintenance:SECURITY_MASTER
+			@i18n:Label (en="Security No")
+			@i18n:Tooltip (en="Indicates the security number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=2.0, core=true, businessType=SEC, t24Name=SECURITY.NUMBER)
+		/* This field contains the Depository where the Security Position is held.
+This field is a no input field that will contain the ID of the Depository where the security position is held. This field will contain the ID of a CUSTOMER record that is identified as a Depository on the CUSTOMER.SECURITY file. The Depository in this field also makes the elements that make up the ID of the SC.DEPOT.POSITION file. */
+		DEPOSITORY -> ST_Customer:CUSTOMER
+			@i18n:Label (en=Depository)
+			@i18n:Tooltip (en="Depository the Security to be delivered from/to")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=3.0, core=true, businessType=CUS, t24Name=DEPOSITORY)
+		/* If this security position is held by Nominee then this field will contain the ID of the Nominee. If this position is not held by nominee then this field will be blank.
+If the position is held by nominee then this field will contain the ID of the NOMINEE.CODE record set-up for the nominee.
+The Nominee Code (if any) will also make up the elements that make-up the ID of the SC.DEPOT.POSITION file. */
+		NOMINEE_CODE -> SC_Config:NOMINEE_CODE
+			@i18n:Label (en="Nominee Code")
+			@i18n:Tooltip (en="Identifies the Nominee Company ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=5, sysNumber=4.0, core=true, businessType=S, t24Name=NOMINEE.CODE)
+		/* This field is only updated is this security position is for a Kassenobligationen security. A Kassenobligationen security is one where the Sub Asset Type record linked to the security has the KASSENOBLIGATIONEN flag set to YES.
+If the security identified in the SECURITY.NUMBER field is a Kassenobligationen security then this will be the maturity date for the security - taken from the MATURITY.DATE field on the Security Master record - at the time the SC.DEPOT.POSITION record was created.
+The Maturity Date (if any) in this field will make-up the elements tat make-up the ID of the SC.DEPOT.POSITION record. */
+		MATURITY_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=5.0, core=true, t24Name=MATURITY.DATE)
+		/* This field is only updated is this security position is for a Kassenobligationen security. A Kassenobligationen security is one where the Sub Asset Type record linked to the security has the KASSENOBLIGATIONEN flag set to YES.
+If the security identified in the SECURITY.NUMBER is a Kassenobligationen security then this will be the interest rate for the security - taken from the INTEREST.RATE field on the Security Master record - at the time the SC.DEPOT.POSITION record was created.
+The Interest Rate (if any) in this field will make-up the elements that make up the ID of the SC.DEPOT.POSITION file. */
+		INTEREST_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Interest Rate")
+			@i18n:Tooltip (en="Indicates interest rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=6.0, core=true, t24Name=INTEREST.RATE)
+		/* This field contains the sub-account that the security position is held in.
+This sub account is defined in CUSTOMER.SECURITY record for this depository. */
+		SUB_ACCOUNT : mml:Integer
+			@i18n:Label (en="Sub Account")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=7.0, core=true, t24Name=SUB.ACCOUNT)
+		/* Part - or all - of a Security Position can be lent using the application BOND.LENT.MASTER. This field will show the number of securities in the security position currently lent. */
+		NO_NOM_BOND_LENT : T24BusinessTypes:NOMAMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=8.0, core=true, t24Name=NO.NOM.BOND.LENT)
+	}
+}
+Enumerations {
+	BOND_LENT_MASTER__LENDING_TYPE : mml:string
+		PORTFOLIO=PORTFOLIO
+		DEPO=DEPO
+}

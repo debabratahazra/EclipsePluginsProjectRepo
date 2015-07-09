@@ -1,0 +1,1197 @@
+# UTF-8
+/* Component service for CurrencyConfig */
+Domain FIN_CurrencyConfig
+	@t24:i (module=ST)
+	@java:Package (value=com.temenos.t24.datamodel.st.fin_currencyconfig)
+namespace "http://www.temenos.com/t24/FIN_CurrencyConfig"
+metamodelVersion 1.30.6
+Classes {
+	/* CCY.HISTORY is a new 'L'ive type file containing the effective dates of currency rate changes for any currency for any year.  The file also holds the currency file current number at the effective date.
+To achieve the implementation of this file at existing sites the BLD.CURRENCY.HIS routine is used to build complete records in the CURRENCY$HIS file, and the BLD.CCY.HISTORY routine is used to build CCY.HISTORY records from the CURRENCY$HIS file.
+The CCY.HISTORY file is maintained by the EOD.CCY.HISTORY routine in CCY.CYCLE.DATA at end of day.  Complete CURRENCY file recors will be maintained by the AUTH.RECORD.WRITE routine.
+In addition there is a GET.CCY.HISTORY routine that will obtain the required currency record from a date and currency code.
+FIELD O   ID
+Summary:    Unique identifier of currency and year.
+Format:     Three character alpha currency code and four character numeric             year (3A.4N) */
+	CCY_HISTORY
+		@t24:i (t24Name=CCY.HISTORY, level=Y, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 alphanumeric field.
+Validation Rules:
+Mandatory input.
+A maximum of 8 characters may be entered. */
+		CURRENCY_CODE_YEAR -> FIN_CurrencyConfig:CCY_HISTORY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=CURRENCY.CODE.YEAR)
+		EFFECTIVE_DATE -> byValue FIN_CurrencyConfig:CCY_HISTORY__EFFECTIVE_DATE *
+	}
+	CCY_HISTORY__EFFECTIVE_DATE
+	{
+		/* Eight character numeric date on which the rate for the currency has changed.  The date is only present if the currency rate has changed. Multi-valued field held in descending order.
+Validation Rules:
+8 numeric, YYYYMMDD. */
+		EFFECTIVE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Effective Date", fr="Date d\'effet", es="Fecha Efectiva")
+			@i18n:Tooltip (en="Effective date of the transaction", fr="Date d\'effet")
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=1.0, core=true, t24Name=EFFECTIVE.DATE, mask="DD DDD DDDD")
+		/* Currency file current numbers associated with the effective date of rate change.
+Multi-valued field.
+Validation Rules:
+9 numeric characters. */
+		CCY_CURR_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=9, sysNumber=2.0, core=true, t24Name=CCY.CURR.NO)
+	}
+	/* This table contains all details of each individual Currency, for example, Currency Name, Number of Decimal places together with other information such as the Buy and Sell Rates.
+T24 caters for both Middle rate and Buy/Sell Rate environments therefore when installing the System the User must specify, in the Company record, which method is to be adopted.  Regardless of which rates are entered, however, both Middle and Buy/Sell Rates are used in calculations e.g.
+-          Middle Rate is used for monitoring of rate variances; -          Buy/Sell Rates are used (in conjunction with spreads) to            calculate Treasury/Customer rates.
+Automatically, when the Middle Rate and the Default Spread are entered, the Buy/Sell Rates are calculated and when Buy/Sell Rates are input the Middle Rate and the Default spread will be calculated by the System.
+The use of the I.S.O. Currency Codes are recommended as a standard for the ID of this table although an additional numeric code must be defined and may be used as an alternative ID for accessing the Currency details.
+Up to 999 additional elements may be defined according to local requirements.
+To assist the user, we are including below explanations of the two methods used to quote exchange rates.
+1) The first method is used in countries where the local currency is being    quoted and the foreign currency is the variable amount.  This is the    practice followed in U.K. where the GBP/USD quotation, for example,    will be expressed as 1.2500 and not as 0.8000.  This case will be    referred to as UK type environment.
+2) The second method is used in countries where the foreign currency is    being quoted and the local currency is the variable amount.  This is    the practice followed by Europe, for example, in France, the USD/FRF    quotation will be expressed as 8.7500 and not as 0.1143.  This case    will be referred to as Non-UK type environment.
+It must be noted that the words BUY and SELL used in the various examples always denotes the action of the bank (e.g.  CUSTOMER BUY RATE will mean the rate at which the bank is buying the Currency from the Customer).
+UK TYPE ENVIRONMENT ===================
+Middle Rate System ------------------
+INPUT      : MIDDLE RATE and DEFAULT SPREAD CALCULATED : BUY RATE  = (Middle + Default Spread)              SELL RATE = (Middle - Default Spread)
+
+Buy/Sell Rate System --------------------
+INPUT      : BUY RATE and SELL RATE CALCULATED : MIDDLE RATE    = (Buy + Sell/2)            : DEFAULT SPREAD = (Middle - Sell)
+Note : In this environment, the BUY RATE will be GREATER than the SELL        RATE.
+Example : If you are in London, the Deutsche Mark and French Francs           quotations will be:
+BUY RATE             SELL RATE           --------             ---------           DEM  3.8820            3.8780           FRF 11.4500           11.3500
+
+NON-UK TYPE ENVIRONMENT =======================
+Middle Rate System ------------------
+INPUT      : MIDDLE RATE and DEFAULT SPREAD CALCULATED : BUY RATE  = (Middle - Default Spread)            : SELL RATE = (Middle + Default Spread)
+
+Buy/Sell Rate System --------------------
+INPUT      : BUY RATE and SELL RATE CALCULATED : MIDDLE RATE    = (Buy + Sell)/2            : DEFAULT SPREAD = (Sell - Middle)
+Note : In this environment, the BUY RATE will be LESS than the SELL RATE.
+Example :
+In Germany, the American dollar and the Pound Sterling quotations will look like:
+BUY RATE             SELL RATE           --------             ---------           USD 3.0880             3.0920           GBP 3.8600             3.8650
+Each Currency record caters for different Currency Markets thereby providing up to 9 different rate structures.  This facility can be utilised when physical markets exist, e.g.  Financial and Convertible Markets or where pricing considerations require differing rates or spreads (e.g.  Transfers/Notes/Travellers cheques).  For the examples in this Overview only one Currency Market has been used.
+For each Currency the user can specify a Negotiable Amount, i.e.  an amount, above which, the Treasury rate must be obtained from the dealer.
+Treasury and Customer Spreads will be defaulted from the CURRENCY record unless a specific rate and spread is input on the Transaction.  Where only a rate is input (this will be taken as the Treasury Rate) the default Customer Spread will be added/subtracted to obtain the Customer Rate.
+Where only a Customer Spread is input on the Transaction the System will default the Treasury Rate.
+Note : Each Module, e.g.  FOREIGN EXCHANGE, FUNDS TRANSFER or DATA.CAPTURE        will define whether rates input are treated as Treasury or Customer        Rates and whether input of a rate is compulsory for Transactions        in excess of the Negotiable Amount.
+The Treasury Buy/Sell rates are the rates at which Treasury units buy/sell foreign currency from/to the Marketing units.
+The Exchange rates quoted to Customers are determined by Marketing units by defining the appropriate Customer Spread to be added/subtracted to/from the Treasury Buy/Sell Rates.  (Refer to following examples)
+i)  UK Type Environment - Currency Rate Concept     -------------------
+MARKET BUY RATE                    MARKET SELL RATE                 (+)     plus/minus     (-)                       TREASURY SPREAD                           equals
+TREASURY BUY RATE                  TREASURY SELL RATE                   (+)   plus/minus     (-)                       CUSTOMER SPREAD                           equals
+CUSTOMER BUY RATE                  CUSTOMER SELL RATE
+Example : DEFAULT RATE CALCULATION (UK-GBP/USD) -               MARKET MIDDLE RATE = 1.2500               MARKET DEFAULT SPREAD = 0.0015
+MARKET BUY RATE = 1.2515           MARKET SELL RATE = 1.2485                       TREASURY SPREAD = 0.0050
+TREASURY BUY RATE = 1.2565         TREASURY SELL RATE = 1.2435                       CUSTOMER SPREAD = 0.0100
+CUSTOMER BUY RATE = 1.2665         CUSTOMER SELL RATE = 1.2335
+Note : In the UK type environment, the BUY RATES are GREATER than the            SELL RATES.
+
+ii) Non-UK Type Environment - Currency Rate Concept     -----------------------
+MARKET BUY RATE                    MARKET SELL RATE                 (-)     minus/plus     (+)                       TREASURY SPREAD                            equals
+TREASURY BUY RATE                  TREASURY SELL RATE                   (-)   minus/plus     (+)                       CUSTOMER SPREAD                            equals
+CUSTOMER BUY RATE                  CUSTOMER SELL RATE
+Example : DEFAULT RATE CALCULATION (Germany-USD/DEM)               MARKET MIDDLE RATE = 3.09               MARKET DEFAULT SPREAD = 0.0030
+MARKET BUY RATE = 3.0870           MARKET SELL RATE = 3.0930                       TREASURY SPREAD = 0.0100
+TREASURY BUY RATE = 3.0770         TREASURY SELL RATE = 3.1030                       CUSTOMER SPREAD = 0.0125
+CUSTOMER BUY RATE = 3.0645         CUSTOMER SELL RATE = 3.1155
+Note : In the Non-UK type environment, the BUY RATES are LESS than the            SELL RATES.
+
+Allocation of Exchange Profit -----------------------------
+As mentioned earlier, the final exchange rates quoted to Customers (Customer Buy Rate and Sell Rate) are determined by Marketing units by defining the appropriate Customer spread (Customer Small Spread and Medium Spread) to be added/subtracted to/from the Treasury Buy/Sell Rates.
+The allocation of exchange earnings is then made automatically between Treasury and Marketing units at the time of the deal/transaction in that any profit relating to the Marketing area (Customer Spread) is credited to Profit or Loss immediately and the deal is effectively booked at Treasury Buy/Sell Rates.  All exchange profit or loss on revaluation therefore accrues to the Treasury area.
+To assist the user, various examples follow to illustrate the allocation of the Foreign Exchange Profit between the Marketing and the Treasury areas.  The first example illustrates a transaction where the local currency is involved.  The second and third examples depict transactions where both currencies are foreign.
+Note : The examples reflect the method of quoting rates in the UK, i.e.        where the local currency is the currency being quoted.  For        countries where the foreign currency is the currency being        quoted, the Buy and Sell Rates are interchanged.
+
+ALLOCATION (FGN/LOCAL) ======================
+EXAMPLE 1 - Buy FCY from a customer against local CCY -----------------------------------------------------
+i.e.  CUSTOMER SELLS $1000.00 AGAINST LCY
+DR CASH $1000.00 at 1.2565 (Treasury Rate) = LCY 795.86 CR CUST $1000.00 at 1.2665 (Customer Rate) = LCY 789.58 CR P+L (Being CUSTOMER SPREAD OF 0.01)       LCY   6.28
+The Customer will thus receive 789.58 against the USD 1,000.00 and the marketing profit on the transaction is GBP 6.28.
+
+EXAMPLE 2 - Sell FCY to a customer against local CCY ----------------------------------------------------
+i.e.  CUSTOMER BUYS $1000.00 AGAINST LCY
+CR CASH $1000.00 at 1.2435 (Treasury Rate) = LCY 804.18 DR CUST $1000.00 at 1.2335 (Customer Rate) = LCY 810.70 CR P+L (Being CUSTOMER SPREAD of 0.01)       LCY   6.52
+The Customer will have to pay GBP 810.70 to buy USD 1,000.00 and the marketing profit on the transaction is GBP 6.52.
+
+MARKETING EXCHANGE PROFIT ALLOCATION (FGN/FGN) ============================================== (Buy FCY from a customer against another FCY)
+On transactions involving two foreign currencies, the System will automatically take the spread on the currency which is NOT the "BASE" currency (the default base currency being the currency which yields a cross rate greater than "1").
+For the "BASE" currency, the System will then take the Middle Rate. The user has, however, the facility to specify the base currency if he does not want to the System to work on the default value. Examples of these options follow.  In Example 3 the "default base currency" is "DEM".  This is because its value is greater than "FRF".
+EXAMPLE 2 - Base Currency = DEM (Default) -----------------------------------------             (Customer sells FRF 6000.00 against DEM)
+DR CASH FRF 6000.00 at 11.50 (Treasury Rate) = LCY 521.74 CR CUST DEM 2006.40 at 3.8625 (Middle Rate)  = LCY 519.48 CR PROFIT AND LOSS                           = LCY   2.26
+CROSS RATE = 2.9903
+The Customer will thus receive DEM 2,006.40 against the FRF 6,000.00 and the marketing profit on the transaction is GBP 2.26.
+The accounting entries shown represent the result of this Transaction and the actual sequence of events is detailed hereafter.
+STEP 1 : CALCULATE CUSTOMER BUY RATE FOR FRF AGAINST LCY             MARKET MIDDLE RATE = 11.4000             MARKET DEFAULT SPREAD = 0.05
+MARKET BUY RATE = 11.4500   MARKET SELL RATE = 11.3500                 TREASURY SPREAD = 0.05
+TREASURY BUY RATE = 11.5000 TREASURY SELL RATE = 11.3000                 CUSTOMER SPREAD = 0.05
+CUSTOMER BUY RATE = 11.5500 CUSTOMER SELL RATE = 11.2500
+Therefore customer FRF Buy Rate = 11.5500
+
+STEP 2 : OBTAIN DEM MIDDLE RATE AGAINST LCY
+DEM Middle Rate = 3.8625                     (i.e. 3.09 * 1.25)
+
+STEP 3 : CALCULATE CROSS RATES
+CUSTOMER CROSS RATE = (11.55/3.8625) = 2.9903          TREASURY CROSS RATE = (11.50/3.8625) = 2.977346
+Note : This time, the exchange cross rates are expressed as French        Franc per Deutsche Mark because the DEM has been specified        as the base currency.
+
+STEP 4 : CALCULATE DEM EQUIVALENTS
+FRF 6000.00 at 2.9903 (Customer Rate) = DEM 2006.40          FRF 6000.00 at 2.9773 (Treasury Rate) = DEM 2015.22
+
+STEP 5 : EFFECTIVE RESULT
+DR CASH FRF 6000.00 at 11.50   = LCY 521.74          CR CUST DEM 2006.49 at  3.8625 = LCY 519.48          CR P+L (DEM 8.73 at 3.8625)    = LCY 2.26          (i.e. the difference)
+
+EXAMPLE 4 - Base Currency = FRF (specified by the user) -------------------------------------------------------
+(Customer sells DEM 6,000.00 against FRF)
+DR CASH DEM  6000.00 at 3.8965 (Treasury Rate) = LCY 1539.84 CR CUST FRF 17478.00 at 11.40  (Middle Rate)   = LCY 1533.16 CR PROFIT AND LOSS                             = LCY    6.68
+CROSS RATE = 3.343289
+The Customer will thus receive FRF 17,478.00 against the DEM 6,000.00 and the marketing profit on the transaction is LCY 6.68.
+The accounting entries shown represent the result of this transaction and the actual sequence of events is detailed hereafter.
+
+STEP 1 : CALCULATE CUSTOMER BUY RATE FOR DEM AGAINST LCY
+MARKET MIDDLE RATE = 3.8625          MARKET DEFAULT SPREAD = 0.0170
+MARKET BUY RATE = 3.8795       MARKET SELL RATE = 3.8455                   TREASURY SPREAD = 0.0170
+TREASURY BUY RATE = 3.8965     TREASURY SELL RATE = 3.8285                   CUSTOMER SPREAD = 0.0170
+CUSTOMER BUY RATE = 3.9135     CUSTOMER SELL RATE = 3.8115
+Therefore Customer DEM BUY RATE = 3.9135
+
+STEP 2 : OBTAIN FRF MIDDLE RATE AGAINST LCY
+FRF Middle Rate = 11.4000
+
+STEP 3 : CALCULATE CROSS RATE
+CUSTOMER CROSS RATE = (3.9135/11.40) = 0.343289 TREASURY CROSS RATE = (3.8965/11.40) = 0.3417985
+Note : The exchange Cross Rates are expressed as Deutsche Mark per        French Franc because FRF has been selected as the base        currency.
+
+STEP 4 : CALCULATE FRF EQUIVALENTS
+DEM 6000.00 at 0.3432 (Customer Rate) = FRF 17478.00 DEM 6000.00 at 0.3417 (Treasury Rate) = FRF 17554.20
+
+STEP 5 : EFFECTIVE RESULT
+DR CASH DEM  6000.00 at  3.8965 = LCY 1539.84 CR CUST FRF 17478.00 at 11.40   = LCY 1533.16 CR P+L    (FRF 76.20 at 11.40)  = LCY    6.68 */
+	CURRENCY
+		@t24:i (t24Name=CURRENCY, level=Y, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This is the alpha code by which the Currency can be identified in Transaction Processing Applications.
+The ID which can be used in any Application to reference the currency within a transaction, must be in uppercase alpha format. It is recommended to use the standard SWIFT currency codes for the definition of the ID.  In some Applications (e.g. FUNDS.TRANSFER) a Currency code has been hardcoded in the program and the SWIFT currency code has always been used.  e.g. "USD" is hardcoded in some programs.  If you decide not to use the SWIFT Currency codes for the small modifications will need to be incorporated in some of the programs.
+A NUMERIC.CCY.CODE is also available and can be used as an alternate means to input the Currency code in Transaction Processing Applications.
+Validation Rules:
+3 type SSS (uppercase alpha) characters.  Mandatory input. */
+		CURRENCY_CODE -> FIN_CurrencyConfig:CURRENCY PK required
+			@i18n:Label (en="Ccy Code", fr=Devise, es=Moneda)
+			@i18n:Tooltip (fr=Devise)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, businessType=CCY, t24Name=CURRENCY.CODE)
+		/* Specifies the currency order in which the dealer wants the Currency positions to be shown on the screen when requesting the display of exchange positions.
+This field will allow the Currency positions of most interest to the user to be given precedence over minor currencies.  Although input in this field is optional, it is suggested to indicate a rank for those currencies which you usually would trade on the Foreign Exchange market.  By looking at your exchange position in the various currencies, you will then receive the display of the currency positions in the order specified by this rank.
+Validation Rules:
+Up to 3 numeric characters.  (Optional input No default value.)  Local currency must be allocated the rank 0 (zero).
+Duplication of the same Rank number for different currencies will not be allowed. */
+		RANK : mml:Integer
+			@i18n:Label (en=Rank, fr=Rang, es=Rango)
+			@i18n:Tooltip (fr=Rang)
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=RANK)
+		/* Specifies the numeric code which corresponds to the alpha ID.  This code must be unique and provides an alternative means of referencing the Currency details in T24 Applications.
+The code may be set by banks currently using Numeric Currency Codes thus allowing these same codes to continue in use (in effect acting as a translation table).  It could, alternatively, be set to standard codes used in a particular Country for central bank reporting, etc.  Another use is to set these codes according to the frequency of use of the various Currencies.  If, most transactions are, for example, in US dollars, Deutsche Marks and Belgian francs you could the Numeric Currency Codes could be allocated as follows:
+1 : to US Dollar            2 : to Deutsche Mark            3 : to Belgian Franc
+These short codes can then be used in Transaction Processing Applications to minimise the input required.
+Validation Rules:
+1-3 numeric characters, including 0.  This will allow a maximum number of 999 currency codes.  This field is defaulted from the CURRENCY.PARAM file.
+This is a NOINPUT field. */
+		NUMERIC_CCY_CODE : mml:Integer required
+			@i18n:Label (en="Ccy Code", fr="Code de Dev.", es="Código de Moneda")
+			@i18n:Tooltip (fr="Code de Devise")
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=2.0, core=true, t24Name=NUMERIC.CCY.CODE)
+		CCY_NAME -> byValue FIN_CurrencyConfig:CURRENCY__CCY_NAME *
+		/* Defines the Number of Decimal places of the Currency.
+Used to verify that amounts are not entered with decimal places exceeding the number entered in this field. All calculations, e.g. interest, charges, revaluation etc., will be rounded to the Number of Decimal places specified in this field. When the amount fields are displayed, they will also be shown with their corresponding decimals.
+Validation Rules:
+1 numeric character in the range 0 to 4. This field is defaulted from the CURRENCY.PARAM file. This is a NOINPUT field. */
+		NO_OF_DECIMALS : FIN_CurrencyConfig:CURRENCY__NO_OF_DECIMALS
+			@i18n:Label (en="No Of Decimals", fr="No. de décimales", es="No. de Decimales")
+			@i18n:Tooltip (fr="Numéro de décimales")
+			@t24:i (align=R, inputBehaviour=N, maxLength=1, sysNumber=4.0, core=true, t24Name=NO.OF.DECIMALS)
+		/* Identifies the method of quotation of the exchange rate.
+Market practice makes use of two basic methods for organising the quotation of Currencies:
+1. UK Type Environment    The first method of exchange rate quotation refers to those countries    where the local currency is the Currency being quoted and the foreign    currency is the variable amount.  In U.K., for example, the exchange    rates will always be expressed against the Pound Sterling (their local    currency).
+2. Non-UK Type Environment    The second method of exchange rate quotation refers to those countries    where the foreign currency is the Currency being quoted and the local    Currency is the variable amount.  In Germany, for example, the exchange    rates will always be expressed against the foreign currency (e.g. 1 USD    = 2,98 DEM; 1 GBP = 3,8625 DEM etc...).  As a further requirement, in    this environment, it must be possible to indicate the number of units    of the foreign currency which is used to express the exchange rate.
+In Belgium, the US dollar or the Pound Sterling exchange rates will be    expressed in single unit (i.e. 1 USD = 60 BEF or 1 GBP = 80 BEF) while    for smaller value currencies like the Italian Lira and the Japanese    Yen, the  exchange    rates will be expressed in  100 units (i.e. 100    ITL = 3 BEF or 100 JPY = 24 BEF).
+Therefore, for this environment, this FIELD allows you to define this    number of units as details in the following table:
+Value                  Meaning
+0                            1        UNIT of the foreign currency 1                           10        UNITS           "       " 2                          100       UNITS           "       " 3                         1000      UNITS           "       " 4                        10000      UNITS           "       " 5                       100000      UNITS           "       "
+Example: If you are in Belgium you will define for:
+Currency   Quotation Code
+USD        0    GBP        0    DEM        0    ITL        2    JPY        2    etc.
+Great care must be taken by the user when defining the value of this field, because all the exchange rates quoted against the local currency will take this value into account in currency conversion and verification.  When a cross-rate is quoted between two foreign currencies, a direct rate will be expressed irrespective of the quotation code on either currency. A similar cross-rate will, therefore, apply in both the UK and non-UK type environment.
+Note : For those countries which quote their own currency (UK Type        environment), it has been supposed that the foreign currency is        always expressed against 1 UNIT of the local currency.
+Further examples follow. where '' indicates a null quotation code. LOCAL CURRENCY = USD CCY    RATE    QUOTATION CODE USD            '' GBP    1.6     0  i.e. units of USD to 1 GBP EUR    1.14    0  i.e. units of USD to 1 EUR JPY    136     '' i.e. units of JPY to 1 USD
+LOCAL CURRENCY = CHF CCY    RATE    QUOTATION CODE USD    1.5     0  i.e. units of CHF to 1 USD GBP    2.4     0  i.e. units of CHF to 1 USD EUR    1.71    0  i.e. units of CHF to 1 EUR JPY    1.103   2  i.e. units of CHF to 100 JPY CHF    '' DEM    87.63   2  i.e. units of CHF to 100 DEM FRF    25.98   2  i.e. units of CHF to 100 FRF BEF    43.06   3  i.e. units of CHF to 1000 BEF
+LOCAL CURRENCY = EUR CCY    RATE    QUOTATION CODE USD    1.14    '' i.e. units of USD to 1 EUR GBP    0.71    '' i.e. units of GBP to 1 EUR EUR    '' JPY    155.04  '' i.e. units of JPY to 1 EUR CHF    1.71    '' i.e. units of CHF to 1 EUR
+Validation Rules:
+Blank Denotes that you are in a UK type environment and that you quote your own currency.  or  1 numeric character in the range0 to 5 which denotes that you are in a Non-UK type environment and that you quote the foreign currency.  (Optional input, not allowed for local currency.  Default value = blank i.e. UK type environment.) */
+		QUOTATION_CODE : FIN_CurrencyConfig:CURRENCY__QUOTATION_CODE
+			@i18n:Label (en="Quotation Code", fr="Code de cotation", es="Código de Cotización")
+			@i18n:Tooltip (en="Quotation Code", fr="Code de cotation ", es="Código de Cotización")
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=5.0, core=true, t24Name=QUOTATION.CODE)
+		/* Specifies the decimal displacement of a PIP when the Currency is quoted against US dollars or Pounds sterling.
+The Foreign Exchange Application allows for exchange rates to be input as (+/-) a number of pips when one of the Currencies of the transaction is USD or GBP.  These pips (premium/discount) will then be added to/subtracted from a datum rate (e.g. the number of PIPS defined on the forward leg of a SWAP contract will be added to/subtracted from the SPOT rate entered in the spot leg).  This field defines the decimal displacement, and therefore the value, of 1 PIP when dealing against US dollars or Pounds Sterling.
+Example:
+The dealer makes a SWAP contract USD/DEM by which he is buying SPOT US dollars at 2.9675 against Deutsche Marks and selling 3 months FORWARD US Dollars against Deutsche Marks at a discount of 300 PIPS.
+If the DEM Currency has been defined with the value of 4 in the field Quotation PIPS, the System will then convert the discount of 300 PIPS with a 4 decimal displacement as follows:
+INPUT     RESULT            SPOT LEG     2.9675    2.9675            FWD LEG       - 300   - 0.0300            FWD RATE               2.9375
+In consequence adding or subtracting 300 PIPS is equivalent to adding or subtracting 0.0300 when the quotation PIPS of the currency is 4.
+Note : (i) It has been assumed that the quotation PIPS of any Currency is            the same against US Dollars and Pound Sterling.  This is a true            statement today but should this practice change, an appropriate            maintenance will then be required in this field.
+(ii) The use of PIPS is only available in the Foreign Exchange            Application.
+Validation Rules:
+1 numeric character in the range 1-6.  (Optional input.  No default value). */
+		QUOTATION_PIPS : FIN_CurrencyConfig:CURRENCY__QUOTATION_PIPS
+			@i18n:Label (en="Quotation Pips", fr="Cotation de pips", es="Cotización")
+			@i18n:Tooltip (en="Quotation Pips", fr="Cotation de pips", es="Cotización")
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=6.0, core=true, t24Name=QUOTATION.PIPS)
+		/* Indicates the number of working days, in advance of the Value Date, required for pay/receive instructions.
+This field defines the number of working days notice, in advance of the Value Date, that a payment or a receive message must be sent by the Delivery Application.
+"0" represents the same day as the Value Date while 1-10 represent the actual number of working days notice required.
+It is used by Applications to determine the latest date on which a remittance instruction must be despatched (i.e. passed to Delivery).
+Notes : 1. When an on-line transaction generates a payment due on the same day (taking Days Delivery into consideration), it is immediately sent to Delivery.
+2. When a payment is required on a future date (taking Days Delivery into consideration), it is sent to Delivery either during the End of Day processing for the previous working day, or during the Start of Day procedures for the appropriate day.
+3. When the user is creating a new currency Code, this field will already indicate 1, i.e. one working day prior to the Value Date. If, for the Currency being created, it is required to define a different number of days, this default value must be changed.
+Validation Rules:
+Up to 2 numeric characters in range 1-10.
+Optional input.
+Default Value = 1, i.e. the pay/receive messages will be sent one working day prior to the value date. */
+		DAYS_DELIVERY : FIN_CurrencyConfig:CURRENCY__DAYS_DELIVERY
+			@i18n:Label (en="Delivery Days", fr="Jours ouvrables de livraison", es="Días de Entrega")
+			@i18n:Tooltip (fr="Jours ouvrables de livraison")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=7.0, core=true, t24Name=DAYS.DELIVERY)
+		/* Defines the number of working days forward, from the Run date, to commence detailed Nostro reporting.
+The Nostro cash position summaries (by Currency) project the balances for 5 consecutive working days.
+This field is used to define the number of working days forward, from the Run date, that the balance projection is to be commenced.
+Note : When creating a new Currency code, this field will already indicate        "0" i.e. the Nostro position for that currency will be displayed        starting from the Run Date.        If, for the Currency being created it is required to start the        display of the Nostro position from a later date, the number of        days which need to be added to the Run date must be entered in        this field.  The default Nostro position display will then start        from the date corresponding to the Run Date "+" the number of days        defined in this field.
+Validation Rules:
+Up to 2 numeric characters in range 0-10.  Optional input.  Default value = 0, i.e. that the Nostro position will be displayed starting from the Run Date. */
+		DAYS_FORWARD : FIN_CurrencyConfig:CURRENCY__DAYS_FORWARD
+			@i18n:Label (en="Days Forward", fr="Jours en avance", es="Días Futuros")
+			@i18n:Tooltip (en="Days Forward", fr="Jours en avance", es="Días Futuros")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=8.0, core=true, t24Name=DAYS.FORWARD)
+		/* Defines for each Currency the default calculation basis for interest calculation purposes. It is possible to set the interest basis at contract or record level, the absence of a valid user input will mean that the value from the appropriate CURRENCY record will be used.
+Key#Days/Denominator##
+A#360/360##
+B#366/360##
+C#366/366##
+D#360/366##
+E#366/365##
+F#360/365##
+For illustrations of all supported
+INTEREST.BASIS types see: INTEREST.BASIS
+Validation Rules:
+
+1 type SSS (Uppercase alpha) character in the range A-F.
+Defaults to value from CURRENCY.PARAM if not entered. */
+		INTEREST_DAY_BASIS : FIN_CurrencyConfig:CURRENCY__INTEREST_DAY_BASIS required
+			@i18n:Label (en="Interest Day Basis", fr="Base calcul intérêts", es="Base Diaria de Interés")
+			@i18n:Tooltip (en="Defines calculation basis for interest calculation", fr="Base de calcul des intérêts")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=9.0, core=true, t24Name=INTEREST.DAY.BASIS)
+		/* Defines the percentage variance allowed on the Middle Rate for any rates entered, to control that exchange rates and spreads entered in the T24 system are within the allowable range.
+The Default Rate Allowance for all Currencies is specified in the Company record. Where this default is inappropriate you may enter a Specific Rate Allowance for this Currency.
+An override will be required to accept any Rate outside the variance specified in this field.
+Validation Rules:
+1-12 type R (Standard Rate Format - up to 8 integer and 6 decimal) characters plus a decimal point or 1-15 type R (Up to 8 integer and 9 decimal) characters plus a decimal point when EXTENDED.PREC in SPF is set to Y.
+Input not allowed for local currency; otherwise optional input. No default Value - but Tolerance from Company record is then used in calculations. */
+		RATE_ALLOWANCE : T24BusinessTypes:R
+			@i18n:Label (en="Rate Allowance", fr="Allocation de taux", es="Subsidio de Tasa")
+			@i18n:Tooltip (en="Rate Allowance", fr="Allocation de taux", es="Subsidio de Tasa ")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=10.0, core=true, t24Name=RATE.ALLOWANCE)
+		/* Indicates the date of the Fixing Rates and will only be used by those countries where exchange rates for the major currencies are "fixed" daily between the banks and the local central bank.  This field will therefore identify the date on which the exchange rates were last loaded.
+For those countries where "Fixing Rates" practice is applicable, the value of this field will be checked by the FUNDS.TRANSFER Application to determine if the Fixing Rates have already been input for the Run day. When the fixing date is not equal to the Run date, Funds Transfer transactions where amounts need to be converted at today's fixing rate will still be processed and can be authorised but will be flagged with a specific Funds Transfer status (ANORATE).  When the Fixing Rates have been finally entered, a batch program FT RATES will then recognise these transactions and finalise the processing of the transactions.
+For the countries where the Fixing rate practice is applicable, the user should enter a fixing date only for those currencies which are part of the fixing.  In Belgium, for example, around 20 currencies are Fixed every day between the Central Bank and the commercial banks.  Only these 20 currencies will then require input in this field when the fixing rates are entered in the table.
+Validation Rules:
+Up to 9 type D date characters.  (Date format in range 1950-2049.)  Optional input, not allowed for local currency.  Default = Null (i.e. blank) which will denote that this Currency is not in a Fixing Rate environment.
+The date input in this field can never be greater than the Run date.
+Any date prior to the Run date will request an override and a maximum of 7 days back value will be allowed.
+During the processing of Funds Transfer Transactions if the today's fixing rates are not yet available, the application will still default the last available rate but will request an override if that rate has to be used. */
+		FIXING_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Fixing Date", fr="Date de la Fixation", es="Fecha de Fijación")
+			@i18n:Tooltip (en="Fixing Date", fr="Date de la Fixation ", es="Fecha de Fijación")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=FIXING.DATE)
+		CURRENCY_MARKET -> byValue FIN_CurrencyConfig:CURRENCY__CURRENCY_MARKET *
+		TRSY_LIMIT_AMT -> byValue FIN_CurrencyConfig:CURRENCY__TRSY_LIMIT_AMT *
+		/* The minimum amount, or the lowest unit of currency, to be used when rounding is in effect for the currency.
+The lowest unit of currency to be used by the system in performing rounding of currency amounts. This field is intended for use when the minimium rounding amount is not always the same as the lowest unit of currency defined by NO.OF.DECIMALS.
+Rounding of amounts to this minimum unit is performed according to whatever choices have been made within the fields MIN.ROUND.TYPE and CASH.ROUND.TYPE.
+Validation Rules:
+Up to 6 type AMT characters. (Standard amount format).  (Optional input) */
+		MIN_ROUND_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Min Round Amount", fr="Montant rond minimum", es="Mto.Redondeado Mínimo")
+			@i18n:Tooltip (en="Min Round Amount", fr="Montant rond minimum ", es="Monto de Redondeado Mínimo")
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=26.0, core=true, t24Name=MIN.ROUND.AMOUNT)
+		/* Specifies whether rounding of amounts in this currency is to take place only for cash transactions.
+The indicator in this field determines whether the lowest currency unit specified in MIN.ROUND.AMOUNT is to be applied only to cash transaction amounts or to all transaction amounts.
+Cash transactions are defined as those entered via the TELLER application. This module is described under the T24 Help Text for Retail Banking (ref: RB/1/1).
+Validation Rules:
+'YES'.  Optional input when MIN.ROUND.AMOUNT is defined; otherwise not allowed. */
+		CASH_ONLY_ROUNDING : FIN_CurrencyConfig:CURRENCY__CASH_ONLY_ROUNDING
+			@i18n:Label (en="Cash Only Rounding", fr="Arrondi seul Cash", es="Redondeo Sólo Efec.")
+			@i18n:Tooltip (en="Cash Only Rounding", fr="Arrondi seul Cash ", es="Redondeo Sólo Efectivo")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=27.0, core=true, t24Name=CASH.ONLY.ROUNDING)
+		/* The type of rounding to be applied to non-cash transactions in this currency.
+The value in this field specifies the type of rounding, or rounding rule, to be applied by the system for non-cash transaction amounts.
+The  possible values are ( ‘1’, ‘2’,’3’,’NONE’)
+If  set to ‘1’ or ‘NONE’, then the natural rounding is applied
+If set to ‘2’, then rounding down is applied
+If set to ‘3’, then rounding up is applied
+Validation Rules:
+If no value is given, then defaulted to '1' for natural rounding */
+		MIN_ROUND_TYPE : FIN_CurrencyConfig:CURRENCY__MIN_ROUND_TYPE
+			@i18n:Label (en="Min Round Type", fr="Type rond minimum", es="Tipo Redondeo Mín.")
+			@i18n:Tooltip (en="Min Round Type", fr="Type rond minimum ", es="Tipo de Redondeo Mínimo ")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=28.0, core=true, t24Name=MIN.ROUND.TYPE)
+		/* The type of rounding to be applied to cash transactions in this currency.
+The value in this field specifies the type of rounding, or rounding rule, to be applied by the system for cash transaction amounts.
+The  possible values are ( ‘1’, ‘2’,’3’,’NONE’)
+If  set to ‘1’ or ‘NONE’, then the natural rounding is applied
+If set to ‘2’, then rounding down is applied
+If set to ‘3’, then rounding up is applied
+Validation Rules:
+If no value is given, then defaulted to '1' for natural rounding. */
+		CASH_ROUND_TYPE : FIN_CurrencyConfig:CURRENCY__CASH_ROUND_TYPE
+			@i18n:Label (en="Cash Round Type", fr="Arrondi d\'espèces", es="Tipo Redondeo Efec.")
+			@i18n:Tooltip (en="Cash Round Type", fr="Arrondi d\'espèces ", es="Tipo de Redondeo en Efectico")
+			@t24:i (align=L, inputBehaviour=I, maxLength=4, sysNumber=29.0, core=true, t24Name=CASH.ROUND.TYPE)
+		/* Identifies the currency code as a precious metal or not.
+Validation Rules:
+3 alphabetic characters, Yes or No. (Entry of null will default to N). */
+		PRECIOUS_METAL : FIN_CurrencyConfig:CURRENCY__PRECIOUS_METAL
+			@i18n:Label (en="Precious Metal", fr="Métaux précieux", es="Metales Preciosos")
+			@i18n:Tooltip (en="Indicates the currency as a precious metal", fr="Métaux précieux")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=31.0, core=true, t24Name=PRECIOUS.METAL)
+		EQUIVALENT_CCYS -> byValue FIN_CurrencyConfig:CURRENCY__EQUIVALENT_CCYS *
+		/* Defines the rate at which an "in" currency is fixed to a fixing currency.
+Used together with FIXED.CCY and FIXED.START.DATE.
+N.B. For the Euro group of fixed currencies
+All fixed rates are defined as units of "in" currency to 1 Euro up to 6 decimals), even if 1 Euro is worth less than 1 unit of currency.
+Validation Rules:
+1-12 type R (Standard Rate Format - up to 8 integer and 6 decimal) characters plus a decimal point or 1-15 type R (Up to 8 integer and 9 decimal) characters plus a decimal point when EXTENDED.PREC in SPF is set to Y.
+Optional input if the EU (Euro) product is installed otherwise no input. If input then fields FIXED.CCY and FIXED.START.DATE must also be populated. Must be a valid currency rate. */
+		FIXED_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Fixed Rate", fr="Taux fixe", es="Tasa Fija")
+			@i18n:Tooltip (en="Fixed rate entered by the user", fr="Taux fixe")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=34.0, core=true, t24Name=FIXED.RATE)
+		/* Defines whether this currency is fixed to another currency for example an "in" currency linked to the Euro.
+In this case for all currency conversions in the system the fixed rate defined in FIXED.CCY will be used to convert rates and amounts to the fixing currency before converting to the other currency.
+Conversion from an "in" currency to the fixing currency will be from the "in" currency to the fixing currency via the fixed rate.
+Conversion between two "in" currencies will be from currency 1 to the fixing currency using the fixed rate for currency 1 then from the fixing currency to currency 2 using the fixed rate for currency 2.
+Conversion between an "in" currency to an "out" currency will be from the fixed rate for the "in" currency to the fixing currency, then from the floating rate of the fixing currency to the "out" currency.
+N.B. for the Euro group of  "in" currencies
+All "in" currency  fixed rates are quoted as units of currency to 1 Euro.
+Conversion to the Euro will be by dividing the "in" amount by the fixed rate to give the Euro amount
+Conversion from the Euro will be by  multiplying the Euro amount by the fixed rate to give the "in" amount.
+Validation Rules:
+Optional input if the EU (Euro) product is installed otherwise no input.  3 character alphanumeric currency code.  If input then fields FIXED.RATE and FIXED.START.DATE must also be input.  Must be a valid currency code.  A currency cannot be fixed to itself.  A currency cannot be fixed to another fixed currency. */
+		FIXED_CCY : T24BusinessTypes:CCY
+			@i18n:Label (en="Fixed Ccy", fr="Devise fixe", es="Moneda Fija")
+			@i18n:Tooltip (en="Fixed Ccy", fr="Devise fixe", es="Moneda Fija")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=35.0, core=true, t24Name=FIXED.CCY)
+		/* Defines the start date for a fixed currency.
+Any fixed rate conversions will only take place on or after the fixed start date.
+Currency conversions taking place before the fixed start date will take place as normal using the floating rates and spreads defined in the currency markets fields.
+For example the first group of currencies with rates fixed to the Euro will begin on 1 January 1999.
+Validation Rules:
+Optional input if the EU (Euro) product is installed otherwise no input.  Date type field.  If input then FIXED.CCY and FIXED.RATE must also be input. */
+		FIXED_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Fixed Start Date", fr="Date de début fixe", es="Fecha de Inicio Fija")
+			@i18n:Tooltip (en="Fixed Start Date", fr="Date de début fixe", es="Fecha de Inicio Fija")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=36.0, core=true, t24Name=FIXED.START.DATE)
+		/* Indicates whether a currency should always be the base currency for currency conversions, in the event that a base currency has not been supplied to the conversion routine.
+The actual value is defined in the CURRENCY.PARAM record for this currency.
+Each currency can optionally be assigned a unique base currency rank in the same manner as currency rank. The values are stored in the application RANK.BASE.CURRENCY.
+If two currencies are involved in a conversion and both have a base ccy rank defined then the currency with the lowest rank will take preference.
+N.B. It has been stated that rates to the EURO (EUR) will always be quoted      as the number of other currency units to 1 EUR, even when 1 unit of      the other currency is worth more than 1 EUR.
+Example : assuming that 0.71 GBP were worth 1 EUR then the effect of not           supplying a base currency or rate to the conversion routine           would result in the base currency being set to GBP and the rate           expressed as the inverse of 0.71 i.e 1.408451.
+Setting the EUR to have a base currency rank of 1 would result in the EUR being the base currency and the rate to be 0.71.
+Great care should be taken when defining a currency to have a base currency rank. There are in fact very few instances where this should be used. One example as discussed is the EURO. Another example would relate to the Irish punt in a situation where the local currency has been converted to be the Euro.
+Market practice in Ireland is to quote all foreign currencies to 1 unit of local including GBP, so for example GBP in Ireland will be quoted as say 0.8 GBP to 1 IEP, with EUR as local currency the system will default the rate to be the inverse of this i.e 1.25 IEP to 1 GBP. To retain the current market practice with EUR as the local currency then EUR should be defined with the lowest rank and IEP with the second lowest rank.
+This siuation may also apply when converting from a GBP local currency to EUR.
+Validation Rules:
+This is a NOINPUT field.  Value set up in the CURRENCY.PARAM.  If the BASE.CCY.RANK is changed in CURRENCY.PARAM then the relevant currency record should be input and authorised to pick up the changes. */
+		BASE_CCY_RANK : mml:Integer
+			@i18n:Label (fr="Rang de Dev de base")
+			@i18n:Tooltip (fr="Rang de Dev de base")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=37.0, core=true, t24Name=BASE.CCY.RANK)
+		/* Specifies the date after which the currency is available for use.
+When a new currency is introduced the currency code will be required in the system to allow related tables to defined, however it may not be valid to raise accounting movements and payments before the account is officially available. If this field is defined, any accounting entry (including forward entries) with a value date prior to this date will require an override to be processed further.
+Validation Rules:
+Optional input. */
+		AVAILABLE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Available Date", fr="Date disponible", es="Fecha Disponible")
+			@i18n:Tooltip (en="Available Date", fr="Date disponible", es="Fecha Disponible")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=38.0, core=true, t24Name=AVAILABLE.DATE)
+		/* Specifies the date after which the currency is NOT available for use.
+When a currency is no longer allowed to be used, this field should be populated with date after which the use should be prevented. Any accounting entry (including forward entries) posted on or after this date will require an override.
+Validation Rules:
+Optional input. */
+		BLOCKED_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Blocked Date", fr="Date bloquée", es="Fecha Bloqueada")
+			@i18n:Tooltip (en="Blocked Date", fr="Date bloquée", es="Fecha Bloqueada")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=39.0, core=true, t24Name=BLOCKED.DATE)
+		/* A time entered in this field will be used to determine the cut off point for default value dates on FUNDS.TRANSFER transactions.
+For outgoing FUNDS.TRANSFER transactions this field will be used in conjunction with
+CUT.OFF.RULE on the AGENCY file, if these fields have both been set, the default DEBIT.VALUE.DATE will be determines as follows:
+If the transaction is entered before the cut off time on the currency file (for the debit currency) and CUT.OFF.RULE contains 0, then the debit value date will be today&#8217;s date, if CUT.OFF.RULE contains 1, then the debit value date will be today&#8217;s date +1 working day. If the transaction is entered after the cut off time on the currency file (for the debit currency) and CUT.OFF.RULE contains 0, then the debit value date will be the next working day, if CUT.OFF.RULE contains 1, then the debit value date will be the next working day +1 working day.  For incoming FUNDS.TRANSFERs this field will be used in conjunction with the DEBIT.VALUE.DATE and the debit and credit currencies to determine the default CREDIT.VALUE.DATE as follows:
+Debit value date#Cut off time#Debit/credit currency#Credit value date default##
+Debit value date prior or equal to date of receipt#Time of receipt prior or equal to cut off time#Debit currency equal to credit currency#Credit value date equals date of receipt##
+As above#As above#Debit currency not equal to credit currency#Credit value date equals date of receipt + 1 working day##
+As above#Time of receipt later than cut off time#Debit currency equal to credit currency#Credit value date equals date of receipt + 1 working day##
+As above#As above#Debit currency not equal to credit currency#Credit value date equals date of receipt + 2 working days##
+Debit value date later than date of receipt#Time of receipt prior or equal to cut off time#Debit currency equal to credit currency#Credit value date equals debit value date##
+As above#As above#Debit currency not equal to credit currency#Credit value date equals debit value date + 1 working day##
+As above#Time of receipt later than cut off time#Debit currency equal to credit currency#Credit value date equals debit value date + 1 working day##
+As above#As above#Debit currency not equal to credit currency#Credit value date equals debit value date + 2 working days##
+Validation Rules:
+Up to 6 T24 Time characters. Recorded in HH:MM format. The ":" may be omitted Input of three valid characters will attract a leading '0'. */
+		CUT_OFF_TIME : T24BusinessTypes:TIME
+			@i18n:Label (en="Cut Off Time", fr="Limite de temps", es="Hora de Corte")
+			@i18n:Tooltip (en="Cut Off Time", fr="Limite de temps", es="Hora de Corte")
+			@t24:i (align=L, inputBehaviour=I, maxLength=6, sysNumber=40.0, core=true, t24Name=CUT.OFF.TIME)
+		/* This field is YES_NO field. It is used for cross check about which currency allowed to define to CLS currency. - CONTINUOUS LINKED SETTLEMENT (CLS) allows banks to eliminate Foreign Exchange Settlement Risk.
+Validation Rules:
+
+A maximum of 3 characters may be entered.
+The following values are permitted:       YES       NO */
+		CLS_CCY : FIN_CurrencyConfig:CURRENCY__CLS_CCY
+			@i18n:Label (en="Cls Ccy", fr="Devise de clôture", es="Moneda de Cierre")
+			@i18n:Tooltip (en="Cls Ccy", fr="Devise de clôture", es="Moneda de Cierre")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=41.0, core=true, t24Name=CLS.CCY)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED14 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=42.0, core=true, t24Name=RESERVED14)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED13 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=43.0, core=true, t24Name=RESERVED13)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED12 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=44.0, core=true, t24Name=RESERVED12)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED11 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=45.0, core=true, t24Name=RESERVED11)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=46.0, core=true, t24Name=RESERVED10)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=47.0, core=true, t24Name=RESERVED9)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=48.0, core=true, t24Name=RESERVED8)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=49.0, core=true, t24Name=RESERVED7)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=50.0, core=true, t24Name=RESERVED6)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=51.0, core=true, t24Name=RESERVED5)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=52.0, core=true, t24Name=RESERVED4)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=53.0, core=true, t24Name=RESERVED3)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=54.0, core=true, t24Name=RESERVED2)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		RESERVED1 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=55, sysNumber=55.0, core=true, t24Name=RESERVED1)
+		OVERRIDE -> byValue FIN_CurrencyConfig:CURRENCY__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status", fr=Statut, es=Estado)
+			@i18n:Tooltip (fr="Statut de l\'enregistrement")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=57.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No", fr="N° version", es="No. Actual")
+			@i18n:Tooltip (fr="Numéro de version")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=58.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue FIN_CurrencyConfig:CURRENCY__INPUTTER *
+		DATE_TIME -> byValue FIN_CurrencyConfig:CURRENCY__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser, fr="Validé par", es=Autorizador)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record", fr="Utilisateur de validation", es="El usuario que autorizó el registro")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=61.0, core=true, t24Name=AUTHORISER)
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code", fr=Service, es=Departamento)
+			@i18n:Tooltip (fr="Code du service")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=63.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code", fr="Audité par", es="Código de Auditor")
+			@i18n:Tooltip (en="Auditor Code", fr="Utilisateur d\'audit", es="Nombre del auditor")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=64.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time", fr="Audité le", es="Fecha/Hora de Audit.")
+			@i18n:Tooltip (en="Date and time when record was audited", fr="Date et heure d\'audit", es="Fecha y Hora de Auditoría ")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=65.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		DFT_CCY_UNIT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=30.1, core=false, t24Name=DFT.CCY.UNIT)
+	}
+	CURRENCY__CCY_NAME
+	{
+		/* Identifies the name of the Currency and will be used for on-line enrichments in any field where the Currency alpha or numeric code has been input.
+This field can be expanded to allow the user to enter the description of the Currency code in various languages.  Each expansion of the field will correspond to a new language as defined in the LANGUAGE table, and will indicate to the user the language in which the description must be entered.
+Validation Rules:
+3-35 type AA (Alphanumeric, first character alpha) characters.  Multilanguage field.  Mandatory input - Value initial taken from the CURRENCY.PARAM file. */
+		CCY_NAME : T24BusinessTypes:AA required
+			@i18n:Label (en="Ccy Name", fr="Libellé devise", es="Nombre de Moneda")
+			@i18n:Tooltip (fr="Libellé de la devise")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=3.0, core=true, t24Name=CCY.NAME)
+	}
+	CURRENCY__CURRENCY_MARKET
+	{
+		/* Identifies to which market the following rates apply in those countries where more than one market exists to determine the exchange rates of foreign currencies.
+All Transaction Processing Applications contain a data element Currency Market and any input made in this field will be checked against this table to derive or verify the appropriate exchange rate of the transaction.  The exchange rates applicable to the Market 1 will always be defaulted if no other input has been done.
+For the local currency input in this FIELD will also be allowed to permit the user to use, if required, the fields Quotation Suspense and Negotiable Amount.  These are the only 2 fields of the association which will be allowed for the local currency.
+A typical example is Belgium where foreign currencies are quoted on the Convertible/Regular market and also on the Financial/Free market. Different sets of exchange rates will exist according to these two markets and this explains the reason and the purpose of this field.
+The CURRENCY table allows you to identify, if required, up to nine different markets and consequently to define for each foreign currency up to nine different sets of exchange rates.  The System will always force you to define at least one set of rates, i.e. to define the exchange rates applicable to the currency Market 1 which will be the default currency Market used by all Transaction processing applications.
+It must also be noted that this CURRENCY.MARKET field can also be used within the concept of notional market, i.e. where you would like to define different sets of exchange rates according to the type of product handled. One set of exchange rates, for example, could be defined to identify the exchange rates applicable to your Notes transactions, set of rates for travellers cheques, another set of rates for your transfer transactions, etc.
+Validation Rules:
+2 numeric characters.  Market 1 must always be input.  Associated multivalue field.
+For all the countries where more than one market exists for the determination of the exchange rates, input of the various markets in this field will be essential to ensure a correct definition of the exchange rates applicable to the various markets.
+The Currency Market 1 will always be mandatory.
+If a market >= 10, the market indicated in the first digit must be already present on the record. */
+		CURRENCY_MARKET -> FIN_CurrencyConfig:CURRENCY_MARKET required
+			@i18n:Label (en=Market, fr=Marché, es="Mercado de Divisas")
+			@i18n:Tooltip (fr="Marché des changes")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=12.0, core=true, t24Name=CURRENCY.MARKET)
+		/* This field is no longer used.
+If trading in a currency needs to be suspended or blocked the
+BLOCKED.DATE
+field should be used. */
+		QUOTATION_SUSP : FIN_CurrencyConfig:CURRENCY__CURRENCY_MARKET__QUOTATION_SUSP
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=13.0, core=true, t24Name=QUOTATION.SUSP)
+		/* Specifies the Market Middle Rate for this Currency market. In a Middle Rate installation this rate must be input whereas in a Buy/Sell environment this rate is calculated automatically and therefore cannot be input.
+When installing T24 the user must decide which Currency environment is to be adopted locally. The COMPANY record contains a field which specifies whether a MIDDLE RATE or a BUY/SELL RATE System is to be used.
+This market middle rate will be the default rate used by the revaluation routine to revalue the bank books and the SPOT foreign exchange contracts. All other revaluation types mayuse the REVAL.RATE for revaluation calculations except for rebate revaluations which continue to use this field.
+1. Middle Rate System
+This field is mandatory (except for local currency) and in conjunction with DEFAULT.SPREAD the System automatically calculates the Market Buy/Sell Rates.
+2. Buy/Sell Rate System
+No input is allowed to this field. Rates are input to the Buy and Sell fields and the Middle Rate is calculated accordingly.
+When amending this Rate it is checked to be within the specified tolerance of the existing rate. An override is required if out of tolerance.
+Note : (i) Care must be taken inputting this Rate. The banks books will be revalued using the value of this rate.
+(ii) The Middle Rate will also be used as the reference to check any rate input at transaction level. Variance greater than the Rate Allowance defined for the Currency will require an override.
+This rate is ignored when an alternative rate is entered in REVAL.RATE except for rebate revaluations. The revaluation processes use the REVAL.RATE if present , overriding any value in the MIDDLE MARKET Rate.
+Validation Rules:
+1-12 type R (Standard Rate Format - up to 8 integer and 6 decimal) characters plus a decimal point or 1-15 type R (Up to 8 integer and 9 decimal) characters plus a decimal point when EXTENDED.PREC in SPF is set to Y. (when input allowed).
+Associated multivalue field. Mandatory input for Middle Rate System otherwise no input allowed. Input in this field for the local currency is also not allowed. */
+		MID_REVAL_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Mid Reval Rate", fr="Cours moyen", es="Tasa Media de Avalúo")
+			@i18n:Tooltip (en="Mid Reval Rate", fr="Cours moyen", es="Tasa Media de Avalúo")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=14.0, core=true, t24Name=MID.REVAL.RATE)
+		/* Indicates the amount to be added to/ subtracted from MID.REVAL.RATE to obtain the Market Buy/Sell Rates.
+The field reflects the actual market spread between Middle and Buy/Sell Rates.  It is important to realise that the addition/subtraction of this spread to/from the middle rate will generate the Market Buy/Sell rates and not the final Customer Buy/Sell rates.  The latter will be identified by the addition/subtraction of the appropriate Treasury and Customer spreads to the Market Buy/Sell rates.
+Validation Rules:
+Up to 10 type R characters plus a decimal point. Standard rate format 6,9. (when input allowed).  Associated Multivalue Field.  Input not allowed for local currency.  Mandatory input for Middle Rate System, otherwise no input allowed.
+In a Middle Rate installation this is a mandatory field (except for the local currency) and the rate input is added to/subtracted from MID.REVAL.RATE to obtain the Market Buy/Sell Rate.
+In a Buy/Sell installation input is not allowed to this field. The system calculates this spread by comparing MID.REVAL.RATE to SELL.RATE.
+When allowed to be input, the default market spread must be smaller than the Middle Rate. */
+		DEFAULT_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Default Spread", fr="Marge par défaut", es="Margen Pre-establ.")
+			@i18n:Tooltip (en="Default Spread", fr="Marge par défaut", es="Margen Pre-establecido")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=DEFAULT.SPREAD, typeModifiers="+")
+		/* Indicates the Market Buy Rate. Used as the base for calculating (default) rates for Customer Transactions (those less than the negotiable amount). In a Buy/Sell installation this Rate must be input whereas in a Middle Rate environment this Rate is calculated automatically and therefore cannot be input.
+When installing T24 the user must decide which Currency environment is to be adopted locally. The Company record contains a field which specifies whether a MIDDLE RATE or a BUY/SELL RATE system is to be used:
+1. Buy/Sell Rate System
+This field is mandatory (except for local currency) and in conjunction with SELL.RATE the System automatically calculates the Middle Rate. The resultant difference between Sell and Middle Rates is then taken as the value of DEFAULT.SPREAD.
+2. Middle Rate System
+No input is allowed to this field. Rates are input using the Middle Rate and Default Spread fields and the Market Buy Rate is calculated accordingly.
+When amending this rate it is checked to be within the specified tolerance of the existing rate. An override is required if out of tolerance.
+Note : The Buy Rate is the Market Buy Rate and not the final Customer Buy Rate. The latter will be identified by the addition/subtraction of the appropriate Treasury and Customer spreads to this market Buy Rate.
+Validation Rules:
+1-12 type R (Standard Rate Format - up to 8 integer and 6 decimal) characters plus a decimal point or 1-15 type R (Up to 8 integer and 9 decimal) characters plus a decimal point when EXTENDED.PREC in SPF is set to Y (when input allowed).
+Associated multivalue field. (Mandatory input for Buy/Sell Rate System otherwise no input allowed). */
+		BUY_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Buy Rate", fr="Cours achat")
+			@i18n:Tooltip (en="Indicates the market buy rate", fr="Cours devise achetée")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=16.0, core=true, t24Name=BUY.RATE)
+		/* Indicates the Market Sell Rate. Used as a base for calculating (default) rates for Customer Transactions (those less than the negotiable amount). In a Buy/Sell installation this Rate must be input whereas in a Middle Rate environment this Rate is calculated automatically and therefore cannot be input.
+When installing T24 the user must decide which Currency environment is to be adopted locally. The Company record contains a field which specifies whether a BUY/SELL RATE or a MIDDLE RATE system is to be used:
+1. Buy/Sell System
+This field is mandatory (except for local currency) and in conjunction with BUY.RATE the System automatically calculates the Middle Rate. The resultant difference between Sell and Middle Rates is then taken as the value of DEFAULT.SPREAD.
+2. Middle Rate System
+No input is allowed to this field. Rates are input using the Middle and Default Spread Rate fields and the Market Sell Rate is calculated automatically.
+When amending this rate it is checked to be within the specified tolerance of the existing rate. An override is required if out of tolerance.
+Note : The Sell Rate is the Market Sell Rate and not the final Customer Sell Rate. The latter will be identified by the addition/subtraction of the appropriate Treasury and Customer Spreads to this market Sell Rate.
+Validation Rules:
+1-12 type R (Standard Rate Format - up to 8 integer and 6 decimal) characters plus a decimal point or 1-15 type R (Up to 8 integer and 9 decimal) characters plus a decimal point when EXTENDED.PREC in SPF is set to Y (when input allowed).
+Associated multivalue field. Mandatory input for Buy/Sell system otherwise input not allowed. Input in this field will also be refused for the local currency. */
+		SELL_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Sell Rate", fr="Cours vente", es="Tasa de Venta")
+			@i18n:Tooltip (en="Indicates market sell rate", fr="Cours de la devise vendue")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=17.0, core=true, t24Name=SELL.RATE)
+		/* Defines the amount below which the System will apply the default Customer and Treasury Small Spreads if they have not been input at transaction level.
+This field allows the user to specify an amount below which the Customer and Treasury Small Spreads will be used to calculate a rate for a Customer Transaction.
+Validation Rules:
+Up to 14 type AMT characters. (Standard amount format.)  Associated multivalue field.  Input not allowed for local currency otherwise optional input.  No default value. */
+		UPTO_SMALL_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Upto Small Amt", fr="Petit montant", es="Hasta un Mto. Pequeño")
+			@i18n:Tooltip (en="Upto Small Amt", fr="Petit montant", es="Hasta un Monto Pequeño")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=18.0, core=true, t24Name=UPTO.SMALL.AMT, typeModifiers="0")
+		/* Defines the spread Treasury require from small value transactions.  This default Treasury spread will be used by the System to calculate the Treasury Buy/Sell rate (by modifying the actual Market BUY.RATE & SELL.RATE fields) in any transaction where the amount is less than the Upto Small Amount.
+This field defines the profit margin attributable to the dealers on any Transaction where the value is less than UPTO.SMALL.AMT.
+Validation Rules:
+Up to 10 type R characters plus a decimal point. [Standard rate format 6,9.]  Associated multivalue field.  (Either this field or CUST.SMALL.SPRD must be input when UPTO.SMALL.AMT is present.  No Default value.)  Input not allowed for local currency. */
+		TRSY_SMALL_SPRD : T24BusinessTypes:R
+			@i18n:Label (en="Trsy Small Sprd", fr="Bricole Tréso", es="Margen Peq.TasaCambio")
+			@i18n:Tooltip (en="Trsy Small Sprd", fr="Bricole Tréso", es="Margen Pequeño de Tasa de Cambio")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=19.0, core=true, t24Name=TRSY.SMALL.SPRD, typeModifiers="+")
+		/* Defines the default spread marketing areas require from small value transactions.  This default spread will then be used in any transaction when the amount does not exceed the UPTO.SMALL.AMT and will be recognised as the default exchange profit of the transaction attributable to the Marketing area.
+When the user does not want to apply this default spread on any particular transaction, he will always have the possibility to input the spread at the transaction level.  This will then override the value defined in this table.  Different spread conditions can also be defined for groups of customers or directly at the Customer level.  This will be done by means of user controlled tables specifically compiled for this purpose, (e.g. the GROUP.CONDITION table or the FT.CUSTOMER.CONDITION table in the FUNDS.TRANSFER Application).
+The spread will be used by the System to calculate the Customer Buy/Sell rates by modifying the Treasury Buy/Sell rates.
+Note : Quotation or use of a rate, other than the Customer Buy/Sell rate,        will only effect the profit margin of the marketing area.
+Validation Rules:
+Up to 10 type R characters plus a decimal point. (Standard rate format 6,9.)  Associated multivalue field.  Either this field or TRSY.SMALL.SPRD must be input when an UPTO.SMALL.AMT is present.  Input not allowed for local currency.  Default value = None. */
+		CUST_SMALL_SPRD : T24BusinessTypes:R
+			@i18n:Label (en="Cust Small Sprd", fr="Marge Client", es="Margen Pequeño Clte.")
+			@i18n:Tooltip (en="Cust Small Sprd ", fr="Marge Client", es="Margen Pequeño de Cliente")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=20.0, core=true, t24Name=CUST.SMALL.SPRD, typeModifiers="+")
+		/* Defines the amount above which the exchange rate to be used must be obtained from the dealer.
+The purpose of this field is to define a maximum amount for which the Rates specified in this record can be used without reference to the dealers.
+The exchange rate on transactions, below the specified value, need not be input.  Based on the applicable Rates, Spreads and Condition tables, the System will apply the appropriate rate, and calculate the local currency equivalent.
+Transactions which exceed the amount specified should be booked with the dealers, and the rate obtained should be input.  Any rate input will be treated as the Treasury rate, and for this reason only the Customer Medium Spread will be added/subtracted to/from it to determine the Customer Buy/Sell rate.
+For transactions which exceed the negotiable amount, the System will still allow to default the rates applicable to smaller transactions but in this case an override will be required to force the transaction with the existing Rates.
+Note : Input in this field will be allowed for local currency and will be        used in the case, for example, where the Customer asks to pay in a        Foreign currency the equivalent of 10.000 units of the local        currency.
+Validation Rules:
+Up to 14 type AMT characters.  (Standard amount format.)  Associated multivalue field. (Mandatory input) */
+		NEGOTIABLE_AMT : T24BusinessTypes:AMT required
+			@i18n:Label (en="Negotiable Amt", fr="Change maxi", es="Monto Negociable")
+			@i18n:Tooltip (en="Negotiable Amt", fr="Change maxi", es="Monto Negociable")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=21.0, core=true, t24Name=NEGOTIABLE.AMT, typeModifiers="0")
+		/* Defines the spread Treasury require for Medium value Transactions.
+This field defines the profit margin attributable to the dealers on any Transaction where the value is less than NEGOTIABLE.AMT but, where specified, greater than UPTO.SMALL.AMT.
+This default Treasury spread will be used by the System to calculate the Treasury Buy/Sell Rate (by modifying the actual Market Buy/Sell rate Fields 16 and 17) in any transaction where the amount exceeds the Upto Small Amount but is not greater than the Negotiable amount.  When the latter is the case, a rate will need to be input in the transaction and this rate will be considered as being inclusive of the Treasury Spread.
+Validation Rules:
+Up to 10 type R characters plus a decimal point. (Standard rate format 6,9.)  Associated multivalue field.  Input not allowed for local currency; otherwise optional input. No default Value. */
+		TRSY_MED_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Trsy Med Spread", fr="Standard Tréso", es="Margen MedioTasaCamb.")
+			@i18n:Tooltip (en="Trsy Med Spread", fr="Standard Tréso", es="Margen Medio de Tasa de Cambio")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, core=true, t24Name=TRSY.MED.SPREAD, typeModifiers="+")
+		/* Defines the spread marketing areas require for medium value transactions.
+This Spread will be used by the System to calculate the Customer Buy/Sell Rates by modifying the Treasury Buy/Sell Rates applicable to transactions where the amount is greater than the UPTO.SMALL.AMT.
+When the user does not want to apply the default customer spread on any particular transaction, he will always have the possibility to input the spread at the transaction level.  This will then override the customer spread value defined in this table.  Different spread conditions can also be defined for groups of customers or directly at the Customer level. This will be done by means of user controlled tables specifically compiled for this purpose, (e.g. the FT.GROUP.CONDITION table or the FT.CUSTOMER.CONDITION table in the FUNDS.TRANSFER Application).
+This default Customer spread will then be used in any transaction where the amount exceeds the UPTO.SMALL.AMT and will be recognised as the default exchange profit of the transaction attributable to the Marketing area.
+Validation Rules:
+Up to 10 type R characters plus a decimal point. (Standard rate format 6,9.)  Associated multivalue field.  Input not allowed for local currency; Otherwise optional Input. No default value.
+Quotation or use of a rate, other than the Customer Buy/Sell Rate, will only effect the profit margin of the marketing area.
+If a Treasury and Customer medium spread have been input while the Treasury and Customer small spreads were not entered, the system will then use the medium spread for all amounts up to the negotiable amount.  For any amount above the negotiable amount only the Customer medium spread will be applicable.
+If the Treasury and Customer medium spreads are not input while both the UPTO.SMALL.AMT and the NEGOTIABLE.AMT have been entered, the system will take no spread on any transaction which exceeds the UPTO.SMALL.AMT.  Example:  The following example (based on UK environment exchange rate quotation) is an illustration of the concept and the relation of these various spread fields with UPTO.SMALL.AMT and NEGOTIABLE.AMT.  Let us suppose that Wonder bank London branch applies the following rules for the transactions involving conversion in US Dollars.  1) UPTO.SMALL.AMT  = USD  1,000.00. 2) NEGOTIABLE.AMT  = USD 10,000.00, i.e. for any transaction                      involving a conversion in USD for an amount                      greater than USD 10,000.00, the exchange rate                      must be requested from the dealer. 3) TRSY.SMALL.SPRD = 0.0060 4) CUST.SMALL.SPRD = 0.0100 5) TRSY.MED.SPREAD = 0.0030 6) CUST.MED.SPREAD = 0.0050 7) BUY.RATE        = 1.2520 8) SELL.RATE       = 1.2500  Then the following default values will apply if the bank is selling US Dollars against Pound Sterling to the Customer.  Trans Amt    Treas Spread   Cust Spread   Final Sell Rate =========    ============   ===========   =============== USD   800.00    0.0060         0.100      1.2340 USD 5,000.00    0.0030         0.0050     1.2420 USD12,000.00      N/A          0.0050     Treas rate input - 0.0050 */
+		CUST_MED_SPREAD : T24BusinessTypes:R
+			@i18n:Label (en="Cust Med Spread", fr="Standard Client", es="Margen Medio Cliente")
+			@i18n:Tooltip (en="Cust Med Spread", fr="Standard Client", es="Margen Medio de Cliente")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=CUST.MED.SPREAD, typeModifiers="+")
+		/* Specifies an alternative Market Middle Rate for this Currency market.
+This rate will be the rate used by the revaluation routine to revalue the bank books and the SPOT foreign exchange contracts:
+When amending this Rate it is checked to be within the specified tolerance of the existing rate. An override is required if out of tolerance.
+Note :
+(i) Care must be taken inputting this Rate. The banks books will be revalued using the value of this rate.
+(ii) Forex deals with revaluation type of RB (rebate) will continue to use the MID.REVAL.RATE and not the REVAL.RATE found in CURRENCY.
+Validation Rules:
+1-12 type R (Standard Rate Format - up to 8 integer and 6 decimal) characters plus a decimal point or 1-15 type R (Up to 8 integer and 9 decimal) characters plus a decimal point when EXTENDED.PREC in SPF is set to Y (when input allowed).]
+Associated multivalue field. Input in this field for the local currency is also not allowed. */
+		REVAL_RATE : T24BusinessTypes:R
+			@i18n:Label (en=Market, fr="Cours de réévaluation", es=Mercado)
+			@i18n:Tooltip (fr="Cours de réévaluation")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=24.0, core=true, t24Name=REVAL.RATE)
+	}
+	CURRENCY__TRSY_LIMIT_AMT
+	{
+		/* For M.I.S. reporting or control purposes provision for Treasury dealing limits, for each Currency has been made but its uses not yet defined.
+Validation Rules:
+Up to 14 type AMT characters.  (Standard amount format.)  Multivalue field.  (Optional input.  No default value.) */
+		TRSY_LIMIT_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Trsy Limit Amt", fr="montt de limite du Trésor", es="Mto.Lím.Tasa Cambio")
+			@i18n:Tooltip (en="Trsy Limit Amt", fr="montt de limite du Trésor", es="Monto Límite de Tasa de Cambio")
+			@t24:i (align=R, inputBehaviour=I, maxLength=18, sysNumber=25.0, core=true, t24Name=TRSY.LIMIT.AMT, typeModifiers="0")
+	}
+	CURRENCY__EQUIVALENT_CCYS
+	{
+		/* Specifies a currency that is equivalent to the currency defined in field 0 CURRENCY.CODE.
+If no input is made to this field but equivalent currencies have been defined on the CURRENCY.PARAM file then the values present on that file will be defaulted into this field. A relationship must be established here to enable the currencies entered here to be used as interest or charge currencies on any accounts set up for the main currency.
+Validation Rules:
+3 type SSS (uppercase alpha) characters        or 1-3 numeric characters.  Multivalue field.  Optional input, or taken from the CURRENCY.PARAM file. See Details for more information.
+Input must be an ID of a record on the CURRENCY.PARAM file and on this file.
+Input must be different from the contents of field 0 CURRENCY.CODE. */
+		EQUIVALENT_CCYS -> FIN_CurrencyConfig:CURRENCY_PARAM
+			@i18n:Label (en="Equivalent Ccys", fr="Devises équivalentes", es="Moneda Equivalente")
+			@i18n:Tooltip (en="Equivalent Ccys", fr="Devises équivalentes", es="Moneda Equivalente")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=32.0, core=true, businessType=CCY, t24Name=EQUIVALENT.CCYS)
+	}
+	CURRENCY__OVERRIDE
+	{
+		/* Contains all the override messages which the user has confirmed during input.
+Validation Rules:
+Up to 35 type A (alphanumeric) characters.  System generated multivalue field.
+This is a NOINPUT field. */
+		OVERRIDE : T24BusinessTypes:A
+			@i18n:Label (en=Override, fr=Alerte, es=Alerta)
+			@i18n:Tooltip (en="Overrides generated by this transaction", fr="Message d\'alerte", es="Alertas generadas por esta transacción")
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=56.0, core=true, t24Name=OVERRIDE)
+	}
+	CURRENCY__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@i18n:Label (en=Inputter, fr="Saisi par", es=Digitador)
+			@i18n:Tooltip (en="The user who last updated the record", fr="Utilisateur de saisie", es="El usuario que actualizó de último el registro")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=59.0, core=true, t24Name=INPUTTER)
+	}
+	CURRENCY__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Date time", fr="Saisi le", es="Fecha Hora")
+			@i18n:Tooltip (en="Date and time when record was input or authorised", fr="Date et heure de saisie", es="Fecha/hora cuando registro fue entrado/autorizado")
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=60.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* The Markets defined on this table are used to identify the correct exchange and revaluation Rates to be applied to each Currency.  Different Rates are used in instances where specific Currency Markets exists, e.g. Financial and Convertible markets or where pricing considerations require separate Rates, e.g. Normal Market Rates/Notes/Travellers Cheques.
+Up to nine Currency Markets can be created for each Currency but where only one market exists, this should be defined as 1, which is the default used by other Applications, e.g. DATA.CAPTURE, FUNDS.TRANSFER, etc. */
+	CURRENCY_MARKET
+		@t24:i (t24Name=CURRENCY.MARKET, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* This is the code by which this Currency Market can be identified.
+Validation Rules:
+2 numeric characters. (Mandatory input)  The code must be in the range 1-99 and represents the ID of the table.  At present only Currency Market 1 is allowed.
+If a market >= 10, the market indicated in the first digit must be already present on the record. */
+		CURRENCY_MARKET_NO -> FIN_CurrencyConfig:CURRENCY_MARKET PK required
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=0.0, core=true, t24Name=CURRENCY.MARKET.NO)
+		DESCRIPTION -> byValue FIN_CurrencyConfig:CURRENCY_MARKET__DESCRIPTION *
+		/* (Included in G13.1.02)
+
+The name of a local routine that can be used to determine a customer spread.
+
+The routine m
+ust be defined as a type S program on the PGM.FILE.
+Validation Rules:
+
+The name of local routine should be defined on the PGM.FILE as an S type     program
+Optional input
+Standard T24 alphanumeric field.
+A maximum of 35 characters may be entered */
+		SPREAD_ROUTINE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=SPREAD.ROUTINE)
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=4.0, core=true, t24Name=RESERVED.5)
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=5.0, core=true, t24Name=RESERVED.4)
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=6.0, core=true, t24Name=RESERVED.3)
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=7.0, core=true, t24Name=RESERVED.2)
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=55, sysNumber=8.0, core=true, t24Name=RESERVED.1)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status", fr=Statut, es=Estado)
+			@i18n:Tooltip (fr="Statut de l\'enregistrement")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=9.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No", fr="N° version", es="No. Actual")
+			@i18n:Tooltip (fr="Numéro de version")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=10.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue FIN_CurrencyConfig:CURRENCY_MARKET__INPUTTER *
+		DATE_TIME -> byValue FIN_CurrencyConfig:CURRENCY_MARKET__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser, fr="Validé par", es=Autorizador)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record", fr="Utilisateur de validation", es="El usuario que autorizó el registro")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=13.0, core=true, t24Name=AUTHORISER)
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code", fr=Service, es=Departamento)
+			@i18n:Tooltip (fr="Code du service")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code", fr="Audité par", es="Código de Auditor")
+			@i18n:Tooltip (en="Auditor Code", fr="Utilisateur d\'audit", es="Nombre del auditor")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=16.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time", fr="Audité le", es="Fecha/Hora de Audit.")
+			@i18n:Tooltip (en="Date and time when record was audited", fr="Date et heure d\'audit", es="Fecha y Hora de Auditoría ")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=17.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CURRENCY_MARKET__DESCRIPTION
+	{
+		/* Describes the Currency Market and is used for enrichment of the Code.
+This field can be expanded to allow the user to enter the Description of the Currency Market in various languages.  Each expansion of the field will correspond to a new Language as defined in the LANGUAGE table and will indicate to the user the Language in which the Description must be entered.
+Validation Rules:
+3-35 character, type A (Alphanumeric).  Multilanguage field.  Multivalue field. (Mandatory input) */
+		DESCRIPTION : T24BusinessTypes:A required
+			@i18n:Label (en=Description, fr=Libellé, es="Descripción")
+			@i18n:Tooltip (en=Description, fr=Libellé)
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, multiLanguage=true, sysNumber=1.0, core=true, t24Name=DESCRIPTION)
+	}
+	CURRENCY_MARKET__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@i18n:Label (en=Inputter, fr="Saisi par", es=Digitador)
+			@i18n:Tooltip (en="The user who last updated the record", fr="Utilisateur de saisie", es="El usuario que actualizó de último el registro")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=11.0, core=true, t24Name=INPUTTER)
+	}
+	CURRENCY_MARKET__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Date time", fr="Saisi le", es="Fecha Hora")
+			@i18n:Tooltip (en="Date and time when record was input or authorised", fr="Date et heure de saisie", es="Fecha/hora cuando registro fue entrado/autorizado")
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=12.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This table contains the common details for each individual Currency. These details are the Numeric Currency Code, Currency Name, Number of Decimal Places and the Interest Basis.
+This table is used to ensure that the same numeric code and no of decimals are used on all the different currency files. For in a multi company environment there can be more than one currency file.
+The Currency name and Interest basis maybe changed at an individual Currency file level.
+The numeric currency code can only be changed on this file (CURRENCY.PARAM).
+Once a record has been authorised the number of decimal places cannot be changed. */
+	CURRENCY_PARAM
+		@t24:i (t24Name=CURRENCY.PARAM, level=I, type=H, allowedFunctions="A C D E H I L P Q R S", localRefAllowed=false)
+	{
+		/* This is the alpha code by which the Currency can be identified in Transaction Processing Applications.
+The ID which can be used in any Application to reference the currency within a transaction, must be in uppercase alpha format. It is recommended to use the standard SWIFT currency codes for the definition of the ID.  In some Applications (e.g. FUNDS.TRANSFER) a Currency code has been hardcoded in the program and the SWIFT currency code has always been used.  e.g. "USD" is hardcoded in some programs.  If you decide not to use the SWIFT Currency codes then modifications will need to be incorporated into some of the programs.
+A NUMERIC.CCY.CODE is also available and can be used as an alternate means to input the Currency code in Transaction Processing Applications.
+Validation Rules:
+3 type SSS (uppercase alpha) characters.  (Mandatory input) */
+		CURRENCY_CODE -> FIN_CurrencyConfig:CURRENCY_PARAM PK required
+			@i18n:Label (en="Ccy Code", fr=Devise, es=Moneda)
+			@i18n:Tooltip (fr=Devise)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, businessType=CCY, t24Name=CURRENCY.CODE)
+		/* Specifies the numeric code which corresponds to the alpha ID.  This code must be unique and provides an alternative means of referencing the Currency details in T24 Applications.
+The code may be set by banks currently using Numeric Currency Codes thus allowing these same codes to continue in use (in effect acting as a translation table).  It could, alternatively, be set to standard codes used in a particular Country for central bank reporting, etc.  Another use is to set these codes according to the frequency of use of the various Currencies.  If, most transactions are, for example, in US dollars, Deutsche Marks and Belgian francs you could the Numeric Currency Codes could be allocated as follows:
+1 : to US Dollar            2 : to Deutsche Mark            3 : to Belgian Franc
+These short codes can then be used in Transaction Processing Applications to minimise the input required.
+Validation Rules:
+1-3 numeric characters, including 0.  This will allow a maximum number of 999 currency codes.  (Mandatory input) */
+		NUMERIC_CCY_CODE : mml:Integer required
+			@i18n:Label (en="Numeric Ccy Code", fr="Code de Dev.", es="Cód. Númerico de Mda.")
+			@i18n:Tooltip (en="Numeric Ccy Code", fr="Code de Devise", es="Código Númerico de Moneda")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=NUMERIC.CCY.CODE)
+		CCY_NAME -> byValue FIN_CurrencyConfig:CURRENCY_PARAM__CCY_NAME *
+		/* Defines the Number of Decimal places of the Currency.
+Used to verify that amounts are not entered with decimal places exceeding the number entered in this field. All calculations, e.g. interest, charges, revaluation etc., will be rounded to the Number of Decimal places specified in this field. When the amount fields are displayed, they will also be shown with their corresponding decimals.
+Validation Rules:
+1 numeric character in the range 0 to 4. (Optional input; Default value = 2 decimals.) When the user is creating a new Currency code, this field will already indicate the default value of 2. If the Currency you are creating does not have 2 decimals (e.g. Italian Lira, Japanese Yen), this default value must be changed to the appropriate number of decimals. Once the Currency code has been authorised, the value of this field cannot be changed. */
+		NO_OF_DECIMALS : FIN_CurrencyConfig:CURRENCY_PARAM__NO_OF_DECIMALS
+			@i18n:Label (en="No Of Decimals", fr="No. de décimales", es="No. de Decimales")
+			@i18n:Tooltip (en="No Of Decimals", fr="Numéro de décimales", es="Número de Decimales")
+			@t24:i (align=R, inputBehaviour=F, maxLength=1, sysNumber=3.0, core=true, t24Name=NO.OF.DECIMALS)
+		/* Defines for each Currency the default calculation basis for interest calculation purposes. This is used solely to populate the feld on the actual CURRENCY record. It is then possible to set the interest basis at contract or record level, the absence user input will mean that the value from the appropriate CURRENCY record will be used.
+Key#Days/Denominator##
+A#360/360##
+B#366/360##
+C#366/366##
+D#360/366##
+E#366/365##
+F#360/365##
+For illustrations of all supported
+INTEREST.BASIS
+types see:INTEREST.BASIS
+Validation Rules:
+
+1 type SSS (Uppercase alpha) character in the range A-F.         (Mandatory input) */
+		INTEREST_DAY_BASIS : FIN_CurrencyConfig:CURRENCY_PARAM__INTEREST_DAY_BASIS required
+			@i18n:Label (en="Interest Day Basis", fr="Base calcul intérêts", es="Base Diaria de Interés")
+			@i18n:Tooltip (en="Defines calculation basis for interest calculation", fr="Base de calcul des intérêts")
+			@t24:i (align=L, inputBehaviour=I, maxLength=12, sysNumber=4.0, core=true, t24Name=INTEREST.DAY.BASIS)
+		/* Identifies the currency as a precious metal or not.
+Validation Rules:
+2 - 3 alphabetic characters (YES or NO) */
+		PRECIOUS_METAL : FIN_CurrencyConfig:CURRENCY_PARAM__PRECIOUS_METAL
+			@i18n:Label (en="Precious Metal", fr="Métaux précieux", es="Metales Preciosos")
+			@i18n:Tooltip (en="Indicates the currency as a precious metal", fr="Métaux précieux")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=5.0, core=true, t24Name=PRECIOUS.METAL)
+		EQUIVALENT_CCYS -> byValue FIN_CurrencyConfig:CURRENCY_PARAM__EQUIVALENT_CCYS *
+		/* Indicates whether a currency should always be the base currency for currency conversions, in the event that a base currency has not been supplied.
+Each currency can optionally be assigned a unique base currency rank in the same manner as currency rank. The values are stored in the application RANK.BASE.CURRENCY.
+If two currencies are involved in a conversion and both have a base ccy rank defined then the currency with the lowest rank will take preference.
+N.B. It has been stated that rates to the EURO (EUR) will always be quoted      as the number of other currency units to 1 EUR, even when 1 unit of      the other currency is worth more than 1 EUR.
+For example assuming that 0.71 GBP were worth 1 EUR then the effect of not supplying a base currency or rate to the conversion routine would result in the base currency being set to GBP and the rate  expressed as the inverse of 0.71 i.e 1.408451.
+Setting the EUR to have a base currency rank of 1 would result in the EUR being the base currency and the rate to be 0.71.
+Great care should be taken when setting the currency rank, there are very few instances where a rank needs to be set, for example the EURO as described.
+Another example would be a local currency conversion from a currency where rates are quoted as number of units of foreign to 1 local (even when the rate is less than 1) to the EURO, e.g. IEP to EUR.
+The system will default the base currency  for cross rates to be that currency which has a rate greater than 1, e.g.
+local ccy = EUR      CCY1 = IEP, 0.8 to 1 EUR      CCY2 = GBP, 0.7 to 1 EUR
+If no base currency is supplied then the system will default the base to be GBP and the cross rate to be 0.8 / 0.7 =  1.142857142857.
+If IEP is set to have a base currency rank and GBP is not then the base currency will be set to IEP and the rate to be 0.875.
+Validation Rules:
+3 character numeric.  Optional input.  If this field is changed then the relevant currency record must be input and authorised for the change to take effect. */
+		BASE_CCY_RANK : mml:Integer
+			@i18n:Label (en="Base CCY Rank", fr="Rang de Dev de base", es="Rango de Moneda Base")
+			@i18n:Tooltip (en="Base CCY Rank", fr="Rang de Dev de base", es="Rango de Moneda Base")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=8.0, core=true, t24Name=BASE.CCY.RANK)
+		DECIMAL_NAME -> byValue FIN_CurrencyConfig:CURRENCY_PARAM__DECIMAL_NAME *
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		SPARE6 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=10.0, core=true, t24Name=SPARE6)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		SPARE7 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=11.0, core=true, t24Name=SPARE7)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		SPARE8 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=12.0, core=true, t24Name=SPARE8)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		SPARE9 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=13.0, core=true, t24Name=SPARE9)
+		/* This field is reserved for future expansion.
+Validation Rules:
+This is a NOINPUT field. */
+		SPARE10 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=14.0, core=true, t24Name=SPARE10)
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status", fr=Statut, es=Estado)
+			@i18n:Tooltip (fr="Statut de l\'enregistrement")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=15.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No", fr="N° version", es="No. Actual")
+			@i18n:Tooltip (fr="Numéro de version")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=16.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue FIN_CurrencyConfig:CURRENCY_PARAM__INPUTTER *
+		DATE_TIME -> byValue FIN_CurrencyConfig:CURRENCY_PARAM__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser, fr="Validé par", es=Autorizador)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record", fr="Utilisateur de validation", es="El usuario que autorizó el registro")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=19.0, core=true, t24Name=AUTHORISER)
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code", fr=Service, es=Departamento)
+			@i18n:Tooltip (fr="Code du service")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=21.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code", fr="Audité par", es="Código de Auditor")
+			@i18n:Tooltip (en="Auditor Code", fr="Utilisateur d\'audit", es="Nombre del auditor")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=22.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time", fr="Audité le", es="Fecha/Hora de Audit.")
+			@i18n:Tooltip (en="Date and time when record was audited", fr="Date et heure d\'audit", es="Fecha y Hora de Auditoría ")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=23.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	CURRENCY_PARAM__CCY_NAME
+	{
+		/* Identifies the name of the Currency and will be used for on-line enrichments in any field where the Currency alpha or numeric code has been input.
+This field can be expanded to allow the user to enter the description of the Currency code in various languages.  Each expansion of the field will correspond to a new language as defined in the LANGUAGE table, and will indicate to the user the language in which the description must be entered.
+Validation Rules:
+3-35 type AA (Alphanumeric, first character alpha) characters.  Multilanguage field. (Mandatory input) */
+		CCY_NAME : T24BusinessTypes:AA required
+			@i18n:Label (en="Ccy Name", fr="Libellé devise", es="Nombre de Moneda")
+			@i18n:Tooltip (fr="Libellé de la devise")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=2.0, core=true, t24Name=CCY.NAME)
+	}
+	CURRENCY_PARAM__EQUIVALENT_CCYS
+	{
+		/* Specifies a currency that is equivalent to the currency defined in field CURRENCY.CODE.
+A relationship must be established to enable currencies to be used as interest or charge currencies on any accounts set-up for the main currency.
+This field will be used as a default on the CURRENCY table.
+Validation Rules:
+3 type SSS (uppercase alpha) characters        or 1-3 numeric characters.  Multivalue field. (Optional input.)
+Input must be an ID of a record on the CURRENCY.PARAM file.
+Input must be different from the contents of field CURRENCY.CODE. */
+		EQUIVALENT_CCYS -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (fr="Devises équivalentes")
+			@i18n:Tooltip (fr="Devises équivalentes")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=6.0, core=true, businessType=CCY, t24Name=EQUIVALENT.CCYS)
+	}
+	CURRENCY_PARAM__DECIMAL_NAME
+	{
+		/* To define the Description of the decimal places of a Currency. A maximum of 35 characters may be entered. 
+Optional Input */
+		DECIMAL_NAME : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=9.0, core=true, t24Name=DECIMAL.NAME)
+	}
+	CURRENCY_PARAM__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@i18n:Label (en=Inputter, fr="Saisi par", es=Digitador)
+			@i18n:Tooltip (en="The user who last updated the record", fr="Utilisateur de saisie", es="El usuario que actualizó de último el registro")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=17.0, core=true, t24Name=INPUTTER)
+	}
+	CURRENCY_PARAM__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Date time", fr="Saisi le", es="Fecha Hora")
+			@i18n:Tooltip (en="Date and time when record was input or authorised", fr="Date et heure de saisie", es="Fecha/hora cuando registro fue entrado/autorizado")
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=18.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	NUMERIC_CURRENCY
+		@t24:i (t24Name=NUMERIC.CURRENCY, level=I, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 numeric field.
+Validation Rules:
+Mandatory input.
+A maximum of 03 characters may be entered. */
+		NUMERIC_CCY_CODE -> FIN_CurrencyConfig:NUMERIC_CURRENCY PK required
+			@i18n:Label (en="Ccy Code", fr="Code de Dev.", es="Código de Moneda")
+			@i18n:Tooltip (fr="Code de Devise")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, t24Name=NUMERIC.CCY.CODE)
+		/* Validation Rules:
+Mandatory input.
+A maximum of 3 characters may be entered.
+Must be the key to a valid entry on the CURRENCY.PARAM file. */
+		CURRENCY_CODE -> FIN_CurrencyConfig:CURRENCY_PARAM required
+			@i18n:Label (en="Ccy Code", fr=Devise, es=Moneda)
+			@i18n:Tooltip (fr=Devise)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=SSS, t24Name=CURRENCY.CODE)
+	}
+	RANK_BASE_CURRENCY
+		@t24:i (t24Name=RANK.BASE.CURRENCY, level=I, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 numeric field.
+Validation Rules:
+Mandatory input.
+A maximum of 03 characters may be entered. */
+		RANK_BASE_CCY -> FIN_CurrencyConfig:RANK_BASE_CURRENCY PK required
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, t24Name=RANK.BASE.CCY)
+		/* Validation Rules:
+Mandatory input.
+A maximum of 3 characters may be entered.
+Must be the key to a valid entry on the CURRENCY file. */
+		CURRENCY_CODE -> FIN_CurrencyConfig:CURRENCY required
+			@i18n:Label (en="Ccy Code", fr=Devise, es=Moneda)
+			@i18n:Tooltip (fr=Devise)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=SSS, t24Name=CURRENCY.CODE)
+	}
+	RANK_CURRENCY
+		@t24:i (t24Name=RANK.CURRENCY, level=Y, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Standard T24 numeric field.
+Validation Rules:
+Mandatory input.
+A maximum of 03 characters may be entered. */
+		RANK_CCY_CODE -> FIN_CurrencyConfig:RANK_CURRENCY PK required
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=0.0, core=true, t24Name=RANK.CCY.CODE)
+		/* Validation Rules:
+Mandatory input.
+A maximum of 3 characters may be entered.
+Must be the key to a valid entry on the CURRENCY file. */
+		CURRENCY_CODE -> FIN_CurrencyConfig:CURRENCY required
+			@i18n:Label (en="Ccy Code", fr=Devise, es=Moneda)
+			@i18n:Tooltip (fr=Devise)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=SSS, t24Name=CURRENCY.CODE)
+	}
+}
+Enumerations {
+	CURRENCY__NO_OF_DECIMALS : mml:string
+		0=0
+		1=1
+		2=2
+		3=3
+		4=4
+	CURRENCY__QUOTATION_CODE : mml:string
+		0=0
+		1=1
+		2=2
+		3=3
+		4=4
+		5=5
+	CURRENCY__QUOTATION_PIPS : mml:string
+		0=0
+		1=1
+		2=2
+		3=3
+		4=4
+		5=5
+		6=6
+	CURRENCY__DAYS_DELIVERY : mml:string
+		0=0
+		1=1
+		2=2
+		3=3
+		4=4
+		5=5
+		6=6
+		7=7
+		8=8
+		9=9
+		10=10
+	CURRENCY__DAYS_FORWARD : mml:string
+		0=0
+		1=1
+		2=2
+		3=3
+		4=4
+		5=5
+		6=6
+		7=7
+		8=8
+		9=9
+		10=10
+	CURRENCY__INTEREST_DAY_BASIS : mml:string
+		A_360_360="A 360/360"
+		B_366_360="B 366/360"
+		C_366_366="C 366/366"
+		D_360_366="D 360/366"
+		E_366_365="E 366/365"
+		E1_365_365="E1 365/365"
+		F_360_365="F 360/365"
+		W_252_252="W 252/252"
+		W1_21_252="W1 21/252"
+	CURRENCY__CURRENCY_MARKET__QUOTATION_SUSP : mml:string
+		BLOCKED=BLOCKED
+		QUOTATION_MISSING="QUOTATION MISSING"
+		LOCAL_MARKET_MISSING="LOCAL MARKET MISSING"
+	CURRENCY__CASH_ONLY_ROUNDING : mml:string
+		YES=YES
+	CURRENCY__MIN_ROUND_TYPE : mml:string
+		1=1
+		2=2
+		3=3
+		NONE=NONE
+	CURRENCY__CASH_ROUND_TYPE : mml:string
+		1=1
+		2=2
+		3=3
+		NONE=NONE
+	CURRENCY__PRECIOUS_METAL : mml:string
+		YES=YES
+		NO=NO
+	CURRENCY__CLS_CCY : mml:string
+		YES=YES
+		NO=NO
+	CURRENCY_PARAM__NO_OF_DECIMALS : mml:string
+		0=0
+		1=1
+		2=2
+		3=3
+		4=4
+	CURRENCY_PARAM__INTEREST_DAY_BASIS : mml:string
+		A_360_360="A 360/360"
+		B_366_360="B 366/360"
+		C_366_366="C 366/366"
+		D_360_366="D 360/366"
+		E_366_365="E 366/365"
+		E1_365_365="E1 365/365"
+		F_360_365="F 360/365"
+		W_252_252="W 252/252"
+		W1_21_252="W1 21/252"
+	CURRENCY_PARAM__PRECIOUS_METAL : mml:string
+		YES=YES
+		NO=NO
+}

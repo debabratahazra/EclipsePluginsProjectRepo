@@ -1,0 +1,328 @@
+## Java_ServiceImpl.vm
+package ${service.getPackageName()};
+
+// TAJF System Classes
+import com.temenos.tafj.api.client.TAFJRuntime;
+import com.temenos.tafj.api.client.jVarClient;
+import com.temenos.tafj.api.client.impl.JVarClientUtils;
+import com.temenos.tafj.api.client.impl.TAFJRuntimeFactory;
+import com.temenos.tafj.api.client.impl.jVarClientFactory;
+
+// Complex Data classes and its Converters
+#foreach($class in ${service.getClassDefDescriptors()})
+import ${serviceDataPackage}.${class.getName()};
+import ${serviceDataPackage}.converter.${class.getName()}Converter;
+#end
+
+// Java imports
+#set( $listImported = 0)
+#foreach($operation in $service.getGenOperations())
+#set( $paramList = $operation.getParameters() )
+#foreach($param in $paramList)
+#if($param.getCardinality() == "MULTIPLE")
+import java.util.List;
+#set( $listImported = 1)
+#break
+#end
+#end
+#if ($listImported == 1)#break#{end}
+#end
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.UUID;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+// Generic Soaframework imports
+import ${genericDataPackage}.CFConstants;
+import ${genericDataPackage}.ResponseDetails;
+import ${genericDataPackage}.Response;
+import ${genericDataPackage}.converter.ResponseDetailsConverter;
+import com.temenos.soa.services.UserContextCallBack;
+import com.temenos.soa.services.RuntimeProperties;
+import com.temenos.soa.services.tafj.TAFJServiceHandler;
+import com.temenos.soa.services.tafj.TAFJDefaultServiceHandlerImpl;
+
+// Exception classes
+import com.temenos.soa.exceptions.*;
+
+public class ${service.getName()}Impl implements ${service.getName()}API {
+	private final static Logger logger = Logger.getLogger(${service.getName()}Impl.class.getName());
+	private UserContextCallBack userContextCallBack;
+	private TAFJServiceHandler serviceHandler;
+	private RuntimeProperties runtimeProperties;
+	private TAFJRuntime runtime;
+	
+	/**
+	 * This constructor will intantiate ${service.getName()} and initialise T24 TAFJ as follows;
+	 *			- properties provided will be used as TAFJ Runtime properties
+	 *   		- Enable the TAFJ super transaction
+	 */
+	public ${service.getName()}Impl(RuntimeProperties properties) throws RuntimeException {
+		
+		// Set the properties here
+		setRuntimeProperties(properties);
+		
+		// Initialse TAFJ runtime and enable super transactions by default 
+		TAFJRuntime runtime = TAFJRuntimeFactory.getTAFJRuntime();
+		setServiceHandler(new TAFJDefaultServiceHandlerImpl());
+		
+		if (! getServiceHandler().initialise(runtime, getRuntimeProperties())) {
+			logMessage (Level.SEVERE, "Failed to initialse ${service.getName()}");
+			throw new RuntimeException("Failed to initialse ${service.getName()}, see logs for details");
+		} else {
+			// Everything is OK here so lets just set the runtime and continue
+			setRuntime(runtime);
+		}
+	}
+	
+	/**
+	 * This constructor will intantiate ${service.getName()} and initialise T24 TAFJ as follows;
+	 *			- properties provided will be used as TAFJ Runtime properties
+	 * 			- serviceHanlder provided will be used for T24 calls
+	 *   		- Enable the TAFJ super transaction
+	 */
+	public ${service.getName()}Impl(RuntimeProperties properties, TAFJServiceHandler serviceHandler) throws RuntimeException {
+		
+		// Set the properties here
+		setRuntimeProperties(properties);
+		
+		// Initialse TAFJ runtime and enable super transactions by default 
+		TAFJRuntime runtime = TAFJRuntimeFactory.getTAFJRuntime();
+		setServiceHandler(serviceHandler);
+		
+		// Initailse T24 common variables
+		if (! getServiceHandler().initialise(runtime, getRuntimeProperties())) {
+			logMessage (Level.SEVERE, "Failed to initialse ${service.getName()}");
+			throw new RuntimeException("Failed to initialse ${service.getName()}, see logs for details");
+		} else {
+			// Everything is OK here so lets just set the runtime and continue
+			setRuntime(runtime);
+		}
+	}
+	
+	// For testing only
+	public ${service.getName()}Impl(String testStr) {
+		// Initialise TAFJ for testing
+		TAFJRuntime runtime = TAFJRuntimeFactory.getTAFJRuntime();
+		try {
+			runtime.init(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Failed to initialise test service api", e);
+		}
+		setRuntime(runtime);
+	}
+	
+	@Override
+	public String getMetaData() {
+		jVarClient jVarServiceMetaData = jVarClientFactory.get();
+		getRuntime().callJBC("${service.getName()}.getMetaData", jVarServiceMetaData);
+		return jVarServiceMetaData.toString();
+	}
+	
+	#foreach($operation in $service.getGenOperations())
+    @Override
+#set( $paramList = $operation.getParameters() )
+    public ${operation.getReturnParameter().getTypeName()} ${operation.getLowerName()}(#foreach($param in $paramList)#if($param.getCardinality() == "SINGLE")$param.getTypeName()#{else}List<$param.getTypeName()>#end ${param.getName()}, #{end}ResponseDetails responseDetails) {
+
+		String uUId = UUID.randomUUID().toString();	// For logging and tracing purpose
+#set( $mandatoryFields = 0)
+#foreach($param in $paramList)
+#if ($param.isMandatory() =="true")
+#set( $mandatoryFields = 1)
+#if ($param.getCardinality() == "MULTIPLE")
+        if ( ( ${param.getName()} == null ) || ( ${param.getName()}.size() == 0 ) ) {
+#else
+        if ( ( ${param.getName()} == null ) || ( ${param.getName()}.equals("") ) ) {
+#end
+            String responseDetailsResponseText = "'${param.getName()}' is a mandatory field";
+            responseDetails.addError(new Response(CFConstants.T24_EB_MANDATORY_FIELD_MISSING_CODE, CFConstants.RESPONSE_TYPE_FATAL_ERROR, responseDetailsResponseText, uUId));
+	   }
+        
+#end
+#end
+#if ($mandatoryFields == 1)
+        // Return if any mandatory field checks have failed
+        if ( responseDetails.getReturnCode().equals(CFConstants.RETURN_CODE_FAILURE) ) {
+			logMessage(Level.SEVERE, responseDetails.toString());
+            return $typeUtils.getEmptyTypeValue($operation.getReturnParameter().getTypeName());
+        }
+#end
+        
+		boolean requestCheck = false;
+		try {
+#set( $paramIndex = 0 )
+#foreach($param in $paramList)
+#set($paramIndex = $velocityCount )
+#if ($param.getComplexity() == "PRIMITIVE")
+		    jVarClient jVarClient${param.getUpperCamelCaseName()} = JVarClientUtils.getInstance().toJVar(${param.getName()});
+#else
+		    ${param.getTypeName()}Converter ${param.getName()}ConverterObj = new ${param.getTypeName()}Converter();
+		    jVarClient jVarClient${param.getUpperCamelCaseName()} = ${param.getName()}ConverterObj.toJVarClient(${param.getName()});
+#end
+#end
+            // ResponseDetails is an out parameters only so no need to do a toJVar
+            jVarClient jVarResponseDetails = jVarClientFactory.get();
+        
+		    requestCheck = true;	// If we reach to this point, this mean request is converted successfully
+			
+			// Before we call an actual operation, load user SMS details for this request
+			loadUserSMS(responseDetails);
+			if ( responseDetails.getReturnCode().equals(CFConstants.RETURN_CODE_FAILURE) ) {
+				responseDetails.getResponses()[0].setResponseInfo(uUId);	// Append Unique ID
+				logMessage(Level.SEVERE, responseDetails.toString());
+				return $typeUtils.getEmptyTypeValue($operation.getReturnParameter().getTypeName());
+			}
+			
+			// Call the service handler operation initialiser
+			if (!getServiceHandler().operationInitialise(getRuntime(), getRuntimeProperties())) {
+				responseDetails.addError(new Response(CFConstants.T24_EB_OPERATION_INVOCATION_ERROR_CODE, CFConstants.RESPONSE_TYPE_FATAL_ERROR, "Service operation initialisation failed", uUId));
+				logMessage(Level.SEVERE, responseDetails.toString());
+				return $typeUtils.getEmptyTypeValue($operation.getReturnParameter().getTypeName());
+			}
+			
+			// Call the actaul routine for processing
+			logMessage(Level.FINE, "Calling T24 subroutine T24${jbcServiceImpl}.${operation.getName()} with params : " + #foreach($param in $paramList)jVarClient${param.getUpperCamelCaseName()}.toString() + "," + #end jVarResponseDetails.toString());
+			getRuntime().callJBC("T24${jbcServiceImpl}.${operation.getName()}", #foreach($param in $paramList)jVarClient${param.getUpperCamelCaseName()}, #end jVarResponseDetails);
+			logMessage(Level.FINE, "Returned from T24${jbcServiceImpl}.${operation.getName()} with params : " + #foreach($param in $paramList)jVarClient${param.getUpperCamelCaseName()}.toString() + "," + #end jVarResponseDetails.toString());
+				
+				
+			// Logoff user from T24 for next request
+			signOffUser(responseDetails);
+			
+			// Convert OUT/INOUT Parameters from jVarClient to Objects 
+#set( $paramList = $operation.getParameters() )      
+#foreach($param in $paramList)
+#if(($param.getDirection() == "OUT") || ($param.getDirection() == "INOUT"))
+#if($param.getComplexity() == "PRIMITIVE")
+#if($param.getCardinality() == "SINGLE")
+            ${param.getName()} = JVarClientUtils.getInstance().get${param.getTypeName()}(jVarClient${param.getUpperCamelCaseName()});
+#else
+## We need to clear the INOUT List parameter so that we can send updated values we have received from T24
+	        if (${param.getName()} != null)
+				${param.getName()}.clear();
+			JVarClientUtils.getInstance().get${param.getTypeName()}List(jVarClient${param.getUpperCamelCaseName()}, ${param.getName()});
+#end
+#else
+## Clear the List of Objects before setting up the new values 
+#if($param.getCardinality() == "MULTIPLE")
+		    if (${param.getName()} != null)
+				${param.getName()}.clear();
+#end
+            ${param.getName()}ConverterObj.fromJVarClient(${param.getName()}, jVarClient${param.getUpperCamelCaseName()} );
+#end
+#end
+#end
+
+	        ResponseDetailsConverter responseDetailsConverterObj = new ResponseDetailsConverter();
+            responseDetailsConverterObj.fromJVarClient(responseDetails, jVarResponseDetails);
+
+#if($operation.getReturnParameter().getTypeName() != "void")
+            String resultString = result.toExternalString();
+            return $typeUtils.getResultFromString($operation.getReturnParameter().getTypeName(), "resultString");
+#end
+	    } catch (InvalidNestLevelException e) {
+        	String parameterFailed;		// Just to figure it out where actually we getting the Conversion Failure
+			String code;
+        	if (! requestCheck) {
+        		parameterFailed = "Input";
+				code = CFConstants.T24_EB_INVALID_REQUEST_CODE;
+        	} else {
+        		parameterFailed = "Output";
+				code = CFConstants.T24_EB_INVALID_RESPONSE_CODE;
+        	}
+        	String responseDetailsResponseText = "Failed to convert '" + parameterFailed + "' parameters for T24 - InvalidNestLevelException : " + e.getMessage();
+			responseDetails.addError(new Response(code, CFConstants.RESPONSE_TYPE_FATAL_ERROR, responseDetailsResponseText, uUId));
+			logMessage (Level.SEVERE, responseDetails.toString());
+        } catch (Throwable t) {
+			String responseDetailsResponseText = "Internal TAFJ error - Exception : " + t + " - Cause : " + t.getCause() + " - Message : " + t.getMessage() + " - LocalizedMessage : " + t.getLocalizedMessage()  + " - Staketrace : " + getStakeTraceAsString(t);
+			responseDetails.addError(new Response(CFConstants.T24_EB_OPERATION_INVOCATION_ERROR_CODE, CFConstants.RESPONSE_TYPE_FATAL_ERROR, responseDetailsResponseText, uUId));
+			logMessage (Level.SEVERE, responseDetails.toString());
+		} finally {
+			// Call operation finaliser for cleanup
+			if (!getServiceHandler().operationFinalise(getRuntime())) {
+				String responseDetailsResponseText = "Error occured while executing operation finaliser, see log for more details";
+				responseDetails.addWarning(new Response(CFConstants.T24_EB_CONNECTION_ERROR_CODE, CFConstants.RESPONSE_TYPE_WARNING, responseDetailsResponseText, uUId));
+				logMessage (Level.WARNING, responseDetails.toString());
+			}
+		}
+    }
+#end
+
+	/*************** User Context Call Back ****************/
+	public void setUserContextCallBack(UserContextCallBack userContextCallBack) {
+		this.userContextCallBack = userContextCallBack;
+	}
+	
+	public UserContextCallBack getUserContextCallBack() {
+		return this.userContextCallBack;
+	}
+	
+	/*************** Service Call Back ****************/
+	public void setServiceHandler(TAFJServiceHandler serviceHandler) {
+		if (serviceHandler == null){
+			logMessage(Level.WARNING, "serviceHandler provided is null, using TAFJDefaultServiceHandlerImpl instead");
+			this.serviceHandler = new TAFJDefaultServiceHandlerImpl();
+		} else {
+			this.serviceHandler = serviceHandler;
+		}
+	}
+	
+	public TAFJServiceHandler getServiceHandler() {
+		return this.serviceHandler;
+	}
+	
+	/****************** Private members *****************/
+	private void setRuntimeProperties(RuntimeProperties runtimeProperties){
+		if (runtimeProperties == null || runtimeProperties.size() == 0) {
+			logMessage(Level.WARNING, "TAFJ Runtime properties provided are null or Empty");
+		}
+		this.runtimeProperties = (runtimeProperties == null) ? new RuntimeProperties() : runtimeProperties;
+	}
+	
+	private RuntimeProperties getRuntimeProperties() {
+		return this.runtimeProperties;
+	}
+	
+	// Set/Switch security context for current operation
+	private void loadUserSMS(ResponseDetails responseDetails) {
+		getServiceHandler().loadUserContext(getRuntime(), getUserContextCallBack(), responseDetails);
+	}
+	
+	// Log off user from T24
+	private void signOffUser(ResponseDetails responseDetails) {
+		getServiceHandler().clearUserContext(getRuntime(), responseDetails);
+	}
+	
+	private void setRuntime(TAFJRuntime runtime) {
+		this.runtime = runtime;
+	}
+	
+	private TAFJRuntime getRuntime() {
+		return this.runtime;
+	}
+	
+	@Override
+	public void cleanup() {
+		if (!getServiceHandler().finalise(runtime)) {
+			logMessage(Level.WARNING, "Error occured while cleaning tafj runtime, see logs for more details");
+		}
+	}
+	
+	/**
+	 * Logging messages
+	 */
+	private void logMessage(Level level, String message) {
+		logger.log(level, message);
+	}
+	
+	/**
+	 * Get the staketrace from Throwable for better error representation
+	 */
+	 private String getStakeTraceAsString(Throwable t) {
+	 	StringWriter sw = new StringWriter();
+		t.printStackTrace(new PrintWriter(sw));
+		return sw.toString();
+	} 
+}

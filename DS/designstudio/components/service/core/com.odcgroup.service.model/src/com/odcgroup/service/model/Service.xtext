@@ -1,0 +1,133 @@
+grammar com.odcgroup.service.model.Component with com.odcgroup.workbench.dsl.Common hidden(WS, SL_COMMENT) 
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+import "platform:/resource/com.odcgroup.mdf.ecore/src/main/model/mdf.ecore" as mdf 
+
+generate component "http://www.odcgroup.com/component/model/Component"
+
+Component:
+	(documentation=Documentation)?
+	'component' name=ID 
+	// DS-6423 "Component Framework only supports annotations on operations currently"
+	// (annotations+=Annotation)*
+	'metamodelVersion' metamodelVersion=String_Value
+	(content+=Content)*
+;
+
+Content:
+	interface = Interface | method+=Method | property+=Property | constant+=Constant | table+=Table
+;
+
+Table:
+	(documentation=Documentation)?	
+	accessSpecifier = AccessSpecifier 'table' tableName = ID 
+	'{'
+			't24:' type = ID
+			('fields:' '{'
+				(attribute += Attribute)*
+			'}')?
+	'}'
+;
+
+Constant:
+	(documentation=Documentation)?	
+	accessSpecifier = AccessSpecifier 'constant' constantName = ID ('(' jBCName = ID ')')? '=' value=INT
+;
+
+
+Property:
+	(documentation=Documentation)?	
+	accessSpecifier = AccessSpecifier 'property' readOnly = ReadWrite propertyName = ID ': string'
+	'{'
+			'jBC:' type1 = JBC_ID '->' type2 = JBC_ID ( array?= '(' (value= INT)? ')' )?
+	'}'
+;
+
+Method:
+	(documentation=Documentation)?
+	accessSpecifier = MethodAccessSpecifier 'method' name = ID (annotations+=MethodAnnotation)*
+	'('
+		(arguments+=Argument  (','
+		 arguments+=Argument)*)?
+    ')'
+	('{'
+		'jBC:' type = JBC_ID
+	'}')?
+;
+
+Interface:
+	(documentation = Documentation)?
+	accessSpecifier = AccessSpecifier 'interface' name = ID
+	'('
+	(arguments+=Argument (',' arguments+=Argument)*)?
+	')'
+;
+
+Attribute:
+	attrName = ID ('(' jBCName = ID ')')? '=' value= INT
+;
+
+Argument:
+	(documentation=Documentation)?
+	(inout=InOutType)? 
+	name=ID 
+	type=[mdf::MdfEntity|EntityRef]
+	(multiplicity=Multiplicity)?
+	// DS-6423 "Component Framework only supports annotations on operations currently"
+	// (annotations+=Annotation)*
+;
+
+Documentation returns ecore::EString :
+	ML_DOC;
+
+MethodAnnotation:
+	'@'	't24' /* DS-6423 hard-coded 't24' for now; later maybe again: namespace=ID */ ':' name=T24MethodStereotype;
+
+
+enum T24MethodStereotype:
+	integrationFlowSupportable = 'integrationFlowSupportable' |
+	unsafe = 'unsafe' |
+	idempotent = 'idempotent'
+;
+
+enum ReadWrite:
+	readonly = 'readonly' |
+	readwrite = 'readwrite'
+;
+
+enum AccessSpecifier:
+	module = 'module' |
+	private = 'private' |
+	public = 'public';
+
+enum MethodAccessSpecifier returns AccessSpecifier:
+	module = 'module' |
+	private = 'private' |
+	public = 'public'|
+	external = 'external';
+
+enum InOutType:
+	IN = 'IN' |
+	OUT = 'OUT' |
+	INOUT = 'INOUT';
+
+enum Multiplicity:
+	OPTIONAL = '[0..1]' | 
+	MANY = '[0..*]' |
+	MANDATORY = '[1..1]' |
+	ONETOMANY = '[1..*]';
+	
+
+EntityRef : ID (':' ID)?;
+
+JBC_ID : ID ('$' ID)*;
+
+// Terminals
+
+terminal ML_DOC	: '/*' -> '*/';
+
+terminal SL_COMMENT : ('#'|'*') !('\n'|'\r')* ('\r'? '\n')?;
+
+terminal INT returns ecore::EInt: ('0'..'9')+;
+
+terminal WS			: (' '|'\t' | '\r' | '\n')+;

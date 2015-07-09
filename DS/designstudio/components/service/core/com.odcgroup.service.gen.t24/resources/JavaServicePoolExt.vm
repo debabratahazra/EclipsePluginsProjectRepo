@@ -1,0 +1,55 @@
+## JavaServicePoolExt.vm
+package ${service.getPackageName()}.tafj;
+
+// Java imports
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+// Java spring related imports
+import org.springframework.aop.target.CommonsPoolTargetSource;
+
+// The Service INTERFACE
+import ${service.getPackageName()}.${service.getName()}API;
+
+/**
+ * Apache Spring Pool Ext to gracefully destroy TAFJRuntime, otherwise we can have memory leaks
+ *
+ * @author auto-generated
+ *
+ */
+
+public class ${serviceClassName} extends CommonsPoolTargetSource {
+	// Logger
+	private final static Logger logger = Logger.getLogger(${serviceClassName}.class.getName());
+
+	@Override
+	public void destroyObject(Object obj) throws Exception {
+		// Check if we have a valied object
+		if (obj != null) {
+		try {
+			logMessage(Level.INFO, "Shutting down '${service.getName()}' API object : " + obj.toString());
+			// Lets clear the session
+			((${service.getName()}API)obj).cleanup();
+			logMessage(Level.INFO, "${service.getName()} API object shutdown successfully : " + obj.toString());
+		} catch (Exception e) {
+			logMessage (Level.SEVERE, "Failed to shutdown ${service.getName()} API object : " + obj.toString(), e);
+		}
+		}
+		// Now give control to the pool for its work
+		super.destroyObject(obj);
+	}
+
+	/**
+	 * Logging messages
+	 */
+	private void logMessage(Level level, String message) {
+		logger.log(level, message);
+	}
+
+	/**
+	 * Logging messages
+	 */
+	private void logMessage(Level level, String message, Exception e) {
+		logger.log(level, message, e);
+	}
+}

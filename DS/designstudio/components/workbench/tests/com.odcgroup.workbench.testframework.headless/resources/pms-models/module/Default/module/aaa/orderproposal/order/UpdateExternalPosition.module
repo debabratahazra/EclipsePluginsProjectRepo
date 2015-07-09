@@ -1,0 +1,92 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	labels en = "Modify External Position", de = "Externe Position aktualisieren", fr = "Modifier position externe"
+	containment = container
+	domainEntity = "AAADSExtOperation:ExtOperationAll"
+	cssClass = nodeco
+	bean-define = DSBean.AAADSExtOperation.ExtOperationAll
+	bean-name = ExtOperationAll
+	id = AddOrder_W_K__
+	tid = 180536147985571
+{
+	--- Box ---
+		boxType = vertical
+	{
+		--- Conditional ---
+			indexOfSelectedChild = 0
+		{
+			--- ConditionalBody ---
+				javaCode = "null != <bean:get-property bean=\"ExtOperationAll\" property=\"orderType\"/> &amp;&amp; \r\n\"PCK_DS_EXT_POS_CASH\".equals(<bean:get-property bean=\"ExtOperationAll\" property=\"orderType.code\"/>.toString())"
+				technicalName = Cash
+				boxType = vertical
+				isWidgetSelected = true
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/orderproposal/order/UpdateCashExternalPosition.module
+			}
+			--- ConditionalBody ---
+				javaCode = true
+				technicalName = Security
+				boxType = vertical
+				isWidgetVisible = false
+			{
+				--- Include ---
+					includeSrc = "" !
+					resource:///Default/module/aaa/orderproposal/order/UpdateSecurityExternalPosition.module
+			}
+		}
+		--- Grid ---
+			cssClass = blank
+			gridColumnCount = 2
+			gridColumnsWidth = "25,25" !
+			gridRowCount = 1
+		{
+			--- GridCell ---
+				gridColumnWidth = 25
+			{
+				--- Button ---
+					labels en = Save, de = Speichern, fr = Sauver
+					id = btn_I__V7
+					tid = 180536148468644
+				{
+					Event OnClick (submit)
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						widget-group-ref = form
+						target = self
+						param = "flow-action=updateorder"
+						only-changed = true
+						toinit-functionResult.id = "valueOf(form.functionResult.id)" ud
+						toinit-portfolio.code = "valueOf(form.portfolio.code)" ud
+						modal = false
+						prevalidate = false
+					}
+				}
+				--- Button ---
+					labels en = Cancel, de = Abbrechen, fr = Annuler
+					id = btn_eB38j
+					tid = 180536148869686
+				{
+					Event OnClick (submit) S
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						target = self
+						flow-action = cancelorder ud
+						functionResult.id = "valueOf(form.functionResult.id)" ud
+						portfolio.code = "valueOf(form.portfolio.code)" ud
+						modal = false
+						only-changed = false
+						prevalidate = false
+					}
+				}
+			}
+			--- GridCell ---
+				gridColumnWidth = 25
+		}
+	}
+}

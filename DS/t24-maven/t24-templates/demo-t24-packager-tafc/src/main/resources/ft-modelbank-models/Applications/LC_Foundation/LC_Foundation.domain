@@ -1,0 +1,1185 @@
+# UTF-8
+# UTF-8
+/* Foundation for Letter of Credit */
+Domain LC_Foundation
+	@t24:i (module=LC)
+	@java:Package (value=com.temenos.t24.datamodel.lc.lc_foundation)
+namespace "http://www.temenos.com/t24/LC_Foundation"
+metamodelVersion 1.30.6
+Classes {
+	/* This file contains all the authorised charges under a single Letter of Credit transaction.  Each record is automatically created, updated and maintained by the Letter of Credit System.
+For each new authorised Letter of Credit transaction, all charges are moved from the contract to a new record in this file.  This is done to reduce the size of the L/C record which can become excessively large with all the charges generated.  Then for each new authorised change to the L/C any additional change charges produced are appended to this record, and any charges for authorised drawings under this Letter of Credit are also appended to this record.
+The record will automatically be closed and written to history when the Letter of Credit is closed from the system. */
+	LC_ACCOUNT_BALANCES
+		@t24:i (t24Name=LC.ACCOUNT.BALANCES, level=F, type=H, additionalInfo="NOH PREVIEW", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Automatically allocated.  First 12 digits made up from the Letter of Credit contract number input via the LETTER.OF.CREDIT application,  last two digits automatically allocated as '00' to uniquely identify this as the charges file for the L/C contract.
+The LC.ACCOUNT.BALANCES file key is made up of the parent L/C number plus the two digits '00'.
+Validation Rules
+14 type A (Alphanumeric) characters. */
+		CONTRACT_NUMBER -> LC_Foundation:LC_ACCOUNT_BALANCES PK required
+			@i18n:Label (en="Contract Number")
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=0.0, core=true, businessType=LETT, t24Name=CONTRACT.NUMBER, mask="R##/#####/#####")
+		/* Identifies the currency of the Letter of Credit contract.
+This item is taken from the parent Letter of Credit file from the LC.CURRENCY field.
+Validation Rules
+CCY (Currency code e.g. GBP must be 3).  System Generated.
+The field will be calculated by the system and no operator input will be allowed. */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* Identifies the issue date of the Letter of Credit contract.
+The item is taken from the parent Letter of Credit file from the ISSUE.DATE field.
+Validation Rules
+Standard date format.  System generated.
+The field will be calculated by the system and no operator input will be allowed. */
+		ISSUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Issue Date")
+			@i18n:Tooltip (en="Indicates the date of issue ")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=2.0, core=true, t24Name=ISSUE.DATE)
+		/* Identifies the expiry date of the Letter of Credit contract.
+This item is taken from the parent Letter of Credit file from the EXPIRY.DATE field.
+Validation Rules
+Standard date format.  System generated.
+The field will be calculated by the system and no operator input will be allowed. */
+		EXPIRY_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Expiry Date")
+			@i18n:Tooltip (en="Indicates the Expiry Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=3.0, core=true, t24Name=EXPIRY.DATE)
+		/* Identifies the amount of the Letter of Credit contract.
+The item is taken from the parent Letter of Credit file from the LC.AMOUNT field.
+Validation Rules
+Standard amount format.  System generated.
+The field will be calculated by the system and no operator input will be allowed. */
+		LC_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="LC Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=4.0, core=true, t24Name=LC.AMOUNT, typeModifiers="-1")
+		CHRG_AMT_DUE -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__CHRG_AMT_DUE *
+		TAX_CODE -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__TAX_CODE *
+		CONSOL_KEY -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__CONSOL_KEY *
+		/* A number generated automatically by the system which identifies either a statement entry or a category entry in respect of these charges.
+The system will automatically insert a number into this field and this number may refer to a statement entry or a category entry depending on the value contained in the corresponding multivalue fields.
+Validation Rules
+Internal multivalue field.
+The field will be calculated by the system and no operator input will be allowed. */
+		CONFIRM_FLAT_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=57.0, core=true, t24Name=CONFIRM.FLAT.CODE)
+		/* Contains all the override messages which the user agreed to during input of the Drawing.  The field will be updated by the system and no operator input will be allowed.
+During the validation of a Letters of Credit/Documentary Collection, the system may provide the user with a series of screen messages to indicate an anomaly, for instance, that the expiry date of the L/C exceeds the issue date by more than 1 year.
+In the event that the user confirms the override, the full text of the actual override message will be stored, for reference purposes only, in this multivalued field.
+For example, if the user inputs an expiry date that is more than 1 year greater than the issue date, then when the L/C if validated a warning bell will sould and a message will appear at the foot of the screen which reads:            'EXPIRY DATE EXCEEDS ISSUE DATE BY 1 YEAR'
+This will draw the users attention to the override entry(s).  After checking and making only necessary amendments the user then approves the transaction.
+Validation Rules
+Internal multivalue field. */
+		CONFIRM_FLAT_CHG : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=58.0, core=true, t24Name=CONFIRM.FLAT.CHG, typeModifiers="-1")
+		CON_START_PERD -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__CON_START_PERD *
+		/* Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		OPEN_FLAT_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=69.0, core=true, t24Name=OPEN.FLAT.CODE)
+		/* Validation Rules
+A maximum of 19 characters may be entered.
+This is a NOINPUT field. */
+		OPEN_FLAT_CHG : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=70.0, core=true, t24Name=OPEN.FLAT.CHG, typeModifiers="-1")
+		OPN_START_PERD -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__OPN_START_PERD *
+		/* Validation Rules
+A maximum of 19 characters may be entered.
+This is a NOINPUT field. */
+		ACCR_CYCLE_COMM : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=81.0, core=true, t24Name=ACCR.CYCLE.COMM, mask="RDDDD DD  D #####")
+		DELIVERY_REF -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__DELIVERY_REF *
+		EB_ADV_NO -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__EB_ADV_NO *
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=90.0, core=true, t24Name=RESERVED3)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=91.0, core=true, t24Name=RESERVED4)
+		/* This field is reserved for future expansion.
+Validation Rules
+This is a NOINPUT field. */
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=92.0, core=true, t24Name=RESERVED5)
+		STMT_NO -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__STMT_NO *
+		OVERRIDE -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=95.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=96.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__INPUTTER *
+		DATE_TIME -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=99.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=100.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=101.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=102.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=103.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LC_ACCOUNT_BALANCES__CHRG_AMT_DUE
+	{
+		/* This negative value indicates the charge/commission that is due in respect of specific charge/commission as indicated in field CHRG.CODE.
+Until the charge has been paid, the value in this field will identify the amount of the charge outstanding.  When the charge is paid, then the value here will be negated.
+Validation Rules
+
+System Maintained. Forms part of the associated multi-value field from CHRG.AMT.DUE   to TF.REFERENCE. */
+		CHRG_AMT_DUE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=5.0, core=true, t24Name=CHRG.AMT.DUE, typeModifiers="-8.X", mvSvExpansionAccess=NOMODIFY)
+		/* Indicates the date the charge is due to be paid.  If value dating charges is set on the parameter file, then this date will be either the issue date for Letters of Credit, or the value date for drawings.
+The date here will be either the date of input for the particular Letter of Credit or Drawing that the charge relates to, or will be the value date or issue date of the deal, if value dating charges has been set on the LC.PARAMETER file.
+Note : CHRG.STATUS will indicate if the charge has actually been paid or        not.
+Validation Rules
+Standard Date Format.  System Generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		CHRG_DATE_DUE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=14, sysNumber=6.0, core=true, t24Name=CHRG.DATE.DUE)
+		/* Identifies the types of commission or charge levied on the Drawing or Letter of Credit transaction this charge relates to. The charge or commission code is an eleven character code as defined on the FT.CHARGE.TYPE or FT.COMMISSION.TYPE tables.
+Relates to a key on the FT.COMMISSION.TYPE or FT.CHARGE.TYPE tables.
+Validation Rules
+2 type A (Alphanumeric) characters.  System Generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		CHRG_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=7.0, core=true, t24Name=CHRG.CODE)
+		/* Identifies the currency that the charge has been calculated in, and the currency that the charge amounts are expressed in.
+The currency in the field will relate to the currency that this particular charge has been calculated in, and the amounts for this charge will be expressed in this currency.
+Validation Rules
+
+System Generated. Forms part of the associated multi-value field from CHRG.AMT.DUE   to TF.REFERENCE. */
+		CHRG_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=8.0, core=true, businessType=CCY, t24Name=CHRG.CCY)
+		/* The value here will be a code to identify which party involved within the Letter of Credit transaction this charge applies to, (Opener), (Third Party) or (Beneficiary).
+This field identifies from whom the charge is to be has been taken.  Some of the charges can be levied against the Opener, others against the Beneficiary, and some against the Third Party.
+Charges can be changed to levied against any party e.g. if charges are for Beneficiary 'B' could be changed to 'O', 'T' or 'R'.  'R' being charge unpaid reverse.
+Validation Rules
+'O' or 'T' or 'B'.  System generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+If 'T' is specified, then THIRD.PARTY.CUSTNO must be set.
+If the charge has been taken, then this field cannot be changed. */
+		PARTY_CHRG -> LC_Config:LC_ENRICHMENT
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=9.0, core=true, t24Name=PARTY.CHRG)
+		/* Identifies the Letter of Credit or Drawing that this charge relates to. The first two digits in this field will identify either the drawing number if the value is greater than '00' or the Letter of Credit if the value is '00', that this charge relates to.  If a '-' and a further two digits follows this number then this will identify the number of the drawing that has generated the charges by either a deduction from the payment amount, or addition to the reimbursement amount.
+If this field only contains two numeric digits, then this will indicate the drawing number that this charge relates to (i.e. this charge has been generated due to the input/change of this drawing).  If the drawing number is appended with a '-' and another drawing number, then this will indicate that the charge was generated by the input/change of the first drawing number, but the entries have been produced for this charge by the second drawing number, by the deduction of the charge(s) from the payment amount, or the addition of the charge(s) to the reimbursement amount.
+For example, if a letter of credit is input and a number of charges are made for the transaction, but are not taken immediately, i.e. CHARGE.STATUS is blank,  then a sight payment drawing is entered under this L/C which will generate payment and reimbursement entries.  When a payment has to be made, all outstanding charges/commissions, at that time, will automatically be paid by deducting the relevant amount(s) from the payment to be effected or added to the reimbursement amount and credited to the charge P/L account.
+So the purpose of the second number in this field is to identify which drawing has generated the entries for the outstanding charge(s).
+In order to identify how the charge was paid see the CHARGE.STATUS field below.
+Validation Rules
+5 type A (Alphanumeric) characters.  System Generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		CHRG_REL_DRAW : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=CHRG.REL.DRAW)
+		/* Contains the amount of the charge that has been paid or received expressed in the currency of the charge CHRG.CCY.
+Whenever entries are produced in respect of this charge being paid, this field will identify the amount of the charge that has been paid.
+Validation Rules
+Standard Amount Format.  System generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		AMT_REC : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=11.0, core=true, t24Name=AMT.REC, typeModifiers="-8.X")
+		/* If the charge is to be amortised, then this field will contain the charge amount (expressed in the currency of the charge CHRG.CCY) to indicate that amortisation is to take place.
+The multivalue association CHRG.AMT.DUE to Date.Received contains detail of charges on the Contract which are to be amortised into profit and loss over the period indicated in field AMORTSN PERIOD on FT.CHARGE.TYPE, FT.COMMISSION.TYPE.
+Validation Rules
+Standard Amount Format.  System Generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		CHG_PAID_IN_ADV : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=12.0, core=true, t24Name=CHG.PAID.IN.ADV, typeModifiers="-8.X")
+		AMORT_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=13.0, core=true, t24Name=AMORT.AMOUNT, typeModifiers="-8.X")
+		/* If the charge is being amortised over the life of the contract, then this field contains the number of months left to run before the amortisation of this charge is complete.
+The field is initialised on the due date of the Charge to the total number of months in the amortisation period.  It is decremented every month end when the amortisation amount is taken into profit and loss.
+Validation Rules
+2 numeric characters.  System generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		NO_OF_MTHS_LEFT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=14.0, core=true, t24Name=NO.OF.MTHS.LEFT)
+		/* For charges that are to be amortised, contains the original number of months calculated for the amortisation of the charge.
+The number of months expressed here will be the period the user wishes the charge to be amortised over.
+Validation Rules
+2 digits.  System Generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		AMORT_ORIGN_MTH : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=15.0, core=true, t24Name=AMORT.ORIGN.MTH)
+		/* For amortised charges, identifies the amortised amount to date, or the amount that has been taken into the P/L account for the charge.
+Every time the charge is amortised, this field is updated with the amortisation figure, so that the total amount amortised to date is given in this field.
+Validation Rules
+Standard Amount Format.  System Generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		AMORT_AMT_TO_DT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=16.0, core=true, t24Name=AMORT.AMT.TO.DT, typeModifiers="-8.X")
+		/* For amortised charges, identifies the amortised amount to date, or the amount that has been taken into the P/L account for the charge, expressed in local currency.
+Every time the charge is amortised, this field is updated with the amortisation figure converted to local currency on the amortised day, so that the total amount accrued to date in local currency is given in this field.
+Validation Rules
+Standard Amount Format.  System Generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		AMRT_AMT_DTE_LC : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=17.0, core=true, t24Name=AMRT.AMT.DTE.LC, typeModifiers="USD")
+		/* Contains the charge amount in the currency of the account that the charge is taken from.  The field will be calculated by the system and no operator input will be allowed.
+When the charge is taken from an account that  is in a different currency to the charge currency (CHARGE.CURRENCY), then this field is used to hold the amount that was actually debited. This will be used for positions update if the currency is not local.  The field is automatically updated when the charge is taken from the account using the current mid market spot rates.
+Validation Rules
+Standard Amount Format.  System Generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		CHRG_ACC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=18.0, core=true, t24Name=CHRG.ACC.AMT)
+		/* Contains the local currency equivalent of the charge amount.  The field will be calculated by the system and no operator input will be allowed.
+The value in this field will be the amount that is used to update the charges profit and loss account.  If the charge amount is not in local currency, then this amount will be calculated when the charge is debited from an account and credited to the P/L account, using the mid market spot rate at the time.
+Validation Rules
+Standard Amount Format.  System Generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		CHRG_LCCY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=19.0, core=true, t24Name=CHRG.LCCY.AMT, typeModifiers="USD")
+		/* Code to identify the current status of the charge. Used to identify if the charge has been taken, claimed, or not taken. The system will update this field whenever the charge is processed and no operator input will be allowed.
+The codes that are used to identify the various states of the charge are as follows:
+blank - The charge has not been taken yet
+2 - The charge has been taken
+3 - The charge has been claimed
+4 - A claimed charge has been settled
+7 - Charge Unpaid Reversed
+8 - Charge has been taken by adding the amount to a reimbursement claim via a drawing.
+9 - Charge has been taken by deducting the amount from a payment via a drawing.
+11 - Charge will be taken by deducting the amount from a payment (status 9) at maturity
+12 - Charge will be taken by adding the amount to a reimbursement claim (status 8) at maturity
+
+Notes: (i) For status 3, the charge is made by debiting the CRF Claimed bucket and crediting the profit and loss account for the charge (found on the FT.CHARGE.TYPE or FT.COMMISSION.TYPE tables). A claim advice is sent to the charge party. When the charge is paid, the operator will manually access the LC.ACCOUNT.BALANCES file, where all the charge details are recorded after authorization of the L/C, update the file to indicate that the payment has been received, and the CRF Claimed bucket reimbursed.
+(ii) When a drawing is entered whereby payments are made or reimbursement is required, then the charge/commission amount will be either deducted from the payment amount or added to the reimbursement amount in order to make a profit and loss entry. The charge status that was initially blank will change as applicable to change status 8 or 9.
+Validation Rules
+1 or 2 Digit code
+Associated multivalue field
+The status can only be changed from charge status 3 (claimed charge) to status 4 (settled claim) whereby the SETTLE.AC.FROM field must be entered to specify which account to debit for the charge. */
+		CHRG_STATUS -> LC_Config:LC_ENRICHMENT
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=20.0, core=true, t24Name=CHRG.STATUS, isValidateOnChange=true)
+		INST_CHARGE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=21.0, core=true, t24Name=INST.CHARGE)
+		CHARGE_INST_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=22.0, core=true, t24Name=CHARGE.INST.NO)
+		REFUND_OPTION : LC_Foundation:LC_ACCOUNT_BALANCES__CHRG_AMT_DUE__REFUND_OPTION
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=23.0, core=true, t24Name=REFUND.OPTION)
+		REFUND_DESC -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__CHRG_AMT_DUE__REFUND_DESC *
+		REFUND_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=25.0, core=true, t24Name=REFUND.AMT, typeModifiers="-8.X")
+		REAL_RF_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=26.0, core=true, t24Name=REAL.RF.AMT, typeModifiers="-8.X")
+		UNREAL_RF_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=27.0, core=true, t24Name=UNREAL.RF.AMT, typeModifiers="-8.X")
+		CLAIM_STLE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=28.0, core=true, t24Name=CLAIM.STLE.AMT, typeModifiers="-8.X")
+		/* For charges that have been claimed from external parties, this field is used to specify the account to debit once notification has come through that the charge is paid.
+The account entered here will be used to settle claim charge entries.  The charge amount will be debited from the account, and credited to either the charge P/L category account or the CRF unclaimed bucket.
+Validation Rules
+1-16 Mnemonic characters relating to a Customer Account or a Nostro Account, or any other account.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+Must be a valid account. */
+		SETTLE_AC_FROM -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=29.0, core=true, businessType=ANT, t24Name=SETTLE.AC.FROM)
+		CLAIM_DIFF_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=30.0, core=true, t24Name=CLAIM.DIFF.AMT, typeModifiers="-8.X")
+		CLAIM_DIFF_ACC : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=31.0, core=true, t24Name=CLAIM.DIFF.ACC)
+		RESERVED11 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=32.0, core=true, t24Name=RESERVED11)
+		RESERVED12 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=33.0, core=true, t24Name=RESERVED12)
+		RESERVED13 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=34.0, core=true, t24Name=RESERVED13)
+		/* Identifies the date that entries are passed for this charge.
+The date in this field will identify when the charge was taken.
+Validation Rules
+Standard date format.  System generated.  Associated multivalue field associated with fields CHRG.AMT.DUE through to DATE.RECEIVED.
+The field will be calculated by the system and no operator input will be allowed. */
+		DATE_RECEIVED : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=35.0, core=true, t24Name=DATE.RECEIVED)
+		/* This field is used to identify the exchange rate to be used between the charge debit account and the charge currency.input not allowed.will be defaulted from DRAWINGS record.
+NOINPUT field. */
+		CHRG_XCHG_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=36.0, core=true, t24Name=CHRG.XCHG.RATE)
+		/* This field is currently not in use.
+NOINPUT field. */
+		CHRG_PERC_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=37.0, core=true, t24Name=CHRG.PERC.RATE)
+		/* This field is used to indicate the number of times the charges are required to be taken on the default charges.system will default this field from the Letter of credit record.
+NOINPUT field. */
+		CHRG_PERIOD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=38.0, core=true, t24Name=CHRG.PERIOD)
+		PARTICIPANT -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__CHRG_AMT_DUE__PARTICIPANT *
+		/* Input not allowed.Id of LC or DRAWINGS record will be udpated in this field while inputting charges in LC or DRAWINGS.
+System maintained field */
+		TF_REFERENCE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=42.0, core=true, t24Name=TF.REFERENCE)
+	}
+	LC_ACCOUNT_BALANCES__CHRG_AMT_DUE__REFUND_DESC
+	{
+		REFUND_DESC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=24.0, core=true, t24Name=REFUND.DESC, isTextarea=true)
+	}
+	LC_ACCOUNT_BALANCES__CHRG_AMT_DUE__PARTICIPANT
+	{
+		PARTICIPANT -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=39.0, core=true, businessType=CUS, t24Name=PARTICIPANT)
+		PART_SHARE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=40.0, core=true, t24Name=PART.SHARE)
+		PART_CHG_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=41.0, core=true, t24Name=PART.CHG.AMT, typeModifiers="1")
+	}
+	LC_ACCOUNT_BALANCES__TAX_CODE
+	{
+		/* Contains the code of the tax table which has been used when calculating tax on charges and/or commission.  The field does not require any operator input as it is obtained from the relevant commission or charges table.
+Validation Rules
+2 digit code.  System generated.  Associated multivalue field associated with fields TAX.CODE through to TAX.DATE. */
+		TAX_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=43.0, core=true, t24Name=TAX.CODE)
+		/* Identifies the currency that the tax has been calculated in, and the currency that the tax amounts are expressed in.
+The currency in the field will relate to the currency that this particular charge has been calculated in, and the amounts for this charge will be expressed in this currency.
+Validation Rules
+CCY (Currency code e.g. GBP must be 3).  System generated.  Associated multivalue field associated with fields TAX.CODE through to TAX.DATE.
+The field will be calculated by the system and no operator input will be allowed. */
+		TAX_CODE_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=44.0, core=true, businessType=CCY, t24Name=TAX.CODE.CCY)
+		/* Contains the amount of tax that is due or has been paid.
+Validation Rules
+Standard amount format.  System generated.  Associated multivalue field associated with fields TAX.CODE through to TAX.DATE. */
+		TAX_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=45.0, core=true, t24Name=TAX.AMT, typeModifiers="-44.X")
+		/* The value here will be a code to identify which party involved within the Letter of Credit transaction this tax applies to.
+This field identifies from whom the tax is to be or has been taken from. Some of the taxes can be levied against the Opener, others against the Beneficiary, and some against the Third Party.
+Validation Rules
+(O)pener, (T)hird Party, (B)eneficiary or (R)everse.  System generated.  Associated multivalue field associated with fields TAX.CODE through to TAX.DATE.
+If 'T' is specified, then THIRD.PARTY.CUSTNO must be set.
+If the charge has been taken, then this field cannot be changed. */
+		TAX_PARTY_CHRG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=46.0, core=true, t24Name=TAX.PARTY.CHRG)
+		/* Identifies the Letter of Credit or Drawing that this tax relates to.  The first two digits in this field will identify either the drawing number if the value is greater than '00' or the Letter of Credit if the value is '00', that this tax relates to.  If a '-' and a further two digits follows this number then this will identify the number of the drawing that has generated the tax by either a deduction from the payment amount, or addition to the reimbursement amount.
+If this field only contains two numeric digits, then this will indicate the drawing number that this tax relates to (i.e. this tax has been generated due to the input/change of this drawing).  If the drawing number is appended with a '-' and another drawing number, then this will indicate that the tax was generated by the input/change of the first drawing number, but the entries have been produced for this tax by the second drawing number, by the deduction of the tax from its payment amount, or the addition of the tax to its reimbursement amount.
+For example, if a letter of credit is input and a number of charges/tax are made for the transaction, but are not taken immediately, i.e. CHARGE.STATUS is blank,  then a sight payment drawing is entered under this L/C which will generate payment and reimbursement entries.  When a payment has to be made, all outstanding charges/commissions, at that time, will automatically be paid by deducting the relevant amount(s) from the payment to be effected or added to the reimbursement amount and credited to the charge P/L account.
+So the purpose of the second number in this field is to identify which drawing has generated the entries for the outstanding tax.
+In order to identify how the tax was paid see the TAX.CHARGE.STATUS field below.
+Validation Rules
+5 type A (Alphanumeric) characters.  System generated.  Associated multivalue field associated with fields TAX.CODE through to TAX.DATE.
+The field will be calculated by the system and no operator input will be allowed. */
+		TAX_REL_DRAW : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=47.0, core=true, t24Name=TAX.REL.DRAW)
+		/* Contains the tax amount in the currency of the account that the tax is taken from.  The field will be calculated by the system and no operator input will be allowed.
+When the tax is taken from an account that is in a different currency to the tax currency (TAX.CODE.CCY),  then this field is used to hold the amount that was actually debited.  This will be used for positions update if the currency is not local.  The field is automatically updated when the tax is taken from the account using the current market mid spot rates.
+Validation Rules
+Standard amount format.  System generated.  Associated multivalue field associated with fields TAX.CODE through to TAX.DATE.
+The field will be calculated by the system and no operator input will be allowed. */
+		TAX_ACC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=48.0, core=true, t24Name=TAX.ACC.AMT)
+		/* Contains the local currency equivalent of the tax amount. The field will be calculated by the system and no operator input will be allowed.
+The value in this field will be the amount that is used to update the taxes suspense account.  If the tax amount is not in local currency, then this amount will be calculated when the tax is debited from an account and credited to the suspense account, using the mid market spot rates at the time.
+Validation Rules
+Standard amount format.  System generated.  Associated multivalue field associated with fields TAX.CODE through to TAX.DATE.
+The field will be calculated by the system and no operator input will be allowed. */
+		TAX_LCCY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=49.0, core=true, t24Name=TAX.LCCY.AMT, typeModifiers="USD")
+		/* Code to identify the current status of the tax.  Used to identify if the tax has been taken, claimed, or not taken.  The system will update this field whenever the tax is processed and no operator input will be allowed.
+The codes that are used to identify the various states of the tax are as follows:
+blank - The tax has not been taken yet            2     - The tax has been taken            3     - The tax has been claimed            4     - A claimed tax has been settled            7     - Tax Unpaid Reversed            8     - Tax has been taken by adding the amount to a                    reimbursement claim via a drawing.            9     - Tax has been taken by deducting the amount from a                    payment via a drawing.
+Notes:     (i) Tax status's '8' and '9' will arise when the tax status is                initially blank, ie the tax has not been taken.  Then if a                drawing is entered whereby payments are made or                reimbursement is required, then the tax amount will be                either deducted from the payment amount or added to the                reimbursement and credited to the Tax suspense account.
+Validation Rules
+1 Digit code (see below).  System generated.  Associated multivalue field associated with fields TAX.CODE through to TAX.DATE. */
+		TAX_CHRG_STATUS -> LC_Config:LC_ENRICHMENT
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=50.0, core=true, businessType=A, t24Name=TAX.CHRG.STATUS)
+		/* System maintained field.No input allowed.System will populate the TAX.DR.ACCT from LC or DRAWINGS record.Will be same as charges debit account in the charge multivalue set.
+NOINPUT field. */
+		TAX_DR_ACCT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=51.0, core=true, t24Name=TAX.DR.ACCT)
+		PART_ID -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__TAX_CODE__PART_ID *
+		CHG_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=54.0, core=true, t24Name=CHG.CODE)
+		/* Contains the date the tax was created or calculated for the Letter of Credit or Drawing.
+Validation Rules
+Standard date format.  System generated.  Associated multivalue field associated with fields TAX.CODE through to TAX.DATE.
+The field will be calculated by the system and no operator input will be allowed. */
+		TAX_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=55.0, core=true, t24Name=TAX.DATE)
+	}
+	LC_ACCOUNT_BALANCES__TAX_CODE__PART_ID
+	{
+		PART_ID -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=N, maxLength=10, sysNumber=52.0, core=true, businessType=CUS, t24Name=PART.ID)
+		PART_TAX_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=53.0, core=true, t24Name=PART.TAX.AMT, typeModifiers="1")
+	}
+	LC_ACCOUNT_BALANCES__CONSOL_KEY
+	{
+		/* Indicates the consolidation keys which have been generated for these charges.  This field will be updated by the system after its first end of day has been processed.  The field will be calculated by the system and no operator input will be allowed.
+There can be 1 or more consolidation keys generated for charges depending on each different charge currency or tax currency.
+Validation Rules
+System Generated.  The first four parameters will always contain the application ID (i.e. LC), the Currency Market,  the Position Type, and the currency code.  The other parameters will default on the conditions defined in the file CONSOLIDATE.CONDS.
+The field will be calculated by the system and no operator input will be allowed. */
+		CONSOL_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=70, sysNumber=56.0, core=true, t24Name=CONSOL.KEY)
+	}
+	LC_ACCOUNT_BALANCES__CON_START_PERD
+	{
+		/* Fields CON.START.PERD to CON.SET.AC.FR form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		CON_START_PERD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=59.0, core=true, t24Name=CON.START.PERD)
+		/* Fields CON.START.PERD to CON.SET.AC.FR form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		CON_END_PERIOD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=60.0, core=true, t24Name=CON.END.PERIOD)
+		/* Fields CON.START.PERD to CON.SET.AC.FR form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered.
+This is a NOINPUT field. */
+		CON_PRIN_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=61.0, core=true, t24Name=CON.PRIN.AMT, typeModifiers="-1")
+		/* Fields CON.START.PERD to CON.SET.AC.FR form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered.
+This is a NOINPUT field. */
+		CON_COMM_TODATE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=62.0, core=true, t24Name=CON.COMM.TODATE, typeModifiers="-1")
+		/* Fields CON.START.PERD to CON.SET.AC.FR form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		CON_COMM_PCT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=63.0, core=true, t24Name=CON.COMM.PCT)
+		/* Fields CON.START.PERD to CON.SET.AC.FR form a related multi value set. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 2 characters may be entered.
+This is a NOINPUT field. */
+		CON_PARTY_CHRG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=64.0, core=true, t24Name=CON.PARTY.CHRG)
+		/* Fields CON.START.PERD to CON.SET.AC.FR form a related multi value set. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 5 characters may be entered.
+This is a NOINPUT field. */
+		CON_REL_DRAW : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=65.0, core=true, t24Name=CON.REL.DRAW)
+		/* Fields CON.START.PERD to CON.SET.AC.FR form a related multi value set. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 1 characters may be entered.
+This is a NOINPUT field. */
+		CONFIRM_STATUS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=66.0, core=true, t24Name=CONFIRM.STATUS)
+		/* Fields CON.START.PERD to CON.SET.AC.FR form a related multi value set. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		CON_COMM_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=67.0, core=true, t24Name=CON.COMM.CODE)
+		/* Fields CON.START.PERD to CON.SET.AC.FR form a related multi value set. Standard T24 acount field.
+Validation Rules
+A maximum of 16 characters may be entered.
+This is a NOINPUT field.
+Must be the key to a valid entry on the ACCOUNT file. */
+		CON_SET_AC_FR -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=68.0, core=true, businessType=ACC, t24Name=CON.SET.AC.FR)
+	}
+	LC_ACCOUNT_BALANCES__OPN_START_PERD
+	{
+		/* Fields OPN.START.PERD to OPN.SET.AC.FR form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		OPN_START_PERD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=71.0, core=true, t24Name=OPN.START.PERD)
+		/* Fields OPN.START.PERD to OPN.SET.AC.FR form a related multi value set. Standard T24 date field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		OPN_END_PERIOD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=72.0, core=true, t24Name=OPN.END.PERIOD)
+		/* Fields OPN.START.PERD to OPN.SET.AC.FR form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered.
+This is a NOINPUT field. */
+		OPN_PRIN_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=73.0, core=true, t24Name=OPN.PRIN.AMT, typeModifiers="-1")
+		/* Fields OPN.START.PERD to OPN.SET.AC.FR form a related multi value set.
+Validation Rules
+A maximum of 19 characters may be entered.
+This is a NOINPUT field. */
+		OPN_COMM_TODATE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=74.0, core=true, t24Name=OPN.COMM.TODATE, typeModifiers="-1")
+		/* Fields OPN.START.PERD to OPN.SET.AC.FR form a related multi value set. Standard T24 numeric field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		OPN_COMM_PCT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=75.0, core=true, t24Name=OPN.COMM.PCT)
+		/* Fields OPN.START.PERD to OPN.SET.AC.FR form a related multi value set. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 2 characters may be entered.
+This is a NOINPUT field. */
+		OPN_PARTY_CHRG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=76.0, core=true, t24Name=OPN.PARTY.CHRG)
+		/* Fields OPN.START.PERD to OPN.SET.AC.FR form a related multi value set. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 5 characters may be entered.
+This is a NOINPUT field. */
+		OPN_REL_DRAW : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=77.0, core=true, t24Name=OPN.REL.DRAW)
+		/* Fields OPN.START.PERD to OPN.SET.AC.FR form a related multi value set. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 1 characters may be entered.
+This is a NOINPUT field. */
+		OPEN_STATUS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=78.0, core=true, t24Name=OPEN.STATUS)
+		/* Fields OPN.START.PERD to OPN.SET.AC.FR form a related multi value set. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 11 characters may be entered.
+This is a NOINPUT field. */
+		OPN_COMM_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=79.0, core=true, t24Name=OPN.COMM.CODE)
+		/* Fields OPN.START.PERD to OPN.SET.AC.FR form a related multi value set. Standard T24 acount field.
+Validation Rules
+A maximum of 16 characters may be entered.
+This is a NOINPUT field.
+Must be the key to a valid entry on the ACCOUNT file. */
+		OPN_SET_AC_FR -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=80.0, core=true, businessType=ACC, t24Name=OPN.SET.AC.FR)
+	}
+	LC_ACCOUNT_BALANCES__DELIVERY_REF
+	{
+		DELIVERY_REF : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=45, sysNumber=83.0, core=true, t24Name=DELIVERY.REF)
+	}
+	LC_ACCOUNT_BALANCES__EB_ADV_NO
+	{
+		EB_ADV_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=84.0, core=true, t24Name=EB.ADV.NO, mvSvExpansionAccess=NOMODIFY)
+		MESSAGE_TYPE -> DE_Config:DE_MESSAGE
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=85.0, core=true, t24Name=MESSAGE.TYPE)
+		MSG_CLASS_NO -> EB_Delivery:EB_MESSAGE_CLASS
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=86.0, core=true, businessType=A, t24Name=MSG.CLASS.NO)
+		OVR_CARRIER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=8, sysNumber=87.0, core=true, t24Name=OVR.CARRIER)
+		ADDRESSEE -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__EB_ADV_NO__ADDRESSEE *
+		SEND_MESSAGE : LC_Foundation:LC_ACCOUNT_BALANCES__EB_ADV_NO__SEND_MESSAGE
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=89.0, core=true, t24Name=SEND.MESSAGE)
+	}
+	LC_ACCOUNT_BALANCES__EB_ADV_NO__ADDRESSEE
+	{
+		ADDRESSEE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=50, sysNumber=88.0, core=true, t24Name=ADDRESSEE)
+	}
+	LC_ACCOUNT_BALANCES__STMT_NO
+	{
+		STMT_NO -> byValue LC_Foundation:LC_ACCOUNT_BALANCES__STMT_NO__STMT_NO *
+	}
+	LC_ACCOUNT_BALANCES__STMT_NO__STMT_NO
+	{
+		/* This is a multi valued field. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 29 characters may be entered.
+This is a NOINPUT field. */
+		STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=29, sysNumber=93.0, core=true, t24Name=STMT.NO)
+	}
+	LC_ACCOUNT_BALANCES__OVERRIDE
+	{
+		/* This is a multi valued field. Standard T24 alphanumeric field.
+Validation Rules
+A maximum of 35 characters may be entered.
+This is a NOINPUT field. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=94.0, core=true, t24Name=OVERRIDE)
+	}
+	LC_ACCOUNT_BALANCES__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=97.0, core=true, t24Name=INPUTTER)
+	}
+	LC_ACCOUNT_BALANCES__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=98.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	LC_CLIENT_REFERENCE
+		@t24:i (t24Name=LC.CLIENT.REFERENCE, level=C, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		LC_CLIENT_REFERENCE -> LC_Foundation:LC_CLIENT_REFERENCE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=0.0, core=true, businessType=A, t24Name=LC.CLIENT.REFERENCE)
+		CONTRACT_ID : mml:Integer required
+			@i18n:Label (en="Contract Id")
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=CONTRACT.ID)
+	}
+	LC_DISCOUNT_BALANCES
+		@t24:i (t24Name=LC.DISCOUNT.BALANCES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This field holds the related DRAWINGS id */
+		DR_NUMBER -> LC_Foundation:LC_DISCOUNT_BALANCES PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=A, t24Name=DR.NUMBER)
+		/* This  represents the DOCUMENT.AMOUNT in Drawings application and is expressed in the DRAW.CURRENCY of Drawings.
+Validation Rules
+
+System Maintained. */
+		DOCUMENT_AMOUNT : mml:Integer
+			@i18n:Label (en="Document Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=1.0, core=true, t24Name=DOCUMENT.AMOUNT)
+		/* Specifies the Currency of the Drawing. The value is  defaulted from DRAW.CURRENCY of Drawings application.
+Validation Rules
+
+System Maintained. */
+		DRAW_CURRENCY : T24BusinessTypes:A
+			@i18n:Label (en="Draw Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=DRAW.CURRENCY)
+		/* This  field represents the party by whom Discount Charges are to be borne, viz., O for Opener or B for Beneficiary.
+The value is defaulted from DIS.PARTY.CHRD of Drawings application.
+Validation Rules
+
+System Maintained. */
+		DISC_PARTY_CHRG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=3.0, core=true, t24Name=DISC.PARTY.CHRG)
+		/* This represents the Discount rate last applied on the Contract.
+Validation Rules
+
+System Maintained. */
+		DISCOUNT_RATE : T24BusinessTypes:R
+			@i18n:Label (en="Discount Rate")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=4.0, core=true, t24Name=DISCOUNT.RATE)
+		/* This represents the total Discount component under the Deal and is expressed in terms of the DRAW.CURRENCY.
+The value is same as  DISCOUNT.AMT in Drawings application.
+Validation Rules
+
+System Maintained. */
+		DISCOUNT_AMT : T24BusinessTypes:AMT
+			@i18n:Label (en="Discount Amount")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=DISCOUNT.AMT, typeModifiers="2")
+		/* This represents  the Load rate last applied on the Drawing contract.
+Validation Rules
+
+System Maintained. */
+		LOAD_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=LOAD.RATE)
+		/* This represents the total Load Amount applicable on the Contract. This is  expressed in terms of DRAW.CURRENCY.
+The value would be the same as in LOAD.AMOUNT in Drawings application.
+Validation Rules
+
+System Maintained. */
+		LOAD_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=LOAD.AMOUNT, typeModifiers="2")
+		/* Specifies the Discount component  amortized till  date. The value is the same as that in Drawings Application and is expressed in DRAW.CURRENCY.
+Validation Rules
+
+System Maintained. */
+		DIS_AMORT_TO_DTE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=DIS.AMORT.TO.DTE, typeModifiers="2")
+		/* Specifies the Load component  amortized till  date. The value is the same as that in Drawings Application and is expressed in DRAW.CURRENCY.
+Validation Rules
+
+System Maintained. */
+		LD_AMORT_TO_DTE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=LD.AMORT.TO.DTE, typeModifiers="2")
+		/* This field is currently not in use */
+		DIS_AMT_ACR_TDY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=DIS.AMT.ACR.TDY)
+		/* This is a Numeric field and shall be used to input to indicate the additional number of days for which the interest on the discounted drawing is to be recovered. This amount thus calculated for the number of days input in this field, will be in addition to the Discount and Load amount calculated. This field thus represents the cushion that could be made available in the event of the settlement being delayed for a Discounted Drawing. This shall however have no impact on the Maturity Date of the Drawing. Amortization of amount thus collected shall take place only till the MATURITY.REVIEW date or the NEW.MATURITY.DATE as input. In the event of such Discounted Drawing being extended using DR.DISC.AMENDMENTS, the amortization shall take place till the NEW.MATURITY.DATE. However, if the same is matured online or back-dated, then the amortization would have taken place only till such date.The input in this field is permitted only at the first instance of discounting a Drawing. The field opens up only if the DiscountLoad rate is input. */
+		GRACE_DAYS : mml:Integer
+			@i18n:Label (en="Grace Days")
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=11.0, core=true, t24Name=GRACE.DAYS)
+		/* This field holds the value computed for the period of GRACE.DAYS in a discounted drawing, at the Discount/Load rate input. */
+		GRACE_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=12.0, core=true, t24Name=GRACE.AMOUNT)
+		/* Specifies the Grace Amount component  amortized till  date. The value is expressed in DRAW.CURRENCY.
+Validation Rules
+
+System Maintained. */
+		GRACE_AMRT_TODTE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=13.0, core=true, t24Name=GRACE.AMRT.TODTE)
+		START_DATE -> byValue LC_Foundation:LC_DISCOUNT_BALANCES__START_DATE *
+		/* A discounted Drawing can be amended only through DR.DISC.AMENDMENTS. The ID of  DR.DISC.AMENDMENTS  is  that of Drawing appended with sequence number.
+The value stored in this field represents the next of the sequence number if the Drawing were to  be amended through DR.DISC.AMENDMENTS.
+Validation Rules
+
+System Maintained. */
+		NEXT_AMEND_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=20.0, core=true, t24Name=NEXT.AMEND.NO)
+	}
+	LC_DISCOUNT_BALANCES__START_DATE
+	{
+		/* This is a part of the associated Multi-value set representing the date from which (first date of the schedule) the Discount Rate/Amount and Load Rate/Amount would be applicable.
+The value is generally the DISC.EFF.DATE of Drawings application. But in the event of the contract being amended through DR.DISC.AMENDMENTS, effecting a Rate or Amount change during the tenor of the contract, specified  through the field EFFECTIVE.DATE, then such date is held as the start of a schedule.
+
+Validation Rules
+
+System Maintained. */
+		START_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=14.0, core=true, t24Name=START.DATE)
+		/* This signifies the Discount Rate applicable on the Contract for the period mentioned in this associated multi-value set.
+Validation Rules
+
+System Maintained. */
+		DISC_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=15.0, core=true, t24Name=DISC.RATE)
+		/* This signifies the Discount Amount applicable on the Contract for the period mentioned in this associated multi-value set.
+Validation Rules
+
+System Maintained. */
+		DISCOUNT_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=16.0, core=true, t24Name=DISCOUNT.AMOUNT, typeModifiers="2")
+		/* This signifies the Load Rate applicable on the Contract for the period mentioned in this associated multi-value set.
+Validation Rules
+
+System Maintained. */
+		LD_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=17.0, core=true, t24Name=LD.RATE)
+		/* This signifies the Load Amount applicable on the Contract for the period mentioned in this associated multi-value set.
+Validation Rules
+
+System Maintained. */
+		LOAD_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=18.0, core=true, t24Name=LOAD.AMT, typeModifiers="2")
+		/* This is a part of the associated Multi-value set representing the date up to which (last date of the schedule) the Discount Rate/Amount and Load Rate/Amount would be applicable.
+The value is generally the maturity date of the contract. But in the event of the contract being amended through DR.DISC.AMENDMENTS, effecting a Rate or Amount change during the tenor of the contract, specified  through the field EFFECTIVE.DATE, then this field holds the end  date of a schedule.
+Validation Rules
+
+System Maintained. */
+		END_DATE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=19.0, core=true, t24Name=END.DATE)
+	}
+	NOFILE_LCAC
+		@t24:i (t24Name=NOFILE.LCAC, level=I, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_NUMBER : T24BusinessTypes:A PK required
+			@i18n:Label (en="Contract Number")
+			@t24:i (align=L, inputBehaviour=N, maxLength=17, sysNumber=0.0, core=true, t24Name=CONTRACT.NUMBER, mask="R##/#####/#####/##")
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		ISSUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Issue Date")
+			@i18n:Tooltip (en="Indicates the date of issue ")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=2.0, core=true, t24Name=ISSUE.DATE)
+		EXPIRY_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Expiry Date")
+			@i18n:Tooltip (en="Indicates the Expiry Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=3.0, core=true, t24Name=EXPIRY.DATE)
+		LC_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="LC Amount")
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=4.0, core=true, t24Name=LC.AMOUNT, typeModifiers="-]1")
+		CHRG_AMT_DUE -> byValue LC_Foundation:NOFILE_LCAC__CHRG_AMT_DUE *
+		CHRG_DATE_DUE -> byValue LC_Foundation:NOFILE_LCAC__CHRG_DATE_DUE *
+		CHRG_CODE -> byValue LC_Foundation:NOFILE_LCAC__CHRG_CODE *
+		CHRG_CCY -> byValue LC_Foundation:NOFILE_LCAC__CHRG_CCY *
+		PARTY_CHRG -> byValue LC_Foundation:NOFILE_LCAC__PARTY_CHRG *
+		CHRG_REL_DRAW -> byValue LC_Foundation:NOFILE_LCAC__CHRG_REL_DRAW *
+		AMT_REC -> byValue LC_Foundation:NOFILE_LCAC__AMT_REC *
+		CHG_PAID_IN_ADV -> byValue LC_Foundation:NOFILE_LCAC__CHG_PAID_IN_ADV *
+		AMORT_MTHLY_AMT -> byValue LC_Foundation:NOFILE_LCAC__AMORT_MTHLY_AMT *
+		NO_OF_MTHS_LEFT -> byValue LC_Foundation:NOFILE_LCAC__NO_OF_MTHS_LEFT *
+		AMORT_ORIGN_MTH -> byValue LC_Foundation:NOFILE_LCAC__AMORT_ORIGN_MTH *
+		AMORT_AMT_TO_DT -> byValue LC_Foundation:NOFILE_LCAC__AMORT_AMT_TO_DT *
+		AMRT_AMT_DTE_LC -> byValue LC_Foundation:NOFILE_LCAC__AMRT_AMT_DTE_LC *
+		CHRG_ACC_AMT -> byValue LC_Foundation:NOFILE_LCAC__CHRG_ACC_AMT *
+		CHRG_LCCY_AMT -> byValue LC_Foundation:NOFILE_LCAC__CHRG_LCCY_AMT *
+		CHRG_STATUS -> byValue LC_Foundation:NOFILE_LCAC__CHRG_STATUS *
+		SETTLE_AC_FROM -> byValue LC_Foundation:NOFILE_LCAC__SETTLE_AC_FROM *
+		DATE_RECEIVED -> byValue LC_Foundation:NOFILE_LCAC__DATE_RECEIVED *
+		TAX_CODE -> byValue LC_Foundation:NOFILE_LCAC__TAX_CODE *
+		TAX_CODE_CCY -> byValue LC_Foundation:NOFILE_LCAC__TAX_CODE_CCY *
+		TAX_AMT -> byValue LC_Foundation:NOFILE_LCAC__TAX_AMT *
+		TAX_PARTY_CHRG -> byValue LC_Foundation:NOFILE_LCAC__TAX_PARTY_CHRG *
+		TAX_REL_DRAW -> byValue LC_Foundation:NOFILE_LCAC__TAX_REL_DRAW *
+		TAX_ACC_AMT -> byValue LC_Foundation:NOFILE_LCAC__TAX_ACC_AMT *
+		TAX_LCCY_AMT -> byValue LC_Foundation:NOFILE_LCAC__TAX_LCCY_AMT *
+		TAX_CHRG_STATUS -> byValue LC_Foundation:NOFILE_LCAC__TAX_CHRG_STATUS *
+		TAX_DATE -> byValue LC_Foundation:NOFILE_LCAC__TAX_DATE *
+		CONSOL_KEY -> byValue LC_Foundation:NOFILE_LCAC__CONSOL_KEY *
+		STMT_NO -> byValue LC_Foundation:NOFILE_LCAC__STMT_NO *
+		OVERRIDE -> byValue LC_Foundation:NOFILE_LCAC__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:A
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=69.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=70.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue LC_Foundation:NOFILE_LCAC__INPUTTER *
+		DATE_TIME -> byValue LC_Foundation:NOFILE_LCAC__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=73.0, core=true, t24Name=AUTHORISER)
+		CO_CODE : T24BusinessTypes:A
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=74.0, core=true, t24Name=CO.CODE)
+		DEPT_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=75.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=76.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : mml:Integer
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=77.0, core=true, t24Name=AUDIT.DATE.TIME)
+		CONFIRM_FLAT_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=38.0, core=true, t24Name=CONFIRM.FLAT.CODE)
+		CONFIRM_FLAT_CHG : LC_Foundation:NOFILE_LCAC__CONFIRM_FLAT_CHG
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=39.0, core=true, t24Name=CONFIRM.FLAT.CHG)
+		CON_START_PERD -> byValue LC_Foundation:NOFILE_LCAC__CON_START_PERD *
+		CON_END_PERIOD -> byValue LC_Foundation:NOFILE_LCAC__CON_END_PERIOD *
+		CON_PRIN_AMT -> byValue LC_Foundation:NOFILE_LCAC__CON_PRIN_AMT *
+		CON_COMM_TODATE -> byValue LC_Foundation:NOFILE_LCAC__CON_COMM_TODATE *
+		CON_COMM_PCT -> byValue LC_Foundation:NOFILE_LCAC__CON_COMM_PCT *
+		CON_PARTY_CHRG -> byValue LC_Foundation:NOFILE_LCAC__CON_PARTY_CHRG *
+		CON_REL_DRAW -> byValue LC_Foundation:NOFILE_LCAC__CON_REL_DRAW *
+		CONFIRM_STATUS -> byValue LC_Foundation:NOFILE_LCAC__CONFIRM_STATUS *
+		CON_SET_AC_FR -> byValue LC_Foundation:NOFILE_LCAC__CON_SET_AC_FR *
+		OPEN_FLAT_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=50.0, core=true, t24Name=OPEN.FLAT.CODE)
+		OPEN_FLAT_CHG : LC_Foundation:NOFILE_LCAC__OPEN_FLAT_CHG
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=51.0, core=true, t24Name=OPEN.FLAT.CHG)
+		OPN_START_PERD -> byValue LC_Foundation:NOFILE_LCAC__OPN_START_PERD *
+		OPN_END_PERIOD -> byValue LC_Foundation:NOFILE_LCAC__OPN_END_PERIOD *
+		OPN_PRIN_AMT -> byValue LC_Foundation:NOFILE_LCAC__OPN_PRIN_AMT *
+		OPN_COMM_TODATE -> byValue LC_Foundation:NOFILE_LCAC__OPN_COMM_TODATE *
+		OPN_COMM_PCT -> byValue LC_Foundation:NOFILE_LCAC__OPN_COMM_PCT *
+		OPN_PARTY_CHRG -> byValue LC_Foundation:NOFILE_LCAC__OPN_PARTY_CHRG *
+		OPN_REL_DRAW -> byValue LC_Foundation:NOFILE_LCAC__OPN_REL_DRAW *
+		OPEN_STATUS -> byValue LC_Foundation:NOFILE_LCAC__OPEN_STATUS *
+		OPN_SET_AC_FR -> byValue LC_Foundation:NOFILE_LCAC__OPN_SET_AC_FR *
+		RESERVED2 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=63.0, core=true, t24Name=RESERVED2)
+		RESERVED3 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=64.0, core=true, t24Name=RESERVED3)
+		RESERVED4 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=65.0, core=true, t24Name=RESERVED4)
+		RESERVED5 : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=66.0, core=true, t24Name=RESERVED5)
+		CON_COMM_CODE -> byValue LC_Foundation:NOFILE_LCAC__CON_COMM_CODE *
+		OPN_COMM_CODE -> byValue LC_Foundation:NOFILE_LCAC__OPN_COMM_CODE *
+		ACCR_CYCLE_COMM : T24BusinessTypes:FQU
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=62.0, core=true, t24Name=ACCR.CYCLE.COMM, mask="RDDDD DD  D #####")
+		CHRG_XCHG_RATE -> byValue LC_Foundation:NOFILE_LCAC__CHRG_XCHG_RATE *
+		CHRG_PERC_RATE -> byValue LC_Foundation:NOFILE_LCAC__CHRG_PERC_RATE *
+		CHRG_PERIOD -> byValue LC_Foundation:NOFILE_LCAC__CHRG_PERIOD *
+		TF_REFERENCE -> byValue LC_Foundation:NOFILE_LCAC__TF_REFERENCE *
+		TAX_DR_ACCT -> byValue LC_Foundation:NOFILE_LCAC__TAX_DR_ACCT *
+		LC_REFERENCE : mml:Integer
+			@t24:i (align=L, inputBehaviour=N, maxLength=14, core=false, t24Name=LC.REFERENCE, genOperation=E.LCAC.REFERENCE)
+	}
+	NOFILE_LCAC__CHRG_AMT_DUE
+	{
+		CHRG_AMT_DUE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=5.0, core=true, t24Name=CHRG.AMT.DUE, typeModifiers="-]8.X")
+	}
+	NOFILE_LCAC__CHRG_DATE_DUE
+	{
+		CHRG_DATE_DUE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=14, sysNumber=6.0, core=true, t24Name=CHRG.DATE.DUE)
+	}
+	NOFILE_LCAC__CHRG_CODE
+	{
+		CHRG_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=7.0, core=true, t24Name=CHRG.CODE)
+	}
+	NOFILE_LCAC__CHRG_CCY
+	{
+		CHRG_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=8.0, core=true, businessType=CCY, t24Name=CHRG.CCY)
+	}
+	NOFILE_LCAC__PARTY_CHRG
+	{
+		PARTY_CHRG -> LC_Config:LC_ENRICHMENT
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=9.0, core=true, businessType=A, t24Name=PARTY.CHRG)
+	}
+	NOFILE_LCAC__CHRG_REL_DRAW
+	{
+		CHRG_REL_DRAW : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=10.0, core=true, t24Name=CHRG.REL.DRAW)
+	}
+	NOFILE_LCAC__AMT_REC
+	{
+		AMT_REC : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=11.0, core=true, t24Name=AMT.REC, typeModifiers="-]8.X")
+	}
+	NOFILE_LCAC__CHG_PAID_IN_ADV
+	{
+		CHG_PAID_IN_ADV : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=12.0, core=true, t24Name=CHG.PAID.IN.ADV, typeModifiers="-]8.X")
+	}
+	NOFILE_LCAC__AMORT_MTHLY_AMT
+	{
+		AMORT_MTHLY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=13.0, core=true, t24Name=AMORT.MTHLY.AMT, typeModifiers="-]8.X")
+	}
+	NOFILE_LCAC__NO_OF_MTHS_LEFT
+	{
+		NO_OF_MTHS_LEFT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=14.0, core=true, t24Name=NO.OF.MTHS.LEFT)
+	}
+	NOFILE_LCAC__AMORT_ORIGN_MTH
+	{
+		AMORT_ORIGN_MTH : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=15.0, core=true, t24Name=AMORT.ORIGN.MTH)
+	}
+	NOFILE_LCAC__AMORT_AMT_TO_DT
+	{
+		AMORT_AMT_TO_DT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=16.0, core=true, t24Name=AMORT.AMT.TO.DT, typeModifiers="-]8.X")
+	}
+	NOFILE_LCAC__AMRT_AMT_DTE_LC
+	{
+		AMRT_AMT_DTE_LC : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=17.0, core=true, t24Name=AMRT.AMT.DTE.LC, typeModifiers="]NGN")
+	}
+	NOFILE_LCAC__CHRG_ACC_AMT
+	{
+		CHRG_ACC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=18.0, core=true, t24Name=CHRG.ACC.AMT)
+	}
+	NOFILE_LCAC__CHRG_LCCY_AMT
+	{
+		CHRG_LCCY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=19.0, core=true, t24Name=CHRG.LCCY.AMT, typeModifiers="]NGN")
+	}
+	NOFILE_LCAC__CHRG_STATUS
+	{
+		CHRG_STATUS -> LC_Config:LC_ENRICHMENT
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=20.0, core=true, businessType=A, t24Name=CHRG.STATUS)
+	}
+	NOFILE_LCAC__SETTLE_AC_FROM
+	{
+		SETTLE_AC_FROM -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=21.0, core=true, businessType=ACC, t24Name=SETTLE.AC.FROM)
+	}
+	NOFILE_LCAC__DATE_RECEIVED
+	{
+		DATE_RECEIVED : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=22.0, core=true, t24Name=DATE.RECEIVED)
+	}
+	NOFILE_LCAC__TAX_CODE
+	{
+		TAX_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=27.0, core=true, t24Name=TAX.CODE)
+	}
+	NOFILE_LCAC__TAX_CODE_CCY
+	{
+		TAX_CODE_CCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=28.0, core=true, businessType=CCY, t24Name=TAX.CODE.CCY)
+	}
+	NOFILE_LCAC__TAX_AMT
+	{
+		TAX_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=29.0, core=true, t24Name=TAX.AMT, typeModifiers="-]24.X")
+	}
+	NOFILE_LCAC__TAX_PARTY_CHRG
+	{
+		TAX_PARTY_CHRG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=30.0, core=true, t24Name=TAX.PARTY.CHRG)
+	}
+	NOFILE_LCAC__TAX_REL_DRAW
+	{
+		TAX_REL_DRAW : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=31.0, core=true, t24Name=TAX.REL.DRAW)
+	}
+	NOFILE_LCAC__TAX_ACC_AMT
+	{
+		TAX_ACC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=32.0, core=true, t24Name=TAX.ACC.AMT)
+	}
+	NOFILE_LCAC__TAX_LCCY_AMT
+	{
+		TAX_LCCY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=33.0, core=true, t24Name=TAX.LCCY.AMT, typeModifiers="]NGN")
+	}
+	NOFILE_LCAC__TAX_CHRG_STATUS
+	{
+		TAX_CHRG_STATUS -> LC_Config:LC_ENRICHMENT
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=34.0, core=true, businessType=A, t24Name=TAX.CHRG.STATUS)
+	}
+	NOFILE_LCAC__TAX_DATE
+	{
+		TAX_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=36.0, core=true, t24Name=TAX.DATE)
+	}
+	NOFILE_LCAC__CONSOL_KEY
+	{
+		CONSOL_KEY : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=70, sysNumber=37.0, core=true, t24Name=CONSOL.KEY)
+	}
+	NOFILE_LCAC__STMT_NO
+	{
+		STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=29, sysNumber=67.0, core=true, t24Name=STMT.NO)
+	}
+	NOFILE_LCAC__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=68.0, core=true, t24Name=OVERRIDE)
+	}
+	NOFILE_LCAC__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=71.0, core=true, t24Name=INPUTTER)
+	}
+	NOFILE_LCAC__DATE_TIME
+	{
+		DATE_TIME : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=15, sysNumber=72.0, core=true, t24Name=DATE.TIME)
+	}
+	NOFILE_LCAC__CON_START_PERD
+	{
+		CON_START_PERD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=40.0, core=true, t24Name=CON.START.PERD)
+	}
+	NOFILE_LCAC__CON_END_PERIOD
+	{
+		CON_END_PERIOD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=41.0, core=true, t24Name=CON.END.PERIOD)
+	}
+	NOFILE_LCAC__CON_PRIN_AMT
+	{
+		CON_PRIN_AMT : LC_Foundation:NOFILE_LCAC__CON_PRIN_AMT__CON_PRIN_AMT
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=42.0, core=true, t24Name=CON.PRIN.AMT)
+	}
+	NOFILE_LCAC__CON_COMM_TODATE
+	{
+		CON_COMM_TODATE : LC_Foundation:NOFILE_LCAC__CON_COMM_TODATE__CON_COMM_TODATE
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=43.0, core=true, t24Name=CON.COMM.TODATE)
+	}
+	NOFILE_LCAC__CON_COMM_PCT
+	{
+		CON_COMM_PCT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=44.0, core=true, t24Name=CON.COMM.PCT)
+	}
+	NOFILE_LCAC__CON_PARTY_CHRG
+	{
+		CON_PARTY_CHRG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=45.0, core=true, t24Name=CON.PARTY.CHRG)
+	}
+	NOFILE_LCAC__CON_REL_DRAW
+	{
+		CON_REL_DRAW : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=46.0, core=true, t24Name=CON.REL.DRAW)
+	}
+	NOFILE_LCAC__CONFIRM_STATUS
+	{
+		CONFIRM_STATUS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=47.0, core=true, t24Name=CONFIRM.STATUS)
+	}
+	NOFILE_LCAC__CON_SET_AC_FR
+	{
+		CON_SET_AC_FR -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=49.0, core=true, businessType=ACC, t24Name=CON.SET.AC.FR)
+	}
+	NOFILE_LCAC__OPN_START_PERD
+	{
+		OPN_START_PERD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=52.0, core=true, t24Name=OPN.START.PERD)
+	}
+	NOFILE_LCAC__OPN_END_PERIOD
+	{
+		OPN_END_PERIOD : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=53.0, core=true, t24Name=OPN.END.PERIOD)
+	}
+	NOFILE_LCAC__OPN_PRIN_AMT
+	{
+		OPN_PRIN_AMT : LC_Foundation:NOFILE_LCAC__OPN_PRIN_AMT__OPN_PRIN_AMT
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=54.0, core=true, t24Name=OPN.PRIN.AMT)
+	}
+	NOFILE_LCAC__OPN_COMM_TODATE
+	{
+		OPN_COMM_TODATE : LC_Foundation:NOFILE_LCAC__OPN_COMM_TODATE__OPN_COMM_TODATE
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, sysNumber=55.0, core=true, t24Name=OPN.COMM.TODATE)
+	}
+	NOFILE_LCAC__OPN_COMM_PCT
+	{
+		OPN_COMM_PCT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=56.0, core=true, t24Name=OPN.COMM.PCT)
+	}
+	NOFILE_LCAC__OPN_PARTY_CHRG
+	{
+		OPN_PARTY_CHRG : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=2, sysNumber=57.0, core=true, t24Name=OPN.PARTY.CHRG)
+	}
+	NOFILE_LCAC__OPN_REL_DRAW
+	{
+		OPN_REL_DRAW : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=58.0, core=true, t24Name=OPN.REL.DRAW)
+	}
+	NOFILE_LCAC__OPEN_STATUS
+	{
+		OPEN_STATUS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=1, sysNumber=59.0, core=true, t24Name=OPEN.STATUS)
+	}
+	NOFILE_LCAC__OPN_SET_AC_FR
+	{
+		OPN_SET_AC_FR -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=R, inputBehaviour=N, maxLength=16, sysNumber=61.0, core=true, businessType=ACC, t24Name=OPN.SET.AC.FR)
+	}
+	NOFILE_LCAC__CON_COMM_CODE
+	{
+		CON_COMM_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=48.0, core=true, t24Name=CON.COMM.CODE)
+	}
+	NOFILE_LCAC__OPN_COMM_CODE
+	{
+		OPN_COMM_CODE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=60.0, core=true, t24Name=OPN.COMM.CODE)
+	}
+	NOFILE_LCAC__CHRG_XCHG_RATE
+	{
+		CHRG_XCHG_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=23.0, core=true, t24Name=CHRG.XCHG.RATE)
+	}
+	NOFILE_LCAC__CHRG_PERC_RATE
+	{
+		CHRG_PERC_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=24.0, core=true, t24Name=CHRG.PERC.RATE)
+	}
+	NOFILE_LCAC__CHRG_PERIOD
+	{
+		CHRG_PERIOD : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=25.0, core=true, t24Name=CHRG.PERIOD)
+	}
+	NOFILE_LCAC__TF_REFERENCE
+	{
+		TF_REFERENCE : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=26.0, core=true, t24Name=TF.REFERENCE)
+	}
+	NOFILE_LCAC__TAX_DR_ACCT
+	{
+		TAX_DR_ACCT : mml:Integer
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=35.0, core=true, t24Name=TAX.DR.ACCT)
+	}
+}
+Enumerations {
+	LC_ACCOUNT_BALANCES__CHRG_AMT_DUE__REFUND_OPTION : mml:string
+		BOTH=BOTH
+		REALISED=REALISED
+		UNREALISED=UNREALISED
+	LC_ACCOUNT_BALANCES__EB_ADV_NO__SEND_MESSAGE : mml:string
+		YES=YES
+		NO=NO
+		NULL=NULL
+	NOFILE_LCAC__CONFIRM_FLAT_CHG : mml:string
+		___1="-]1"
+	NOFILE_LCAC__CON_PRIN_AMT__CON_PRIN_AMT : mml:string
+		___1="-]1"
+	NOFILE_LCAC__CON_COMM_TODATE__CON_COMM_TODATE : mml:string
+		___1="-]1"
+	NOFILE_LCAC__OPEN_FLAT_CHG : mml:string
+		___1="-]1"
+	NOFILE_LCAC__OPN_PRIN_AMT__OPN_PRIN_AMT : mml:string
+		___1="-]1"
+	NOFILE_LCAC__OPN_COMM_TODATE__OPN_COMM_TODATE : mml:string
+		___1="-]1"
+}

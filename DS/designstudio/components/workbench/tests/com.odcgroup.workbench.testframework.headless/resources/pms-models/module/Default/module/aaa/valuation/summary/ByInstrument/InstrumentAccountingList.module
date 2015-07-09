@@ -1,0 +1,247 @@
+# UTF-8
+metamodelVersion = 8.0.0.20130123
+
+--- Module ---
+	domainEntity = "AAADSValuation:ValuationSummaryList"
+	cssClass = nodeco
+	bean-define = DSBean.AAADSValuation.ValuationSummaryList
+	bean-name = ValuationSummaryList
+	id = InstrumentAccountingList_D_W4X
+{
+	--- Box ---
+		boxType = vertical
+		width = 0
+	{
+		--- TableTree ---
+			table-rendering-mode = summary-delegated
+			verticalAlignment = lead
+			id = T6___
+			table-column-count = 6 !
+			table-columns-width = "16,16,16,16,16,16" !
+		{
+			--- TableColumn ---
+				labels en = "Asset Class/Instrument Code", fr = "Classe d\'actif/code de l\'instrument", de = "Anlagekategorie/Instrument Code"
+				column-display-grouping = true
+				column-name = GROUPING
+				column-type = placeholder !
+				type = text
+				column-locked = true
+				column-sortable = false !
+				id = q_Be5
+				table-column-width = 16
+				tid = 8783543530532
+			{
+				--- TableGroup ---
+					group-column-name = ASSET_CLASS_DENOM
+					group-sorting-column-name = ASSET_CLASS_RANK
+					group-sorting-direction = ascending
+					group-rank = 1
+				--- TableGroup ---
+					group-column-name = POS_CURRENCY
+					group-dynamic-column = true
+					group-sorting-column-name = CURR_CLASS_RANK
+					group-sorting-direction = ascending
+					group-rank = 6
+				--- TableGroup ---
+					group-column-name = Sub_Asset_Class
+					group-sorting-column-name = Sub_Asset_Class_Rank
+					group-sorting-direction = ascending
+					group-rank = 3
+				--- TableGroup ---
+					group-column-name = PORTFOLIO_NAME
+					group-sorting-column-name = PORTFOLIO_CODE
+					group-sorting-direction = ascending
+					group-rank = 5
+				--- TableGroup ---
+					group-column-name = INSTR_CODE
+					group-sorting-column-name = INSTR_CODE
+					group-sorting-direction = ascending
+					collapsed = true
+					group-rank = 4
+				{
+					Event OnClick (submit) S
+					{
+						method = post
+						call-URI = "<pageflow:continuation/>"
+						target = self
+						flow-action = selectInstrument ud
+						instrumentDimInstrument.code = "<udp:item column=\"INSTR_CODE\"/>" ud
+						instrumentDimensionE = 1 ud
+						modal = false
+						only-changed = false
+						prevalidate = false
+						Snippet FilterSet
+						id = fs_Jn5
+						level = 1
+						targetDataset = "AAADSValuation:ValuationSummaryList"
+						{
+							Snippet Filter
+							attribute = INSTR_CODE
+							filterValue = "<udp:item column=\"INSTR_CODE\"/>"
+							operator = EQUAL
+						}
+					}
+				}
+			}
+			--- TableColumn ---
+				column-name = INSTR_DENOM !
+				column-type = domain !
+				domainAttribute = INSTR_DENOM !
+				type = text
+				id = INSTR_DENOM
+				table-column-width = 16
+			{
+				--- Icon ---
+					toolTips en = "View Instrument Details", fr = "Voir les détails de l\'instrument", de = "Details des Instruments ansehen"
+					icon = application_form_magnify
+					id = R__64
+					tid = 8783560217848
+				{
+					Event OnClick (submit) S
+					{
+						method = post
+						call-URI = "resource:///administration/instrument/InstrumentQuickView.pageflow?2"
+						target = popup
+						code = "<udp:item column=\"INSTR_CODE\"/>" ud
+						instrId = "<udp:item column=\"instr_id\"/>" ud
+						modal = false
+						only-changed = false
+						prevalidate = false
+					}
+				}
+				--- Spacer ---
+					height = 4
+					width = 10
+				--- TableColumnItem ---
+					item-column = INSTR_DENOM
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = QUANTITY !
+				column-type = domain !
+				domainAttribute = QUANTITY !
+				column-width = 8%
+				id = QUANTITY
+				table-column-width = 16
+			{
+				--- TableColumnItem ---
+					item-column = QUANTITY
+					format = decimal.2-digits
+					previewValue = value
+				--- Spacer ---
+					height = 4
+					width = 4
+				--- TableColumnItem ---
+					item-column = QUANTITY_CURR
+					previewValue = value
+			}
+			--- TableColumn ---
+				labels en = "Market Value", fr = "Valeur de marché", de = Marktwert
+				column-name = MktVal
+				type = amount
+				id = A92r2
+				documentation = "Sum of the Market Value in Reference Currency, by Instrument and Instrument Currency."
+				column-computation = make-amount
+				column-computation-parameters = "MKT_VAL,REF_CURRENCY"
+				table-column-width = 16
+				tid = 8783562165023
+			{
+				--- TableColumnItem ---
+					item-column = MktVal
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = MKT_VAL_PERC !
+				column-type = domain !
+				domainAttribute = MKT_VAL_PERC !
+				type = text
+				id = MKT_VAL_PERC
+				table-column-width = 16
+			{
+				--- TableColumnItem ---
+					item-column = MKT_VAL_PERC
+					format = percentTA
+					previewValue = value
+			}
+			--- TableColumn ---
+				column-name = dynamic_MV
+				column-type = dynamic !
+				type = text
+				id = B6n5_
+				table-column-width = 16
+			{
+				--- TableColumnItem ---
+					item-column = MktVal
+					previewValue = value
+				--- Spacer ---
+					height = 4
+					width = 4
+				--- TableColumnItem ---
+					item-column = MKT_VAL_PERC
+					previewValue = value
+			}
+			--- TableKeepFilter ---
+				keep-filter-column-name = ACCT_FILTER
+				keep-filter-operand = 1
+			--- TableExtra ---
+				domainAttribute = INSTR_PRICE_CURRENCY
+			--- TableExtra ---
+				domainAttribute = instr_id
+			--- TableAggregate ---
+				aggregate-column-name = instr_id
+				aggregate-computation = max
+				aggregate-group-names = INSTR_CODE
+			--- TableExtra ---
+				domainAttribute = INSTR_PRICE_PERCENTAGE
+			--- TableAggregate ---
+				aggregate-column-name = MKT_VAL_PERC
+				aggregate-computation = sum
+				aggregate-group-names = "ASSET_CLASS_DENOM,INSTR_CODE,Sub_Asset_Class,PORTFOLIO_NAME"
+			--- TableAggregate ---
+				aggregate-column-name = MKT_VAL
+				aggregate-computation = sum
+				aggregate-group-names = "ASSET_CLASS_DENOM,INSTR_CODE,Sub_Asset_Class,PORTFOLIO_NAME"
+			--- TableAggregate ---
+				aggregate-column-name = REF_CURRENCY
+				aggregate-computation = max
+				aggregate-group-names = "ASSET_CLASS_DENOM,INSTR_CODE,Sub_Asset_Class,PORTFOLIO_NAME"
+			--- TableAggregate ---
+				aggregate-column-name = MktVal
+				aggregate-computation = sum
+				aggregate-group-names = "ASSET_CLASS_DENOM,INSTR_CODE,Sub_Asset_Class,PORTFOLIO_NAME"
+			--- TableAggregate ---
+				aggregate-column-name = dynamic_MV
+				aggregate-computation = sum
+				aggregate-group-names = "ASSET_CLASS_DENOM,INSTR_CODE,Sub_Asset_Class,PORTFOLIO_NAME"
+			--- TableAggregate ---
+				aggregate-column-name = QUANTITY
+				aggregate-computation = sum
+				aggregate-group-names = "INSTR_CODE,PORTFOLIO_NAME"
+			--- TableAggregate ---
+				aggregate-column-name = CURR_CLASS_RANK
+				aggregate-computation = max
+			--- TableAggregate ---
+				aggregate-column-name = ASSET_CLASS_RANK
+				aggregate-computation = max
+			--- TableAggregate ---
+				aggregate-column-name = PORTFOLIO_CODE
+				aggregate-computation = max
+			--- TableAggregate ---
+				aggregate-column-name = INSTR_CODE
+				aggregate-computation = max
+			--- TableAggregate ---
+				aggregate-column-name = Sub_Asset_Class_Rank
+				aggregate-computation = max
+			--- TableExtra ---
+				domainAttribute = QUANTITY_CURR
+			--- TableAggregate ---
+				aggregate-column-name = QUANTITY_CURR
+				aggregate-computation = max
+				aggregate-group-names = "PORTFOLIO_NAME,INSTR_CODE"
+			--- TableAggregate ---
+				aggregate-column-name = INSTR_DENOM
+				aggregate-computation = max
+				aggregate-group-names = INSTR_CODE
+		}
+	}
+}

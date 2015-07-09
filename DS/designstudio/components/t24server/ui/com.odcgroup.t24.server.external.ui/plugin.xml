@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="deploylistener" name="T24DeployListener" schema="schema/com.odcgroup.t24.server.deploylistener.exsd"/>
+  <extension
+         id="com.odcgroup.server.ui.external"
+         name="External Server"
+         point="com.odcgroup.server.ui.contribution">
+      <contribution
+            type="com.odcgroup.t24.server.external.ui.ExternalT24ServerContributions">
+      </contribution>
+   </extension>
+   
+   <extension
+         id="com.odcgroup.t24.server.builder"
+         name="Design Studio Deployment Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="false"
+            hasNature="true">
+         <run
+               class="com.odcgroup.t24.server.external.ui.builder.T24DeployBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="com.odcgroup.t24.server.external.ui.builder.internal.propertyTester.GenProjectPropertyTester"
+            id="com.odcgroup.t24.server.genProjectPropertyTester"
+            namespace="com.odcgroup.t24.server"
+            properties="isGenProject"
+            type="java.lang.Object">
+      </propertyTester>
+      <propertyTester
+            class="com.odcgroup.t24.server.external.ui.builder.internal.propertyTester.HasDeployBuilderPropertyTester"
+            id="com.odcgroup.t24.server.hasDeployBuilderPropertyTester"
+            namespace="com.odcgroup.t24.server"
+            properties="hasDeployBuilder"
+            type="java.lang.Object">
+      </propertyTester>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/server_nature.png"
+            id="t24server.image"
+            natureId="com.odcgroup.t24.server.t24server">
+      </image>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="com.odcgroup.t24.server.external.ui.action.ResetPreferenceOnStartup">
+      </startup>
+   </extension>
+   	<extension point="org.eclipse.ui.preferencePages">
+		<page 
+			category="com.odcgroup.workbench.preferences.ofs"
+        	class="com.odcgroup.t24.server.external.ui.preferences.T24ConsolePreferencePage"
+			id="com.odcgroup.t24.server.ui.deployconsole"
+			name="T24 Deploy Console">
+    	</page>
+	</extension>
+	<extension point="org.eclipse.core.runtime.preferences">
+		<initializer
+			class="com.odcgroup.t24.server.external.preferences.T24ServerPreferenceInitializer">
+		</initializer>
+    </extension>
+</plugin>

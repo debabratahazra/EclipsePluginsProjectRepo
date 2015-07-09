@@ -1,0 +1,428 @@
+# UTF-8
+# UTF-8
+/* Processing of cheque issue */
+Domain CHQ_Issue
+	@t24:i (module=ST)
+	@java:Package (value=com.temenos.t24.datamodel.st.chq_issue)
+namespace "http://www.temenos.com/t24/CHQ_Issue"
+metamodelVersion 1.30.6
+Classes {
+	/* CHEQUE.ISSUE is one of the two central applications of the cheque and card control system.
+The issue of cheques to an account is controlled by the entry of records on this table. Entry to this table is similar to entering a transaction within other T24 modules. The most significant information entered on a CHEQUE.ISSUE record is contained in the record ID. This defines the cheque type being issued and the account involved. The ID also contains an automatically assigned sequence number for each issue instruction.
+Contained in each record is the quantity issued, the date of issue, any charges incurred at issue time and a record of the cheque numbers involved.
+When the issue record is authorised the cheque register for the account is updated with the number issued. Moreover , CHEQUE.TYPE.ACCOUNT shall also be updated at this authorised stage only. A charge entry may be raised for the issue depending on the charging structure defined for the cheque type on the CHEQUE.CHARGE table. Charges for the issue of cheques can be based on the current number held by the account as defined on the CHEQUE.REGISTER.
+The system checks against account conditions and limits and will require overrides when appropriate.
+
+Only accounts with a category defined as allowed in the CHEQUE.TYPE table may be entered for the cheque type being processed. */
+	CHEQUE_ISSUE
+		@t24:i (t24Name=CHEQUE.ISSUE, level=F, type=H, additionalInfo="PREVIEW UNP OEU NOH", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* Cheque type, account number and sequence number for the issue.
+Cheque issues are defined with an ID consisting of the cheque type, the account number and a unique sequence number as follows:
+CHEQUE.TYPE '.' ACCOUNT.NO '.' SEQUENCE.NO
+Cheque types must exist on the CHEQUE.TYPE table. Accounts must be in local currency and defined with a category accepted for issues of cheques (as defined in the CHEQUE.TYPE record). The sequence id will be automatically assigned if omitted.
+Validation Rules
+Up to 4 alphanumeric characters:Account number:Optional 5 numeric sequence id.From R8 onwards, numeric sequence will be of 7 characters. Cheque type portion of the id must exist on the CHEQUE.TYPE table. Account number portion of the id must be a valid T24 account number. The account must be in local currency. The account must have a category which is defined in the valid categories on the CHEQUE.TYPE table. The sequence number portion of the id if entered must reference an existing record or be the next expected sequence for the cheque type and account concerned. The cheque type must have a charge structure defined on the CHEQUE.CHARGE table. If an unauthorised record exists on the CHEQUE.REGISTER table for the cheque type and account concerned at the time the id is entered, access will be denied. */
+		CHEQUE_TYPE_NO -> CHQ_Issue:CHEQUE_ISSUE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=49, sysNumber=0.0, core=true, businessType=A, t24Name=CHEQUE.TYPE.NO)
+		/* This field denotes cheque status for the record. Helps to keep track of  cheque issue status . Various  cheque status like Cheque request received, Cheque sent for printing , Issued etc can be maintained.
+Validation Rules
+
+
+Must be a valid record in CHEQUE.STATUS
+Can not define a status less than the existing status for the record
+Input of new record is allowed for the account only when the cheque status is more than '90' (ie.Issued) */
+		CHEQUE_STATUS -> CHQ_Config:CHEQUE_STATUS
+			@i18n:Label (en="Cheque Status (Input 90)")
+			@i18n:Tooltip (en="Cheque Status (Input90)")
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, t24Name=CHEQUE.STATUS)
+		/* Defines the date of issue of cheques.
+Validation Rules
+
+
+8 numeric characters.
+Standard date field.
+Optional Input (If not entered defaults to TODAY).
+No-change field. */
+		ISSUE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Issue Date")
+			@i18n:Tooltip (en="Indicates the date of issue ")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=ISSUE.DATE)
+		/* Specifies the number of cheques being issued.
+Validation Rules
+
+
+5 numeric characters.
+Optional input.
+No-change field.
+Defaults to the default quantity held on CHEQUE.TYPE         (DEFAULT.ISSUE.NO) for this cheque type. */
+		NUMBER_ISSUED : mml:Integer
+			@i18n:Label (en="Number Issued")
+			@i18n:Tooltip (en="Number Issued")
+			@t24:i (align=R, inputBehaviour=I, maxLength=5, sysNumber=3.0, core=true, t24Name=NUMBER.ISSUED)
+		/* This field specifies the curency of the account to which the cheques are being issued.
+Validation Rules
+
+
+No Input Allowed
+Defaults to the Account Currency */
+		CURRENCY : T24BusinessTypes:CCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=4.0, core=true, t24Name=CURRENCY)
+		/* Defines the charges due for the issued of cheques.
+A charge structure for the cheque type concerned is defined on the CHEQUE.CHARGE table. The current cheque holding for the account is held on the CHEQUE.REGISTER. The charges to be raised online are calculated using details from these tables and will default into this field. The amount defaulted may be overidden with any other required amount.
+If zero is entered, this effectively waives charges for the issue.
+Charges in cheque control are always raised in local currency.
+Validation Rules
+
+
+19 numeric amount characters.
+No-change field.
+Optional input defaults to charges calculated with         reference to the CHEQUE.CHARGE table. */
+		CHARGES : T24BusinessTypes:AMT
+			@i18n:Label (en="Charge Amt")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=CHARGES, typeModifiers="4")
+		/* Specifies the value date for online charges raised by the issue (if any).
+Defaults to the issue date.
+Validation Rules
+
+
+8 numeric characters.
+Optional input. No-change field.
+Standard date field.
+If the charge date is entered and exceeds the forward         value minimum as defined on the DATES table, an override         will be required on input.
+If the charge date is entered and exceeds the back value         minimum as defined on the DATES table, an override will         be required on input.
+If the charge date is entered and is not a working day as         defined on the HOLIDAY table, an override will be         required on input.
+If the charge date is entered it must be greater than the         ISSUE.START.DATE ie issues back valued to the previous         charging period are not permitted. */
+		CHARGE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Charge Date")
+			@i18n:Tooltip (en="Indicates value date for online charges raised")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=CHARGE.DATE)
+		/* In this field valid stock register can be entered and if entered next field (Series id) becomes mandatory.
+On entering a valid stock register and series id in CHEQUE.ISSUE, system defaults Starting cheque no from the appropriate record in STOCK.REGISTER  and changes the range of stock numbers.
+Validation Rules
+
+
+Optional field.
+If entered must be a valid record id in STOCK REGISTER, which start with       "CHQ."
+If entered next field (Series id ) is mandatory.
+No change field. */
+		STOCK_REG -> CHQ_StockControl:STOCK_REGISTER
+			@i18n:Label (en="Stock Register ID")
+			@i18n:Tooltip (en="Stock Register ID")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=7.0, core=true, businessType=A, t24Name=STOCK.REG)
+		/* This field is used to enter the series id of the stock register.
+Validation Rules
+
+
+Mandatory if stock register is entered in previous field
+If entered must be a valid stock series from STOCK.REGISTER
+No-change field */
+		SERIES_ID : T24BusinessTypes:A
+			@i18n:Label (en="Stock Series ID")
+			@i18n:Tooltip (en="Stock Series ID")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=8.0, core=true, t24Name=SERIES.ID)
+		/* Holds the starting number or the cheque number of the first cheque in the cheque book.
+Cheque numbers are recorded in the CHEQUE.REGISTER file. Entry of an issue with a start number of 000100 will record 000100-000124 in the CHEQUE.REGISTER for a 25 cheque issue.
+Defaults the Cheque start no from the STOCK.REGISTER, if valid Stock.Register id and Series id  given in the previous fields.
+Validation Rules
+
+
+17 numeric characters.
+Mandatory input.
+No-change field. */
+		CHQ_NO_START : mml:Integer
+			@i18n:Label (en="Starting Cheque No")
+			@i18n:Tooltip (en="Starting Cheque No")
+			@t24:i (align=R, inputBehaviour=I, maxLength=35, sysNumber=9.0, core=true, t24Name=CHQ.NO.START)
+		NOTES -> byValue CHQ_Issue:CHEQUE_ISSUE__NOTES *
+		CHG_CODE -> byValue CHQ_Issue:CHEQUE_ISSUE__CHG_CODE *
+		TAX_CODE -> byValue CHQ_Issue:CHEQUE_ISSUE__TAX_CODE *
+		/* This field is used to waive the cheque issue related charges.
+If waive charges specified as  "YES", then all charges relating to cheque issue will be made as 0.
+Validation Rules
+
+
+Valid values "YES"  or  "NO" */
+		WAIVE_CHARGES : CHQ_Issue:CHEQUE_ISSUE__WAIVE_CHARGES required
+			@i18n:Label (en="Waive Charges")
+			@i18n:Tooltip (en="Waive charges Y/N?")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=15.0, core=true, t24Name=WAIVE.CHARGES)
+		CLASS_TYPE -> byValue CHQ_Issue:CHEQUE_ISSUE__CLASS_TYPE *
+		/* Format advice as defined for the cheque status record in CHEQUE.STATUS
+Validation Rules
+
+
+No input */
+		ACTIVITY : T24BusinessTypes:A
+			@i18n:Label (en=Activity)
+			@t24:i (align=L, inputBehaviour=N, maxLength=5, sysNumber=18.0, core=true, t24Name=ACTIVITY)
+		DELIVERY_REF -> byValue CHQ_Issue:CHEQUE_ISSUE__DELIVERY_REF *
+		/* Populates the Staring Auto cheque no when Auto.Reorder.Type is "Cheque.No" in CHEQUE.TYPE.
+Based on the minimum holding for the cheque.type, auto cheque no is arrived and starting cheque no stored here. The full sequence is stored in the Cheque.Register. On presenting any of these Cheque no, auto reordering process will be done.
+For example: In Cheque Type CURR minimum holding specified as 5 and auto cheque type is "Cheque.No".  If a cheque book is issued with Cheque type as "CURR" and start no as 1 with no of leaves as 10. In Cheque Issue, auto cheque no is populated as 6 and in Cheque register, as 6,7,8,9,10. On presenting any of the cheque no, auto reorder will be done with appropriate Request status and in cheque register, auto cheque no will be populated as "Requested"
+However, if a record is available in Cheque.Issue for that account with Request Status Less than 90 (Cheque issue), then auto-reorder will not be done.
+Validation Rules
+
+
+No input field */
+		AUTO_CHEQUE_NUMBER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=20, sysNumber=20.0, core=true, t24Name=AUTO.CHEQUE.NUMBER)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Allowed */
+		RESERVED_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=21.0, core=true, t24Name=RESERVED.9)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Allowed */
+		RESERVED_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=22.0, core=true, t24Name=RESERVED.8)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Allowed */
+		RESERVED_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=23.0, core=true, t24Name=RESERVED.7)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Allowed */
+		RESERVED_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=24.0, core=true, t24Name=RESERVED.6)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Allowed */
+		RESERVED_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=25.0, core=true, t24Name=RESERVED.5)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Allowed */
+		RESERVED_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=26.0, core=true, t24Name=RESERVED.4)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Allowed */
+		RESERVED_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=27.0, core=true, t24Name=RESERVED.3)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Allowed */
+		RESERVED_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=28.0, core=true, t24Name=RESERVED.2)
+		/* Reserved For Future Use
+Validation Rules
+
+
+No Input Allowed */
+		RESERVED_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=29.0, core=true, t24Name=RESERVED.1)
+		STMT_NO -> byValue CHQ_Issue:CHEQUE_ISSUE__STMT_NO *
+		OVERRIDE -> byValue CHQ_Issue:CHEQUE_ISSUE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=33.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=34.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue CHQ_Issue:CHEQUE_ISSUE__INPUTTER *
+		DATE_TIME -> byValue CHQ_Issue:CHEQUE_ISSUE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=37.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=38.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=39.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=40.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=41.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+		ACCOUNT_NO : T24BusinessTypes:ANT
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Indicates Customer Account Number")
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, core=false, t24Name=ACCOUNT.NO, genOperation="@ID[\".\",2,1]")
+		CHQ_TYPE : mml:Integer
+			@i18n:Label (en="Cheque Type")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, core=false, t24Name=CHQ.TYPE, genOperation="@ID[\".\",1,1]")
+		SEQ_NO : mml:Integer
+			@i18n:Label (en="Sequence No")
+			@t24:i (align=L, inputBehaviour=N, maxLength=19, core=false, t24Name=SEQ.NO, genOperation="@ID[\".\",3,1]")
+	}
+	CHEQUE_ISSUE__NOTES
+	{
+		/* Notes about the issue.
+Validation Rules
+
+
+1-35 alphanumeric characters.
+Multivalued field. */
+		NOTES : T24BusinessTypes:S
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=10.0, core=true, t24Name=NOTES, isTextarea=true)
+	}
+	CHEQUE_ISSUE__CHG_CODE
+	{
+		/* This field is for inputting the Alpha code for charges related to various stages of Cheque Issue.
+This is a multivalue field.
+Validation Rules
+
+
+11 type A (alphanumeric) characters.
+Optional input. Default value from CHEQUE.CHARGE.
+Must be a valid code on the FT.COMMISSION.TYPE OR FT.CHARGE.TYPE table.
+Charges are debited to the customer account as on transaction date. */
+		CHG_CODE : T24BusinessTypes:CHG
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=11.0, core=true, t24Name=CHG.CODE, typeModifiers="CHGCOM")
+		/* The charges are defaulted from FT.CHARGE.TYPE / FT.COMMISSION.TYPE as per the status codes defined in Cheque.status.
+If charge is amended then override is recorded.
+Validation Rules */
+		CHG_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, core=true, t24Name=CHG.AMOUNT, typeModifiers="4")
+	}
+	CHEQUE_ISSUE__TAX_CODE
+	{
+		/* Identifies the Tax record, or Tax Type Condition record which specifies the tax calculation and processing applicable to the Charge Type.
+If this code is defined in FT.CHARGE.TYPE or FT.COMMISSION.TYPE record and if that record is selected as Charge Code for the Cheque Issue, then the code and the tax amount will be automatically populated by the system as a no input field.
+
+
+Validation Rules
+
+
+
+
+1-2 numeric character TAX CODE     or up to 16 character TAX.TYPE.CONDITION id prefixed with a "*".     (Optional input.)
+
+
+
+
+It must be a valid code on the     Tax table/ TAX.TYPE.CONDITION table
+
+
+This     should have been already defined in the FT.CHARGE.TYPE or FT.COMMISSION.TYPE     record that has been selected as Charge Code. */
+		TAX_CODE : T24BusinessTypes:CHG
+			@t24:i (align=R, inputBehaviour=N, maxLength=3, sysNumber=13.0, core=true, t24Name=TAX.CODE)
+		/* This field defines the  tax amount applicable for the tax code that has been specified in the charge type
+Once the charge code is entered and if that charge/ commission type of the charge code includes a valid tax code then the tax code and tax amount are automatically displayed by the system.
+Validation Rules
+
+
+No Input Allowed */
+		TAX_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=14.0, core=true, t24Name=TAX.AMT, typeModifiers="4")
+	}
+	CHEQUE_ISSUE__CLASS_TYPE
+	{
+		/* User defined class types can be specified here.
+Defaulted from CHEQUE.STATUS record for the cheque status type.
+Validation Rules
+
+
+Valid values USERDEFINE.1 to USERDEFINE.9 */
+		CLASS_TYPE : CHQ_Issue:CHEQUE_ISSUE__CLASS_TYPE__CLASS_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=16.0, core=true, t24Name=CLASS.TYPE)
+		/* This Field links cheque.status record with a message class for advice format.
+There Should be a valid entry for this advice format in EB.MESSAGE.CLASS
+Defaulted from CHEQUE.STATUS for the cheque status.
+Validation Rules
+
+
+Should be a record  in EB.MESSAGE.CLASS
+Optional Input */
+		MESSAGE_CLASS -> EB_Delivery:EB_MESSAGE_CLASS
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=17.0, core=true, businessType=SSS, t24Name=MESSAGE.CLASS)
+	}
+	CHEQUE_ISSUE__DELIVERY_REF
+	{
+		/* Confirmation that advice has been sent to T24 delivery system for onward transmission to counterparty.
+Validation Rules
+
+
+21 type A (alphanumeric) characters of the form: AYYYYMMDDUUUUUCCCCCC     where A = (D)ELIVERED (R)ECEIVED YYYY = YEAR MM = MONTH DD = SEQUENCE NO     UUUUU = SYSTEM USER NUMBER CCCCC = TIME STAMP (System generated.)
+This is a NOINPUT field. */
+		DELIVERY_REF : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=19.0, core=true, t24Name=DELIVERY.REF)
+	}
+	CHEQUE_ISSUE__STMT_NO
+	{
+		/* Contains the STMT.ENTRY references for any charges made at authorisation of the issue.
+Validation Rules
+This is a NOINPUT field.
+System updated field. */
+		STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=31.0, core=true, t24Name=STMT.NO)
+	}
+	CHEQUE_ISSUE__OVERRIDE
+	{
+		/* Override text.
+Validation Rules
+Alphanumeric characters.  System updated field.
+This is a NOINPUT field. */
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=32.0, core=true, t24Name=OVERRIDE)
+	}
+	CHEQUE_ISSUE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=35.0, core=true, t24Name=INPUTTER)
+	}
+	CHEQUE_ISSUE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=36.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	/* This table holds details of all accounts to which cheques of any type have been issued. It is a live type file which allows no user input or functions except to 'S'ee records or 'L'ist or 'P'rint the contents of the file. The table is maintained for reporting and enquiry purposes.
+Keys to the file are the account numbers concerned. Each record holds a list of the cheque issue ids associated with the account. */
+	CHEQUE_ISSUE_ACCOUNT
+		@t24:i (t24Name=CHEQUE.ISSUE.ACCOUNT, level=F, type=T, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The account number.
+Validation Rules
+14 numeric characters. */
+		ACCOUNT -> CHQ_Issue:CHEQUE_ISSUE_ACCOUNT PK required
+			@i18n:Label (en=Account)
+			@i18n:Tooltip (en="Identifies the customer account")
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=ACC, t24Name=ACCOUNT)
+		/* This field contains a list of all cheque issue ids associated with the account.
+Validation Rules
+14 numeric characters.
+This is a NOINPUT field. */
+		CHEQUE_ISSUE_ID : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=27, sysNumber=1.0, core=true, t24Name=CHEQUE.ISSUE.ID)
+	}
+}
+Enumerations {
+	CHEQUE_ISSUE__WAIVE_CHARGES : mml:string
+		YES=YES
+		NO=NO
+	CHEQUE_ISSUE__CLASS_TYPE__CLASS_TYPE : mml:string
+		USERDEFINE_1=USERDEFINE.1
+		USERDEFINE_2=USERDEFINE.2
+		USERDEFINE_3=USERDEFINE.3
+		USERDEFINE_4=USERDEFINE.4
+		USERDEFINE_5=USERDEFINE.5
+		USERDEFINE_6=USERDEFINE.6
+		USERDEFINE_7=USERDEFINE.7
+		USERDEFINE_8=USERDEFINE.8
+		USERDEFINE_9=USERDEFINE.9
+}

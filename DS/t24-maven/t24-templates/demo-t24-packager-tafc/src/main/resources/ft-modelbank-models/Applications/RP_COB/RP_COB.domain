@@ -1,0 +1,32 @@
+# UTF-8
+# UTF-8
+/* Close of Business Processing for Repo Contracts */
+Domain RP_COB
+	@t24:i (module=RP)
+	@java:Package (value=com.temenos.t24.datamodel.rp.rp_cob)
+namespace "http://www.temenos.com/t24/RP_COB"
+metamodelVersion 1.30.6
+Classes {
+	/* This is a live file which stores the id(s) of the far leg SECURITY.TRANSFER record(s) to be processed on a specific date for updating SECURIY.POSITION and REPO.POSITION.
+This file will be updated only if the field UPDATE.SC.POS.UPD is set to YES in REPO.PARAMETER.
+If the field UPDATE.SC.POS.SOD in the REPO.PARAMETER is set to yes. then the SECURITY.TRANSFER for the far leg will created based on the value, if any, in the DAYS.DELIVERY field on the REPO transaction, the DAYS.PRIOR.ACTIVITY field on the RP-0140 record of EB.ACTIVITY. However, the SECURITY.POSITION will be updated only at the SOD of the maturity date. The system will record the id's of all the SECURITY.TRANSFER records for which the position needs to be updated on a particular date in this file.
+A close of business process will process the SECURITY TRANSFER records scheduled for process on the said date. */
+	RP_SCTR_UPD_SCHEDULES
+		@t24:i (t24Name=RP.SCTR.UPD.SCHEDULES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* The DATE is the date on which the updates will be actioned by the COB process. */
+		DATE -> RP_COB:RP_SCTR_UPD_SCHEDULES PK required
+			@i18n:Label (en=Date)
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=0.0, core=true, t24Name=DATE)
+		SEC_TFR_ID -> byValue RP_COB:RP_SCTR_UPD_SCHEDULES__SEC_TFR_ID *
+	}
+	RP_SCTR_UPD_SCHEDULES__SEC_TFR_ID
+	{
+		/* Specifies the id(s) of the SECURITY.TRANSFER record(s) to be processed for updating SECURITY.POSITION and REPO.POSITION. */
+		SEC_TFR_ID : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=1.0, core=true, t24Name=SEC.TFR.ID)
+		/* Specifies the ids of the REPO contracts associated with the SEC.TFR.ID. */
+		REPO_CONT_ID : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=2.0, core=true, t24Name=REPO.CONT.ID)
+	}
+}

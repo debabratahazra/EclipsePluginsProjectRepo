@@ -1,0 +1,355 @@
+«IMPORT mdf»
+
+«EXTENSION com::odcgroup::mdf::generation::java»
+
+«DEFINE Actions FOR List[MdfDomain]»
+	«EXPAND Actions FOREACH this»
+«ENDDEFINE»
+
+«DEFINE Actions FOR MdfDomain»
+	«REM»Only for datasets in a first time...«ENDREM»
+	«EXPAND Actions FOREACH datasets»
+«ENDDEFINE»
+
+«DEFINE Actions FOR MdfEntity»
+	«EXPAND CreateAction FOR this»
+	«EXPAND SaveAction FOR this»
+	«EXPAND RemoveAction FOR this»
+	«EXPAND FindByIdAction FOR this»
+«ENDDEFINE»
+
+«DEFINE CreateAction FOR MdfEntity»
+	«FILE (getPageflowActionPackage(this).toPath() + "/create/" + getCreatePageflowActionName(this) + ".java")»
+		package «getPageflowActionPackage(this)».create;
+		
+		import org.slf4j.Logger;
+		import org.slf4j.LoggerFactory;
+	
+		import «this.getPackage()».«name»;
+		import «this.getPackage()».services.delegates.«name»ServiceDelegate;
+		import com.odcgroup.uif.context.model.InvalidScopeKeyException;
+		import com.odcgroup.uif.context.model.Scope;
+		import com.odcgroup.uif.workflow.HTTPParameters;
+		import com.odcgroup.uif.workflow.Workflow;
+		import com.odcgroup.uif.workflow.exception.ProcessExecutionException;
+		import com.odcgroup.uif.workflow.process.Process;
+		import com.odcgroup.uif.workflow.process.ProcessResult;
+		
+		/**
+		 * Pageflow action calling the create service of the «name» service delegate.
+		 * Creates a new «name» and stores in scope at the key received as a
+		 * configuration parameter.
+		 */
+
+		public class «getCreatePageflowActionName(this)» extends Process {
+
+			private static final Logger LOGGER = LoggerFactory
+					.getLogger(«getCreatePageflowActionName(this)».class);
+					
+			/**
+			 * The property of the create action that contains the name of the
+			 * scope-key, where the «name» instance will be created.
+			 */
+			private String «getDefaultObjectScopeKey().uncapitalise()» = "«getDefaultObjectScopeKeyValue()»";
+	
+			/**
+			 * Sets the «getDefaultObjectScopeKey()» parameter from the pageflow configuration.
+			 * Implicitely called by the pageflow engine if a value is provided for this parameter.  
+			 *
+			 * @param «getDefaultObjectScopeKey().uncapitalise()» The parameter value to set
+			 */
+			public void set«getDefaultObjectScopeKey().capitalise()»(String «getDefaultObjectScopeKey().uncapitalise()») {
+				this.«getDefaultObjectScopeKey().uncapitalise()» = «getDefaultObjectScopeKey().uncapitalise()»;
+			}
+
+			protected ProcessResult executeProcess(Scope scope, HTTPParameters params,
+					Workflow workflow) throws ProcessExecutionException {
+		
+				try {
+					«name»ServiceDelegate delegate = new «name»ServiceDelegate();
+		
+					«name» valueObject = delegate.create();
+		
+					scope.set(«getDefaultObjectScopeKey().uncapitalise()», valueObject);
+					setValueObject(scope, valueObject);
+					return new ProcessResult();
+				} catch (Exception e) {
+					throw new ProcessExecutionException(this, "executeProcess", e);
+				}
+			}
+			
+			protected void setValueObject(Scope scope, Object valueObject) throws InvalidScopeKeyException {
+				scope.set(«getDefaultObjectScopeKey().uncapitalise()», valueObject);
+			}
+		}
+	«ENDFILE»
+«ENDDEFINE»
+«DEFINE SaveAction FOR MdfEntity»
+	«FILE (getPageflowActionPackage(this).toPath() + "/save/" + getSavePageflowActionName(this) + ".java")»
+		package «getPageflowActionPackage(this)».save;
+		
+		import org.slf4j.Logger;
+		import org.slf4j.LoggerFactory;
+	
+		import «this.getPackage()».«name»;
+		import «this.getPackage()».services.delegates.«name»ServiceDelegate;
+		import com.odcgroup.uif.context.model.InvalidScopeKeyException;
+		import com.odcgroup.uif.context.model.Scope;
+		import com.odcgroup.uif.workflow.HTTPParameters;
+		import com.odcgroup.uif.workflow.Workflow;
+		import com.odcgroup.uif.workflow.exception.ProcessExecutionException;
+		import com.odcgroup.uif.workflow.process.Process;
+		import com.odcgroup.uif.workflow.process.ProcessConfigException;
+		import com.odcgroup.uif.workflow.process.ProcessResult;
+
+		
+		/**
+		 * Pageflow action calling the save service of the «name» service delegate.
+		 * Gets a «name» from the scope at the key received as a
+		 * configuration parameter, saves it using the delegate and stores it back in scope.
+		 */
+
+
+		public class «getSavePageflowActionName(this)» extends Process {
+
+			private static final Logger LOGGER = LoggerFactory
+					.getLogger(«getSavePageflowActionName(this)».class);
+					
+			/**
+			 * The property of the save action that contains the name of the
+			 * scope-key, where the «name» instance to be saved is.
+			 */
+			private String «getDefaultObjectScopeKey().uncapitalise()» = "«getDefaultObjectScopeKeyValue()»";
+	
+			/**
+			 * Sets the «getDefaultObjectScopeKey()» parameter from the pageflow configuration.
+			 * Implicitely called by the pageflow engine if a value is provided for this parameter.  
+			 *
+			 * @param «getDefaultObjectScopeKey().uncapitalise()» The parameter value to set
+			 */
+			public void set«getDefaultObjectScopeKey().capitalise()»(String «getDefaultObjectScopeKey().uncapitalise()») {
+				this.«getDefaultObjectScopeKey().uncapitalise()» = «getDefaultObjectScopeKey().uncapitalise()»;
+			}
+
+			protected ProcessResult executeProcess(Scope scope, HTTPParameters params,
+					Workflow workflow) throws ProcessExecutionException {
+		
+				try {
+					Object valueObject = getValueObject(scope);
+			
+					«name»ServiceDelegate delegate = new «name»ServiceDelegate();
+		
+					«name» savedValueObject = delegate.save((«name»)valueObject);
+		
+					setValueObject(scope, savedValueObject);
+					
+					return new ProcessResult();
+				} catch (Exception e) {
+					throw new ProcessExecutionException(this, "executeProcess", e);
+				}
+			}
+		
+			protected Object getValueObject(Scope scope) throws ProcessConfigException {
+				if (scope.existsKey(«getDefaultObjectScopeKey().uncapitalise()»)) {
+					return scope.get(«getDefaultObjectScopeKey().uncapitalise()»);
+				} else {
+					LOGGER.error("Cannot retrieve configured scope key (" + «getDefaultObjectScopeKey().uncapitalise()»
+							+ ") in current scope.");
+					throw new ProcessConfigException(this, "getValueObject",
+							"«getDefaultObjectScopeKey()»", «getDefaultObjectScopeKey().uncapitalise()»);
+				}
+			}
+			
+			protected void setValueObject(Scope scope, Object valueObject) throws InvalidScopeKeyException {
+				scope.set(«getDefaultObjectScopeKey().uncapitalise()», valueObject);
+			}
+		}
+	«ENDFILE»
+«ENDDEFINE»
+«DEFINE RemoveAction FOR MdfDataset»
+	«FILE (getPageflowActionPackage(this).toPath() + "/remove/" + getRemovePageflowActionName(this) + ".java")»
+		package «getPageflowActionPackage(this)».remove;
+		
+		import org.slf4j.Logger;
+		import org.slf4j.LoggerFactory;
+	
+		import «this.getPackage()».«baseClass.name»Ref;
+		import «this.getPackage()».services.delegates.«name»ServiceDelegate;
+		import com.odcgroup.uif.context.model.InvalidScopeKeyException;
+		import com.odcgroup.uif.context.model.Scope;
+		import com.odcgroup.uif.workflow.HTTPParameters;
+		import com.odcgroup.uif.workflow.Workflow;
+		import com.odcgroup.uif.workflow.exception.ProcessExecutionException;
+		import com.odcgroup.uif.workflow.process.Process;
+		import com.odcgroup.uif.workflow.process.ProcessConfigException;
+		import com.odcgroup.uif.workflow.process.ProcessResult;
+
+		
+		/**
+		 * Pageflow action calling the remove service of the «name» service delegate.
+		 * Gets a «baseClass.name»Ref from the scope at the key received as a
+		 * configuration parameter, removes the corresponding entity using the delegate,
+		 * and then removes the key in scope.
+		 */
+
+
+		public class «getRemovePageflowActionName(this)» extends Process {
+
+			private static final Logger LOGGER = LoggerFactory
+					.getLogger(«getRemovePageflowActionName(this)».class);
+					
+			/**
+			 * The property of the remove action that contains the name of the
+			 * scope-key, where the «baseClass.name»Ref to be removed is.
+			 */
+			private String «getDefaultRefScopeKey().uncapitalise()» = "«getDefaultRefScopeKeyValue()»";
+	
+			/**
+			 * Sets the «getDefaultRefScopeKey()» parameter from the pageflow configuration.
+			 * Implicitely called by the pageflow engine if a value is provided for this parameter.  
+			 *
+			 * @param «getDefaultRefScopeKey().uncapitalise()» The parameter value to set
+			 */
+			public void set«getDefaultRefScopeKey().capitalise()»(String «getDefaultRefScopeKey().uncapitalise()») {
+				this.«getDefaultRefScopeKey().uncapitalise()» = «getDefaultRefScopeKey().uncapitalise()»;
+			}
+
+			protected ProcessResult executeProcess(Scope scope, HTTPParameters params,
+					Workflow workflow) throws ProcessExecutionException {
+		
+				try {
+					Object valueObjectRef = getValueObjectRef(scope);
+			
+					«name»ServiceDelegate delegate = new «name»ServiceDelegate();
+		
+					delegate.remove((«baseClass.name»Ref)valueObjectRef);
+		
+					removeValueObjectRef(scope);
+					
+					return new ProcessResult();
+				} catch (Exception e) {
+					throw new ProcessExecutionException(this, "executeProcess", e);
+				}
+			}
+		
+			protected Object getValueObjectRef(Scope scope) throws ProcessConfigException {
+				if (scope.existsKey(«getDefaultRefScopeKey().uncapitalise()»)) {
+					return scope.get(«getDefaultRefScopeKey().uncapitalise()»);
+				} else {
+					LOGGER.error("Cannot retrieve configured scope key (" + «getDefaultRefScopeKey().uncapitalise()»
+							+ ") in current scope.");
+					throw new ProcessConfigException(this, "getValueObject",
+							"«getDefaultRefScopeKey()»", «getDefaultRefScopeKey().uncapitalise()»);
+				}
+			}
+			
+			protected void removeValueObjectRef(Scope scope) throws InvalidScopeKeyException {
+				scope.remove(«getDefaultRefScopeKey().uncapitalise()»);
+			}
+		}
+	«ENDFILE»
+«ENDDEFINE»
+«DEFINE RemoveAction FOR MdfEntity»
+«ENDDEFINE»
+«DEFINE FindByIdAction FOR MdfDataset»
+	«FILE (getPageflowActionPackage(this).toPath() + "/find/" + getFindByIdPageflowActionName(this) + ".java")»
+		package «getPageflowActionPackage(this)».find;
+		
+		import org.slf4j.Logger;
+		import org.slf4j.LoggerFactory;
+	
+		import «this.getPackage()».«baseClass.name»Ref;
+		import «this.getPackage()».«name»;
+		import «this.getPackage()».services.delegates.«name»ServiceDelegate;
+		import com.odcgroup.uif.context.model.InvalidScopeKeyException;
+		import com.odcgroup.uif.context.model.Scope;
+		import com.odcgroup.uif.workflow.HTTPParameters;
+		import com.odcgroup.uif.workflow.Workflow;
+		import com.odcgroup.uif.workflow.exception.ProcessExecutionException;
+		import com.odcgroup.uif.workflow.process.Process;
+		import com.odcgroup.uif.workflow.process.ProcessConfigException;
+		import com.odcgroup.uif.workflow.process.ProcessResult;
+
+		
+		/**
+		 * Pageflow action calling the findById service of the «name» service delegate.
+		 * Gets a «baseClass.name»Ref from the scope at the key received as a
+		 * configuration parameter, loads the corresponding entity using the delegate,
+		 * and then stores it in scope.
+		 */
+
+
+		public class «getFindByIdPageflowActionName(this)» extends Process {
+
+			private static final Logger LOGGER = LoggerFactory
+					.getLogger(«getFindByIdPageflowActionName(this)».class);
+					
+			/**
+			 * The property of the findById action that contains the name of the
+			 * scope-key, where the «baseClass.name»Ref to be loaded is.
+			 */
+			private String «getDefaultRefScopeKey().uncapitalise()» = "«getDefaultRefScopeKeyValue()»";
+			
+			/**
+			 * The property of the findById action that contains the name of the
+			 * scope-key, where the «name» instance will be stored once loaded.
+			 */
+			private String objectScopeKey = "pageflowBean";
+	
+			/**
+			 * Sets the «getDefaultRefScopeKey()» parameter from the pageflow configuration.
+			 * Implicitely called by the pageflow engine if a value is provided for this parameter.  
+			 *
+			 * @param «getDefaultRefScopeKey().uncapitalise()» The parameter value to set
+			 */
+			public void set«getDefaultRefScopeKey().capitalise()»(String «getDefaultRefScopeKey().uncapitalise()») {
+				this.«getDefaultRefScopeKey().uncapitalise()» = «getDefaultRefScopeKey().uncapitalise()»;
+			}
+
+			/**
+			 * Sets the «getDefaultObjectScopeKey()» parameter from the pageflow configuration.
+			 * Implicitely called by the pageflow engine if a value is provided for this parameter.  
+			 *
+			 * @param «getDefaultObjectScopeKey().uncapitalise()» The parameter value to set
+			 */
+			public void set«getDefaultObjectScopeKey().capitalise()»(String «getDefaultObjectScopeKey().uncapitalise()») {
+				this.«getDefaultObjectScopeKey().uncapitalise()» = «getDefaultObjectScopeKey().uncapitalise()»;
+			}
+			
+			protected ProcessResult executeProcess(Scope scope, HTTPParameters params,
+					Workflow workflow) throws ProcessExecutionException {
+		
+				try {
+					Object valueObjectRef = getValueObjectRef(scope);
+			
+					«name»ServiceDelegate delegate = new «name»ServiceDelegate();
+		
+					«name» valueObject = delegate.findById((«baseClass.name»Ref)valueObjectRef);
+		
+					setValueObject(scope, valueObject);
+					
+					return new ProcessResult();
+				} catch (Exception e) {
+					throw new ProcessExecutionException(this, "executeProcess", e);
+				}
+			}
+		
+			protected Object getValueObjectRef(Scope scope) throws ProcessConfigException {
+				if (scope.existsKey(«getDefaultRefScopeKey().uncapitalise()»)) {
+					return scope.get(«getDefaultRefScopeKey().uncapitalise()»);
+				} else {
+					LOGGER.error("Cannot retrieve configured scope key (" + «getDefaultRefScopeKey().uncapitalise()»
+							+ ") in current scope.");
+					throw new ProcessConfigException(this, "getValueObject",
+							"«getDefaultRefScopeKey()»", «getDefaultRefScopeKey().uncapitalise()»);
+				}
+			}
+			
+			protected void setValueObject(Scope scope, Object valueObject) throws InvalidScopeKeyException {
+				scope.set(«getDefaultObjectScopeKey().uncapitalise()», valueObject);
+			}
+		}
+	«ENDFILE»
+«ENDDEFINE»
+«DEFINE FindByIdAction FOR MdfEntity»
+«ENDDEFINE»

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN"
+"http://docs.oasis-open.org/dita/v1.1/OS/dtd/topic.dtd">
+<topic id="SdlcFdsTdsVersion_4_4_b2f030">
+	<title>Display Values Vertically in Table Column</title>
+	<body>
+		<section>
+			<title>Description</title>
+			<p>
+				To Improve the layout of the TableColumn of the Table/Tree widget to include multiple items in vertical or horizontal mode.
+			</p>
+		</section>
+		<section>
+			<title>FDS Link</title>
+			<p>
+				<xref
+					href="https://lausvn/svn/devel/projects/doc/active/triplea_plus/R11/03.%20Construction%20(Design)/TECHNOLOGY/DS/FDS_DSR11_B2F030_Display_Value_Vertically_In_Table_Column.doc"
+					scope="external">FDS_DSR11_B2F030_Display_Value_Vertically_In_Table_Column.doc</xref>
+			</p>
+		</section>
+		<section>
+			<title>JIRA Issue(s)</title>
+			<p>
+				<xref href="http://rd.oams.com/browse/DS-4275" scope="external">DS-4275</xref>
+			</p>
+		</section>
+		<section>
+			<title>TDS</title>
+			<p>
+				<i> Note: FDS references are in parenthesis	</i>
+			</p>
+			<b>1. TableColumn widget properties</b>
+			<p>
+				The property types "table-column-halign", "format"' with display names "HorizontalAlignment" and "Display Format" respectively needs to be removed
+				from <codeph>xgui-widget-library.metamodel</codeph>. A migration is required to move these properties to one of its items.  This is specified in detail
+				in the migration section.	The java interfaces and the implementation classes that represent the TableColumn widget <codeph>com.odcgroup.page.model.widgets.table.ITableColumn</codeph> and <codeph>com.odcgroup.page.model.widgets.table.impl.TableColumn</codeph>
+			are adapted to include these model changes.											
+			</p>
+			<b>2. TableColumn Figure changes</b>
+			<p>
+				<codeph>com.odcgroup.page.ui.figure.table.TableColumnFigure</codeph> needs to be adapted with a customized layout that layouts
+				the TableColumnItems both horizontally and vertically based on the alignment specified on the items. <codeph>setBoxType(type)</codeph> method
+				needs to adapted.	The custom layout class <codeph>com.odcgroup.page.ui.figure.table.TableColumnLayout</codeph> that extends Horizontal layout
+				will be implemented for this requirement.										
+			</p>
+			<b>3. TableColumnItem widget Properties (FDS 6.2.1, 6.2.2, 6.2.3, 6.2.4, 6.2.5)</b>
+			<p>A new property type "item-halign" with display name "Horizontal Alignment" has to be added to the TableColumnItem widget in the alignment category of the
+			Presentation tab. Another property "newLine" with display name "New Line" which is a boolean type is also added to the TableColumnItem widget. Property types
+			"width" (Integer type) with display name "Width (in percent)", "format" (DisplayFormat), "CSS Class" are also needs to be added to the TableColumnItem widget.
+			These changes will be done to the <codeph>xgui-widget-library.metamodel</codeph>.  The java interfaces and the implementation classes that represent
+			the TableColumnItem widget <codeph>com.odcgroup.page.model.widgets.table.ITableColumnItem</codeph> and <codeph>com.odcgroup.page.model.widgets.table.impl.TableColumnItem</codeph>
+			are adapted to include these model changes. 
+			</p>
+			<p></p>
+			<b>4. Validation Rules (FDS 7.1)</b>
+			<p>
+				A new validation rule needs to be added that checks the for all the items in the same line of the TableColumn, the total width should be exactly 100.
+				<codeph>com.odcgroup.page.validation.internal.constraint.PageWidgetValidator</codeph> and <codeph>com.odcgroup.page.validation.internal.PageConstraints</codeph>
+				are adapted to include this check. <codeph>checkTableItemWidth(Widget)</codeph> method will be added that parses the items by lines and checks the width of all the items
+				in the each line.
+			</p>	
+			<p></p>
+			<b>5. Migration (FDS 8.1)</b>
+			<p>
+				A new migration is required to migrate the "table-column-halign" and "format" properties of the TableColumn widget to the relevant TableColumnItem widget
+				contained in it.  <codeph>com.odcgroup.page.content.migration.TableColumnAlignmentPropertyMigration</codeph> class will be implemented for this purpose.
+				The migration logic is implemented as the migration rules specified in the FDS 8.2.  The plugin.xml of the page-migration plugin is adapted to include
+				the migration class for modules and fragments.
+			</p>		
+			
+			<b>6. XSP Generation (FDS 9.1)</b>
+			<p>The transformer class "com.odcgroup.page.transformmodel.table.TableWidgetTransformer" is adapted to ensure the generation of munge columns based on
+			the items specified on the TableColumn. Earlier this was done on the column itself.  Similarly computations are also generated incase of items in 
+			a computed column.  The newly included display format property on the TableColumnItem is also considered during the generation.</p>		
+			
+			<b>7. XSP Generation - Cell Content (FDS 9.2)</b>
+			<p>The transformer class "com.odcgroup.page.transformmodel.table.TableColumnItemWidgetTransformer" is adapted to ensure the newly added properties
+			to the TableColumnItem widget are taken care while generation.</p>
+			<b>8. XSP Generation - Empty Item Values (FDS 9.3)</b>
+			<p>The transformer class "com.odcgroup.page.transformmodel.table.TableColumnItemWidgetTransformer" is adapted to handle the empty values
+			on the items in order to guarantee the correct alignment. This is done by generating a non breaking space (&#160;) before or after the UDP item element, based
+			on the "item-halign" and width properties</p>
+		</section>
+	</body>
+</topic>
+ 

@@ -1,0 +1,1492 @@
+# UTF-8
+# UTF-8
+/* Template Servicing of Syndicated Loans */
+Domain SL_Contract
+	@t24:i (module=SL)
+	@java:Package (value=com.temenos.t24.datamodel.sl.sl_contract)
+namespace "http://www.temenos.com/t24/SL_Contract"
+metamodelVersion 1.30.6
+Classes {
+	SL_ACCOUNT_BALANCES
+		@t24:i (t24Name=SL.ACCOUNT.BALANCES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key field and holds the id of the FACILITY for which the account balances are maintained */
+		KEY -> SL_Contract:SL_ACCOUNT_BALANCES PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		TR_CODE -> byValue SL_Contract:SL_ACCOUNT_BALANCES__TR_CODE *
+		/* This is an 'I' type field which holds the ID of the Facility */
+		FAC_ID : mml:Integer
+			@i18n:Label (en="Facility Id")
+			@t24:i (align=L, inputBehaviour=N, maxLength=12, core=false, t24Name=FAC.ID, genOperation="@ID[1,12]")
+		/* This is an 'I' type field which holds the SL.CURRENCY from Facility */
+		SL_CCY : mml:Integer
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=SL.CCY, genOperation="@ID>FACILITY>SL.CURRENCY")
+		/* This is an 'I' type field which holds the MNEMONIC from Facility. */
+		SL_MNEMONIC : mml:Integer
+			@i18n:Label (en="SL Mnemonic")
+			@t24:i (align=L, inputBehaviour=N, maxLength=10, core=false, t24Name=SL.MNEMONIC, genOperation="@ID>FACILITY>MNEMONIC")
+		/* This is an 'I' type field which holds the TRANCHE.IND from SL.FACI.BALANCES. */
+		SL_MARKER : mml:Integer
+			@i18n:Label (en="Tranche Ind")
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, core=false, t24Name=SL.MARKER, genOperation="@ID>SL.FACI.BALANCES>TRANCHE.IND")
+	}
+	SL_ACCOUNT_BALANCES__TR_CODE
+	{
+		/* Holds the tranche code for which the balance details are updated in this application */
+		TR_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=TR.CODE)
+		/* Holds the available balance at the tranche level given in the corresponding TR.CODE field */
+		TR_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=TR.AMOUNT)
+		PARTICIPANT -> byValue SL_Contract:SL_ACCOUNT_BALANCES__TR_CODE__PARTICIPANT *
+	}
+	SL_ACCOUNT_BALANCES__TR_CODE__PARTICIPANT
+	{
+		/* Holds the IDs of the participants belong to the deal */
+		PARTICIPANT -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=3.0, core=true, businessType=CUS, t24Name=PARTICIPANT)
+		/* Holds the available balance amount for the participant defined in the corresponding PARTICIPANT field under the tranche defined in the TR.CODE field. */
+		PART_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=PART.AMOUNT)
+	}
+	SL_BS_AMORTISE_DETAILS
+		@t24:i (t24Name=SL.BS.AMORTISE.DETAILS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Key to the application. Holds either SL.LOAN reference or FACILITY reference. */
+		ID -> SL_Contract:SL_BS_AMORTISE_DETAILS PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=ID)
+		/* Holds the start period of amortisation. */
+		START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Start Date")
+			@i18n:Tooltip (en="Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=1.0, core=true, t24Name=START.DATE)
+		/* Holds the end period for amortisation */
+		END_DATE : T24BusinessTypes:D
+			@i18n:Label (en="End Date")
+			@i18n:Tooltip (en="End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=END.DATE)
+		/* holds the total amount to be amortised */
+		TOT_AMT_TO_AMORT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=TOT.AMT.TO.AMORT)
+		/* Holds the next amortisation date calculated based on frequency */
+		NEXT_AMORT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=NEXT.AMORT.DATE)
+		/* Holds  the premium amount that is  amortised for the amortisation period between start and end date. */
+		AMORTISED_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=AMORTISED.AMT)
+		/* Holds the amortisation frequency */
+		AMORTISE_FREQ : T24BusinessTypes:FQU
+			@i18n:Label (en="Amortize Frequency")
+			@i18n:Tooltip (en="Frequency for Amortisation")
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=6.0, core=true, t24Name=AMORTISE.FREQ, mask="RDDDD DD  DD #####")
+		/* Holds the backdated Principal change date. */
+		PRIN_CHANGE_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=PRIN.CHANGE.DATE)
+		/* If amortisation is initiated due to buy/sell on premium, then the amount of premium gets updated here. */
+		AMT_PREMIUM : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=AMT.PREMIUM)
+		/* If amortisation is initiated due to buy/sell on DISCOUNT, then the amount of premium gets updated here. */
+		AMT_DISCOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=9.0, core=true, t24Name=AMT.DISCOUNT)
+		/* Holds  the discounted amount that is  amortised for the amortisation period between start and end date. */
+		AMORT_DIS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=AMORT.DIS.AMT)
+	}
+	SL_CUSTOMER_LOANS
+		@t24:i (t24Name=SL.CUSTOMER.LOANS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Key field which holds the customer for whom this record is created */
+		CUSTOMER_ID -> SL_Contract:SL_CUSTOMER_LOANS PK required
+			@i18n:Label (en="Customer Id")
+			@i18n:Tooltip (en="Identifies the Customer for the transaction.")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=0.0, core=true, businessType=CUS, t24Name=CUSTOMER.ID)
+		LOAN_ID -> byValue SL_Contract:SL_CUSTOMER_LOANS__LOAN_ID *
+	}
+	SL_CUSTOMER_LOANS__LOAN_ID
+	{
+		/* Holds the IDs of the loan contracts which are belong to the customer given in the field KEY */
+		LOAN_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=1.0, core=true, t24Name=LOAN.ID)
+	}
+	/* Insert text here
+Validation Rules
+
+Rule 1
+Rule 2 */
+	SL_EXPOSURE_LEVEL
+		@t24:i (t24Name=SL.EXPOSURE.LEVEL, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Holds the corresponding Facility id */
+		KEY -> SL_Contract:SL_EXPOSURE_LEVEL PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		EXP_DATE -> byValue SL_Contract:SL_EXPOSURE_LEVEL__EXP_DATE *
+	}
+	SL_EXPOSURE_LEVEL__EXP_DATE
+	{
+		/* Holds  the exposure date based on the phased reduction in a revolving type Facility. This is a multivalue field associated with EXP.AMOUNT, DECREASE.AMT and UTIL.AMOUNT fields */
+		EXP_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=1.0, core=true, t24Name=EXP.DATE)
+		/* The phased redution amount of the Facility on the date given at the EXP.DATE field is updated here. This field is updated based on the vaule from the field DEC.AMOUNT in FACILITY */
+		DECREASE_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=DECREASE.AMT)
+		/* Holds the exposure amount after every reduction which is available for drawing */
+		EXP_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=EXP.AMOUNT)
+		/* Holds the amount utilised from the exposure limit on the corresponding phased reduction date. This field is updated when there is a drawing amount within the exposure limit */
+		UTIL_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=UTIL.AMOUNT)
+	}
+	SL_FACI_LOAN_CURRENCY
+		@t24:i (t24Name=SL.FACI.LOAN.CURRENCY, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key field which is formed by appending the deal currency along with the facility and tranche keys. The record will hold the SL.LOAN IDs belong to this facility and currency */
+		FACI_LN_CCY -> SL_Contract:SL_FACI_LOAN_CURRENCY PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=18, sysNumber=0.0, core=true, businessType=A, t24Name=FACI.LN.CCY)
+		LOAN_ID -> byValue SL_Contract:SL_FACI_LOAN_CURRENCY__LOAN_ID *
+	}
+	SL_FACI_LOAN_CURRENCY__LOAN_ID
+	{
+		/* This multivalue field holds the loan contract IDs belong to the facility and currency defined in the FACI.LN.CCY field */
+		LOAN_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=1.0, core=true, t24Name=LOAN.ID)
+	}
+	SL_FACI_LOAN_CUST_AMT
+		@t24:i (t24Name=SL.FACI.LOAN.CUST.AMT, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key field which holds the facility id appended with tranche id and customer */
+		FACI_LN_CUST -> SL_Contract:SL_FACI_LOAN_CUST_AMT PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=A, t24Name=FACI.LN.CUST, mask="##/#####/#####/###/##########")
+		/* This field is updated with the allowed amount for a customer from the facility */
+		ALLOWED_AMT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=1.0, core=true, t24Name=ALLOWED.AMT)
+		RESERVED_AMT : T24BusinessTypes:A
+			@i18n:Label (en="Reserved Amount")
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=RESERVED.AMT)
+		LOAN_ID -> byValue SL_Contract:SL_FACI_LOAN_CUST_AMT__LOAN_ID *
+	}
+	SL_FACI_LOAN_CUST_AMT__LOAN_ID
+	{
+		/* This is a multivalue field associated with LOAN.AMT. This field holds the id of the SL.LOANS record */
+		LOAN_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=LOAN.ID)
+		/* The loan balance amount is updated in this field with the corresponding loan id in LOAN.ID field */
+		LOAN_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=LOAN.AMT)
+	}
+	SL_FACI_SCHEDULES
+		@t24:i (t24Name=SL.FACI.SCHEDULES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key to this file which is formed by id of the FACILITY appended with effective date of the schedule defined in this record */
+		ID -> SL_Contract:SL_FACI_SCHEDULES PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=0.0, core=true, businessType=A, t24Name=ID)
+		SCH_TYPE -> byValue SL_Contract:SL_FACI_SCHEDULES__SCH_TYPE *
+		CHG_CURRENCY -> byValue SL_Contract:SL_FACI_SCHEDULES__CHG_CURRENCY *
+		SCHED_DATE : mml:Integer
+			@i18n:Label (en="Schedule Date")
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, core=false, t24Name=SCHED.DATE, genOperation="@ID[8]")
+	}
+	SL_FACI_SCHEDULES__SCH_TYPE
+	{
+		/* Holds the type of the schedule for which this record is created */
+		SCH_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, t24Name=SCH.TYPE)
+		CHG_CODE -> byValue SL_Contract:SL_FACI_SCHEDULES__SCH_TYPE__CHG_CODE *
+	}
+	SL_FACI_SCHEDULES__SCH_TYPE__CHG_CODE
+	{
+		/* Holds the charge code which has to be used when the charge schedule for this date is processed. */
+		CHG_CODE : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=CHG.CODE)
+	}
+	SL_FACI_SCHEDULES__CHG_CURRENCY
+	{
+		CHG_CODE -> byValue SL_Contract:SL_FACI_SCHEDULES__CHG_CURRENCY__CHG_CODE *
+		/* Holds the scheduled amount  due for the ID date for related schedule type */
+		SCH_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=SCH.AMOUNT)
+		BUY_SELL_ID -> byValue SL_Contract:SL_FACI_SCHEDULES__CHG_CURRENCY__BUY_SELL_ID *
+	}
+	SL_FACI_SCHEDULES__CHG_CURRENCY__CHG_CODE
+	{
+		/* Holds the charge currency in which attached charge has to be collected. */
+		CHG_CURRENCY : T24BusinessTypes:CCY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=CHG.CURRENCY)
+		/* Holds the charge amount applicable for this schedule */
+		CHG_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=4.0, core=true, t24Name=CHG.AMOUNT)
+	}
+	SL_FACI_SCHEDULES__CHG_CURRENCY__BUY_SELL_ID
+	{
+		/* This field holds the ID of the SL.BUY.SELL record */
+		BUY_SELL_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=24, sysNumber=6.0, core=true, t24Name=BUY.SELL.ID)
+	}
+	SL_FACI_SCHEDULES_PAST_HIST
+		@t24:i (t24Name=SL.FACI.SCHEDULES.PAST.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Please refer help text section of SL.FACI.SCHEDULES */
+		ID -> SL_Contract:SL_FACI_SCHEDULES_PAST_HIST PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=0.0, core=true, businessType=A, t24Name=ID)
+		SCH_TYPE -> byValue SL_Contract:SL_FACI_SCHEDULES_PAST_HIST__SCH_TYPE *
+		CHG_CURRENCY -> byValue SL_Contract:SL_FACI_SCHEDULES_PAST_HIST__CHG_CURRENCY *
+	}
+	SL_FACI_SCHEDULES_PAST_HIST__SCH_TYPE
+	{
+		/* Please refer help text section of SL.FACI.SCHEDULES */
+		SCH_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, t24Name=SCH.TYPE)
+		CHG_CODE -> byValue SL_Contract:SL_FACI_SCHEDULES_PAST_HIST__SCH_TYPE__CHG_CODE *
+	}
+	SL_FACI_SCHEDULES_PAST_HIST__SCH_TYPE__CHG_CODE
+	{
+		/* Please refer help text section of SL.FACI.SCHEDULES */
+		CHG_CODE : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=CHG.CODE)
+	}
+	SL_FACI_SCHEDULES_PAST_HIST__CHG_CURRENCY
+	{
+		CHG_CODE -> byValue SL_Contract:SL_FACI_SCHEDULES_PAST_HIST__CHG_CURRENCY__CHG_CODE *
+		/* Please refer help text section of SL.FACI.SCHEDULES */
+		SCH_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=SCH.AMOUNT)
+		BUY_SELL_ID -> byValue SL_Contract:SL_FACI_SCHEDULES_PAST_HIST__CHG_CURRENCY__BUY_SELL_ID *
+	}
+	SL_FACI_SCHEDULES_PAST_HIST__CHG_CURRENCY__CHG_CODE
+	{
+		/* Please refer help text section of SL.FACI.SCHEDULES */
+		CHG_CURRENCY : T24BusinessTypes:CCY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=CHG.CURRENCY)
+		/* Please refer help text section of SL.FACI.SCHEDULES */
+		CHG_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=4.0, core=true, t24Name=CHG.AMOUNT)
+	}
+	SL_FACI_SCHEDULES_PAST_HIST__CHG_CURRENCY__BUY_SELL_ID
+	{
+		/* Please refer help text section of SL.FACI.SCHEDULES */
+		BUY_SELL_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=24, sysNumber=6.0, core=true, t24Name=BUY.SELL.ID)
+	}
+	SL_FACI_TR_END_LIST
+		@t24:i (t24Name=SL.FACI.TR.END.LIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key field which holds the process end date along with the facility id. */
+		PROCESS_DATE -> SL_Contract:SL_FACI_TR_END_LIST PK required
+			@i18n:Label (en="Process Date")
+			@t24:i (align=L, inputBehaviour=I, maxLength=26, sysNumber=0.0, core=true, businessType=A, t24Name=PROCESS.DATE, mask="##/#####/#####/##/#######")
+		FACI_TR -> byValue SL_Contract:SL_FACI_TR_END_LIST__FACI_TR *
+		/* This is an 'I' type field which holds the process end date */
+		END_DATE : mml:Integer
+			@i18n:Label (en="End Date")
+			@i18n:Tooltip (en="End Date")
+			@t24:i (align=L, inputBehaviour=N, maxLength=7, core=false, t24Name=END.DATE, genOperation="@ID[15,7]")
+	}
+	SL_FACI_TR_END_LIST__FACI_TR
+	{
+		/* This field holds the ID of the tranches belong to this Facility */
+		FACI_TR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=1.0, core=true, t24Name=FACI.TR)
+	}
+	SL_FACI_TR_IDS
+		@t24:i (t24Name=SL.FACI.TR.IDS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key field which holds the ID of the Pre Syndication for which tranche details are updated */
+		FACI_TR_IDS -> SL_Contract:SL_FACI_TR_IDS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=FACI.TR.IDS)
+		FACILITY_NO -> byValue SL_Contract:SL_FACI_TR_IDS__FACILITY_NO *
+	}
+	SL_FACI_TR_IDS__FACILITY_NO
+	{
+		/* Holds all the facility numbers belong to the Pre Syndication for this record has been created */
+		FACILITY_NO : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, t24Name=FACILITY.NO)
+		TRANCHE_CODE -> byValue SL_Contract:SL_FACI_TR_IDS__FACILITY_NO__TRANCHE_CODE *
+	}
+	SL_FACI_TR_IDS__FACILITY_NO__TRANCHE_CODE
+	{
+		/* All the tranche codes which belong to a facility defined at the corresponding FACILITY.NO field are updated here */
+		TRANCHE_CODE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=TRANCHE.CODE)
+	}
+	SL_FACI_TR_ST_LIST
+		@t24:i (t24Name=SL.FACI.TR.ST.LIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key field which holds the process start date along with the facility id. */
+		PROCESS_DATE -> SL_Contract:SL_FACI_TR_ST_LIST PK required
+			@i18n:Label (en="Process Date")
+			@t24:i (align=L, inputBehaviour=I, maxLength=26, sysNumber=0.0, core=true, businessType=A, t24Name=PROCESS.DATE, mask="##/#####/#####/##/#######")
+		FACI_TR -> byValue SL_Contract:SL_FACI_TR_ST_LIST__FACI_TR *
+		/* This is an 'I' type field which holds the process start date */
+		START_DATE : mml:Integer
+			@i18n:Label (en="Start Date")
+			@i18n:Tooltip (en="Start Date")
+			@t24:i (align=L, inputBehaviour=N, maxLength=7, core=false, t24Name=START.DATE, genOperation="@ID[15,7]")
+	}
+	SL_FACI_TR_ST_LIST__FACI_TR
+	{
+		/* This field holds the ID of the tranches belong to this Facility */
+		FACI_TR : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=20, sysNumber=1.0, core=true, t24Name=FACI.TR)
+	}
+	SL_FACILITY_LOANS
+		@t24:i (t24Name=SL.FACILITY.LOANS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key field for this file and holds the ID of the FACILITY for which this record is created */
+		FACI_LN_CCY -> SL_Contract:SL_FACILITY_LOANS PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=FACI.LN.CCY)
+		LOAN_ID -> byValue SL_Contract:SL_FACILITY_LOANS__LOAN_ID *
+	}
+	SL_FACILITY_LOANS__LOAN_ID
+	{
+		/* Holds the IDs of the loans contracts created under this facility for which this record is created */
+		LOAN_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=1.0, core=true, t24Name=LOAN.ID)
+		/* The currency of the loan contract defined in the corresponding LOAN.ID field is updated. */
+		DEAL_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, businessType=CCY, t24Name=DEAL.CURRENCY)
+		/* Own share amount of the loan defined at the corresponding LOAN.ID field which belongs to this facility. This amount is expressed in the currency of the loan contract */
+		FAC_OWN_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=FAC.OWN.AMOUNT, typeModifiers="2")
+		/* Holds the loan amount expressed in the loan contract currency. This amount would be equal to the corresponding amount in the field  BASE.CCY.AMT if both loan currency and facility currency are same */
+		BASE_CCY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=BASE.CCY.AMT, typeModifiers="2")
+		/* Holds the loan contract amount expressed in the currency of the FACILITY. */
+		LOAN_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=LOAN.AMOUNT, typeModifiers="2")
+		/* Holds the maturity date of the loan contract which is defined at the corresponding LOAN.ID field */
+		MATURITY_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=6.0, core=true, t24Name=MATURITY.DATE)
+		/* This field indicates whether schedule definition has been set at the loan contract level or not. The value of 'Y' means the schedule
+definition at loan contract level has been set */
+		SCH_DEFINED : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=1, sysNumber=7.0, core=true, t24Name=SCH.DEFINED)
+	}
+	SL_LOAN_BALANCES
+		@t24:i (t24Name=SL.LOAN.BALANCES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_NO -> SL_Contract:SL_LOAN_BALANCES PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO, mask="##/#####/#####-###-####")
+		/* Holds the currency of the loan contract . */
+		SL_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en="Sl Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=SL.CURRENCY)
+		/* Holds the initial loan amount from SL.LOAN record */
+		SL_LOAN_INIT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=SL.LOAN.INIT.AMT, typeModifiers="1")
+		OUTS_CURR_AMT -> byValue SL_Contract:SL_LOAN_BALANCES__OUTS_CURR_AMT *
+		STRT_PRD_INT -> byValue SL_Contract:SL_LOAN_BALANCES__STRT_PRD_INT *
+		INT_RATE -> byValue SL_Contract:SL_LOAN_BALANCES__INT_RATE *
+		RET_INT_AMT -> byValue SL_Contract:SL_LOAN_BALANCES__RET_INT_AMT *
+		/* This field is updated with the last BUY/SELL movement date for validation purposes */
+		LAST_BS_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=32.0, core=true, t24Name=LAST.BS.DATE)
+		/* This field defines the date on which next interest revision is scheduled */
+		NEXT_INT_REV_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=33.0, core=true, t24Name=NEXT.INT.REV.DT)
+		/* This field holds the date on which the last interest revision took place */
+		LAST_INT_REV_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, core=true, t24Name=LAST.INT.REV.DT)
+		/* In SL.REPAYMENT.SCHEDULES, if BASE.DATE is 'BASE', then the INTEREST base date is stored in this field based on the values in INT.DUE.FQY */
+		INT_BASE_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=35.0, core=true, t24Name=INT.BASE.DT)
+		/* In SL.REPAYMENT.SCHEDULES, if BASE.DATE is 'BASE', then the Principal base date is stored in this field based on the values in NXT.RPT.DATE. */
+		PRIN_BASE_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=36.0, core=true, t24Name=PRIN.BASE.DT)
+		/* In SL.REPAYMENT.SCHEDULES, if BASE.DATE is 'BASE', then the Rate schedule  base date is stored in this field based on the values in R.SCH.FQU field */
+		RATE_BASE_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=37.0, core=true, t24Name=RATE.BASE.DT)
+		PIK_REFERENCE -> byValue SL_Contract:SL_LOAN_BALANCES__PIK_REFERENCE *
+	}
+	SL_LOAN_BALANCES__OUTS_CURR_AMT
+	{
+		/* Holds the current outstanding amount effective on the date given in the AMT.EFF.DATE field */
+		OUTS_CURR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=OUTS.CURR.AMT, typeModifiers="1")
+		/* Holds the movement amount whenever there is a movement with effective date updated in AMT.EFF.DATE field */
+		AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=AMT.MOVED, typeModifiers="1")
+		/* This field records the positive movement of the drawdown */
+		INCR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=INCR.AMT, typeModifiers="1")
+		/* This field records the negative movement of the drawdown */
+		DECR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=DECR.AMT, typeModifiers="1")
+		MVT_TYPE -> byValue SL_Contract:SL_LOAN_BALANCES__OUTS_CURR_AMT__MVT_TYPE *
+		/* Effective date for the outstanding balance and movement amount is updated in this filed. This is a mulivalue field and associated with the fields OUTS.CURR.AMT and AMT.MOVED
+. */
+		AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=AMT.EFF.DATE)
+		/* Reserved for future use */
+		OUTS_AMT_B_CCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=OUTS.AMT.B.CCY, typeModifiers="1")
+	}
+	SL_LOAN_BALANCES__OUTS_CURR_AMT__MVT_TYPE
+	{
+		/* This field is updated with the movement type of the transactions. Currently, this field is updated with BS to indicate the BUY/SELL transaction */
+		MVT_TYPE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=MVT.TYPE, typeModifiers="1")
+		/* This field is updated with the movement amount of the corresponding  movement defined in MVT.TYPE field */
+		MVT_AMT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=MVT.AMT)
+	}
+	SL_LOAN_BALANCES__STRT_PRD_INT
+	{
+		/* Holds the date from which the associated commited interest calculation begins */
+		STRT_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=STRT.PRD.INT)
+		/* Holds the end date for the associated commited interest calculation */
+		END_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=END.PRD.INT)
+		/* Holds the tax amount calculated on the commited interest amount */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=TAX.AMOUNT)
+		/* This field captures the interest amount movement between participants. This amount will be considered on schedule date and will be updated only for participant funcionality. This forms part of the interest details set of associated multivalue fields */
+		BS_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=BS.INT.AMT, typeModifiers="1")
+		/* Holds the commited interest amount calculated based on the balance. The rate is available in the field INT.RATE and period is taken
+from the fields STRT.PRD.INT and END.PRD.INT */
+		COMMITED_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=COMMITED.INT, typeModifiers="1")
+		FLT_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=16.0, core=true, t24Name=FLT.INT.AMT, typeModifiers="1")
+		PRD_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=PRD.INT.AMT, typeModifiers="1")
+		/* Holds the interest amount calculated  on the online partial repayment amount for the current period. */
+		INT_ON_RPY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=INT.ON.RPY.AMT, typeModifiers="1")
+		CAP_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=CAP.INT.AMT)
+	}
+	SL_LOAN_BALANCES__INT_RATE
+	{
+		/* Holds the rate at which the committed interest is calculated. A multivalue field associated with the effective date field RATE.EFF.DT */
+		INT_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=20.0, core=true, t24Name=INT.RATE)
+		CAP_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, core=true, t24Name=CAP.RATE)
+		/* Holds the customer spread used to arrive at the effective interest rate to calculate interest */
+		INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, core=true, t24Name=INT.SPREAD)
+		INT_CAP_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=INT.CAP.SPREAD)
+		SPL_INT_SPREAD -> byValue SL_Contract:SL_LOAN_BALANCES__INT_RATE__SPL_INT_SPREAD *
+		/* Indicates the current calculation method for interest computation purposes, defaulted from SL.LOANS record.
+Defaulted from */
+		INT_BASIS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=26.0, core=true, t24Name=INT.BASIS)
+		INT_RATE_TYPE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=27.0, core=true, t24Name=INT.RATE.TYPE)
+		/* Effective date of the interest rate updated in the associated INT.RATE field */
+		RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, core=true, t24Name=RATE.EFF.DT)
+	}
+	SL_LOAN_BALANCES__INT_RATE__SPL_INT_SPREAD
+	{
+		SPL_INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=24.0, core=true, t24Name=SPL.INT.SPREAD)
+		SPL_INT_CAP_SPR : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=SPL.INT.CAP.SPR)
+	}
+	SL_LOAN_BALANCES__RET_INT_AMT
+	{
+		/* Holds the differential interest amount due to rate change and maturity date changes. This amount is expressed in the loan
+currency. It is a multivalue field associated to RET.AC.OR.PL and RET.INT.DATE. */
+		RET_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=29.0, core=true, t24Name=RET.INT.AMT, typeModifiers="1")
+		/* This field indicates whether the differential interest is posted to P&L or returned to customer. When the differential interest is returned to customer, this field is updated as AC-interest liq account. If it is posted to P&L, this field is updated with PL-accrual category */
+		RET_AC_OR_PL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=RET.AC.OR.PL)
+		/* Effective date on which the differential interest is returned.This is a multivalue field associated to the fields RET.INT.AMT and 
+RET.AC.OR.PL */
+		RET_INT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=31.0, core=true, t24Name=RET.INT.DATE)
+	}
+	SL_LOAN_BALANCES__PIK_REFERENCE
+	{
+		PIK_REFERENCE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=38.0, core=true, t24Name=PIK.REFERENCE)
+		PIK_ST_DATE -> byValue SL_Contract:SL_LOAN_BALANCES__PIK_REFERENCE__PIK_ST_DATE *
+		PIK_RATE -> byValue SL_Contract:SL_LOAN_BALANCES__PIK_REFERENCE__PIK_RATE *
+	}
+	SL_LOAN_BALANCES__PIK_REFERENCE__PIK_ST_DATE
+	{
+		PIK_ST_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=39.0, core=true, t24Name=PIK.ST.DATE)
+		PIK_END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=40.0, core=true, t24Name=PIK.END.DATE)
+		PIK_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=41.0, core=true, t24Name=PIK.INT)
+		PIK_INT_CAP_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=42.0, core=true, t24Name=PIK.INT.CAP.AMT)
+	}
+	SL_LOAN_BALANCES__PIK_REFERENCE__PIK_RATE
+	{
+		PIK_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=43.0, core=true, t24Name=PIK.RATE)
+		PIK_RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=44.0, core=true, t24Name=PIK.RATE.EFF.DT)
+	}
+	SL_LOAN_BALANCES_HIST
+		@t24:i (t24Name=SL.LOAN.BALANCES.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_NO -> SL_Contract:SL_LOAN_BALANCES_HIST PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO, mask="##/#####/#####-###-####")
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		SL_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en="Sl Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=SL.CURRENCY)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		SL_LOAN_INIT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=SL.LOAN.INIT.AMT, typeModifiers="1")
+		OUTS_CURR_AMT -> byValue SL_Contract:SL_LOAN_BALANCES_HIST__OUTS_CURR_AMT *
+		STRT_PRD_INT -> byValue SL_Contract:SL_LOAN_BALANCES_HIST__STRT_PRD_INT *
+		INT_RATE -> byValue SL_Contract:SL_LOAN_BALANCES_HIST__INT_RATE *
+		RET_INT_AMT -> byValue SL_Contract:SL_LOAN_BALANCES_HIST__RET_INT_AMT *
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		LAST_BS_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=32.0, core=true, t24Name=LAST.BS.DATE)
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		NEXT_INT_REV_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=33.0, core=true, t24Name=NEXT.INT.REV.DT)
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		LAST_INT_REV_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, core=true, t24Name=LAST.INT.REV.DT)
+		INT_BASE_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=35.0, core=true, t24Name=INT.BASE.DT)
+		PRIN_BASE_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=36.0, core=true, t24Name=PRIN.BASE.DT)
+		RATE_BASE_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=37.0, core=true, t24Name=RATE.BASE.DT)
+		PIK_REFERENCE -> byValue SL_Contract:SL_LOAN_BALANCES_HIST__PIK_REFERENCE *
+	}
+	SL_LOAN_BALANCES_HIST__OUTS_CURR_AMT
+	{
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		OUTS_CURR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=OUTS.CURR.AMT, typeModifiers="1")
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=AMT.MOVED, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		INCR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=INCR.AMT, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		DECR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=DECR.AMT, typeModifiers="1")
+		MVT_TYPE -> byValue SL_Contract:SL_LOAN_BALANCES_HIST__OUTS_CURR_AMT__MVT_TYPE *
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=AMT.EFF.DATE)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		OUTS_AMT_B_CCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=OUTS.AMT.B.CCY, typeModifiers="1")
+	}
+	SL_LOAN_BALANCES_HIST__OUTS_CURR_AMT__MVT_TYPE
+	{
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		MVT_TYPE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=MVT.TYPE, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		MVT_AMT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=MVT.AMT)
+	}
+	SL_LOAN_BALANCES_HIST__STRT_PRD_INT
+	{
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		STRT_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=STRT.PRD.INT)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		END_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=END.PRD.INT)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=TAX.AMOUNT)
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		BS_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=BS.INT.AMT, typeModifiers="1")
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		COMMITED_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=COMMITED.INT, typeModifiers="1")
+		FLT_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=16.0, core=true, t24Name=FLT.INT.AMT, typeModifiers="1")
+		PRD_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=PRD.INT.AMT, typeModifiers="1")
+		INT_ON_RPY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=INT.ON.RPY.AMT, typeModifiers="1")
+		CAP_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=CAP.INT.AMT)
+	}
+	SL_LOAN_BALANCES_HIST__INT_RATE
+	{
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		INT_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=20.0, core=true, t24Name=INT.RATE)
+		CAP_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, core=true, t24Name=CAP.RATE)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, core=true, t24Name=INT.SPREAD)
+		INT_CAP_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=INT.CAP.SPREAD)
+		SPL_INT_SPREAD -> byValue SL_Contract:SL_LOAN_BALANCES_HIST__INT_RATE__SPL_INT_SPREAD *
+		INT_BASIS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=26.0, core=true, t24Name=INT.BASIS)
+		INT_RATE_TYPE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=27.0, core=true, t24Name=INT.RATE.TYPE)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, core=true, t24Name=RATE.EFF.DT)
+	}
+	SL_LOAN_BALANCES_HIST__INT_RATE__SPL_INT_SPREAD
+	{
+		SPL_INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=24.0, core=true, t24Name=SPL.INT.SPREAD)
+		SPL_INT_CAP_SPR : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=SPL.INT.CAP.SPR)
+	}
+	SL_LOAN_BALANCES_HIST__RET_INT_AMT
+	{
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		RET_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=29.0, core=true, t24Name=RET.INT.AMT, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		RET_AC_OR_PL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=RET.AC.OR.PL)
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		RET_INT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=31.0, core=true, t24Name=RET.INT.DATE)
+	}
+	SL_LOAN_BALANCES_HIST__PIK_REFERENCE
+	{
+		PIK_REFERENCE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=38.0, core=true, t24Name=PIK.REFERENCE)
+		PIK_ST_DATE -> byValue SL_Contract:SL_LOAN_BALANCES_HIST__PIK_REFERENCE__PIK_ST_DATE *
+		PIK_RATE -> byValue SL_Contract:SL_LOAN_BALANCES_HIST__PIK_REFERENCE__PIK_RATE *
+	}
+	SL_LOAN_BALANCES_HIST__PIK_REFERENCE__PIK_ST_DATE
+	{
+		PIK_ST_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=39.0, core=true, t24Name=PIK.ST.DATE)
+		PIK_END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=40.0, core=true, t24Name=PIK.END.DATE)
+		PIK_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=41.0, core=true, t24Name=PIK.INT)
+		PIK_INT_CAP_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=42.0, core=true, t24Name=PIK.INT.CAP.AMT)
+	}
+	SL_LOAN_BALANCES_HIST__PIK_REFERENCE__PIK_RATE
+	{
+		PIK_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=43.0, core=true, t24Name=PIK.RATE)
+		PIK_RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=44.0, core=true, t24Name=PIK.RATE.EFF.DT)
+	}
+	SL_LOAN_BALANCES_SAVE
+		@t24:i (t24Name=SL.LOAN.BALANCES.SAVE, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_NO -> SL_Contract:SL_LOAN_BALANCES_SAVE PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO, mask="##/#####/#####-###-####")
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		SL_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en="Sl Currency")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=SL.CURRENCY)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		SL_LOAN_INIT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=SL.LOAN.INIT.AMT, typeModifiers="1")
+		OUTS_CURR_AMT -> byValue SL_Contract:SL_LOAN_BALANCES_SAVE__OUTS_CURR_AMT *
+		STRT_PRD_INT -> byValue SL_Contract:SL_LOAN_BALANCES_SAVE__STRT_PRD_INT *
+		INT_RATE -> byValue SL_Contract:SL_LOAN_BALANCES_SAVE__INT_RATE *
+		RET_INT_AMT -> byValue SL_Contract:SL_LOAN_BALANCES_SAVE__RET_INT_AMT *
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		LAST_BS_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=32.0, core=true, t24Name=LAST.BS.DATE)
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		NEXT_INT_REV_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=33.0, core=true, t24Name=NEXT.INT.REV.DT)
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		LAST_INT_REV_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, core=true, t24Name=LAST.INT.REV.DT)
+		INT_BASE_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=35.0, core=true, t24Name=INT.BASE.DT)
+		PRIN_BASE_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=36.0, core=true, t24Name=PRIN.BASE.DT)
+		RATE_BASE_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=37.0, core=true, t24Name=RATE.BASE.DT)
+		PIK_REFERENCE -> byValue SL_Contract:SL_LOAN_BALANCES_SAVE__PIK_REFERENCE *
+	}
+	SL_LOAN_BALANCES_SAVE__OUTS_CURR_AMT
+	{
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		OUTS_CURR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=OUTS.CURR.AMT, typeModifiers="1")
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=AMT.MOVED, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		INCR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=INCR.AMT, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		DECR_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=DECR.AMT, typeModifiers="1")
+		MVT_TYPE -> byValue SL_Contract:SL_LOAN_BALANCES_SAVE__OUTS_CURR_AMT__MVT_TYPE *
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=AMT.EFF.DATE)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		OUTS_AMT_B_CCY : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=10.0, core=true, t24Name=OUTS.AMT.B.CCY, typeModifiers="1")
+	}
+	SL_LOAN_BALANCES_SAVE__OUTS_CURR_AMT__MVT_TYPE
+	{
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		MVT_TYPE : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=MVT.TYPE, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		MVT_AMT : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=MVT.AMT)
+	}
+	SL_LOAN_BALANCES_SAVE__STRT_PRD_INT
+	{
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		STRT_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=STRT.PRD.INT)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		END_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=12.0, core=true, t24Name=END.PRD.INT)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=TAX.AMOUNT)
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		BS_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=BS.INT.AMT, typeModifiers="1")
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		COMMITED_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=COMMITED.INT, typeModifiers="1")
+		FLT_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=16.0, core=true, t24Name=FLT.INT.AMT, typeModifiers="1")
+		PRD_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=PRD.INT.AMT, typeModifiers="1")
+		INT_ON_RPY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=INT.ON.RPY.AMT, typeModifiers="1")
+		CAP_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=CAP.INT.AMT)
+	}
+	SL_LOAN_BALANCES_SAVE__INT_RATE
+	{
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		INT_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=20.0, core=true, t24Name=INT.RATE)
+		CAP_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, core=true, t24Name=CAP.RATE)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, core=true, t24Name=INT.SPREAD)
+		INT_CAP_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=INT.CAP.SPREAD)
+		SPL_INT_SPREAD -> byValue SL_Contract:SL_LOAN_BALANCES_SAVE__INT_RATE__SPL_INT_SPREAD *
+		INT_BASIS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=26.0, core=true, t24Name=INT.BASIS)
+		INT_RATE_TYPE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=27.0, core=true, t24Name=INT.RATE.TYPE)
+		/* Refer to helptext of SL.LOAN.BALANCES */
+		RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, core=true, t24Name=RATE.EFF.DT)
+	}
+	SL_LOAN_BALANCES_SAVE__INT_RATE__SPL_INT_SPREAD
+	{
+		SPL_INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=24.0, core=true, t24Name=SPL.INT.SPREAD)
+		SPL_INT_CAP_SPR : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=SPL.INT.CAP.SPR)
+	}
+	SL_LOAN_BALANCES_SAVE__RET_INT_AMT
+	{
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		RET_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=29.0, core=true, t24Name=RET.INT.AMT, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		RET_AC_OR_PL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=RET.AC.OR.PL)
+		/* Please refer the help text section of SL.LOAN.BALANCES */
+		RET_INT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=31.0, core=true, t24Name=RET.INT.DATE)
+	}
+	SL_LOAN_BALANCES_SAVE__PIK_REFERENCE
+	{
+		PIK_REFERENCE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=38.0, core=true, t24Name=PIK.REFERENCE)
+		PIK_ST_DATE -> byValue SL_Contract:SL_LOAN_BALANCES_SAVE__PIK_REFERENCE__PIK_ST_DATE *
+		PIK_RATE -> byValue SL_Contract:SL_LOAN_BALANCES_SAVE__PIK_REFERENCE__PIK_RATE *
+	}
+	SL_LOAN_BALANCES_SAVE__PIK_REFERENCE__PIK_ST_DATE
+	{
+		PIK_ST_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=39.0, core=true, t24Name=PIK.ST.DATE)
+		PIK_END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=40.0, core=true, t24Name=PIK.END.DATE)
+		PIK_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=41.0, core=true, t24Name=PIK.INT)
+		PIK_INT_CAP_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=42.0, core=true, t24Name=PIK.INT.CAP.AMT)
+	}
+	SL_LOAN_BALANCES_SAVE__PIK_REFERENCE__PIK_RATE
+	{
+		PIK_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=43.0, core=true, t24Name=PIK.RATE)
+		PIK_RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=44.0, core=true, t24Name=PIK.RATE.EFF.DT)
+	}
+	SL_LOAN_MATURITY
+		@t24:i (t24Name=SL.LOAN.MATURITY, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Key to this application. Holds a valid maturity date defined in SL.LOANS application */
+		MATURITY_DATE -> SL_Contract:SL_LOAN_MATURITY PK required
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates the Maturity Date of the Transaction")
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=0.0, core=true, businessType=D, t24Name=MATURITY.DATE)
+		CONTRACT_ID -> byValue SL_Contract:SL_LOAN_MATURITY__CONTRACT_ID *
+	}
+	SL_LOAN_MATURITY__CONTRACT_ID
+	{
+		/* Holds the SL.LOANS ID with ID as the maturity date */
+		CONTRACT_ID : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=17, sysNumber=1.0, core=true, t24Name=CONTRACT.ID)
+	}
+	SL_LOAN_PART_BALANCES
+		@t24:i (t24Name=SL.LOAN.PART.BALANCES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_NO -> SL_Contract:SL_LOAN_PART_BALANCES PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO, mask="##/#####/#####-###-####/##########")
+		/* Currency of the loan contract is updated in this field */
+		LOAN_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=LOAN.CURRENCY)
+		/* This field is updated with the participant's share of the initial loan amount */
+		PART_INIT_LO_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=PART.INIT.LO.AMT, typeModifiers="1")
+		PR_OUTS_AMT -> byValue SL_Contract:SL_LOAN_PART_BALANCES__PR_OUTS_AMT *
+		STRT_PRD_INT -> byValue SL_Contract:SL_LOAN_PART_BALANCES__STRT_PRD_INT *
+		INT_RATE -> byValue SL_Contract:SL_LOAN_PART_BALANCES__INT_RATE *
+		RET_INT_AMT -> byValue SL_Contract:SL_LOAN_PART_BALANCES__RET_INT_AMT *
+		PIK_REFERENCE -> byValue SL_Contract:SL_LOAN_PART_BALANCES__PIK_REFERENCE *
+	}
+	SL_LOAN_PART_BALANCES__PR_OUTS_AMT
+	{
+		/* Holds the share of the participant in the current outstanding loan amount */
+		PR_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=PR.OUTS.AMT, typeModifiers="1")
+		/* This field is updated with the participant's share of the movement amount whenever there is a movement with effective date updated in PR.AMT.EFF.DATE field */
+		PR_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=PR.AMT.MOVED, typeModifiers="1")
+		/* This field records the positive movement of the loan for participants */
+		PR_AMT_INCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=PR.AMT.INCR, typeModifiers="1")
+		/* This field records the negative movement of the loan for participants */
+		PR_AMT_DECR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=PR.AMT.DECR, typeModifiers="1")
+		MVT_TYPE -> byValue SL_Contract:SL_LOAN_PART_BALANCES__PR_OUTS_AMT__MVT_TYPE *
+		/* The effective date for the outstanding balance and movement amount is updated in this filed. This is a mulivalue field and associated with the fields PR.OUTS.AMT and PR.AMT.MOVED */
+		PR_AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=PR.AMT.EFF.DATE)
+	}
+	SL_LOAN_PART_BALANCES__PR_OUTS_AMT__MVT_TYPE
+	{
+		/* This field is updated with the movement type of the transactions. Currently, this field is updated with BS to indicate the BUY/SELL transaction */
+		MVT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=MVT.TYPE)
+		/* This field is updated with the movement amount of the corresponding movement defined in MVT.TYPE field */
+		MVT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=MVT.AMT, typeModifiers="1")
+	}
+	SL_LOAN_PART_BALANCES__STRT_PRD_INT
+	{
+		/* This field holds the date from which the associated total interest amount calculation begins */
+		STRT_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=STRT.PRD.INT)
+		/* This field holds the end date for the associated total interest amount calculation */
+		END_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=END.PRD.INT)
+		/* This field holds the total interest amount calculated based on the balance. The rate is available in the field INT.RATE and period is takenfrom the fields STRT.PRD.INT and END.PRD.INT */
+		TOT_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, core=true, t24Name=TOT.INT.AMT, typeModifiers="1")
+		FLT_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=FLT.INT.AMT, typeModifiers="1")
+		PRD_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=PRD.INT.AMT, typeModifiers="1")
+		/* olds the interest amount calculated  on the online partial repayment amount for the current period. */
+		INT_ON_RPY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=INT.ON.RPY.AMT, typeModifiers="1")
+		/* This field captures the interest amount movement between participants. This amount will be considered on schedule date. This forms part of the interest details set of associated multivalue fields */
+		BS_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=16.0, core=true, t24Name=BS.INT.AMT, typeModifiers="1")
+		CAP_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=CAP.INT.AMT)
+		/* This field holds the tax amount calculated on the total interest amount */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=TAX.AMOUNT)
+		/* This field holds the outstanding accrual amount calculated on the balance amount */
+		OUTS_ACCR_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=OUTS.ACCR.INT, typeModifiers="1")
+	}
+	SL_LOAN_PART_BALANCES__INT_RATE
+	{
+		/* This field holds the rate at which the total interest amount is calculated. A multivalue field associated with the effective date field RATE.EFF.DT. */
+		INT_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=20.0, core=true, t24Name=INT.RATE)
+		CAP_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, core=true, t24Name=CAP.RATE)
+		/* This field holds the customer spread used to arrive at the effective interest rate to calculate interest */
+		INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, core=true, t24Name=INT.SPREAD)
+		INT_CAP_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=INT.CAP.SPREAD)
+		SPL_INT_SPREAD -> byValue SL_Contract:SL_LOAN_PART_BALANCES__INT_RATE__SPL_INT_SPREAD *
+		/* Indicates the current calculation method for interest computation purposes, defaulted from SL.LOANS record. */
+		INT_BASIS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=26.0, core=true, t24Name=INT.BASIS)
+		INT_RATE_TYPE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=27.0, core=true, t24Name=INT.RATE.TYPE)
+		/* This is the effective date of the interest rate updated in the associated INT.RATE field */
+		RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, core=true, t24Name=RATE.EFF.DT)
+	}
+	SL_LOAN_PART_BALANCES__INT_RATE__SPL_INT_SPREAD
+	{
+		SPL_INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=24.0, core=true, t24Name=SPL.INT.SPREAD)
+		SPL_INT_CAP_SPR : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=SPL.INT.CAP.SPR)
+	}
+	SL_LOAN_PART_BALANCES__RET_INT_AMT
+	{
+		/* This field captures the differential interest amount due to rate change and maturity date changes. This amount is expressed in the loan currency. It is a multivalue field associated to RET.AC.OR.PL and RET.INT.DATE. */
+		RET_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=29.0, core=true, t24Name=RET.INT.AMT, typeModifiers="1")
+		/* This field indicates whether the differential interest is posted to P&L or returned to customer. When the differential interest is returned to customer, this field is updated as AC-interest liq account. If it is posted to P&L, this field is updated with PL-accrual category */
+		RET_AC_OR_PL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=RET.AC.OR.PL)
+		/* This is the effective date on which the differential interest is returned.
+This is a multivalue field associated to the fields RET.INT.AMT and RET.AC.OR.PL */
+		RET_INT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=31.0, core=true, t24Name=RET.INT.DATE)
+	}
+	SL_LOAN_PART_BALANCES__PIK_REFERENCE
+	{
+		PIK_REFERENCE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=32.0, core=true, t24Name=PIK.REFERENCE)
+		PIK_ST_DATE -> byValue SL_Contract:SL_LOAN_PART_BALANCES__PIK_REFERENCE__PIK_ST_DATE *
+		PIK_RATE -> byValue SL_Contract:SL_LOAN_PART_BALANCES__PIK_REFERENCE__PIK_RATE *
+	}
+	SL_LOAN_PART_BALANCES__PIK_REFERENCE__PIK_ST_DATE
+	{
+		PIK_ST_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=33.0, core=true, t24Name=PIK.ST.DATE)
+		PIK_END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, core=true, t24Name=PIK.END.DATE)
+		PIK_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=35.0, core=true, t24Name=PIK.INT)
+		PIK_CAP_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=36.0, core=true, t24Name=PIK.CAP.INT.AMT)
+	}
+	SL_LOAN_PART_BALANCES__PIK_REFERENCE__PIK_RATE
+	{
+		PIK_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=37.0, core=true, t24Name=PIK.RATE)
+		PIK_RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=38.0, core=true, t24Name=PIK.RATE.EFF.DT)
+	}
+	SL_LOAN_PART_BALANCES_HIST
+		@t24:i (t24Name=SL.LOAN.PART.BALANCES.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_NO -> SL_Contract:SL_LOAN_PART_BALANCES_HIST PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO, mask="##/#####/#####-###-####/##########")
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		LOAN_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=LOAN.CURRENCY)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		PART_INIT_LO_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=PART.INIT.LO.AMT, typeModifiers="1")
+		PR_OUTS_AMT -> byValue SL_Contract:SL_LOAN_PART_BALANCES_HIST__PR_OUTS_AMT *
+		STRT_PRD_INT -> byValue SL_Contract:SL_LOAN_PART_BALANCES_HIST__STRT_PRD_INT *
+		INT_RATE -> byValue SL_Contract:SL_LOAN_PART_BALANCES_HIST__INT_RATE *
+		RET_INT_AMT -> byValue SL_Contract:SL_LOAN_PART_BALANCES_HIST__RET_INT_AMT *
+		PIK_REFERENCE -> byValue SL_Contract:SL_LOAN_PART_BALANCES_HIST__PIK_REFERENCE *
+	}
+	SL_LOAN_PART_BALANCES_HIST__PR_OUTS_AMT
+	{
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		PR_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=PR.OUTS.AMT, typeModifiers="1")
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		PR_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=PR.AMT.MOVED, typeModifiers="1")
+		PR_AMT_INCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=PR.AMT.INCR, typeModifiers="1")
+		PR_AMT_DECR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=PR.AMT.DECR, typeModifiers="1")
+		MVT_TYPE -> byValue SL_Contract:SL_LOAN_PART_BALANCES_HIST__PR_OUTS_AMT__MVT_TYPE *
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		PR_AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=PR.AMT.EFF.DATE)
+	}
+	SL_LOAN_PART_BALANCES_HIST__PR_OUTS_AMT__MVT_TYPE
+	{
+		MVT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=MVT.TYPE)
+		MVT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=MVT.AMT, typeModifiers="1")
+	}
+	SL_LOAN_PART_BALANCES_HIST__STRT_PRD_INT
+	{
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		STRT_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=STRT.PRD.INT)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		END_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=END.PRD.INT)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		TOT_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, core=true, t24Name=TOT.INT.AMT, typeModifiers="1")
+		FLT_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=FLT.INT.AMT, typeModifiers="1")
+		PRD_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=PRD.INT.AMT, typeModifiers="1")
+		INT_ON_RPY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=INT.ON.RPY.AMT, typeModifiers="1")
+		BS_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=16.0, core=true, t24Name=BS.INT.AMT, typeModifiers="1")
+		CAP_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=CAP.INT.AMT)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=TAX.AMOUNT)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		OUTS_ACCR_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=OUTS.ACCR.INT, typeModifiers="1")
+	}
+	SL_LOAN_PART_BALANCES_HIST__INT_RATE
+	{
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		INT_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=20.0, core=true, t24Name=INT.RATE)
+		CAP_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, core=true, t24Name=CAP.RATE)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, core=true, t24Name=INT.SPREAD)
+		INT_CAP_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=INT.CAP.SPREAD)
+		SPL_INT_SPREAD -> byValue SL_Contract:SL_LOAN_PART_BALANCES_HIST__INT_RATE__SPL_INT_SPREAD *
+		INT_BASIS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=26.0, core=true, t24Name=INT.BASIS)
+		INT_RATE_TYPE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=27.0, core=true, t24Name=INT.RATE.TYPE)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, core=true, t24Name=RATE.EFF.DT)
+	}
+	SL_LOAN_PART_BALANCES_HIST__INT_RATE__SPL_INT_SPREAD
+	{
+		SPL_INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=24.0, core=true, t24Name=SPL.INT.SPREAD)
+		SPL_INT_CAP_SPR : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=SPL.INT.CAP.SPR)
+	}
+	SL_LOAN_PART_BALANCES_HIST__RET_INT_AMT
+	{
+		RET_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=29.0, core=true, t24Name=RET.INT.AMT, typeModifiers="1")
+		RET_AC_OR_PL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=RET.AC.OR.PL)
+		RET_INT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=31.0, core=true, t24Name=RET.INT.DATE)
+	}
+	SL_LOAN_PART_BALANCES_HIST__PIK_REFERENCE
+	{
+		PIK_REFERENCE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=32.0, core=true, t24Name=PIK.REFERENCE)
+		PIK_ST_DATE -> byValue SL_Contract:SL_LOAN_PART_BALANCES_HIST__PIK_REFERENCE__PIK_ST_DATE *
+		PIK_RATE -> byValue SL_Contract:SL_LOAN_PART_BALANCES_HIST__PIK_REFERENCE__PIK_RATE *
+	}
+	SL_LOAN_PART_BALANCES_HIST__PIK_REFERENCE__PIK_ST_DATE
+	{
+		PIK_ST_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=33.0, core=true, t24Name=PIK.ST.DATE)
+		PIK_END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, core=true, t24Name=PIK.END.DATE)
+		PIK_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=35.0, core=true, t24Name=PIK.INT)
+		PIK_CAP_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=36.0, core=true, t24Name=PIK.CAP.INT.AMT)
+	}
+	SL_LOAN_PART_BALANCES_HIST__PIK_REFERENCE__PIK_RATE
+	{
+		PIK_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=37.0, core=true, t24Name=PIK.RATE)
+		PIK_RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=38.0, core=true, t24Name=PIK.RATE.EFF.DT)
+	}
+	SL_LOAN_PART_BALANCES_SAVE
+		@t24:i (t24Name=SL.LOAN.PART.BALANCES.SAVE, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_NO -> SL_Contract:SL_LOAN_PART_BALANCES_SAVE PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO, mask="##/#####/#####-###-####/##########")
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		LOAN_CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=LOAN.CURRENCY)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		PART_INIT_LO_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=PART.INIT.LO.AMT, typeModifiers="1")
+		PR_OUTS_AMT -> byValue SL_Contract:SL_LOAN_PART_BALANCES_SAVE__PR_OUTS_AMT *
+		STRT_PRD_INT -> byValue SL_Contract:SL_LOAN_PART_BALANCES_SAVE__STRT_PRD_INT *
+		INT_RATE -> byValue SL_Contract:SL_LOAN_PART_BALANCES_SAVE__INT_RATE *
+		RET_INT_AMT -> byValue SL_Contract:SL_LOAN_PART_BALANCES_SAVE__RET_INT_AMT *
+		PIK_REFERENCE -> byValue SL_Contract:SL_LOAN_PART_BALANCES_SAVE__PIK_REFERENCE *
+	}
+	SL_LOAN_PART_BALANCES_SAVE__PR_OUTS_AMT
+	{
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		PR_OUTS_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=PR.OUTS.AMT, typeModifiers="1")
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		PR_AMT_MOVED : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=4.0, core=true, t24Name=PR.AMT.MOVED, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.PART.BALANCES. */
+		PR_AMT_INCR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=PR.AMT.INCR, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.PART.BALANCES. */
+		PR_AMT_DECR : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=6.0, core=true, t24Name=PR.AMT.DECR, typeModifiers="1")
+		MVT_TYPE -> byValue SL_Contract:SL_LOAN_PART_BALANCES_SAVE__PR_OUTS_AMT__MVT_TYPE *
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		PR_AMT_EFF_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=PR.AMT.EFF.DATE)
+	}
+	SL_LOAN_PART_BALANCES_SAVE__PR_OUTS_AMT__MVT_TYPE
+	{
+		/* Please refer the help text section of SL.LOAN.PART.BALANCES. */
+		MVT_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=MVT.TYPE)
+		/* Please refer the help text section of SL.LOAN.PART.BALANCES. */
+		MVT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=MVT.AMT, typeModifiers="1")
+	}
+	SL_LOAN_PART_BALANCES_SAVE__STRT_PRD_INT
+	{
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		STRT_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=STRT.PRD.INT)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		END_PRD_INT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=11.0, core=true, t24Name=END.PRD.INT)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		TOT_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=12.0, core=true, t24Name=TOT.INT.AMT, typeModifiers="1")
+		FLT_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=13.0, core=true, t24Name=FLT.INT.AMT, typeModifiers="1")
+		PRD_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=14.0, core=true, t24Name=PRD.INT.AMT, typeModifiers="1")
+		INT_ON_RPY_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=INT.ON.RPY.AMT, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.PART.BALANCES. */
+		BS_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=16.0, core=true, t24Name=BS.INT.AMT, typeModifiers="1")
+		CAP_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=17.0, core=true, t24Name=CAP.INT.AMT)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		TAX_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=18.0, core=true, t24Name=TAX.AMOUNT)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		OUTS_ACCR_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=19.0, core=true, t24Name=OUTS.ACCR.INT, typeModifiers="1")
+	}
+	SL_LOAN_PART_BALANCES_SAVE__INT_RATE
+	{
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		INT_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=20.0, core=true, t24Name=INT.RATE)
+		CAP_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=21.0, core=true, t24Name=CAP.RATE)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, core=true, t24Name=INT.SPREAD)
+		INT_CAP_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=INT.CAP.SPREAD)
+		SPL_INT_SPREAD -> byValue SL_Contract:SL_LOAN_PART_BALANCES_SAVE__INT_RATE__SPL_INT_SPREAD *
+		INT_BASIS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=26.0, core=true, t24Name=INT.BASIS)
+		INT_RATE_TYPE : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=27.0, core=true, t24Name=INT.RATE.TYPE)
+		/* Refer to helptext of SL.LOAN.PART.BALANCES */
+		RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=28.0, core=true, t24Name=RATE.EFF.DT)
+	}
+	SL_LOAN_PART_BALANCES_SAVE__INT_RATE__SPL_INT_SPREAD
+	{
+		SPL_INT_SPREAD : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=24.0, core=true, t24Name=SPL.INT.SPREAD)
+		SPL_INT_CAP_SPR : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=25.0, core=true, t24Name=SPL.INT.CAP.SPR)
+	}
+	SL_LOAN_PART_BALANCES_SAVE__RET_INT_AMT
+	{
+		/* Please refer the help text section of SL.LOAN.PART.BALANCES. */
+		RET_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=29.0, core=true, t24Name=RET.INT.AMT, typeModifiers="1")
+		/* Please refer the help text section of SL.LOAN.PART.BALANCES. */
+		RET_AC_OR_PL : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=30.0, core=true, t24Name=RET.AC.OR.PL)
+		/* Please refer the help text section of SL.LOAN.PART.BALANCES. */
+		RET_INT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=8, sysNumber=31.0, core=true, t24Name=RET.INT.DATE)
+	}
+	SL_LOAN_PART_BALANCES_SAVE__PIK_REFERENCE
+	{
+		PIK_REFERENCE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=10, sysNumber=32.0, core=true, t24Name=PIK.REFERENCE)
+		PIK_ST_DATE -> byValue SL_Contract:SL_LOAN_PART_BALANCES_SAVE__PIK_REFERENCE__PIK_ST_DATE *
+		PIK_RATE -> byValue SL_Contract:SL_LOAN_PART_BALANCES_SAVE__PIK_REFERENCE__PIK_RATE *
+	}
+	SL_LOAN_PART_BALANCES_SAVE__PIK_REFERENCE__PIK_ST_DATE
+	{
+		PIK_ST_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=33.0, core=true, t24Name=PIK.ST.DATE)
+		PIK_END_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=34.0, core=true, t24Name=PIK.END.DATE)
+		PIK_INT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=35.0, core=true, t24Name=PIK.INT)
+		PIK_CAP_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=36.0, core=true, t24Name=PIK.CAP.INT.AMT)
+	}
+	SL_LOAN_PART_BALANCES_SAVE__PIK_REFERENCE__PIK_RATE
+	{
+		PIK_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=37.0, core=true, t24Name=PIK.RATE)
+		PIK_RATE_EFF_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=38.0, core=true, t24Name=PIK.RATE.EFF.DT)
+	}
+	SL_LOAN_RET_INT_DET
+		@t24:i (t24Name=SL.LOAN.RET.INT.DET, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_NO -> SL_Contract:SL_LOAN_RET_INT_DET PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO, mask="##/#####/#####-###-####")
+		RET_INT_DATE -> byValue SL_Contract:SL_LOAN_RET_INT_DET__RET_INT_DATE *
+	}
+	SL_LOAN_RET_INT_DET__RET_INT_DATE
+	{
+		/* The date on which the interest amount is returned */
+		RET_INT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=RET.INT.DATE)
+		/* The interest amount which is returned on the corresponding date available in the field RET.INT.DATE */
+		RET_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=RET.INT.AMT)
+	}
+	SL_LOAN_RET_INT_DET_HIST
+		@t24:i (t24Name=SL.LOAN.RET.INT.DET.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_NO -> SL_Contract:SL_LOAN_RET_INT_DET_HIST PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO, mask="##/#####/#####-###-####")
+		RET_INT_DATE -> byValue SL_Contract:SL_LOAN_RET_INT_DET_HIST__RET_INT_DATE *
+	}
+	SL_LOAN_RET_INT_DET_HIST__RET_INT_DATE
+	{
+		/* Please refer the help text section of SL.LOAN.RET.INT.DET */
+		RET_INT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=RET.INT.DATE)
+		/* Please refer the help text section of SL.LOAN.RET.INT.DET */
+		RET_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=RET.INT.AMT)
+	}
+	SL_LOAN_RET_INT_DET_SAVE
+		@t24:i (t24Name=SL.LOAN.RET.INT.DET.SAVE, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		CONTRACT_NO -> SL_Contract:SL_LOAN_RET_INT_DET_SAVE PK required
+			@i18n:Label (en="Contract No")
+			@t24:i (align=L, inputBehaviour=I, maxLength=25, sysNumber=0.0, core=true, businessType=A, t24Name=CONTRACT.NO, mask="##/#####/#####-###-####")
+		RET_INT_DATE -> byValue SL_Contract:SL_LOAN_RET_INT_DET_SAVE__RET_INT_DATE *
+	}
+	SL_LOAN_RET_INT_DET_SAVE__RET_INT_DATE
+	{
+		/* Refer to helptext of SL.LOAN.RET.INT.DET */
+		RET_INT_DATE : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, t24Name=RET.INT.DATE)
+		/* Refer to helptext of SL.LOAN.RET.INT.DET */
+		RET_INT_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=RET.INT.AMT)
+	}
+	SL_LOAN_SCHEDULES
+		@t24:i (t24Name=SL.LOAN.SCHEDULES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* This is the key to this file which is formed by id of the SL.LOANS appended with effective date of the schedule defined in this record */
+		ID -> SL_Contract:SL_LOAN_SCHEDULES PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=0.0, core=true, businessType=A, t24Name=ID, mask="##/#####/#####-###-####-########-####-########")
+		SCH_TYPE -> byValue SL_Contract:SL_LOAN_SCHEDULES__SCH_TYPE *
+		FACI_REPAY_SCH : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=9.0, core=true, t24Name=FACI.REPAY.SCH)
+		SCHED_DATE : mml:Integer
+			@i18n:Label (en="Schedule Date")
+			@t24:i (align=L, inputBehaviour=N, maxLength=8, core=false, t24Name=SCHED.DATE, genOperation="@ID[8]")
+	}
+	SL_LOAN_SCHEDULES__SCH_TYPE
+	{
+		/* Holds the type of the schedule for which this record is created */
+		SCH_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, t24Name=SCH.TYPE)
+		CHG_CODE -> byValue SL_Contract:SL_LOAN_SCHEDULES__SCH_TYPE__CHG_CODE *
+		/* Holds the scheduled amount of the corresponding schedule type to be processed */
+		SCH_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=SCH.AMOUNT)
+		/* This field holds the ID of the participants */
+		PART_ID -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=6.0, core=true, businessType=CUS, t24Name=PART.ID)
+		/* Holds the participant amount for the corresponding participant at the PART.ID field. This amount is expressed in deal currency. */
+		PART_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=PART.AMT)
+		/* Holds the share amount of the participant expressed in facility currency */
+		PART_FAC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=PART.FAC.AMT)
+	}
+	SL_LOAN_SCHEDULES__SCH_TYPE__CHG_CODE
+	{
+		/* Holds the charge code which has to be used when the charge schedule for this date is processed. */
+		CHG_CODE : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=CHG.CODE)
+		/* Holds the charge currency which has to be used when the charge schedule for this date is processed. */
+		CHG_CURRENCY : T24BusinessTypes:CCY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=CHG.CURRENCY)
+		/* Holds the charge amount which has to be used when the charge schedule for this date is processed. */
+		CHG_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=4.0, core=true, t24Name=CHG.AMOUNT)
+	}
+	SL_LOAN_SCHEDULES_PAST
+		@t24:i (t24Name=SL.LOAN.SCHEDULES.PAST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		ID -> SL_Contract:SL_LOAN_SCHEDULES_PAST PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=0.0, core=true, businessType=A, t24Name=ID, mask="##/#####/#####-###-####-########-####-########")
+		SCH_TYPE -> byValue SL_Contract:SL_LOAN_SCHEDULES_PAST__SCH_TYPE *
+		FACI_REPAY_SCH : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=9.0, core=true, t24Name=FACI.REPAY.SCH)
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		MAT_DATE : mml:Integer
+			@i18n:Label (en="Maturity Date")
+			@i18n:Tooltip (en="Indicates maturity date ")
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, core=false, t24Name=MAT.DATE, genOperation="@ID[20,27]")
+	}
+	SL_LOAN_SCHEDULES_PAST__SCH_TYPE
+	{
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		SCH_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, t24Name=SCH.TYPE)
+		CHG_CODE -> byValue SL_Contract:SL_LOAN_SCHEDULES_PAST__SCH_TYPE__CHG_CODE *
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		SCH_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=SCH.AMOUNT)
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		PART_ID -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=6.0, core=true, businessType=CUS, t24Name=PART.ID)
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		PART_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=PART.AMT)
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		PART_FAC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=PART.FAC.AMT)
+	}
+	SL_LOAN_SCHEDULES_PAST__SCH_TYPE__CHG_CODE
+	{
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		CHG_CODE : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=CHG.CODE)
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		CHG_CURRENCY : T24BusinessTypes:CCY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=CHG.CURRENCY)
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		CHG_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=4.0, core=true, t24Name=CHG.AMOUNT)
+	}
+	SL_LOAN_SCHEDULES_PAST_HIST
+		@t24:i (t24Name=SL.LOAN.SCHEDULES.PAST.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Key to this file. Same format as SL.LOAN.SCHEDULES.PAST */
+		ID -> SL_Contract:SL_LOAN_SCHEDULES_PAST_HIST PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=40, sysNumber=0.0, core=true, businessType=A, t24Name=ID, mask="##/#####/#####-###-####-########-####-########")
+		SCH_TYPE -> byValue SL_Contract:SL_LOAN_SCHEDULES_PAST_HIST__SCH_TYPE *
+		FACI_REPAY_SCH : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=9.0, core=true, t24Name=FACI.REPAY.SCH)
+	}
+	SL_LOAN_SCHEDULES_PAST_HIST__SCH_TYPE
+	{
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		SCH_TYPE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=1.0, core=true, t24Name=SCH.TYPE)
+		CHG_CODE -> byValue SL_Contract:SL_LOAN_SCHEDULES_PAST_HIST__SCH_TYPE__CHG_CODE *
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		SCH_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=5.0, core=true, t24Name=SCH.AMOUNT)
+		PART_ID -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=6.0, core=true, businessType=CUS, t24Name=PART.ID)
+		PART_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=7.0, core=true, t24Name=PART.AMT)
+		PART_FAC_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=8.0, core=true, t24Name=PART.FAC.AMT)
+	}
+	SL_LOAN_SCHEDULES_PAST_HIST__SCH_TYPE__CHG_CODE
+	{
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		CHG_CODE : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=11, sysNumber=2.0, core=true, t24Name=CHG.CODE)
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		CHG_CURRENCY : T24BusinessTypes:CCY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=3.0, core=true, t24Name=CHG.CURRENCY)
+		/* Please refer help text section of SL.LOAN.SCHEDULES */
+		CHG_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=16, sysNumber=4.0, core=true, t24Name=CHG.AMOUNT)
+	}
+	SL_TR_LOANS
+		@t24:i (t24Name=SL.TR.LOANS, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Key field which holds the tranche for which this record is created */
+		ID -> SL_Contract:SL_TR_LOANS PK required
+			@i18n:Label (en="Transaction Ref")
+			@i18n:Tooltip (en="Transaction Reference")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=A, t24Name=ID, mask="##/#####/#####/###")
+		LOAN_ID -> byValue SL_Contract:SL_TR_LOANS__LOAN_ID *
+	}
+	SL_TR_LOANS__LOAN_ID
+	{
+		/* Holds the ID of the SL.LOANS record for which the
+currency and value date are updated in the assosicated fields */
+		LOAN_ID : T24BusinessTypes:A required
+			@t24:i (align=L, inputBehaviour=I, maxLength=19, sysNumber=1.0, core=true, t24Name=LOAN.ID)
+		/* Holds the currency of the corresponding loan contract defined in the field LOAN.ID */
+		DEAL_CURRENCY : T24BusinessTypes:CCY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=2.0, core=true, t24Name=DEAL.CURRENCY)
+		/* Holds the value date of the corresponding loan contract defined in the field LOAN.ID
+. */
+		VALUE_DATE : T24BusinessTypes:D required
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=3.0, core=true, t24Name=VALUE.DATE)
+	}
+}

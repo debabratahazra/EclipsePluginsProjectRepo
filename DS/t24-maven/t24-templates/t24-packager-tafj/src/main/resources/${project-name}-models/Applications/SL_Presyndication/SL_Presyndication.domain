@@ -1,0 +1,700 @@
+# UTF-8
+# UTF-8
+/* Pre Syndication Processing for Syndicated Loans */
+Domain SL_Presyndication
+	@t24:i (module=SL)
+	@java:Package (value=com.temenos.t24.datamodel.sl.sl_presyndication)
+namespace "http://www.temenos.com/t24/SL_Presyndication"
+metamodelVersion 1.30.6
+Classes {
+	/* PRE-SYNDICATION FILE is made available for input of basic details of syndication.
+
+This file would contain details of the amount of the loan that is syndicated, the lead manager, co-manager etc to the issue, underwriting made and devolved, details of participants and their share in the syndicate and so on.
+
+
+If the Facility is granted to a conglomerate rather than a single customer, creation of customer table is mandatory for each of the company that may be involved. CUSTOMER.LIABILITY field in the CUSTOMER table is used for credit grouping purposes. This field allows customer exposure to be consolidated at the branch or country level by the LIMIT application, while analysing risk. It also populates a T24 table CUSTOMER.LIABILITY listing out all the liability numbers (customer numbers) that come under the parent customer.
+
+
+For such type of syndication that is granted to a group, the parent customer reference is input in the CUSTOMER field in the PRE-SANCTION file. Drawings under the Facility would be permitted to any of the customers who have been linked to the parent customer through CUSTOMER.LIABILITY. The extent to which each company may draw on the Facility may be effectively controlled through the existing LIMIT application in T24 as well as by appropriate definition of Tranches in FACILITY file.
+In the PRESYNDICATION.FILE the bank may record the date and amount of the mandate, the type of credit line that is solicited, the banks to whom information memorandum is circulated, their responses to such circulation, details of underwriting made and subscriptions brought by each underwriter, details of participation interest received and allotted, details of underwriting that has been devolved and parties involved.
+Once the entire credit line is tied up, by flagging CREATE.FACILITY field, the appropriate facility files could be created. */
+	PRE_SYNDICATION_FILE
+		@t24:i (t24Name=PRE.SYNDICATION.FILE, level=F, type=H, additionalInfo="UNP OEU", allowedFunctions="A C D E H I L P Q R S", localRefAllowed=true)
+	{
+		/* A unique reference number that identifies a particular contract.
+Contract numbers may be generated automatically. For automatic generation, appropriate indicator must be set by the system supervisor. Where automatic generation is supported, depression of F3 key at the ID prompt supplies the next contract reference.
+Validation Rules
+
+12 type A alphanumeric characters
+Once contract is authorised this field cannot be changed
+Julian date must equal application date. */
+		ID_NUMBER -> SL_Presyndication:PRE_SYNDICATION_FILE PK required
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=0.0, core=true, businessType=A, t24Name=ID.NUMBER, mask="##/#####/#####")
+		/* The counterparty of the contract.
+This field contains the identification number assigned to the customer (borrower) and will accept the customer's mnemonic also. The system will use this number to identify the borrower of the credit line as well as to obtain the customer's name and address for delivery purposes.
+Validation Rules
+
+3-10 alphanumeric customer mnemonic or 1-10 numeric character customer       number
+Must be a valid record on the CUSTOMER table
+Mandatory input */
+		CUSTOMER -> ST_Customer:CUSTOMER required
+			@i18n:Label (en=Customer)
+			@i18n:Tooltip (en="Customer Liability")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=1.0, core=true, businessType=CUS, t24Name=CUSTOMER)
+		SL_DESC -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__SL_DESC *
+		/* Short description of the syndication. 3-15 character alphanumeric value would be accepted
+Validation Rules
+
+Mandatory input */
+		SL_SHORT_DESC : T24BusinessTypes:A required
+			@i18n:Label (en=Description)
+			@t24:i (align=L, inputBehaviour=I, maxLength=20, sysNumber=3.0, core=true, t24Name=SL.SHORT.DESC)
+		/* 35 alphanumeric character free text field to record the customer reference details.
+Validation Rules
+
+Optional Input */
+		CUSTOMER_REF : T24BusinessTypes:A
+			@i18n:Label (en="Customer Ref")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=4.0, core=true, t24Name=CUSTOMER.REF)
+		/* Field that determines nature of role played by T24 bank in the syndicate. The bank could play any of the three roles namely
+AGENT - In this instance the bank does not participate by way of subscription and only manages the syndicate
+AGENT cum PARTICIPANT - The bank handles the Agency functions and is also a subscriber (participant) to the syndicate.
+MERE PARTICIPANT - The bank is only a participant
+
+Validation Rules
+
+Only allowed values are A (Agent) AP (Agent cum Participant) and P (Only       Participant)
+Mandatory Input */
+		SL_FUNCTION : SL_Presyndication:PRE_SYNDICATION_FILE__SL_FUNCTION required
+			@i18n:Label (en="Bank\'S Role")
+			@t24:i (align=L, inputBehaviour=I, maxLength=2, sysNumber=5.0, core=true, t24Name=SL.FUNCTION)
+		/* Contains the category code to which this transaction would be assigned. The category code should be within range 20000 - 49999 and should be a valid record on the CATEGORY table.
+Validation Rules
+
+1-5 numeric characters
+Must be a valid record on the CATEGORY table
+Mandatory input */
+		CATEGORY -> ST_Config:CATEGORY required
+			@i18n:Label (en=Category)
+			@i18n:Tooltip (en="Specifies the Category")
+			@t24:i (align=R, inputBehaviour=I, maxLength=6, sysNumber=6.0, core=true, businessType=PRODCAT, t24Name=CATEGORY, typeModifiers="2000049999")
+		/* Date on which mandate was received from the borrower. This field is used only for information purposes and not for any processing.
+Validation Rules
+
+1-9 type (A) alphanumeric characters
+Optional input. System defaults process date
+Should be less than Presyn Start Date */
+		MANDATE_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Mandate Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=7.0, core=true, t24Name=MANDATE.DATE)
+		/* Date on which the pre-syndication work is expected to commence. The pre-syndication process starts with receiving the mandate from the customer and ends with creation of facility after the entire credit line is tied up. The start and end of this period is defined in this set of fields for information.
+Validation Rules
+
+1-9 type (A) alpha numeric characters.
+Can only be later than the Presyn start date */
+		PRESYND_START_DATE : T24BusinessTypes:D
+			@i18n:Label (en="Presynd Start Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=8.0, core=true, t24Name=PRESYND.START.DATE)
+		/* End date for the pre-syndication activity.
+Validation Rules
+
+1-9 (A) type alphanumeric characters
+Mandatory input
+Should be later than the Presynd.start.date */
+		PRESYND_END_DATE : T24BusinessTypes:D required
+			@i18n:Label (en="Presynd End Date")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=9.0, core=true, t24Name=PRESYND.END.DATE)
+		/* Minimum subscription required for grant of facility. This is expressed as a percentage of the mandate amount (SL.AMOUNT) or the amount sought by the borrower. Recorded for information only.
+Validation Rules
+
+Two digit numeric value between 1-99 would be accepted
+Optional input */
+		MIN_SUBSN : T24BusinessTypes:R
+			@i18n:Label (en="Min Subsn")
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=10.0, core=true, t24Name=MIN.SUBSN)
+		/* Indicates the account officer for MIS reporting and profitability purposes.
+Validation Rules
+
+1-4 numeric characters
+Optional input. System defaults the account officer of the customer.
+Must be a valid record on the DEPT.ACCT.OFFICER table */
+		ACCOUNT_OFFICER -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Account Officer")
+			@i18n:Tooltip (en="Indicates Account Officer responsible")
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=11.0, core=true, businessType=DAO, t24Name=ACCOUNT.OFFICER)
+		SL_CURRENCY -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__SL_CURRENCY *
+		ROLE -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__ROLE *
+		/* Once the entire credit line is tied up, value YES could be input in this field to create the FACILITY records.
+In order to create the FACILITY, the Total.Part.Amt should be equal to SL.AMOUNT within each multi-value set. On authorisation, as many FACILITY records as defined in Presyn file would be created in IHLD status with necessary default information.
+Validation Rules
+
+Only allowed value is YES */
+		CREATE_FACILITY : SL_Presyndication:PRE_SYNDICATION_FILE__CREATE_FACILITY
+			@i18n:Label (en="Create Facility")
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=54.0, core=true, t24Name=CREATE.FACILITY)
+		/* This field will hold contract level rounding rule for underwriting fee calculations.
+Validation Rules
+Should be a valid EB.ROUNDING.RULE id.
+No change permitted after first authorization
+For detailed options on different rounding options help text on EB.ROUNDING.RULE file can be referred. */
+		ROUNDING_RULE -> ST_Config:EB_ROUNDING_RULE
+			@i18n:Label (en="Rounding Rule")
+			@i18n:Tooltip (en="Indicates the rounding rule")
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=55.0, core=true, businessType=A, t24Name=ROUNDING.RULE)
+		RESERVED_FIELD_9 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=56.0, core=true, t24Name=RESERVED.FIELD.9)
+		RESERVED_FIELD_8 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=57.0, core=true, t24Name=RESERVED.FIELD.8)
+		RESERVED_FIELD_7 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=58.0, core=true, t24Name=RESERVED.FIELD.7)
+		RESERVED_FIELD_6 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=59.0, core=true, t24Name=RESERVED.FIELD.6)
+		RESERVED_FIELD_5 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=60.0, core=true, t24Name=RESERVED.FIELD.5)
+		RESERVED_FIELD_4 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=61.0, core=true, t24Name=RESERVED.FIELD.4)
+		RESERVED_FIELD_3 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=62.0, core=true, t24Name=RESERVED.FIELD.3)
+		RESERVED_FIELD_2 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=63.0, core=true, t24Name=RESERVED.FIELD.2)
+		RESERVED_FIELD_1 : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=64.0, core=true, t24Name=RESERVED.FIELD.1)
+		STMT_NO -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__STMT_NO *
+		OVERRIDE -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__OVERRIDE *
+		RECORD_STATUS : T24BusinessTypes:STAT
+			@i18n:Label (en="Record Status")
+			@t24:i (align=L, inputBehaviour=N, maxLength=4, sysNumber=68.0, core=true, t24Name=RECORD.STATUS)
+		CURR_NO : mml:Integer
+			@i18n:Label (en="Curr No")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=69.0, core=true, t24Name=CURR.NO)
+		INPUTTER -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__INPUTTER *
+		DATE_TIME -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__DATE_TIME *
+		AUTHORISER : T24BusinessTypes:A
+			@i18n:Label (en=Authoriser)
+			@i18n:Tooltip (en="Indicates the User who Authorises the record")
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=72.0, core=true, t24Name=AUTHORISER)
+		CO_CODE -> ST_CompanyCreation:COMPANY
+			@i18n:Label (en=Company)
+			@t24:i (align=L, inputBehaviour=N, maxLength=11, sysNumber=73.0, core=true, businessType=A, t24Name=CO.CODE, mask="R##-###-####")
+		DEPT_CODE -> ST_Config:DEPT_ACCT_OFFICER
+			@i18n:Label (en="Dept Code")
+			@t24:i (align=R, inputBehaviour=N, maxLength=4, sysNumber=74.0, core=true, t24Name=DEPT.CODE)
+		AUDITOR_CODE : T24BusinessTypes:A
+			@i18n:Label (en="Auditor Code")
+			@i18n:Tooltip (en="Auditor Code")
+			@t24:i (align=L, inputBehaviour=E, maxLength=16, sysNumber=75.0, core=true, t24Name=AUDITOR.CODE)
+		AUDIT_DATE_TIME : T24BusinessTypes:RELTIME
+			@i18n:Label (en="Audit Date Time")
+			@i18n:Tooltip (en="Date and time when record was audited")
+			@t24:i (align=L, inputBehaviour=E, maxLength=15, sysNumber=76.0, core=true, t24Name=AUDIT.DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	PRE_SYNDICATION_FILE__SL_DESC
+	{
+		/* Description of the nature of credit line that is syndicated. Free text field to enable the user to input the purpose of the mandate and other remarks
+Validation Rules
+
+Maximum length is 35 characters */
+		SL_DESC : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, multiLanguage=true, sysNumber=2.0, core=true, t24Name=SL.DESC)
+	}
+	PRE_SYNDICATION_FILE__SL_CURRENCY
+	{
+		/* Indicates the currency of the credit line. Multi-valued field to facilitate definition of several credit lines with same/different currencies.
+Example;
+01 - USD - Non-revolving facility for Project finance
+02 - USD - Revolving facility for working capital
+03 - GBP - Non-revolving facility for Imports
+Validation Rules
+
+3 alphabetic currency code or 1-3 numeric character currency code
+Mandatory input
+Must be a valid record on the CURRENCY table */
+		SL_CURRENCY -> FIN_CurrencyConfig:CURRENCY required
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=12.0, core=true, businessType=CCY, t24Name=SL.CURRENCY)
+		/* Type of facility that is granted to the borrower. Different types of credit lines could be listed in SL.FACILITY table.
+Validation Rules
+
+2 digit numeric character
+Must be a valid ID on SL.FACILITY table
+Associated multi-value under SL.CURRENCY */
+		SL_FACILITY -> SL_Facility:SL_FACILITY required
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=13.0, core=true, t24Name=SL.FACILITY)
+		/* This field is used to indicate whether the Facility granted if REVOLVING or NON REVOLVING type.
+A revolving type facility is re-instated on repayment of the drawings made (a classic example being working capital finance), while a non-revolving facility is of reducing type and may be drawn only once.
+If LIQUIDATION.MODE chosen is INTERNAL, a Revolving Facility is re-instated only if the principal portion is repaid using SL.OD.SETTLE application. For option AUTOMATIC in field LIQUIDATION.MODE such reinstatement would happen on processing of maturity of the loan.
+Validation Rules
+
+Only wither of two values REVOLVING or NON-REVOLVING is accepted
+Value input here would get defaulted to FACILITY.
+Associated multi-value field under SL.CURRENCY */
+		REVOL_TYPE : SL_Presyndication:PRE_SYNDICATION_FILE__SL_CURRENCY__REVOL_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=13, sysNumber=14.0, core=true, t24Name=REVOL.TYPE)
+		/* Value of the credit line that is solicited for the respective currency. In order to facilitate efficient entry of the amount, an input feature has been provided which allows for suppression of trailing zeros. For eg.
+INPUT        VALUE
+1T                      1,000
+2M               2,000,000
+4.5B       4,500,000,000
+The user may also input commas to assist in the entry of larger amounts.
+Validation Rules
+
+1-14 numeric characters plus decimal point
+Mandatory input. Value should be greater than zero
+Associated multi-valued field under SL.CURRENCY
+Aggregate of the amount participated (AMT.ALLOT) should be equal to       value in this field in order to create the FACILITY. This rule is       applicable to each multi-value set */
+		SL_AMOUNT : T24BusinessTypes:AMT required
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=15.0, core=true, t24Name=SL.AMOUNT, typeModifiers="12.X")
+		DD_CURRENCY -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__SL_CURRENCY__DD_CURRENCY *
+		/* Field used to define the status of the pre-syndication activity. The pre-syndication process would go through various stages commencing from receiving the mandate from the borrower till it is fully subscribed. Typical stages in pre-syndication are Mandate received, Information Memo Circulated, Underwriting in progress, Subscribed, Participation Allotted etc.
+Such stages can be listed in a table called SL.STATUS and the appropriate value maintained in the pre-syndication record. This field is typically user-maintained and not system updated in order to cater to varied requirement.
+Validation Rules
+
+Two digit numeric character
+Must be a valid ID on SL.STATUS */
+		SL_STATUS -> SL_Config:SL_STATUS
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=18.0, core=true, t24Name=SL.STATUS)
+		/* Indicates the type of interest rate that is to be used for the credit. The following values are pre-defined
+1 = Fixed interest. The rate of interest charged on the credit line is fixed through the life of the Facility. The rate quoted includes spread if any.
+2 = Floating (linked to Basic Interest table). The rate of interest that would change on a non-determined basis with immediate impact. Input in the form of a valid key from BASIC.RATE.TEXT with associated rate defined in BASIC.INTEREST table. If this type of rate type is chosen a positive or negative spread could also be defined separately.
+The value input here is defaulted on to the FACILITY record created.
+Validation Rules
+
+1 numeric character
+Only allowed values are 1 & 2.
+Optional Input. System would default 1 (Fixed) should there be no input */
+		INT_RATE_TYPE : SL_Presyndication:PRE_SYNDICATION_FILE__SL_CURRENCY__INT_RATE_TYPE
+			@t24:i (align=R, inputBehaviour=I, maxLength=1, sysNumber=19.0, core=true, t24Name=INT.RATE.TYPE)
+		/* Indicates the annual interest rate applicable on the contract. When a credit facility is extended to the borrower the interest rate quoted for drawings under the facility could either be a fixed rate or a floating rate (with or without spread). If the rate quoted is fixed the value is input here.
+Validation Rules
+
+1-10 numeric characters plus a decimal point
+Optional input. Input allowed only if INT.RATE.TYPE is 1 FIXED
+Input prohibited for INT.RATE.TYPE 2 (FLOATING)
+Value input here must be greater than zero */
+		INTEREST_RATE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=20.0, core=true, t24Name=INTEREST.RATE)
+		/* Contains the reference number of the appropriate interest rate that would be used for interest calculation purposes.
+A rate change on the interest rate table will automatically, during End of Day, all contracts linked to the basic interest table
+Validation Rules
+
+1-4 numeric characters. Optional input
+Input mandatory if INT.RATE.TYPE is 2 (Floating) and not allowed other       wise. */
+		INTEREST_KEY : mml:Integer
+			@t24:i (align=R, inputBehaviour=I, maxLength=4, sysNumber=21.0, core=true, t24Name=INTEREST.KEY)
+		/* Indicates the spread or margin on the floating rate. This spread or margin would be applied to the percentage interest derived from Basic Interest table.
+Validation Rules
+
+1-9 numeric characters plus a decimal point
+Optional input
+Input prohibited for FIXED interest rate type
+Cannot be greater than 100% */
+		CUSTOMER_SPR : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=22.0, core=true, t24Name=CUSTOMER.SPR, typeModifiers=-)
+		/* Indicates the rate of commitment fee payable by the borrower on the Facility. Rate quoted in this field should be within range 0 - 100.
+Validation Rules
+
+Value entered in this field should be greater than zero.
+Value in this field may not exceed 100. */
+		CUSTOMER_FEE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=23.0, core=true, t24Name=CUSTOMER.FEE)
+		/* Indicates the liquidation account for the underwriting fee. Account mentioned in this field should be denominated in the same currency of as in field SL.CURRENCY and this rule is applicable within each multi-value set. On creation of FACILITY, accounting entries would be raised debiting this account for the aggregate underwriting fee payable for the respective facility.
+In case the underlying Contract Customer (eg. Customer.id in MONEYMARKET,Counterparty in FOREX, etc.) has a record in CUSTOMER.SSI application, then the account number in this field gets defaulted as per the definition for that Customer from CUSTOMER.SSI.For more information on the usage of this feature please refer to CUSTOMER.SSI application.
+Validation Rules
+
+Account input in this field should be denominated in the same currency       as SL.CURRENCY.
+Must be a valid ID on the ACCOUNT table. */
+		UW_FEE_ACC -> ACM_AccountOpening:ACCOUNT
+			@t24:i (align=L, inputBehaviour=I, maxLength=16, sysNumber=24.0, core=true, businessType=ANT, t24Name=UW.FEE.ACC)
+		UNDERWRITER -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__SL_CURRENCY__UNDERWRITER *
+		/* Field that indicates the aggregate amount of Facility that is underwritten. Amount in this field is expressed in SL.CURRENCY
+Validation Rules
+
+System maintained field
+User input is prohibited */
+		TOTAL_UW_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=32.0, core=true, t24Name=TOTAL.UW.AMOUNT, typeModifiers="12.X")
+		/* Extent of aggregate underwriting expressed as percentage of SL.AMOUNT
+Validation Rules
+
+System maintained field
+User input not allowed. */
+		TOTAL_UW_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=33.0, core=true, t24Name=TOTAL.UW.PERC)
+		PARTICIPATOR -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__SL_CURRENCY__PARTICIPATOR *
+		/* Aggregate amount of participation allotted is stored in this field and is system maintained.
+Amount stored in this field is expressed in SL.CURRENCY within each set
+Validation Rules
+
+System maintained field. Input by user is prohibited */
+		TOTAL_PART_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=41.0, core=true, t24Name=TOTAL.PART.AMT, typeModifiers="12.X")
+		/* Aggregate participation allotted expressed in percentage format. Percentage indicated is on the SL.AMOUNT
+Validation Rules
+
+System maintained field */
+		TOTAL_PART_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=42.0, core=true, t24Name=TOTAL.PART.PERC)
+		/* YES/NO indicator to show whether there has been any devolvement of underwriting. In the event that aggregate subscriptions received are less than the mandate amount, the difference is devolved amongst the underwriters in the agreed proportion. The apportionment of the un-subscribed portion amongst the underwriters are done manually as the manner of devolvement would differ on a case to case basis. This field indicates whether there has been any devolvement or not.
+Validation Rules
+
+Optional input.
+Only allowed values are YES & NO.
+Value Null means NO. */
+		UW_DEVOL : SL_Presyndication:PRE_SYNDICATION_FILE__SL_CURRENCY__UW_DEVOL
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=43.0, core=true, t24Name=UW.DEVOL)
+		/* Field that indicates the type of devolvement. Currently, only value MANUAL is supported. In the event of under subscription, the user may have to manually apportion the un-subscribed portion amongst the existing underwriters.
+Validation Rules
+
+Only allowed value for input is MANUAL */
+		DEVOL_TYPE : SL_Presyndication:PRE_SYNDICATION_FILE__SL_CURRENCY__DEVOL_TYPE
+			@t24:i (align=L, inputBehaviour=I, maxLength=7, sysNumber=44.0, core=true, t24Name=DEVOL.TYPE)
+		DEVOL_UW -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__SL_CURRENCY__DEVOL_UW *
+		REQ_BANK -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__SL_CURRENCY__REQ_BANK *
+	}
+	PRE_SYNDICATION_FILE__SL_CURRENCY__DD_CURRENCY
+	{
+		/* Currently not in use.
+Validation Rules */
+		DD_CURRENCY : T24BusinessTypes:CCY
+			@t24:i (align=L, inputBehaviour=N, maxLength=3, sysNumber=16.0, core=true, t24Name=DD.CURRENCY)
+		/* Currently not in Use.
+Validation Rules */
+		DEF_ACCOUNT : T24BusinessTypes:ANT
+			@t24:i (align=L, inputBehaviour=N, maxLength=16, sysNumber=17.0, core=true, t24Name=DEF.ACCOUNT)
+	}
+	PRE_SYNDICATION_FILE__SL_CURRENCY__UNDERWRITER
+	{
+		/* Identification number or Mnemonic assigned to the Underwriter. When underwriting details are entered in the Presyn file, this set of fields could be used to record the name of the underwriter, date of the agreement, amount and percentage underwritten and fee payable for underwriting.
+Validation Rules
+
+3-10 alphanumeric customer mnemonic or 1-10 numeric character customer       number
+Must be a valid ID on the customer table
+If SL.FUNCTION is P (Only Participant), only OWN.CUST.REF in       SL.PARAMETER would be accepted.
+Multi-value field to facilitate recording details of more than one       underwriter */
+		UNDERWRITER -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=25.0, core=true, businessType=CUS, t24Name=UNDERWRITER)
+		/* Date of signing the underwriting agreement with the concerned party. Standard date field and is stored for information only
+Validation Rules
+
+1-9 type A alphanumeric characters.
+Optional input, system defaults process date.
+Date entered in this field should be within the Presynd Start Date &       Presynd End Date
+Associated sub-value field with UNDERWRITER */
+		UW_AGREE_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=26.0, core=true, t24Name=UW.AGREE.DT)
+		/* Amount underwritten by the Underwriter in the previous field. In order to facilitate efficient entry of the amount an input feature has been provided that allows for the suppression of trailing zeros similar to the SL.AMOUNT field.
+Validation Rules
+
+1-14 numeric characters plus decimal point (and commas)
+Value must be greater than zero. Input of negative amounts not allowed.
+Associated sub-value field with UNDERWRITER */
+		UW_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=27.0, core=true, t24Name=UW.AMOUNT, typeModifiers="12.X")
+		/* Extent underwritten by the associated underwriter, expressed in percentage format.
+Validation Rules
+
+System maintained field.
+User input not allowed. */
+		UW_PERC : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=28.0, core=true, t24Name=UW.PERC)
+		/* Percentage commission payable to the underwriter. Input in this field is mandatory if underwriting details are recorded. Percentage commission payable could be maintained anytime prior to creating the FACILITY.
+Validation Rules
+
+1-10 numeric characters plus decimal point
+Input must be greater than zero. Maximum allowed value is 100
+Mandatory input if underwriting details are recorded */
+		UW_COMMN : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=29.0, core=true, t24Name=UW.COMMN)
+		/* Amount of underwriting commission payable based on amount underwritten and percentage fee payable. System maintained field. Value in this field would be updated with fresh underwriting and change of fee percentage. Amount in this field is expressed in SL.CURRENCY
+The net commission payable would be debited to the Uw Fee Account and credited to the respective underwriter's account on creation of FACILITY
+Validation Rules
+
+System maintained field
+Input by user is not allowed */
+		UW_COMM_AMT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=N, maxLength=19, sysNumber=30.0, core=true, t24Name=UW.COMM.AMT, typeModifiers="12.X")
+		/* Extent of subscription (participation) brought in by the underwriter. If any value is entered in this field, equivalent participations need to be recorded. In other words, aggregate of Amount Sought by all the participants should be greater than (or equal to) the aggregate subscriptions brought by all the underwriters within each SL.CURRENCY multi-value set.
+Validation Rules
+
+1-14 numeric characters plus a decimal point.
+Amount entered should be greater than zero.
+Aggregate Amount.Sought should be greater than or equal to aggregate       Subs.Brought within each SL.Currency multi-value set. */
+		SUBS_BROUGHT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=31.0, core=true, t24Name=SUBS.BROUGHT, typeModifiers="12.X")
+	}
+	PRE_SYNDICATION_FILE__SL_CURRENCY__PARTICIPATOR
+	{
+		/* Identification number or mnemonic assigned to the customer who is willing to participate in the syndicate. This set of fields is used to record details of participation like name of participant, extent of participation sought and allotted and the commitment fee payable to each party.
+Validation Rules
+
+3-10 alphanumeric customer mnemonic or 1-10 numeric character customer       code
+Must be a valid record on the CUSTOMER table
+For value P (only participant) in SL.FUNCTION, only OWN.CUST.REF in the       SL.PARAMETER is allowed as input.
+Multi-valued field to assist recording participation details of more       than one party. */
+		PARTICIPATOR -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=34.0, core=true, businessType=CUS, t24Name=PARTICIPATOR)
+		/* Field used to record the date on which the participation agreement was entered into. Stored for information only.
+Validation Rules
+
+Optional input. System defaults process date. */
+		PART_AGR_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=35.0, core=true, t24Name=PART.AGR.DT)
+		/* Field used to record the amount of share that the participant has sought (willing to participate) out of the mandate amount. When a mandated is floated, participations could be received from various parties, each seeking a particular share. The extent of exposure that a participant has indicated that it would take is recorded here.
+Validation Rules
+
+1-14 numeric characters plus a decimal point and commas
+Value entered should be greater than zero */
+		AMT_SOUGHT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=36.0, core=true, t24Name=AMT.SOUGHT, typeModifiers="12.X")
+		/* Extent of participation sought expressed in percentage format. This is a system maintained field where the percentage of the SL.AMOUNT that the participator has indicated to subscribe is recorded.
+Validation Rules
+
+System maintained field
+User input not allowed.
+Percentage expressed on SL.AMOUNT within each sub-value set */
+		PERC_SOUGHT : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=37.0, core=true, t24Name=PERC.SOUGHT)
+		/* This field is used to record that share that is finally allotted to the participant by the Agent. When a mandate is floated, participation interests could be received for more than the amount sought by the borrower, resulting in over-subscription. In consultation with the borrower, the Agent would then allot each participant its share in the syndicate.
+Amount allotted to each participant may not exceed the amount sought. In order to create the FACILITY, aggregate of AMT.ALLOT should equal SL.AMOUNT within each multi-value set
+Validation Rules
+
+1-14 numeric characters plus decimal point
+Value entered in this field may not exceed AMT.SOUGHT */
+		AMT_ALLOT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=38.0, core=true, t24Name=AMT.ALLOT, typeModifiers="12.X")
+		/* Share of the allocation expressed in percentage format. This field is maintained by the system and the final share of each participant (that is allotted) is stored here
+Validation Rules
+
+System maintained field
+Input by user prohibited */
+		PERC_ALLOT : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=N, maxLength=11, sysNumber=39.0, core=true, t24Name=PERC.ALLOT)
+		/* Field used to record the rate of commitment fee payable to each participant. Value recorded in this field would be defaulted while creating the FACILITY. Fee payable to each participant within every SL.CURRENCY set may vary.
+Validation Rules
+
+1-10 numeric characters plus decimal point
+Value entered must be greater than zero
+Maximum allowed value is 100 */
+		PART_FEE : T24BusinessTypes:R
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=40.0, core=true, t24Name=PART.FEE)
+	}
+	PRE_SYNDICATION_FILE__SL_CURRENCY__DEVOL_UW
+	{
+		/* Name of the underwriter on whom the un-subscribed portion or part thereof has been devolved. Multivalued field in order to assist recording of devolvement on more than one party.
+Validation Rules
+
+Can only be an existing underwriter under the mandate. */
+		DEVOL_UW : T24BusinessTypes:CUS
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=45.0, core=true, t24Name=DEVOL.UW)
+		/* Amount of devolvement effected on the above underwriter. Associated multi-value with Devol.Uw.
+Validation Rules
+
+1-14 numeric characters plus a decimal point
+Negative values not allowed. */
+		DEVOL_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=46.0, core=true, t24Name=DEVOL.AMOUNT, typeModifiers="12.X")
+	}
+	PRE_SYNDICATION_FILE__SL_CURRENCY__REQ_BANK
+	{
+		/* Fields Req Bank to Comments are used to record details of circulation of information memorandum. When a mandate is floated, the information memorandum is circulated amongst many banks who could be prospective participants. The details of banks name to whom the memo was circulated, their responses and comments are recorded in this set of fields.
+In Req.Bank field, the name of the bank to whom the memo was sent is input. This is a multi-valued field in order to record details of memo sent to various banks.
+Validation Rules
+
+3-35 character alphanumeric free text field. */
+		REQ_BANK : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=35, sysNumber=47.0, core=true, t24Name=REQ.BANK)
+		/* This field indicates the date on which information memo was sent to the concerned bank in Req.Bank field.
+Validation Rules
+
+1-9 type A alpha numeric characters
+Optional input */
+		DATE_SENT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=48.0, core=true, t24Name=DATE.SENT)
+		/* The date by which the Req.bank is expected to furnish its acceptance is indicated in this field. When an information memo is circulated, it could have validity period within which the prospective bank is expected to revert with its acceptance. The end date by which response is to be intimated is input here.
+Validation Rules
+
+1-9 type A alpha numeric character date field.
+Optional input */
+		RESP_BY_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=49.0, core=true, t24Name=RESP.BY.DT)
+		/* This field indicates that actual date on which response was received from the prospective bank (Req.Bank).
+Validation Rules
+
+1-9 type A alphanumeric characters date field
+Optional input */
+		RESPONSE_DT : T24BusinessTypes:D
+			@t24:i (align=R, inputBehaviour=I, maxLength=11, sysNumber=50.0, core=true, t24Name=RESPONSE.DT)
+		/* This field is used to record the comments of the user.
+Validation Rules
+
+Optional input.
+50 type A alpha numeric characters */
+		COMMENTS : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=I, maxLength=65, sysNumber=51.0, core=true, t24Name=COMMENTS)
+	}
+	PRE_SYNDICATION_FILE__ROLE
+	{
+		/* The role played by each party in the syndicate could be recorded in this set of fields. In a syndicate, a particular role could be assigned to more than one party. Classic examples of types of roles are Agent, Lead Manager, Co-Manager, Manager etc.
+Upto 99 different types of roles could be defined in SL.ROLES and the appropriate value could be drilled down in this field.
+Validation Rules
+
+2 digit numeric value in range 01 - 99
+Must be a valid ID on SL.ROLES table. */
+		ROLE -> SL_Config:SL_ROLES
+			@t24:i (align=R, inputBehaviour=I, maxLength=2, sysNumber=52.0, core=true, t24Name=ROLE)
+		ROLE_CUST -> byValue SL_Presyndication:PRE_SYNDICATION_FILE__ROLE__ROLE_CUST *
+	}
+	PRE_SYNDICATION_FILE__ROLE__ROLE_CUST
+	{
+		/* The party assigned to the role specified in the earlier field. In a syndicate a certain role like Manager could be assigned to more than one party. Hence, this field could be sub-valued to assign more than one party to a particular role.
+Associated sub-value field to SL.ROLE
+Validation Rules
+
+3-10 alphanumeric customer mnemonic or 1-10 numeric character customer       number
+Must be a valid ID on the CUSTOMER table */
+		ROLE_CUST -> ST_Customer:CUSTOMER
+			@t24:i (align=R, inputBehaviour=I, maxLength=10, sysNumber=53.0, core=true, businessType=CUS, t24Name=ROLE.CUST)
+	}
+	PRE_SYNDICATION_FILE__STMT_NO
+	{
+		/* Holds the IDs of STMT and CATEG entries raised for this application.
+Validation Rules
+
+System maintained field.
+User input not allowed. */
+		STMT_NO : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=29, sysNumber=66.0, core=true, t24Name=STMT.NO)
+	}
+	PRE_SYNDICATION_FILE__OVERRIDE
+	{
+		OVERRIDE : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=35, sysNumber=67.0, core=true, t24Name=OVERRIDE)
+	}
+	PRE_SYNDICATION_FILE__INPUTTER
+	{
+		INPUTTER : T24BusinessTypes:A
+			@t24:i (align=L, inputBehaviour=N, maxLength=40, sysNumber=70.0, core=true, t24Name=INPUTTER)
+	}
+	PRE_SYNDICATION_FILE__DATE_TIME
+	{
+		DATE_TIME : T24BusinessTypes:RELTIME
+			@t24:i (align=L, inputBehaviour=N, maxLength=15, sysNumber=71.0, core=true, t24Name=DATE.TIME, mask="RDD DD  DD ##:##")
+	}
+	SL_PRESYN_BALANCES
+		@t24:i (t24Name=SL.PRESYN.BALANCES, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Key to the application . Format of PRE.SYNDICATION.FILE ID and the sequence separated by dot */
+		KEY -> SL_Presyndication:SL_PRESYN_BALANCES PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* Holds the pre syndication currency */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* Holds the UW.AMOUNT for own participant . */
+		OWN_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=OWN.AMOUNT, typeModifiers="1")
+		/* Holds the UW.COMM.AMT for own participant */
+		FEE_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Fee Amount")
+			@i18n:Tooltip (en="Amount of Fees")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=FEE.AMOUNT, typeModifiers="1")
+		/* Not used */
+		CONSOL_KEY : T24BusinessTypes:A
+			@i18n:Label (en="Consol Key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=4.0, core=true, t24Name=CONSOL.KEY)
+	}
+	SL_PRESYN_BALANCES_HIST
+		@t24:i (t24Name=SL.PRESYN.BALANCES.HIST, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Refer to helptext of SL.PRESYN.BALANCES */
+		KEY -> SL_Presyndication:SL_PRESYN_BALANCES_HIST PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=15, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		/* Refer to helptext of SL.PRESYN.BALANCES */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@i18n:Label (en=Ccy)
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		/* Refer to helptext of SL.PRESYN.BALANCES */
+		OWN_AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=OWN.AMOUNT, typeModifiers="1")
+		/* Refer to helptext of SL.PRESYN.BALANCES */
+		FEE_AMOUNT : T24BusinessTypes:AMT
+			@i18n:Label (en="Fee Amount")
+			@i18n:Tooltip (en="Amount of Fees")
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=3.0, core=true, t24Name=FEE.AMOUNT, typeModifiers="1")
+		/* Refer to helptext of SL.PRESYN.BALANCES */
+		CONSOL_KEY : T24BusinessTypes:A
+			@i18n:Label (en="Consol Key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=70, sysNumber=4.0, core=true, t24Name=CONSOL.KEY)
+	}
+	SL_PRESYN_UW
+		@t24:i (t24Name=SL.PRESYN.UW, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Key to the application.Holds the ID of FACILITY */
+		KEY -> SL_Presyndication:SL_PRESYN_UW PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		CURRENCY -> byValue SL_Presyndication:SL_PRESYN_UW__CURRENCY *
+	}
+	SL_PRESYN_UW__CURRENCY
+	{
+		/* If Globus particpant is also the underwriter, then the currency of underwriting Amount is updated in this field */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		AMOUNT -> byValue SL_Presyndication:SL_PRESYN_UW__CURRENCY__AMOUNT *
+	}
+	SL_PRESYN_UW__CURRENCY__AMOUNT
+	{
+		/* Holds the UW.AMOUNT if the globus participant is also the underwriter */
+		AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=AMOUNT)
+	}
+	SL_PRESYN_UW_SAVE
+		@t24:i (t24Name=SL.PRESYN.UW.SAVE, level=F, type=L, allowedFunctions="L P S", localRefAllowed=false)
+	{
+		/* Refer to helptext of SL.PRESYN.UW.This file gets updated during unauthorised stage and gets deleted during authorisation stage. */
+		KEY -> SL_Presyndication:SL_PRESYN_UW_SAVE PK required
+			@i18n:Label (en=Key)
+			@i18n:Tooltip (en="Indicates th transaction key")
+			@t24:i (align=L, inputBehaviour=I, maxLength=14, sysNumber=0.0, core=true, businessType=A, t24Name=KEY)
+		CURRENCY -> byValue SL_Presyndication:SL_PRESYN_UW_SAVE__CURRENCY *
+	}
+	SL_PRESYN_UW_SAVE__CURRENCY
+	{
+		/* Refer to helptext of SL.PRESYN.UW. */
+		CURRENCY -> FIN_CurrencyConfig:CURRENCY
+			@t24:i (align=L, inputBehaviour=I, maxLength=3, sysNumber=1.0, core=true, businessType=CCY, t24Name=CURRENCY)
+		AMOUNT -> byValue SL_Presyndication:SL_PRESYN_UW_SAVE__CURRENCY__AMOUNT *
+	}
+	SL_PRESYN_UW_SAVE__CURRENCY__AMOUNT
+	{
+		/* Refer to helptext of SL.PRESYN.UW. */
+		AMOUNT : T24BusinessTypes:AMT
+			@t24:i (align=R, inputBehaviour=I, maxLength=19, sysNumber=2.0, core=true, t24Name=AMOUNT)
+	}
+}
+Enumerations {
+	PRE_SYNDICATION_FILE__SL_FUNCTION : mml:string
+		A=A
+		AP=AP
+		P=P
+	PRE_SYNDICATION_FILE__SL_CURRENCY__REVOL_TYPE : mml:string
+		REVOLVING=REVOLVING
+		NON__REVOLVING=NON-REVOLVING
+	PRE_SYNDICATION_FILE__SL_CURRENCY__INT_RATE_TYPE : mml:string
+		n1=1
+		n2=2
+		n3=3
+	PRE_SYNDICATION_FILE__SL_CURRENCY__UW_DEVOL : mml:string
+		YES=YES
+		NO=NO
+	PRE_SYNDICATION_FILE__SL_CURRENCY__DEVOL_TYPE : mml:string
+		PRORATA=PRORATA
+		MANUAL=MANUAL
+	PRE_SYNDICATION_FILE__CREATE_FACILITY : mml:string
+		YES=YES
+		NULL=NULL
+}

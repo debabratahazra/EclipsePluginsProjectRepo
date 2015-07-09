@@ -1,0 +1,75 @@
+domain T24 {
+	use common.CoreCommands.*
+	use common.HTTPEvents.*
+	use common.ODataCommands.*
+	use common.T24Commands.*
+	use common.T24Events.*
+	use common.NextState.*
+	rim enqlistAccount {
+		command GETEntities
+		command GETEntity
+		basepath: "/{companyid}"
+	
+		resource enqlistAccounts {
+			type: collection
+			entity: enqlistAccount
+			commands [ GET : GETEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/live/enqAccounts" ]
+			path: "/enqlistAccounts()"
+			GET *-> enqlistAccount {
+				parameters [ id = "{Id}" ]
+			}
+		}
+	
+		resource enqlistAccount {
+			type: item
+			entity: enqlistAccount
+			commands [ GET : GETEntity ]
+			path: "/enqlistAccounts('{id}')"
+		}
+	
+		resource enqlistAccountsUnauth {
+			type: collection
+			entity: enqlistAccountUnauth
+			commands [ GET : GETEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/unauth/enqAccounts" ]
+			path: "/enqlistAccountsUnauth()"
+			GET *-> enqlistAccountUnauth {
+				parameters [ id = "{Id}" ]
+			}
+		}
+	
+		resource enqlistAccountUnauth {
+			type: item
+			entity: enqlistAccountUnauth
+			commands [ GET : GETEntity ]
+			path: "/enqlistAccountsUnauth('{id}')"
+		}
+	
+		resource enqlistAccountsHist {
+			type: collection
+			entity: enqlistAccountHist
+			commands [ GET : GETEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			relations [ "http://schemas.microsoft.com/ado/2007/08/dataservices/related/history/enqAccounts" ]
+			path: "/enqlistAccountsHist()"
+			GET *-> enqlistAccountHist {
+				parameters [ id = "{Id}" ]
+			}
+		}
+	
+		resource enqlistAccountHist {
+			type: item
+			entity: enqlistAccountHist
+			commands [ GET : GETEntity ]
+			path: "/enqlistAccountsHist('{id}')"
+		}
+	
+	}
+	
+}

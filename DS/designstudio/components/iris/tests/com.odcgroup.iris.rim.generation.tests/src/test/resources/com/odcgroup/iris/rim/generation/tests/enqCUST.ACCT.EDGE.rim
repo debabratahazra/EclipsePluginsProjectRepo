@@ -1,0 +1,42 @@
+domain T24 {
+	use common.CoreCommands.*
+	use common.HTTPEvents.*
+	use common.ODataCommands.*
+	use common.T24Commands.*
+	use common.T24Events.*
+	use common.NextState.*
+	rim enqCustAcctEdge {
+		command GETEntities
+		command GETEntity
+		basepath: "/{companyid}"
+	
+		resource enqCustAcctEdges {
+			type: collection
+			entity: enqCustAcctEdge
+			commands [ GET : GETEntities {
+				properties [ filter = "{filter}" ]
+				} ]
+			path: "/enqCustAcctEdges()"
+			GET *-> enqCustAcctEdge {
+				parameters [ id = "{Acc}" ]
+			}
+			GET *-> "T24.enqCustEntToday.enqCustEntTodays" {
+				parameters [ filter = "AcctId eq '{Acc}'" ]
+				title: "Statement entries today"
+			}
+			GET *-> "T24.enqCustEntLast.enqCustEntLasts" {
+				parameters [ filter = "AcctId eq '{Acc}'" ]
+				title: "Entries Since Last Stmt"
+			}
+		}
+	
+		resource enqCustAcctEdge {
+			type: item
+			entity: enqCustAcctEdge
+			commands [ GET : GETEntity ]
+			path: "/enqCustAcctEdges('{id}')"
+		}
+	
+	}
+	
+}

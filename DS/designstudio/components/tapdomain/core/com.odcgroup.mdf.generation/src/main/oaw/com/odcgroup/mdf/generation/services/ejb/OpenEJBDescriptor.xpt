@@ -1,0 +1,23 @@
+«IMPORT mdf»
+«EXTENSION com::odcgroup::mdf::generation::java»
+
+«DEFINE OpenEJBDescriptor FOR List[MdfDomain]»
+	«FILE "META-INF/openejb-jar.xml" DESCRIPTORS-»
+<?xml version="1.0" encoding="UTF-8"?>
+		<openejb-jar xmlns="http://www.openejb.org/openejb-jar/1.1"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xsi:schemaLocation="http://www.openejb.org/openejb-jar/1.1 openejb-jar.xsd">
+			«FOREACH this AS domain»
+				«FOREACH domain.datasets AS dataset»
+					«EXPAND BeanDescriptor FOR dataset»
+				«ENDFOREACH»
+			«ENDFOREACH»
+		</openejb-jar>
+	«ENDFILE»
+«ENDDEFINE»
+
+«DEFINE BeanDescriptor FOR MdfEntity»
+	<ejb-deployment ejb-name="«getParentDomain().name»_«name»Service"
+		deployment-id="ejb/«getParentDomain().name»/«name»Service"
+		container-id="Default Stateless Container"/>
+«ENDDEFINE»
