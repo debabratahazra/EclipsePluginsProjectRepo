@@ -1,0 +1,206 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252" />
+<meta name=ProgId content=Word.Document />
+<meta name=Generator content="Microsoft Word 11" />
+<meta name=Originator content="Microsoft Word 11" />
+<link rel="stylesheet" type="text/css" href="book.css">
+<link rel=File-List href="Writing%20a%20Log%20Analyzer%20importer_files/filelist.xml" />
+
+<style>
+   body {font-family: sans-serif; font-size: 12px;}
+   h1 {font-size: 22px;}
+   h2 {font-size: 18px; color: #444;}
+   h3 {font-size: 14px; color: #666;}
+</style>
+
+</head>
+
+<body>
+<title>How to write an importer for the Optima Log Analyzer</title>
+
+<h1>How to Write an Importer for the Optima Log Analyzer</h1>
+<div style="border: 1px solid #990000; padding: 5px; text-align: center; color: red;">The com.zealcore.se.core.importers extension point is deprecated</div>
+<p>
+<b>WARNING: The <tt>com.zealcore.se.core.importers</tt> extension point is DEPRECATED.</b><br>
+Do not use this extension point, it will be removed in future versions of this product.
+Instead, use the extension point <tt>com.zealcore.se.core.extendedimporters</tt>.
+</p>
+<p>The Optima Log Analyzer has an extension point called <tt>com.zealcore.se.core.importers</tt> that it is possible
+to plug in to. The purpose of such an importer plugin is to read and parse log files of a 
+specified format. The extension point requires that the plugin importer implements an 
+interface called <tt>IImporter</tt>.</p>
+<p>The <tt>IImporter</tt> interface specifies five methods (see below).</p>
+
+
+<h2>Selecting Binary or Text Log File Format</h2>
+<p>In some cases it is possible to choose the format of the log
+file that is to be imported, i.e. the tool that generates the log file can be
+configured to generate binary or text files. The difference between writing a binary importer
+or text importer is not that huge. Normally a binary importer is faster than a
+text importer, but during development debugging it is often faster for the user
+to deal with text instead of numbers.</p>
+
+<p>One of the issues to deal with when writing an importer is
+how to identify the different parts of a file; log events, the events
+properties, log file headers etc. Binary files do normally have predefined
+sized for different types of information, or have "size" as a property for
+that object. Plain text files could often be parsed with regular expressions
+(see the example importer) to distinguish between parts and elements. XML based
+log files are by nature simple to deal with, but suffer from large file sizes.</p>
+
+<h2>Terminology</h2>
+
+<h3>Log Event</h3>
+<p>A Log Event is a frequently used word in the Log Analyzer.
+Each item that is logged is called a log event and can be of any type. Examples
+of log events are <tt>switch</tt>, <tt>send</tt>, <tt>receive</tt>, 
+<tt><span class=SpellE>alloc</span></tt>,
+<tt>free</tt>, <tt>reset</tt>, <tt>create</tt>, <tt>kill</tt>, <tt>timeout</tt>, 
+<tt>activity</tt> etc. It is up to the author of the importer 
+to define the different kinds of log events that an importer should be able to
+create. In the Log Analyzer each log event, <tt><span class=SpellE>AbstractLogEvent</span></tt>
+(the java class name), has at least the following properties:</p>
+
+<ul>
+<li>Timestamp</li>
+<li>Log Event Name</li>
+<li>Log File Name</li>
+</ul>
+
+<p class=MsoNormal>It is possible to give a log event any number of properties using the 
+<tt>addProperty</tt> method on generic log events. There is a number of different predefined 
+log event type classes, see the <tt>com.zealcore.se.core.model.generic</tt> package.</p> 
+
+<h3>Artifact</h3>
+<p>An Artifact is a piece of information that comes from a log file but where the information is 
+not related to any timescale, see the <tt>com.zealcore.se.core.model</tt> package.</p>
+
+<h3>Timestamp</h3>
+<p>A timestamp is a given time connected to a log event. All
+log events are sorted according to their timestamp. Internally the unit for timestamps is nanoseconds (ns).</p>
+
+<h2>Public Classes and Interfaces</h2>
+<p>There is a number of classes and interfaces that are good to be familiar with in order
+to be able to write an importer. The public ones are found in this documentation, see the <i>API Specification</i>.
+It is recommended to take a look at the following classes and interfaces:</p>
+
+<ul>
+<li><tt><a href="topics/com/zealcore/se/core/IImporter.html">IImporter</a></tt></li>
+<li><tt><a href="topics/com/zealcore/se/core/model/ILogEvent.html">ILogEvent</a></tt></li>
+<li><tt><a href="topics/com/zealcore/se/core/model/IArtifact.html">IArtifact</a></tt></li>
+<li><tt><a href="topics/com/zealcore/se/core/ifw/ImportContext.html">ImportContext</a></tt></li>
+<li><tt><a href="topics/com/zealcore/se/core/model/generic/GenericLogEvent.html">GenericLogEvent</a></tt></li>
+<li><tt><a href="topics/com/zealcore/se/core/model/generic/GenericSendEvent.html">GenericSendEvent</a></tt></li>
+<li><tt><a href="topics/com/zealcore/se/core/model/generic/GenericReceiveEvent.html">GenericReceiveEvent</a></tt></li>
+<li><tt><a href="topics/com/zealcore/se/core/model/generic/GenericTaskSwitchEvent.html">GenericTaskSwitchEvent</a></tt></li>
+<li><tt><a href="topics/com/zealcore/se/core/model/generic/GenericSequence.html">GenericSequence</a></tt></li>
+</ul>
+
+<h2>Writing the Importer</h2>
+
+<h3>Prerequistics</h3>
+<p>The importer is preferably developed using Eclipse. To minimize version compatibility issues it is recommended 
+to use the installed Log Analyzer that is an Eclipse installation. The Eclipse installation need to be 
+upgraded with two plugins in order to develop Java projects, the Java Developer Tool (JDT) and 
+Plugin Development Environment (PDE). To install the plugins, follow the steps below. The procedure
+may vary since the Eclipse site is not stable over time.</p>
+
+<ol>
+<li>Go to <a href="www.eclipse.org">www.eclipse.org</a></li>
+<li>Follow the <a href="http://www.eclipse.org/downloads/">Downloads</a> link</li>
+<li>Under the "Eclipse Classic" section, follow the <a href="http://download.eclipse.org/eclipse/downloads/">Eclipse Project download page</a></li>
+<li>Select the release of the installed Optima - Eclipse release (see "Help -> About Eclipse", in the Eclipse installation), e.g. 3.4.1 or 3.5 etc.</li>
+<li>Download the <i>JDT Runtime Binary</i>, e.g. <tt>eclipse-JDT-3.4.1.zip</tt>, and the <i>PDE Runtime Binary</i>, e.g. <tt>eclipse-PDE-3.4.1.zip</tt>.</li>
+<li>Start the Log Analyzer</li>
+<li>Select "Help->Software Updates..." and select the "Available Software" tab.</li>
+<li>Click "Add Site..." button.</li>
+<li>Click "Local..." button and select the down loaded files (install one at the time).</li>
+<li>The Log Analyzer is now upgraded to be able to develop Java plug-ins.</li>
+</ol>
+
+<h3>Tutorial</h3>
+
+<p>There are two supplied importers that can be used for reference.</p>
+
+<ul>
+<li><tt><a href="SimpleImporter.html">SimpleImporter</a></tt>:
+ This importer is a complete importer that reads text log files of a sertain format. It 
+ enables definition of task/process switches, send and receive events, and user events.</li>
+<li><tt><a href="MinimalImporter.html">MinimalImporter</a></tt>: This is a complete importer, but it can 
+not import any data.</li>
+</ul>
+
+<p>This tutorial uses the <tt>SimpleImporter</tt> to illustrate how 
+to write an Importer plugin for the <tt>com.zealcore.se.core.importers</tt> extension point.</p>
+
+<ol>
+<li>Create a new empty Plugin Project, chose "SimpleImporter" as the project name, click "Finish".</li>
+<li>Open the manifest file and click on the "Extensions" tab.</li>
+<li>Click on the "Add" button to create an extension.</li>
+<li>Uncheck the checkbox "Show only extension points from the required plugins".</li>
+<li>Type "<tt>com.zealcore</tt>" in the "Extension Point" filter.</li>
+<li>Choose "<tt>com.zealcore.se.core.importers</tt>" from the list and click "Finish".</li>
+<li>A dialog will appear with a question whether to add the required plugin to the list of plugin dependencies. Click "Yes".</li>
+<li>Fill in a name for the importer class and ID in the "Extension Element Details" fields and save the changes.</li>
+<li>Click the highlighted "class*:" in the "Extension Element Details" to create the importer class.
+    This will display the "New Class Wizard". Press "OK" to continue.</li>
+<li>This will result in an Importer class, with code ready for modification. 
+<li>Copy the source from the SimpleImporter example by following this link: <tt><a href="SimpleImporter.html">SimpleImporter</a></tt>.</li>
+<li>Correct any name conflicts for the class name and the package name.</li>
+<li>Save the file and press "F11" to start debugging, select "Eclipse Application" if a dialog appear.</li>
+<li>Select the Log Analyzer perspective.</li>
+<li>Create a new Log Analyzer project.</li>
+<li>Create a new file in the created logset and name the file <tt>data.log</tt>, and copy the example log file 
+    contents that is found in the beginning of the example importer source code, into the file.</li>
+<li>It is now possible to import the log file with the new importer.</li>
+</ol>
+
+
+<h3>Example Code</h3>
+
+<p>The following methods can be derived from the <tt>IImporter</tt> interface.</p>
+
+<b>canRead()</b><br/>
+Returns true if the given file can be imported by the importer. 
+The easiest way is to use a unique file name extension for the current type of log.<br/>
+<code><pre>
+public boolean canRead(File file) {
+    if (file.canRead() &amp;&amp; file.getName().endsWith(&quot;.min&quot;)) {
+        return true;
+    }
+    return false;
+}
+</pre>
+</code>
+<br/>
+
+<b>getArtifacts()</b><br/>
+Returns the artifacts in the log (i.e. the resources, e.g. tasks, msgQueues, semaphores etc).<br/>
+If the log does not contain any artifacts the method should look like this:<br/>
+<code><pre>
+    public Iterable<AbstractArtifact> getArtifacts() {
+        return Collections.EMPTY_LIST;
+    }
+</pre>
+</code>
+<br/>
+
+<b>setContext()</b><br/>
+Reads the file and creates event and/or artifact objects.<br/><br/>
+
+<b>getLogEvents()</b><br/>
+Returns the events read from the log.<br/><br/>
+
+<b>size()</b><br/>
+Returns the number of log events or a negative number if the number is not known.<br/><br/>
+
+<b>toString()</b><br/>
+Override the java.lang.Object.toString() method to return the name of the importer.<br/><br/>
+
+</body>
+</html>

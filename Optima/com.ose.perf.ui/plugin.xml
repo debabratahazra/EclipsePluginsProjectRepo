@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="com.ose.perf.ui"
+   name="Optima Source Profiler"
+   version="1.2.1"
+   provider-name="Enea Software AB"
+   class="com.ose.perf.ui.ProfilerPlugin">
+
+   <runtime>
+      <library name="perfui.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="org.eclipse.cdt.core"/>
+      <import plugin="org.eclipse.cdt.debug.core"/>
+      <import plugin="org.eclipse.core.filesystem"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.debug.core"/>
+      <import plugin="org.eclipse.debug.ui"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.ui.forms"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.junit" optional="true"/>
+      <import plugin="com.ose.gateway"/>
+      <import plugin="com.ose.plugin.control"/>
+      <import plugin="com.ose.pmd"/>
+      <import plugin="com.ose.system"/>
+      <import plugin="com.ose.system.ui"/>
+   </requires>
+
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="Source Profiling"
+            icon="icons/view16/logo.gif"
+            id="com.ose.perf.ui.ProfilerPerspective"
+            class="com.ose.perf.ui.ProfilerPerspective">
+      </perspective>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="com.ose.perf.ui.ProfilerPerspective">
+         <perspectiveShortcut
+               id="com.ose.system.ui.SystemBrowserPerspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="com.ose.prof.ui.ProfilerPerspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="com.ose.event.ui.EventPerspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="org.eclipse.ui.resourcePerspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="org.eclipse.debug.ui.DebugPerspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="org.eclipse.cdt.ui.CPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="com.ose.system.ui.SystemBrowserPerspective">
+         <perspectiveShortcut
+               id="com.ose.perf.ui.ProfilerPerspective">
+         </perspectiveShortcut>
+         <viewShortcut
+               id="com.ose.perf.ui.view.ProfilerView">
+         </viewShortcut>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.ui.resourcePerspective">
+         <perspectiveShortcut
+               id="com.ose.perf.ui.ProfilerPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.debug.ui.DebugPerspective">
+         <perspectiveShortcut
+               id="com.ose.perf.ui.ProfilerPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.cdt.ui.CPerspective">
+         <perspectiveShortcut
+               id="com.ose.perf.ui.ProfilerPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            name="Source Profiler"
+            icon="icons/elcl16/prof.gif"
+            id="com.ose.perf.ui.view.ProfilerView"
+            category="com.ose.view.category"
+            class="com.ose.perf.ui.view.ProfilerView">
+      </view>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="Source Profiler Editor"
+            icon="icons/elcl16/prof.gif"
+            id="com.ose.perf.ui.editor.ProfilerEditor"
+            class="com.ose.perf.ui.editor.ProfilerEditor">
+      </editor>
+      <editor
+            name="Source Not Found Editor"
+            icon="icons/elcl16/c_file_obj.gif"
+            id="com.ose.perf.ui.editor.SourceNotFoundEditor"
+            class="com.ose.perf.ui.editor.SourceNotFoundEditor">
+      </editor>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="com.ose.perf.ui.view.ShowProfilerActionContribution"
+            targetID="com.ose.system.ui.views.system.SystemView">
+         <visibility>
+            <objectClass name="com.ose.system.Target"/>
+         </visibility>
+         <action
+               id="com.ose.perf.ui.view.ShowProfilerAction"
+               label="Show in Source Profiler"
+               menubarPath="showViewAdditions"
+               class="com.ose.perf.ui.view.ShowProfilerActionDelegate"
+               enablesFor="1">
+            <enablement>
+               <and>
+                  <objectClass name="com.ose.system.Target"/>
+                  <objectState name="isKilled" value="false"/>
+                  <objectState name="hasPerformanceCounterSupport" value="true"/>
+               </and>
+            </enablement>
+         </action>
+      </viewerContribution>
+   </extension>
+
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            name="Source Profiler Results"
+            delegate="com.ose.perf.ui.launch.ProfilerLaunchConfigurationDelegate"
+            modes="profile"
+            public="true"
+            id="com.ose.perf.ui.launch.sourceProfilerLaunch"
+            sourceLocatorId="org.eclipse.cdt.debug.core.sourceLocator"
+            sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer">
+      </launchConfigurationType>
+   </extension>
+
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            icon="icons/view16/launch_type.gif"
+            configTypeID="com.ose.perf.ui.launch.sourceProfilerLaunch"
+            id="com.ose.perf.ui.launch.sourceProfilerLaunchImage">
+      </launchConfigurationTypeImage>
+   </extension>
+
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            type="com.ose.perf.ui.launch.sourceProfilerLaunch"
+            class="com.ose.perf.ui.launch.ProfilerLaunchConfigurationTabGroup"
+            id="com.ose.perf.ui.launch.sourceProfilerLaunchConfigurationTabGroup">
+      </launchConfigurationTabGroup>
+   </extension>
+
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            id="com.ose.perf.ui.launch.sourceProfilerLaunchShortcut"
+            class="com.ose.perf.ui.launch.ProfilerLaunchShortcut"
+            modes="profile"
+            label="Source Profiler Results"
+            icon="icons/view16/launch_type.gif">
+            <contextualLaunch>
+               <enablement>
+                  <with variable="selection">
+                     <count value="1"/>
+                     <iterate>
+                        <test property="org.eclipse.debug.ui.matchesPattern" value="*.pmd"/>
+                     </iterate>
+                  </with>
+               </enablement>
+            </contextualLaunch>
+      </shortcut>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            name="Source Profile"
+            description="Source Profile"
+            id="com.ose.perf.ui.launch.sourceProfilerLaunchShortcut.profile"
+            categoryId="org.eclipse.debug.ui.category.run">
+      </command>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            sequence="M3+M2+P D"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            commandId="com.ose.perf.ui.launch.sourceProfilerLaunchShortcut.profile">
+      </key>
+   </extension>
+</plugin>

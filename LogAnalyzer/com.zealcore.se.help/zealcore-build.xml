@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- =====================================================================
+			This file was created at 2006-08-30
+			Version: 0.0.0
+			Author: stch
+			Contributions by:
+			
+		 ===================================================================== -->
+
+<project basedir="." name="com.zealcore.se.help">
+
+
+
+	<!-- =====================================================================
+			Declare user defined properties below
+		 ===================================================================== -->
+
+	<property name="jar-project" value="false" />
+
+
+	<!-- =====================================================================
+			Using instantiatons getclasspath ANT plugin to resolve classpath
+			rather than having to keep the class path updated.
+		 ===================================================================== -->
+
+
+
+	<property environment="env" />
+
+
+	<property name="ECLIPSE_HOME" value="${eclipse.home}" />
+	<property name="build.tmp" value="build-tmp" />
+	<property name="build.out" value="target" />
+
+	<property name="project" value="${ant.project.name}" />
+
+	<property name="install.dir" value="NOT SET!!!" />
+
+
+	<!-- getclasspath ANT plugin from instantiations -->
+	<path id="project.classpath">
+		<pathelement path="${tools.path}" />
+	</path>
+
+	<!-- Read MANIFEST.MF to resolve Bundle-Version and other properties -->
+
+	<target name="read-manifest">
+		<mkdir dir="${build.tmp}" />
+		<copy file="META-INF/MANIFEST.MF" todir="${build.tmp}" />
+		<replace file="${build.tmp}/MANIFEST.MF">
+			<replacefilter token=":=" value="=" />
+			<replacefilter token=":" value="=" />
+			<replacetoken>;</replacetoken>
+			<replacevalue>
+			</replacevalue>
+			<replacefilter token="singleton=true" value="" />
+		</replace>
+		<property file="${build.tmp}/MANIFEST.MF" />
+		<echo message="Bundle-Version=${Bundle-Version}">
+		</echo>
+		<delete dir="build-tmp" />
+
+		<!-- Assign the plugin.name to the Bundble-SymbolicName found in manifest -->
+		<property name="plugin.name" value="${Bundle-SymbolicName}" />
+
+		<!-- Read build.properties -->
+		<property file="build.properties" />
+	</target>
+
+
+
+	<!-- =============================================================================== 
+			Zealcore ANT Code:
+			
+			Prerequisities:
+				* ${ECLIPSE_HOME} must be set
+				* Must be run in same JRE as eclipse
+		 =============================================================================== -->
+	<tstamp>
+		<!-- Generate a build id (can be used to separate different jar builds -->
+		<format property="buildid" pattern="yyyyMMdd" />
+	</tstamp>
+
+	<target name="make-user-doc">
+		<exec executable="make" dir="${tools-root}" failonerror="true">
+			<arg value="doc" />
+			<arg value="COMP=book-log-analyzer" />
+			<arg value="FORMAT=eclipse" />
+			<arg line="${bl-label}" />
+		</exec>
+		<copy todir="./">
+			<fileset dir="${tools-root}/doc/eclipse/plugins/com.ose.doc.book-log-analyzer_1.0.0" includes="toc.xml, doc.zip" />
+		</copy>
+	</target>
+
+	<target name="deploy" depends="read-manifest" description="This task deploys the plugin project to target">
+
+		<property name="version" value="${Bundle-Version}.${buildid}" />
+
+
+		<mkdir dir="${build.out}/${plugin.name}_${version}" />
+		<mkdir dir="${build.out}/${plugin.name}_${version}/META-INF" />
+
+		<echo message="Deploying ${plugin.name} to ${build.out}/${plugin.name}_${version} jar-project=${jar-project}" />
+
+
+		<copy todir="${build.out}/${plugin.name}_${version}">
+			<fileset dir="./" includes="${bin.includes}">
+				<exclude name="zealcore-build.xml" />
+			</fileset>
+		</copy>
+
+		<replace file="${build.out}/${plugin.name}_${version}/META-INF/MANIFEST.MF">
+			<replacefilter token="Bundle-Version: ${Bundle-Version}" value="Bundle-Version: ${version}" />
+		</replace>
+
+
+
+	</target>
+
+
+
+	<target name="install" depends="clean, make-user-doc, deploy">
+		<echo message="Installing: ${ant.project.name} to ${install.dir}" />
+		<copy todir="${install.dir}">
+			<fileset dir="target">
+				<exclude name="zealcore-build.xml" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="clean">
+		<delete includeEmptyDirs="true" failonerror="false">
+			<fileset dir="${build.out}">
+				<include name="**/*" />
+			</fileset>
+		</delete>
+	</target>
+</project>
+

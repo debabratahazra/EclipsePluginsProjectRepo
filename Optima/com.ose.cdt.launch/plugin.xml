@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="com.ose.cdt.launch"
+   name="OSE C/C++ Development Tools Launching Support"
+   version="1.9.2"
+   provider-name="Enea Software AB"
+   class="com.ose.cdt.launch.internal.ui.LaunchUIPlugin">
+
+   <runtime>
+      <library name="launch.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="com.ose.boot"/>
+      <import plugin="com.ose.cdt.debug"/>
+      <import plugin="com.ose.gateway"/>
+      <import plugin="com.ose.httpd"/>
+      <import plugin="com.ose.launch"/>
+      <import plugin="com.ose.plugin.control"/>
+      <import plugin="com.ose.pmd"/>
+      <import plugin="com.ose.system"/>
+      <import plugin="com.ose.system.ui" optional="true"/>
+      <import plugin="org.eclipse.cdt.core"/>
+      <import plugin="org.eclipse.cdt.debug.core"/>
+      <import plugin="org.eclipse.cdt.debug.mi.core"/>
+      <import plugin="org.eclipse.cdt.launch"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.debug.core"/>
+      <import plugin="org.eclipse.debug.ui"/>
+      <!-- Needed by the org.eclipse.team.core.fileTypes extension -->
+      <import plugin="org.eclipse.team.core" optional="true"/>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.ui.ide"/>
+   </requires>
+
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            name="OSE C/C++ Load Module"
+            delegate="com.ose.cdt.launch.internal.LoadModuleLaunchConfigurationDelegate"
+            modes="run,debug"
+            public="true"
+            id="com.ose.cdt.launch.loadModuleLaunch"
+            sourceLocatorId="org.eclipse.cdt.debug.core.sourceLocator"
+            sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer">
+      </launchConfigurationType>
+      <!-- FIXME: Add "run" mode when support for loading core modules is revived -->
+      <launchConfigurationType
+            name="OSE C/C++ Core Module"
+            delegate="com.ose.cdt.launch.internal.CoreModuleLaunchConfigurationDelegate"
+            modes="debug"
+            public="true"
+            id="com.ose.cdt.launch.coreModuleLaunch"
+            sourceLocatorId="org.eclipse.cdt.debug.core.sourceLocator"
+            sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer">
+      </launchConfigurationType>
+   </extension>
+
+   <extension
+         point="org.eclipse.debug.core.launchDelegates">
+      <launchDelegate
+            name="OSE C/C++ Postmortem Dump"
+            delegate="com.ose.cdt.launch.internal.DumpLaunchConfigurationDelegate"
+            modes="debug"
+            id="com.ose.cdt.launch.dumpLaunch"
+            type="com.ose.launch.dumpLaunch"
+            sourceLocatorId="org.eclipse.cdt.debug.core.sourceLocator"
+            sourcePathComputerId="org.eclipse.cdt.debug.core.sourcePathComputer">
+      </launchDelegate>
+   </extension>
+
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            icon="icons/obj16/c_app.gif"
+            configTypeID="com.ose.cdt.launch.loadModuleLaunch"
+            id="com.ose.cdt.launch.loadModuleLaunchImage">
+      </launchConfigurationTypeImage>
+      <launchConfigurationTypeImage
+            icon="icons/obj16/c_app.gif"
+            configTypeID="com.ose.cdt.launch.coreModuleLaunch"
+            id="com.ose.cdt.launch.coreModuleLaunchImage">
+      </launchConfigurationTypeImage>
+   </extension>
+
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            type="com.ose.cdt.launch.loadModuleLaunch"
+            class="com.ose.cdt.launch.internal.ui.LoadModuleLaunchConfigurationTabGroup"
+            id="com.ose.cdt.launch.loadModuleLaunchConfigurationTabGroup">
+      </launchConfigurationTabGroup>
+      <launchConfigurationTabGroup
+            type="com.ose.cdt.launch.coreModuleLaunch"
+            class="com.ose.cdt.launch.internal.ui.CoreModuleLaunchConfigurationTabGroup"
+            id="com.ose.cdt.launch.coreModuleLaunchConfigurationTabGroup">
+      </launchConfigurationTabGroup>
+      <launchConfigurationTabGroup
+            type="com.ose.launch.dumpLaunch"
+            class="com.ose.cdt.launch.internal.ui.DumpLaunchConfigurationTabGroup"
+            id="com.ose.cdt.launch.dumpLaunchConfigurationTabGroup">
+            <launchMode
+               mode="debug">
+            </launchMode>
+      </launchConfigurationTabGroup>
+   </extension>
+
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            id="com.ose.cdt.launch.dumpLaunchShortcut"
+            class="com.ose.cdt.launch.internal.DumpLaunchShortcut"
+            modes="debug"
+            label="OSE C/C++ Postmortem Dump"
+            icon="icons/obj16/c_app.gif">
+            <contextualLaunch>
+               <enablement>
+                  <with variable="selection">
+                     <count value="1"/>
+                     <iterate>
+                        <test property="org.eclipse.debug.ui.matchesPattern" value="*.pmd"/>
+                     </iterate>
+                  </with>
+               </enablement>
+            </contextualLaunch>
+      </shortcut>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            name="Debug OSE C/C++ Postmortem Dump"
+            description="Debug OSE C/C++ Postmortem Dump"
+            id="com.ose.cdt.launch.dumpLaunchShortcut.debug"
+            categoryId="org.eclipse.debug.ui.category.run">
+      </command>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            sequence="M3+M2+D D"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            commandId="com.ose.cdt.launch.dumpLaunchShortcut.debug">
+      </key>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="com.ose.cdt.launch.RunActionContribution"
+            targetID="com.ose.system.ui.views.system.SystemView">
+         <visibility>
+            <objectClass name="com.ose.system.Target"/>
+         </visibility>
+         <action
+               id="com.ose.cdt.launch.RunAction"
+               label="Run..."
+               menubarPath="additions"
+               class="com.ose.cdt.launch.internal.RunActionDelegate"
+               enablesFor="1">
+            <enablement>
+               <and>
+                  <objectClass name="com.ose.system.Target"/>
+                  <objectState name="isKilled" value="false"/>
+                  <objectState name="hasInstallLoadModuleSupport" value="true"/>
+               </and>
+            </enablement>
+         </action>
+      </viewerContribution>
+      <viewerContribution
+            id="com.ose.cdt.launch.DebugActionContribution"
+            targetID="com.ose.system.ui.views.system.SystemView">
+         <visibility>
+            <objectClass name="com.ose.system.Process"/>
+         </visibility>
+         <action
+               id="com.ose.cdt.launch.DebugAction"
+               label="Debug..."
+               menubarPath="additions"
+               class="com.ose.cdt.launch.internal.DebugActionDelegate"
+               enablesFor="1">
+            <enablement>
+               <and>
+                  <objectClass name="com.ose.system.Process"/>
+                  <objectState name="isKilled" value="false"/>
+                  <objectState name="hasBlockSupport" value="true"/>
+               </and>
+            </enablement>
+         </action>
+      </viewerContribution>
+   </extension>
+
+   <!-- The following extensions are placed here -->
+   <!-- until a more suitable location arises. -->
+
+   <!-- Content type definition for OSE signal files -->
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <file-association
+            content-type="org.eclipse.cdt.core.cHeader"
+            file-extensions="sig">
+      </file-association>
+   </extension>
+
+   <!-- Team file type definition for OSE signal files -->
+   <extension
+         point="org.eclipse.team.core.fileTypes">
+      <fileTypes
+            type="text"
+            extension="sig">
+      </fileTypes>
+   </extension>
+</plugin>

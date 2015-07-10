@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="optima-ui-tests" default="run" basedir=".">
+   <!-- The property ${library-file} (referring to ETF's library.xml) has to -->
+   <!-- be passed into this script. -->
+
+   <!-- The property ${eclipse-home} should be passed into this script. -->
+   <!-- Set a meaningful default value for when it is not. -->
+   <property name="eclipse-home" value="${basedir}/../.." />
+
+   <!-- The properties plugin-name and classname could be overridden if -->
+   <!-- passed into this script. -->
+   <property name="plugin-name" value="com.ose.ui.tests" />
+   <property name="classname" value="com.ose.ui.tests.systembrowser.Suite" />
+
+   <!-- The properties ${com.ose.ui.tests.gate.address} and ${com.ose.ui.tests.gate.port} -->
+   <!-- have to be passed into this script. -->
+   <property name="vmargs" value="-Xms128m -Xmx1024m -XX:MaxPermSize=256m -Dcom.ose.ui.tests.gate.address=${com.ose.ui.tests.gate.address} -Dcom.ose.ui.tests.gate.port=${com.ose.ui.tests.gate.port} -Dcom.ose.ui.tests.testDialog=${com.ose.ui.tests.testDialog}" />
+
+   <!-- This target holds all initialization code that needs to be done for -->
+   <!-- all tests that are to be run. Initialization for individual tests -->
+   <!-- should be done within the body of the run-suite target. -->
+   <target name="init">
+      <tstamp />
+      <delete>
+         <fileset dir="${eclipse-home}" includes="com*.xml" />
+      </delete>
+   </target>
+
+   <!-- This target defines the tests that need to be run. -->
+   <target name="run-suite">
+      <echo>${com.ose.ui.tests.gate.address} ${com.ose.ui.tests.gate.port}</echo>
+      <property name="session-workspace" value="${eclipse-home}/workspace" />
+      <ant target="ui-test" antfile="${library-file}" dir="${eclipse-home}">
+         <property name="data-dir" value="${session-workspace}" />
+         <property name="plugin-name" value="${plugin-name}" />
+         <property name="classname" value="${classname}" />
+      </ant>
+   </target>
+
+   <!-- This target holds code to cleanup the testing environment after all -->
+   <!-- of the tests have been run. You can use this target to delete -->
+   <!-- temporary files that have been created. -->
+   <target name="cleanup">
+   </target>
+
+   <!-- This target runs the test suite. Any actions that need to happen -->
+   <!-- after all the tests have been run should go here. -->
+   <target name="run" depends="init,run-suite,cleanup">
+      <ant target="collect" antfile="${library-file}" dir="${eclipse-home}">
+         <property name="includes" value="com*.xml" />
+         <property name="output-file" value="${plugin-name}.xml" />
+      </ant>
+   </target>
+</project>

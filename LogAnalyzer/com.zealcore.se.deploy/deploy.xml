@@ -1,0 +1,320 @@
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "./user-settings.xml">]>
+<project name="LogAnalyzer" basedir="../" default="make-all-dists">
+
+
+	<property id="zealcore.root" name="zealcore.root" value="${basedir}" />
+	<property name="deploy.root" value="${zealcore.root}/deploy" />
+	<property name="update.site" value="${deploy.root}/update-site" />
+	<property id="install.dir" name="install.dir" value="${deploy.root}/loganalyzer/" />
+	<property name="releasenote.file" value="com.zealcore.se.deploy/ReleaseNotes.txt" />
+
+	<tstamp>
+		<!-- Generate a build id (can be used to separate different jar builds -->
+		<format property="buildid" pattern="yyyyMMdd" />
+	</tstamp>
+
+	<target name="clean">
+		<delete dir="${deploy.root}" />
+	</target>
+
+	<target name="init" depends="clean">
+		<!-- Delete stuff in the install dir -->
+		<mkdir dir="${deploy.root}" />
+		<mkdir dir="${update.site}" />
+		<mkdir dir="${update.site}/features" />
+		<mkdir dir="${update.site}/plugins" />
+		<mkdir dir="${update.site}/web" />
+		<!--  <mkdir dir="${target.dir}/examples" />  -->
+		<mkdir dir="${install.dir}/examples" />
+		<mkdir dir="${install.dir}/workspace" />
+	</target>
+
+	<target name="install-loganalyzer-platform" depends="javadoc">
+		<echo message="Installing Product ${ant.project.name} to ${install.dir}" />
+
+		<!-- Experimental auto-deploy of feature -->
+		<echo message="Deploying com.zealcore.sd.feature" />
+		<xmlproperty file="${zealcore.root}/com.zealcore.sd.feature/feature.xml" prefix="sd" />
+		<echo message="${sd.feature(id)}" />
+		<echo message="${sd.feature(version)}" />
+
+		<!-- <delete file="${zealcore.root}/com.zealcore.sd.feature/${sd.feature(id)}_*.jar" /> -->
+		<delete>
+			<fileset dir="." includes="${sd.feature(id)}**/*.jar" />
+		</delete>
+
+		<!-- <fileset dir="${zealcore.root}/com.zealcore.sd.feature/" id="sd-feature-files">
+			<include name="feature.xml" />
+			<include name="license.html" />
+		</fileset>
+
+		 <mkdir dir="${zealcore.root}/com.zealcore.sd.feature/target" />  -->
+		<delete includeEmptyDirs="true" failonerror="false">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.feature/target">
+				<include name="**/*" />
+			</fileset>
+		</delete>
+		<copy todir="${zealcore.root}/com.zealcore.sd.feature/target/">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.feature/">
+				<include name="feature.xml" />
+				<include name="license.html" />
+			</fileset>
+		</copy>
+
+		<replaceregexp file="${zealcore.root}/com.zealcore.sd.feature/target/feature.xml" match="^([\s]{2,})version=\&quot;(.*)\&quot;(.*)" replace="\1version=\&quot;\2.${buildid}\&quot;\3" byline="true">
+		</replaceregexp>
+
+		<zip destfile="${zealcore.root}/com.zealcore.sd.feature/${sd.feature(id)}_${sd.feature(version)}.${buildid}.jar">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.feature/target/" />
+		</zip>
+
+		<mkdir dir="${install.dir}/features/${sd.feature(id)}_${sd.feature(version)}.${buildid}" />
+		<!-- Copy raw files to install feature -->
+		<copy todir="${install.dir}/features/${sd.feature(id)}_${sd.feature(version)}.${buildid}">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.feature/target/" />
+
+		</copy>
+		<!-- End -->
+
+		<echo message="Deploying com.zealcore.sd.ose.feature" />
+		<xmlproperty file="${zealcore.root}/com.zealcore.sd.ose.feature/feature.xml" prefix="sd_ose" />
+		<echo message="${sd_ose.feature(id)}" />
+		<echo message="${sd_ose.feature(version)}" />
+		<delete includeEmptyDirs="true" failonerror="false">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.ose.feature/target">
+				<include name="**/*" />
+			</fileset>
+		</delete>
+		<copy todir="${zealcore.root}/com.zealcore.sd.ose.feature/target/">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.ose.feature/">
+				<include name="feature.xml" />
+				<include name="license.html" />
+			</fileset>
+		</copy>
+
+		<replaceregexp file="${zealcore.root}/com.zealcore.sd.ose.feature/target/feature.xml" match="^([\s]{2,})version=\&quot;(.*)\&quot;(.*)" replace="\1version=\&quot;\2.${buildid}\&quot;\3" byline="true">
+		</replaceregexp>
+
+		<zip destfile="${zealcore.root}/com.zealcore.sd.ose.feature/${sd_ose.feature(id)}_${sd_ose.feature(version)}.${buildid}.jar">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.ose.feature/target/" />
+		</zip>
+
+		<mkdir dir="${install.dir}/features/${sd_ose.feature(id)}_${sd_ose.feature(version)}.${buildid}" />
+		<!-- Copy raw files to install feature -->
+		<copy todir="${install.dir}/features/${sd_ose.feature(id)}_${sd_ose.feature(version)}.${buildid}">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.ose.feature/target/" />
+		</copy>
+
+		<!-- ================ Install Log Analyzer UI =================== -->
+		<ant antfile="${zealcore.root}/com.zealcore.se.ui/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+
+		<!-- ================ Install Log Analyzer Core =================== -->
+
+		<ant antfile="${zealcore.root}/com.zealcore.se.core/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+
+		<!-- ================ Install Import Wizard =================== -->
+
+		<ant antfile="${zealcore.root}/com.zealcore.se.iw/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+
+		<!-- ================ Install Log Analyzer Plugin Controller =================== -->
+
+		<ant antfile="${zealcore.root}/com.zealcore.plugin.control/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+                </ant>
+
+		<!-- ================ Install SRL Importer =================== -->
+
+		<ant antfile="${zealcore.root}/com.zealcore.srl.offline/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+
+		<!-- ================ Install LTTng Importer =================== -->
+
+		<ant antfile="${zealcore.root}/com.zealcore.sd.lttng.importer/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+
+		<!-- ================ Install Log Analyzer RCP =================== 
+
+		<ant antfile="${zealcore.root}/com.zealcore.se.rcp/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+-->
+		<!-- ================ Install Log Analyzer Help =================== -->
+
+		<ant antfile="${zealcore.root}/com.zealcore.se.help/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+
+		<!-- ================ Install Log Analyzer Branding =================== -->
+
+		<ant antfile="${zealcore.root}/com.zealcore.sd.branding/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+
+		<!-- ================ Install Example Importer Doc =================== -->
+
+		<ant antfile="${zealcore.root}/com.zealcore.se.doc/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+		<!--
+		<copy todir="${zealcore.root}/com.zealcore.se.doc/doc">
+			<fileset dir="${zealcore.root}/com.zealcore.se.doc/ImporterExtensionDoc/" />
+		</copy>
+		<property name="version" value="2.0.0.${buildid}" />
+		<copy todir="${install.dir}/plugins/com.zealcore.se.doc_${version}">
+			<fileset dir="${zealcore.root}/com.zealcore.se.doc/doc" />
+		</copy>
+-->
+
+		<!-- ================ Install Log Analyzer Documents =================== 
+
+		<ant antfile="${zealcore.root}/com.zealcore.se.doc/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/doc" />
+		</ant>
+		-->
+
+
+		<!-- ================ Install Log Analyzer Example Logs =================== 
+
+		<ant antfile="${zealcore.root}/com.zealcore.se.examples.logs/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/examples/logs" />
+		</ant>
+		
+		-->
+
+	</target>
+
+	<!-- =============== Create Javadoc ====================== -->
+	<path id="classpath">
+		<fileset dir="${eclipse-path}/plugins" includes="org.eclipse.core.runtime_*.jar, org.eclipse.core.resources_*.jar, org.eclipse.equinox.common_*.jar, org.eclipse.equinox.registry_*.jar, org.eclipse.osgi_*.jar, org.eclipse.core.filesystem_*.jar, org.eclipse.swt.gtk.*_*.jar, org.eclipse.jface_*.jar, org.eclipse.ui.workbench_*.jar, org.junit_4*/junit.jar" />
+		<dirset dir="${zealcore.root}" includes="com.zealcore.se.core/bin, com.zealcore.sd.examples/bin, com.zealcore.srl.offline/bin, com.zealcore.plugin.control/bin" />
+	</path>
+	<delete failonerror="false" dir="${zealcore.root}/com.zealcore.se.doc/topics" />
+	<mkdir dir="${zealcore.root}/com.zealcore.se.doc/topics" />
+	<target name="javadoc">
+		<javadoc verbose="false" access="public" author="false" destdir="${zealcore.root}/com.zealcore.se.doc/topics" doctitle="Log Analyzer API Specification" nodeprecated="false" nodeprecatedlist="false" source="1.5" splitindex="true" breakiterator="yes" use="true" version="false" classpathref="classpath" sourcefiles="com.zealcore.se.core/src/com/zealcore/se/core/format/TypeDescription.java,com.zealcore.se.core/src/com/zealcore/se/core/format/FieldDescription.java,com.zealcore.se.core/src/com/zealcore/se/core/format/FieldValues.java,com.zealcore.se.core/src/com/zealcore/se/core/format/GenericEventInfo.java,com.zealcore.se.core/src/com/zealcore/se/core/format/SendEventInfo.java,com.zealcore.se.core/src/com/zealcore/se/core/format/ReceiveEventInfo.java,com.zealcore.se.core/src/com/zealcore/se/core/format/TaskSwitchEventInfo.java,com.zealcore.se.core/src/com/zealcore/se/core/format/TaskReleaseEventInfo.java,com.zealcore.se.core/src/com/zealcore/se/core/format/TaskCompletionEventInfo.java,com.zealcore.se.core/src/com/zealcore/se/core/format/GenericArtifactInfo.java,com.zealcore.se.core/src/com/zealcore/se/core/format/TaskArtifactInfo.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericTaskExecution.java,com.zealcore.se.core/src/com/zealcore/se/core/model/ILogEvent.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/SearchQuery.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/IFWFacade.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericAdapter.java,com.zealcore.se.core/src/com/zealcore/se/core/model/SEProperty.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericSequence.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericFunctionExit.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericActivity.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericType.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericLogFile.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericArtifact.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericTaskInstance.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericSendEvent.java,com.zealcore.se.core/src/com/zealcore/se/core/model/AbstractDuration.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericFunctionEnter.java,com.zealcore.se.core/src/com/zealcore/se/core/model/ISequenceMember.java,com.zealcore.se.core/src/com/zealcore/se/core/model/ITimed.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericSequenceMember.java,com.zealcore.se.core/src/com/zealcore/se/core/util/TimeUtil.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericTaskSwitchEvent.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/GanttQuery.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/IGenericLogItem.java,com.zealcore.se.core/src/com/zealcore/se/core/model/IProcessSwitch.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/SequenceQuery.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericTask.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/GanttOverviewQuery.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/ITimeProvider.java,com.zealcore.se.core/src/com/zealcore/se/core/model/IObject.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/EventQuery.java,com.zealcore.se.core/src/com/zealcore/se/core/dl/AbstractTypePackage.java,com.zealcore.se.core/src/com/zealcore/se/core/model/IType.java,com.zealcore.se.core/src/com/zealcore/se/core/model/IArtifactID.java,com.zealcore.se.core/src/com/zealcore/se/core/model/LogFile.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/TimeCache.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/BasicType.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/AbstractQuery.java,com.zealcore.se.core/src/com/zealcore/se/core/util/Span.java,com.zealcore.se.core/src/com/zealcore/se/core/util/TimestampManager.java,com.zealcore.se.core/src/com/zealcore/se/core/ImportException.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/ImporterDescriptor.java,com.zealcore.se.core/src/com/zealcore/se/core/model/ITaskDuration.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/LogAdapter.java,com.zealcore.se.core/src/com/zealcore/se/core/dl/ITypeRegistry.java,com.zealcore.se.core/src/com/zealcore/se/core/model/ISequence.java,com.zealcore.se.core/src/com/zealcore/se/core/model/IActivity.java,com.zealcore.se.core/src/com/zealcore/se/core/dl/TypeRegistry.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericDeliverFinish.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericTaskRelease.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/ILogAdapter.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericLogEvent.java,com.zealcore.se.core/src/com/zealcore/se/core/model/IDuration.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/IQuery.java,com.zealcore.se.core/src/com/zealcore/se/core/model/IProperty.java,com.zealcore.se.core/src/com/zealcore/se/core/model/IArtifact.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/Logset.java,com.zealcore.se.core/src/com/zealcore/se/core/model/ITask.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/StatisticQuery.java,com.zealcore.se.core/src/com/zealcore/se/core/util/ImportUtil.java,com.zealcore.se.core/src/com/zealcore/se/core/model/ISequenceMessage.java,com.zealcore.se.core/src/com/zealcore/se/core/util/TimestampUtil.java,com.zealcore.se.core/src/com/zealcore/se/core/ifw/ImportContext.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericTaskCompletion.java,com.zealcore.se.core/src/com/zealcore/se/core/util/RegExpUtil.java,com.zealcore.se.core/src/com/zealcore/se/core/model/ITimedTransition.java,com.zealcore.se.core/src/com/zealcore/se/core/model/ModelTypePackage.java,com.zealcore.se.core/src/com/zealcore/se/core/dl/ITypePackage.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericReceiveEvent.java,com.zealcore.se.core/src/com/zealcore/se/core/IImporter.java,com.zealcore.se.core/src/com/zealcore/se/core/IExtendedImporter.java,com.zealcore.se.core/src/com/zealcore/se/core/model/generic/GenericTypePackage.java,com.zealcore.se.core/src/com/zealcore/se/core/annotation/ZCProperty.java,com.zealcore.se.core/src/com/zealcore/se/core/annotation/ZSearchable.java,com.zealcore.sd.examples/src/com/enea/sd/example/importer/SimpleImporter.java,com.zealcore.sd.examples/src/com/enea/sd/example/importer/SimpleExtendedImporter.java,com.zealcore.sd.examples/src/com/enea/sd/example/importer/MinimalImporter.java" />
+	</target>
+
+
+	<target name="install-ose-importers" depends="install-loganalyzer-platform">
+		<!-- =============== Install Enea Importers ====================== -->
+		<ant antfile="${zealcore.root}/com.zealcore.sd.ose.importers/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+	</target>
+
+	<!-- =============== Install Example Importers ======================
+	<target name="install-example-importers" depends="install-loganalyzer-platform">
+		<ant antfile="${zealcore.root}/com.zealcore.sd.examples/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+	</target>
+ -->
+ 
+	<target name="install-minimal">
+		<!-- =============== Install Minimal Importers ====================== -->
+		<ant antfile="${zealcore.root}/com.zealcore.minimal.perspective.views/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+	</target>
+
+	<target name="install-bombardier" depends="install-loganalyzer-platform">
+		<!-- =============== Install Bombardier Importers ====================== -->
+		<ant antfile="${zealcore.root}/com.zealcore.se.external.bombardier.importers/zealcore-build.xml" inheritall="false" target="install">
+			<property name="install.dir" value="${install.dir}/plugins" />
+		</ant>
+	</target>
+
+	<!--	<target name="make-updatesite-dist" depends="init, install-ose-importers, install-example, install-example-importer-doc, install-all">-->
+	<target name="make-all-dists" depends="init, install-loganalyzer-platform, install-ose-importers" description="Make all">
+
+		<copy todir="${update.site}/features">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.feature">
+				<include name="com.zealcore.sd.feature*.jar" />
+			</fileset>
+		</copy>
+		<copy todir="${update.site}/features">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.ose.feature">
+				<include name="com.zealcore.sd.ose.feature*.jar" />
+			</fileset>
+		</copy>
+		<copy todir="${update.site}/web">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.update/web">
+				<include name="site.*" />
+			</fileset>
+		</copy>
+		<copy todir="${update.site}">
+			<fileset dir="${zealcore.root}/com.zealcore.sd.update">
+				<include name="site.xml" />
+				<include name="index.html" />
+			</fileset>
+		</copy>
+
+		<replaceregexp file="${update.site}/site.xml" match="(^\s.*[\s]{1,}version=&quot;)([\d\.]{2,})(&quot;.*)" replace="\1\2.${buildid}\3" byline="true">
+		</replaceregexp>
+		<replaceregexp file="${update.site}/site.xml" match="([\s]{1,}&lt;feature url=&quot;)(.*[\d\.]{2,})(\.jar&quot;.*)" replace="\1\2.${buildid}\3" byline="true">
+		</replaceregexp>
+
+		<!-- In the update-site dist all plugins must be jared -->
+		<zip destfile="${update.site}/plugins/com.zealcore.plugin.control_2.0.0.${buildid}.jar">
+			<fileset dir="${install.dir}/plugins/com.zealcore.plugin.control_2.0.0.${buildid}/" />
+		</zip>
+		<zip destfile="${update.site}/plugins/com.zealcore.sd.branding_2.0.0.${buildid}.jar">
+			<fileset dir="${install.dir}/plugins/com.zealcore.sd.branding_2.0.0.${buildid}/" />
+		</zip>
+		<zip destfile="${update.site}/plugins/com.zealcore.se.help_2.0.0.${buildid}.jar">
+			<fileset dir="${install.dir}/plugins/com.zealcore.se.help_2.0.0.${buildid}/" />
+		</zip>
+		<zip destfile="${update.site}/plugins/com.zealcore.se.doc_2.0.0.${buildid}.jar">
+			<fileset dir="${install.dir}/plugins/com.zealcore.se.doc_2.0.0.${buildid}/" />
+		</zip>
+		<!-- Copy all jar-plugins to update site -->
+		<copy todir="${update.site}/plugins">
+			<fileset dir="${install.dir}/plugins/">
+				<include name="*.jar" />
+				<exclude name="*.external.*.jar" />
+				<!-- <exclude name="*.rcp.*.jar" /> -->
+				<exclude name="**/*rcp*.jar" />
+			</fileset>
+		</copy>
+
+
+		<!--  <mkdir dir="${target.dir}/enea/features" />
+		<mkdir dir="${target.dir}/enea/plugins" /> -->
+
+		<copy todir="${deploy.root}/temp/features">
+			<fileset dir="${install.dir}/features" />
+		</copy>
+		<copy todir="${deploy.root}/temp/plugins">
+			<fileset dir="${install.dir}/plugins" excludes="*rcp*" />
+		</copy>
+
+		<zip destfile="${deploy.root}/ose-log-analyzer-plugins.zip">
+			<fileset dir="${deploy.root}/temp" />
+		</zip>
+		<zip destfile="${deploy.root}/log-analyzer-plugins.zip">
+			<fileset dir="${deploy.root}/temp">
+				<exclude name="**/*ose*" />
+				<exclude name="**/com.zealcore.sd.ose.feature*/**" />
+			</fileset>
+		</zip>
+		<delete dir="${deploy.root}/temp" />
+		<zip destfile="${deploy.root}/ose-log-analyzer-updates.zip">
+			<fileset dir="${update.site}" />
+		</zip>
+		<zip destfile="${deploy.root}/log-analyzer-updates.zip">
+			<fileset dir="${update.site}">
+				<exclude name="**/*ose*" />
+				<exclude name="**/com.zealcore.sd.ose.feature*/**" />
+			</fileset>
+		</zip>
+	</target>
+
+</project>
