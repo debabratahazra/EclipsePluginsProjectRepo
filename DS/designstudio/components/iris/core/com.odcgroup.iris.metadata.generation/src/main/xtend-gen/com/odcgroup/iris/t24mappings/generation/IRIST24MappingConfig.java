@@ -15,7 +15,7 @@ import org.eclipse.xtext.xbase.lib.StringExtensions;
 public class IRIST24MappingConfig implements IIRISGenerator {
   private String projectName = "";
   
-  public void doGenerate(final EMEntityModel entityModel, final IFileSystemAccess fsa, final HashMap<String,Variable> globalVars) {
+  public void doGenerate(final EMEntityModel entityModel, final IFileSystemAccess fsa, final HashMap<String, Variable> globalVars) {
     Variable _get = globalVars.get("fileName");
     Object _value = _get.getValue();
     String filename = _value.toString();
@@ -25,7 +25,7 @@ public class IRIST24MappingConfig implements IIRISGenerator {
     fsa.generateFile(filename, _renderT24Properties);
   }
   
-  public CharSequence renderT24Properties(final EMEntityModel entityModel, final HashMap<String,Variable> globalVars) {
+  public CharSequence renderT24Properties(final EMEntityModel entityModel, final HashMap<String, Variable> globalVars) {
     StringConcatenation _builder = new StringConcatenation();
     _builder.append("# ----------------------------------------------------------------------------------------------------");
     _builder.newLine();

@@ -1,6 +1,5 @@
 package com.odcgroup.domain.derived;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
 import com.odcgroup.domain.derived.DomainJvmDatasetPropertyTypeReferenceProvider;
@@ -11,9 +10,6 @@ import com.odcgroup.mdf.ecore.MdfDatasetImpl;
 import com.odcgroup.mdf.ecore.MdfDatasetPropertyImpl;
 import com.odcgroup.mdf.ecore.MdfEnumValueImpl;
 import com.odcgroup.mdf.ecore.MdfEnumerationImpl;
-import com.odcgroup.mdf.ecore.MdfPropertyImpl;
-import com.odcgroup.mdf.metamodel.MdfClass;
-import com.odcgroup.mdf.metamodel.MdfEntity;
 import com.odcgroup.workbench.core.helper.FeatureSwitches;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +20,6 @@ import org.eclipse.xtext.common.types.JvmEnumerationType;
 import org.eclipse.xtext.common.types.JvmField;
 import org.eclipse.xtext.common.types.JvmGenericType;
 import org.eclipse.xtext.common.types.JvmMember;
-import org.eclipse.xtext.common.types.JvmTypeReference;
 import org.eclipse.xtext.common.types.JvmVisibility;
 import org.eclipse.xtext.naming.IQualifiedNameProvider;
 import org.eclipse.xtext.naming.QualifiedName;
@@ -41,74 +36,24 @@ public class DomainJvmModelInferrer extends AbstractModelInferrer {
   @Inject
   @Extension
   private JvmTypesBuilder _jvmTypesBuilder;
-
+  
   @Inject
   @Extension
   private DomainJvmLinkEncoder domainJvmLinkEncoder;
-
+  
   @Inject
   @Extension
   private IQualifiedNameProvider _iQualifiedNameProvider;
-
+  
   protected void _infer(final MdfClassImpl mdfClass, @Extension final IJvmDeclaredTypeAcceptor acceptor, final boolean prelinkingPhase) {
-    Boolean _get = FeatureSwitches.domainInferJvmTypes.get();
-    boolean _not = (!(_get).booleanValue());
-    if (_not) {
-      return;
-    }
-    QualifiedName _fullyQualifiedName = this._iQualifiedNameProvider.getFullyQualifiedName(mdfClass);
-    JvmGenericType _class = this._jvmTypesBuilder.toClass(mdfClass, _fullyQualifiedName);
-    IJvmDeclaredTypeAcceptor.IPostIndexingInitializing<JvmGenericType> _accept = acceptor.<JvmGenericType>accept(_class);
-    final Procedure1<JvmGenericType> _function = new Procedure1<JvmGenericType>() {
-      public void apply(final JvmGenericType it) {
-        String _documentation = mdfClass.getDocumentation();
-        DomainJvmModelInferrer.this._jvmTypesBuilder.setDocumentation(it, _documentation);
-        MdfClass _baseClass = mdfClass.getBaseClass();
-        final MdfClass baseClass = _baseClass;
-        boolean _matched = false;
-        if (!_matched) {
-          if (baseClass instanceof MdfClassImpl) {
-            _matched=true;
-            EList<JvmTypeReference> _superTypes = it.getSuperTypes();
-            JvmTypeReference _createTypeRef = DomainJvmModelInferrer.this.domainJvmLinkEncoder.createTypeRef(mdfClass, baseClass);
-            DomainJvmModelInferrer.this._jvmTypesBuilder.<JvmTypeReference>operator_add(_superTypes, _createTypeRef);
-          }
-        }
-        List _properties = mdfClass.getProperties();
-        Iterable<MdfPropertyImpl> _filter = Iterables.<MdfPropertyImpl>filter(_properties, MdfPropertyImpl.class);
-        for (final MdfPropertyImpl property : _filter) {
-          boolean _and = false;
-          MdfEntity _basicGetType = property.basicGetType();
-          boolean _notEquals = (!Objects.equal(_basicGetType, null));
-          if (!_notEquals) {
-            _and = false;
-          } else {
-            String _name = property.getName();
-            boolean _isEmpty = _name.isEmpty();
-            boolean _not = (!_isEmpty);
-            _and = _not;
-          }
-          if (_and) {
-            EList<JvmMember> _members = it.getMembers();
-            String _name_1 = property.getName();
-            MdfEntity _basicGetType_1 = property.basicGetType();
-            JvmTypeReference _createTypeRef = DomainJvmModelInferrer.this.domainJvmLinkEncoder.createTypeRef(mdfClass, _basicGetType_1);
-            final Procedure1<JvmField> _function = new Procedure1<JvmField>() {
-              public void apply(final JvmField it) {
-                it.setVisibility(JvmVisibility.PUBLIC);
-                String _documentation = property.getDocumentation();
-                DomainJvmModelInferrer.this._jvmTypesBuilder.setDocumentation(it, _documentation);
-              }
-            };
-            JvmField _field = DomainJvmModelInferrer.this._jvmTypesBuilder.toField(property, _name_1, _createTypeRef, _function);
-            DomainJvmModelInferrer.this._jvmTypesBuilder.<JvmField>operator_add(_members, _field);
-          }
-        }
-      }
-    };
-    _accept.initializeLater(_function);
+    throw new Error("Unresolved compilation problems:"
+      + "\nThe method baseClass is undefined for the type DomainJvmModelInferrer"
+      + "\nThe method basicGetType is undefined for the type DomainJvmModelInferrer"
+      + "\nThe method basicGetType is undefined for the type DomainJvmModelInferrer"
+      + "\n!= cannot be resolved"
+      + "\n&& cannot be resolved");
   }
-
+  
   protected void _infer(final MdfDatasetImpl mdfDataset, @Extension final IJvmDeclaredTypeAcceptor acceptor, final boolean prelinkingPhase) {
     Boolean _get = FeatureSwitches.domainInferJvmTypes.get();
     boolean _not = (!(_get).booleanValue());
@@ -151,7 +96,7 @@ public class DomainJvmModelInferrer extends AbstractModelInferrer {
     };
     _accept.initializeLater(_function);
   }
-
+  
   protected void _infer(final MdfEnumerationImpl mdfEnumeration, @Extension final IJvmDeclaredTypeAcceptor acceptor, final boolean prelinkingPhase) {
     Boolean _get = FeatureSwitches.domainInferJvmTypes.get();
     boolean _not = (!(_get).booleanValue());
@@ -192,7 +137,7 @@ public class DomainJvmModelInferrer extends AbstractModelInferrer {
     };
     _accept.initializeLater(_function);
   }
-
+  
   protected void _infer(final MdfBusinessTypeImpl mdfBusinessType, @Extension final IJvmDeclaredTypeAcceptor acceptor, final boolean prelinkingPhase) {
     Boolean _get = FeatureSwitches.domainInferJvmTypes.get();
     boolean _not = (!(_get).booleanValue());
@@ -203,7 +148,7 @@ public class DomainJvmModelInferrer extends AbstractModelInferrer {
     JvmGenericType _class = this._jvmTypesBuilder.toClass(mdfBusinessType, _fullyQualifiedName);
     acceptor.<JvmGenericType>accept(_class);
   }
-
+  
   public void infer(final EObject mdfBusinessType, final IJvmDeclaredTypeAcceptor acceptor, final boolean prelinkingPhase) {
     if (mdfBusinessType instanceof MdfBusinessTypeImpl) {
       _infer((MdfBusinessTypeImpl)mdfBusinessType, acceptor, prelinkingPhase);
@@ -226,4 +171,3 @@ public class DomainJvmModelInferrer extends AbstractModelInferrer {
     }
   }
 }
-

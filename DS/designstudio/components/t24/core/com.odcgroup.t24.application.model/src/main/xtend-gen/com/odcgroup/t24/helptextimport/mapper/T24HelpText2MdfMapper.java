@@ -5,14 +5,12 @@ import com.odcgroup.mdf.ecore.MdfAssociationImpl;
 import com.odcgroup.mdf.ecore.MdfAttributeImpl;
 import com.odcgroup.mdf.ecore.MdfClassImpl;
 import com.odcgroup.mdf.ecore.MdfPropertyImpl;
-import com.odcgroup.mdf.metamodel.MdfDomain;
 import com.odcgroup.t24.applicationimport.mapper.MappingException;
 import com.odcgroup.t24.helptext.schema.Menu;
 import com.odcgroup.t24.helptext.schema.T24Help;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.xerces.dom.ElementNSImpl;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.xbase.lib.Functions.Function1;
 import org.eclipse.xtext.xbase.lib.IterableExtensions;
 import org.slf4j.Logger;
@@ -61,24 +59,9 @@ public class T24HelpText2MdfMapper {
   }
   
   public ArrayList<MdfClassImpl> getMultiSubValueGroups(final MdfClassImpl mdfClass) {
-    EObject _eContainer = mdfClass.eContainer();
-    MdfDomain mdfDomain = ((MdfDomain) _eContainer);
-    ArrayList<MdfClassImpl> subClasList = new ArrayList<MdfClassImpl>();
-    subClasList.add(mdfClass);
-    List _classes = mdfDomain.getClasses();
-    for (final Object multiClass : _classes) {
-      {
-        MdfClassImpl multiValclass = ((MdfClassImpl) multiClass);
-        String _name = multiValclass.getName();
-        String _name_1 = mdfClass.getName();
-        String _plus = (_name_1 + "__");
-        boolean _startsWith = _name.startsWith(_plus);
-        if (_startsWith) {
-          subClasList.add(multiValclass);
-        }
-      }
-    }
-    return subClasList;
+    throw new Error("Unresolved compilation problems:"
+      + "\nMdfDomain cannot be resolved to a type."
+      + "\nclasses cannot be resolved");
   }
   
   public MdfPropertyImpl getClassAttribute(final String fieldNames, final List<MdfClassImpl> mdfClasses) {

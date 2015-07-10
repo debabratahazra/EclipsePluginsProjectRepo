@@ -9,7 +9,6 @@ import com.odcgroup.mdf.ecore.MdfDatasetDerivedPropertyImpl;
 import com.odcgroup.mdf.ecore.MdfDatasetImpl;
 import com.odcgroup.mdf.ecore.MdfDatasetMappedPropertyImpl;
 import com.odcgroup.mdf.ecore.MdfDatasetPropertyImpl;
-import com.odcgroup.mdf.ecore.MdfDomainImpl;
 import com.odcgroup.mdf.ecore.MdfEntityImpl;
 import com.odcgroup.mdf.ecore.MdfEnumValueImpl;
 import com.odcgroup.mdf.ecore.MdfEnumerationImpl;
@@ -19,29 +18,13 @@ import com.odcgroup.mdf.ecore.MdfReverseAssociationImpl;
 import com.odcgroup.mdf.ecore.PrimitivesDomain;
 import com.odcgroup.mdf.ecore.annotation.EcorePlusAspect;
 import com.odcgroup.mdf.ecore.lazy.MdfDocumentationAdapter;
-import com.odcgroup.mdf.metamodel.MdfAnnotation;
-import com.odcgroup.mdf.metamodel.MdfAnnotationProperty;
-import com.odcgroup.mdf.metamodel.MdfAssociation;
-import com.odcgroup.mdf.metamodel.MdfClass;
 import com.odcgroup.mdf.metamodel.MdfContainment;
-import com.odcgroup.mdf.metamodel.MdfDatasetProperty;
-import com.odcgroup.mdf.metamodel.MdfDomain;
-import com.odcgroup.mdf.metamodel.MdfEntity;
-import com.odcgroup.mdf.metamodel.MdfModelElement;
-import com.odcgroup.mdf.metamodel.MdfMultiplicity;
-import com.odcgroup.mdf.metamodel.MdfName;
-import com.odcgroup.mdf.metamodel.MdfNameFactory;
-import com.odcgroup.mdf.metamodel.MdfPrimitive;
-import com.odcgroup.mdf.metamodel.MdfProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.EMap;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAnnotation;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -55,8 +38,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.EcorePackage;
-import org.eclipse.emf.ecore.impl.EClassImpl;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.xbase.lib.CollectionLiterals;
 import org.eclipse.xtext.xbase.lib.Exceptions;
 
@@ -66,38 +47,16 @@ public class Mdf2EcoreMapperLazy {
   
   private final String MDF_LINK = "mdfLink::";
   
-  public EPackage create(final MdfDomain mdfDomain) {
-    final ArrayList<?> _cacheKey = CollectionLiterals.newArrayList(mdfDomain);
-    final EPackage _result;
-    synchronized (_createCache_create) {
-      if (_createCache_create.containsKey(_cacheKey)) {
-        return _createCache_create.get(_cacheKey);
-      }
-      EPackage _createEPackage = EcoreFactory.eINSTANCE.createEPackage();
-      _result = _createEPackage;
-      _createCache_create.put(_cacheKey, _result);
-    }
-    _init_create(_result, mdfDomain);
-    return _result;
+  public EPackage create(final /* MdfDomain */Object mdfDomain) {
+    throw new Error("Unresolved compilation problems:"
+      + "\nMdfDomain cannot be resolved to a type.");
   }
   
   private final HashMap<ArrayList<?>, EPackage> _createCache_create = CollectionLiterals.newHashMap();
   
-  private void _init_create(final EPackage ePkg, final MdfDomain mdfDomain) {
-    String _name = null;
-    if (mdfDomain!=null) {
-      _name=mdfDomain.getName();
-    }
-    ePkg.setName(_name);
-    Resource _eResource = null;
-    if (((MdfDomainImpl) mdfDomain)!=null) {
-      _eResource=((MdfDomainImpl) mdfDomain).eResource();
-    }
-    EList<EObject> _contents = null;
-    if (_eResource!=null) {
-      _contents=_eResource.getContents();
-    }
-    _contents.add(ePkg);
+  private void _init_create(final EPackage ePkg, final /* MdfDomain */Object mdfDomain) {
+    throw new Error("Unresolved compilation problems:"
+      + "\nname cannot be resolved");
   }
   
   public EClass create(final MdfClassImpl mdfClass) {
@@ -118,34 +77,14 @@ public class Mdf2EcoreMapperLazy {
   private final HashMap<ArrayList<?>, EClass> _createCache_create_1 = CollectionLiterals.newHashMap();
   
   private void _init_create_1(final EClass eClass, final MdfClassImpl mdfClass) {
-    String _name = mdfClass.getName();
-    eClass.setName(_name);
-    MdfClass _baseClass = mdfClass.getBaseClass();
-    boolean _notEquals = (!Objects.equal(_baseClass, null));
-    if (_notEquals) {
-      EList<EClass> _eSuperTypes = eClass.getESuperTypes();
-      MdfClass _baseClass_1 = mdfClass.getBaseClass();
-      EClassifier _map = this.map(((MdfClassImpl) _baseClass_1));
-      _eSuperTypes.add(((EClass) _map));
-    }
-    EList<EAnnotation> _eAnnotations = eClass.getEAnnotations();
-    List<EAnnotation> _elementAnnotations = this.getElementAnnotations(mdfClass);
-    _eAnnotations.addAll(_elementAnnotations);
-    String _documentation = mdfClass.getDocumentation();
-    this.setDocumentation(eClass, _documentation);
-    MdfDomain _parentDomain = mdfClass.getParentDomain();
-    EPackage _create = this.create(_parentDomain);
-    EList<EClassifier> _eClassifiers = _create.getEClassifiers();
-    _eClassifiers.add(eClass);
-    List _properties = mdfClass.getProperties();
-    for (final Object property : _properties) {
-      {
-        final MdfPropertyImpl mdfProperty = ((MdfPropertyImpl) property);
-        final EStructuralFeature eFeature = this.mapProperty(mdfProperty);
-        EList<EStructuralFeature> _eStructuralFeatures = eClass.getEStructuralFeatures();
-        _eStructuralFeatures.add(eFeature);
-      }
-    }
+    throw new Error("Unresolved compilation problems:"
+      + "\nThe method baseClass is undefined for the type Mdf2EcoreMapperLazy"
+      + "\nThe method baseClass is undefined for the type Mdf2EcoreMapperLazy"
+      + "\nThe method parentDomain is undefined for the type Mdf2EcoreMapperLazy"
+      + "\n!= cannot be resolved"
+      + "\ncreate cannot be resolved"
+      + "\nEClassifiers cannot be resolved"
+      + "\n+= cannot be resolved");
   }
   
   public EClass mapInternal(final MdfClassImpl mdfClass) {
@@ -166,44 +105,9 @@ public class Mdf2EcoreMapperLazy {
   private final HashMap<ArrayList<?>, EClass> _createCache_mapInternal = CollectionLiterals.newHashMap();
   
   private void _init_mapInternal(final EClass eClass, final MdfClassImpl mdfClass) {
-    URI mdfURI = null;
-    boolean _and = false;
-    Resource _eResource = mdfClass.eResource();
-    boolean _notEquals = (!Objects.equal(_eResource, null));
-    if (!_notEquals) {
-      _and = false;
-    } else {
-      Resource _eResource_1 = mdfClass.eResource();
-      URI _uRI = _eResource_1.getURI();
-      boolean _notEquals_1 = (!Objects.equal(_uRI, null));
-      _and = _notEquals_1;
-    }
-    if (_and) {
-      Resource _eResource_2 = mdfClass.eResource();
-      URI _uRI_1 = _eResource_2.getURI();
-      mdfURI = _uRI_1;
-    } else {
-      boolean _and_1 = false;
-      boolean _eIsProxy = mdfClass.eIsProxy();
-      if (!_eIsProxy) {
-        _and_1 = false;
-      } else {
-        URI _eProxyURI = mdfClass.eProxyURI();
-        boolean _notEquals_2 = (!Objects.equal(_eProxyURI, null));
-        _and_1 = _notEquals_2;
-      }
-      if (_and_1) {
-        URI _eProxyURI_1 = mdfClass.eProxyURI();
-        mdfURI = _eProxyURI_1;
-      } else {
-        return;
-      }
-    }
-    MdfName _qualifiedName = mdfClass.getQualifiedName();
-    String _string = _qualifiedName.toString();
-    String _plus = (this.MDF_LINK + _string);
-    URI mdfLink = mdfURI.appendFragment(_plus);
-    ((EClassImpl) eClass).eSetProxyURI(mdfLink);
+    throw new Error("Unresolved compilation problems:"
+      + "\nThe method qualifiedName is undefined for the type Mdf2EcoreMapperLazy"
+      + "\ntoString cannot be resolved");
   }
   
   public boolean isMdfLink(final String uriFragment) {
@@ -215,14 +119,10 @@ public class Mdf2EcoreMapperLazy {
     }
   }
   
-  public MdfName getMdfNameOfMdfLink(final String uriFragment) {
-    boolean _isMdfLink = this.isMdfLink(uriFragment);
-    boolean _not = (!_isMdfLink);
-    if (_not) {
-      throw new RuntimeException("uriFragment is not a MdfLink");
-    }
-    String _removeStart = StringUtils.removeStart(uriFragment, this.MDF_LINK);
-    return MdfNameFactory.createMdfName(_removeStart);
+  public Object getMdfNameOfMdfLink(final String uriFragment) {
+    throw new Error("Unresolved compilation problems:"
+      + "\nMdfNameFactory cannot be resolved to a type."
+      + "\ncreateMdfName cannot be resolved");
   }
   
   protected EClassifier _map(final MdfClassImpl mdfClass) {
@@ -247,25 +147,11 @@ public class Mdf2EcoreMapperLazy {
   private final HashMap<ArrayList<?>, EClass> _createCache_mapInternal_1 = CollectionLiterals.newHashMap();
   
   private void _init_mapInternal_1(final EClass eClass, final MdfDatasetImpl mdfDataset) {
-    MdfDomain _parentDomain = mdfDataset.getParentDomain();
-    EPackage _create = this.create(_parentDomain);
-    EList<EClassifier> _eClassifiers = _create.getEClassifiers();
-    _eClassifiers.add(eClass);
-    String _name = mdfDataset.getName();
-    eClass.setName(_name);
-    EList<EAnnotation> _eAnnotations = eClass.getEAnnotations();
-    List<EAnnotation> _elementAnnotations = this.getElementAnnotations(mdfDataset);
-    _eAnnotations.addAll(_elementAnnotations);
-    String _documentation = mdfDataset.getDocumentation();
-    this.setDocumentation(eClass, _documentation);
-    final EClassImpl eClassImpl = ((EClassImpl) eClass);
-    eClassImpl.setClassifierID(EcorePackage.ECLASS);
-    List _properties = mdfDataset.getProperties();
-    for (final Object property : _properties) {
-      EList<EStructuralFeature> _eStructuralFeatures = eClass.getEStructuralFeatures();
-      EStructuralFeature _mapDatasetProperty = this.mapDatasetProperty(((MdfDatasetPropertyImpl) property));
-      _eStructuralFeatures.add(_mapDatasetProperty);
-    }
+    throw new Error("Unresolved compilation problems:"
+      + "\nThe method parentDomain is undefined for the type Mdf2EcoreMapperLazy"
+      + "\ncreate cannot be resolved"
+      + "\nEClassifiers cannot be resolved"
+      + "\n+= cannot be resolved");
   }
   
   protected EClassifier _map(final MdfDatasetImpl mdfDataset) {
@@ -290,29 +176,13 @@ public class Mdf2EcoreMapperLazy {
   private final HashMap<ArrayList<?>, EDataType> _createCache_mapInternal_2 = CollectionLiterals.newHashMap();
   
   private void _init_mapInternal_2(final EDataType eDataType, final MdfBusinessTypeImpl mdfBT) {
-    MdfDomain _parentDomain = mdfBT.getParentDomain();
-    EPackage _create = this.create(_parentDomain);
-    EList<EClassifier> _eClassifiers = _create.getEClassifiers();
-    _eClassifiers.add(eDataType);
-    String _name = mdfBT.getName();
-    eDataType.setName(_name);
-    EList<EAnnotation> _eAnnotations = eDataType.getEAnnotations();
-    List<EAnnotation> _elementAnnotations = this.getElementAnnotations(mdfBT);
-    _eAnnotations.addAll(_elementAnnotations);
-    final MdfPrimitive type = mdfBT.getType();
-    boolean _notEquals = (!Objects.equal(type, null));
-    if (_notEquals) {
-      final EClassifier baseType = this.map(((MdfPrimitiveImpl) type));
-      String _instanceTypeName = baseType.getInstanceTypeName();
-      eDataType.setInstanceTypeName(_instanceTypeName);
-      final EAnnotation eAnnotation = EcoreFactory.eINSTANCE.createEAnnotation();
-      eAnnotation.setSource("http:///org/eclipse/emf/ecore/util/ExtendedMetaData");
-      EMap<String, String> _details = eAnnotation.getDetails();
-      String _name_1 = baseType.getName();
-      _details.put("baseType", _name_1);
-      EList<EAnnotation> _eAnnotations_1 = eDataType.getEAnnotations();
-      _eAnnotations_1.add(eAnnotation);
-    }
+    throw new Error("Unresolved compilation problems:"
+      + "\nThe method parentDomain is undefined for the type Mdf2EcoreMapperLazy"
+      + "\nThe method getType is undefined for the type Mdf2EcoreMapperLazy"
+      + "\ncreate cannot be resolved"
+      + "\nEClassifiers cannot be resolved"
+      + "\n+= cannot be resolved"
+      + "\n!= cannot be resolved");
   }
   
   protected EClassifier _map(final MdfBusinessTypeImpl mdfBT) {
@@ -337,32 +207,12 @@ public class Mdf2EcoreMapperLazy {
   private final HashMap<ArrayList<?>, EEnum> _createCache_mapInternal_3 = CollectionLiterals.newHashMap();
   
   private void _init_mapInternal_3(final EEnum eEnum, final MdfEnumerationImpl mdfEnum) {
-    MdfDomain _parentDomain = mdfEnum.getParentDomain();
-    EPackage _create = this.create(_parentDomain);
-    EList<EClassifier> _eClassifiers = _create.getEClassifiers();
-    _eClassifiers.add(eEnum);
-    String _name = mdfEnum.getName();
-    eEnum.setName(_name);
-    MdfPrimitive _type = mdfEnum.getType();
-    EClassifier _map = this.map(((MdfPrimitiveImpl) _type));
-    String _name_1 = _map.getName();
-    EcorePlusAspect.EnumBaseType.set(eEnum, _name_1);
-    EList<EAnnotation> _eAnnotations = eEnum.getEAnnotations();
-    List<EAnnotation> _elementAnnotations = this.getElementAnnotations(mdfEnum);
-    _eAnnotations.addAll(_elementAnnotations);
-    String _documentation = mdfEnum.getDocumentation();
-    this.setDocumentation(eEnum, _documentation);
-    int i = 0;
-    List _values = mdfEnum.getValues();
-    for (final Object literalObj : _values) {
-      {
-        final MdfEnumValueImpl literal = ((MdfEnumValueImpl) literalObj);
-        final EEnumLiteral eLiteral = this.mapEnumLiteral(literal, i);
-        EList<EEnumLiteral> _eLiterals = eEnum.getELiterals();
-        _eLiterals.add(eLiteral);
-        i = (i + 1);
-      }
-    }
+    throw new Error("Unresolved compilation problems:"
+      + "\nThe method parentDomain is undefined for the type Mdf2EcoreMapperLazy"
+      + "\nThe method getType is undefined for the type Mdf2EcoreMapperLazy"
+      + "\ncreate cannot be resolved"
+      + "\nEClassifiers cannot be resolved"
+      + "\n+= cannot be resolved");
   }
   
   protected EClassifier _map(final MdfEnumerationImpl mdfEnum) {
@@ -560,17 +410,9 @@ public class Mdf2EcoreMapperLazy {
   private final HashMap<ArrayList<?>, EReference> _createCache_mapPropertyInternal_1 = CollectionLiterals.newHashMap();
   
   private void _init_mapPropertyInternal_1(final EReference eReference, final MdfReverseAssociationImpl mdfrevAssociation) {
-    this.setPropertyAttributes(eReference, mdfrevAssociation);
-    MdfAssociation _reversedAssociation = mdfrevAssociation.getReversedAssociation();
-    final MdfAssociationImpl mdfOpposite = ((MdfAssociationImpl) _reversedAssociation);
-    EStructuralFeature _mapProperty = this.mapProperty(mdfOpposite);
-    final EReference opposite = ((EReference) _mapProperty);
-    MdfClass _parentClass = mdfOpposite.getParentClass();
-    EClassifier _map = this.map(((MdfClassImpl) _parentClass));
-    EList<EStructuralFeature> _eStructuralFeatures = ((EClass) _map).getEStructuralFeatures();
-    _eStructuralFeatures.add(opposite);
-    eReference.setEOpposite(opposite);
-    opposite.setEOpposite(eReference);
+    throw new Error("Unresolved compilation problems:"
+      + "\nThe method reversedAssociation is undefined for the type Mdf2EcoreMapperLazy"
+      + "\nThe method parentClass is undefined for the type Mdf2EcoreMapperLazy");
   }
   
   protected EStructuralFeature _mapProperty(final MdfReverseAssociationImpl mdfrevAssociation) {
@@ -584,44 +426,9 @@ public class Mdf2EcoreMapperLazy {
   }
   
   protected EStructuralFeature _mapDatasetProperty(final MdfDatasetMappedPropertyImpl mdfDSMappedProperty) {
-    EStructuralFeature _xblockexpression = null;
-    {
-      EStructuralFeature eProperty = null;
-      final MdfEntity mdfType = mdfDSMappedProperty.getType();
-      boolean _notEquals = (!Objects.equal(mdfType, null));
-      if (_notEquals) {
-        final EClassifier type = this.map(((MdfEntityImpl) mdfType));
-        if ((type instanceof EDataType)) {
-          final EAttribute eAttr = EcoreFactory.eINSTANCE.createEAttribute();
-          boolean _isPrimaryKey = mdfDSMappedProperty.isPrimaryKey();
-          eAttr.setID(_isPrimaryKey);
-          boolean _isPrimaryKey_1 = mdfDSMappedProperty.isPrimaryKey();
-          eAttr.setUnique(_isPrimaryKey_1);
-          int _xifexpression = (int) 0;
-          boolean _isRequired = mdfDSMappedProperty.isRequired();
-          if (_isRequired) {
-            _xifexpression = 1;
-          } else {
-            _xifexpression = 0;
-          }
-          eAttr.setLowerBound(_xifexpression);
-          boolean _isBusinessKey = mdfDSMappedProperty.isBusinessKey();
-          if (_isBusinessKey) {
-            EcorePlusAspect.BusinessKey.set(eAttr, Boolean.valueOf(true));
-          }
-          eProperty = eAttr;
-        } else {
-          EReference _createEReference = EcoreFactory.eINSTANCE.createEReference();
-          eProperty = _createEReference;
-        }
-      } else {
-        EAttribute _createEAttribute = EcoreFactory.eINSTANCE.createEAttribute();
-        eProperty = _createEAttribute;
-      }
-      this.setPropertyAttributes(eProperty, mdfDSMappedProperty);
-      _xblockexpression = eProperty;
-    }
-    return _xblockexpression;
+    throw new Error("Unresolved compilation problems:"
+      + "\nThe method getType is undefined for the type Mdf2EcoreMapperLazy"
+      + "\n!= cannot be resolved");
   }
   
   public EEnumLiteral mapEnumLiteral(final MdfEnumValueImpl mdfEnumValue, final int index) {
@@ -671,102 +478,48 @@ public class Mdf2EcoreMapperLazy {
     return _xifexpression;
   }
   
-  protected String _getPropertyName(final MdfProperty property) {
-    return property.getName();
+  protected Object _getPropertyName(final /* MdfProperty */Object property) {
+    throw new Error("Unresolved compilation problems:"
+      + "\nname cannot be resolved");
   }
   
-  protected String _getPropertyName(final MdfDatasetProperty property) {
-    return property.getName();
+  protected Object _getPropertyName(final /* MdfDatasetProperty */Object property) {
+    throw new Error("Unresolved compilation problems:"
+      + "\nname cannot be resolved");
   }
   
-  protected void _setPropertyAttributes(final EStructuralFeature eProperty, final MdfProperty mdfProperty) {
-    String _propertyName = this.getPropertyName(mdfProperty);
-    eProperty.setName(_propertyName);
-    MdfEntity _type = mdfProperty.getType();
-    EClassifier _map = this.map(((MdfEntityImpl) _type));
-    eProperty.setEType(_map);
-    EList<EAnnotation> _eAnnotations = eProperty.getEAnnotations();
-    List<EAnnotation> _elementAnnotations = this.getElementAnnotations(mdfProperty);
-    _eAnnotations.addAll(_elementAnnotations);
-    String _documentation = mdfProperty.getDocumentation();
-    this.setDocumentation(eProperty, _documentation);
-    int _xifexpression = (int) 0;
-    boolean _isRequired = mdfProperty.isRequired();
-    if (_isRequired) {
-      _xifexpression = 1;
-    } else {
-      _xifexpression = 0;
-    }
-    eProperty.setLowerBound(_xifexpression);
-    int _xifexpression_1 = (int) 0;
-    int _multiplicity = mdfProperty.getMultiplicity();
-    boolean _equals = (_multiplicity == MdfMultiplicity.ONE);
-    if (_equals) {
-      _xifexpression_1 = 1;
-    } else {
-      _xifexpression_1 = (-1);
-    }
-    eProperty.setUpperBound(_xifexpression_1);
-    boolean _isBusinessKey = mdfProperty.isBusinessKey();
-    if (_isBusinessKey) {
-      EcorePlusAspect.BusinessKey.set(eProperty, Boolean.valueOf(true));
-    }
-    boolean _isPrimaryKey = mdfProperty.isPrimaryKey();
-    eProperty.setUnique(_isPrimaryKey);
+  protected void _setPropertyAttributes(final EStructuralFeature eProperty, final /* MdfProperty */Object mdfProperty) {
+    throw new Error("Unresolved compilation problems:"
+      + "\ngetType cannot be resolved"
+      + "\nelementAnnotations cannot be resolved"
+      + "\ndocumentation cannot be resolved"
+      + "\nrequired cannot be resolved"
+      + "\nmultiplicity cannot be resolved"
+      + "\n== cannot be resolved"
+      + "\nbusinessKey cannot be resolved"
+      + "\nprimaryKey cannot be resolved");
   }
   
-  protected void _setPropertyAttributes(final EStructuralFeature eProperty, final MdfDatasetProperty mdfProperty) {
-    String _propertyName = this.getPropertyName(mdfProperty);
-    eProperty.setName(_propertyName);
-    final MdfEntity mdfType = mdfProperty.getType();
-    boolean _notEquals = (!Objects.equal(mdfType, null));
-    if (_notEquals) {
-      EClassifier _map = this.map(((MdfEntityImpl) mdfType));
-      eProperty.setEType(_map);
-    }
-    EList<EAnnotation> _eAnnotations = eProperty.getEAnnotations();
-    List<EAnnotation> _elementAnnotations = this.getElementAnnotations(mdfProperty);
-    _eAnnotations.addAll(_elementAnnotations);
-    String _documentation = mdfProperty.getDocumentation();
-    this.setDocumentation(eProperty, _documentation);
-    int _xifexpression = (int) 0;
-    int _multiplicity = mdfProperty.getMultiplicity();
-    boolean _equals = (_multiplicity == MdfMultiplicity.ONE);
-    if (_equals) {
-      _xifexpression = 1;
-    } else {
-      _xifexpression = (-1);
-    }
-    eProperty.setUpperBound(_xifexpression);
+  protected void _setPropertyAttributes(final EStructuralFeature eProperty, final /* MdfDatasetProperty */Object mdfProperty) {
+    throw new Error("Unresolved compilation problems:"
+      + "\ngetType cannot be resolved"
+      + "\n!= cannot be resolved"
+      + "\nelementAnnotations cannot be resolved"
+      + "\ndocumentation cannot be resolved"
+      + "\nmultiplicity cannot be resolved"
+      + "\n== cannot be resolved");
   }
   
-  public List<EAnnotation> getElementAnnotations(final MdfModelElement mdfElement) {
-    List<EAnnotation> _xblockexpression = null;
-    {
-      final List<EAnnotation> eAnnotations = CollectionLiterals.<EAnnotation>newArrayList();
-      List _annotations = mdfElement.getAnnotations();
-      for (final Object obj : _annotations) {
-        {
-          final MdfAnnotation mdfAnnotation = ((MdfAnnotation) obj);
-          final EAnnotation eAnnotation = EcoreFactory.eINSTANCE.createEAnnotation();
-          String _name = mdfAnnotation.getName();
-          eAnnotation.setSource(_name);
-          List _properties = mdfAnnotation.getProperties();
-          for (final Object propObj : _properties) {
-            {
-              final MdfAnnotationProperty property = ((MdfAnnotationProperty) propObj);
-              EMap<String, String> _details = eAnnotation.getDetails();
-              String _name_1 = property.getName();
-              String _value = property.getValue();
-              _details.put(_name_1, _value);
-            }
-          }
-          eAnnotations.add(eAnnotation);
-        }
-      }
-      _xblockexpression = eAnnotations;
-    }
-    return _xblockexpression;
+  public List<EAnnotation> getElementAnnotations(final /* MdfModelElement */Object mdfElement) {
+    throw new Error("Unresolved compilation problems:"
+      + "\nMdfAnnotation cannot be resolved to a type."
+      + "\nMdfAnnotation cannot be resolved to a type."
+      + "\nMdfAnnotationProperty cannot be resolved to a type."
+      + "\nannotations cannot be resolved"
+      + "\nname cannot be resolved"
+      + "\nproperties cannot be resolved"
+      + "\nname cannot be resolved"
+      + "\nvalue cannot be resolved");
   }
   
   public EClassifier map(final MdfEntityImpl mdfBT) {
@@ -810,27 +563,21 @@ public class Mdf2EcoreMapperLazy {
     }
   }
   
-  public String getPropertyName(final MdfModelElement property) {
-    if (property instanceof MdfDatasetProperty) {
-      return _getPropertyName((MdfDatasetProperty)property);
-    } else if (property instanceof MdfProperty) {
-      return _getPropertyName((MdfProperty)property);
-    } else {
-      throw new IllegalArgumentException("Unhandled parameter types: " +
-        Arrays.<Object>asList(property).toString());
+  public Object getPropertyName(final MdfProperty property) {
+    if (property != null) {
+      return _getPropertyName(property); else {
+        throw new IllegalArgumentException("Unhandled parameter types: " +
+          Arrays.<Object>asList(property).toString());
+      }
     }
-  }
-  
-  public void setPropertyAttributes(final EStructuralFeature eProperty, final MdfModelElement mdfProperty) {
-    if (mdfProperty instanceof MdfDatasetProperty) {
-      _setPropertyAttributes(eProperty, (MdfDatasetProperty)mdfProperty);
-      return;
-    } else if (mdfProperty instanceof MdfProperty) {
-      _setPropertyAttributes(eProperty, (MdfProperty)mdfProperty);
-      return;
-    } else {
-      throw new IllegalArgumentException("Unhandled parameter types: " +
-        Arrays.<Object>asList(eProperty, mdfProperty).toString());
+    
+    public void setPropertyAttributes(final EStructuralFeature eProperty, final MdfProperty mdfProperty) {
+      if (mdfProperty != null) {
+        _setPropertyAttributes(eProperty, mdfProperty);
+        return; else {
+          throw new IllegalArgumentException("Unhandled parameter types: " +
+            Arrays.<Object>asList(eProperty, mdfProperty).toString());
+        }
+      }
     }
-  }
-}
+    

@@ -12,7 +12,7 @@ import org.eclipse.xtext.generator.IFileSystemAccess;
 
 @SuppressWarnings("all")
 public class javaGenerator implements IIRISGenerator {
-  public void doGenerate(final EMEntityModel entityModel, final IFileSystemAccess fsa, final HashMap<String,Variable> globalVars) {
+  public void doGenerate(final EMEntityModel entityModel, final IFileSystemAccess fsa, final HashMap<String, Variable> globalVars) {
     Variable _get = globalVars.get("fileName");
     Object _value = _get.getValue();
     String filename = _value.toString();
@@ -20,7 +20,7 @@ public class javaGenerator implements IIRISGenerator {
     fsa.generateFile(filename, _renderJavaTxt);
   }
   
-  public CharSequence renderJavaTxt(final EMEntityModel entityModel, final HashMap<String,Variable> globalVars) {
+  public CharSequence renderJavaTxt(final EMEntityModel entityModel, final HashMap<String, Variable> globalVars) {
     StringConcatenation _builder = new StringConcatenation();
     CharSequence _renderFileStart = this.renderFileStart();
     _builder.append(_renderFileStart, "");
