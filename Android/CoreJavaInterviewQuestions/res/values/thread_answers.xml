@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="thread_answer">
+        <item>
+            Deadlock is a programming situation where two or more threads are blocked forever, this situation arises with at least two threads and two or more resources.\n
+			To analyze a deadlock, we need to look at the java thread dump of the application, we need to look out for the threads with state as BLOCKED and then the resources it’s waiting to lock,
+				every resource has a unique ID using which we can find which thread is already holding the lock on the object.\n
+			Avoid Nested Locks, Lock Only What is Required and Avoid waiting indefinitely are common ways to avoid deadlock situation.
+		</item>
+        <item>
+            public class DeadLockExample {\n
+	
+	public static void main(String[] args) {\n
+		String resource1 = new String("resource1");\n
+		String resource2 = new String("resource2");\n
+		Thread1 t1 = new Thread1(resource1, resource2);\n
+		Thread2 t2 = new Thread2(resource1, resource2);\n
+		t1.start();\n
+		t2.start();\n
+	}\n
+}\n
+\n
+class Thread1 extends Thread {\n
+	String resource1, resource2;\n
+
+	public Thread1(String resource1, String resource2) {\n
+		this.resource1 = resource1;\n
+		this.resource2 = resource2;\n
+	}\n
+\n
+	@Override\n
+	public void run() {\n
+		synchronized (resource1) {\n
+			System.out.println("Thread1-resource1");\n
+			try {\n
+				Thread.sleep(30);\n
+			} catch (InterruptedException e) {\n
+				e.printStackTrace();\n
+			}\n
+			synchronized (resource2) {\n
+				System.out.println("Thread1-resource2");\n
+			}\n
+		}\n
+	}\n
+}\n
+\n
+class Thread2 extends Thread {\n
+	String resource1, resource2;\n
+\n
+	public Thread2(String resource1, String resource2) {\n
+		this.resource1 = resource1;\n
+		this.resource2 = resource2;\n
+	}\n
+\n
+	@Override\n
+	public void run() {\n
+		synchronized (resource2) {\n
+			System.out.println("Thread2-resource2");\n
+			
+			synchronized (resource1) {\n
+				System.out.println("Thread2-resource1");\n
+				try {\n
+					Thread.sleep(30);\n
+				} catch (InterruptedException e) {\n
+					e.printStackTrace();\n				
+				}\n
+			}\n
+		}\n
+	}\n
+}	</item>
+	<item>
+	    A thread pool manages the pool of worker threads, it contains a queue that keeps tasks waiting to get executed.\n
+		A thread pool manages the collection of Runnable threads and worker threads execute Runnable from the queue.\n
+		java.util.concurrent.Executors provide implementation of java.util.concurrent.Executor interface to create the thread pool in java.
+	</item>
+        <item>
+            Thread class run() method code is as shown below:\n
+            \n
+            public void run() {\n
+            if (target != null) {\n 
+            target.run();\n
+            }\n }\n \n
+            Above target set in the init() method of Thread class and if we create an instance of Thread class as new TestThread(), it’s set to null. So nothing will happen if we don’t override the run() method.\n
+			So below code will not happend any issue:\n \n
+			Thread t = new TestThread();\n
+			t.start();            
+        </item>
+        <item>
+            When we create a Thread in java program, it’s known as user thread. A daemon thread runs in
+				background and doesn’t prevent JVM from terminating. When there are no user threads running,
+				JVM shutdown the program and quits. A child thread created from daemon thread is also a daemon thread.
+        </item>
+        <item>
+            There are two ways to create Thread in Java – first by implementing Runnable interface and then creating a Thread object from it.\n
+            And second is to extend the Thread Class.
+        </item>
+        <item>
+            When we create a Thread in java program, its state is New. Then we start the thread that change
+				it’s state to Runnable. Thread Scheduler is responsible to allocate CPU to threads in Runnable
+				thread pool and change their state to Running. Other Thread states are Waiting, Blocked and Dead.
+        </item>
+        <item>
+            Yes, we can call run() method of a Thread class but then it will behave like a normal method. To actually execute it in a Thread, we need to start it using Thread.start() method.
+        </item>
+        <item>
+            We can use Thread class sleep() method to pause the execution of Thread for certain time. Note
+				that this will not stop the processing of thread for specific time, once the thread awake from
+				sleep, it’s state gets changed to runnable and based on thread scheduling, it gets executed.
+        </item>
+        <item>
+            Every thread has a priority, usually higher priority thread gets precedence in execution but it
+				depends on Thread Scheduler implementation that is OS dependent. We can specify the priority
+				of thread but it doesn’t guarantee that higher priority thread will get executed before lower
+				priority thread. Thread priority is an int whose value varies from 1 to 10 where 1 is the lowest
+				priority thread and 10 is the highest priority thread.
+        </item>
+        <item>
+            Thread Scheduler is the Operating System service that allocates the CPU time to the available
+				runnable threads. Once we create and start a thread, it’s execution depends on the
+				implementation of Thread Scheduler. Time Slicing is the process to divide the available CPU
+				time to the available runnable threads. Allocation of CPU time to threads can be based on thread
+				priority or the thread waiting for longer time will get more priority in getting CPU time. Thread
+				scheduling can’t be controlled by java, so it’s always better to control it from application itself.
+        </item>
+        <item>
+            Context Switching is the process of storing and restoring of CPU state so that Thread execution
+				can be resumed from the same point at a later point of time. Context Switching is the essential
+				feature for multitasking operating system and support for multi-threaded environment.
+        </item>
+        <item>
+            We can use Thread join() method to make sure all the threads created by the program is dead before finishing the main function.
+        </item>
+        <item>
+            When threads share resources, communication between Threads is important to coordinate their
+				efforts. Object class wait(), notify() and notifyAll() methods allows threads to communicate
+				about the lock status of a resource.
+        </item>
+        <item>
+            In Java every Object has a monitor and wait, notify methods are used to wait for the Object
+				monitor or to notify other threads that Object monitor is free now. There is no monitor on
+				threads in java and synchronization can be used with any Object, that’s why it’s part of Object
+				class so that every class in java has these essential methods for inter thread communication.
+        </item>
+        <item>
+            When a Thread calls wait() on any Object, it must have the monitor on the Object that it will
+				leave and goes in wait state until any other thread call notify() on this Object. Similarly when a
+				thread calls notify() on any Object, it leaves the monitor on the Object and other waiting threads
+				can get the monitor on the Object. Since all these methods require Thread to have the Object
+				monitor, that can be achieved only by synchronization, they need to be called from synchronized method or block.
+        </item>
+        <item>
+            Thread sleep() and yield() methods work on the currently executing thread. So there is no point
+				in invoking these methods on some other threads that are in wait state. That’s why these
+				methods are made static so that when this method is called statically, it works on the current
+				executing thread and avoid confusion to the programmers who might think that they can invoke
+				these methods on some non-running threads.
+        </item>
+        <item>
+            There are several ways to achieve thread safety in java – synchronization, atomic concurrent
+				classes, implementing concurrent Lock interface, using volatile keyword, using immutable
+				classes and Thread safe classes.
+        </item>
+        <item>
+            When we use volatile keyword with a variable, all the threads read it’s value directly from the
+				memory and don’t cache it. This makes sure that the value read is the same as in the memory.
+        </item>
+        <item>
+            Synchronized block is more preferred way because it doesn’t lock the Object, synchronized
+				methods lock the Object and if there are multiple synchronization blocks in the class, even
+				though they are not related, it will stop them from execution and put them in wait state to get the lock on Object.
+        </item>
+        <item>
+            Thread class setDaemon(true) can be used to create daemon thread in java. We need to call this
+				method before calling start() method else it will throw IllegalThreadStateException.
+        </item>
+        <item>
+            Java ThreadLocal is used to create thread-local variables. We know that all threads of an Object
+				share it’s variables, so if the variable is not thread safe, we can use synchronization but if we
+				want to avoid synchronization, we can use ThreadLocal variables.\n
+			Every thread has it’s own ThreadLocal variable and they can use it’s get() and set() methods to
+				get the default value or change it’s value local to Thread. ThreadLocal instances are typically
+				private static fields in classes that wish to associate state with a thread.
+        </item>
+        <item>
+            A process is a self contained execution environment and it can be seen as a program or
+				application whereas Thread is a single task of execution within the process. Java runtime
+				environment runs as a single process which contains different classes and programs as
+				processes. Thread can be called lightweight process. Thread requires less resources to create and
+				exists in the process, thread shares the process resources.
+        </item>
+        <item>
+            In Multi-Threaded programming, multiple threads are executing concurrently that improves the
+				performance because CPU is not idle in case some thread is waiting to get some resources.
+				Multiple threads share the heap memory, so it’s good to create multiple threads to execute some
+				task rather than creating multiple processes.
+        </item>
+        
+    </string-array>
+
+</resources>
