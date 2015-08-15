@@ -2059,10 +2059,10 @@ containing a value of this type.
         public static final int text=0x7f090063;
         public static final int text2=0x7f090061;
         public static final int textSpacerNoButtons=0x7f090033;
-        public static final int textView1=0x7f090068;
         public static final int textViewAnswer=0x7f09006f;
         public static final int textViewMainTitlebar=0x7f090058;
         public static final int textViewQuestion=0x7f09006d;
+        public static final int textViewSubject=0x7f090068;
         public static final int textViewXX=0x7f09006b;
         public static final int textViewYY=0x7f09006c;
         public static final int thread_questions=0x7f090052;
